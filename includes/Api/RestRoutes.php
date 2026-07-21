@@ -54,6 +54,41 @@ final class RestRoutes {
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);
+
+		// Easy Form Builder Copilot (floating button on EFB admin pages).
+		$efb = new EfbCopilotController();
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/efb/plan',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $efb, 'plan' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'prompt' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/efb/create',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $efb, 'create' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'action_id' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**

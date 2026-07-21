@@ -8,13 +8,46 @@ namespace SitePilot\Skills;
  *
  * AI output is untrusted until it passes here. Pure PHP (no WordPress) so it is
  * fully unit testable. Output escaping happens later at render time.
+ *
+ * The allowed type set, option-required types, forbidden types, aliases, and max
+ * fields are injectable so the same validator serves both the built-in connector
+ * and the Easy Form Builder connector (which supports more field types).
  */
 final class FormPlanValidator {
+
+	/** @var string[] */
+	private array $allowed;
+	/** @var string[] */
+	private array $option_required;
+	/** @var string[] */
+	private array $forbidden;
+	/** @var array<string,string> */
+	private array $aliases;
+	private int $max_fields;
+
+	/**
+	 * @param string[]|null            $allowed         Allowed field types.
+	 * @param string[]|null            $option_required Types that must have options.
+	 * @param string[]|null            $forbidden       Rejected field types.
+	 * @param array<string,string>|null $aliases        Alias => canonical type.
+	 */
+	public function __construct(
+		?array $allowed = null,
+		?array $option_required = null,
+		?array $forbidden = null,
+		?array $aliases = null,
+		?int $max_fields = null
+	) {
+		$this->allowed         = $allowed ?? FormPlanSchema::ALLOWED_FIELD_TYPES;
+		$this->option_required = $option_required ?? array( 'select', 'radio' );
+		$this->forbidden       = $forbidden ?? FormPlanSchema::FORBIDDEN_FIELD_TYPES;
+		$this->aliases         = $aliases ?? array( 'phone' => 'phone' );
+		$this->max_fields      = $max_fields ?? FormPlanSchema::MAX_FIELDS;
+	}
 
 	public function validate( array $raw ): ValidationResult {
 		$errors = array();
 
-		// Accept either the whole object or a nested "form" object.
 		$form = isset( $raw['form'] ) && is_array( $raw['form'] ) ? $raw['form'] : $raw;
 
 		$title = $this->clean_text( (string) ( $form['title'] ?? '' ), 120 );
@@ -24,13 +57,13 @@ final class FormPlanValidator {
 
 		$raw_fields = $form['fields'] ?? null;
 		if ( ! is_array( $raw_fields ) || array() === $raw_fields ) {
-			$errors[] = 'The form needs at least one field.';
+			$errors[]   = 'The form needs at least one field.';
 			$raw_fields = array();
 		}
 
-		if ( count( $raw_fields ) > FormPlanSchema::MAX_FIELDS ) {
-			$errors[] = sprintf( 'Too many fields (max %d).', FormPlanSchema::MAX_FIELDS );
-			$raw_fields = array_slice( $raw_fields, 0, FormPlanSchema::MAX_FIELDS );
+		if ( count( $raw_fields ) > $this->max_fields ) {
+			$errors[]   = sprintf( 'Too many fields (max %d).', $this->max_fields );
+			$raw_fields = array_slice( $raw_fields, 0, $this->max_fields );
 		}
 
 		$fields    = array();
@@ -45,18 +78,20 @@ final class FormPlanValidator {
 			}
 
 			$type  = strtolower( trim( (string) ( $raw_field['type'] ?? '' ) ) );
+			$type  = $this->aliases[ $type ] ?? $type;
 			$label = $this->clean_text( (string) ( $raw_field['label'] ?? '' ), 120 );
 
-			if ( in_array( $type, FormPlanSchema::FORBIDDEN_FIELD_TYPES, true ) ) {
+			if ( in_array( $type, $this->forbidden, true ) ) {
 				$errors[] = sprintf( 'Field "%s" uses a forbidden type (%s) and was rejected for safety.', '' !== $label ? $label : 'field ' . $index, $type );
 				continue;
 			}
 
-			if ( ! in_array( $type, FormPlanSchema::ALLOWED_FIELD_TYPES, true ) ) {
+			if ( ! in_array( $type, $this->allowed, true ) ) {
 				$errors[] = sprintf( 'Field "%s" uses an unsupported type (%s).', '' !== $label ? $label : 'field ' . $index, '' !== $type ? $type : 'empty' );
 				continue;
 			}
 
+			// Heading is display-only: a label is enough, no input semantics.
 			if ( '' === $label ) {
 				$errors[] = sprintf( 'Field #%d is missing a label.', $index );
 				continue;
@@ -73,14 +108,14 @@ final class FormPlanValidator {
 				'options'     => array(),
 			);
 
-			if ( in_array( $type, array( 'select', 'radio' ), true ) ) {
+			if ( in_array( $type, $this->option_required, true ) ) {
 				$options = $this->clean_options( $raw_field['options'] ?? array() );
 				if ( array() === $options ) {
 					$errors[] = sprintf( 'Field "%s" (%s) needs at least one option.', $label, $type );
 					continue;
 				}
 				$field['options'] = $options;
-			} elseif ( 'checkbox' === $type ) {
+			} else {
 				$field['options'] = $this->clean_options( $raw_field['options'] ?? array() );
 			}
 

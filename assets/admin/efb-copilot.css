@@ -1,0 +1,139 @@
+/* SitePilot AI — floating EFB Copilot button + modal. RTL-aware. */
+
+.sitepilot-efb-fab {
+	position: fixed;
+	bottom: 26px;
+	inset-inline-end: 26px;
+	z-index: 99999;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 18px;
+	border: 0;
+	border-radius: 999px;
+	background: linear-gradient(135deg, #4f46e5, #7c3aed);
+	color: #fff;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+	transition: transform 0.15s, box-shadow 0.15s;
+}
+.sitepilot-efb-fab:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 30px rgba(79, 70, 229, 0.5);
+	color: #fff;
+}
+.sitepilot-efb-fab .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+.sitepilot-efb-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.sitepilot-efb-modal[hidden] {
+	display: none;
+}
+.sitepilot-efb-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(17, 24, 39, 0.55);
+}
+.sitepilot-efb-modal__dialog {
+	position: relative;
+	width: min(680px, 94vw);
+	max-height: 88vh;
+	overflow: auto;
+	background: #fff;
+	border-radius: 14px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	animation: sitepilot-efb-pop 0.15s ease-out;
+}
+@keyframes sitepilot-efb-pop {
+	from { transform: translateY(8px); opacity: 0; }
+	to   { transform: translateY(0); opacity: 1; }
+}
+.sitepilot-efb-modal__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border-bottom: 1px solid #eef0f2;
+}
+.sitepilot-efb-modal__head h2 {
+	margin: 0;
+	font-size: 17px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.sitepilot-efb-modal__head .dashicons { color: #4f46e5; }
+.sitepilot-efb-modal__close {
+	border: 0;
+	background: transparent;
+	font-size: 26px;
+	line-height: 1;
+	cursor: pointer;
+	color: #6b7280;
+}
+.sitepilot-efb-modal__body { padding: 20px; }
+
+.sitepilot-efb-label { display: block; font-weight: 600; margin-bottom: 8px; }
+.sitepilot-efb-textarea {
+	width: 100%;
+	border: 1px solid #c3c4c7;
+	border-radius: 10px;
+	padding: 12px;
+	font-size: 15px;
+	resize: vertical;
+	box-sizing: border-box;
+}
+.sitepilot-efb-textarea:focus { border-color: #4f46e5; box-shadow: 0 0 0 1px #4f46e5; outline: none; }
+
+.sitepilot-efb-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.sitepilot-efb-chip {
+	background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 999px;
+	padding: 5px 12px; font-size: 12px; cursor: pointer; color: #374151;
+}
+.sitepilot-efb-chip:hover { background: #e5e7eb; }
+
+.sitepilot-efb-actions { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.sitepilot-efb-btn {
+	border: 0; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.sitepilot-efb-btn--primary { background: #4f46e5; color: #fff; }
+.sitepilot-efb-btn--primary:hover { background: #4338ca; }
+.sitepilot-efb-btn--primary:disabled { opacity: 0.6; cursor: default; }
+.sitepilot-efb-btn--ghost { background: #f3f4f6; color: #374151; }
+
+.sitepilot-efb-status { font-size: 13px; color: #50575e; }
+.sitepilot-efb-status--error { color: #b91c1c; }
+.sitepilot-efb-status--ok { color: #15803d; }
+
+.sitepilot-efb-spinner {
+	display: inline-block; width: 14px; height: 14px; vertical-align: middle;
+	border: 2px solid #c7d2fe; border-top-color: #4f46e5; border-radius: 50%;
+	animation: sitepilot-efb-spin 0.7s linear infinite; margin-inline-end: 6px;
+}
+@keyframes sitepilot-efb-spin { to { transform: rotate(360deg); } }
+
+.sitepilot-efb-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-top: 16px; }
+.sitepilot-efb-card h3 { margin: 0 0 8px; }
+.sitepilot-efb-meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 14px; }
+.sitepilot-efb-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #eef2ff; color: #3730a3; }
+.sitepilot-efb-pill--muted { background: #f3f4f6; color: #4b5563; }
+.sitepilot-efb-pill--warn { background: #fef3c7; color: #92400e; }
+.sitepilot-efb-fields { width: 100%; border-collapse: collapse; }
+.sitepilot-efb-fields th, .sitepilot-efb-fields td { text-align: start; padding: 7px 9px; border-bottom: 1px solid #f0f0f1; font-size: 13px; }
+.sitepilot-efb-fields th { color: #6b7280; }
+.sitepilot-efb-errors { margin: 8px 0 0; padding-inline-start: 18px; color: #b91c1c; font-size: 13px; }
+.sitepilot-efb-shortcode { display: flex; gap: 8px; align-items: center; margin: 10px 0; flex-wrap: wrap; }
+.sitepilot-efb-shortcode code { background: #f6f7f7; padding: 6px 10px; border-radius: 6px; font-size: 13px; }
+.sitepilot-efb-notice { background: #fff8e5; border: 1px solid #f0c33c; color: #7a5b00; padding: 12px 14px; border-radius: 8px; font-size: 14px; }

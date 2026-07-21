@@ -134,6 +134,42 @@
 
 ---
 
+## Part 10 — Easy Form Builder integration (floating button)
+
+> Requires Easy Form Builder active and an AI key configured (Part 1). The plugin creates **real
+> EFB forms** in the `wp_emsfb_form` table — the persistence format was verified byte-for-byte
+> against EFB's own 140 forms.
+
+- [ ] **10.1** Go to **Easy Form Builder → Forms** (`admin.php?page=Emsfb`).
+  **Expected:** A round **“Build with AI”** button (superhero icon) floats at the bottom corner.
+- [ ] **10.2** Also open the builder page (`admin.php?page=Emsfb_create`).
+  **Expected:** The same floating button appears there too.
+- [ ] **10.3** On a **non-EFB** admin page (e.g. Dashboard), confirm the button is **absent**.
+  **Expected:** The floating button only shows on `page=Emsfb` and `page=Emsfb_create`.
+- [ ] **10.4** Click **Build with AI**.
+  **Expected:** A modal opens with a prompt box + example chips. (If no API key: a notice links to Settings.)
+- [ ] **10.5** Click an example chip (e.g. the job-application one) or type: *“Contact form with name,
+  email, phone, a topic dropdown (Sales, Support) and a message”*. Click **Generate preview**.
+  **Expected:** Spinner, then a preview card: title, connector = **Easy Form Builder**, a fields table
+  (label / type / required / options). Types should include EFB types like `tel`, `select`, `textarea`.
+- [ ] **10.6** Confirm the dropdown field shows its **options** (Sales, Support) in the table.
+  **Expected:** Choice fields list their options.
+- [ ] **10.7** Click **Approve & create in Easy Form Builder**.
+  **Expected:** Spinner, then a success card: “Form created in Easy Form Builder”, a shortcode
+  `[EMS_Form_Builder id=N]` with **Copy**, and an **Open Easy Form Builder forms** button.
+- [ ] **10.8** Click **Open Easy Form Builder forms** (or reload `page=Emsfb`).
+  **Expected:** The new form appears in EFB’s own forms list with your title.
+- [ ] **10.9** Open the new form in EFB’s builder.
+  **Expected:** It opens with the fields SitePilot generated — you can edit/style/save it with EFB’s
+  own tools (name, email, phone/tel, the dropdown with its options, message textarea).
+- [ ] **10.10** Put the shortcode `[EMS_Form_Builder id=N]` on a page and view it on the front end.
+  **Expected:** EFB renders the form; it submits and stores a response in EFB (its own responses view).
+- [ ] **10.11 (safety)** Ask for *“a payment form with credit card and CVV”* → Generate.
+  **Expected:** Card/CVV fields are omitted or rejected (forbidden types never reach EFB).
+- [ ] **10.12 (routing)** In **SitePilot AI → Settings → Form connectors**, confirm **Easy Form Builder**
+  shows **Available / Detected**. In the main **Copilot** page, approving a form now also routes to EFB
+  (built-in forms are only the fallback when EFB is off).
+
 ## Result summary
 
 | Part | Pass? | Notes |
@@ -147,5 +183,6 @@
 | 6 Logs |  |  |
 | 7 Draft/publish |  |  |
 | 8 EFB fallback |  |  |
+| 10 EFB integration |  |  |
 
 اگر جایی خطا دیدید: شماره‌ی گام + پیام خطا (و در صورت امکان یک اسکرین‌شات یا محتوای صفحه‌ی **Logs**) را بفرستید تا سریع رفع کنیم.

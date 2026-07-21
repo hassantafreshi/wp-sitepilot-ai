@@ -8,6 +8,7 @@ use SitePilot\Api\RestRoutes;
 use SitePilot\Connectors\ConnectorRegistry;
 use SitePilot\Connectors\EasyFormBuilderConnector;
 use SitePilot\Connectors\NativeFormConnector;
+use SitePilot\Efb\EfbBuilderButton;
 use SitePilot\Frontend\FormShortcode;
 
 /**
@@ -52,6 +53,10 @@ final class Plugin {
 		add_action( 'admin_menu', array( $this->container->get( AdminMenu::class ), 'register' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->container->get( AdminMenu::class ), 'enqueue_assets' ) );
 		add_action( 'rest_api_init', array( $this->container->get( RestRoutes::class ), 'register' ) );
+
+		if ( is_admin() ) {
+			( new EfbBuilderButton() )->register();
+		}
 
 		load_plugin_textdomain( 'sitepilot-ai', false, dirname( SITEPILOT_AI_BASENAME ) . '/languages' );
 	}
