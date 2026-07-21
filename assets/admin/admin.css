@@ -1,0 +1,269 @@
+/* SitePilot AI — admin UI. Theme-neutral, RTL-friendly. */
+
+.sitepilot-wrap {
+	max-width: 900px;
+}
+
+.sitepilot-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.sitepilot-title .dashicons {
+	color: #4f46e5;
+	font-size: 26px;
+	width: 26px;
+	height: 26px;
+}
+
+.sitepilot-subtitle {
+	color: #50575e;
+	font-size: 14px;
+	margin-top: -4px;
+	max-width: 680px;
+}
+
+.sitepilot-card {
+	background: #fff;
+	border: 1px solid #e2e4e7;
+	border-radius: 10px;
+	padding: 20px;
+	margin: 16px 0;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Banners */
+.sitepilot-banner {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	margin: 14px 0;
+	font-size: 14px;
+}
+.sitepilot-banner .dashicons {
+	flex: 0 0 auto;
+}
+.sitepilot-banner--warn {
+	background: #fff8e5;
+	border: 1px solid #f0c33c;
+	color: #7a5b00;
+}
+.sitepilot-banner--info {
+	background: #eef2ff;
+	border: 1px solid #c7d2fe;
+	color: #3730a3;
+}
+.sitepilot-banner--err {
+	background: #fdecea;
+	border: 1px solid #f1a9a0;
+	color: #8a1c13;
+}
+
+/* Composer */
+.sitepilot-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+.sitepilot-textarea {
+	width: 100%;
+	border-radius: 8px;
+	border: 1px solid #c3c4c7;
+	padding: 12px;
+	font-size: 15px;
+	resize: vertical;
+}
+.sitepilot-textarea:focus {
+	border-color: #4f46e5;
+	box-shadow: 0 0 0 1px #4f46e5;
+	outline: none;
+}
+
+.sitepilot-examples {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin: 12px 0;
+}
+.sitepilot-examples__label {
+	color: #6b7280;
+	font-size: 13px;
+}
+.sitepilot-chip {
+	background: #f3f4f6;
+	border: 1px solid #e2e4e7;
+	border-radius: 999px;
+	padding: 5px 12px;
+	font-size: 12px;
+	cursor: pointer;
+	color: #374151;
+	transition: background 0.15s;
+}
+.sitepilot-chip:hover {
+	background: #e5e7eb;
+}
+
+.sitepilot-composer__actions {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin-top: 12px;
+}
+.sitepilot-composer__actions .dashicons {
+	vertical-align: middle;
+	margin-top: 4px;
+}
+
+.sitepilot-status {
+	font-size: 13px;
+	color: #50575e;
+}
+.sitepilot-status--error {
+	color: #b91c1c;
+}
+.sitepilot-status--ok {
+	color: #15803d;
+}
+
+/* Spinner */
+.sitepilot-spinner {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 2px solid #c7d2fe;
+	border-top-color: #4f46e5;
+	border-radius: 50%;
+	animation: sitepilot-spin 0.7s linear infinite;
+	vertical-align: middle;
+	margin-inline-end: 6px;
+}
+@keyframes sitepilot-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Preview */
+.sitepilot-preview__head {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+.sitepilot-preview h2 {
+	margin: 0 0 4px;
+}
+.sitepilot-meta {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin: 10px 0 16px;
+}
+.sitepilot-pill {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+}
+.sitepilot-pill--ok {
+	background: #dcfce7;
+	color: #166534;
+}
+.sitepilot-pill--err {
+	background: #fee2e2;
+	color: #991b1b;
+}
+.sitepilot-pill--muted {
+	background: #f3f4f6;
+	color: #4b5563;
+}
+.sitepilot-pill--info {
+	background: #e0e7ff;
+	color: #3730a3;
+}
+.sitepilot-pill--warn {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+.sitepilot-fields {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 8px 0 16px;
+}
+.sitepilot-fields th,
+.sitepilot-fields td {
+	text-align: start;
+	padding: 8px 10px;
+	border-bottom: 1px solid #f0f0f1;
+	font-size: 13px;
+}
+.sitepilot-fields th {
+	color: #6b7280;
+	font-weight: 600;
+}
+
+.sitepilot-preview__actions {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	flex-wrap: wrap;
+	border-top: 1px solid #f0f0f1;
+	padding-top: 14px;
+}
+
+.sitepilot-errors {
+	margin: 8px 0 0;
+	padding-inline-start: 18px;
+	color: #b91c1c;
+	font-size: 13px;
+}
+
+/* Result */
+.sitepilot-result__head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.sitepilot-shortcode {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin: 10px 0;
+}
+.sitepilot-shortcode code {
+	background: #f6f7f7;
+	padding: 6px 10px;
+	border-radius: 6px;
+	font-size: 13px;
+}
+
+/* Settings */
+.sitepilot-field {
+	margin-bottom: 18px;
+}
+.sitepilot-field > label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+.sitepilot-inline-check {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 400;
+	margin-inline-end: 16px;
+}
+.sitepilot-settings-actions {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	border-top: 1px solid #f0f0f1;
+	padding-top: 16px;
+	flex-wrap: wrap;
+}

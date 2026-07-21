@@ -1,0 +1,74 @@
+/* SitePilot AI — front-end form styles. Minimal, inherits theme fonts. */
+
+.sitepilot-form {
+	max-width: 560px;
+	margin: 1.5em 0;
+}
+
+.sitepilot-form__desc {
+	margin-bottom: 1em;
+	color: #555;
+}
+
+.sitepilot-form__row {
+	margin-bottom: 1em;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.sitepilot-form__row label {
+	font-weight: 600;
+}
+
+.sitepilot-form__req {
+	color: #d63638;
+}
+
+.sitepilot-form input[type="text"],
+.sitepilot-form input[type="email"],
+.sitepilot-form input[type="tel"],
+.sitepilot-form input[type="file"],
+.sitepilot-form select,
+.sitepilot-form textarea {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	font-size: 15px;
+	box-sizing: border-box;
+}
+
+.sitepilot-form textarea {
+	min-height: 110px;
+	resize: vertical;
+}
+
+.sitepilot-form__check {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 400;
+	margin-bottom: 4px;
+}
+
+.sitepilot-form__submit {
+	background: #4f46e5;
+	color: #fff;
+	border: 0;
+	border-radius: 8px;
+	padding: 11px 22px;
+	font-size: 15px;
+	cursor: pointer;
+}
+.sitepilot-form__submit:hover {
+	background: #4338ca;
+}
+
+.sitepilot-form__confirmation {
+	background: #ecfdf5;
+	border: 1px solid #a7f3d0;
+	color: #065f46;
+	padding: 16px 18px;
+	border-radius: 8px;
+}
