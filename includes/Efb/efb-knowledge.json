@@ -1,0 +1,154 @@
+{
+  "version": "1.0",
+  "note": "Grounded in the real Easy Form Builder editor UI: fields are selected in the dropzone and edited through the green gear settings panel; form-wide options live in the form/step settings.",
+
+  "ui_pattern": {
+    "open_field_settings": "In the form editor, click the field once to select it, then click its green gear button (⚙, the green \"bi-gear\" icon on the field). The field's settings panel slides open — on the LEFT side for English/LTR sites, and on the RIGHT side for RTL sites (Persian, Arabic).",
+    "open_form_settings": "Click the form title/header area (or the top-level form settings gear); the general form settings panel opens on the same side (left for LTR, right for RTL).",
+    "save": "After any change, click the green Save button (✓) at the top of the settings panel to store the form.",
+    "rtl_note": "Side note: the settings panel opens on the LEFT for English/LTR and on the RIGHT for RTL languages."
+  },
+
+  "entries": [
+    {
+      "id": "make_required",
+      "scope": "field",
+      "title": "Make a field required",
+      "aliases": ["required", "make required", "mandatory", "must fill", "make name required", "require field", "اجباری", "ضروری", "الزامی"],
+      "answer": "Select the field, open its green gear settings, and turn ON the \"Required\" toggle. Now the visitor must fill it in before submitting."
+    },
+    {
+      "id": "change_label",
+      "scope": "field",
+      "title": "Change a field's label / name",
+      "aliases": ["label", "rename field", "change label", "change name", "field name", "label name", "title of field", "تغییر نام", "برچسب", "عنوان فیلد"],
+      "answer": "Select the field, open its green gear settings, and edit the \"Label\" (field name) box at the top of the panel. The label is the text shown above the field."
+    },
+    {
+      "id": "change_placeholder",
+      "scope": "field",
+      "title": "Change the placeholder / example text",
+      "aliases": ["placeholder", "example text", "hint text", "inside text", "متن راهنما", "پلیس هولدر"],
+      "answer": "Select the field, open its green gear settings, and edit the \"Placeholder\" box. This is the light grey hint text shown inside the empty field."
+    },
+    {
+      "id": "change_width",
+      "scope": "field",
+      "title": "Change a field's width (put two side by side)",
+      "aliases": ["width", "size", "half width", "reduce width", "make narrower", "two columns", "side by side", "column", "عرض", "کم کردن عرض", "دو ستونه"],
+      "answer": "Select the field, open its green gear settings, and set the \"Field width\" (e.g. 50% for half). Two 50% fields sit next to each other; 100% is full width. On phones fields stack to full width automatically."
+    },
+    {
+      "id": "edit_options",
+      "scope": "field",
+      "title": "Add or edit choices (dropdown / radio / checkbox options)",
+      "aliases": ["options", "choices", "add option", "dropdown items", "radio options", "checkbox options", "list items", "گزینه", "افزودن گزینه", "آیتم"],
+      "answer": "Select the choice field (dropdown/radio/checkbox/multi-select), open its green gear settings, and use the \"Options\" list to add, rename, reorder, or remove choices."
+    },
+    {
+      "id": "help_text",
+      "scope": "field",
+      "title": "Add help / message text under a field",
+      "aliases": ["help text", "message", "description", "hint under field", "sub text", "متن کمکی", "توضیح فیلد", "پیام"],
+      "answer": "Select the field, open its green gear settings, and fill the \"Help\" / \"Message\" text box. It appears as a small note beneath the field."
+    },
+    {
+      "id": "field_colors",
+      "scope": "field",
+      "title": "Change a field's colors (label, text, border)",
+      "aliases": ["color", "colour", "label color", "text color", "border color", "رنگ", "رنگ متن", "رنگ حاشیه"],
+      "answer": "Select the field, open its green gear settings, and open the color controls (label color, input text color, border color). Pick a preset or a custom color for each."
+    },
+    {
+      "id": "field_height_corner",
+      "scope": "field",
+      "title": "Change a field's height / corner style",
+      "aliases": ["height", "corner", "rounded", "square", "field height", "ارتفاع", "گوشه", "گرد"],
+      "answer": "Select the field, open its green gear settings; use the height option for the input height and the \"corner\" option to switch between square and rounded corners."
+    },
+    {
+      "id": "required_message",
+      "scope": "field",
+      "title": "Change the 'this field is required' error message",
+      "aliases": ["required message", "error message", "validation message", "custom required text", "پیام خطا", "پیام اجباری"],
+      "answer": "Select the field, open its green gear settings, and edit the custom required/validation message box, so visitors see your own wording when they skip the field."
+    },
+    {
+      "id": "file_settings",
+      "scope": "field",
+      "title": "Set allowed file types and max upload size",
+      "aliases": ["file", "upload", "allowed files", "max size", "file type", "attachment", "فایل", "آپلود", "حجم فایل", "نوع فایل"],
+      "answer": "Select the file field, open its green gear settings, and choose the file category (document, image, audio, video, spreadsheet, or all) and the maximum file size in MB."
+    },
+    {
+      "id": "delete_field",
+      "scope": "field",
+      "title": "Delete or duplicate a field",
+      "aliases": ["delete field", "remove field", "duplicate", "copy field", "حذف فیلد", "کپی فیلد", "پاک کردن"],
+      "answer": "Select the field to reveal its action buttons, then use the trash/delete button to remove it, or the copy/duplicate button to clone it. You can also drag a field to reorder it."
+    },
+    {
+      "id": "form_title",
+      "scope": "form",
+      "title": "Change the form title / name",
+      "aliases": ["form title", "form name", "rename form", "change form name", "نام فرم", "عنوان فرم"],
+      "answer": "Open the form/step settings (click the form header area), and edit the form name/title there."
+    },
+    {
+      "id": "confirmation_message",
+      "scope": "form",
+      "title": "Change the thank-you / confirmation message",
+      "aliases": ["thank you", "confirmation", "after submit", "success message", "thankyou message", "پیام تشکر", "پیام موفقیت", "بعد از ارسال"],
+      "answer": "Open the form settings and find the \"Thank you\" / confirmation section; edit the message shown to the visitor after they submit."
+    },
+    {
+      "id": "email_notifications",
+      "scope": "form",
+      "title": "Turn on email notifications for submissions",
+      "aliases": ["email", "notification", "send email", "notify", "email me", "get emails", "ایمیل", "اعلان", "نوتیفیکیشن"],
+      "answer": "Open the form settings and enable email notifications, then set the admin email address that should receive each new submission. (Email/SMTP must be configured in Easy Form Builder settings.)"
+    },
+    {
+      "id": "captcha",
+      "scope": "form",
+      "title": "Add captcha / spam protection",
+      "aliases": ["captcha", "recaptcha", "spam", "anti spam", "bot protection", "کپچا", "اسپم"],
+      "answer": "Open the form settings and enable captcha/spam protection. reCAPTCHA keys are configured in the main Easy Form Builder settings page."
+    },
+    {
+      "id": "submit_button",
+      "scope": "form",
+      "title": "Change the submit button text / color",
+      "aliases": ["submit button", "button text", "button color", "send button", "دکمه ارسال", "متن دکمه", "رنگ دکمه"],
+      "answer": "Open the form settings and edit the submit button text and color (and Next/Previous button labels for multi-step forms)."
+    },
+    {
+      "id": "multi_step",
+      "scope": "form",
+      "title": "Split the form into multiple steps",
+      "aliases": ["steps", "multi step", "wizard", "pages", "multi-step", "چند مرحله", "مرحله"],
+      "answer": "Add a new Step from the elements/palette; drag fields into each step. Each step becomes a page with Next/Previous buttons. Edit a step's name/icon via its green gear settings."
+    },
+    {
+      "id": "conditional_logic",
+      "scope": "form",
+      "title": "Show/hide fields with conditional logic",
+      "aliases": ["conditional", "logic", "show hide", "if then", "rules", "منطق شرطی", "شرطی", "نمایش مخفی"],
+      "answer": "Open the form's conditional logic (rules) panel and create a rule: choose a field + condition (is / greater than / …) and an action (show, hide, require, jump to step, …). Conditional logic is a Pro/add-on feature in Easy Form Builder."
+    },
+    {
+      "id": "shortcode_embed",
+      "scope": "global",
+      "title": "Embed the form on a page (shortcode)",
+      "aliases": ["shortcode", "embed", "add to page", "publish form", "insert form", "شورت کد", "قرار دادن در صفحه", "انتشار"],
+      "answer": "Use the shortcode [EMS_Form_Builder id=FORM_ID] on any page or post (or the Easy Form Builder block/widget). SitePilot shows the exact shortcode right after it creates a form."
+    },
+    {
+      "id": "form_background",
+      "scope": "form",
+      "title": "Change the form background / general styles",
+      "aliases": ["background", "form style", "theme", "colors of form", "پس زمینه", "استایل فرم", "تم"],
+      "answer": "Open the form settings for the general appearance options (background, label/element/message colors, fonts). Per-field colors are set on each field's green gear settings."
+    }
+  ]
+}

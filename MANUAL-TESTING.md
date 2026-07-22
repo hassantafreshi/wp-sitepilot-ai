@@ -170,6 +170,32 @@
   shows **Available / Detected**. In the main **Copilot** page, approving a form now also routes to EFB
   (built-in forms are only the fallback when EFB is off).
 
+## Part 11 — Type-aware forms, edit redirect, chat customize & how-to
+
+> On an EFB page (`page=Emsfb` or `page=Emsfb_create`) with an API key configured.
+
+- [ ] **11.1 (type-aware)** In the floating **Build with AI** modal → **Create** tab, ask for a real
+  form type, e.g. *“A booking form for a dental clinic.”* Generate.
+  **Expected:** A complete, sensible form (relevant fields, some half-width pairs, good options and
+  confirmation) — not a bare 2-field form.
+- [ ] **11.2 (edit redirect)** Approve the form.
+  **Expected:** The page redirects to `admin.php?page=Emsfb&state=edit-form&id=<new id>` and the new
+  form loads in EFB’s own builder (dropzone shows it).
+- [ ] **11.3 (customize chat)** On that editor page, open **Build with AI → Customize** tab. Type
+  *“Make Email required and reduce its width to half.”* Click **Apply change**.
+  **Expected:** A green “Applied. Preview updated.” note, a change-log line, and the **dropzone
+  re-renders** with Email now required + half width. (Reopen a field’s green gear to confirm.)
+- [ ] **11.4** Try more commands: *“Rename the form to Clinic Booking”*, *“Add option Evening to
+  Preferred time”*, *“Remove the Notes field.”*
+  **Expected:** Each updates the dropzone; the change log lists what changed; the form row is saved.
+- [ ] **11.5 (how-to)** Open the **How do I…** tab. Ask *“How do I make a field required?”*
+  **Expected:** A precise, grounded answer: select the field → click its green gear → the settings
+  panel opens on the left (LTR) / right (RTL) → toggle **Required** → Save. Try other questions
+  (width, options, notifications, shortcode) and the suggestion chips.
+- [ ] **11.6 (customize needs a form)** Open **Customize** on the plain forms list (`page=Emsfb`
+  with no form open).
+  **Expected:** A friendly notice telling you to open/create a form first (no errors).
+
 ## Result summary
 
 | Part | Pass? | Notes |

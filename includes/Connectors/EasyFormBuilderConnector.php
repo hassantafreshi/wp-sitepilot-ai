@@ -107,7 +107,9 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 			'status'    => 'success',
 			'connector' => $this->get_name(),
 			'form_id'   => $form_id,
-			'edit_url'  => admin_url( 'admin.php?page=Emsfb' ),
+			// Open the new form directly in the Easy Form Builder editor.
+			'edit_url'  => admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . $form_id ),
+			'list_url'  => admin_url( 'admin.php?page=Emsfb' ),
 			'shortcode' => sprintf( '[EMS_Form_Builder id=%d]', $form_id ),
 			'is_draft'  => false,
 			'warnings'  => array(),

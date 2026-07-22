@@ -89,6 +89,36 @@ final class RestRoutes {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/efb/help',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $efb, 'help' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/efb/customize',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $efb, 'customize' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/efb/save',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $efb, 'save' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
 	}
 
 	/**
