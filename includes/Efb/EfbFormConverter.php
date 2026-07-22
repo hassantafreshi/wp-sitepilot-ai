@@ -75,6 +75,11 @@ final class EfbFormConverter {
 			$el['step']      = '1';
 			$el['amount']    = (string) $amount;
 
+			// Desktop width from the optional width hint (mobile stays full-width).
+			$width_map    = EfbFormModel::width_map();
+			$width        = (string) ( $field['width'] ?? 'full' );
+			$el['size']   = $width_map[ $width ] ?? '100';
+
 			$items[] = $el;
 
 			$options = $field['options'] ?? array();

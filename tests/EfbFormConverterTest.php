@@ -70,6 +70,38 @@ final class EfbFormConverterTest extends TestCase {
 		$this->assertSame( '1', $items[1]['amount'] );
 	}
 
+	public function test_fields_carry_full_efb_properties(): void {
+		$plan = array(
+			'title'  => 'Rich',
+			'fields' => array(
+				array( 'key' => 'first', 'type' => 'text', 'label' => 'First', 'required' => true, 'placeholder' => '', 'width' => 'half', 'options' => array() ),
+				array( 'key' => 'cv', 'type' => 'file', 'label' => 'CV', 'required' => false, 'placeholder' => '', 'width' => 'full', 'options' => array() ),
+				array( 'key' => 'agree', 'type' => 'checkbox', 'label' => 'Agree', 'required' => true, 'placeholder' => '', 'width' => 'full', 'options' => array( 'Yes' ) ),
+			),
+		);
+
+		$items = ( new EfbFormConverter() )->convert( $plan );
+		$by = array();
+		foreach ( $items as $it ) {
+			if ( isset( $it['id_'] ) ) { $by[ $it['id_'] ] = $it; }
+		}
+
+		// Common styling exists on every field.
+		$this->assertSame( '50', $by['first']['size'] );          // half width
+		$this->assertSame( '100', $by['first']['mobile_size'] );  // mobile full
+		$this->assertSame( 'h-d-efb', $by['first']['el_height'] );
+		$this->assertSame( 'efb-square', $by['first']['corner'] );
+		$this->assertSame( 'text-labelEfb', $by['first']['label_text_color'] );
+		$this->assertSame( 'border-d', $by['first']['el_border_color'] );
+
+		// File-specific properties.
+		$this->assertSame( 'document', $by['cv']['file'] );
+		$this->assertSame( '8', $by['cv']['max_fsize'] );
+
+		// Checkbox-specific property.
+		$this->assertSame( '#0d6efd', $by['agree']['checked_color'] );
+	}
+
 	public function test_encode_escapes_quotes_like_efb(): void {
 		$items   = ( new EfbFormConverter() )->convert( $this->plan() );
 		$encoded = EfbFormConverter::encode_for_storage( $items );

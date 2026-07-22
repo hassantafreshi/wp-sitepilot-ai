@@ -105,6 +105,7 @@ final class FormPlanValidator {
 				'label'       => $label,
 				'required'    => $this->to_bool( $raw_field['required'] ?? false ),
 				'placeholder' => $this->clean_text( (string) ( $raw_field['placeholder'] ?? '' ), 120 ),
+				'width'       => $this->normalize_width( (string) ( $raw_field['width'] ?? 'full' ) ),
 				'options'     => array(),
 			);
 
@@ -199,6 +200,21 @@ final class FormPlanValidator {
 		$used[ $key ] = true;
 
 		return $key;
+	}
+
+	private function normalize_width( string $value ): string {
+		$v = strtolower( trim( $value ) );
+		if ( in_array( $v, array( 'half', '50', '1/2', 'two', '2' ), true ) ) {
+			return 'half';
+		}
+		if ( in_array( $v, array( 'third', '33', '1/3', '3' ), true ) ) {
+			return 'third';
+		}
+		if ( in_array( $v, array( 'quarter', '25', '1/4', '4' ), true ) ) {
+			return 'quarter';
+		}
+
+		return 'full';
 	}
 
 	private function to_bool( $value ): bool {

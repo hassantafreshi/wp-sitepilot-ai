@@ -151,6 +151,7 @@ final class EfbCopilotController {
 						'label'    => $f['label'],
 						'type'     => $f['type'],
 						'required' => (bool) $f['required'],
+						'width'    => $f['width'] ?? 'full',
 						'options'  => $f['options'],
 					);
 				},

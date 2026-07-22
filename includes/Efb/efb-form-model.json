@@ -1,7 +1,7 @@
 {
-  "model_version": "1.0",
+  "model_version": "1.1",
   "efb_version_target": "4.x",
-  "note": "ai_capabilities is the compact catalog sent to the AI. templates hold the full EFB default properties applied locally by EfbFormConverter and are NEVER sent to the AI.",
+  "note": "ai_capabilities is the compact catalog sent to the AI. templates hold the full EFB default properties (colors, width/mobile width, height, corner, per-type extras) applied locally by EfbFormConverter and are NEVER sent to the AI.",
 
   "ai_capabilities": [
     { "type": "text",        "label": "Single-line text",   "needs_options": false },
@@ -37,6 +37,8 @@
   ],
 
   "limits": { "max_fields": 30, "max_options": 30, "max_title": 120, "max_label": 120 },
+
+  "width_map": { "full": "100", "half": "50", "third": "33", "quarter": "25" },
 
   "templates": {
     "form_settings": {
@@ -94,6 +96,7 @@
       "message": "",
       "label_text_size": "fs-5",
       "el_text_size": "fs-5",
+      "message_text_size": "default",
       "label_text_color": "text-darkb",
       "el_text_color": "text-labelEfb",
       "message_text_color": "text-muted",
@@ -108,6 +111,7 @@
       "placeholder": "",
       "value": "",
       "size": "100",
+      "mobile_size": "100",
       "message": "",
       "id": "",
       "classes": "",
@@ -115,7 +119,9 @@
       "required": "0",
       "amount": "0",
       "step": "1",
+      "corner": "efb-square",
       "label_text_size": "fs-6",
+      "message_text_size": "default",
       "label_position": "up",
       "el_text_size": "fs-6",
       "label_text_color": "text-labelEfb",
@@ -131,8 +137,14 @@
     },
 
     "field_overrides": {
-      "file": { "file": "document", "value": "document", "message_text_size": "fs-7" },
-      "multiselect": { "maxSelect": "0", "minSelect": "0" },
+      "email":       { "noti": "1" },
+      "tel":         { "mlen": "", "milen": "" },
+      "number":      { "hflabel": "0" },
+      "file":        { "file": "document", "value": "document", "max_fsize": "8", "message_text_size": "fs-7", "message": "Accepted files up to 8 MB." },
+      "select":      { "corner": "efb-square" },
+      "radio":       { "corner": "efb-square" },
+      "checkbox":    { "corner": "efb-square", "checked_color": "#0d6efd" },
+      "multiselect": { "corner": "efb-square", "maxSelect": "0", "minSelect": "0" },
       "heading": {
         "__replace__": true,
         "id_": "",

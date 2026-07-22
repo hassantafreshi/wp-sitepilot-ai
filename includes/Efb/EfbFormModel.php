@@ -81,6 +81,13 @@ final class EfbFormModel {
 		return is_array( $l ) ? $l : array();
 	}
 
+	/** @return array<string, string> Width keyword => EFB size percent. */
+	public static function width_map(): array {
+		$w = self::data()['width_map'] ?? array();
+
+		return is_array( $w ) && array() !== $w ? $w : array( 'full' => '100', 'half' => '50', 'third' => '33', 'quarter' => '25' );
+	}
+
 	/**
 	 * @return array<string, mixed>
 	 */
