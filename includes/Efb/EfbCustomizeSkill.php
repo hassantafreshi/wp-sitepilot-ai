@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace SitePilot\Efb;
 
+use SitePilot\Efb\EfbFormModel;
 use SitePilot\Providers\ProviderInterface;
 
 /**
@@ -13,9 +14,10 @@ use SitePilot\Providers\ProviderInterface;
  */
 final class EfbCustomizeSkill {
 
-	private const OPS   = array( 'set_form_name', 'set_confirmation', 'set_field', 'remove_field', 'add_option', 'remove_option' );
+	private const OPS   = array( 'set_form_name', 'set_confirmation', 'set_field', 'add_field', 'remove_field', 'add_option', 'remove_option' );
 	private const PROPS = array( 'label', 'required', 'placeholder', 'width', 'help' );
 	private const WIDTHS = array( 'full', 'half', 'third', 'quarter' );
+	private const CHOICE = array( 'select', 'radio', 'checkbox', 'multiselect' );
 
 	private ProviderInterface $provider;
 
@@ -40,21 +42,35 @@ final class EfbCustomizeSkill {
 	}
 
 	/**
-	 * Validate a raw operations array against the strict vocabulary. Reused by the
-	 * unified chat orchestrator.
+	 * Validate a raw operations array against the strict vocabulary.
 	 *
 	 * @param array<mixed> $ops
 	 * @return array<int, array<string, mixed>>
 	 */
 	public static function validate_ops( array $ops ): array {
-		$out = array();
+		return self::validate_ops_verbose( $ops )['ops'];
+	}
+
+	/**
+	 * Validate ops AND report why rejected ones were dropped — used for logging
+	 * and honest chat replies ("signature is not supported"), so a failed action
+	 * never silently pretends to succeed.
+	 *
+	 * @param array<mixed> $ops
+	 * @return array{ops: array<int, array<string, mixed>>, dropped: array<int, array{op:string, reason:string}>}
+	 */
+	public static function validate_ops_verbose( array $ops ): array {
+		$out     = array();
+		$dropped = array();
 
 		foreach ( $ops as $op ) {
 			if ( ! is_array( $op ) ) {
+				$dropped[] = array( 'op' => 'unknown', 'reason' => 'not_an_object' );
 				continue;
 			}
 			$name = (string) ( $op['op'] ?? '' );
 			if ( ! in_array( $name, self::OPS, true ) ) {
+				$dropped[] = array( 'op' => '' !== $name ? $name : 'unknown', 'reason' => 'unknown_operation' );
 				continue;
 			}
 
@@ -64,6 +80,8 @@ final class EfbCustomizeSkill {
 					$value = self::clean( (string) ( $op['value'] ?? '' ), 300 );
 					if ( '' !== $value ) {
 						$out[] = array( 'op' => $name, 'value' => $value );
+					} else {
+						$dropped[] = array( 'op' => $name, 'reason' => 'empty_value' );
 					}
 					break;
 
@@ -71,6 +89,7 @@ final class EfbCustomizeSkill {
 					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
 					$prop   = strtolower( (string) ( $op['prop'] ?? '' ) );
 					if ( '' === $target || ! in_array( $prop, self::PROPS, true ) ) {
+						$dropped[] = array( 'op' => $name, 'reason' => '' === $target ? 'missing_target' : 'unknown_prop:' . $prop );
 						break;
 					}
 					$value = $op['value'] ?? '';
@@ -79,6 +98,7 @@ final class EfbCustomizeSkill {
 					} elseif ( 'width' === $prop ) {
 						$value = strtolower( (string) $value );
 						if ( ! in_array( $value, self::WIDTHS, true ) ) {
+							$dropped[] = array( 'op' => $name, 'reason' => 'invalid_width:' . $value );
 							break;
 						}
 					} else {
@@ -87,10 +107,48 @@ final class EfbCustomizeSkill {
 					$out[] = array( 'op' => 'set_field', 'target' => $target, 'prop' => $prop, 'value' => $value );
 					break;
 
+				case 'add_field':
+					$f     = is_array( $op['field'] ?? null ) ? $op['field'] : array();
+					$type  = strtolower( trim( (string) ( $f['type'] ?? '' ) ) );
+					$type  = EfbFormModel::aliases()[ $type ] ?? $type;
+					$label = self::clean( (string) ( $f['label'] ?? '' ), 120 );
+					if ( '' === $label ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'missing_label' );
+						break;
+					}
+					if ( in_array( $type, EfbFormModel::forbidden_types(), true ) ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'forbidden_type:' . $type );
+						break;
+					}
+					if ( ! in_array( $type, EfbFormModel::allowed_types(), true ) ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'unsupported_type:' . ( '' !== $type ? $type : 'empty' ) );
+						break;
+					}
+					$width   = strtolower( (string) ( $f['width'] ?? 'full' ) );
+					$options = self::clean_options( $f['options'] ?? array() );
+					if ( in_array( $type, self::CHOICE, true ) && array() === $options ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'choice_needs_options:' . $type );
+						break;
+					}
+					$out[] = array(
+						'op'    => 'add_field',
+						'field' => array(
+							'type'        => $type,
+							'label'       => $label,
+							'required'    => self::to_bool( $f['required'] ?? false ),
+							'placeholder' => self::clean( (string) ( $f['placeholder'] ?? '' ), 120 ),
+							'width'       => in_array( $width, self::WIDTHS, true ) ? $width : 'full',
+							'options'     => $options,
+						),
+					);
+					break;
+
 				case 'remove_field':
 					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
 					if ( '' !== $target ) {
 						$out[] = array( 'op' => 'remove_field', 'target' => $target );
+					} else {
+						$dropped[] = array( 'op' => $name, 'reason' => 'missing_target' );
 					}
 					break;
 
@@ -100,6 +158,8 @@ final class EfbCustomizeSkill {
 					$value  = self::clean( (string) ( $op['value'] ?? '' ), 120 );
 					if ( '' !== $target && '' !== $value ) {
 						$out[] = array( 'op' => $name, 'target' => $target, 'value' => $value );
+					} else {
+						$dropped[] = array( 'op' => $name, 'reason' => '' === $target ? 'missing_target' : 'empty_value' );
 					}
 					break;
 			}
@@ -109,7 +169,10 @@ final class EfbCustomizeSkill {
 			}
 		}
 
-		return $out;
+		return array(
+			'ops'     => $out,
+			'dropped' => $dropped,
+		);
 	}
 
 	private function system_prompt(): string {
@@ -158,5 +221,27 @@ PROMPT;
 		}
 
 		return in_array( strtolower( (string) $v ), array( 'true', '1', 'yes', 'required' ), true );
+	}
+
+	/**
+	 * @param mixed $raw
+	 * @return string[]
+	 */
+	private static function clean_options( $raw ): array {
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $raw as $option ) {
+			if ( is_array( $option ) ) {
+				$option = $option['label'] ?? ( $option['value'] ?? '' );
+			}
+			$clean = self::clean( (string) $option, 80 );
+			if ( '' !== $clean && ! in_array( $clean, $out, true ) ) {
+				$out[] = $clean;
+			}
+		}
+
+		return array_slice( $out, 0, 30 );
 	}
 }

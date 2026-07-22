@@ -160,11 +160,30 @@ final class EfbCopilotController {
 		try {
 			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond( $message, $history, $has_form, $fields );
 		} catch ( ProviderException $e ) {
+			$this->logger->error( 'efb.chat.provider_error', $e->getMessage(), array( 'code' => $e->error_code(), 'message' => mb_substr( $message, 0, 200 ) ) );
+
 			return $this->respond( array( 'type' => 'message', 'reply' => $e->getMessage() ), false, 502, $e->error_code() );
 		}
 
 		$reply  = trim( (string) ( $raw['reply'] ?? '' ) );
 		$action = (string) ( $raw['action'] ?? 'chat' );
+
+		// Trace every turn: what the user asked, what the AI decided, raw op names.
+		$raw_ops = is_array( $raw['operations'] ?? null ) ? $raw['operations'] : array();
+		$this->logger->info(
+			'efb.chat.turn',
+			'Chat turn decided.',
+			array(
+				'message'  => mb_substr( $message, 0, 200 ),
+				'action'   => $action,
+				'has_form' => $has_form,
+				'fields'   => count( $fields ),
+				'raw_ops'  => array_map(
+					static fn ( $o ) => is_array( $o ) ? (string) ( $o['op'] ?? '?' ) : '?',
+					$raw_ops
+				),
+			)
+		);
 
 		if ( 'answer_help' === $action ) {
 			$topic  = trim( (string) ( $raw['help_topic'] ?? '' ) );
@@ -176,11 +195,40 @@ final class EfbCopilotController {
 		}
 
 		if ( 'customize' === $action ) {
-			$ops = EfbCustomizeSkill::validate_ops( (array) ( $raw['operations'] ?? array() ) );
-			if ( array() === $ops ) {
-				return $this->respond( array( 'type' => 'message', 'reply' => '' !== $reply ? $reply : __( 'I could not turn that into a change. Try e.g. "make Email required" or "rename the form to Contact us".', 'sitepilot-ai' ) ), true );
+			$verbose = EfbCustomizeSkill::validate_ops_verbose( $raw_ops );
+			$ops     = $verbose['ops'];
+			$dropped = $verbose['dropped'];
+
+			if ( array() !== $dropped ) {
+				$this->logger->error( 'efb.chat.ops_dropped', 'Some operations were rejected by validation.', array( 'dropped' => $dropped, 'message' => mb_substr( $message, 0, 200 ) ) );
 			}
-			$this->logger->info( 'efb.chat.customize', 'Customize via chat.', array( 'ops' => count( $ops ) ) );
+
+			if ( array() === $ops ) {
+				// Never pretend success: explain what was rejected and why.
+				$notes = array();
+				foreach ( $dropped as $d ) {
+					$reason = (string) $d['reason'];
+					if ( str_starts_with( $reason, 'unsupported_type:' ) || str_starts_with( $reason, 'forbidden_type:' ) ) {
+						/* translators: %s: field type. */
+						$notes[] = sprintf( __( 'Field type "%s" is not supported in Easy Form Builder.', 'sitepilot-ai' ), substr( $reason, strpos( $reason, ':' ) + 1 ) );
+					} elseif ( str_starts_with( $reason, 'choice_needs_options:' ) ) {
+						$notes[] = __( 'A choice field needs at least one option — tell me the options.', 'sitepilot-ai' );
+					}
+				}
+				return $this->respond(
+					array(
+						'type'   => 'message',
+						'reply'  => '' !== $reply ? $reply : __( 'I could not turn that into a change. Try e.g. "add a mobile field" or "make Email required".', 'sitepilot-ai' ),
+						'errors' => $notes,
+					),
+					true
+				);
+			}
+
+			$ops = $this->expand_add_fields( $ops, $fields );
+
+			$this->logger->info( 'efb.chat.customize', 'Customize ops ready.', array( 'ops' => $ops ) );
+
 			return $this->respond( array( 'type' => 'ops', 'reply' => '' !== $reply ? $reply : __( 'Done — applying your change.', 'sitepilot-ai' ), 'operations' => $ops ), true );
 		}
 
@@ -207,6 +255,56 @@ final class EfbCopilotController {
 
 		// ask / chat / fallback.
 		return $this->respond( array( 'type' => 'message', 'reply' => '' !== $reply ? $reply : __( 'How can I help with your form?', 'sitepilot-ai' ) ), true );
+	}
+
+	/**
+	 * Server-side expansion of add_field ops: build the full EFB field (+ option)
+	 * items from the model templates, so the browser only splices them in.
+	 *
+	 * @param array<int, array<string, mixed>>                   $ops
+	 * @param array<int, array{id:string,label:string,type:string}> $fields
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function expand_add_fields( array $ops, array $fields ): array {
+		$existing = array_map( static fn ( $f ) => (string) $f['id'], $fields );
+		$converter = new EfbFormConverter();
+
+		foreach ( $ops as &$op ) {
+			if ( 'add_field' === ( $op['op'] ?? '' ) && is_array( $op['field'] ?? null ) ) {
+				$items        = $converter->build_field( $op['field'], $existing );
+				$op['items']  = $items;
+				foreach ( $items as $item ) {
+					$existing[] = (string) ( $item['id_'] ?? '' );
+				}
+			}
+		}
+		unset( $op );
+
+		return $ops;
+	}
+
+	/**
+	 * Receive a client-side apply report so the Logs page shows the full story:
+	 * which operations were applied in the browser and which failed.
+	 */
+	public function client_log( WP_REST_Request $request ): WP_REST_Response {
+		$event   = sanitize_key( (string) $request->get_param( 'event' ) );
+		$msg     = sanitize_text_field( mb_substr( (string) $request->get_param( 'message' ), 0, 300 ) );
+		$context = $request->get_param( 'context' );
+		$context = is_array( $context ) ? array_slice( $context, 0, 20 ) : array();
+
+		if ( '' === $event ) {
+			return $this->respond( array( 'message' => 'missing event' ), false, 400, 'invalid_payload' );
+		}
+
+		$failed = is_array( $context['failed'] ?? null ) ? $context['failed'] : array();
+		if ( array() !== $failed ) {
+			$this->logger->error( 'efb.client.' . $event, '' !== $msg ? $msg : 'Client reported failures.', $context );
+		} else {
+			$this->logger->info( 'efb.client.' . $event, '' !== $msg ? $msg : 'Client report.', $context );
+		}
+
+		return $this->respond( array(), true );
 	}
 
 	private function efb_validator(): FormPlanValidator {

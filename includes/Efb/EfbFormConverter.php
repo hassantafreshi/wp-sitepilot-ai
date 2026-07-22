@@ -107,6 +107,73 @@ final class EfbFormConverter {
 	}
 
 	/**
+	 * Build the EFB items (field + option items) for a single field, used when the
+	 * chat adds a field to a live form. Amounts are left at "0" — the browser sets
+	 * them on insert. IDs are made unique against the provided existing IDs.
+	 *
+	 * @param array<string, mixed> $field        {type,label,required,placeholder,width,options}
+	 * @param string[]             $existing_ids  IDs already present in the live form.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function build_field( array $field, array $existing_ids = array() ): array {
+		$used = array();
+		foreach ( $existing_ids as $id ) {
+			$used[ (string) $id ] = true;
+		}
+
+		$type = (string) ( $field['type'] ?? 'text' );
+		$key  = $this->unique_id( (string) ( $field['label'] ?? 'field' ), $used );
+
+		if ( 'heading' === $type ) {
+			$h            = EfbFormModel::overrides( 'heading' );
+			unset( $h['__replace__'] );
+			$h['id_']    = $key;
+			$h['dataId'] = $key . '-id';
+			$h['value']  = (string) ( $field['label'] ?? 'Heading' );
+			$h['amount'] = '0';
+			$h['step']   = '1';
+
+			return array( $h );
+		}
+
+		$el              = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
+		$el['id_']       = $key;
+		$el['dataId']    = $key . '-id';
+		$el['type']      = $type;
+		$el['name']      = (string) ( $field['label'] ?? '' );
+		$el['placeholder'] = (string) ( $field['placeholder'] ?? ( $field['label'] ?? '' ) );
+		$el['required']  = ! empty( $field['required'] ) ? '1' : '0';
+		$el['step']      = '1';
+		$el['amount']    = '0';
+
+		$width_map  = EfbFormModel::width_map();
+		$el['size'] = $width_map[ (string) ( $field['width'] ?? 'full' ) ] ?? '100';
+
+		$items = array( $el );
+
+		$options = $field['options'] ?? array();
+		if ( is_array( $options ) && array() !== $options && in_array( $type, EfbFormModel::option_types(), true ) ) {
+			$n = 0;
+			foreach ( $options as $opt ) {
+				++$n;
+				$oid              = $this->unique_id( $key . '_o' . $n, $used );
+				$option           = EfbFormModel::template( 'option' );
+				$option['id_']    = $oid;
+				$option['dataId'] = $oid . '-id';
+				$option['parent'] = $key;
+				$option['type']   = 'option';
+				$option['value']  = (string) $opt;
+				$option['id_op']  = $oid;
+				$option['step']   = '1';
+				$option['amount'] = '0';
+				$items[]          = $option;
+			}
+		}
+
+		return $items;
+	}
+
+	/**
 	 * Encode to the exact string EFB stores: JSON with every " escaped to \".
 	 *
 	 * @param array<int, array<string, mixed>> $items
