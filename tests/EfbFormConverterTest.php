@@ -115,4 +115,13 @@ final class EfbFormConverterTest extends TestCase {
 		$this->assertIsArray( $decoded );
 		$this->assertSame( 'form', $decoded[0]['type'] );
 	}
+
+	public function test_build_step_uses_the_native_efb_step_shape(): void {
+		$step = ( new EfbFormConverter() )->build_step( 'Personal information' );
+
+		$this->assertSame( 'step', $step['type'] );
+		$this->assertSame( 'stepNavEfb', $step['classes'] );
+		$this->assertSame( 'Personal information', $step['name'] );
+		$this->assertSame( '', $step['id_'] ); // Assigned against the live form in the browser.
+	}
 }

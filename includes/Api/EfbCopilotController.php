@@ -8,6 +8,7 @@ use SitePilot\Core\Plugin;
 use SitePilot\Efb\EfbChatSkill;
 use SitePilot\Efb\EfbCustomizeSkill;
 use SitePilot\Efb\EfbFormConverter;
+use SitePilot\Efb\EfbLicense;
 use SitePilot\Efb\EfbFormModel;
 use SitePilot\Efb\EfbFormSkill;
 use SitePilot\Efb\EfbKnowledge;
@@ -78,6 +79,11 @@ final class EfbCopilotController {
 			);
 		}
 
+		$blocked = $this->blocked_plan_fields( $result->plan );
+		if ( array() !== $blocked ) {
+			return $this->pro_required_response( $blocked );
+		}
+
 		$action_id = $this->store->create( $result->plan, 'easy_form_builder' );
 		$this->logger->info( 'efb.plan.created', 'EFB form plan generated.', array( 'title' => $result->plan['title'] ) );
 
@@ -110,6 +116,10 @@ final class EfbCopilotController {
 		}
 
 		$plan   = (array) $record['plan'];
+		$blocked = $this->blocked_plan_fields( $plan );
+		if ( array() !== $blocked ) {
+			return $this->pro_required_response( $blocked );
+		}
 		$errors = $connector->validate_action( $plan );
 		if ( array() !== $errors ) {
 			return $this->respond( array( 'message' => implode( ' ', $errors ) ), false, 422, 'invalid_payload' );
@@ -156,7 +166,9 @@ final class EfbCopilotController {
 
 		$has_form = (bool) $request->get_param( 'has_form' );
 		$fields   = $this->clean_fields( (array) $request->get_param( 'fields' ) );
+		$steps    = $this->clean_steps( (array) $request->get_param( 'steps' ) );
 		$history  = $this->clean_history( (array) $request->get_param( 'history' ) );
+		$license  = EfbLicense::status();
 		$this->logger->info(
 			'efb.chat.received',
 			'Chat request received.',
@@ -165,12 +177,14 @@ final class EfbCopilotController {
 				'message' => mb_substr( $message, 0, 200 ),
 				'has_form' => $has_form,
 				'field_count' => count( $fields ),
+				'step_count' => count( $steps ),
+				'plan_tier' => $license['tier'],
 				'history_count' => count( $history ),
 			)
 		);
 
 		try {
-			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond( $message, $history, $has_form, $fields );
+			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond( $message, $history, $has_form, $fields, $steps, $license );
 		} catch ( ProviderException $e ) {
 			$this->logger->error( 'efb.chat.provider_error', $e->getMessage(), array( 'trace_id' => $trace_id, 'code' => $e->error_code(), 'message' => mb_substr( $message, 0, 200 ) ) );
 
@@ -182,6 +196,7 @@ final class EfbCopilotController {
 
 		// Trace every turn: what the user asked, what the AI decided, raw op names.
 		$raw_ops = is_array( $raw['operations'] ?? null ) ? $raw['operations'] : array();
+		$normalized_ops = $this->normalize_structural_ops( $raw_ops, $message );
 		$this->logger->info(
 			'efb.chat.turn',
 			'Chat turn decided.',
@@ -194,6 +209,10 @@ final class EfbCopilotController {
 				'raw_ops'  => array_map(
 					static fn ( $o ) => is_array( $o ) ? (string) ( $o['op'] ?? '?' ) : '?',
 					$raw_ops
+				),
+				'normalized_ops' => array_map(
+					static fn ( $o ) => is_array( $o ) ? (string) ( $o['op'] ?? '?' ) : '?',
+					$normalized_ops
 				),
 			)
 		);
@@ -208,7 +227,7 @@ final class EfbCopilotController {
 		}
 
 		if ( 'customize' === $action ) {
-			$verbose = EfbCustomizeSkill::validate_ops_verbose( $raw_ops, $fields );
+			$verbose = EfbCustomizeSkill::validate_ops_verbose( $normalized_ops, $fields );
 			$ops     = $verbose['ops'];
 			$dropped = $verbose['dropped'];
 
@@ -238,6 +257,14 @@ final class EfbCopilotController {
 				);
 			}
 
+			$ops = $this->bind_new_step_references( $ops );
+			$blocked = $this->blocked_customize_operations( $ops, $steps );
+			if ( array() !== $blocked ) {
+				$this->logger->info( 'efb.chat.pro_blocked', 'EFB plan blocked a requested operation.', array( 'trace_id' => $trace_id, 'blocked' => $blocked, 'license' => $license ) );
+
+				return $this->pro_required_response( $blocked );
+			}
+
 			$ops = $this->expand_add_fields( $ops, $fields );
 
 			$this->logger->info( 'efb.chat.customize', 'Customize ops ready.', array( 'trace_id' => $trace_id, 'ops' => $ops ) );
@@ -250,6 +277,10 @@ final class EfbCopilotController {
 			$result    = $validator->validate( (array) $raw['form'] );
 			if ( ! $result->ok ) {
 				return $this->respond( array( 'type' => 'message', 'reply' => '' !== $reply ? $reply : __( 'I could not build a safe form from that. Could you add a bit more detail?', 'sitepilot-ai' ), 'errors' => $result->errors ), true );
+			}
+			$blocked = $this->blocked_plan_fields( $result->plan );
+			if ( array() !== $blocked ) {
+				return $this->pro_required_response( $blocked );
 			}
 			$connector = $this->registry()->get( 'easy_form_builder' );
 			$name      = ( null !== $connector ) ? $connector->get_name() : 'Easy Form Builder';
@@ -289,6 +320,8 @@ final class EfbCopilotController {
 				foreach ( $items as $item ) {
 					$existing[] = (string) ( $item['id_'] ?? '' );
 				}
+			} elseif ( 'add_step' === ( $op['op'] ?? '' ) ) {
+				$op['item'] = $converter->build_step( (string) ( $op['label'] ?? 'Step' ) );
 			}
 		}
 		unset( $op );
@@ -333,6 +366,141 @@ final class EfbCopilotController {
 	}
 
 	/**
+	 * Correct a known model failure mode before validation: a request for a real
+	 * EFB Step was previously represented as a display Heading. The conversion is
+	 * deliberately narrow so an explicit request for a heading remains a heading.
+	 *
+	 * @param array<int,mixed> $ops
+	 * @return array<int,mixed>
+	 */
+	private function normalize_structural_ops( array $ops, string $message ): array {
+		$asks_for_step = (bool) preg_match( '/(?:\\bstep(?:s)?\\b|گام|مرحله)/iu', $message );
+		$asks_for_heading = (bool) preg_match( '/(?:\\bheading\\b|عنوان|سرتیتر)/iu', $message );
+		if ( ! $asks_for_step || $asks_for_heading ) {
+			return $ops;
+		}
+
+		foreach ( $ops as &$op ) {
+			if ( ! is_array( $op ) || 'add_field' !== ( $op['op'] ?? '' ) || ! is_array( $op['field'] ?? null ) ) {
+				continue;
+			}
+			$type = strtolower( trim( (string) ( $op['field']['type'] ?? '' ) ) );
+			$label = (string) ( $op['field']['label'] ?? '' );
+			if ( 'heading' === $type && ( '' === $label || (bool) preg_match( '/(?:\\bstep(?:s)?\\b|گام|مرحله)/iu', $label ) ) ) {
+				$op = array( 'op' => 'add_step', 'label' => '' !== trim( $label ) ? $label : 'Step' );
+			}
+		}
+		unset( $op );
+
+		return $ops;
+	}
+
+	/**
+	 * Give new steps stable per-response references and attach following fields
+	 * when the model omitted the reference. This preserves operation order and
+	 * lets the browser place "Address" in the Step just created above it.
+	 *
+	 * @param array<int,array<string,mixed>> $ops
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function bind_new_step_references( array $ops ): array {
+		$active_ref = '';
+		$number = 0;
+		foreach ( $ops as &$op ) {
+			if ( 'add_step' === ( $op['op'] ?? '' ) ) {
+				++$number;
+				$ref = sanitize_key( (string) ( $op['step_ref'] ?? '' ) );
+				$active_ref = '' !== $ref ? $ref : 'new_step_' . $number;
+				$op['step_ref'] = $active_ref;
+			} elseif ( 'add_field' === ( $op['op'] ?? '' ) && $active_ref !== '' && empty( $op['step_ref'] ) ) {
+				$op['step_ref'] = $active_ref;
+			}
+		}
+		unset( $op );
+
+		return $ops;
+	}
+
+	/**
+	 * @param array<int,array<string,mixed>> $ops
+	 * @param array<int,array{id:string,label:string}> $steps
+	 * @return array<int,array{kind:string,type?:string,label?:string}>
+	 */
+	private function blocked_customize_operations( array $ops, array $steps ): array {
+		$license = EfbLicense::status();
+		if ( ! empty( $license['has_pro_features'] ) ) {
+			return array();
+		}
+
+		$blocked = array();
+		$step_count = count( $steps );
+		foreach ( $ops as $op ) {
+			if ( 'add_field' === ( $op['op'] ?? '' ) && is_array( $op['field'] ?? null ) ) {
+				$type = (string) ( $op['field']['type'] ?? '' );
+				if ( EfbFormModel::requires_pro_field( $type ) ) {
+					$blocked[] = array( 'kind' => 'field', 'type' => $type, 'label' => (string) ( $op['field']['label'] ?? $type ) );
+				}
+			}
+			if ( 'add_step' === ( $op['op'] ?? '' ) ) {
+				++$step_count;
+				if ( $step_count > 2 ) {
+					$blocked[] = array( 'kind' => 'step_limit', 'label' => (string) ( $op['label'] ?? 'Step' ) );
+				}
+			}
+		}
+
+		return $blocked;
+	}
+
+	/**
+	 * @param array<string,mixed> $plan
+	 * @return array<int,array{kind:string,type?:string,label?:string}>
+	 */
+	private function blocked_plan_fields( array $plan ): array {
+		if ( EfbLicense::has_pro_features() ) {
+			return array();
+		}
+
+		$blocked = array();
+		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
+			if ( is_array( $field ) && EfbFormModel::requires_pro_field( (string) ( $field['type'] ?? '' ) ) ) {
+				$blocked[] = array(
+					'kind'  => 'field',
+					'type'  => (string) ( $field['type'] ?? '' ),
+					'label' => (string) ( $field['label'] ?? ( $field['type'] ?? '' ) ),
+				);
+			}
+		}
+
+		return $blocked;
+	}
+
+	/**
+	 * Uses EFB's own notion of a locked Pro field. The browser turns this into
+	 * the exact EFB `pro_show_efb()` dialog; the URL is the official fallback.
+	 *
+	 * @param array<int,array{kind:string,type?:string,label?:string}> $blocked
+	 */
+	private function pro_required_response( array $blocked, ?string $reply = null ): WP_REST_Response {
+		$is_step_limit = (bool) array_filter( $blocked, static fn ( array $item ): bool => 'step_limit' === ( $item['kind'] ?? '' ) );
+		$default = $is_step_limit
+			? __( 'Easy Form Builder Free supports up to two steps. Upgrade to add more steps.', 'sitepilot-ai' )
+			: __( 'This field is available in the Pro version of Easy Form Builder.', 'sitepilot-ai' );
+
+		return $this->respond(
+			array(
+				'type'             => 'message',
+				'reply'            => null !== $reply && '' !== $reply ? $reply : $default,
+				'upgrade_required' => true,
+				'upgrade_reason'   => $is_step_limit ? 'step_limit' : 'pro_field',
+				'upgrade_url'      => EfbLicense::upgrade_url(),
+				'blocked'          => $blocked,
+			),
+			true
+		);
+	}
+
+	/**
 	 * @param array<mixed> $raw
 	 * @return array<int, array{id:string,label:string,type:string}>
 	 */
@@ -345,6 +513,27 @@ final class EfbCopilotController {
 					'label' => sanitize_text_field( (string) ( $f['label'] ?? '' ) ),
 					'type'  => sanitize_text_field( (string) ( $f['type'] ?? '' ) ),
 				);
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * @param array<mixed> $raw
+	 * @return array<int,array{id:string,label:string}>
+	 */
+	private function clean_steps( array $raw ): array {
+		$out = array();
+		foreach ( array_slice( $raw, 0, 30 ) as $step ) {
+			if ( is_array( $step ) ) {
+				$id = sanitize_text_field( (string) ( $step['id'] ?? '' ) );
+				if ( '' !== $id ) {
+					$out[] = array(
+						'id'    => $id,
+						'label' => sanitize_text_field( (string) ( $step['label'] ?? '' ) ),
+					);
+				}
 			}
 		}
 
@@ -434,6 +623,12 @@ final class EfbCopilotController {
 
 		if ( array() === $ops ) {
 			return $this->respond( array( 'message' => __( 'I could not turn that into a change. Try being more specific, e.g. "make Email required" or "rename the form to Contact us".', 'sitepilot-ai' ) ), true, 200, 'no_ops' );
+		}
+
+		$ops = $this->bind_new_step_references( $ops );
+		$blocked = $this->blocked_customize_operations( $ops, array() );
+		if ( array() !== $blocked ) {
+			return $this->pro_required_response( $blocked );
 		}
 
 		$ops = $this->expand_add_fields( $ops, $fields );

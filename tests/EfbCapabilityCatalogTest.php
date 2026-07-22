@@ -101,4 +101,18 @@ final class EfbCapabilityCatalogTest extends TestCase {
 		$this->assertSame( 'esign', $ops[0]['field']['type'] );
 		$this->assertSame( 'Signature', $ops[0]['field']['label'] );
 	}
+
+	public function test_step_is_a_structural_operation_not_a_heading_field(): void {
+		$result = EfbCustomizeSkill::validate_ops_verbose(
+			array(
+				array( 'op' => 'add_step', 'label' => 'Personal information', 'step_ref' => 'personal_info' ),
+				array( 'op' => 'add_field', 'field' => array( 'type' => 'steps', 'label' => 'Wrong representation' ) ),
+			)
+		);
+
+		$this->assertCount( 1, $result['ops'] );
+		$this->assertSame( 'add_step', $result['ops'][0]['op'] );
+		$this->assertSame( 'personal_info', $result['ops'][0]['step_ref'] );
+		$this->assertSame( 'step_requires_add_step', $result['dropped'][0]['reason'] );
+	}
 }

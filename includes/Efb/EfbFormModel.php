@@ -69,6 +69,71 @@ final class EfbFormModel {
 	}
 
 	/**
+	 * All field IDs known to the installed EFB model (including fields which are
+	 * deliberately not automatically creatable because they need credentials,
+	 * add-on setup, or a specialised child structure).
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public static function field_types(): array {
+		$types = self::capability_catalog()['field_types'] ?? array();
+
+		return is_array( $types ) ? $types : array();
+	}
+
+	/** @return array<string, mixed>|null */
+	public static function field_type( string $type ): ?array {
+		$canonical = self::resolve_field_type( $type );
+
+		return null !== $canonical ? ( self::field_types()[ $canonical ] ?? null ) : null;
+	}
+
+	/**
+	 * Resolve a palette ID from its exact EFB ID, an existing compact-model
+	 * alias, or the persisted `stored_type` (notably step <- steps).
+	 */
+	public static function resolve_field_type( string $type ): ?string {
+		$needle = strtolower( trim( $type ) );
+		if ( '' === $needle ) {
+			return null;
+		}
+
+		$aliases = self::aliases();
+		if ( isset( $aliases[ $needle ] ) ) {
+			$needle = strtolower( (string) $aliases[ $needle ] );
+		}
+
+		foreach ( self::field_types() as $id => $definition ) {
+			if ( strtolower( (string) $id ) === $needle ) {
+				return (string) $id;
+			}
+			if ( is_array( $definition ) && strtolower( (string) ( $definition['stored_type'] ?? '' ) ) === $needle ) {
+				return (string) $id;
+			}
+		}
+
+		return null;
+	}
+
+	/** @return string[] */
+	public static function addable_types(): array {
+		$out = array();
+		foreach ( self::field_types() as $id => $definition ) {
+			if ( is_array( $definition ) && ! empty( $definition['ai_create'] ) && 'steps' !== $id ) {
+				$out[] = (string) $id;
+			}
+		}
+
+		return $out;
+	}
+
+	public static function requires_pro_field( string $type ): bool {
+		$definition = self::field_type( $type );
+
+		return is_array( $definition ) && 'pro' === (string) ( $definition['plan'] ?? '' );
+	}
+
+	/**
 	 * Resolve a canonical property key from the key itself or an explicit alias.
 	 */
 	public static function resolve_field_property( string $key ): ?string {
@@ -234,6 +299,29 @@ final class EfbFormModel {
 				(string) ( $c['label'] ?? '' ),
 				! empty( $c['needs_options'] ) ? ' (requires "options")' : ''
 			);
+		}
+
+		return implode( "\n", $lines );
+	}
+
+	/**
+	 * Full field knowledge for customization prompts. The model sees the actual
+	 * EFB palette IDs, plan requirements and whether an operation is executable;
+	 * it no longer guesses that a Step is a Heading.
+	 */
+	public static function field_types_for_prompt(): string {
+		$lines = array();
+		foreach ( self::field_types() as $id => $definition ) {
+			if ( ! is_array( $definition ) ) {
+				continue;
+			}
+			$status = ! empty( $definition['ai_create'] ) ? 'add_field' : 'recognized; do not auto-create';
+			if ( 'steps' === $id ) {
+				$status = 'add_step only (structural, never a heading)';
+			}
+			$plan = (string) ( $definition['plan'] ?? 'free' );
+			$label = (string) ( $definition['label'] ?? $id );
+			$lines[] = sprintf( '- %s: %s [%s; %s]', $id, $label, $plan, $status );
 		}
 
 		return implode( "\n", $lines );

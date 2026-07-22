@@ -86,6 +86,12 @@
 		if ( ! hasLiveForm() ) { return []; }
 		return valj_efb.filter( isFieldItem ).map( function ( it ) { return { id: it.id_, label: it.name || it.value || it.id_, type: it.type }; } );
 	}
+	function liveSteps() {
+		if ( typeof valj_efb === 'undefined' || ! Array.isArray( valj_efb ) ) { return []; }
+		return valj_efb.filter( function ( it ) { return it && it.type === 'step'; } ).map( function ( it ) {
+			return { id: String( it.id_ || it.step || '' ), label: String( it.name || '' ) };
+		} ).filter( function ( it ) { return !! it.id; } );
+	}
 	function findField( target ) {
 		var t = ( target || '' ).toString().toLowerCase();
 		return valj_efb.find( function ( it ) { return isFieldItem( it ) && ( String( it.id_ ).toLowerCase() === t || String( it.name || '' ).toLowerCase() === t ); } ) || null;
@@ -141,7 +147,7 @@
 		return true;
 	}
 	function isChoiceField( field ) { return field && [ 'select', 'radio', 'checkbox', 'multiselect' ].indexOf( field.type ) !== -1; }
-	function addFieldItems( op, report, index ) {
+	function addFieldItems( op, report, index, requestedStep ) {
 		var items = Array.isArray( op.items ) ? op.items : [];
 		if ( ! items.length ) { failure( report, index, op, 'field_template_missing' ); return; }
 		var used = {};
@@ -151,22 +157,49 @@
 			used[ String( items[ i ].id_ ) ] = true;
 		}
 		var fields = valj_efb.filter( isFieldItem );
-		var step = fields.length ? String( fields[ fields.length - 1 ].step || '1' ) : '1';
+		var step = requestedStep ? String( requestedStep ) : ( fields.length ? String( fields[ fields.length - 1 ].step || '1' ) : '1' );
 		var amount = maxAmount();
 		var fieldLabel = op.field && op.field.label ? op.field.label : 'field';
 		items.forEach( function ( source ) {
 			var item = Object.assign( {}, source );
 			amount += 1;
 			item.amount = String( amount );
-			if ( item.type !== 'option' ) { item.step = step; }
-			else if ( ! item.step ) { item.step = step; }
+			item.step = step;
 			valj_efb.push( item );
 		} );
 		report.applied.push( 'Added "' + fieldLabel + '"' );
 		report.changed = true;
 	}
+	function addStepItem( op, report, index ) {
+		var source = op && op.item && typeof op.item === 'object' ? op.item : null;
+		if ( ! source || source.type !== 'step' ) { failure( report, index, op || {}, 'step_template_missing' ); return ''; }
+		var used = {};
+		valj_efb.forEach( function ( item ) { if ( item && item.id_ !== undefined ) { used[ String( item.id_ ) ] = true; } } );
+		var highest = 0;
+		liveSteps().forEach( function ( step ) { var n = Number( step.id ); if ( n > highest ) { highest = n; } } );
+		var next = Math.max( 1, highest + 1 );
+		while ( used[ String( next ) ] ) { next++; }
+		var item = Object.assign( {}, source );
+		item.id_ = String( next );
+		item.dataId = String( next );
+		item.id = String( next );
+		item.type = 'step';
+		item.classes = item.classes || 'stepNavEfb';
+		item.name = String( op.label || item.name || 'Step ' + next );
+		item.step = String( next );
+		item.amount = String( maxAmount() + 1 );
+		valj_efb.push( item );
+		if ( valj_efb[ 0 ] ) {
+			valj_efb[ 0 ].steps = String( next );
+			valj_efb[ 0 ].button_state = 'multi';
+		}
+		report.applied.push( 'Added Step "' + item.name + '"' );
+		report.changed = true;
+		return String( next );
+	}
 	function applyOps( ops ) {
 		var report = { applied: [], failed: [], changed: false };
+		var stepRefs = {};
 		if ( ! Array.isArray( ops ) ) { return report; }
 		ops.forEach( function ( op, index ) {
 			try {
@@ -198,7 +231,8 @@
 					if ( fd.value_type !== 'efb_color' ) { setPath( valj_efb[ 0 ], fd.storage_path, catalogValue( fd, op.value, true ) ); }
 					report.applied.push( 'Updated form ' + propertyLabel( op.property ) ); report.changed = true;
 				}
-				else if ( op.op === 'add_field' ) { addFieldItems( op, report, index ); }
+				else if ( op.op === 'add_step' ) { var newStep = addStepItem( op, report, index ); if ( newStep && op.step_ref ) { stepRefs[ op.step_ref ] = newStep; } }
+				else if ( op.op === 'add_field' ) { addFieldItems( op, report, index, op.step_ref ? stepRefs[ op.step_ref ] : '' ); }
 				else if ( op.op === 'remove_field' ) { var rf = findField( op.target ); if ( ! rf ) { failure( report, index, op, 'field_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return it !== rf && it.parent !== rf.id_; } ); window.valj_efb = valj_efb; report.applied.push( 'Removed "' + op.target + '"' ); report.changed = true; }
 				else if ( op.op === 'add_option' ) {
 					var af = findField( op.target ); if ( ! af ) { failure( report, index, op, 'field_not_found' ); return; }
@@ -229,6 +263,16 @@
 		var bubble = el( 'div', {} );
 		bubble.appendChild( el( 'div', { text: data.reply || '' } ) );
 		if ( data.errors && data.errors.length ) { bubble.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
+		if ( data.upgrade_required ) {
+			var upgrade = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', text: 'Upgrade Easy Form Builder' } );
+			upgrade.addEventListener( 'click', function () {
+				// Reuse EFB's own dialog, translated message, and official purchase flow.
+				if ( typeof window.pro_show_efb === 'function' ) { window.pro_show_efb( data.upgrade_reason === 'step_limit' ? 2 : 1 ); return; }
+				window.open( data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', '_blank', 'noopener' );
+			} );
+			var pricing = el( 'a', { class: 'sitepilot-efb-btn sitepilot-efb-btn--ghost', href: data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', target: '_blank', rel: 'noopener noreferrer', text: 'View pricing' } );
+			bubble.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ upgrade, pricing ] ) );
+		}
 		addAi( bubble );
 		history.push( { role: 'assistant', text: data.reply || '' } );
 	}
@@ -330,8 +374,9 @@
 		addTyping();
 		var traceId = makeTraceId();
 		var fields = liveFields();
-		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, field_ids: fields.map( function ( field ) { return field.id; } ) } );
-		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields } )
+		var steps = liveSteps();
+		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, step_count: steps.length, field_ids: fields.map( function ( field ) { return field.id; } ) } );
+		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps } )
 			.then( function ( res ) {
 				removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false;
 				var data = res.data || { type: 'message', reply: 'Sorry, something went wrong.' };

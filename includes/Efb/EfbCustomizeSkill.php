@@ -14,7 +14,7 @@ use SitePilot\Providers\ProviderInterface;
  */
 final class EfbCustomizeSkill {
 
-	private const OPS   = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'remove_field', 'add_option', 'remove_option' );
+	private const OPS   = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_step', 'remove_field', 'add_option', 'remove_option' );
 	private const PROPS = array( 'label', 'required', 'placeholder', 'width', 'help' );
 	private const WIDTHS = array( 'full', 'half', 'third', 'quarter' );
 	private const CHOICE = array( 'select', 'radio', 'checkbox', 'multiselect' );
@@ -157,19 +157,26 @@ final class EfbCustomizeSkill {
 
 				case 'add_field':
 					$f     = is_array( $op['field'] ?? null ) ? $op['field'] : array();
-					$type  = strtolower( trim( (string) ( $f['type'] ?? '' ) ) );
-					$type  = EfbFormModel::aliases()[ $type ] ?? $type;
+					$type  = EfbFormModel::resolve_field_type( (string) ( $f['type'] ?? '' ) );
 					$label = self::clean( (string) ( $f['label'] ?? '' ), 120 );
 					if ( '' === $label ) {
 						$dropped[] = array( 'op' => $name, 'reason' => 'missing_label' );
+						break;
+					}
+					if ( null === $type ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'unsupported_type:' . trim( (string) ( $f['type'] ?? '' ) ) );
+						break;
+					}
+					if ( 'steps' === $type ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'step_requires_add_step' );
 						break;
 					}
 					if ( in_array( $type, EfbFormModel::forbidden_types(), true ) ) {
 						$dropped[] = array( 'op' => $name, 'reason' => 'forbidden_type:' . $type );
 						break;
 					}
-					if ( ! in_array( $type, EfbFormModel::allowed_types(), true ) ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'unsupported_type:' . ( '' !== $type ? $type : 'empty' ) );
+					if ( ! in_array( $type, EfbFormModel::addable_types(), true ) ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'recognized_but_not_creatable:' . $type );
 						break;
 					}
 					$width   = strtolower( (string) ( $f['width'] ?? 'full' ) );
@@ -178,7 +185,7 @@ final class EfbCustomizeSkill {
 						$dropped[] = array( 'op' => $name, 'reason' => 'choice_needs_options:' . $type );
 						break;
 					}
-					$out[] = array(
+					$add = array(
 						'op'    => 'add_field',
 						'field' => array(
 							'type'        => $type,
@@ -189,6 +196,25 @@ final class EfbCustomizeSkill {
 							'options'     => $options,
 						),
 					);
+					$step_ref = self::clean_step_ref( (string) ( $op['step_ref'] ?? '' ) );
+					if ( '' !== $step_ref ) {
+						$add['step_ref'] = $step_ref;
+					}
+					$out[] = $add;
+					break;
+
+				case 'add_step':
+					$label = self::clean( (string) ( $op['label'] ?? ( $op['value'] ?? '' ) ), 120 );
+					if ( '' === $label ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'missing_label' );
+						break;
+					}
+					$step = array( 'op' => 'add_step', 'label' => $label );
+					$step_ref = self::clean_step_ref( (string) ( $op['step_ref'] ?? '' ) );
+					if ( '' !== $step_ref ) {
+						$step['step_ref'] = $step_ref;
+					}
+					$out[] = $step;
 					break;
 
 				case 'remove_field':
@@ -236,6 +262,8 @@ Allowed operations (use the field's exact label or id from the provided list as 
 - { "op": "set_field", "target": "<field label or id>", "prop": "label|required|placeholder|width|help", "value": <string, or true/false for required, or one of full|half|third|quarter for width> }
 - { "op": "set_field_property", "target": "<field label or id>", "property": "<one supported FIELD_PROPERTIES key>", "value": <value matching that property> }
 - { "op": "set_form_property", "property": "<one supported FORM_PROPERTIES key>", "value": <value matching that property> }
+- { "op": "add_step", "label": "Step title", "step_ref": "optional_key" }
+- { "op": "add_field", "step_ref": "optional_key", "field": { "type": "...", "label": "..." } }
 - { "op": "remove_field", "target": "<field label or id>" }
 - { "op": "add_option", "target": "<choice field label or id>", "value": "Option text" }
 - { "op": "remove_option", "target": "<choice field label or id>", "value": "Option text" }
@@ -245,6 +273,7 @@ Rules:
 - Never invent fields that are not in the provided list (except values for set_field/add_option).
 - "width": full=100%, half=50%, third=33%, quarter=25%.
 - Do not emit operations for add-ons, credentials, payment settings, raw HTML, URLs, or conditional logic. Explain those as help instead.
+- A Step is structural. Always emit add_step for a step; never use heading as a substitute.
 
 {$capabilities}
 PROMPT;
@@ -298,6 +327,12 @@ PROMPT;
 		}
 
 		return array_slice( $out, 0, 30 );
+	}
+
+	private static function clean_step_ref( string $value ): string {
+		$value = strtolower( self::clean( $value, 40 ) );
+
+		return (bool) preg_match( '/^[a-z][a-z0-9_-]*$/', $value ) ? $value : '';
 	}
 
 	private function customization_capabilities_for_prompt(): string {

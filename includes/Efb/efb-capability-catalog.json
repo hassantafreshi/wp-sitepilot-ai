@@ -106,7 +106,7 @@
     "heading": { "label": "Heading", "category": "layout", "plan": "pro", "fillable": false, "ai_create": true, "special_properties": ["default_value", "input_text_size", "input_text_color", "input_align"] },
     "link": { "label": "Link", "category": "layout", "plan": "pro", "fillable": false, "ai_create": false, "special_properties": ["default_value", "href", "input_text_size", "input_text_color", "input_align"] },
     "html": { "label": "HTML", "category": "layout", "plan": "pro", "fillable": false, "ai_create": false, "reason": "Raw HTML must never be generated or applied automatically" },
-    "steps": { "label": "Step", "category": "layout", "plan": "free", "stored_type": "step", "fillable": false, "ai_create": false },
+    "steps": { "label": "Step", "category": "layout", "plan": "free", "stored_type": "step", "fillable": false, "ai_create": true, "notes": ["Structural item: use add_step, never add_field or heading.", "The EFB Free plan permits two steps; further steps require Pro field components."] },
     "stripe": { "label": "Stripe card", "category": "payment", "plan": "pro", "fillable": true, "requires_addon": "AdnSPF", "ai_create": false, "ai_write": false },
     "paypal": { "label": "PayPal", "category": "payment", "plan": "pro", "fillable": true, "requires_addon": "AdnPAP", "ai_create": false, "ai_write": false },
     "persiaPay": { "label": "Persia Payment", "category": "payment", "plan": "pro", "fillable": true, "requires_addon": "AdnPPF", "ai_create": false, "ai_write": false },

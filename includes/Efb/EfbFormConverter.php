@@ -174,6 +174,27 @@ final class EfbFormConverter {
 	}
 
 	/**
+	 * Build a structural EFB Step. The browser assigns the numeric id, step
+	 * number and sequential amount against the live `valj_efb` array before it
+	 * renders, because those values must be unique in the open form.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function build_step( string $label ): array {
+		$step            = EfbFormModel::template( 'step' );
+		$step['id_']     = '';
+		$step['dataId']  = '';
+		$step['id']      = '';
+		$step['type']    = 'step';
+		$step['classes'] = 'stepNavEfb';
+		$step['name']    = $label;
+		$step['step']    = '';
+		$step['amount']  = '0';
+
+		return $step;
+	}
+
+	/**
 	 * Encode to the exact string EFB stores: JSON with every " escaped to \".
 	 *
 	 * @param array<int, array<string, mixed>> $items

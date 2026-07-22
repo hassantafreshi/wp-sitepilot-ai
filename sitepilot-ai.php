@@ -3,7 +3,7 @@
  * Plugin Name:       SitePilot AI
  * Plugin URI:        https://sitepilot.ai
  * Description:        Safe AI copilot for WordPress. Ask in plain language and SitePilot builds a form for you — you always preview and approve before anything is created. Temporary standalone mode talks directly to your AI provider (DeepSeek, cloud.ai, OpenAI-compatible).
- * Version:           0.1.1
+ * Version:           0.1.2
  * Requires at least: 6.2
  * Requires PHP:      8.1
  * Author:            SitePilot AI
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'SITEPILOT_AI_VERSION', '0.1.1' );
+define( 'SITEPILOT_AI_VERSION', '0.1.2' );
 define( 'SITEPILOT_AI_FILE', __FILE__ );
 define( 'SITEPILOT_AI_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SITEPILOT_AI_URL', plugin_dir_url( __FILE__ ) );
