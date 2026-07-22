@@ -120,6 +120,18 @@ final class RestRoutes {
 			)
 		);
 
+		// Client-side execution reports: each AI proposal records whether the
+		// browser actually applied, rendered, and left it ready for EFB Save.
+		register_rest_route(
+			self::NAMESPACE,
+			'/efb/log',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $efb, 'client_log' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
 		register_rest_route(
 			self::NAMESPACE,
 			'/efb/save',

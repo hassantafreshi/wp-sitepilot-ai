@@ -142,6 +142,7 @@ final class EfbCopilotController {
 	 * and returns a typed response: message | preview | ops | help.
 	 */
 	public function chat( WP_REST_Request $request ): WP_REST_Response {
+		$trace_id = $this->trace_id( $request->get_param( 'trace_id' ) );
 		$message = trim( (string) $request->get_param( 'message' ) );
 		if ( '' === $message ) {
 			return $this->respond( array( 'type' => 'message', 'reply' => __( 'Tell me what form you need, ask me to change the open form, or ask how to do something.', 'sitepilot-ai' ) ), true );
@@ -156,11 +157,22 @@ final class EfbCopilotController {
 		$has_form = (bool) $request->get_param( 'has_form' );
 		$fields   = $this->clean_fields( (array) $request->get_param( 'fields' ) );
 		$history  = $this->clean_history( (array) $request->get_param( 'history' ) );
+		$this->logger->info(
+			'efb.chat.received',
+			'Chat request received.',
+			array(
+				'trace_id' => $trace_id,
+				'message' => mb_substr( $message, 0, 200 ),
+				'has_form' => $has_form,
+				'field_count' => count( $fields ),
+				'history_count' => count( $history ),
+			)
+		);
 
 		try {
 			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond( $message, $history, $has_form, $fields );
 		} catch ( ProviderException $e ) {
-			$this->logger->error( 'efb.chat.provider_error', $e->getMessage(), array( 'code' => $e->error_code(), 'message' => mb_substr( $message, 0, 200 ) ) );
+			$this->logger->error( 'efb.chat.provider_error', $e->getMessage(), array( 'trace_id' => $trace_id, 'code' => $e->error_code(), 'message' => mb_substr( $message, 0, 200 ) ) );
 
 			return $this->respond( array( 'type' => 'message', 'reply' => $e->getMessage() ), false, 502, $e->error_code() );
 		}
@@ -174,6 +186,7 @@ final class EfbCopilotController {
 			'efb.chat.turn',
 			'Chat turn decided.',
 			array(
+				'trace_id' => $trace_id,
 				'message'  => mb_substr( $message, 0, 200 ),
 				'action'   => $action,
 				'has_form' => $has_form,
@@ -195,12 +208,12 @@ final class EfbCopilotController {
 		}
 
 		if ( 'customize' === $action ) {
-			$verbose = EfbCustomizeSkill::validate_ops_verbose( $raw_ops );
+			$verbose = EfbCustomizeSkill::validate_ops_verbose( $raw_ops, $fields );
 			$ops     = $verbose['ops'];
 			$dropped = $verbose['dropped'];
 
 			if ( array() !== $dropped ) {
-				$this->logger->error( 'efb.chat.ops_dropped', 'Some operations were rejected by validation.', array( 'dropped' => $dropped, 'message' => mb_substr( $message, 0, 200 ) ) );
+				$this->logger->error( 'efb.chat.ops_dropped', 'Some operations were rejected by validation.', array( 'trace_id' => $trace_id, 'dropped' => $dropped, 'message' => mb_substr( $message, 0, 200 ) ) );
 			}
 
 			if ( array() === $ops ) {
@@ -227,7 +240,7 @@ final class EfbCopilotController {
 
 			$ops = $this->expand_add_fields( $ops, $fields );
 
-			$this->logger->info( 'efb.chat.customize', 'Customize ops ready.', array( 'ops' => $ops ) );
+			$this->logger->info( 'efb.chat.customize', 'Customize ops ready.', array( 'trace_id' => $trace_id, 'ops' => $ops ) );
 
 			return $this->respond( array( 'type' => 'ops', 'reply' => '' !== $reply ? $reply : __( 'Done — applying your change.', 'sitepilot-ai' ), 'operations' => $ops ), true );
 		}
@@ -241,7 +254,7 @@ final class EfbCopilotController {
 			$connector = $this->registry()->get( 'easy_form_builder' );
 			$name      = ( null !== $connector ) ? $connector->get_name() : 'Easy Form Builder';
 			$action_id = $this->store->create( $result->plan, 'easy_form_builder' );
-			$this->logger->info( 'efb.chat.plan', 'Form planned via chat.', array( 'title' => $result->plan['title'] ) );
+			$this->logger->info( 'efb.chat.plan', 'Form planned via chat.', array( 'trace_id' => $trace_id, 'title' => $result->plan['title'] ) );
 			return $this->respond(
 				array(
 					'type'      => 'preview',
@@ -290,8 +303,8 @@ final class EfbCopilotController {
 	public function client_log( WP_REST_Request $request ): WP_REST_Response {
 		$event   = sanitize_key( (string) $request->get_param( 'event' ) );
 		$msg     = sanitize_text_field( mb_substr( (string) $request->get_param( 'message' ), 0, 300 ) );
-		$context = $request->get_param( 'context' );
-		$context = is_array( $context ) ? array_slice( $context, 0, 20 ) : array();
+		$context = $this->clean_trace_context( $request->get_param( 'context' ) );
+		$context['trace_id'] = $this->trace_id( $request->get_param( 'trace_id' ) );
 
 		if ( '' === $event ) {
 			return $this->respond( array( 'message' => 'missing event' ), false, 400, 'invalid_payload' );
@@ -423,14 +436,18 @@ final class EfbCopilotController {
 			return $this->respond( array( 'message' => __( 'I could not turn that into a change. Try being more specific, e.g. "make Email required" or "rename the form to Contact us".', 'sitepilot-ai' ) ), true, 200, 'no_ops' );
 		}
 
+		$ops = $this->expand_add_fields( $ops, $fields );
+
 		$this->logger->info( 'efb.customize', 'Customize command interpreted.', array( 'ops' => count( $ops ) ) );
 
 		return $this->respond( array( 'operations' => $ops ), true );
 	}
 
 	/**
-	 * Persist the live structure back into the EFB form row (called after the
-	 * browser applies operations and refreshes the dropzone).
+	 * Explicit persistence endpoint for integration consumers. The SitePilot EFB
+	 * chat deliberately does not call this after applying an AI proposal: it
+	 * leaves the changed valj_efb state on the canvas for the administrator to
+	 * review and save through EFB's normal Save control.
 	 */
 	public function save( WP_REST_Request $request ): WP_REST_Response {
 		$form_id   = (int) $request->get_param( 'form_id' );
@@ -510,5 +527,41 @@ final class EfbCopilotController {
 	 */
 	private function respond( array $data, bool $ok, int $status = 200, string $code = 'ok' ): WP_REST_Response {
 		return new WP_REST_Response( array_merge( array( 'ok' => $ok, 'code' => $code ), $data ), $status );
+	}
+
+	/** @param mixed $value */
+	private function trace_id( $value ): string {
+		$trace = preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $value ) ?? '';
+		if ( '' === $trace ) {
+			$trace = substr( wp_generate_uuid4(), 0, 12 );
+		}
+
+		return substr( $trace, 0, 64 );
+	}
+
+	/**
+	 * Keep browser diagnostics useful but bounded. The client is authenticated,
+	 * yet its payload is still untrusted and must not turn the option log into an
+	 * unbounded arbitrary-data store.
+	 *
+	 * @param mixed $value
+	 * @return array<string|int, mixed>
+	 */
+	private function clean_trace_context( $value, int $depth = 0 ): array {
+		if ( ! is_array( $value ) || $depth > 3 ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( array_slice( $value, 0, 20, true ) as $key => $item ) {
+			$clean_key = is_int( $key ) ? $key : sanitize_key( (string) $key );
+			if ( is_array( $item ) ) {
+				$out[ $clean_key ] = $this->clean_trace_context( $item, $depth + 1 );
+			} elseif ( is_scalar( $item ) || null === $item ) {
+				$out[ $clean_key ] = mb_substr( sanitize_text_field( (string) $item ), 0, 500 );
+			}
+		}
+
+		return $out;
 	}
 }

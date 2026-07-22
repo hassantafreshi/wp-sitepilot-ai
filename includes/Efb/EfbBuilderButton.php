@@ -45,7 +45,13 @@ final class EfbBuilderButton {
 				'nonce'       => wp_create_nonce( 'wp_rest' ),
 				'configured'  => ( new ProviderManager() )->is_configured(),
 				'settingsUrl' => admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETTINGS ),
+				'logsUrl'     => admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ),
 				'isRTL'       => is_rtl(),
+				// This is the allowlisted, browser-safe subset of the full EFB
+				// capability catalog. It keeps the operation executor in lockstep
+				// with the server validator without exposing credentials/settings.
+				'fieldProperties' => EfbFormModel::client_field_properties(),
+				'formProperties'  => EfbFormModel::client_form_properties(),
 			)
 		);
 	}

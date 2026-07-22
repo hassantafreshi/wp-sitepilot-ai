@@ -4,6 +4,8 @@
 
 	var cfg = window.SitePilotEFB || {};
 	var WIDTH = { full: '100', half: '50', third: '33', quarter: '25' };
+	var FIELD_PROPERTIES = cfg.fieldProperties || {};
+	var FORM_PROPERTIES = cfg.formProperties || {};
 	var history = [];
 	var busy = false;
 	var greeted = false;
@@ -25,7 +27,21 @@
 			method: 'POST', credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
 			body: JSON.stringify( body )
-		} ).then( function ( r ) { return r.json().then( function ( d ) { return { status: r.status, data: d }; } ); } );
+		} ).then( function ( r ) {
+			return r.text().then( function ( text ) {
+				var data = {};
+				try { data = text ? JSON.parse( text ) : {}; } catch ( e ) { data = { ok: false, message: 'Invalid server response.' }; }
+				return { status: r.status, data: data };
+			} );
+		} );
+	}
+	function makeTraceId() {
+		if ( window.crypto && window.crypto.getRandomValues ) { var values = new Uint32Array( 2 ); window.crypto.getRandomValues( values ); return 'efb-' + values[ 0 ].toString( 36 ) + values[ 1 ].toString( 36 ); }
+		return 'efb-' + Date.now().toString( 36 ) + Math.random().toString( 36 ).slice( 2, 8 );
+	}
+	function clientLog( traceId, event, message, context ) {
+		if ( ! cfg.restUrl || ! cfg.nonce ) { return; }
+		api( 'efb/log', { trace_id: traceId, event: event, message: message, context: context || {} } ).catch( function () {} );
 	}
 
 	/* ---------- message rendering ---------- */
@@ -75,37 +91,137 @@
 		return valj_efb.find( function ( it ) { return isFieldItem( it ) && ( String( it.id_ ).toLowerCase() === t || String( it.name || '' ).toLowerCase() === t ); } ) || null;
 	}
 	function maxAmount() { var m = 0; valj_efb.forEach( function ( it ) { var a = Number( it.amount ); if ( a > m ) { m = a; } } ); return m; }
+	function propertyApplies( definition, field ) {
+		var types = definition && definition.applies_to;
+		return ! Array.isArray( types ) || ! types.length || types.indexOf( '*' ) !== -1 || types.indexOf( field.type ) !== -1;
+	}
+	function enumValue( definition, value ) {
+		var values = definition ? definition.values : null;
+		if ( ! values ) { return value; }
+		if ( Array.isArray( values ) ) { return value; }
+		var wanted = String( value ).toLowerCase();
+		var keys = Object.keys( values );
+		for ( var i = 0; i < keys.length; i++ ) {
+			if ( keys[ i ].toLowerCase() === wanted || String( values[ keys[ i ] ] ).toLowerCase() === wanted ) { return values[ keys[ i ] ]; }
+		}
+		return value;
+	}
+	function catalogValue( definition, value, isForm ) {
+		if ( definition.value_type === 'boolean_flag' ) { return isForm ? !! value : ( value ? '1' : '0' ); }
+		if ( definition.value_type === 'enum' ) { return enumValue( definition, value ); }
+		if ( definition.value_type === 'integer' || definition.value_type === 'number_or_date' ) { return String( value ); }
+		return value;
+	}
+	function setPath( target, path, value ) {
+		var parts = String( path ).split( '.' );
+		var object = target;
+		for ( var i = 0; i < parts.length - 1; i++ ) {
+			if ( ! object[ parts[ i ] ] || typeof object[ parts[ i ] ] !== 'object' ) { object[ parts[ i ] ] = {}; }
+			object = object[ parts[ i ] ];
+		}
+		object[ parts[ parts.length - 1 ] ] = value;
+	}
+	function propertyLabel( key ) { return String( key || '' ).replace( /_/g, ' ' ); }
+	function failure( report, index, op, reason ) {
+		report.failed.push( { index: index, operation: String( op.op || 'unknown' ), target: String( op.target || '' ), reason: reason } );
+	}
+	function colorToken( value ) {
+		var hex = String( value || '' ).toLowerCase();
+		var colors = { '#0d6efd': 'primary', '#198754': 'success', '#6c757d': 'secondary', '#ff455f': 'danger', '#e9c31a': 'warning', '#31d2f2': 'info', '#fbfbfb': 'light', '#202a8d': 'darkb', '#898aa9': 'labelEfb', '#83859f': 'd', '#ff4b93': 'pinkEfb', '#ffffff': 'white', '#212529': 'dark', '#777777': 'muted' };
+		return colors[ hex ] || ( /^#[a-f0-9]{6}$/.test( hex ) ? 'colorDEfb-' + hex.slice( 1 ) : null );
+	}
+	function applyEfbColor( target, definition, value ) {
+		var token = colorToken( value );
+		var key = definition.storage_key || definition.storage_path;
+		if ( ! token || ! key ) { return false; }
+		if ( key === 'button_color' ) { setPath( target, key, 'btn-' + token ); }
+		else if ( key === 'el_border_color' ) { setPath( target, key, 'border-' + token ); }
+		else { setPath( target, key, 'text-' + token ); }
+		if ( token.indexOf( 'colorDEfb-' ) === 0 && definition.style_path ) { setPath( target, definition.style_path, value ); }
+		return true;
+	}
+	function isChoiceField( field ) { return field && [ 'select', 'radio', 'checkbox', 'multiselect' ].indexOf( field.type ) !== -1; }
+	function addFieldItems( op, report, index ) {
+		var items = Array.isArray( op.items ) ? op.items : [];
+		if ( ! items.length ) { failure( report, index, op, 'field_template_missing' ); return; }
+		var used = {};
+		valj_efb.forEach( function ( item ) { if ( item && item.id_ ) { used[ String( item.id_ ) ] = true; } } );
+		for ( var i = 0; i < items.length; i++ ) {
+			if ( ! items[ i ] || ! items[ i ].id_ || ! items[ i ].type || used[ String( items[ i ].id_ ) ] ) { failure( report, index, op, 'invalid_or_duplicate_field_template' ); return; }
+			used[ String( items[ i ].id_ ) ] = true;
+		}
+		var fields = valj_efb.filter( isFieldItem );
+		var step = fields.length ? String( fields[ fields.length - 1 ].step || '1' ) : '1';
+		var amount = maxAmount();
+		var fieldLabel = op.field && op.field.label ? op.field.label : 'field';
+		items.forEach( function ( source ) {
+			var item = Object.assign( {}, source );
+			amount += 1;
+			item.amount = String( amount );
+			if ( item.type !== 'option' ) { item.step = step; }
+			else if ( ! item.step ) { item.step = step; }
+			valj_efb.push( item );
+		} );
+		report.applied.push( 'Added "' + fieldLabel + '"' );
+		report.changed = true;
+	}
 	function applyOps( ops ) {
-		var applied = [];
-		ops.forEach( function ( op ) {
+		var report = { applied: [], failed: [], changed: false };
+		if ( ! Array.isArray( ops ) ) { return report; }
+		ops.forEach( function ( op, index ) {
 			try {
-				if ( op.op === 'set_form_name' ) { valj_efb[ 0 ].formName = op.value; applied.push( 'Renamed form to "' + op.value + '"' ); }
-				else if ( op.op === 'set_confirmation' ) { if ( ! valj_efb[ 0 ].thank_you_message || typeof valj_efb[ 0 ].thank_you_message !== 'object' ) { valj_efb[ 0 ].thank_you_message = {}; } valj_efb[ 0 ].thank_you_message.thankYou = op.value; applied.push( 'Updated confirmation message' ); }
+				if ( ! op || ! op.op ) { failure( report, index, op || {}, 'invalid_operation' ); return; }
+				if ( op.op === 'set_form_name' ) { valj_efb[ 0 ].formName = op.value; report.applied.push( 'Renamed form to "' + op.value + '"' ); report.changed = true; }
+				else if ( op.op === 'set_confirmation' ) { if ( ! valj_efb[ 0 ].thank_you_message || typeof valj_efb[ 0 ].thank_you_message !== 'object' ) { valj_efb[ 0 ].thank_you_message = {}; } valj_efb[ 0 ].thank_you_message.thankYou = op.value; report.applied.push( 'Updated confirmation message' ); report.changed = true; }
 				else if ( op.op === 'set_field' ) {
-					var f = findField( op.target ); if ( ! f ) { return; }
-					if ( op.prop === 'label' ) { f.name = op.value; applied.push( 'Renamed "' + op.target + '" to "' + op.value + '"' ); }
-					else if ( op.prop === 'required' ) { f.required = op.value ? '1' : '0'; applied.push( 'Made "' + op.target + '" ' + ( op.value ? 'required' : 'optional' ) ); }
-					else if ( op.prop === 'placeholder' ) { f.placeholder = op.value; applied.push( 'Set placeholder of "' + op.target + '"' ); }
-					else if ( op.prop === 'width' ) { f.size = WIDTH[ op.value ] || '100'; applied.push( 'Set width of "' + op.target + '" to ' + op.value ); }
-					else if ( op.prop === 'help' ) { f.message = op.value; applied.push( 'Set help text of "' + op.target + '"' ); }
+					var f = findField( op.target ); if ( ! f ) { failure( report, index, op, 'field_not_found' ); return; }
+					if ( op.prop === 'label' ) { f.name = op.value; report.applied.push( 'Renamed "' + op.target + '" to "' + op.value + '"' ); }
+					else if ( op.prop === 'required' ) { f.required = op.value ? '1' : '0'; report.applied.push( 'Made "' + op.target + '" ' + ( op.value ? 'required' : 'optional' ) ); }
+					else if ( op.prop === 'placeholder' ) { f.placeholder = op.value; report.applied.push( 'Set placeholder of "' + op.target + '"' ); }
+					else if ( op.prop === 'width' ) { f.size = WIDTH[ op.value ] || '100'; report.applied.push( 'Set width of "' + op.target + '" to ' + op.value ); }
+					else if ( op.prop === 'help' ) { f.message = op.value; report.applied.push( 'Set help text of "' + op.target + '"' ); }
+					else { failure( report, index, op, 'unsupported_field_property' ); return; }
+					report.changed = true;
 				}
-				else if ( op.op === 'remove_field' ) { var rf = findField( op.target ); if ( ! rf ) { return; } valj_efb = valj_efb.filter( function ( it ) { return it !== rf && it.parent !== rf.id_; } ); window.valj_efb = valj_efb; applied.push( 'Removed "' + op.target + '"' ); }
+				else if ( op.op === 'set_field_property' ) {
+					var pf = findField( op.target ); var pd = FIELD_PROPERTIES[ op.property ];
+					if ( ! pf ) { failure( report, index, op, 'field_not_found' ); return; }
+					if ( ! pd || ! pd.storage_key || ! propertyApplies( pd, pf ) ) { failure( report, index, op, 'property_not_available' ); return; }
+					if ( pd.value_type === 'efb_color' ? ! applyEfbColor( pf, pd, op.value ) : ! pd.storage_key ) { failure( report, index, op, 'invalid_colour_or_storage' ); return; }
+					if ( pd.value_type !== 'efb_color' ) { pf[ pd.storage_key ] = catalogValue( pd, op.value, false ); }
+					report.applied.push( 'Updated ' + propertyLabel( op.property ) + ' for "' + op.target + '"' ); report.changed = true;
+				}
+				else if ( op.op === 'set_form_property' ) {
+					var fd = FORM_PROPERTIES[ op.property ];
+					if ( ! fd || ! fd.storage_path || ! valj_efb[ 0 ] ) { failure( report, index, op, 'form_property_not_available' ); return; }
+					if ( fd.value_type === 'efb_color' ? ! applyEfbColor( valj_efb[ 0 ], fd, op.value ) : ! fd.storage_path ) { failure( report, index, op, 'invalid_colour_or_storage' ); return; }
+					if ( fd.value_type !== 'efb_color' ) { setPath( valj_efb[ 0 ], fd.storage_path, catalogValue( fd, op.value, true ) ); }
+					report.applied.push( 'Updated form ' + propertyLabel( op.property ) ); report.changed = true;
+				}
+				else if ( op.op === 'add_field' ) { addFieldItems( op, report, index ); }
+				else if ( op.op === 'remove_field' ) { var rf = findField( op.target ); if ( ! rf ) { failure( report, index, op, 'field_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return it !== rf && it.parent !== rf.id_; } ); window.valj_efb = valj_efb; report.applied.push( 'Removed "' + op.target + '"' ); report.changed = true; }
 				else if ( op.op === 'add_option' ) {
-					var af = findField( op.target ); if ( ! af ) { return; }
+					var af = findField( op.target ); if ( ! af ) { failure( report, index, op, 'field_not_found' ); return; }
+					if ( ! isChoiceField( af ) ) { failure( report, index, op, 'target_is_not_a_choice_field' ); return; }
 					var oid = ( af.id_ + '_o' + ( maxAmount() + 1 ) ).replace( /[^a-z0-9_]/gi, '' );
 					var opt = { id_: oid, dataId: oid + '-id', parent: af.id_, type: 'option', value: op.value, id_op: oid, step: af.step || '1', amount: String( maxAmount() + 1 ) };
 					var lastIdx = valj_efb.length - 1;
 					for ( var i = valj_efb.length - 1; i >= 0; i-- ) { if ( valj_efb[ i ].parent === af.id_ || valj_efb[ i ] === af ) { lastIdx = i; break; } }
-					valj_efb.splice( lastIdx + 1, 0, opt ); applied.push( 'Added option "' + op.value + '" to "' + op.target + '"' );
+					valj_efb.splice( lastIdx + 1, 0, opt ); report.applied.push( 'Added option "' + op.value + '" to "' + op.target + '"' ); report.changed = true;
 				}
-				else if ( op.op === 'remove_option' ) { var of = findField( op.target ); if ( ! of ) { return; } valj_efb = valj_efb.filter( function ( it ) { return ! ( it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase() ); } ); window.valj_efb = valj_efb; applied.push( 'Removed option "' + op.value + '" from "' + op.target + '"' ); }
-			} catch ( e ) {}
+				else if ( op.op === 'remove_option' ) { var of = findField( op.target ); if ( ! of ) { failure( report, index, op, 'field_not_found' ); return; } var hadOption = valj_efb.some( function ( it ) { return it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase(); } ); if ( ! hadOption ) { failure( report, index, op, 'option_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return ! ( it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase() ); } ); window.valj_efb = valj_efb; report.applied.push( 'Removed option "' + op.value + '" from "' + op.target + '"' ); report.changed = true; }
+				else { failure( report, index, op, 'unsupported_operation' ); }
+			} catch ( e ) { failure( report, index, op || {}, 'exception:' + String( e && e.message ? e.message : 'unknown' ).slice( 0, 120 ) ); }
 		} );
-		return applied;
+		if ( report.changed ) { window.valj_efb = valj_efb; }
+		return report;
 	}
 	function refreshDropzone() {
-		try { sessionStorage.setItem( 'valj_efb', JSON.stringify( valj_efb ) ); if ( typeof editFormEfb === 'function' ) { editFormEfb(); return true; } } catch ( e ) {}
-		return false;
+		try {
+			sessionStorage.setItem( 'valj_efb', JSON.stringify( valj_efb ) );
+			if ( typeof editFormEfb === 'function' ) { editFormEfb(); return { ok: true }; }
+			return { ok: false, reason: 'efb_renderer_not_available' };
+		} catch ( e ) { return { ok: false, reason: String( e && e.message ? e.message : 'refresh_failed' ).slice( 0, 160 ) }; }
 	}
 
 	/* ---------- response renderers ---------- */
@@ -151,29 +267,34 @@
 		addAi( box, true );
 		history.push( { role: 'assistant', text: 'Proposed a form: ' + p.title } );
 	}
-	function renderOps( data ) {
+	function renderOps( data, traceId ) {
 		if ( ! hasLiveForm() ) {
+			clientLog( traceId, 'apply_unavailable', 'Browser did not expose a live EFB form.', { operation_count: ( data.operations || [] ).length, failed: [ { reason: 'live_form_not_available' } ] } );
 			addAi( 'Open a form in the editor first (create one here, or open Easy Form Builder → Forms and edit a form), then ask me to change it.' );
 			history.push( { role: 'assistant', text: 'Asked user to open a form first.' } );
 			return;
 		}
-		var applied = applyOps( data.operations || [] );
+		var report = applyOps( data.operations || [] );
 		var box = el( 'div', {} );
 		box.appendChild( el( 'div', { text: data.reply || 'Done.' } ) );
-		if ( ! applied.length ) {
-			box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'I could not match a field on this form.' } ) );
-			addAi( box ); history.push( { role: 'assistant', text: 'No matching field to change.' } ); return;
+		if ( ! report.applied.length ) {
+			var reason = report.failed.length ? report.failed[ 0 ].reason.replace( /_/g, ' ' ) : 'no operation was applied';
+			box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'No change was applied: ' + reason + '.' } ) );
+			clientLog( traceId, 'apply_failed', 'No requested operation was applied.', { operation_count: ( data.operations || [] ).length, failed: report.failed } );
+			addAi( box ); history.push( { role: 'assistant', text: 'No operation applied: ' + reason } ); return;
 		}
 		var refreshed = refreshDropzone();
+		if ( ! refreshed.ok ) { report.failed.push( { operation: 'render', reason: refreshed.reason || 'renderer_refresh_failed' } ); }
+		clientLog( traceId, refreshed.ok ? 'apply_completed' : 'apply_render_failed', refreshed.ok ? 'Operations applied in the live EFB canvas.' : 'Operations changed the structure but the EFB renderer failed.', { operation_count: ( data.operations || [] ).length, applied: report.applied, failed: report.failed, renderer: refreshed } );
 		var ul = el( 'div', {} );
-		applied.forEach( function ( a ) { ul.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: '✓ ' + a } ) ); } );
+		report.applied.forEach( function ( a ) { ul.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: '✓ ' + a } ) ); } );
+		report.failed.forEach( function ( f ) { ul.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'Not applied: ' + f.reason.replace( /_/g, ' ' ) } ) ); } );
 		box.appendChild( ul );
-		if ( ! refreshed ) { box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'Reloading to update the preview…' } ) ); }
+		if ( ! refreshed.ok ) { box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'The EFB canvas could not refresh. Reload the editor and check SitePilot AI → Logs with trace ' + traceId + '.' } ) ); }
+		else { box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'Applied to the canvas. Review it, then click Easy Form Builder’s green Save button to persist the changes.' } ) ); }
 		addAi( box );
-		history.push( { role: 'assistant', text: 'Applied: ' + applied.join( '; ' ) } );
-		var fid = getFormId();
-		if ( fid ) { api( 'efb/save', { form_id: fid, structure: valj_efb } ); }
-		if ( ! refreshed ) { setTimeout( function () { window.location.reload(); }, 800 ); }
+		history.push( { role: 'assistant', text: 'Applied: ' + report.applied.join( '; ' ) } );
+		if ( ! refreshed.ok ) { setTimeout( function () { window.location.reload(); }, 800 ); }
 	}
 	function renderHelp( data ) {
 		var box = el( 'div', {} );
@@ -189,9 +310,9 @@
 		addAi( box, true );
 		history.push( { role: 'assistant', text: ( data.title || 'How-to' ) + ' answered.' } );
 	}
-	function renderResponse( data ) {
+	function renderResponse( data, traceId ) {
 		if ( data.type === 'preview' ) { return renderPreview( data ); }
-		if ( data.type === 'ops' ) { return renderOps( data ); }
+		if ( data.type === 'ops' ) { return renderOps( data, traceId ); }
 		if ( data.type === 'help' ) { return renderHelp( data ); }
 		return renderMessage( data );
 	}
@@ -207,9 +328,19 @@
 		input.value = ''; autoGrow();
 		busy = true; $( 'sitepilot-efb-send' ).disabled = true;
 		addTyping();
-		api( 'efb/chat', { message: text, history: prior, has_form: hasLiveForm(), fields: liveFields() } )
-			.then( function ( res ) { removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false; renderResponse( res.data || { type: 'message', reply: 'Sorry, something went wrong.' } ); } )
-			.catch( function () { removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false; addAi( 'Network error. Please try again.' ); } );
+		var traceId = makeTraceId();
+		var fields = liveFields();
+		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, field_ids: fields.map( function ( field ) { return field.id; } ) } );
+		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields } )
+			.then( function ( res ) {
+				removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false;
+				var data = res.data || { type: 'message', reply: 'Sorry, something went wrong.' };
+				if ( data.ok === false && ! data.reply ) { data.type = 'message'; data.reply = data.message || 'The request could not be completed.'; }
+				var context = { status: res.status, response_type: data.type || 'message', code: data.code || '', operation_count: Array.isArray( data.operations ) ? data.operations.length : 0 };
+				clientLog( traceId, data.ok === false ? 'chat_response_error' : 'chat_response', data.ok === false ? ( data.message || 'Chat endpoint returned an error.' ) : 'Chat response received.', context );
+				renderResponse( data, traceId );
+			} )
+			.catch( function ( error ) { removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false; clientLog( traceId, 'chat_network_error', 'The browser could not reach the chat endpoint.', { failed: [ { reason: String( error && error.message ? error.message : 'network_error' ).slice( 0, 160 ) } ] } ); addAi( 'Network error. Please try again.' ); } );
 	}
 
 	function greet() {

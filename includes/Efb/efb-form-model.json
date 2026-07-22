@@ -16,7 +16,8 @@
     { "type": "radio",       "label": "Radio buttons (choose one)",  "needs_options": true },
     { "type": "checkbox",    "label": "Checkboxes (choose many)",    "needs_options": true },
     { "type": "multiselect", "label": "Multi-select (choose many)",  "needs_options": true },
-    { "type": "heading",     "label": "Section heading (display only)", "needs_options": false }
+    { "type": "heading",     "label": "Section heading (display only)", "needs_options": false },
+    { "type": "esign",       "label": "Electronic signature",          "needs_options": false }
   ],
 
   "type_aliases": {
@@ -28,12 +29,15 @@
     "single_choice": "radio",
     "multiple_choice": "checkbox",
     "website": "url",
-    "upload": "file"
+    "upload": "file",
+    "signature": "esign",
+    "electronic_signature": "esign",
+    "e_signature": "esign"
   },
 
   "forbidden_types": [
     "password", "payment", "credit_card", "card", "cvv", "stripe", "paypal",
-    "persiapay", "login", "register", "esign", "ssn", "national_id"
+    "persiapay", "login", "register", "ssn", "national_id"
   ],
 
   "limits": { "max_fields": 30, "max_options": 30, "max_title": 120, "max_label": 120 },
@@ -145,6 +149,7 @@
       "radio":       { "corner": "efb-square" },
       "checkbox":    { "corner": "efb-square", "checked_color": "#0d6efd" },
       "multiselect": { "corner": "efb-square", "maxSelect": "0", "minSelect": "0" },
+      "esign":       { "elementId": "esign", "pro": "1", "icon": "bi-save", "icon_color": "text-white", "button_single_text": "Clear", "button_color": "btn-primary" },
       "heading": {
         "__replace__": true,
         "id_": "",

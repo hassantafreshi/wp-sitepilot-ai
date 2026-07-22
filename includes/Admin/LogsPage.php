@@ -43,14 +43,21 @@ final class LogsPage {
 						<th style="width:180px;"><?php esc_html_e( 'Time (UTC)', 'sitepilot-ai' ); ?></th>
 						<th style="width:80px;"><?php esc_html_e( 'Level', 'sitepilot-ai' ); ?></th>
 						<th style="width:160px;"><?php esc_html_e( 'Event', 'sitepilot-ai' ); ?></th>
+						<th style="width:120px;"><?php esc_html_e( 'Trace', 'sitepilot-ai' ); ?></th>
 						<th><?php esc_html_e( 'Message', 'sitepilot-ai' ); ?></th>
+						<th style="width:260px;"><?php esc_html_e( 'Details', 'sitepilot-ai' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
 					<?php if ( array() === $logs ) : ?>
-						<tr><td colspan="4"><?php esc_html_e( 'No activity yet.', 'sitepilot-ai' ); ?></td></tr>
+						<tr><td colspan="6"><?php esc_html_e( 'No activity yet.', 'sitepilot-ai' ); ?></td></tr>
 					<?php else : ?>
 						<?php foreach ( $logs as $log ) : ?>
+							<?php
+							$context = is_array( $log['context'] ?? null ) ? $log['context'] : array();
+							$trace   = sanitize_text_field( (string) ( $context['trace_id'] ?? '' ) );
+							$detail  = wp_json_encode( $context, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+							?>
 							<tr>
 								<td><?php echo esc_html( (string) ( $log['time'] ?? '' ) ); ?></td>
 								<td>
@@ -59,7 +66,14 @@ final class LogsPage {
 									</span>
 								</td>
 								<td><code><?php echo esc_html( (string) ( $log['event'] ?? '' ) ); ?></code></td>
+								<td><code><?php echo esc_html( $trace ); ?></code></td>
 								<td><?php echo esc_html( (string) ( $log['message'] ?? '' ) ); ?></td>
+								<td>
+									<details>
+										<summary><?php esc_html_e( 'View context', 'sitepilot-ai' ); ?></summary>
+										<pre style="max-width:420px;max-height:260px;overflow:auto;white-space:pre-wrap;"><?php echo esc_html( is_string( $detail ) ? $detail : '{}' ); ?></pre>
+									</details>
+								</td>
 							</tr>
 						<?php endforeach; ?>
 					<?php endif; ?>

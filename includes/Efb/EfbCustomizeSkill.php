@@ -14,7 +14,7 @@ use SitePilot\Providers\ProviderInterface;
  */
 final class EfbCustomizeSkill {
 
-	private const OPS   = array( 'set_form_name', 'set_confirmation', 'set_field', 'add_field', 'remove_field', 'add_option', 'remove_option' );
+	private const OPS   = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'remove_field', 'add_option', 'remove_option' );
 	private const PROPS = array( 'label', 'required', 'placeholder', 'width', 'help' );
 	private const WIDTHS = array( 'full', 'half', 'third', 'quarter' );
 	private const CHOICE = array( 'select', 'radio', 'checkbox', 'multiselect' );
@@ -38,7 +38,7 @@ final class EfbCustomizeSkill {
 
 		$ops = $raw['operations'] ?? array();
 
-		return is_array( $ops ) ? self::validate_ops( $ops ) : array();
+		return is_array( $ops ) ? self::validate_ops( $ops, $fields ) : array();
 	}
 
 	/**
@@ -47,8 +47,8 @@ final class EfbCustomizeSkill {
 	 * @param array<mixed> $ops
 	 * @return array<int, array<string, mixed>>
 	 */
-	public static function validate_ops( array $ops ): array {
-		return self::validate_ops_verbose( $ops )['ops'];
+	public static function validate_ops( array $ops, array $fields = array() ): array {
+		return self::validate_ops_verbose( $ops, $fields )['ops'];
 	}
 
 	/**
@@ -59,7 +59,7 @@ final class EfbCustomizeSkill {
 	 * @param array<mixed> $ops
 	 * @return array{ops: array<int, array<string, mixed>>, dropped: array<int, array{op:string, reason:string}>}
 	 */
-	public static function validate_ops_verbose( array $ops ): array {
+	public static function validate_ops_verbose( array $ops, array $fields = array() ): array {
 		$out     = array();
 		$dropped = array();
 
@@ -105,6 +105,54 @@ final class EfbCustomizeSkill {
 						$value = self::clean( (string) $value, 200 );
 					}
 					$out[] = array( 'op' => 'set_field', 'target' => $target, 'prop' => $prop, 'value' => $value );
+					break;
+
+				case 'set_field_property':
+					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
+					$property = EfbFormModel::resolve_field_property( (string) ( $op['property'] ?? ( $op['prop'] ?? '' ) ) );
+					if ( '' === $target || null === $property ) {
+						$dropped[] = array( 'op' => $name, 'reason' => '' === $target ? 'missing_target' : 'unknown_property' );
+						break;
+					}
+					$definition = EfbFormModel::field_property( $property );
+					if ( ! is_array( $definition ) || empty( $definition['ai_writable'] ) ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'property_not_writable:' . $property );
+						break;
+					}
+					$field_type = self::field_type_for_target( $target, $fields );
+					if ( array() !== $fields && null === $field_type ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'unknown_target:' . $target );
+						break;
+					}
+					if ( null !== $field_type && ! self::property_applies_to_type( $definition, $field_type ) ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'property_not_available_for_type:' . $property . ':' . $field_type );
+						break;
+					}
+					$valid = self::validate_catalog_value( $op['value'] ?? null, $definition );
+					if ( ! $valid['ok'] ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'invalid_property_value:' . $property );
+						break;
+					}
+					$out[] = array( 'op' => 'set_field_property', 'target' => $target, 'property' => $property, 'value' => $valid['value'] );
+					break;
+
+				case 'set_form_property':
+					$property = EfbFormModel::resolve_form_property( (string) ( $op['property'] ?? ( $op['prop'] ?? '' ) ) );
+					if ( null === $property ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'unknown_property' );
+						break;
+					}
+					$definition = EfbFormModel::form_property( $property );
+					if ( ! is_array( $definition ) || empty( $definition['ai_writable'] ) ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'property_not_writable:' . $property );
+						break;
+					}
+					$valid = self::validate_catalog_value( $op['value'] ?? null, $definition );
+					if ( ! $valid['ok'] ) {
+						$dropped[] = array( 'op' => $name, 'reason' => 'invalid_property_value:' . $property );
+						break;
+					}
+					$out[] = array( 'op' => 'set_form_property', 'property' => $property, 'value' => $valid['value'] );
 					break;
 
 				case 'add_field':
@@ -176,6 +224,8 @@ final class EfbCustomizeSkill {
 	}
 
 	private function system_prompt(): string {
+		$capabilities = $this->customization_capabilities_for_prompt();
+
 		return <<<PROMPT
 You convert a WordPress admin's plain-language request into edit operations for an existing form.
 Respond with ONLY a JSON object: { "operations": [ ... ] }. No prose, no code fences.
@@ -184,6 +234,8 @@ Allowed operations (use the field's exact label or id from the provided list as 
 - { "op": "set_form_name", "value": "New form title" }
 - { "op": "set_confirmation", "value": "Thank-you message shown after submit" }
 - { "op": "set_field", "target": "<field label or id>", "prop": "label|required|placeholder|width|help", "value": <string, or true/false for required, or one of full|half|third|quarter for width> }
+- { "op": "set_field_property", "target": "<field label or id>", "property": "<one supported FIELD_PROPERTIES key>", "value": <value matching that property> }
+- { "op": "set_form_property", "property": "<one supported FORM_PROPERTIES key>", "value": <value matching that property> }
 - { "op": "remove_field", "target": "<field label or id>" }
 - { "op": "add_option", "target": "<choice field label or id>", "value": "Option text" }
 - { "op": "remove_option", "target": "<choice field label or id>", "value": "Option text" }
@@ -192,6 +244,9 @@ Rules:
 - Only emit operations that clearly match the request. If nothing matches, return {"operations":[]}.
 - Never invent fields that are not in the provided list (except values for set_field/add_option).
 - "width": full=100%, half=50%, third=33%, quarter=25%.
+- Do not emit operations for add-ons, credentials, payment settings, raw HTML, URLs, or conditional logic. Explain those as help instead.
+
+{$capabilities}
 PROMPT;
 	}
 
@@ -243,5 +298,146 @@ PROMPT;
 		}
 
 		return array_slice( $out, 0, 30 );
+	}
+
+	private function customization_capabilities_for_prompt(): string {
+		return EfbFormModel::customization_capabilities_for_prompt();
+	}
+
+	/**
+	 * @param array<int, array{id:string,label:string,type:string}> $fields
+	 */
+	private static function field_type_for_target( string $target, array $fields ): ?string {
+		$needle = strtolower( $target );
+		foreach ( $fields as $field ) {
+			$id    = strtolower( (string) ( $field['id'] ?? '' ) );
+			$label = strtolower( (string) ( $field['label'] ?? '' ) );
+			if ( $needle === $id || $needle === $label ) {
+				return (string) ( $field['type'] ?? '' );
+			}
+		}
+
+		return null;
+	}
+
+	/** @param array<string, mixed> $definition */
+	private static function property_applies_to_type( array $definition, string $type ): bool {
+		$types = $definition['applies_to'] ?? array( '*' );
+		if ( ! is_array( $types ) || array() === $types || in_array( '*', $types, true ) ) {
+			return true;
+		}
+
+		return in_array( $type, $types, true );
+	}
+
+	/**
+	 * @param mixed                $raw
+	 * @param array<string, mixed> $definition
+	 * @return array{ok:bool,value:mixed}
+	 */
+	private static function validate_catalog_value( $raw, array $definition ): array {
+		$type = (string) ( $definition['value_type'] ?? 'string' );
+		if ( 'boolean_flag' === $type ) {
+			return array( 'ok' => true, 'value' => self::to_bool( $raw ) );
+		}
+
+		if ( 'integer' === $type ) {
+			if ( filter_var( $raw, FILTER_VALIDATE_INT ) === false ) {
+				return array( 'ok' => false, 'value' => null );
+			}
+			$value = (int) $raw;
+			if ( isset( $definition['minimum'] ) && $value < (int) $definition['minimum'] ) {
+				return array( 'ok' => false, 'value' => null );
+			}
+			if ( isset( $definition['maximum'] ) && $value > (int) $definition['maximum'] ) {
+				return array( 'ok' => false, 'value' => null );
+			}
+
+			return array( 'ok' => true, 'value' => $value );
+		}
+
+		if ( 'number_or_date' === $type ) {
+			$value = self::clean( (string) $raw, 30 );
+			if ( ! preg_match( '/^(?:\d{1,6}|\d{4}-\d{2}-\d{2})$/', $value ) ) {
+				return array( 'ok' => false, 'value' => null );
+			}
+
+			return array( 'ok' => true, 'value' => $value );
+		}
+
+		if ( 'hex_color' === $type ) {
+			$value = strtolower( self::clean( (string) $raw, 7 ) );
+
+			return array( 'ok' => (bool) preg_match( '/^#[a-f0-9]{6}$/', $value ), 'value' => $value );
+		}
+
+		if ( 'efb_color' === $type ) {
+			$value = self::normalize_efb_color( $raw );
+
+			return array( 'ok' => null !== $value, 'value' => $value );
+		}
+
+		if ( 'css_classes' === $type ) {
+			$value = self::clean( (string) $raw, (int) ( $definition['max_length'] ?? 200 ) );
+
+			return array( 'ok' => '' !== $value && (bool) preg_match( '/^[A-Za-z0-9_\-\s]+$/', $value ), 'value' => $value );
+		}
+
+		if ( 'enum' === $type ) {
+			$value  = strtolower( self::clean( (string) $raw, 100 ) );
+			$values = $definition['values'] ?? array();
+			if ( ! is_array( $values ) ) {
+				return array( 'ok' => false, 'value' => null );
+			}
+			if ( array_is_list( $values ) ) {
+				foreach ( $values as $allowed ) {
+					if ( strtolower( (string) $allowed ) === $value ) {
+						return array( 'ok' => true, 'value' => (string) $allowed );
+					}
+				}
+			} else {
+				foreach ( $values as $key => $stored ) {
+					if ( strtolower( (string) $key ) === $value || strtolower( (string) $stored ) === $value ) {
+						return array( 'ok' => true, 'value' => (string) $key );
+					}
+				}
+			}
+
+			return array( 'ok' => false, 'value' => null );
+		}
+
+		$max = (int) ( $definition['max_length'] ?? 500 );
+		$value = self::clean( (string) $raw, $max );
+
+		return array( 'ok' => '' !== $value, 'value' => $value );
+	}
+
+	/**
+	 * Convert a named or hex colour into the six-digit format that the browser
+	 * adapter maps to EFB's `btn-*` / `text-*` tokens. Accepting common Persian
+	 * names keeps a request such as "دکمه قرمز با متن سفید" actionable.
+	 *
+	 * @param mixed $raw
+	 */
+	private static function normalize_efb_color( $raw ): ?string {
+		$value = strtolower( trim( self::clean( (string) $raw, 50 ) ) );
+		if ( (bool) preg_match( '/^#[a-f0-9]{6}$/', $value ) ) {
+			return $value;
+		}
+
+		$colors = array(
+			'red' => '#ff455f', 'قرمز' => '#ff455f',
+			'green' => '#198754', 'سبز' => '#198754',
+			'blue' => '#0d6efd', 'آبی' => '#0d6efd', 'ابي' => '#0d6efd',
+			'yellow' => '#e9c31a', 'زرد' => '#e9c31a',
+			'white' => '#ffffff', 'سفید' => '#ffffff', 'سفيد' => '#ffffff',
+			'black' => '#212529', 'مشکی' => '#212529', 'مشکي' => '#212529',
+			'gray' => '#6c757d', 'grey' => '#6c757d', 'خاکستری' => '#6c757d', 'خاکستري' => '#6c757d',
+			'pink' => '#ff4b93', 'صورتی' => '#ff4b93', 'صورتي' => '#ff4b93',
+			'purple' => '#6f42c1', 'بنفش' => '#6f42c1',
+			'orange' => '#fd7e14', 'نارنجی' => '#fd7e14', 'نارنجي' => '#fd7e14',
+		);
+
+		return $colors[ $value ] ?? null;
 	}
 }
