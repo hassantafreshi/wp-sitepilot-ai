@@ -5,14 +5,17 @@ namespace SitePilot\Api;
 
 use SitePilot\Connectors\ConnectorRegistry;
 use SitePilot\Core\Plugin;
+use SitePilot\Efb\EfbChatSkill;
 use SitePilot\Efb\EfbCustomizeSkill;
 use SitePilot\Efb\EfbFormConverter;
+use SitePilot\Efb\EfbFormModel;
 use SitePilot\Efb\EfbFormSkill;
 use SitePilot\Efb\EfbKnowledge;
 use SitePilot\Execution\ActionStore;
 use SitePilot\Logging\Logger;
 use SitePilot\Providers\ProviderException;
 use SitePilot\Providers\ProviderManager;
+use SitePilot\Skills\FormPlanValidator;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -132,6 +135,127 @@ final class EfbCopilotController {
 			),
 			true
 		);
+	}
+
+	/**
+	 * Unified conversational endpoint (ChatGPT-style single thread). Decides intent
+	 * and returns a typed response: message | preview | ops | help.
+	 */
+	public function chat( WP_REST_Request $request ): WP_REST_Response {
+		$message = trim( (string) $request->get_param( 'message' ) );
+		if ( '' === $message ) {
+			return $this->respond( array( 'type' => 'message', 'reply' => __( 'Tell me what form you need, ask me to change the open form, or ask how to do something.', 'sitepilot-ai' ) ), true );
+		}
+		if ( mb_strlen( $message ) > 2000 ) {
+			return $this->respond( array( 'type' => 'message', 'reply' => __( 'That message is a bit long — please shorten it.', 'sitepilot-ai' ) ), true );
+		}
+		if ( ! $this->providers->is_configured() ) {
+			return $this->respond( array( 'type' => 'message', 'reply' => __( 'Add your AI provider API key in SitePilot AI → Settings first.', 'sitepilot-ai' ) ), false, 400, 'provider_not_configured' );
+		}
+
+		$has_form = (bool) $request->get_param( 'has_form' );
+		$fields   = $this->clean_fields( (array) $request->get_param( 'fields' ) );
+		$history  = $this->clean_history( (array) $request->get_param( 'history' ) );
+
+		try {
+			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond( $message, $history, $has_form, $fields );
+		} catch ( ProviderException $e ) {
+			return $this->respond( array( 'type' => 'message', 'reply' => $e->getMessage() ), false, 502, $e->error_code() );
+		}
+
+		$reply  = trim( (string) ( $raw['reply'] ?? '' ) );
+		$action = (string) ( $raw['action'] ?? 'chat' );
+
+		if ( 'answer_help' === $action ) {
+			$topic  = trim( (string) ( $raw['help_topic'] ?? '' ) );
+			$result = EfbKnowledge::answer( '' !== $topic ? $topic : $message );
+			if ( empty( $result['ok'] ) ) {
+				return $this->respond( array( 'type' => 'help', 'reply' => '' !== $reply ? $reply : __( 'Here are topics I can walk you through:', 'sitepilot-ai' ), 'suggestions' => $result['suggestions'] ?? array() ), true );
+			}
+			return $this->respond( array( 'type' => 'help', 'reply' => $reply, 'title' => $result['title'] ?? '', 'answer' => $result['answer'] ?? '' ), true );
+		}
+
+		if ( 'customize' === $action ) {
+			$ops = EfbCustomizeSkill::validate_ops( (array) ( $raw['operations'] ?? array() ) );
+			if ( array() === $ops ) {
+				return $this->respond( array( 'type' => 'message', 'reply' => '' !== $reply ? $reply : __( 'I could not turn that into a change. Try e.g. "make Email required" or "rename the form to Contact us".', 'sitepilot-ai' ) ), true );
+			}
+			$this->logger->info( 'efb.chat.customize', 'Customize via chat.', array( 'ops' => count( $ops ) ) );
+			return $this->respond( array( 'type' => 'ops', 'reply' => '' !== $reply ? $reply : __( 'Done — applying your change.', 'sitepilot-ai' ), 'operations' => $ops ), true );
+		}
+
+		if ( 'create_form' === $action && is_array( $raw['form'] ?? null ) ) {
+			$validator = $this->efb_validator();
+			$result    = $validator->validate( (array) $raw['form'] );
+			if ( ! $result->ok ) {
+				return $this->respond( array( 'type' => 'message', 'reply' => '' !== $reply ? $reply : __( 'I could not build a safe form from that. Could you add a bit more detail?', 'sitepilot-ai' ), 'errors' => $result->errors ), true );
+			}
+			$connector = $this->registry()->get( 'easy_form_builder' );
+			$name      = ( null !== $connector ) ? $connector->get_name() : 'Easy Form Builder';
+			$action_id = $this->store->create( $result->plan, 'easy_form_builder' );
+			$this->logger->info( 'efb.chat.plan', 'Form planned via chat.', array( 'title' => $result->plan['title'] ) );
+			return $this->respond(
+				array(
+					'type'      => 'preview',
+					'reply'     => '' !== $reply ? $reply : __( 'Here is the form I designed — review it and approve to create it.', 'sitepilot-ai' ),
+					'action_id' => $action_id,
+					'preview'   => $this->build_preview( $result->plan, $name ),
+				),
+				true
+			);
+		}
+
+		// ask / chat / fallback.
+		return $this->respond( array( 'type' => 'message', 'reply' => '' !== $reply ? $reply : __( 'How can I help with your form?', 'sitepilot-ai' ) ), true );
+	}
+
+	private function efb_validator(): FormPlanValidator {
+		$limits = EfbFormModel::limits();
+
+		return new FormPlanValidator(
+			EfbFormModel::allowed_types(),
+			EfbFormModel::option_types(),
+			EfbFormModel::forbidden_types(),
+			EfbFormModel::aliases(),
+			(int) ( $limits['max_fields'] ?? 30 )
+		);
+	}
+
+	/**
+	 * @param array<mixed> $raw
+	 * @return array<int, array{id:string,label:string,type:string}>
+	 */
+	private function clean_fields( array $raw ): array {
+		$out = array();
+		foreach ( $raw as $f ) {
+			if ( is_array( $f ) ) {
+				$out[] = array(
+					'id'    => sanitize_text_field( (string) ( $f['id'] ?? '' ) ),
+					'label' => sanitize_text_field( (string) ( $f['label'] ?? '' ) ),
+					'type'  => sanitize_text_field( (string) ( $f['type'] ?? '' ) ),
+				);
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * @param array<mixed> $raw
+	 * @return array<int, array{role:string,text:string}>
+	 */
+	private function clean_history( array $raw ): array {
+		$out = array();
+		foreach ( array_slice( $raw, -10 ) as $h ) {
+			if ( is_array( $h ) ) {
+				$out[] = array(
+					'role' => ( ( $h['role'] ?? '' ) === 'user' ) ? 'user' : 'assistant',
+					'text' => mb_substr( sanitize_text_field( (string) ( $h['text'] ?? '' ) ), 0, 400 ),
+				);
+			}
+		}
+
+		return $out;
 	}
 
 	/**

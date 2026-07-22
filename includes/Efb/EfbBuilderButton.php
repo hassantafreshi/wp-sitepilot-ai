@@ -55,22 +55,35 @@ final class EfbBuilderButton {
 			return;
 		}
 		?>
-		<button type="button" id="sitepilot-efb-launch" class="sitepilot-efb-fab" title="<?php esc_attr_e( 'Build a form with AI', 'sitepilot-ai' ); ?>">
+		<button type="button" id="sitepilot-efb-launch" class="sitepilot-efb-fab" title="<?php esc_attr_e( 'Chat with SitePilot AI', 'sitepilot-ai' ); ?>">
 			<span class="dashicons dashicons-superhero"></span>
-			<span class="sitepilot-efb-fab__label"><?php esc_html_e( 'Build with AI', 'sitepilot-ai' ); ?></span>
+			<span class="sitepilot-efb-fab__label"><?php esc_html_e( 'Ask SitePilot AI', 'sitepilot-ai' ); ?></span>
 		</button>
 
-		<div id="sitepilot-efb-modal" class="sitepilot-efb-modal" hidden aria-hidden="true">
-			<div class="sitepilot-efb-modal__backdrop" data-close="1"></div>
-			<div class="sitepilot-efb-modal__dialog" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'AI Form Builder', 'sitepilot-ai' ); ?>">
-				<div class="sitepilot-efb-modal__head">
-					<h2><span class="dashicons dashicons-superhero"></span> <?php esc_html_e( 'SitePilot AI — Build a form', 'sitepilot-ai' ); ?></h2>
-					<button type="button" class="sitepilot-efb-modal__close" data-close="1" aria-label="<?php esc_attr_e( 'Close', 'sitepilot-ai' ); ?>">&times;</button>
+		<div id="sitepilot-efb-chat" class="sitepilot-efb-chat" hidden aria-hidden="true" role="dialog"
+			aria-label="<?php esc_attr_e( 'SitePilot AI chat', 'sitepilot-ai' ); ?>">
+			<div class="sitepilot-efb-chat__head">
+				<div class="sitepilot-efb-chat__title">
+					<span class="dashicons dashicons-superhero"></span>
+					<span><?php esc_html_e( 'SitePilot AI', 'sitepilot-ai' ); ?></span>
 				</div>
-				<div class="sitepilot-efb-modal__body" id="sitepilot-efb-body">
-					<!-- filled by JS -->
+				<div class="sitepilot-efb-chat__head-actions">
+					<button type="button" id="sitepilot-efb-reset" class="sitepilot-efb-chat__icon" title="<?php esc_attr_e( 'New chat', 'sitepilot-ai' ); ?>" aria-label="<?php esc_attr_e( 'New chat', 'sitepilot-ai' ); ?>"><span class="dashicons dashicons-update"></span></button>
+					<button type="button" id="sitepilot-efb-min" class="sitepilot-efb-chat__icon" title="<?php esc_attr_e( 'Close', 'sitepilot-ai' ); ?>" aria-label="<?php esc_attr_e( 'Close', 'sitepilot-ai' ); ?>"><span class="dashicons dashicons-minus"></span></button>
 				</div>
 			</div>
+
+			<div class="sitepilot-efb-chat__messages" id="sitepilot-efb-messages" aria-live="polite">
+				<!-- messages rendered here (newest at the bottom) -->
+			</div>
+
+			<form class="sitepilot-efb-chat__composer" id="sitepilot-efb-form">
+				<textarea id="sitepilot-efb-input" class="sitepilot-efb-chat__input" rows="1"
+					placeholder="<?php esc_attr_e( 'Message SitePilot… (e.g. build a booking form)', 'sitepilot-ai' ); ?>"></textarea>
+				<button type="submit" id="sitepilot-efb-send" class="sitepilot-efb-chat__send" aria-label="<?php esc_attr_e( 'Send', 'sitepilot-ai' ); ?>">
+					<span class="dashicons dashicons-arrow-up-alt"></span>
+				</button>
+			</form>
 		</div>
 		<?php
 	}

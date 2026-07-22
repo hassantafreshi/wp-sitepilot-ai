@@ -3,9 +3,10 @@
 	'use strict';
 
 	var cfg = window.SitePilotEFB || {};
-	var actionId = null;
-	var tab = 'create';
 	var WIDTH = { full: '100', half: '50', third: '33', quarter: '25' };
+	var history = [];
+	var busy = false;
+	var greeted = false;
 
 	function el( tag, attrs, children ) {
 		var n = document.createElement( tag );
@@ -15,12 +16,10 @@
 			else if ( k === 'text' ) { n.textContent = attrs[ k ]; }
 			else { n.setAttribute( k, attrs[ k ] ); }
 		} );
-		( children || [] ).forEach( function ( c ) {
-			if ( c ) { n.appendChild( typeof c === 'string' ? document.createTextNode( c ) : c ); }
-		} );
+		( children || [] ).forEach( function ( c ) { if ( c ) { n.appendChild( typeof c === 'string' ? document.createTextNode( c ) : c ); } } );
 		return n;
 	}
-
+	function $( id ) { return document.getElementById( id ); }
 	function api( path, body ) {
 		return fetch( cfg.restUrl + path, {
 			method: 'POST', credentials: 'same-origin',
@@ -29,168 +28,98 @@
 		} ).then( function ( r ) { return r.json().then( function ( d ) { return { status: r.status, data: d }; } ); } );
 	}
 
-	function body() { return document.getElementById( 'sitepilot-efb-body' ); }
-
-	function setStatus( id, msg, kind ) {
-		var s = document.getElementById( id );
-		if ( ! s ) { return; }
-		s.className = 'sitepilot-efb-status' + ( kind && kind !== 'loading' ? ' sitepilot-efb-status--' + kind : '' );
-		s.textContent = '';
-		if ( kind === 'loading' ) { s.appendChild( el( 'span', { class: 'sitepilot-efb-spinner' } ) ); }
-		s.appendChild( document.createTextNode( msg ) );
+	/* ---------- message rendering ---------- */
+	function messages() { return $( 'sitepilot-efb-messages' ); }
+	function scrollDown() { var m = messages(); if ( m ) { m.scrollTop = m.scrollHeight; } }
+	function addUser( text ) {
+		messages().appendChild( el( 'div', { class: 'sitepilot-efb-msg sitepilot-efb-msg--user' }, [ el( 'div', { class: 'sitepilot-efb-bubble', text: text } ) ] ) );
+		scrollDown();
+	}
+	function addAi( content, wide ) {
+		var bubble = el( 'div', { class: 'sitepilot-efb-bubble' } );
+		if ( typeof content === 'string' ) { bubble.textContent = content; } else { bubble.appendChild( content ); }
+		var row = el( 'div', { class: 'sitepilot-efb-msg sitepilot-efb-msg--ai' + ( wide ? ' sitepilot-efb-msg--wide' : '' ) }, [ bubble ] );
+		messages().appendChild( row );
+		scrollDown();
+		return bubble;
+	}
+	function addTyping() {
+		var t = el( 'div', { class: 'sitepilot-efb-msg sitepilot-efb-msg--ai', id: 'sitepilot-efb-typing' }, [
+			el( 'div', { class: 'sitepilot-efb-bubble' }, [ el( 'span', { class: 'sitepilot-efb-typing' }, [ el( 'span' ), el( 'span' ), el( 'span' ) ] ) ] )
+		] );
+		messages().appendChild( t );
+		scrollDown();
+	}
+	function removeTyping() { var t = $( 'sitepilot-efb-typing' ); if ( t ) { t.remove(); } }
+	function chips( items, onPick ) {
+		var box = el( 'div', { class: 'sitepilot-efb-chips' } );
+		items.forEach( function ( it ) {
+			var label = typeof it === 'string' ? it : it.title;
+			var c = el( 'button', { type: 'button', class: 'sitepilot-efb-chip', text: label } );
+			c.addEventListener( 'click', function () { onPick( it ); } );
+			box.appendChild( c );
+		} );
+		return box;
 	}
 
 	/* ---------- EFB live structure helpers ---------- */
-
-	function hasLiveForm() {
-		return typeof valj_efb !== 'undefined' && Array.isArray( valj_efb ) && valj_efb.length > 2;
-	}
-	function getFormId() {
-		var m = /[?&]id=(\d+)/.exec( window.location.search );
-		return m ? Number( m[ 1 ] ) : 0;
-	}
-	function isFieldItem( it ) {
-		return it && it.type && [ 'form', 'step', 'option', 'r_matrix' ].indexOf( it.type ) === -1;
-	}
+	function hasLiveForm() { return typeof valj_efb !== 'undefined' && Array.isArray( valj_efb ) && valj_efb.length > 2; }
+	function getFormId() { var m = /[?&]id=(\d+)/.exec( window.location.search ); return m ? Number( m[ 1 ] ) : 0; }
+	function isFieldItem( it ) { return it && it.type && [ 'form', 'step', 'option', 'r_matrix' ].indexOf( it.type ) === -1; }
 	function liveFields() {
 		if ( ! hasLiveForm() ) { return []; }
-		return valj_efb.filter( isFieldItem ).map( function ( it ) {
-			return { id: it.id_, label: it.name || it.value || it.id_, type: it.type };
-		} );
+		return valj_efb.filter( isFieldItem ).map( function ( it ) { return { id: it.id_, label: it.name || it.value || it.id_, type: it.type }; } );
 	}
 	function findField( target ) {
 		var t = ( target || '' ).toString().toLowerCase();
-		return valj_efb.find( function ( it ) {
-			return isFieldItem( it ) && ( String( it.id_ ).toLowerCase() === t || String( it.name || '' ).toLowerCase() === t );
-		} ) || null;
+		return valj_efb.find( function ( it ) { return isFieldItem( it ) && ( String( it.id_ ).toLowerCase() === t || String( it.name || '' ).toLowerCase() === t ); } ) || null;
 	}
-	function maxAmount() {
-		var m = 0;
-		valj_efb.forEach( function ( it ) { var a = Number( it.amount ); if ( a > m ) { m = a; } } );
-		return m;
-	}
+	function maxAmount() { var m = 0; valj_efb.forEach( function ( it ) { var a = Number( it.amount ); if ( a > m ) { m = a; } } ); return m; }
 	function applyOps( ops ) {
 		var applied = [];
 		ops.forEach( function ( op ) {
 			try {
-				if ( op.op === 'set_form_name' ) {
-					valj_efb[ 0 ].formName = op.value; applied.push( 'Renamed form to "' + op.value + '"' );
-				} else if ( op.op === 'set_confirmation' ) {
-					if ( ! valj_efb[ 0 ].thank_you_message || typeof valj_efb[ 0 ].thank_you_message !== 'object' ) { valj_efb[ 0 ].thank_you_message = {}; }
-					valj_efb[ 0 ].thank_you_message.thankYou = op.value; applied.push( 'Updated confirmation message' );
-				} else if ( op.op === 'set_field' ) {
-					var f = findField( op.target );
-					if ( ! f ) { return; }
+				if ( op.op === 'set_form_name' ) { valj_efb[ 0 ].formName = op.value; applied.push( 'Renamed form to "' + op.value + '"' ); }
+				else if ( op.op === 'set_confirmation' ) { if ( ! valj_efb[ 0 ].thank_you_message || typeof valj_efb[ 0 ].thank_you_message !== 'object' ) { valj_efb[ 0 ].thank_you_message = {}; } valj_efb[ 0 ].thank_you_message.thankYou = op.value; applied.push( 'Updated confirmation message' ); }
+				else if ( op.op === 'set_field' ) {
+					var f = findField( op.target ); if ( ! f ) { return; }
 					if ( op.prop === 'label' ) { f.name = op.value; applied.push( 'Renamed "' + op.target + '" to "' + op.value + '"' ); }
-					else if ( op.prop === 'required' ) { f.required = op.value ? '1' : '0'; applied.push( ( op.value ? 'Made "' : 'Made "' ) + op.target + '" ' + ( op.value ? 'required' : 'optional' ) ); }
+					else if ( op.prop === 'required' ) { f.required = op.value ? '1' : '0'; applied.push( 'Made "' + op.target + '" ' + ( op.value ? 'required' : 'optional' ) ); }
 					else if ( op.prop === 'placeholder' ) { f.placeholder = op.value; applied.push( 'Set placeholder of "' + op.target + '"' ); }
 					else if ( op.prop === 'width' ) { f.size = WIDTH[ op.value ] || '100'; applied.push( 'Set width of "' + op.target + '" to ' + op.value ); }
 					else if ( op.prop === 'help' ) { f.message = op.value; applied.push( 'Set help text of "' + op.target + '"' ); }
-				} else if ( op.op === 'remove_field' ) {
-					var rf = findField( op.target );
-					if ( ! rf ) { return; }
-					valj_efb = valj_efb.filter( function ( it ) { return it !== rf && it.parent !== rf.id_; } );
-					window.valj_efb = valj_efb;
-					applied.push( 'Removed "' + op.target + '"' );
-				} else if ( op.op === 'add_option' ) {
-					var af = findField( op.target );
-					if ( ! af ) { return; }
+				}
+				else if ( op.op === 'remove_field' ) { var rf = findField( op.target ); if ( ! rf ) { return; } valj_efb = valj_efb.filter( function ( it ) { return it !== rf && it.parent !== rf.id_; } ); window.valj_efb = valj_efb; applied.push( 'Removed "' + op.target + '"' ); }
+				else if ( op.op === 'add_option' ) {
+					var af = findField( op.target ); if ( ! af ) { return; }
 					var oid = ( af.id_ + '_o' + ( maxAmount() + 1 ) ).replace( /[^a-z0-9_]/gi, '' );
 					var opt = { id_: oid, dataId: oid + '-id', parent: af.id_, type: 'option', value: op.value, id_op: oid, step: af.step || '1', amount: String( maxAmount() + 1 ) };
 					var lastIdx = valj_efb.length - 1;
-					for ( var i = valj_efb.length - 1; i >= 0; i-- ) { if ( valj_efb[ i ].parent === af.id_ ) { lastIdx = i; break; } if ( valj_efb[ i ] === af ) { lastIdx = i; break; } }
-					valj_efb.splice( lastIdx + 1, 0, opt );
-					applied.push( 'Added option "' + op.value + '" to "' + op.target + '"' );
-				} else if ( op.op === 'remove_option' ) {
-					var of = findField( op.target );
-					if ( ! of ) { return; }
-					valj_efb = valj_efb.filter( function ( it ) { return ! ( it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase() ); } );
-					window.valj_efb = valj_efb;
-					applied.push( 'Removed option "' + op.value + '" from "' + op.target + '"' );
+					for ( var i = valj_efb.length - 1; i >= 0; i-- ) { if ( valj_efb[ i ].parent === af.id_ || valj_efb[ i ] === af ) { lastIdx = i; break; } }
+					valj_efb.splice( lastIdx + 1, 0, opt ); applied.push( 'Added option "' + op.value + '" to "' + op.target + '"' );
 				}
-			} catch ( e ) { /* skip bad op */ }
+				else if ( op.op === 'remove_option' ) { var of = findField( op.target ); if ( ! of ) { return; } valj_efb = valj_efb.filter( function ( it ) { return ! ( it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase() ); } ); window.valj_efb = valj_efb; applied.push( 'Removed option "' + op.value + '" from "' + op.target + '"' ); }
+			} catch ( e ) {}
 		} );
 		return applied;
 	}
 	function refreshDropzone() {
-		try {
-			sessionStorage.setItem( 'valj_efb', JSON.stringify( valj_efb ) );
-			if ( typeof editFormEfb === 'function' ) { editFormEfb(); return true; }
-		} catch ( e ) {}
+		try { sessionStorage.setItem( 'valj_efb', JSON.stringify( valj_efb ) ); if ( typeof editFormEfb === 'function' ) { editFormEfb(); return true; } } catch ( e ) {}
 		return false;
 	}
 
-	/* ---------- Tabs ---------- */
-
-	function render() {
-		var b = body();
-		b.textContent = '';
-		var tabs = el( 'div', { class: 'sitepilot-efb-tabs' } );
-		[ [ 'create', 'Create' ], [ 'customize', 'Customize' ], [ 'help', 'How do I…' ] ].forEach( function ( t ) {
-			var btn = el( 'button', { type: 'button', class: 'sitepilot-efb-tab' + ( tab === t[ 0 ] ? ' is-active' : '' ), text: t[ 1 ] } );
-			btn.addEventListener( 'click', function () { tab = t[ 0 ]; render(); } );
-			tabs.appendChild( btn );
-		} );
-		b.appendChild( tabs );
-		var pane = el( 'div', { class: 'sitepilot-efb-pane', id: 'sitepilot-efb-pane' } );
-		b.appendChild( pane );
-		if ( tab === 'create' ) { renderCreate( pane ); }
-		else if ( tab === 'customize' ) { renderCustomize( pane ); }
-		else { renderHelp( pane ); }
+	/* ---------- response renderers ---------- */
+	function renderMessage( data ) {
+		var bubble = el( 'div', {} );
+		bubble.appendChild( el( 'div', { text: data.reply || '' } ) );
+		if ( data.errors && data.errors.length ) { bubble.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
+		addAi( bubble );
+		history.push( { role: 'assistant', text: data.reply || '' } );
 	}
-
-	function needKeyNotice( pane ) {
-		var notice = el( 'div', { class: 'sitepilot-efb-notice' } );
-		notice.appendChild( document.createTextNode( 'No AI provider is connected yet. ' ) );
-		notice.appendChild( el( 'a', { href: cfg.settingsUrl, text: 'Add your API key in SitePilot AI → Settings' } ) );
-		pane.appendChild( notice );
-	}
-
-	/* ----- Create ----- */
-	var createExamples = [
-		'A professional contact form with name, email, phone and message',
-		'Job application: full name, email, phone, position (Sales, Support, Engineering), CV upload, cover letter',
-		'Event registration with name, email, number of guests and dietary needs (None, Vegetarian, Vegan)',
-		'Customer feedback survey with rating (Poor, OK, Great) and comments'
-	];
-	function renderCreate( pane ) {
-		if ( ! cfg.configured ) { return needKeyNotice( pane ); }
-		pane.appendChild( el( 'label', { class: 'sitepilot-efb-label', for: 'sitepilot-efb-prompt', text: 'Describe the form you want (SitePilot designs a complete, user-friendly form):' } ) );
-		var ta = el( 'textarea', { class: 'sitepilot-efb-textarea', id: 'sitepilot-efb-prompt', rows: '3', placeholder: 'e.g. A booking form for a dental clinic' } );
-		pane.appendChild( ta );
-		var chips = el( 'div', { class: 'sitepilot-efb-chips' } );
-		createExamples.forEach( function ( ex ) {
-			var c = el( 'button', { type: 'button', class: 'sitepilot-efb-chip', text: ex } );
-			c.addEventListener( 'click', function () { ta.value = ex; ta.focus(); } );
-			chips.appendChild( c );
-		} );
-		pane.appendChild( chips );
-		var gen = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', id: 'sitepilot-efb-generate', text: 'Generate preview' } );
-		gen.addEventListener( 'click', onGenerate );
-		pane.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ gen, el( 'span', { class: 'sitepilot-efb-status', id: 'sitepilot-efb-status' } ) ] ) );
-		pane.appendChild( el( 'div', { id: 'sitepilot-efb-preview' } ) );
-	}
-	function onGenerate() {
-		var prompt = ( document.getElementById( 'sitepilot-efb-prompt' ).value || '' ).trim();
-		if ( ! prompt ) { setStatus( 'sitepilot-efb-status', 'Please describe the form first.', 'error' ); return; }
-		var gen = document.getElementById( 'sitepilot-efb-generate' );
-		gen.disabled = true;
-		setStatus( 'sitepilot-efb-status', 'Designing your form…', 'loading' );
-		api( 'efb/plan', { prompt: prompt } ).then( function ( res ) {
-			gen.disabled = false;
-			if ( ! res.data.ok ) {
-				var msg = res.data.message || 'Could not generate a form.';
-				if ( res.data.errors && res.data.errors.length ) { msg += ' — ' + res.data.errors.join( ' ' ); }
-				setStatus( 'sitepilot-efb-status', msg, 'error' ); return;
-			}
-			actionId = res.data.action_id;
-			setStatus( 'sitepilot-efb-status', 'Review, then approve to create it.', 'ok' );
-			renderPreview( res.data.preview );
-		} ).catch( function () { gen.disabled = false; setStatus( 'sitepilot-efb-status', 'Network error.', 'error' ); } );
-	}
-	function renderPreview( p ) {
-		var wrap = document.getElementById( 'sitepilot-efb-preview' );
-		wrap.textContent = '';
+	function renderPreview( data ) {
+		var box = el( 'div', {} );
+		if ( data.reply ) { box.appendChild( el( 'div', { text: data.reply } ) ); }
+		var p = data.preview;
 		var card = el( 'div', { class: 'sitepilot-efb-card' } );
 		card.appendChild( el( 'h3', { text: p.title } ) );
 		card.appendChild( el( 'div', { class: 'sitepilot-efb-meta' }, [
@@ -198,156 +127,124 @@
 			el( 'span', { class: 'sitepilot-efb-pill sitepilot-efb-pill--muted', text: p.field_count + ' fields' } )
 		] ) );
 		var table = el( 'table', { class: 'sitepilot-efb-fields' } );
-		table.appendChild( el( 'thead', {}, [ el( 'tr', {}, [ el( 'th', { text: 'Label' } ), el( 'th', { text: 'Type' } ), el( 'th', { text: 'Req.' } ), el( 'th', { text: 'Width' } ), el( 'th', { text: 'Options' } ) ] ) ] ) );
+		table.appendChild( el( 'thead', {}, [ el( 'tr', {}, [ el( 'th', { text: 'Label' } ), el( 'th', { text: 'Type' } ), el( 'th', { text: 'Req.' } ), el( 'th', { text: 'W' } ) ] ) ] ) );
 		var tb = el( 'tbody' );
 		p.fields.forEach( function ( f ) {
-			tb.appendChild( el( 'tr', {}, [
-				el( 'td', { text: f.label } ), el( 'td', {}, [ el( 'code', { text: f.type } ) ] ),
-				el( 'td', { text: f.required ? 'Yes' : 'No' } ), el( 'td', { text: f.width || 'full' } ),
-				el( 'td', { text: ( f.options || [] ).join( ', ' ) } )
-			] ) );
+			tb.appendChild( el( 'tr', {}, [ el( 'td', { text: f.label } ), el( 'td', {}, [ el( 'code', { text: f.type } ) ] ), el( 'td', { text: f.required ? '✓' : '' } ), el( 'td', { text: ( f.width || 'full' ).charAt( 0 ) } ) ] ) );
 		} );
 		table.appendChild( tb );
 		card.appendChild( table );
-		var approve = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', id: 'sitepilot-efb-approve', text: 'Approve & create in Easy Form Builder' } );
-		var cancel = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--ghost', text: 'Discard' } );
-		approve.addEventListener( 'click', onApprove );
-		cancel.addEventListener( 'click', function () { wrap.textContent = ''; actionId = null; } );
-		card.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ approve, cancel, el( 'span', { class: 'sitepilot-efb-status', id: 'sitepilot-efb-approve-status' } ) ] ) );
-		wrap.appendChild( card );
+		var approve = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', text: 'Approve & create' } );
+		var discard = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--ghost', text: 'Discard' } );
+		var note = el( 'span', { class: 'sitepilot-efb-inline-note' } );
+		approve.addEventListener( 'click', function () {
+			approve.disabled = true; note.textContent = 'Creating…';
+			api( 'efb/create', { action_id: data.action_id } ).then( function ( res ) {
+				if ( ! res.data.ok ) { note.textContent = res.data.message || 'Failed.'; approve.disabled = false; return; }
+				note.textContent = 'Created! Opening the editor…';
+				if ( res.data.result && res.data.result.edit_url ) { setTimeout( function () { window.location.href = res.data.result.edit_url; }, 600 ); }
+			} ).catch( function () { note.textContent = 'Network error.'; approve.disabled = false; } );
+		} );
+		discard.addEventListener( 'click', function () { card.remove(); } );
+		card.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ approve, discard, note ] ) );
+		box.appendChild( card );
+		addAi( box, true );
+		history.push( { role: 'assistant', text: 'Proposed a form: ' + p.title } );
 	}
-	function onApprove() {
-		if ( ! actionId ) { return; }
-		var btn = document.getElementById( 'sitepilot-efb-approve' );
-		btn.disabled = true;
-		setStatus( 'sitepilot-efb-approve-status', 'Creating the form…', 'loading' );
-		api( 'efb/create', { action_id: actionId } ).then( function ( res ) {
-			if ( ! res.data.ok ) { setStatus( 'sitepilot-efb-approve-status', res.data.message || 'Creation failed.', 'error' ); btn.disabled = false; return; }
-			var r = res.data.result;
-			setStatus( 'sitepilot-efb-approve-status', 'Created! Opening the editor…', 'ok' );
-			if ( r.edit_url ) { setTimeout( function () { window.location.href = r.edit_url; }, 600 ); }
-		} ).catch( function () { setStatus( 'sitepilot-efb-approve-status', 'Network error.', 'error' ); btn.disabled = false; } );
-	}
-
-	/* ----- Customize ----- */
-	var customizeExamples = [ 'Make Email required', 'Rename the form to Contact us', 'Reduce the width of First name to half', 'Add option Vegan to Diet', 'Change the confirmation message to Thanks, we will call you back' ];
-	function renderCustomize( pane ) {
-		if ( ! cfg.configured ) { return needKeyNotice( pane ); }
+	function renderOps( data ) {
 		if ( ! hasLiveForm() ) {
-			pane.appendChild( el( 'div', { class: 'sitepilot-efb-notice' }, [ 'Open a form in the Easy Form Builder editor first (create one above, or go to Easy Form Builder → Forms and edit a form). Then come back here to customize it by chatting.' ] ) );
+			addAi( 'Open a form in the editor first (create one here, or open Easy Form Builder → Forms and edit a form), then ask me to change it.' );
+			history.push( { role: 'assistant', text: 'Asked user to open a form first.' } );
 			return;
 		}
-		pane.appendChild( el( 'label', { class: 'sitepilot-efb-label', for: 'sitepilot-efb-cmd', text: 'Tell SitePilot what to change on this form:' } ) );
-		var ta = el( 'textarea', { class: 'sitepilot-efb-textarea', id: 'sitepilot-efb-cmd', rows: '2', placeholder: 'e.g. Make Phone required and reduce its width' } );
-		pane.appendChild( ta );
-		var chips = el( 'div', { class: 'sitepilot-efb-chips' } );
-		customizeExamples.forEach( function ( ex ) {
-			var c = el( 'button', { type: 'button', class: 'sitepilot-efb-chip', text: ex } );
-			c.addEventListener( 'click', function () { ta.value = ex; ta.focus(); } );
-			chips.appendChild( c );
-		} );
-		pane.appendChild( chips );
-		var run = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', id: 'sitepilot-efb-run', text: 'Apply change' } );
-		run.addEventListener( 'click', onCustomize );
-		pane.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ run, el( 'span', { class: 'sitepilot-efb-status', id: 'sitepilot-efb-cmd-status' } ) ] ) );
-		pane.appendChild( el( 'div', { class: 'sitepilot-efb-log', id: 'sitepilot-efb-log' } ) );
+		var applied = applyOps( data.operations || [] );
+		var box = el( 'div', {} );
+		box.appendChild( el( 'div', { text: data.reply || 'Done.' } ) );
+		if ( ! applied.length ) {
+			box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'I could not match a field on this form.' } ) );
+			addAi( box ); history.push( { role: 'assistant', text: 'No matching field to change.' } ); return;
+		}
+		var refreshed = refreshDropzone();
+		var ul = el( 'div', {} );
+		applied.forEach( function ( a ) { ul.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: '✓ ' + a } ) ); } );
+		box.appendChild( ul );
+		if ( ! refreshed ) { box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'Reloading to update the preview…' } ) ); }
+		addAi( box );
+		history.push( { role: 'assistant', text: 'Applied: ' + applied.join( '; ' ) } );
+		var fid = getFormId();
+		if ( fid ) { api( 'efb/save', { form_id: fid, structure: valj_efb } ); }
+		if ( ! refreshed ) { setTimeout( function () { window.location.reload(); }, 800 ); }
 	}
-	function logChange( lines, kind ) {
-		var log = document.getElementById( 'sitepilot-efb-log' );
-		if ( ! log ) { return; }
-		var item = el( 'div', { class: 'sitepilot-efb-logline' + ( kind ? ' sitepilot-efb-logline--' + kind : '' ) } );
-		( Array.isArray( lines ) ? lines : [ lines ] ).forEach( function ( l ) { item.appendChild( el( 'div', { text: '• ' + l } ) ); } );
-		log.insertBefore( item, log.firstChild );
+	function renderHelp( data ) {
+		var box = el( 'div', {} );
+		if ( data.reply ) { box.appendChild( el( 'div', { text: data.reply } ) ); }
+		if ( data.suggestions && data.suggestions.length ) {
+			box.appendChild( chips( data.suggestions, function ( s ) { submit( s.title ); } ) );
+			addAi( box ); history.push( { role: 'assistant', text: data.reply || 'Suggested topics.' } ); return;
+		}
+		var card = el( 'div', { class: 'sitepilot-efb-card' } );
+		if ( data.title ) { card.appendChild( el( 'h3', { text: data.title } ) ); }
+		( data.answer || '' ).split( '\n\n' ).forEach( function ( para ) { if ( para.trim() ) { card.appendChild( el( 'p', { text: para.trim() } ) ); } } );
+		box.appendChild( card );
+		addAi( box, true );
+		history.push( { role: 'assistant', text: ( data.title || 'How-to' ) + ' answered.' } );
 	}
-	function onCustomize() {
-		var cmd = ( document.getElementById( 'sitepilot-efb-cmd' ).value || '' ).trim();
-		if ( ! cmd ) { setStatus( 'sitepilot-efb-cmd-status', 'Type a change first.', 'error' ); return; }
-		if ( ! hasLiveForm() ) { setStatus( 'sitepilot-efb-cmd-status', 'No form is open in the editor.', 'error' ); return; }
-		var run = document.getElementById( 'sitepilot-efb-run' );
-		run.disabled = true;
-		setStatus( 'sitepilot-efb-cmd-status', 'Understanding…', 'loading' );
-		api( 'efb/customize', { command: cmd, fields: liveFields() } ).then( function ( res ) {
-			run.disabled = false;
-			if ( ! res.data.ok || ! res.data.operations || ! res.data.operations.length ) {
-				setStatus( 'sitepilot-efb-cmd-status', res.data.message || 'No change understood.', 'error' ); return;
-			}
-			var applied = applyOps( res.data.operations );
-			if ( ! applied.length ) { setStatus( 'sitepilot-efb-cmd-status', 'Could not match a field on this form.', 'error' ); return; }
-			var refreshed = refreshDropzone();
-			setStatus( 'sitepilot-efb-cmd-status', refreshed ? 'Applied. Preview updated.' : 'Applied (reloading to preview)…', 'ok' );
-			logChange( applied, 'ok' );
-			document.getElementById( 'sitepilot-efb-cmd' ).value = '';
-			// Persist to the form row.
-			var fid = getFormId();
-			if ( fid ) { api( 'efb/save', { form_id: fid, structure: valj_efb } ).then( function ( s ) { if ( ! s.data.ok ) { logChange( 'Note: saved in editor only — click Easy Form Builder Save to persist.', 'warn' ); } } ); }
-			if ( ! refreshed ) { setTimeout( function () { window.location.reload(); }, 700 ); }
-		} ).catch( function () { run.disabled = false; setStatus( 'sitepilot-efb-cmd-status', 'Network error.', 'error' ); } );
+	function renderResponse( data ) {
+		if ( data.type === 'preview' ) { return renderPreview( data ); }
+		if ( data.type === 'ops' ) { return renderOps( data ); }
+		if ( data.type === 'help' ) { return renderHelp( data ); }
+		return renderMessage( data );
 	}
 
-	/* ----- Help ----- */
-	var helpExamples = [ 'How do I make a field required?', 'How do I change a field width?', 'How do I add options to a dropdown?', 'How do I turn on email notifications?', 'How do I get the shortcode?' ];
-	function renderHelp( pane ) {
-		pane.appendChild( el( 'label', { class: 'sitepilot-efb-label', for: 'sitepilot-efb-q', text: 'Ask how to do anything in Easy Form Builder:' } ) );
-		var ta = el( 'input', { class: 'sitepilot-efb-textarea', id: 'sitepilot-efb-q', placeholder: 'e.g. How do I make the name field required?' } );
-		pane.appendChild( ta );
-		var chips = el( 'div', { class: 'sitepilot-efb-chips' } );
-		helpExamples.forEach( function ( ex ) {
-			var c = el( 'button', { type: 'button', class: 'sitepilot-efb-chip', text: ex } );
-			c.addEventListener( 'click', function () { ta.value = ex; askHelp(); } );
-			chips.appendChild( c );
-		} );
-		pane.appendChild( chips );
-		var ask = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', id: 'sitepilot-efb-ask', text: 'Ask' } );
-		ask.addEventListener( 'click', askHelp );
-		pane.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ ask, el( 'span', { class: 'sitepilot-efb-status', id: 'sitepilot-efb-q-status' } ) ] ) );
-		pane.appendChild( el( 'div', { id: 'sitepilot-efb-answer' } ) );
-	}
-	function askHelp() {
-		var q = ( document.getElementById( 'sitepilot-efb-q' ).value || '' ).trim();
-		if ( ! q ) { setStatus( 'sitepilot-efb-q-status', 'Type a question.', 'error' ); return; }
-		setStatus( 'sitepilot-efb-q-status', 'Looking it up…', 'loading' );
-		api( 'efb/help', { question: q } ).then( function ( res ) {
-			setStatus( 'sitepilot-efb-q-status', '', '' );
-			var wrap = document.getElementById( 'sitepilot-efb-answer' );
-			wrap.textContent = '';
-			if ( res.data.code === 'no_match' ) {
-				wrap.appendChild( el( 'p', { text: res.data.message } ) );
-				var list = el( 'div', { class: 'sitepilot-efb-chips' } );
-				( res.data.suggestions || [] ).forEach( function ( s ) {
-					var c = el( 'button', { type: 'button', class: 'sitepilot-efb-chip', text: s.title } );
-					c.addEventListener( 'click', function () { document.getElementById( 'sitepilot-efb-q' ).value = s.title; askHelp(); } );
-					list.appendChild( c );
-				} );
-				wrap.appendChild( list );
-				return;
-			}
-			var card = el( 'div', { class: 'sitepilot-efb-card' } );
-			card.appendChild( el( 'h3', { text: res.data.title || 'How to' } ) );
-			( res.data.answer || '' ).split( '\n\n' ).forEach( function ( para ) {
-				if ( para.trim() ) { card.appendChild( el( 'p', { text: para.trim() } ) ); }
-			} );
-			wrap.appendChild( card );
-		} ).catch( function () { setStatus( 'sitepilot-efb-q-status', 'Network error.', 'error' ); } );
+	/* ---------- send ---------- */
+	function submit( text ) {
+		text = ( text || '' ).trim();
+		if ( ! text || busy ) { return; }
+		addUser( text );
+		var prior = history.slice();
+		history.push( { role: 'user', text: text } );
+		var input = $( 'sitepilot-efb-input' );
+		input.value = ''; autoGrow();
+		busy = true; $( 'sitepilot-efb-send' ).disabled = true;
+		addTyping();
+		api( 'efb/chat', { message: text, history: prior, has_form: hasLiveForm(), fields: liveFields() } )
+			.then( function ( res ) { removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false; renderResponse( res.data || { type: 'message', reply: 'Sorry, something went wrong.' } ); } )
+			.catch( function () { removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false; addAi( 'Network error. Please try again.' ); } );
 	}
 
-	/* ---------- Modal open/close ---------- */
-	function open() {
-		var m = document.getElementById( 'sitepilot-efb-modal' );
-		if ( ! m ) { return; }
-		tab = 'create';
-		render();
-		m.hidden = false; m.setAttribute( 'aria-hidden', 'false' );
+	function greet() {
+		if ( greeted ) { return; }
+		greeted = true;
+		var intro = hasLiveForm()
+			? 'Hi! I can change this form for you (e.g. “make Email required”, “rename the form”), design a new one, or explain how to do anything in Easy Form Builder.'
+			: 'Hi! Tell me what form you need and I’ll design a complete one — or ask me how to do anything in Easy Form Builder. I’ll ask a question if I need details.';
+		var box = el( 'div', {} );
+		box.appendChild( el( 'div', { text: intro } ) );
+		var starters = hasLiveForm()
+			? [ 'Make Email required', 'Rename the form to Contact us', 'How do I add options to a dropdown?' ]
+			: [ 'Build a contact form', 'A booking form for a dental clinic', 'Job application form', 'How do I turn on email notifications?' ];
+		box.appendChild( chips( starters, function ( s ) { submit( s ); } ) );
+		addAi( box );
 	}
-	function close() {
-		var m = document.getElementById( 'sitepilot-efb-modal' );
-		if ( ! m ) { return; }
-		m.hidden = true; m.setAttribute( 'aria-hidden', 'true' ); actionId = null;
-	}
+
+	/* ---------- window controls ---------- */
+	function open() { var c = $( 'sitepilot-efb-chat' ); if ( ! c ) { return; } c.hidden = false; c.setAttribute( 'aria-hidden', 'false' ); greet(); setTimeout( function () { $( 'sitepilot-efb-input' ).focus(); }, 50 ); }
+	function close() { var c = $( 'sitepilot-efb-chat' ); if ( ! c ) { return; } c.hidden = true; c.setAttribute( 'aria-hidden', 'true' ); }
+	function toggle() { var c = $( 'sitepilot-efb-chat' ); if ( c && c.hidden ) { open(); } else { close(); } }
+	function reset() { history = []; greeted = false; messages().textContent = ''; greet(); }
+
+	function autoGrow() { var t = $( 'sitepilot-efb-input' ); if ( ! t ) { return; } t.style.height = 'auto'; t.style.height = Math.min( t.scrollHeight, 140 ) + 'px'; }
+
 	function init() {
-		var launch = document.getElementById( 'sitepilot-efb-launch' );
-		if ( launch ) { launch.addEventListener( 'click', open ); }
-		var modal = document.getElementById( 'sitepilot-efb-modal' );
-		if ( modal ) { modal.addEventListener( 'click', function ( e ) { if ( e.target && e.target.getAttribute( 'data-close' ) === '1' ) { close(); } } ); }
+		var launch = $( 'sitepilot-efb-launch' ); if ( launch ) { launch.addEventListener( 'click', toggle ); }
+		var min = $( 'sitepilot-efb-min' ); if ( min ) { min.addEventListener( 'click', close ); }
+		var rst = $( 'sitepilot-efb-reset' ); if ( rst ) { rst.addEventListener( 'click', reset ); }
+		var form = $( 'sitepilot-efb-form' ); if ( form ) { form.addEventListener( 'submit', function ( e ) { e.preventDefault(); submit( $( 'sitepilot-efb-input' ).value ); } ); }
+		var input = $( 'sitepilot-efb-input' );
+		if ( input ) {
+			input.addEventListener( 'input', autoGrow );
+			input.addEventListener( 'keydown', function ( e ) { if ( e.key === 'Enter' && ! e.shiftKey ) { e.preventDefault(); submit( input.value ); } } );
+		}
 		document.addEventListener( 'keydown', function ( e ) { if ( e.key === 'Escape' ) { close(); } } );
 	}
 	if ( document.readyState === 'loading' ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }

@@ -36,14 +36,17 @@ final class EfbCustomizeSkill {
 
 		$ops = $raw['operations'] ?? array();
 
-		return is_array( $ops ) ? $this->validate( $ops ) : array();
+		return is_array( $ops ) ? self::validate_ops( $ops ) : array();
 	}
 
 	/**
+	 * Validate a raw operations array against the strict vocabulary. Reused by the
+	 * unified chat orchestrator.
+	 *
 	 * @param array<mixed> $ops
 	 * @return array<int, array<string, mixed>>
 	 */
-	private function validate( array $ops ): array {
+	public static function validate_ops( array $ops ): array {
 		$out = array();
 
 		foreach ( $ops as $op ) {
@@ -58,34 +61,34 @@ final class EfbCustomizeSkill {
 			switch ( $name ) {
 				case 'set_form_name':
 				case 'set_confirmation':
-					$value = $this->clean( (string) ( $op['value'] ?? '' ), 300 );
+					$value = self::clean( (string) ( $op['value'] ?? '' ), 300 );
 					if ( '' !== $value ) {
 						$out[] = array( 'op' => $name, 'value' => $value );
 					}
 					break;
 
 				case 'set_field':
-					$target = $this->clean( (string) ( $op['target'] ?? '' ), 120 );
+					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
 					$prop   = strtolower( (string) ( $op['prop'] ?? '' ) );
 					if ( '' === $target || ! in_array( $prop, self::PROPS, true ) ) {
 						break;
 					}
 					$value = $op['value'] ?? '';
 					if ( 'required' === $prop ) {
-						$value = $this->to_bool( $value );
+						$value = self::to_bool( $value );
 					} elseif ( 'width' === $prop ) {
 						$value = strtolower( (string) $value );
 						if ( ! in_array( $value, self::WIDTHS, true ) ) {
 							break;
 						}
 					} else {
-						$value = $this->clean( (string) $value, 200 );
+						$value = self::clean( (string) $value, 200 );
 					}
 					$out[] = array( 'op' => 'set_field', 'target' => $target, 'prop' => $prop, 'value' => $value );
 					break;
 
 				case 'remove_field':
-					$target = $this->clean( (string) ( $op['target'] ?? '' ), 120 );
+					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
 					if ( '' !== $target ) {
 						$out[] = array( 'op' => 'remove_field', 'target' => $target );
 					}
@@ -93,8 +96,8 @@ final class EfbCustomizeSkill {
 
 				case 'add_option':
 				case 'remove_option':
-					$target = $this->clean( (string) ( $op['target'] ?? '' ), 120 );
-					$value  = $this->clean( (string) ( $op['value'] ?? '' ), 120 );
+					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
+					$value  = self::clean( (string) ( $op['value'] ?? '' ), 120 );
 					if ( '' !== $target && '' !== $value ) {
 						$out[] = array( 'op' => $name, 'target' => $target, 'value' => $value );
 					}
@@ -143,13 +146,13 @@ PROMPT;
 		return "Current fields:\n{$fields_text}\n\nAdmin request (untrusted):\n<<<REQ\n{$command}\nREQ;";
 	}
 
-	private function clean( string $v, int $max ): string {
+	private static function clean( string $v, int $max ): string {
 		$v = trim( (string) preg_replace( '/\s+/', ' ', strip_tags( $v ) ) );
 
 		return function_exists( 'mb_substr' ) ? mb_substr( $v, 0, $max ) : substr( $v, 0, $max );
 	}
 
-	private function to_bool( $v ): bool {
+	private static function to_bool( $v ): bool {
 		if ( is_bool( $v ) ) {
 			return $v;
 		}
