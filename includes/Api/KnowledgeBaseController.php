@@ -5,14 +5,8 @@ namespace SitePilot\Api;
 
 use SitePilot\Content\ContentIndexer;
 use SitePilot\Content\KnowledgeBase;
-use SitePilot\Core\Plugin;
-use SitePilot\Core\Settings;
-use SitePilot\Providers\OpenAiCompatibleProvider;
 use SitePilot\Providers\ProviderManager;
 use SitePilot\Usage\UsageTracker;
-use SitePilot\Connectors\ConnectorRegistry;
-use SitePilot\Execution\ActionExecutor;
-use SitePilot\Skills\CreateFormSkill;
 
 /**
  * REST controller for Knowledge Base and Usage endpoints.

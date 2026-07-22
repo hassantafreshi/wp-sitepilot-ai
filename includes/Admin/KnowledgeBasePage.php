@@ -33,10 +33,11 @@ final class KnowledgeBasePage {
 		<div class="wrap sitepilot-wrap sitepilot-kb-wrap">
 			<h1 class="sitepilot-title">
 				<span class="dashicons dashicons-database"></span>
-				<?php esc_html_e( 'SitePilot AI — Knowledge Base', 'sitepilot-ai' ); ?>
+				<?php esc_html_e( 'Knowledge Base', 'sitepilot-ai' ); ?>
+				<span class="sp-ai-badge">AI</span>
 			</h1>
 			<p class="sitepilot-subtitle">
-				<?php esc_html_e( 'SitePilot reads and understands your site content so it can answer questions accurately. Index your content once, and it stays updated automatically.', 'sitepilot-ai' ); ?>
+				<?php esc_html_e( 'SitePilot reads and understands your site content so it can answer questions accurately. Index your content once — new content is indexed automatically.', 'sitepilot-ai' ); ?>
 			</p>
 
 			<?php if ( ! $configured ) : ?>
@@ -61,16 +62,19 @@ final class KnowledgeBasePage {
 			<!-- Stats Cards -->
 			<div class="sitepilot-kb-stats">
 				<div class="sitepilot-kb-stat">
+					<div class="sitepilot-kb-stat__icon">📚</div>
 					<span class="sitepilot-kb-stat__number"><?php echo esc_html( number_format_i18n( $stats['total'] ) ); ?></span>
 					<span class="sitepilot-kb-stat__label"><?php esc_html_e( 'Indexed Items', 'sitepilot-ai' ); ?></span>
 				</div>
 				<div class="sitepilot-kb-stat">
+					<div class="sitepilot-kb-stat__icon">📄</div>
 					<span class="sitepilot-kb-stat__number"><?php echo esc_html( number_format_i18n( $total_posts ) ); ?></span>
-					<span class="sitepilot-kb-stat__label"><?php esc_html_e( 'Total Posts/Pages', 'sitepilot-ai' ); ?></span>
+					<span class="sitepilot-kb-stat__label"><?php esc_html_e( 'Total Posts & Pages', 'sitepilot-ai' ); ?></span>
 				</div>
 				<div class="sitepilot-kb-stat">
-					<span class="sitepilot-kb-stat__number">
-						<?php echo $stats['last_indexed'] ? esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $stats['last_indexed'] ) ) ) : '—'; ?>
+					<div class="sitepilot-kb-stat__icon">🕐</div>
+					<span class="sitepilot-kb-stat__number" style="font-size: 18px;">
+						<?php echo $stats['last_indexed'] ? esc_html( date_i18n( get_option( 'date_format' ), strtotime( $stats['last_indexed'] ) ) ) : '—'; ?>
 					</span>
 					<span class="sitepilot-kb-stat__label"><?php esc_html_e( 'Last Updated', 'sitepilot-ai' ); ?></span>
 				</div>
@@ -78,15 +82,18 @@ final class KnowledgeBasePage {
 
 			<!-- Indexing Control -->
 			<div class="sitepilot-card sitepilot-kb-indexer">
-				<h2><?php esc_html_e( 'Content Indexing', 'sitepilot-ai' ); ?></h2>
-				<p class="description">
-					<?php esc_html_e( 'Click the button below to scan and index all your published posts and pages. SitePilot will summarize each one using AI. You only need to do this once — new content is indexed automatically.', 'sitepilot-ai' ); ?>
+				<h2>
+					<span class="dashicons dashicons-update" style="color: var(--sp-primary, #4f46e5);"></span>
+					<?php esc_html_e( 'Content Indexing', 'sitepilot-ai' ); ?>
+				</h2>
+				<p class="description" style="max-width: 640px; line-height: 1.6;">
+					<?php esc_html_e( 'Click the button below to scan and index all your published posts and pages. SitePilot AI will summarize each one into structured knowledge. You only need to do this once — new content is indexed automatically when you publish or edit.', 'sitepilot-ai' ); ?>
 				</p>
 
 				<div class="sitepilot-kb-indexer__actions">
 					<button type="button" id="sp-kb-start-index" class="button button-primary button-hero"
 						<?php disabled( ! $configured ); ?>>
-						<span class="dashicons dashicons-update"></span>
+						<span class="dashicons dashicons-lightbulb"></span>
 						<?php esc_html_e( 'Start Indexing', 'sitepilot-ai' ); ?>
 					</button>
 					<button type="button" id="sp-kb-reindex" class="button button-secondary"
@@ -112,7 +119,10 @@ final class KnowledgeBasePage {
 			<!-- KB Table -->
 			<div class="sitepilot-card sitepilot-kb-table-wrap">
 				<div class="sitepilot-kb-table__header">
-					<h2><?php esc_html_e( 'Indexed Content', 'sitepilot-ai' ); ?></h2>
+					<h2>
+						<span class="dashicons dashicons-list-view" style="color: var(--sp-primary, #4f46e5);"></span>
+						<?php esc_html_e( 'Indexed Content', 'sitepilot-ai' ); ?>
+					</h2>
 					<div class="sitepilot-kb-table__filters">
 						<input type="search" id="sp-kb-search" class="sitepilot-kb-search"
 							placeholder="<?php esc_attr_e( 'Search indexed content…', 'sitepilot-ai' ); ?>" />
@@ -139,7 +149,14 @@ final class KnowledgeBasePage {
 						</tr>
 					</thead>
 					<tbody id="sp-kb-table-body">
-						<tr><td colspan="6" class="text-center"><?php esc_html_e( 'Loading…', 'sitepilot-ai' ); ?></td></tr>
+						<tr>
+							<td colspan="6">
+								<div class="sp-kb-empty">
+									<div class="sp-kb-empty__icon">🔍</div>
+									<div class="sp-kb-empty__text"><?php esc_html_e( 'Loading…', 'sitepilot-ai' ); ?></div>
+								</div>
+							</td>
+						</tr>
 					</tbody>
 				</table>
 

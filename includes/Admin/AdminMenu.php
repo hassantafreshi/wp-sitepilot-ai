@@ -13,9 +13,9 @@ use SitePilot\Usage\UsageTracker;
 final class AdminMenu {
 
 	public const SLUG_COPILOT  = 'sitepilot-ai';
+	public const SLUG_KB       = 'sitepilot-ai-kb';
 	public const SLUG_SETTINGS = 'sitepilot-ai-settings';
 	public const SLUG_LOGS     = 'sitepilot-ai-logs';
-	public const SLUG_KB       = 'sitepilot-ai-kb';
 
 	public function register(): void {
 		$cap = 'manage_options';
@@ -84,17 +84,16 @@ final class AdminMenu {
 		);
 
 		$boot = array(
-			'restUrl'    => esc_url_raw( rest_url( RestRoutes::NAMESPACE . '/' ) ),
-			'nonce'      => wp_create_nonce( 'wp_rest' ),
-			'configured' => ( new \SitePilot\Providers\ProviderManager() )->is_configured(),
+			'restUrl'     => esc_url_raw( rest_url( RestRoutes::NAMESPACE . '/' ) ),
+			'nonce'       => wp_create_nonce( 'wp_rest' ),
+			'configured'  => ( new \SitePilot\Providers\ProviderManager() )->is_configured(),
 			'settingsUrl' => admin_url( 'admin.php?page=' . self::SLUG_SETTINGS ),
-			'isRTL'      => is_rtl(),
+			'isRTL'       => is_rtl(),
 		);
 
 		if ( $is_copilot ) {
-			// Add usage/credit info to copilot page.
-			$usage_tracker = new UsageTracker();
-			$boot['usage'] = array(
+			$usage_tracker   = new UsageTracker();
+			$boot['usage']   = array(
 				'warning'   => $usage_tracker->get_threshold_warning(),
 				'remaining' => $usage_tracker->get_remaining(),
 				'percent'   => $usage_tracker->get_usage_percent(),
@@ -131,8 +130,8 @@ final class AdminMenu {
 				SITEPILOT_AI_VERSION
 			);
 
-			$indexer = new \SitePilot\Content\ContentIndexer();
-			$boot['totalPosts'] = $indexer->get_total_posts();
+			$indexer              = new \SitePilot\Content\ContentIndexer();
+			$boot['totalPosts']   = $indexer->get_total_posts();
 
 			wp_enqueue_script(
 				'sitepilot-kb',

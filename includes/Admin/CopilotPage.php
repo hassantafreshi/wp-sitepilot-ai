@@ -26,7 +26,8 @@ final class CopilotPage {
 		<div class="wrap sitepilot-wrap">
 			<h1 class="sitepilot-title">
 				<span class="dashicons dashicons-superhero"></span>
-				<?php esc_html_e( 'SitePilot AI — Copilot', 'sitepilot-ai' ); ?>
+				<?php esc_html_e( 'Copilot', 'sitepilot-ai' ); ?>
+				<span class="sp-ai-badge">AI</span>
 			</h1>
 			<p class="sitepilot-subtitle">
 				<?php esc_html_e( 'Describe the form you need. SitePilot drafts it, you review and approve, then it is created. Nothing is created without your approval.', 'sitepilot-ai' ); ?>

@@ -58,10 +58,22 @@
 		'📝 Creating knowledge entry…',
 		'🗂️ Organizing information…',
 		'💡 Understanding context…',
+		'🔗 Connecting related topics…',
+		'📊 Structuring the data…',
+	];
+
+	var aiDoneMessages = [
+		'✅ All content indexed! SitePilot now understands your site.',
+		'🎉 Indexing complete! Your knowledge base is ready.',
+		'✨ Done! SitePilot can now answer questions about your content.',
 	];
 
 	function randomAiMsg() {
 		return aiMessages[ Math.floor( Math.random() * aiMessages.length ) ];
+	}
+
+	function randomDoneMsg() {
+		return aiDoneMessages[ Math.floor( Math.random() * aiDoneMessages.length ) ];
 	}
 
 	/* ── Progress Log ── */
@@ -113,138 +125,167 @@
 
 		setProgress( 0, randomAiMsg() );
 
+		var chain = Promise.resolve();
+
 		if ( fullReindex ) {
-			api( 'kb/truncate', {} ).then( function () {
-				runBatch();
+			chain = chain.then( function () {
+				return api( 'kb/truncate', {} );
 			} );
-		} else {
-			runBatch();
 		}
+
+		chain
+			.then( function () { return processBatch(); } )
+			.catch( function ( err ) {
+				setProgress( 0, '❌ Error: ' + ( err.message || 'Unknown error' ) );
+			} )
+			.finally( function () {
+				indexing = false;
+				if ( startBtn ) { startBtn.disabled = false; }
+				if ( reindexBtn ) { reindexBtn.disabled = false; }
+				loadTable( 1 );
+				loadStats();
+			} );
 	}
 
-	function runBatch() {
-		setProgress(
-			Math.min( 99, currentOffset > 0 ? Math.round( ( currentOffset / ( cfg.totalPosts || 1 ) ) * 100 ) : 0 ),
-			randomAiMsg()
-		);
-
-		api( 'kb/index/batch', { offset: currentOffset } )
+	function processBatch() {
+		return api( 'kb/index/batch', { offset: currentOffset } )
 			.then( function ( res ) {
 				if ( ! res.data.ok ) {
-					setProgress( 0, res.data.message || 'Error during indexing.' );
-					finishIndexing( false );
+					setProgress( 0, '❌ ' + ( res.data.message || 'Indexing failed.' ) );
 					return;
 				}
 
-				var result = res.data;
+				var data = res.data;
+				currentOffset = data.offset;
+
+				// Update progress bar.
+				setProgress( data.percent, randomAiMsg() );
 
 				// Log each item.
-				( result.items || [] ).forEach( function ( item ) {
+				( data.items || [] ).forEach( function ( item ) {
 					addLogEntry( item );
 				} );
 
-				currentOffset = result.offset || 0;
-				var percent = result.percent || 0;
-
-				if ( result.done ) {
-					setProgress( 100, '🎉 Indexing complete! ' + ( result.total || 0 ) + ' items processed.' );
-					finishIndexing( true );
-					loadTable( 1 );
+				if ( data.done ) {
+					setProgress( 100, randomDoneMsg() );
 					return;
 				}
 
-				// Continue with next batch after a small delay (feels more natural).
-				setTimeout( function () {
-					runBatch();
-				}, 300 );
-			} )
-			.catch( function () {
-				setProgress( 0, 'Network error. Please try again.' );
-				finishIndexing( false );
+				// Small delay for visual feedback.
+				return new Promise( function ( resolve ) {
+					setTimeout( resolve, 300 );
+				} ).then( function () {
+					return processBatch();
+				} );
 			} );
 	}
 
-	function finishIndexing( success ) {
-		indexing = false;
-		var startBtn = $( 'sp-kb-start-index' );
-		var reindexBtn = $( 'sp-kb-reindex' );
-		if ( startBtn ) { startBtn.disabled = false; }
-		if ( reindexBtn ) { reindexBtn.disabled = false; }
-
-		if ( success ) {
-			// Refresh stats.
-			loadStats();
-		}
-	}
-
-	/* ── Stats ── */
+	/* ── Load Stats ── */
 	function loadStats() {
-		apiGet( 'kb/stats' ).then( function ( res ) {
-			if ( ! res.data.ok ) { return; }
-			var stats = res.data.stats;
-			var nums = document.querySelectorAll( '.sitepilot-kb-stat__number' );
-			if ( nums[ 0 ] ) { nums[ 0 ].textContent = ( stats.total || 0 ).toLocaleString(); }
-			// Last updated.
-			if ( nums[ 2 ] && stats.last_indexed ) {
-				nums[ 2 ].textContent = stats.last_indexed;
-			}
-		} );
-	}
-
-	/* ── KB Table ── */
-	function loadTable( page ) {
-		currentPage = page || 1;
-		var search = ( $( 'sp-kb-search' ) || {} ).value || '';
-		var typeFilter = ( $( 'sp-kb-type-filter' ) || {} ).value || '';
-
-		apiGet( 'kb/list?page=' + currentPage + '&search=' + encodeURIComponent( search ) + '&post_type=' + encodeURIComponent( typeFilter ) )
+		apiGet( 'kb/stats' )
 			.then( function ( res ) {
 				if ( ! res.data.ok ) { return; }
-				renderTable( res.data.items || [], res.data.total || 0, res.data.page || 1, res.data.pages || 1 );
+				var stats = res.data.stats;
+				var numbers = document.querySelectorAll( '.sitepilot-kb-stat__number' );
+				if ( numbers.length >= 1 ) { numbers[ 0 ].textContent = stats.total.toLocaleString(); }
+			} )
+			.catch( function () {} );
+	}
+
+	/* ── Load Table ── */
+	function loadTable( page ) {
+		currentPage = page || 1;
+		var search = $( 'sp-kb-search' ) ? $( 'sp-kb-search' ).value : '';
+		var typeFilter = $( 'sp-kb-type-filter' ) ? $( 'sp-kb-type-filter' ).value : '';
+
+		var params = 'page=' + currentPage;
+		if ( search ) { params += '&search=' + encodeURIComponent( search ); }
+		if ( typeFilter ) { params += '&post_type=' + encodeURIComponent( typeFilter ); }
+
+		var tbody = $( 'sp-kb-table-body' );
+		if ( tbody ) {
+			tbody.innerHTML = '<tr><td colspan="6"><div class="sp-kb-empty"><div class="sp-kb-empty__icon">⏳</div><div class="sp-kb-empty__text">Loading…</div></div></td></tr>';
+		}
+
+		apiGet( 'kb/list?' + params )
+			.then( function ( res ) {
+				if ( ! res.data.ok ) { return; }
+				renderTable( res.data.items, res.data.page, res.data.pages );
+			} )
+			.catch( function () {
+				if ( tbody ) {
+					tbody.innerHTML = '<tr><td colspan="6"><div class="sp-kb-empty"><div class="sp-kb-empty__icon">❌</div><div class="sp-kb-empty__text">Failed to load data.</div></div></td></tr>';
+				}
 			} );
 	}
 
-	function renderTable( items, total, page, pages ) {
+	function renderTable( items, page, pages ) {
 		var tbody = $( 'sp-kb-table-body' );
 		if ( ! tbody ) { return; }
+
 		tbody.textContent = '';
 
-		if ( items.length === 0 ) {
-			tbody.appendChild( el( 'tr', {}, [
-				el( 'td', { colspan: '6', class: 'text-center', text: 'No indexed content yet. Click "Start Indexing" above.' } ),
-			] ) );
+		if ( ! items || items.length === 0 ) {
+			tbody.appendChild(
+				el( 'tr', {}, [
+					el( 'td', { colspan: '6' }, [
+						el( 'div', { class: 'sp-kb-empty' }, [
+							el( 'div', { class: 'sp-kb-empty__icon', text: '📭' } ),
+							el( 'div', { class: 'sp-kb-empty__text', text: 'No indexed content yet.' } ),
+							el( 'div', { class: 'sp-kb-empty__hint', text: 'Click "Start Indexing" above to build your knowledge base.' } ),
+						] ),
+					] ),
+				] )
+			);
 			return;
 		}
 
 		items.forEach( function ( item ) {
-			var summary = ( item.summary || '' ).length > 120
-				? item.summary.substring( 0, 120 ) + '…'
-				: ( item.summary || '' );
+			// Render keywords as tags.
+			var keywordsHtml = '';
+			if ( item.keywords ) {
+				item.keywords.split( ',' ).slice( 0, 5 ).forEach( function ( kw ) {
+					kw = kw.trim();
+					if ( kw ) {
+						keywordsHtml += '<span class="sp-kb-keyword-tag">' + escapeHtml( kw ) + '</span>';
+					}
+				} );
+			}
+
+			var typeClass = 'sp-kb-type-badge';
+			if ( item.post_type === 'post' ) { typeClass += ' sp-kb-type-badge--post'; }
+			else if ( item.post_type === 'page' ) { typeClass += ' sp-kb-type-badge--page'; }
 
 			var row = el( 'tr', {}, [
 				el( 'td', { class: 'sp-kb-cell-title' }, [
-					el( 'strong', { text: item.title || '(no title)' } ),
-					el( 'span', { class: 'sp-kb-post-id', text: ' #' + item.post_id } ),
+					el( 'span', { text: item.title || '—' } ),
+					el( 'span', { class: 'sp-kb-post-id', text: '#' + item.post_id } ),
 				] ),
 				el( 'td', {}, [
-					el( 'span', { class: 'sitepilot-pill sitepilot-pill--info', text: item.post_type } ),
+					el( 'span', { class: typeClass, text: item.post_type } ),
 				] ),
-				el( 'td', { class: 'sp-kb-cell-summary', text: summary } ),
-				el( 'td', { class: 'sp-kb-cell-keywords', text: item.keywords || '—' } ),
+				el( 'td', { class: 'sp-kb-cell-summary', text: item.summary ? item.summary.substring( 0, 120 ) + ( item.summary.length > 120 ? '…' : '' ) : '—' } ),
+				el( 'td', { class: 'sp-kb-cell-keywords', html: keywordsHtml || '—' } ),
 				el( 'td', { text: item.updated_at ? item.updated_at.substring( 0, 10 ) : '—' } ),
 				el( 'td', {}, [
 					el( 'button', {
 						class: 'button button-small sp-kb-delete',
 						'data-post-id': item.post_id,
-						text: 'Remove',
+						text: '✕',
+						title: 'Remove from knowledge base',
 					} ),
 				] ),
 			] );
 			tbody.appendChild( row );
 		} );
 
-		// Pagination.
 		renderPagination( page, pages );
+	}
+
+	function escapeHtml( str ) {
+		var div = document.createElement( 'div' );
+		div.textContent = str;
+		return div.innerHTML;
 	}
 
 	function renderPagination( page, pages ) {
@@ -255,15 +296,15 @@
 		if ( pages <= 1 ) { return; }
 
 		if ( page > 1 ) {
-			var prev = el( 'button', { class: 'button button-small', text: '← Prev' } );
+			var prev = el( 'button', { class: 'button button-small', text: '←' } );
 			prev.addEventListener( 'click', function () { loadTable( page - 1 ); } );
 			wrap.appendChild( prev );
 		}
 
-		wrap.appendChild( el( 'span', { class: 'sp-kb-page-info', text: ' Page ' + page + ' of ' + pages + ' ' } ) );
+		wrap.appendChild( el( 'span', { class: 'sp-kb-page-info', text: 'Page ' + page + ' of ' + pages } ) );
 
 		if ( page < pages ) {
-			var next = el( 'button', { class: 'button button-small', text: 'Next →' } );
+			var next = el( 'button', { class: 'button button-small', text: '→' } );
 			next.addEventListener( 'click', function () { loadTable( page + 1 ); } );
 			wrap.appendChild( next );
 		}
@@ -289,13 +330,13 @@
 					loadStats();
 				} else {
 					btn.disabled = false;
-					btn.textContent = 'Remove';
+					btn.textContent = '✕';
 					alert( res.data.message || 'Failed to remove.' );
 				}
 			} )
 			.catch( function () {
 				btn.disabled = false;
-				btn.textContent = 'Remove';
+				btn.textContent = '✕';
 			} );
 	}
 
