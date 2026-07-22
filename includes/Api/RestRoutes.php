@@ -120,14 +120,13 @@ final class RestRoutes {
 			)
 		);
 
-		// Client-side execution reports: each AI proposal records whether the
-		// browser actually applied, rendered, and left it ready for EFB Save.
+		// Client-side execution reports.
 		register_rest_route(
 			self::NAMESPACE,
 			'/efb/log',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $efb, 'client_log' ),
+				'callback'            => array( $efb, 'log' ),
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);
@@ -141,12 +140,108 @@ final class RestRoutes {
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);
+
+		// ── Knowledge Base endpoints ──
+		$kb = new KnowledgeBaseController();
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/kb/index/batch',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $kb, 'index_batch' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/kb/truncate',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $kb, 'truncate' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/kb/list',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $kb, 'list_entries' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/kb/stats',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $kb, 'stats' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/kb/delete',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $kb, 'delete_entry' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/kb/chat',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $kb, 'chat' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'question' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		// ── Usage / Credit endpoints ──
+		register_rest_route(
+			self::NAMESPACE,
+			'/usage/report',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $kb, 'usage_report' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/usage/budget',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $kb, 'set_budget' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/usage/reset',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $kb, 'reset_usage' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
 	}
 
-	/**
-	 * Only administrators may use the Copilot. The REST cookie nonce (X-WP-Nonce)
-	 * is verified automatically by WordPress for logged-in cookie auth.
-	 */
 	public function can_manage(): bool {
 		return current_user_can( 'manage_options' );
 	}

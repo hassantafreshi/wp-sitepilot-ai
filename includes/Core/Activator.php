@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace SitePilot\Core;
 
 use SitePilot\Connectors\NativeFormConnector;
+use SitePilot\Content\KnowledgeBase;
 
 /**
  * Runs on plugin activation.
@@ -27,5 +28,9 @@ final class Activator {
 		if ( false === get_option( Settings::OPTION ) ) {
 			add_option( Settings::OPTION, Settings::defaults() );
 		}
+
+		// Create the Knowledge Base table.
+		$kb = new KnowledgeBase();
+		$kb->create_table();
 	}
 }

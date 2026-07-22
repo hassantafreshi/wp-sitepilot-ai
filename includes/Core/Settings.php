@@ -33,6 +33,18 @@ final class Settings {
 				'model'    => 'gpt-4o-mini',
 				'key_url'  => 'https://platform.openai.com/api-keys',
 			),
+			'qwen'       => array(
+				'label'    => 'Qwen (Alibaba)',
+				'base_url' => 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+				'model'    => 'qwen-plus',
+				'key_url'  => 'https://dashscope.console.aliyun.com/apiKey',
+			),
+			'clusy'      => array(
+				'label'    => 'Clusy.io',
+				'base_url' => 'https://api.clusy.io/v1',
+				'model'    => 'clusy-chat',
+				'key_url'  => 'https://clusy.io/dashboard/api-keys',
+			),
 			'openrouter' => array(
 				'label'    => 'OpenRouter',
 				'base_url' => 'https://openrouter.ai/api/v1',
@@ -67,6 +79,9 @@ final class Settings {
 			'temperature'         => 0.2,
 			'default_form_status' => 'draft',
 			'prefer_efb'          => true,
+			'kb_post_types'       => array(),
+			'kb_auto_index'       => true,
+			'monthly_token_budget' => 0,
 		);
 	}
 

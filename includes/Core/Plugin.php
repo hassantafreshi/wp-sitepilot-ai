@@ -8,6 +8,7 @@ use SitePilot\Api\RestRoutes;
 use SitePilot\Connectors\ConnectorRegistry;
 use SitePilot\Connectors\EasyFormBuilderConnector;
 use SitePilot\Connectors\NativeFormConnector;
+use SitePilot\Content\ContentHooks;
 use SitePilot\Efb\EfbBuilderButton;
 use SitePilot\Frontend\FormShortcode;
 
@@ -56,6 +57,11 @@ final class Plugin {
 
 		if ( is_admin() ) {
 			( new EfbBuilderButton() )->register();
+		}
+
+		// Register content auto-refresh hooks (Knowledge Base sync).
+		if ( Settings::get( 'kb_auto_index', true ) ) {
+			( new ContentHooks() )->register();
 		}
 
 		load_plugin_textdomain( 'sitepilot-ai', false, dirname( SITEPILOT_AI_BASENAME ) . '/languages' );

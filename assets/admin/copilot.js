@@ -67,6 +67,35 @@
 		} );
 	}
 
+	/* ── Credit / Usage Warning Banner ── */
+	function renderCreditWarning() {
+		var usage = cfg.usage;
+		if ( ! usage || ! usage.warning ) {
+			return;
+		}
+
+		var w = usage.warning;
+		var wrap = $( 'sitepilot-credit-warning' );
+		if ( ! wrap ) {
+			// Create the warning container after the subtitle.
+			var subtitle = document.querySelector( '.sitepilot-subtitle' );
+			if ( ! subtitle ) { return; }
+			wrap = el( 'div', { id: 'sitepilot-credit-warning', class: 'sitepilot-banner sitepilot-banner--' + w.level } );
+			subtitle.parentNode.insertBefore( wrap, subtitle.nextSibling );
+		}
+
+		wrap.textContent = '';
+		wrap.appendChild( el( 'span', { class: 'dashicons dashicons-info' } ) );
+		wrap.appendChild( el( 'span', { text: ' ' + w.message } ) );
+
+		// Add a progress bar showing usage.
+		var barWrap = el( 'div', { class: 'sitepilot-credit-bar-wrap' } );
+		var bar = el( 'div', { class: 'sitepilot-credit-bar sitepilot-credit-bar--' + w.level } );
+		bar.style.width = Math.min( 100, w.percent ) + '%';
+		barWrap.appendChild( bar );
+		wrap.appendChild( barWrap );
+	}
+
 	function riskPill( risk ) {
 		var map = { low: 'ok', medium: 'warn', high: 'err' };
 		return el( 'span', {
@@ -112,57 +141,69 @@
 				] ),
 			] )
 		);
+
 		var tbody = el( 'tbody' );
-		preview.fields.forEach( function ( f ) {
+		( preview.fields || [] ).forEach( function ( f ) {
 			tbody.appendChild(
 				el( 'tr', {}, [
 					el( 'td', { text: f.label } ),
 					el( 'td', {}, [ el( 'code', { text: f.type } ) ] ),
-					el( 'td', { text: f.required ? t( 'Yes' ) : t( 'No' ) } ),
-					el( 'td', { text: ( f.options || [] ).join( ', ' ) } ),
+					el( 'td', { text: f.required ? '✓' : '—' } ),
+					el( 'td', { text: ( f.options || [] ).join( ', ' ) || '—' } ),
 				] )
 			);
 		} );
 		table.appendChild( tbody );
 		wrap.appendChild( table );
 
-		if ( preview.notes ) {
-			wrap.appendChild( el( 'p', { class: 'description', text: preview.notes } ) );
+		if ( preview.notes && preview.notes.length ) {
+			wrap.appendChild(
+				el( 'div', { class: 'sitepilot-notes' }, [
+					el( 'strong', { text: t( 'Notes' ) + ': ' } ),
+					el( 'span', { text: preview.notes.join( ' ' ) } ),
+				] )
+			);
 		}
 
-		var approve = el( 'button', {
-			class: 'button button-primary',
-			text: t( 'Approve & create form' ),
-			id: 'sitepilot-approve',
-		} );
-		var cancel = el( 'button', { class: 'button', text: t( 'Cancel' ), id: 'sitepilot-cancel' } );
-		var approveStatus = el( 'span', { class: 'sitepilot-status', id: 'sitepilot-approve-status' } );
+		var actions = el( 'div', { class: 'sitepilot-preview__actions' }, [
+			el( 'button', {
+				id: 'sitepilot-approve',
+				class: 'button button-primary button-hero',
+				text: '✓ ' + t( 'Approve & Create' ),
+			} ),
+			el( 'button', {
+				id: 'sitepilot-cancel',
+				class: 'button button-secondary',
+				text: t( 'Cancel' ),
+			} ),
+			el( 'span', { id: 'sitepilot-approve-status', class: 'sitepilot-status', role: 'status' } ),
+		] );
+		wrap.appendChild( actions );
 
-		approve.addEventListener( 'click', onApprove );
-		cancel.addEventListener( 'click', function () {
-			wrap.hidden = true;
-			currentActionId = null;
-		} );
-
-		wrap.appendChild( el( 'div', { class: 'sitepilot-preview__actions' }, [ approve, cancel, approveStatus ] ) );
 		wrap.hidden = false;
 		$( 'sitepilot-result' ).hidden = true;
+
+		$( 'sitepilot-approve' ).addEventListener( 'click', onApprove );
+		$( 'sitepilot-cancel' ).addEventListener( 'click', function () {
+			wrap.hidden = true;
+			currentActionId = null;
+			setStatus( t( 'Cancelled. You can try a different description.' ), '' );
+		} );
 	}
 
 	function renderResult( result ) {
 		var wrap = $( 'sitepilot-result' );
 		wrap.textContent = '';
-
 		wrap.appendChild(
 			el( 'div', { class: 'sitepilot-result__head' }, [
-				el( 'span', { class: 'dashicons dashicons-yes-alt', style: 'color:#15803d' } ),
-				el( 'h2', { text: result.is_draft ? t( 'Form created as a draft' ) : t( 'Form created' ) } ),
+				el( 'span', { class: 'dashicons dashicons-yes-alt sitepilot-result__icon' } ),
+				el( 'h2', { text: t( 'Form created successfully!' ) } ),
 			] )
 		);
 
 		if ( result.shortcode ) {
 			var code = el( 'code', { text: result.shortcode } );
-			var copy = el( 'button', { class: 'button', text: t( 'Copy shortcode' ) } );
+			var copy = el( 'button', { class: 'button button-small', text: t( 'Copy shortcode' ) } );
 			copy.addEventListener( 'click', function () {
 				if ( navigator.clipboard ) {
 					navigator.clipboard.writeText( result.shortcode );
@@ -263,6 +304,9 @@
 				$( 'sitepilot-prompt' ).focus();
 			} );
 		} );
+
+		// Render credit warning if applicable.
+		renderCreditWarning();
 	}
 
 	if ( document.readyState === 'loading' ) {

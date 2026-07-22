@@ -22,6 +22,17 @@ interface ProviderInterface {
 	public function generate_structured_output( string $system_prompt, string $user_prompt ): array;
 
 	/**
+	 * Ask the model for a plain-text response (used for chat / summarisation).
+	 *
+	 * @param string $system_prompt Trusted system rules.
+	 * @param string $user_prompt   Untrusted user request.
+	 * @return array{content:string, usage:array{prompt_tokens:int, completion_tokens:int, total_tokens:int}}
+	 *
+	 * @throws ProviderException On transport, auth, or parse failure.
+	 */
+	public function generate_text( string $system_prompt, string $user_prompt ): array;
+
+	/**
 	 * Cheap call to verify the key/base/model work.
 	 *
 	 * @return array{ok:bool, message:string}

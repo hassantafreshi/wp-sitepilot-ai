@@ -267,3 +267,29 @@
 	padding-top: 16px;
 	flex-wrap: wrap;
 }
+
+/* ── Credit / Usage Warning ── */
+.sitepilot-credit-bar-wrap {
+	margin-top: 8px;
+	background: #e0e0e0;
+	border-radius: 4px;
+	height: 8px;
+	overflow: hidden;
+	max-width: 300px;
+}
+
+.sitepilot-credit-bar {
+	height: 100%;
+	border-radius: 4px;
+	transition: width 0.4s ease;
+}
+
+.sitepilot-credit-bar--info { background: #2271b1; }
+.sitepilot-credit-bar--warning { background: #dba617; }
+.sitepilot-credit-bar--danger { background: #d63638; }
+.sitepilot-credit-bar--critical { background: #d63638; animation: spPulse 1.5s infinite; }
+
+@keyframes spPulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.6; }
+}

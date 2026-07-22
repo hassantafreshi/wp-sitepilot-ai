@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace SitePilot\Providers;
 
+use SitePilot\Usage\UsageTracker;
+
 /**
  * Talks directly to any OpenAI-compatible Chat Completions API
- * (DeepSeek, OpenAI, OpenRouter, Groq, cloud.ai, custom base URL).
+ * (DeepSeek, OpenAI, OpenRouter, Groq, Qwen, clusy.io, custom base URL).
  */
 final class OpenAiCompatibleProvider implements ProviderInterface {
 
@@ -40,9 +42,37 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 			),
 		);
 
-		$content = $this->request_chat( $body );
+		$result  = $this->request_chat( $body );
+		$content = $result['content'];
+
+		// Track usage.
+		$this->track_usage( $result['usage'], 'structured_output' );
 
 		return self::extract_json( $content );
+	}
+
+	public function generate_text( string $system_prompt, string $user_prompt ): array {
+		$body = array(
+			'model'       => $this->model,
+			'temperature' => $this->temperature,
+			'messages'    => array(
+				array(
+					'role'    => 'system',
+					'content' => $system_prompt,
+				),
+				array(
+					'role'    => 'user',
+					'content' => $user_prompt,
+				),
+			),
+		);
+
+		$result = $this->request_chat( $body );
+
+		// Track usage.
+		$this->track_usage( $result['usage'], 'text_generation' );
+
+		return $result;
 	}
 
 	public function health_check(): array {
@@ -85,12 +115,13 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 	}
 
 	/**
-	 * Perform the HTTP call and return the assistant message content string.
+	 * Perform the HTTP call and return content + usage.
 	 *
 	 * @param array<string, mixed> $body
+	 * @return array{content:string, usage:array{prompt_tokens:int, completion_tokens:int, total_tokens:int}}
 	 * @throws ProviderException
 	 */
-	private function request_chat( array $body ): string {
+	private function request_chat( array $body ): array {
 		$endpoint = $this->base_url . '/chat/completions';
 
 		$response = wp_remote_post(
@@ -129,7 +160,43 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 			throw new ProviderException( 'provider_empty_response', __( 'The AI provider returned an empty response.', 'sitepilot-ai' ) );
 		}
 
-		return $content;
+		// Extract usage from the API response.
+		$usage = array(
+			'prompt_tokens'     => (int) ( $decoded['usage']['prompt_tokens'] ?? 0 ),
+			'completion_tokens' => (int) ( $decoded['usage']['completion_tokens'] ?? 0 ),
+			'total_tokens'      => (int) ( $decoded['usage']['total_tokens'] ?? 0 ),
+		);
+
+		// Fallback: estimate if the provider didn't return usage.
+		if ( 0 === $usage['total_tokens'] ) {
+			$usage['prompt_tokens']     = (int) ceil( mb_strlen( $body['messages'][1]['content'] ?? '' ) / 4 );
+			$usage['completion_tokens'] = (int) ceil( mb_strlen( $content ) / 4 );
+			$usage['total_tokens']      = $usage['prompt_tokens'] + $usage['completion_tokens'];
+		}
+
+		return array(
+			'content' => $content,
+			'usage'   => $usage,
+		);
+	}
+
+	/**
+	 * Record token usage via the UsageTracker.
+	 *
+	 * @param array{prompt_tokens:int, completion_tokens:int, total_tokens:int} $usage
+	 */
+	private function track_usage( array $usage, string $context ): void {
+		try {
+			$tracker = new UsageTracker();
+			$tracker->record(
+				$this->model,
+				$usage['prompt_tokens'],
+				$usage['completion_tokens'],
+				$context
+			);
+		} catch ( \Throwable $e ) {
+			// Usage tracking must never break the main flow.
+		}
 	}
 
 	/**
