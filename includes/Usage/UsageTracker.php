@@ -145,27 +145,32 @@ final class UsageTracker {
 		$used_percent = $this->get_usage_percent();
 		$remaining    = $this->get_remaining();
 
-		// Find the highest threshold we've crossed.
+		// Find the most severe threshold crossed (smallest remaining %).
+		$remaining_percent = 100 - $used_percent;
+		$crossed = null;
 		foreach ( self::THRESHOLDS as $threshold ) {
-			$remaining_percent = 100 - $used_percent;
 			if ( $remaining_percent <= $threshold ) {
-				$level = $threshold <= 5 ? 'critical' : ( $threshold <= 15 ? 'danger' : ( $threshold <= 25 ? 'warning' : 'info' ) );
-
-				return array(
-					'level'     => $level,
-					'percent'   => $used_percent,
-					'remaining' => $remaining,
-					'message'   => sprintf(
-						/* translators: 1: remaining percentage, 2: remaining tokens. */
-						__( 'AI credit alert: Only %1$d%% remaining (%2$s tokens left).', 'sitepilot-ai' ),
-						(int) round( 100 - $used_percent ),
-						number_format_i18n( $remaining )
-					),
-				);
+				$crossed = $threshold;
 			}
 		}
 
-		return null;
+		if ( null === $crossed ) {
+			return null;
+		}
+
+		$level = $crossed <= 5 ? 'critical' : ( $crossed <= 15 ? 'danger' : ( $crossed <= 25 ? 'warning' : 'info' ) );
+
+		return array(
+			'level'     => $level,
+			'percent'   => $used_percent,
+			'remaining' => $remaining,
+			'message'   => sprintf(
+				/* translators: 1: remaining percentage, 2: remaining tokens. */
+				__( 'AI credit alert: Only %1$d%% remaining (%2$s tokens left).', 'sitepilot-ai' ),
+				(int) round( $remaining_percent ),
+				number_format_i18n( $remaining )
+			),
+		);
 	}
 
 	/**

@@ -10,6 +10,7 @@ use SitePilot\Connectors\EasyFormBuilderConnector;
 use SitePilot\Connectors\NativeFormConnector;
 use SitePilot\Content\ContentHooks;
 use SitePilot\Efb\EfbBuilderButton;
+use SitePilot\Core\WpConnectors;
 use SitePilot\Frontend\FormShortcode;
 
 /**
@@ -63,6 +64,9 @@ final class Plugin {
 		if ( Settings::get( 'kb_auto_index', true ) ) {
 			( new ContentHooks() )->register();
 		}
+
+		// Register with WordPress 7.0+ Connectors API (no-op on older versions).
+		WpConnectors::register();
 
 		load_plugin_textdomain( 'sitepilot-ai', false, dirname( SITEPILOT_AI_BASENAME ) . '/languages' );
 	}

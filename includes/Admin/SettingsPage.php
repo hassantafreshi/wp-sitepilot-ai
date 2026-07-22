@@ -6,6 +6,7 @@ namespace SitePilot\Admin;
 use SitePilot\Connectors\ConnectorRegistry;
 use SitePilot\Core\Plugin;
 use SitePilot\Core\Settings;
+use SitePilot\Core\WpConnectors;
 
 /**
  * Settings screen: connect an AI provider (BYOK), choose model, and defaults.
@@ -19,11 +20,14 @@ final class SettingsPage {
 
 		$saved = $this->maybe_save();
 		$s     = Settings::all();
+		$wp_connectors_available = WpConnectors::is_available();
+		$active_key_mode = WpConnectors::get_active_mode();
 		?>
 		<div class="wrap sitepilot-wrap">
 			<h1 class="sitepilot-title">
 				<span class="dashicons dashicons-admin-generic"></span>
-				<?php esc_html_e( 'SitePilot AI — Settings', 'sitepilot-ai' ); ?>
+				<?php esc_html_e( 'Settings', 'sitepilot-ai' ); ?>
+				<span class="sp-ai-badge">AI</span>
 			</h1>
 
 			<?php if ( $saved ) : ?>
@@ -32,11 +36,63 @@ final class SettingsPage {
 
 			<div class="sitepilot-banner sitepilot-banner--info">
 				<span class="dashicons dashicons-shield"></span>
-				<span><?php esc_html_e( 'Temporary standalone mode: your key is stored encrypted on this site and used to call your AI provider directly. It is never sent anywhere else.', 'sitepilot-ai' ); ?></span>
+				<span>
+					<?php
+					printf(
+						/* translators: %s: key source label. */
+						esc_html__( 'API key security: %s. Your key is never sent anywhere except your chosen AI provider.', 'sitepilot-ai' ),
+						esc_html( WpConnectors::get_key_source_label() )
+					);
+					?>
+				</span>
 			</div>
 
 			<form method="post" class="sitepilot-card sitepilot-settings-form">
 				<?php wp_nonce_field( 'sitepilot_settings_save', 'sitepilot_settings_nonce' ); ?>
+
+				<!-- Key Management Mode -->
+				<div class="sitepilot-field">
+					<label><?php esc_html_e( 'API Key Management', 'sitepilot-ai' ); ?></label>
+					<div class="sitepilot-key-modes">
+						<label class="sitepilot-key-mode <?php echo 'keyvault' === $active_key_mode ? 'sitepilot-key-mode--active' : ''; ?>">
+							<input type="radio" name="key_management" value="keyvault"
+								<?php checked( $s['key_management'] ?? 'keyvault', 'keyvault' ); ?> />
+							<span class="sitepilot-key-mode__icon">🔐</span>
+							<span class="sitepilot-key-mode__body">
+								<strong><?php esc_html_e( 'SitePilot Encrypted Vault', 'sitepilot-ai' ); ?></strong>
+								<small><?php esc_html_e( 'API key encrypted with XSalsa20-Poly1305 / AES-256-GCM and stored on this site.', 'sitepilot-ai' ); ?></small>
+							</span>
+						</label>
+
+						<?php if ( $wp_connectors_available ) : ?>
+							<label class="sitepilot-key-mode <?php echo 'wp_connectors' === $active_key_mode ? 'sitepilot-key-mode--active' : ''; ?>">
+								<input type="radio" name="key_management" value="wp_connectors"
+									<?php checked( $s['key_management'] ?? 'keyvault', 'wp_connectors' ); ?> />
+								<span class="sitepilot-key-mode__icon">🔗</span>
+								<span class="sitepilot-key-mode__body">
+									<strong><?php esc_html_e( 'WordPress Connectors', 'sitepilot-ai' ); ?></strong>
+									<small>
+										<?php esc_html_e( 'Use the native WordPress 7 key manager.', 'sitepilot-ai' ); ?>
+										<a href="<?php echo esc_url( admin_url( 'options-general.php?page=wp-connectors' ) ); ?>">
+											<?php esc_html_e( 'Settings → Connectors', 'sitepilot-ai' ); ?>
+										</a>
+									</small>
+								</span>
+							</label>
+						<?php else : ?>
+							<label class="sitepilot-key-mode sitepilot-key-mode--disabled">
+								<input type="radio" disabled />
+								<span class="sitepilot-key-mode__icon">🔗</span>
+								<span class="sitepilot-key-mode__body">
+									<strong><?php esc_html_e( 'WordPress Connectors', 'sitepilot-ai' ); ?></strong>
+									<small><?php esc_html_e( 'Available in WordPress 7.0+. Update WordPress to enable this option.', 'sitepilot-ai' ); ?></small>
+								</span>
+							</label>
+						<?php endif; ?>
+					</div>
+				</div>
+
+				<hr class="sitepilot-divider" />
 
 				<div class="sitepilot-field">
 					<label for="sp-provider"><?php esc_html_e( 'AI Provider', 'sitepilot-ai' ); ?></label>
@@ -47,7 +103,7 @@ final class SettingsPage {
 							</option>
 						<?php endforeach; ?>
 					</select>
-					<p class="description"><?php esc_html_e( 'Choose a provider preset. Fields below auto-fill; you can override them for a custom endpoint (e.g. cloud.ai).', 'sitepilot-ai' ); ?></p>
+					<p class="description"><?php esc_html_e( 'Choose a provider preset. Fields below auto-fill; you can override them for a custom endpoint.', 'sitepilot-ai' ); ?></p>
 				</div>
 
 				<div class="sitepilot-field">
@@ -60,35 +116,64 @@ final class SettingsPage {
 					<input type="text" id="sp-model" name="model" class="regular-text" value="<?php echo esc_attr( $s['model'] ); ?>" placeholder="deepseek-chat" />
 				</div>
 
+				<?php if ( 'wp_connectors' !== ( $s['key_management'] ?? 'keyvault' ) || ! $wp_connectors_available ) : ?>
+					<div class="sitepilot-field">
+						<label for="sp-api-key"><?php esc_html_e( 'API Key', 'sitepilot-ai' ); ?></label>
+						<input type="password" id="sp-api-key" name="api_key" class="regular-text" autocomplete="off"
+							placeholder="<?php echo Settings::has_api_key() ? esc_attr__( '•••••••• (a key is saved — leave blank to keep it)', 'sitepilot-ai' ) : esc_attr__( 'Paste your API key here', 'sitepilot-ai' ); ?>" />
+						<p class="description">
+							<?php
+							$preset = Settings::presets()[ $s['provider'] ] ?? null;
+							if ( $preset && ! empty( $preset['key_url'] ) ) {
+								printf(
+									/* translators: %s: URL to get API key. */
+									esc_html__( 'Get your key from %s', 'sitepilot-ai' ),
+									'<a href="' . esc_url( $preset['key_url'] ) . '" target="_blank" rel="noopener">' . esc_html( $preset['label'] ) . '</a>'
+								);
+							}
+							?>
+						</p>
+						<?php if ( Settings::has_api_key() ) : ?>
+							<label class="sitepilot-checkbox-inline">
+								<input type="checkbox" name="clear_api_key" value="1" />
+								<?php esc_html_e( 'Remove saved API key', 'sitepilot-ai' ); ?>
+							</label>
+						<?php endif; ?>
+					</div>
+				<?php else : ?>
+					<div class="sitepilot-banner sitepilot-banner--info">
+						<span class="dashicons dashicons-info"></span>
+						<span>
+							<?php esc_html_e( 'API key is managed by WordPress Connectors.', 'sitepilot-ai' ); ?>
+							<a href="<?php echo esc_url( admin_url( 'options-general.php?page=wp-connectors' ) ); ?>">
+								<?php esc_html_e( 'Manage key in Settings → Connectors', 'sitepilot-ai' ); ?>
+							</a>
+						</span>
+					</div>
+				<?php endif; ?>
+
 				<div class="sitepilot-field">
-					<label for="sp-api-key"><?php esc_html_e( 'API Key', 'sitepilot-ai' ); ?></label>
-					<input type="password" id="sp-api-key" name="api_key" class="regular-text" autocomplete="off"
-						placeholder="<?php echo Settings::has_api_key() ? esc_attr__( '•••••••• (a key is saved — leave blank to keep it)', 'sitepilot-ai' ) : esc_attr__( 'Paste your provider API key', 'sitepilot-ai' ); ?>" />
-					<?php if ( Settings::has_api_key() ) : ?>
-						<label class="sitepilot-inline-check">
-							<input type="checkbox" name="clear_api_key" value="1" />
-							<?php esc_html_e( 'Remove the saved key', 'sitepilot-ai' ); ?>
-						</label>
-					<?php endif; ?>
-					<p class="description" id="sp-key-help"></p>
+					<label for="sp-temperature"><?php esc_html_e( 'Temperature', 'sitepilot-ai' ); ?></label>
+					<input type="number" id="sp-temperature" name="temperature" min="0" max="1" step="0.1" value="<?php echo esc_attr( (string) $s['temperature'] ); ?>" />
+					<p class="description"><?php esc_html_e( 'Lower = more deterministic. Recommended: 0.2', 'sitepilot-ai' ); ?></p>
 				</div>
 
 				<div class="sitepilot-field">
-					<label><?php esc_html_e( 'When a form is approved, create it as', 'sitepilot-ai' ); ?></label>
-					<label class="sitepilot-inline-check"><input type="radio" name="default_form_status" value="draft" <?php checked( $s['default_form_status'], 'draft' ); ?> /> <?php esc_html_e( 'Draft (recommended)', 'sitepilot-ai' ); ?></label>
-					<label class="sitepilot-inline-check"><input type="radio" name="default_form_status" value="publish" <?php checked( $s['default_form_status'], 'publish' ); ?> /> <?php esc_html_e( 'Published', 'sitepilot-ai' ); ?></label>
+					<label><?php esc_html_e( 'Default form status', 'sitepilot-ai' ); ?></label>
+					<label class="sitepilot-checkbox-inline">
+						<input type="radio" name="default_form_status" value="draft" <?php checked( $s['default_form_status'], 'draft' ); ?> />
+						<?php esc_html_e( 'Draft (recommended)', 'sitepilot-ai' ); ?>
+					</label>
+					<label class="sitepilot-checkbox-inline">
+						<input type="radio" name="default_form_status" value="publish" <?php checked( $s['default_form_status'], 'publish' ); ?> />
+						<?php esc_html_e( 'Publish immediately', 'sitepilot-ai' ); ?>
+					</label>
 				</div>
 
 				<div class="sitepilot-field">
-					<label for="sp-temperature"><?php esc_html_e( 'Creativity (temperature)', 'sitepilot-ai' ); ?></label>
-					<input type="number" step="0.1" min="0" max="1" id="sp-temperature" name="temperature" value="<?php echo esc_attr( (string) $s['temperature'] ); ?>" class="small-text" />
-					<span class="description"><?php esc_html_e( 'Lower is more predictable. 0.2 is a good default for forms.', 'sitepilot-ai' ); ?></span>
-				</div>
-
-				<div class="sitepilot-field">
-					<label class="sitepilot-inline-check">
-						<input type="checkbox" name="prefer_efb" value="1" <?php checked( (bool) $s['prefer_efb'] ); ?> />
-						<?php esc_html_e( 'Use Easy Form Builder when available (otherwise use built-in forms)', 'sitepilot-ai' ); ?>
+					<label class="sitepilot-checkbox-inline">
+						<input type="checkbox" name="prefer_efb" value="1" <?php checked( $s['prefer_efb'] ); ?> />
+						<?php esc_html_e( 'Prefer Easy Form Builder when available', 'sitepilot-ai' ); ?>
 					</label>
 				</div>
 
@@ -153,6 +238,11 @@ final class SettingsPage {
 
 		$status = ( 'publish' === ( $_POST['default_form_status'] ?? 'draft' ) ) ? 'publish' : 'draft';
 
+		$key_mgmt = sanitize_key( wp_unslash( $_POST['key_management'] ?? 'keyvault' ) );
+		if ( ! in_array( $key_mgmt, array( 'keyvault', 'wp_connectors' ), true ) ) {
+			$key_mgmt = 'keyvault';
+		}
+
 		Settings::update(
 			array(
 				'provider'            => $provider,
@@ -161,6 +251,7 @@ final class SettingsPage {
 				'temperature'         => max( 0.0, min( 1.0, (float) ( $_POST['temperature'] ?? 0.2 ) ) ),
 				'default_form_status' => $status,
 				'prefer_efb'          => ! empty( $_POST['prefer_efb'] ),
+				'key_management'      => $key_mgmt,
 			)
 		);
 

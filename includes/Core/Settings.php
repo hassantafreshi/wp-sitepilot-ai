@@ -146,4 +146,11 @@ final class Settings {
 
 		return is_string( $stored ) && '' !== $stored;
 	}
+
+	/**
+	 * Delete the stored API key.
+	 */
+	public static function delete_api_key(): void {
+		delete_option( self::KEY_OPTION );
+	}
 }
