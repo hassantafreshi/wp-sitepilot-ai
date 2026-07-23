@@ -16,14 +16,14 @@
 }
 
 .sp-stat-card {
-	background: #fff;
+	background: var(--sp-surface, #fff);
 	border-radius: 12px;
 	padding: 24px;
 	display: flex;
 	align-items: center;
 	gap: 16px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-	border: 1px solid #e5e7eb;
+	border: 1px solid var(--sp-border, #e2e4e7);
 	transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -55,13 +55,13 @@
 .sp-stat-value {
 	font-size: 28px;
 	font-weight: 700;
-	color: #111827;
+	color: var(--sp-text, #1d2327);
 	line-height: 1.2;
 }
 
 .sp-stat-label {
 	font-size: 14px;
-	color: #6b7280;
+	color: var(--sp-text-secondary, #646970);
 	margin-top: 4px;
 }
 
@@ -75,18 +75,18 @@
 
 /* Dashboard Card */
 .sp-dashboard-card {
-	background: #fff;
+	background: var(--sp-surface, #fff);
 	border-radius: 12px;
 	padding: 24px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-	border: 1px solid #e5e7eb;
+	border: 1px solid var(--sp-border, #e2e4e7);
 }
 
 .sp-dashboard-card h2 {
 	margin: 0 0 20px;
 	font-size: 18px;
 	font-weight: 600;
-	color: #111827;
+	color: var(--sp-text, #1d2327);
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -117,14 +117,14 @@
 .sp-bar {
 	width: 100%;
 	max-width: 40px;
-	background: linear-gradient(180deg, #4f46e5 0%, #7c3aed 100%);
+	background: var(--sp-gradient, linear-gradient(180deg, #4f46e5 0%, #7c3aed 100%));
 	border-radius: 6px 6px 0 0;
 	transition: height 0.3s ease;
 }
 
 .sp-bar-label {
 	font-size: 12px;
-	color: #6b7280;
+	color: var(--sp-text-secondary, #646970);
 	margin-top: 8px;
 	text-align: center;
 }
@@ -135,12 +135,12 @@
 	align-items: center;
 	justify-content: center;
 	height: 150px;
-	color: #9ca3af;
+	color: var(--sp-text-muted, #9ca3af);
 	font-size: 14px;
 }
 
 .sp-list-empty--success {
-	color: #059669;
+	color: var(--sp-success, #059669);
 }
 
 .sp-chart-loading,
@@ -149,7 +149,7 @@
 	align-items: center;
 	justify-content: center;
 	height: 150px;
-	color: #9ca3af;
+	color: var(--sp-text-muted, #9ca3af);
 }
 
 /* Product List */
@@ -179,7 +179,7 @@
 .sp-product-rank {
 	width: 28px;
 	height: 28px;
-	background: #4f46e5;
+	background: var(--sp-primary, #4f46e5);
 	color: #fff;
 	border-radius: 50%;
 	display: flex;
@@ -195,13 +195,13 @@
 .sp-order-customer {
 	flex: 1;
 	font-size: 14px;
-	color: #374151;
+	color: var(--sp-text-secondary, #646970);
 }
 
 .sp-product-revenue,
 .sp-order-total {
 	font-weight: 600;
-	color: #111827;
+	color: var(--sp-text, #1d2327);
 }
 
 /* Stock Status */
@@ -225,7 +225,7 @@
 /* Order Status */
 .sp-order-id {
 	font-weight: 600;
-	color: #4f46e5;
+	color: var(--sp-primary, #4f46e5);
 	margin-right: 12px;
 }
 
@@ -273,7 +273,7 @@
 	border-radius: 12px;
 	text-decoration: none;
 	transition: all 0.2s;
-	border: 1px solid #e5e7eb;
+	border: 1px solid var(--sp-border, #e2e4e7);
 }
 
 .sp-action-btn:hover {
@@ -289,7 +289,7 @@
 .sp-action-label {
 	font-size: 14px;
 	font-weight: 500;
-	color: #374151;
+	color: var(--sp-text-secondary, #646970);
 }
 
 /* RTL Support */

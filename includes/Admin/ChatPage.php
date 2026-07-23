@@ -31,8 +31,8 @@ final class ChatPage {
 							<span class="dashicons dashicons-format-chat"></span>
 							<?php esc_html_e( 'Conversations', 'sitepilot-ai' ); ?>
 						</h3>
-						<button type="button" id="sp-chat-new" class="button button-small" title="<?php esc_attr_e( 'New conversation', 'sitepilot-ai' ); ?>">
-							<span class="dashicons dashicons-plus"></span>
+						<button type="button" id="sp-chat-new" class="button button-small" title="<?php esc_attr_e( 'New conversation', 'sitepilot-ai' ); ?>" aria-label="<?php esc_attr_e( 'New conversation', 'sitepilot-ai' ); ?>">
+							<span class="dashicons dashicons-plus" aria-hidden="true"></span>
 						</button>
 					</div>
 					<div id="sp-chat-list" class="sitepilot-chat-list">
@@ -103,8 +103,9 @@ final class ChatPage {
 							<?php disabled( ! $configured || ! $has_content ); ?>></textarea>
 						<div class="sitepilot-chat-input__actions">
 							<button type="button" id="sp-chat-send" class="button button-primary"
+								aria-label="<?php esc_attr_e( 'Send message', 'sitepilot-ai' ); ?>"
 								<?php disabled( ! $configured || ! $has_content ); ?>>
-								<span class="dashicons dashicons-arrow-right-alt2"></span>
+								<span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
 							</button>
 							<span id="sp-chat-status" class="sitepilot-status" role="status" aria-live="polite"></span>
 						</div>

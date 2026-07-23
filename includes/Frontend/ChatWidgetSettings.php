@@ -5,91 +5,223 @@ use SitePilot\Core\Settings;
 
 final class ChatWidgetSettings {
 	public function render(): void {
-		if ( ! current_user_can( 'manage_options' ) ) { wp_die( 'No access' ); }
+		if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'You do not have permission to view this page.', 'sitepilot-ai' ) ); }
 		$saved = $this->save();
 		$s = Settings::all();
 		$w = $s['widget'] ?? Settings::widget_defaults();
+
+		$positions = array(
+			'bottom-right' => __( 'Bottom Right', 'sitepilot-ai' ),
+			'bottom-left'  => __( 'Bottom Left', 'sitepilot-ai' ),
+			'top-right'    => __( 'Top Right', 'sitepilot-ai' ),
+			'top-left'     => __( 'Top Left', 'sitepilot-ai' ),
+		);
+		$voices = array(
+			'Google UK English Female' => 'Google UK Female',
+			'Google US English'        => 'Google US',
+			'Microsoft Zira'           => 'Zira',
+			'Microsoft David'          => 'David',
+		);
 		?>
-		<div class="wrap"><h1>🤖 SitePilot AI — Widget Settings</h1>
-		<?php if ( $saved ) { echo '<div class="notice notice-success"><p>Settings saved.</p></div>'; } ?>
-		<form method="post" class="sp-settings-form">
-		<?php wp_nonce_field( 'sp_widget_save' ); ?>
+		<div class="wrap sitepilot-wrap">
+			<h1 class="sitepilot-title">
+				<span class="dashicons dashicons-format-chat"></span>
+				<?php esc_html_e( 'Chat Widget', 'sitepilot-ai' ); ?>
+				<span class="sp-ai-badge">AI</span>
+			</h1>
+			<p class="sitepilot-subtitle">
+				<?php esc_html_e( 'Customize the front-end chat widget: appearance, voice, and human handoff channels.', 'sitepilot-ai' ); ?>
+			</p>
 
-		<div class="sp-settings-section">
-		<h2>💬 General</h2>
-		<p><label><input type="checkbox" name="widget[enabled]" value="1" <?php checked( $w['enabled'] ?? true ); ?> /> Enable Widget</label></p>
-		<p><label>Title: <input type="text" name="widget[title]" value="<?php echo esc_attr( $w['title'] ?? 'SitePilot AI' ); ?>" class="regular-text" /></label></p>
-		<p><label>Greeting: <input type="text" name="widget[greeting]" value="<?php echo esc_attr( $w['greeting'] ?? 'Hi! How can I help?' ); ?>" class="regular-text" /></label></p>
-		<p><label>Position:</label>
-			<select name="widget[position]">
-				<?php foreach ( [ 'bottom-right'=>'Bottom Right', 'bottom-left'=>'Bottom Left', 'top-right'=>'Top Right', 'top-left'=>'Top Left' ] as $k => $v ) {
-					echo '<option value="'.$k.'"'.selected($w['position']??'bottom-right',$k,false).'>'.$v.'</option>';
-				} ?>
-			</select></p>
-		<p><label>Auto-open delay (seconds): <input type="number" name="widget[auto_open]" min="0" max="60" value="<?php echo (int)($w['auto_open']??5); ?>" /> (0=disabled)</label></p>
+			<?php if ( $saved ) : ?>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'sitepilot-ai' ); ?></p></div>
+			<?php endif; ?>
+
+			<form method="post" class="sitepilot-widget-form">
+				<?php wp_nonce_field( 'sp_widget_save' ); ?>
+
+				<!-- General -->
+				<div class="sitepilot-card">
+					<h2 class="sp-w-head"><span class="sp-w-head__icon">💬</span> <?php esc_html_e( 'General', 'sitepilot-ai' ); ?></h2>
+					<label class="sp-w-check">
+						<input type="checkbox" name="widget[enabled]" value="1" <?php checked( $w['enabled'] ?? true ); ?> />
+						<?php esc_html_e( 'Enable the widget on the site', 'sitepilot-ai' ); ?>
+					</label>
+					<div class="sp-w-row">
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-title"><?php esc_html_e( 'Title', 'sitepilot-ai' ); ?></label>
+							<input id="sp-w-title" type="text" name="widget[title]" value="<?php echo esc_attr( $w['title'] ?? 'SitePilot AI' ); ?>" />
+						</div>
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-greeting"><?php esc_html_e( 'Greeting', 'sitepilot-ai' ); ?></label>
+							<input id="sp-w-greeting" type="text" name="widget[greeting]" value="<?php echo esc_attr( $w['greeting'] ?? 'Hi! How can I help?' ); ?>" />
+						</div>
+					</div>
+					<div class="sp-w-row">
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-position"><?php esc_html_e( 'Position', 'sitepilot-ai' ); ?></label>
+							<select id="sp-w-position" name="widget[position]">
+								<?php foreach ( $positions as $k => $v ) : ?>
+									<option value="<?php echo esc_attr( $k ); ?>" <?php selected( $w['position'] ?? 'bottom-right', $k ); ?>><?php echo esc_html( $v ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-autoopen"><?php esc_html_e( 'Auto-open delay (seconds)', 'sitepilot-ai' ); ?></label>
+							<input id="sp-w-autoopen" type="number" name="widget[auto_open]" min="0" max="60" value="<?php echo (int) ( $w['auto_open'] ?? 5 ); ?>" />
+							<span class="sp-w-hint"><?php esc_html_e( 'Set to 0 to disable auto-open.', 'sitepilot-ai' ); ?></span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Theme -->
+				<div class="sitepilot-card">
+					<h2 class="sp-w-head"><span class="sp-w-head__icon">🎨</span> <?php esc_html_e( 'Theme', 'sitepilot-ai' ); ?></h2>
+					<div class="sp-w-field">
+						<span class="sp-w-label"><?php esc_html_e( 'Color scheme', 'sitepilot-ai' ); ?></span>
+						<div class="sp-w-radios">
+							<label class="sp-w-radio">
+								<input type="radio" name="widget[theme]" value="light" <?php checked( $w['theme'] ?? 'light', 'light' ); ?> />
+								<?php esc_html_e( 'Light', 'sitepilot-ai' ); ?>
+							</label>
+							<label class="sp-w-radio">
+								<input type="radio" name="widget[theme]" value="dark" <?php checked( $w['theme'] ?? 'light', 'dark' ); ?> />
+								<?php esc_html_e( 'Dark', 'sitepilot-ai' ); ?>
+							</label>
+						</div>
+					</div>
+					<div class="sp-w-field">
+						<span class="sp-w-label"><?php esc_html_e( 'Colors', 'sitepilot-ai' ); ?></span>
+						<div class="sp-w-colors">
+							<label class="sp-w-color">
+								<input type="color" name="widget[color]" value="<?php echo esc_attr( $w['color'] ?? '#4f46e5' ); ?>" />
+								<?php esc_html_e( 'Brand', 'sitepilot-ai' ); ?>
+							</label>
+							<label class="sp-w-color">
+								<input type="color" name="widget[bg]" value="<?php echo esc_attr( $w['bg'] ?? '#ffffff' ); ?>" />
+								<?php esc_html_e( 'Background', 'sitepilot-ai' ); ?>
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<!-- Voice -->
+				<div class="sitepilot-card">
+					<h2 class="sp-w-head"><span class="sp-w-head__icon">🎤</span> <?php esc_html_e( 'Voice', 'sitepilot-ai' ); ?></h2>
+					<label class="sp-w-check">
+						<input type="checkbox" name="widget[voice_enabled]" value="1" <?php checked( $w['voice_enabled'] ?? true ); ?> />
+						<?php esc_html_e( 'Enable voice input & playback', 'sitepilot-ai' ); ?>
+					</label>
+					<label class="sp-w-check">
+						<input type="checkbox" name="widget[voice_auto]" value="1" <?php checked( $w['voice_auto'] ?? true ); ?> />
+						<?php esc_html_e( 'Auto-play responses', 'sitepilot-ai' ); ?>
+					</label>
+					<div class="sp-w-field">
+						<label class="sp-w-label" for="sp-w-voice"><?php esc_html_e( 'Voice', 'sitepilot-ai' ); ?></label>
+						<select id="sp-w-voice" name="widget[voice_name]">
+							<?php foreach ( $voices as $k => $v ) : ?>
+								<option value="<?php echo esc_attr( $k ); ?>" <?php selected( $w['voice_name'] ?? 'Google UK English Female', $k ); ?>><?php echo esc_html( $v ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				</div>
+
+				<!-- Human Handoff -->
+				<div class="sitepilot-card">
+					<h2 class="sp-w-head"><span class="sp-w-head__icon">👥</span> <?php esc_html_e( 'Human Handoff', 'sitepilot-ai' ); ?></h2>
+					<label class="sp-w-check">
+						<input type="checkbox" name="widget[handoff_enabled]" value="1" <?php checked( $w['handoff_enabled'] ?? false ); ?> />
+						<?php esc_html_e( 'Enable handoff to a human', 'sitepilot-ai' ); ?>
+					</label>
+					<div class="sp-w-field">
+						<label class="sp-w-label" for="sp-w-handoff-text"><?php esc_html_e( 'Button text', 'sitepilot-ai' ); ?></label>
+						<input id="sp-w-handoff-text" type="text" name="widget[handoff_text]" value="<?php echo esc_attr( $w['handoff_text'] ?? 'Talk to human' ); ?>" />
+					</div>
+					<div class="sp-w-field">
+						<label class="sp-w-label" for="sp-w-handoff-hook"><?php esc_html_e( 'Hook message', 'sitepilot-ai' ); ?></label>
+						<textarea id="sp-w-handoff-hook" name="widget[handoff_hook]" rows="2"><?php echo esc_textarea( $w['handoff_hook'] ?? 'You are now connected to human support.' ); ?></textarea>
+					</div>
+				</div>
+
+				<!-- Email -->
+				<div class="sitepilot-card">
+					<h2 class="sp-w-head"><span class="sp-w-head__icon">📧</span> <?php esc_html_e( 'Email', 'sitepilot-ai' ); ?></h2>
+					<label class="sp-w-check">
+						<input type="checkbox" name="widget[handoff_email_enabled]" value="1" <?php checked( $w['handoff_email_enabled'] ?? true ); ?> />
+						<?php esc_html_e( 'Enable email notifications', 'sitepilot-ai' ); ?>
+					</label>
+					<div class="sp-w-field">
+						<label class="sp-w-label" for="sp-w-email"><?php esc_html_e( 'Support email', 'sitepilot-ai' ); ?></label>
+						<input id="sp-w-email" type="email" name="widget[handoff_email]" value="<?php echo esc_attr( $w['handoff_email'] ?? get_option( 'admin_email' ) ); ?>" />
+					</div>
+				</div>
+
+				<!-- Telegram -->
+				<div class="sitepilot-card">
+					<h2 class="sp-w-head"><span class="sp-w-head__icon">📱</span> <?php esc_html_e( 'Telegram', 'sitepilot-ai' ); ?></h2>
+					<label class="sp-w-check">
+						<input type="checkbox" name="widget[handoff_telegram_enabled]" value="1" <?php checked( $w['handoff_telegram_enabled'] ?? false ); ?> />
+						<?php esc_html_e( 'Enable Telegram notifications', 'sitepilot-ai' ); ?>
+					</label>
+					<div class="sp-w-row">
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-tg-token"><?php esc_html_e( 'Bot token', 'sitepilot-ai' ); ?></label>
+							<input id="sp-w-tg-token" type="password" autocomplete="off" name="widget[handoff_telegram_token]" value="<?php echo esc_attr( $w['handoff_telegram_token'] ?? '' ); ?>" />
+						</div>
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-tg-chat"><?php esc_html_e( 'Chat ID', 'sitepilot-ai' ); ?></label>
+							<input id="sp-w-tg-chat" type="text" name="widget[handoff_telegram_chat]" value="<?php echo esc_attr( $w['handoff_telegram_chat'] ?? '' ); ?>" />
+						</div>
+					</div>
+				</div>
+
+				<!-- Twilio WhatsApp -->
+				<div class="sitepilot-card">
+					<h2 class="sp-w-head"><span class="sp-w-head__icon">📞</span> <?php esc_html_e( 'Twilio WhatsApp', 'sitepilot-ai' ); ?></h2>
+					<label class="sp-w-check">
+						<input type="checkbox" name="widget[handoff_twilio_enabled]" value="1" <?php checked( $w['handoff_twilio_enabled'] ?? false ); ?> />
+						<?php esc_html_e( 'Enable Twilio WhatsApp notifications', 'sitepilot-ai' ); ?>
+					</label>
+					<div class="sp-w-row">
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-tw-sid"><?php esc_html_e( 'Account SID', 'sitepilot-ai' ); ?></label>
+							<input id="sp-w-tw-sid" type="text" name="widget[handoff_twilio_sid]" value="<?php echo esc_attr( $w['handoff_twilio_sid'] ?? '' ); ?>" />
+						</div>
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-tw-token"><?php esc_html_e( 'Auth token', 'sitepilot-ai' ); ?></label>
+							<input id="sp-w-tw-token" type="password" autocomplete="off" name="widget[handoff_twilio_token]" value="<?php echo esc_attr( $w['handoff_twilio_token'] ?? '' ); ?>" />
+						</div>
+					</div>
+					<div class="sp-w-row">
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-tw-from"><?php esc_html_e( 'From (WhatsApp)', 'sitepilot-ai' ); ?></label>
+							<input id="sp-w-tw-from" type="text" name="widget[handoff_twilio_from]" value="<?php echo esc_attr( $w['handoff_twilio_from'] ?? '' ); ?>" placeholder="whatsapp:+14155238886" />
+						</div>
+						<div class="sp-w-field">
+							<label class="sp-w-label" for="sp-w-tw-to"><?php esc_html_e( 'To (your number)', 'sitepilot-ai' ); ?></label>
+							<input id="sp-w-tw-to" type="text" name="widget[handoff_twilio_to]" value="<?php echo esc_attr( $w['handoff_twilio_to'] ?? '' ); ?>" placeholder="whatsapp:+1234567890" />
+						</div>
+					</div>
+				</div>
+
+				<!-- Custom Webhook -->
+				<div class="sitepilot-card">
+					<h2 class="sp-w-head"><span class="sp-w-head__icon">🔗</span> <?php esc_html_e( 'Custom Webhook', 'sitepilot-ai' ); ?></h2>
+					<label class="sp-w-check">
+						<input type="checkbox" name="widget[handoff_webhook_enabled]" value="1" <?php checked( $w['handoff_webhook_enabled'] ?? false ); ?> />
+						<?php esc_html_e( 'Enable custom webhook', 'sitepilot-ai' ); ?>
+					</label>
+					<div class="sp-w-field">
+						<label class="sp-w-label" for="sp-w-webhook"><?php esc_html_e( 'Webhook URL', 'sitepilot-ai' ); ?></label>
+						<input id="sp-w-webhook" type="url" name="widget[handoff_webhook_url]" value="<?php echo esc_attr( $w['handoff_webhook_url'] ?? '' ); ?>" />
+					</div>
+				</div>
+
+				<div class="sitepilot-widget-actions">
+					<button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'sitepilot-ai' ); ?></button>
+				</div>
+			</form>
 		</div>
-
-		<div class="sp-settings-section">
-		<h2>🎨 Theme</h2>
-		<p><label><input type="radio" name="widget[theme]" value="light" <?php checked( $w['theme'] ?? 'light', 'light' ); ?> /> Light</label>
-			<label><input type="radio" name="widget[theme]" value="dark" <?php checked( $w['theme'] ?? 'light', 'dark' ); ?> /> Dark</label></p>
-		<p><label>Brand Color: <input type="color" name="widget[color]" value="<?php echo esc_attr( $w['color'] ?? '#4f46e5' ); ?>" /></label>
-		<label> Background: <input type="color" name="widget[bg]" value="<?php echo esc_attr( $w['bg'] ?? '#ffffff' ); ?>" /></label></p>
-		</div>
-
-		<div class="sp-settings-section">
-		<h2>🎤 Voice</h2>
-		<p><label><input type="checkbox" name="widget[voice_enabled]" value="1" <?php checked( $w['voice_enabled'] ?? true ); ?> /> Enable Voice</label></p>
-		<p><label><input type="checkbox" name="widget[voice_auto]" value="1" <?php checked( $w['voice_auto'] ?? true ); ?> /> Auto-play responses</label></p>
-		<p><label>Voice: <select name="widget[voice_name]">
-			<?php foreach ( [ 'Google UK English Female'=>'Google UK Female','Google US English'=>'Google US','Microsoft Zira'=>'Zira','Microsoft David'=>'David' ] as $k=>$v ) {
-				echo '<option value="'.$k.'"'.selected($w['voice_name']??'Google UK English Female',$k,false).'>'.$v.'</option>';
-			} ?></select></label></p>
-		</div>
-
-		<div class="sp-settings-section">
-		<h2>👥 Human Handoff</h2>
-		<p><label><input type="checkbox" name="widget[handoff_enabled]" value="1" <?php checked( $w['handoff_enabled'] ?? false ); ?> /> Enable Handoff</label></p>
-		<p><label>Button text: <input type="text" name="widget[handoff_text]" value="<?php echo esc_attr( $w['handoff_text'] ?? 'Talk to human' ); ?>" /></label></p>
-		<p><label>Hook message: <textarea name="widget[handoff_hook]" rows="2" class="regular-text"><?php echo esc_textarea( $w['handoff_hook'] ?? 'You are now connected to human support.' ); ?></textarea></label></p>
-		</div>
-
-		<div class="sp-settings-section">
-		<h2>📧 Email</h2>
-		<p><label><input type="checkbox" name="widget[handoff_email_enabled]" value="1" <?php checked( $w['handoff_email_enabled'] ?? true ); ?> /> Enable Email</label></p>
-		<p><label>Support Email: <input type="email" name="widget[handoff_email]" value="<?php echo esc_attr( $w['handoff_email'] ?? get_option('admin_email') ); ?>" class="regular-text" /></label></p>
-		</div>
-
-		<div class="sp-settings-section">
-		<h2>📱 Telegram</h2>
-		<p><label><input type="checkbox" name="widget[handoff_telegram_enabled]" value="1" <?php checked( $w['handoff_telegram_enabled'] ?? false ); ?> /> Enable Telegram</label></p>
-		<p><label>Bot Token: <input type="password" name="widget[handoff_telegram_token]" value="<?php echo esc_attr( $w['handoff_telegram_token'] ?? '' ); ?>" class="regular-text" /></label></p>
-		<p><label>Chat ID: <input type="text" name="widget[handoff_telegram_chat]" value="<?php echo esc_attr( $w['handoff_telegram_chat'] ?? '' ); ?>" /></label></p>
-		</div>
-
-		<div class="sp-settings-section">
-		<h2>📞 Twilio WhatsApp</h2>
-		<p><label><input type="checkbox" name="widget[handoff_twilio_enabled]" value="1" <?php checked( $w['handoff_twilio_enabled'] ?? false ); ?> /> Enable Twilio</label></p>
-		<p><label>Account SID: <input type="text" name="widget[handoff_twilio_sid]" value="<?php echo esc_attr( $w['handoff_twilio_sid'] ?? '' ); ?>" class="regular-text" /></label></p>
-		<p><label>Auth Token: <input type="password" name="widget[handoff_twilio_token]" value="<?php echo esc_attr( $w['handoff_twilio_token'] ?? '' ); ?>" class="regular-text" /></label></p>
-		<p><label>From (WhatsApp): <input type="text" name="widget[handoff_twilio_from]" value="<?php echo esc_attr( $w['handoff_twilio_from'] ?? '' ); ?>" placeholder="whatsapp:+14155238886" /></label></p>
-		<p><label>To (your number): <input type="text" name="widget[handoff_twilio_to]" value="<?php echo esc_attr( $w['handoff_twilio_to'] ?? '' ); ?>" placeholder="whatsapp:+1234567890" /></label></p>
-		</div>
-
-		<div class="sp-settings-section">
-		<h2>🔗 Custom Webhook</h2>
-		<p><label><input type="checkbox" name="widget[handoff_webhook_enabled]" value="1" <?php checked( $w['handoff_webhook_enabled'] ?? false ); ?> /> Enable Webhook</label></p>
-		<p><label>Webhook URL: <input type="url" name="widget[handoff_webhook_url]" value="<?php echo esc_attr( $w['handoff_webhook_url'] ?? '' ); ?>" class="regular-text" /></label></p>
-		</div>
-
-		<p><button type="submit" class="button button-primary">Save Settings</button></p>
-		</form>
-		<style>.sp-settings-section{background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px;margin:16px 0;max-width:700px}
-		.sp-settings-section h2{margin-top:0;font-size:16px}
-		.sp-settings-section p{margin:8px 0}
-		.sp-settings-section input[type="text"],.sp-settings-section input[type="email"],.sp-settings-section input[type="url"],.sp-settings-section input[type="password"],.sp-settings-section select,.sp-settings-section textarea{width:100%;max-width:400px}
-		.sp-settings-section label{display:flex;align-items:center;gap:6px}
-		</style></div>
 		<?php
 	}
 

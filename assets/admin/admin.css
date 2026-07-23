@@ -678,3 +678,45 @@
 .rtl .sitepilot-key-mode__body {
 	align-items: flex-end;
 }
+
+/* ═══════════════════════════════════════════════════════
+   Accessibility
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Keyboard focus ring for custom interactive elements ── */
+.sitepilot-wrap .sitepilot-chip:focus-visible,
+.sitepilot-wrap .sitepilot-key-mode:focus-within,
+.sitepilot-wrap button:focus-visible,
+.sitepilot-wrap a:focus-visible,
+.sitepilot-wrap input:focus-visible,
+.sitepilot-wrap select:focus-visible,
+.sitepilot-wrap textarea:focus-visible,
+.sitepilot-wrap summary:focus-visible {
+	outline: 2px solid var(--sp-primary, #4f46e5);
+	outline-offset: 2px;
+}
+
+/* ── Respect reduced-motion preferences ── */
+@media (prefers-reduced-motion: reduce) {
+	.sitepilot-wrap *,
+	.sitepilot-wrap *::before,
+	.sitepilot-wrap *::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* ── Screen-reader-only utility ── */
+.sitepilot-wrap .sp-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
