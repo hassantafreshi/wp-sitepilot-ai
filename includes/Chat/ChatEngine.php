@@ -10,8 +10,10 @@ use SitePilot\Providers\ProviderManager;
 /**
  * RAG (Retrieval-Augmented Generation) engine.
  *
- * Searches the Knowledge Base for relevant content, builds a context-rich
- * prompt, sends it to the AI provider, and returns the answer with citations.
+ * Two-phase approach:
+ * 1. Build comprehensive context from ALL KB content (get_context_for_ai)
+ * 2. Search KB for specific relevant entries → source citations
+ * 3. Send full context + specific sources to AI
  */
 final class ChatEngine {
 
@@ -19,10 +21,10 @@ final class ChatEngine {
 	private Logger $logger;
 
 	/** Max KB entries to include as context. */
-	private const MAX_SOURCES = 8;
+	private const MAX_SOURCES = 10;
 
 	/** Max characters of context to send to the AI. */
-	private const MAX_CONTEXT_CHARS = 10000;
+	private const MAX_CONTEXT_CHARS = 12000;
 
 	public function __construct( ?KnowledgeBase $kb = null, ?Logger $logger = null ) {
 		$this->kb     = $kb ?? new KnowledgeBase();
@@ -32,9 +34,9 @@ final class ChatEngine {
 	/**
 	 * Ask a question using RAG.
 	 *
-	 * @param string $question The user's question.
+	 * @param string $question        The user's question.
 	 * @param string $context_override Optional pre-built context (from conversation history).
-	 * @return array{answer:string, sources:array<int,array{post_id:int,title:string,url:string,relevance:float}>,usage:array{prompt_tokens:int,completion_tokens:int,total_tokens:int}}
+	 * @return array{answer:string, sources:array<int,array{post_id:int,title:string,url:string,relevance:float}>, context:string, usage:array{prompt_tokens:int,completion_tokens:int,total_tokens:int}}
 	 */
 	public function ask( string $question, string $context_override = '' ): array {
 		$manager = new ProviderManager();
@@ -42,67 +44,52 @@ final class ChatEngine {
 			return array(
 				'answer'  => __( 'AI provider is not configured. Please add your API key in Settings.', 'sitepilot-ai' ),
 				'sources' => array(),
+				'context' => '',
 				'usage'   => array( 'prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0 ),
 			);
 		}
 
 		try {
-			// 1. Search KB for relevant content.
-			$search_results = $this->kb->search( $question, self::MAX_SOURCES );
+			// Phase 1: Get comprehensive context from ALL KB content.
+			$kb_context = $this->kb->get_context_for_ai( 50, self::MAX_CONTEXT_CHARS );
 
-			// 2. Build context from KB search results.
-			$sources  = array();
-			$context  = '';
-			$context .= '__محتویات وبسایت (برای پاسخ‌دهی):__' . "\n\n";
+			// Phase 2: Search for specific relevant entries for source citations.
+			$search_results = $this->kb->search( $question, self::MAX_SOURCES );
+			$sources        = array();
 
 			foreach ( $search_results as $result ) {
-				$entry = $context . sprintf(
-					"[%s — %s]\nخلاصه: %s\nکلمات کلیدی: %s\nدسته‌بندی: %s\n\n",
-					$result['post_type'],
-					$result['title'],
-					$result['summary'],
-					$result['keywords'],
-					$result['category']
-				);
-
-				if ( mb_strlen( $entry ) > self::MAX_CONTEXT_CHARS - mb_strlen( $context ) ) {
-					break;
-				}
-				$context = $entry;
-
 				$sources[] = array(
 					'post_id'   => (int) $result['post_id'],
-					'title'     => html_entity_decode( $result['title'], ENT_QUOTES, 'UTF-8' ),
+					'title'     => html_entity_decode( $result['title'] ?? '', ENT_QUOTES, 'UTF-8' ),
 					'url'       => (string) get_permalink( (int) $result['post_id'] ),
 					'relevance' => round( (float) ( $result['relevance'] ?? 1.0 ), 2 ),
 				);
 			}
 
-			if ( '' === trim( $context ) ) {
-				// No KB results — try direct AI answer without context.
-				$context = __( 'No specific content found. Answer generally if possible.', 'sitepilot-ai' );
+			// Phase 3: Build the system prompt with context.
+			$context_for_ai = '';
+			if ( '' !== trim( $kb_context ) ) {
+				$context_for_ai = "Website content (use this to answer):\n" . $kb_context;
 			}
 
-			// 3. Build system prompt.
-			$system_prompt = "You are SitePilot AI, a helpful WordPress website assistant.\n\n"
-				. "Your task is to answer the user's question based ONLY on the website content provided below.\n\n"
-				. $context . "\n\n"
-				. "Rules:\n"
-				. "- Respond in the same language as the user's question.\n"
-				. "- Be concise, accurate, and helpful.\n"
-				. "- If the answer is not in the provided content, say so honestly.\n"
-				. "- At the end, list the sources you used (titles only).\n";
+			$system_prompt = "You are SitePilot AI, a helpful WordPress website assistant.\n"
+				. "Answer the user's question based on the website content below.\n"
+				. "If the content doesn't have the answer, say so honestly.\n"
+				. "Be concise and helpful.\n\n"
+				. $context_for_ai . "\n\n"
+				. "At the end, if you used specific sources, mention them by name.\n";
 
 			// Use context override if provided (for conversation history).
 			$user_prompt = $context_override ?: $question;
 
-			// 4. Send to AI.
+			// Phase 4: Send to AI provider.
 			$provider = $manager->make();
 			$result   = $provider->generate_text( $system_prompt, $user_prompt );
 
 			return array(
 				'answer'  => $result['content'],
 				'sources' => $sources,
+				'context' => $kb_context,
 				'usage'   => $result['usage'],
 			);
 
@@ -112,6 +99,7 @@ final class ChatEngine {
 			return array(
 				'answer'  => __( 'An error occurred while processing your question. Please try again.', 'sitepilot-ai' ),
 				'sources' => array(),
+				'context' => '',
 				'usage'   => array( 'prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0 ),
 				'error'   => $e->getMessage(),
 			);
