@@ -34,12 +34,18 @@ final class Settings {
 			'enabled' => true, 'position' => 'bottom-right', 'theme' => 'light',
 			'color' => '#4f46e5', 'bg' => '#ffffff', 'title' => 'SitePilot AI',
 			'greeting' => 'Hi! How can I help you?', 'auto_open' => 5,
-			'voice_enabled' => true, 'voice_auto' => true, 'voice_name' => 'Google UK English Female',
-			'handoff_enabled' => false, 'handoff_text' => 'Talk to human', 'handoff_hook' => '',
-			'handoff_email_enabled' => true, 'handoff_email' => '',
-			'handoff_telegram_enabled' => false, 'handoff_telegram_token' => '', 'handoff_telegram_chat' => '',
-			'handoff_twilio_enabled' => false, 'handoff_twilio_sid' => '', 'handoff_twilio_token' => '', 'handoff_twilio_from' => '', 'handoff_twilio_to' => '',
-			'handoff_webhook_enabled' => false, 'handoff_webhook_url' => '',
+			'voice_enabled' => true, 'voice_auto' => true,
+			'handoff_enabled' => false, 'handoff_email_to' => '',
+			'handoff_telegram_token' => '', 'handoff_telegram_chat' => '',
+			'handoff_twilio_sid' => '', 'handoff_twilio_token' => '', 'handoff_twilio_from' => '', 'handoff_twilio_to' => '',
+			'exclude_pages' => array(), 'exclude_cats' => array(), 'exclude_types' => array(),
+			'exclude_ids' => array(),
+			'btn_size' => 56, 'btn_shape' => 'circle', 'btn_color' => '#4f46e5',
+			'btn_icon' => 'bubble', 'btn_animation' => 'pulse', 'btn_offset_x' => 20, 'btn_offset_y' => 20,
+			'window_width' => 380, 'window_height' => 550, 'window_border_radius' => 12,
+			'window_accent_color' => '#4f46e5', 'window_header_color' => '#4f46e5',
+			'window_font_size' => 'medium', 'window_shadow' => 'medium',
+			'widget_visibility' => 'all',
 		);
 	}
 
@@ -54,22 +60,29 @@ final class Settings {
 	}
 
 	public static function update( array $data ): void {
-		$s = self::all();
-		foreach ( $data as $k => $v ) { $s[$k] = $v; }
-		update_option( self::OPTION, $s );
+		$existing = self::all();
+		update_option( self::OPTION, array_merge( $existing, $data ), false );
 	}
 
 	public static function set_api_key( string $plaintext ): void {
-		if ( '' === $plaintext ) { delete_option( self::KEY_OPTION ); return; }
+		if ( '' === $plaintext ) {
+			delete_option( self::KEY_OPTION );
+			return;
+		}
 		$vault = KeyVault::fromWordPress();
-		update_option( self::KEY_OPTION, $vault->encrypt( $plaintext ) );
+		$encrypted = $vault->encrypt( $plaintext );
+		update_option( self::KEY_OPTION, $encrypted, false );
 	}
 
 	public static function get_api_key(): string {
 		$stored = get_option( self::KEY_OPTION, '' );
 		if ( ! is_string( $stored ) || '' === $stored ) { return ''; }
-		$vault = KeyVault::fromWordPress();
-		return $vault->decrypt( $stored );
+		try {
+			$vault = KeyVault::fromWordPress();
+			return $vault->decrypt( $stored );
+		} catch ( \Throwable $e ) {
+			return '';
+		}
 	}
 
 	public static function has_api_key(): bool {
@@ -77,5 +90,7 @@ final class Settings {
 		return is_string( $stored ) && '' !== $stored;
 	}
 
-	public static function delete_api_key(): void { delete_option( self::KEY_OPTION ); }
+	public static function delete_api_key(): void {
+		delete_option( self::KEY_OPTION );
+	}
 }

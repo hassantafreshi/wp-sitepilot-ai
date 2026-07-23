@@ -49,6 +49,9 @@ final class RestRoutes {
 		register_rest_route( self::NAMESPACE, '/widget/conversation', array('methods'=>'POST','callback'=>array($widget,'conversation'),'permission_callback'=>'__return_true') );
 		register_rest_route( self::NAMESPACE, '/widget/handoff', array('methods'=>'POST','callback'=>array($widget,'handoff'),'permission_callback'=>'__return_true') );
 		register_rest_route( self::NAMESPACE, '/widget/handoff/status', array('methods'=>'GET','callback'=>array($widget,'handoff_status'),'permission_callback'=>'__return_true') );
+		register_rest_route( self::NAMESPACE, '/widget/test/telegram', array('methods'=>'GET','callback'=>array($widget,'test_telegram'),'permission_callback'=>'__return_true') );
+		register_rest_route( self::NAMESPACE, '/widget/test/twilio', array('methods'=>'GET','callback'=>array($widget,'test_twilio'),'permission_callback'=>'__return_true') );
+
 	}
 
 	public function can_manage(): bool { return current_user_can( 'manage_options' ); }

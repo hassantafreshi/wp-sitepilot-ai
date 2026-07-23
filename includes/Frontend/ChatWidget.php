@@ -52,7 +52,31 @@ final class ChatWidget {
 			$handoff?'inline-block':'none'
 		);
 	}
-	public static function render_standalone():void{
-		echo '<div class="sp-widget-standalone" style="position:relative;z-index:1;">' . (new self())->render() . '</div>';
+	public function should_render_widget(): bool {
+		$s = Settings::all();
+		$w = $s['widget'] ?? Settings::widget_defaults();
+		if ( empty( $w['enabled'] ) ) { return false; }
+		$visibility = $w['widget_visibility'] ?? 'all';
+		if ( 'all' === $visibility ) { return true; }
+
+		$ids = (array) ( $w['widget_exclude_ids'] ?? array() );
+		$pages = (array) ( $w['exclude_pages'] ?? array() );
+		$cats = (array) ( $w['exclude_cats'] ?? array() );
+		$types = (array) ( $w['exclude_types'] ?? array() );
+
+		if ( 'exclude' === $visibility ) {
+			$current_id = (int) ( get_queried_object_id() );
+			$current_type = get_post_type();
+			if ( in_array( $current_id, $ids, true ) ) { return false; }
+			if ( in_array( $current_type, $types, true ) ) { return false; }
+			if ( is_singular() && has_category( $cats ) ) { return false; }
+		}
+		return true;
+	}
+
+	public static function render_standalone(): void {
+		$widget = new self();
+		if ( ! $widget->should_render_widget() ) { return; }
+		echo '<div class="sp-widget-standalone">' . $widget->render() . '</div>';
 	}
 }
