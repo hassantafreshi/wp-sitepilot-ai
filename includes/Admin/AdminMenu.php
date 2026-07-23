@@ -4,21 +4,21 @@ declare(strict_types=1);
 namespace SitePilot\Admin;
 
 use SitePilot\Api\RestRoutes;
-use SitePilot\Content\ContentIndexer;
 use SitePilot\Core\Settings;
 use SitePilot\Usage\UsageTracker;
 
 /**
  * Registers admin menu pages and loads their assets.
- * Now includes 4 pages: Copilot, Chat, Knowledge Base, Settings, Logs.
+ * Now includes the Usage Dashboard as a submenu page.
  */
 final class AdminMenu {
 
-	public const SLUG_COPILOT      = 'sitepilot-ai';
-	public const SLUG_CHAT         = 'sitepilot-ai-chat';
-	public const SLUG_SETTINGS     = 'sitepilot-ai-settings';
-	public const SLUG_LOGS         = 'sitepilot-ai-logs';
-	public const SLUG_KB           = 'sitepilot-ai-kb';
+	public const SLUG_COPILOT  = 'sitepilot-ai';
+	public const SLUG_SETTINGS = 'sitepilot-ai-settings';
+	public const SLUG_LOGS     = 'sitepilot-ai-logs';
+	public const SLUG_KB       = 'sitepilot-ai-kb';
+	public const SLUG_CHAT     = 'sitepilot-ai-chat';
+	public const SLUG_USAGE    = 'sitepilot-ai-usage';
 
 	public function register(): void {
 		$cap = 'manage_options';
@@ -33,95 +33,71 @@ final class AdminMenu {
 			58
 		);
 
-		add_submenu_page(
-			self::SLUG_COPILOT,
-			__( 'Copilot', 'sitepilot-ai' ),
-			__( 'Copilot', 'sitepilot-ai' ),
-			$cap,
-			self::SLUG_COPILOT,
-			array( new CopilotPage(), 'render' )
+		$pages = array(
+			array( __( 'Copilot', 'sitepilot-ai' ), self::SLUG_COPILOT, new CopilotPage(), 'render' ),
+			array( __( 'AI Chat', 'sitepilot-ai' ), self::SLUG_CHAT, new ChatPage(), 'render' ),
+			array( __( 'Knowledge Base', 'sitepilot-ai' ), self::SLUG_KB, new KnowledgeBasePage(), 'render' ),
+			array( __( 'Usage', 'sitepilot-ai' ), self::SLUG_USAGE, new UsagePage(), 'render' ),
+			array( __( 'Settings', 'sitepilot-ai' ), self::SLUG_SETTINGS, new SettingsPage(), 'render' ),
+			array( __( 'Logs', 'sitepilot-ai' ), self::SLUG_LOGS, new LogsPage(), 'render' ),
 		);
 
-		add_submenu_page(
-			self::SLUG_COPILOT,
-			__( 'AI Chat', 'sitepilot-ai' ),
-			__( 'AI Chat', 'sitepilot-ai' ),
-			$cap,
-			self::SLUG_CHAT,
-			array( new ChatPage(), 'render' )
-		);
-
-		add_submenu_page(
-			self::SLUG_COPILOT,
-			__( 'Knowledge Base', 'sitepilot-ai' ),
-			__( 'Knowledge Base', 'sitepilot-ai' ),
-			$cap,
-			self::SLUG_KB,
-			array( new KnowledgeBasePage(), 'render' )
-		);
-
-		add_submenu_page(
-			self::SLUG_COPILOT,
-			__( 'Settings', 'sitepilot-ai' ),
-			__( 'Settings', 'sitepilot-ai' ),
-			$cap,
-			self::SLUG_SETTINGS,
-			array( new SettingsPage(), 'render' )
-		);
-
-		add_submenu_page(
-			self::SLUG_COPILOT,
-			__( 'Logs', 'sitepilot-ai' ),
-			__( 'Logs', 'sitepilot-ai' ),
-			$cap,
-			self::SLUG_LOGS,
-			array( new LogsPage(), 'render' )
-		);
+		foreach ( $pages as $p ) {
+			add_submenu_page( self::SLUG_COPILOT, $p[0], $p[0], $cap, $p[1], array( $p[2], $p[3] ) );
+		}
 	}
 
 	public function enqueue_assets( string $hook ): void {
-		$is_copilot  = str_contains( $hook, self::SLUG_COPILOT ) && ! str_contains( $hook, self::SLUG_SETTINGS ) && ! str_contains( $hook, self::SLUG_LOGS ) && ! str_contains( $hook, self::SLUG_CHAT ) && ! str_contains( $hook, self::SLUG_KB );
-		$is_chat     = str_contains( $hook, self::SLUG_CHAT );
-		$is_kb       = str_contains( $hook, self::SLUG_KB );
-		$is_settings = str_contains( $hook, self::SLUG_SETTINGS );
+		$is_sitepilot = str_contains( $hook, self::SLUG_COPILOT )
+			|| str_contains( $hook, self::SLUG_CHAT )
+			|| str_contains( $hook, self::SLUG_KB )
+			|| str_contains( $hook, self::SLUG_USAGE )
+			|| str_contains( $hook, self::SLUG_SETTINGS )
+			|| str_contains( $hook, self::SLUG_LOGS );
 
-		if ( $is_copilot ) {
-			wp_enqueue_style( 'sitepilot-admin', SITEPILOT_AI_URL . 'assets/admin/admin.css', array(), SITEPILOT_AI_VERSION );
-			wp_enqueue_script( 'sitepilot-copilot', SITEPILOT_AI_URL . 'assets/admin/copilot.js', array(), SITEPILOT_AI_VERSION, true );
-			wp_localize_script( 'sitepilot-copilot', 'SitePilotAI', array(
-				'restUrl' => rest_url( RestRoutes::NAMESPACE . '/' ),
-				'nonce'   => wp_create_nonce( 'wp_rest' ),
-				'usage'   => ( new UsageTracker() )->get_threshold_warning(),
-			) );
+		if ( ! $is_sitepilot ) {
+			return;
 		}
 
-		if ( $is_chat ) {
-			wp_enqueue_style( 'sitepilot-chat', SITEPILOT_AI_URL . 'assets/admin/chat.css', array(), SITEPILOT_AI_VERSION );
-			wp_enqueue_script( 'sitepilot-chat', SITEPILOT_AI_URL . 'assets/admin/chat.js', array(), SITEPILOT_AI_VERSION, true );
-			wp_localize_script( 'sitepilot-chat', 'SitePilotChat', array(
-				'restUrl' => rest_url( RestRoutes::NAMESPACE . '/' ),
-				'nonce'   => wp_create_nonce( 'wp_rest' ),
-			) );
+		$is_usage = str_contains( $hook, self::SLUG_USAGE );
+
+		// Usage page has its own assets.
+		if ( $is_usage ) {
+			wp_enqueue_style(
+				'sitepilot-usage',
+				SITEPILOT_AI_URL . 'assets/admin/usage.css',
+				array( 'sitepilot-admin' ),
+				SITEPILOT_AI_VERSION
+			);
+			wp_enqueue_script(
+				'sitepilot-usage',
+				SITEPILOT_AI_URL . 'assets/admin/usage.js',
+				array(),
+				SITEPILOT_AI_VERSION,
+				true
+			);
 		}
 
-		if ( $is_kb ) {
-			wp_enqueue_style( 'sitepilot-kb', SITEPILOT_AI_URL . 'assets/admin/knowledge-base.css', array(), SITEPILOT_AI_VERSION );
-			wp_enqueue_script( 'sitepilot-kb', SITEPILOT_AI_URL . 'assets/admin/knowledge-base.js', array(), SITEPILOT_AI_VERSION, true );
-			wp_localize_script( 'sitepilot-kb', 'SitePilotKB', array(
-				'restUrl' => rest_url( RestRoutes::NAMESPACE . '/' ),
-				'nonce'   => wp_create_nonce( 'wp_rest' ),
-				'total'   => ( new ContentIndexer() )->get_total_posts(),
-			) );
-		}
+		// Common config for all SitePilot pages.
+		$tracker = new UsageTracker();
+		$usage_config = array(
+			'restUrl' => rest_url( RestRoutes::NAMESPACE . '/' ),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+			'usage'   => $tracker->get_threshold_warning(),
+		);
 
-		if ( $is_settings ) {
-			wp_enqueue_style( 'sitepilot-admin', SITEPILOT_AI_URL . 'assets/admin/admin.css', array(), SITEPILOT_AI_VERSION );
-			wp_enqueue_script( 'sitepilot-settings', SITEPILOT_AI_URL . 'assets/admin/settings.js', array(), SITEPILOT_AI_VERSION, true );
-			wp_localize_script( 'sitepilot-settings', 'SitePilotSettings', array(
-				'restUrl'      => rest_url( RestRoutes::NAMESPACE . '/' ),
-				'nonce'        => wp_create_nonce( 'wp_rest' ),
-				'presets'      => Settings::presets(),
-			) );
+		if ( wp_script_is( 'sitepilot-usage', 'enqueued' ) ) {
+			wp_localize_script( 'sitepilot-usage', 'SitePilotAI', $usage_config );
 		}
+		if ( wp_script_is( 'sitepilot-admin', 'enqueued' ) ) {
+			wp_localize_script( 'sitepilot-admin', 'SitePilotAI', $usage_config );
+		}
+		wp_localize_script( 'sitepilot-copilot', 'SitePilotAI', $usage_config );
+		wp_localize_script( 'sitepilot-kb', 'SitePilotKB', $usage_config );
+		wp_localize_script( 'sitepilot-chat', 'SitePilotChat', $usage_config );
+	}
+
+	public function can_manage(): bool {
+		return current_user_can( 'manage_options' );
 	}
 }
