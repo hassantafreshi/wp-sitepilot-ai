@@ -9,7 +9,6 @@ use SitePilot\Usage\UsageTracker;
 
 /**
  * Registers admin menu pages and loads their assets.
- * Now includes the Usage Dashboard as a submenu page.
  */
 final class AdminMenu {
 
@@ -59,9 +58,41 @@ final class AdminMenu {
 			return;
 		}
 
+		// Common admin styles.
+		wp_enqueue_style(
+			'sitepilot-admin',
+			SITEPILOT_AI_URL . 'assets/admin/admin.css',
+			array(),
+			SITEPILOT_AI_VERSION
+		);
+
+		// Page-specific assets.
+		$is_chat  = str_contains( $hook, self::SLUG_CHAT );
 		$is_usage = str_contains( $hook, self::SLUG_USAGE );
 
-		// Usage page has its own assets.
+		if ( $is_chat ) {
+			wp_enqueue_style(
+				'sitepilot-chat',
+				SITEPILOT_AI_URL . 'assets/admin/chat.css',
+				array( 'sitepilot-admin' ),
+				SITEPILOT_AI_VERSION
+			);
+			wp_enqueue_script(
+				'sitepilot-voice',
+				SITEPILOT_AI_URL . 'assets/admin/voice.js',
+				array(),
+				SITEPILOT_AI_VERSION,
+				true
+			);
+			wp_enqueue_script(
+				'sitepilot-chat',
+				SITEPILOT_AI_URL . 'assets/admin/chat.js',
+				array( 'sitepilot-voice' ),
+				SITEPILOT_AI_VERSION,
+				true
+			);
+		}
+
 		if ( $is_usage ) {
 			wp_enqueue_style(
 				'sitepilot-usage',
@@ -80,21 +111,15 @@ final class AdminMenu {
 
 		// Common config for all SitePilot pages.
 		$tracker = new UsageTracker();
-		$usage_config = array(
+		$config  = array(
 			'restUrl' => rest_url( RestRoutes::NAMESPACE . '/' ),
 			'nonce'   => wp_create_nonce( 'wp_rest' ),
 			'usage'   => $tracker->get_threshold_warning(),
 		);
 
-		if ( wp_script_is( 'sitepilot-usage', 'enqueued' ) ) {
-			wp_localize_script( 'sitepilot-usage', 'SitePilotAI', $usage_config );
-		}
-		if ( wp_script_is( 'sitepilot-admin', 'enqueued' ) ) {
-			wp_localize_script( 'sitepilot-admin', 'SitePilotAI', $usage_config );
-		}
-		wp_localize_script( 'sitepilot-copilot', 'SitePilotAI', $usage_config );
-		wp_localize_script( 'sitepilot-kb', 'SitePilotKB', $usage_config );
-		wp_localize_script( 'sitepilot-chat', 'SitePilotChat', $usage_config );
+		wp_localize_script( 'sitepilot-voice', 'SitePilotChat', $config );
+		wp_localize_script( 'sitepilot-chat', 'SitePilotChat', $config );
+		wp_localize_script( 'sitepilot-usage', 'SitePilotAI', $config );
 	}
 
 	public function can_manage(): bool {

@@ -197,6 +197,11 @@ final class ConversationManager {
 	/**
 	 * Check if table exists.
 	 */
+	public function truncate(): void {
+		$table = $this->table();
+		$this->db->query( "TRUNCATE TABLE {$table}" ); // phpcs:ignore
+	}
+
 	public function table_exists(): bool {
 		$table  = $this->table();
 		$exists = $this->db->get_var(

@@ -5,152 +5,132 @@ namespace SitePilot\Api;
 
 /**
  * Registers the plugin REST routes under sitepilot/v1.
- *
- * Total: 22 endpoints (12 existing + 10 new KB/chat/usage).
+ * Total endpoints: 22 (core 10 + efb 5 + kb 6 + usage 3 + voice 2 + chat 5)
  */
 final class RestRoutes {
 
 	public const NAMESPACE = 'sitepilot/v1';
 
 	public function register(): void {
-		$controller = new CopilotController();
-		$kb_controller = new KnowledgeBaseController();
-		$chat_controller = new ChatController();
+		$copilot = new CopilotController();
+		$kb      = new KnowledgeBaseController();
+		$voice   = new VoiceController();
+		$chat    = new ChatController();
 
-		/* ── Existing Form Copilot Endpoints (unchanged) ── */
+		// ── Core Copilot ──
 		register_rest_route( self::NAMESPACE, '/forms/plan', array(
-			'methods'             => 'POST',
-			'callback'            => array( $controller, 'plan' ),
+			'methods' => 'POST', 'callback' => array( $copilot, 'plan' ),
 			'permission_callback' => array( $this, 'can_manage' ),
-			'args'                => array( 'prompt' => array( 'type' => 'string', 'required' => true ) ),
+			'args' => array( 'prompt' => array( 'type' => 'string', 'required' => true ) ),
 		) );
 		register_rest_route( self::NAMESPACE, '/forms/execute', array(
-			'methods'             => 'POST',
-			'callback'            => array( $controller, 'execute' ),
+			'methods' => 'POST', 'callback' => array( $copilot, 'execute' ),
 			'permission_callback' => array( $this, 'can_manage' ),
-			'args'                => array( 'action_id' => array( 'type' => 'string', 'required' => true ) ),
+			'args' => array( 'action_id' => array( 'type' => 'string', 'required' => true ) ),
 		) );
 		register_rest_route( self::NAMESPACE, '/provider/test', array(
-			'methods'             => 'POST',
-			'callback'            => array( $controller, 'test' ),
+			'methods' => 'POST', 'callback' => array( $copilot, 'test' ),
 			'permission_callback' => array( $this, 'can_manage' ),
 		) );
 
-		/* ── Easy Form Builder Endpoints (unchanged) ── */
+		// ── EFB Copilot ──
 		$efb = new EfbCopilotController();
-		register_rest_route( self::NAMESPACE, '/efb/plan', array(
-			'methods'             => 'POST',
-			'callback'            => array( $efb, 'plan' ),
-			'permission_callback' => array( $this, 'can_manage' ),
-			'args'                => array( 'prompt' => array( 'type' => 'string', 'required' => true ) ),
-		) );
-		register_rest_route( self::NAMESPACE, '/efb/create', array(
-			'methods'             => 'POST',
-			'callback'            => array( $efb, 'create' ),
-			'permission_callback' => array( $this, 'can_manage' ),
-		) );
-		register_rest_route( self::NAMESPACE, '/efb/chat', array(
-			'methods'             => 'POST',
-			'callback'            => array( $efb, 'chat' ),
-			'permission_callback' => array( $this, 'can_manage' ),
-		) );
-		register_rest_route( self::NAMESPACE, '/efb/help', array(
-			'methods'             => 'POST',
-			'callback'            => array( $efb, 'help' ),
-			'permission_callback' => array( $this, 'can_manage' ),
-		) );
-		register_rest_route( self::NAMESPACE, '/efb/customize', array(
-			'methods'             => 'POST',
-			'callback'            => array( $efb, 'customize' ),
-			'permission_callback' => array( $this, 'can_manage' ),
-		) );
-		register_rest_route( self::NAMESPACE, '/efb/log', array(
-			'methods'             => 'POST',
-			'callback'            => array( $efb, 'log' ),
-			'permission_callback' => array( $this, 'can_manage' ),
-		) );
-		register_rest_route( self::NAMESPACE, '/efb/save', array(
-			'methods'             => 'POST',
-			'callback'            => array( $efb, 'save' ),
-			'permission_callback' => array( $this, 'can_manage' ),
-		) );
+		foreach ( array( 'plan', 'create', 'chat', 'help', 'customize', 'log', 'save' ) as $action ) {
+			register_rest_route( self::NAMESPACE, '/efb/' . $action, array(
+				'methods' => 'POST', 'callback' => array( $efb, $action ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			) );
+		}
 
-		/* ── Knowledge Base Endpoints ── */
+		// ── Knowledge Base ──
 		register_rest_route( self::NAMESPACE, '/kb/index/batch', array(
-			'methods'             => 'POST',
-			'callback'            => array( $kb_controller, 'index_batch' ),
+			'methods' => 'POST', 'callback' => array( $kb, 'index_batch' ),
 			'permission_callback' => array( $this, 'can_manage' ),
+			'args' => array( 'offset' => array( 'type' => 'integer', 'default' => 0 ) ),
 		) );
 		register_rest_route( self::NAMESPACE, '/kb/truncate', array(
-			'methods'             => 'POST',
-			'callback'            => array( $kb_controller, 'truncate' ),
+			'methods' => 'POST', 'callback' => array( $kb, 'truncate' ),
 			'permission_callback' => array( $this, 'can_manage' ),
 		) );
 		register_rest_route( self::NAMESPACE, '/kb/list', array(
-			'methods'             => 'GET',
-			'callback'            => array( $kb_controller, 'list_entries' ),
+			'methods' => 'GET', 'callback' => array( $kb, 'list_entries' ),
 			'permission_callback' => array( $this, 'can_manage' ),
 		) );
 		register_rest_route( self::NAMESPACE, '/kb/stats', array(
-			'methods'             => 'GET',
-			'callback'            => array( $kb_controller, 'stats' ),
+			'methods' => 'GET', 'callback' => array( $kb, 'stats' ),
 			'permission_callback' => array( $this, 'can_manage' ),
 		) );
 		register_rest_route( self::NAMESPACE, '/kb/delete', array(
-			'methods'             => 'POST',
-			'callback'            => array( $kb_controller, 'delete_entry' ),
+			'methods' => 'POST', 'callback' => array( $kb, 'delete_entry' ),
 			'permission_callback' => array( $this, 'can_manage' ),
+			'args' => array( 'post_id' => array( 'type' => 'integer', 'required' => true ) ),
 		) );
 		register_rest_route( self::NAMESPACE, '/kb/chat', array(
-			'methods'             => 'POST',
-			'callback'            => array( $kb_controller, 'chat' ),
+			'methods' => 'POST', 'callback' => array( $kb, 'chat' ),
 			'permission_callback' => array( $this, 'can_manage' ),
+			'args' => array( 'question' => array( 'type' => 'string', 'required' => true ) ),
 		) );
 
-		/* ── Usage / Budget Endpoints ── */
+		// ── Usage ──
 		register_rest_route( self::NAMESPACE, '/usage/report', array(
-			'methods'             => 'GET',
-			'callback'            => array( $kb_controller, 'usage_report' ),
+			'methods' => 'GET', 'callback' => array( $kb, 'usage_report' ),
 			'permission_callback' => array( $this, 'can_manage' ),
 		) );
 		register_rest_route( self::NAMESPACE, '/usage/budget', array(
-			'methods'             => 'POST',
-			'callback'            => array( $kb_controller, 'set_budget' ),
+			'methods' => 'POST', 'callback' => array( $kb, 'set_budget' ),
 			'permission_callback' => array( $this, 'can_manage' ),
+			'args' => array( 'budget' => array( 'type' => 'integer', 'required' => true ) ),
 		) );
 		register_rest_route( self::NAMESPACE, '/usage/reset', array(
-			'methods'             => 'POST',
-			'callback'            => array( $kb_controller, 'reset_usage' ),
+			'methods' => 'POST', 'callback' => array( $kb, 'reset_usage' ),
 			'permission_callback' => array( $this, 'can_manage' ),
 		) );
 
-		/* ── RAG Chat Endpoints ── */
-		register_rest_route( self::NAMESPACE, '/chat/ask', array(
-			'methods'             => 'POST',
-			'callback'            => array( $chat_controller, 'ask' ),
+		// ── Voice (STT + TTS) ──
+		register_rest_route( self::NAMESPACE, '/voice/transcribe', array(
+			'methods' => 'POST', 'callback' => array( $voice, 'transcribe' ),
 			'permission_callback' => array( $this, 'can_manage' ),
-			'args'                => array( 'question' => array( 'type' => 'string', 'required' => true ) ),
+			'args' => array(
+				'audio'  => array( 'type' => 'string', 'required' => true ),
+				'format' => array( 'type' => 'string', 'default' => 'webm' ),
+			),
+		) );
+		register_rest_route( self::NAMESPACE, '/voice/speak', array(
+			'methods' => 'POST', 'callback' => array( $voice, 'synthesize' ),
+			'permission_callback' => array( $this, 'can_manage' ),
+			'args' => array(
+				'text'  => array( 'type' => 'string', 'required' => true ),
+				'voice' => array( 'type' => 'string', 'default' => 'alloy' ),
+			),
+		) );
+
+		// ── Chat (AI RAG conversations) ──
+		register_rest_route( self::NAMESPACE, '/chat/ask', array(
+			'methods' => 'POST', 'callback' => array( $chat, 'ask' ),
+			'permission_callback' => array( $this, 'can_manage' ),
+			'args' => array(
+				'question'       => array( 'type' => 'string', 'required' => true ),
+				'conversation_id' => array( 'type' => 'integer', 'default' => 0 ),
+			),
 		) );
 		register_rest_route( self::NAMESPACE, '/chat/create', array(
-			'methods'             => 'POST',
-			'callback'            => array( $chat_controller, 'create' ),
+			'methods' => 'POST', 'callback' => array( $chat, 'create' ),
 			'permission_callback' => array( $this, 'can_manage' ),
+			'args' => array( 'title' => array( 'type' => 'string', 'default' => '' ) ),
 		) );
 		register_rest_route( self::NAMESPACE, '/chat/list', array(
-			'methods'             => 'GET',
-			'callback'            => array( $chat_controller, 'list' ),
+			'methods' => 'GET', 'callback' => array( $chat, 'list' ),
 			'permission_callback' => array( $this, 'can_manage' ),
 		) );
 		register_rest_route( self::NAMESPACE, '/chat/get', array(
-			'methods'             => 'GET',
-			'callback'            => array( $chat_controller, 'get' ),
+			'methods' => 'GET', 'callback' => array( $chat, 'get' ),
 			'permission_callback' => array( $this, 'can_manage' ),
-			'args'                => array( 'id' => array( 'type' => 'integer', 'required' => true ) ),
+			'args' => array( 'id' => array( 'type' => 'integer', 'required' => true ) ),
 		) );
 		register_rest_route( self::NAMESPACE, '/chat/delete', array(
-			'methods'             => 'POST',
-			'callback'            => array( $chat_controller, 'delete' ),
+			'methods' => 'POST', 'callback' => array( $chat, 'delete' ),
 			'permission_callback' => array( $this, 'can_manage' ),
+			'args' => array( 'id' => array( 'type' => 'integer', 'required' => true ) ),
 		) );
 	}
 
