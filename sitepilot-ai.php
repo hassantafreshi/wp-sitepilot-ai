@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SITEPILOT_AI_VERSION', '0.5.0' );
+define( 'SITEPILOT_AI_VERSION', '1.0.0' );
 define( 'SITEPILOT_AI_FILE', __FILE__ );
 define( 'SITEPILOT_AI_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SITEPILOT_AI_URL', plugin_dir_url( __FILE__ ) );
