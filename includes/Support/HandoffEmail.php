@@ -1,21 +1,31 @@
 <?php
 declare(strict_types=1);
+
 namespace SitePilot\Support;
 
-final class HandoffEmail {
-	public function send( string $to, array $messages, string $pdf_html, string $name = '' ): bool {
-		$subject = sprintf( '[SitePilot] Support request from %s', $name ?: 'a visitor' );
-		$body = '<h2>New Support Request</h2><p>From: '.esc_html( $name ?: 'Unknown' ).'</p>';
-		$body .= '<p>Time: '.gmdate( 'Y-m-d H:i:s' ).' UTC</p><hr>';
-		foreach ( $messages as $m ) {
-			$role = ( $m['role'] ?? 'user' ) === 'user' ? '👤 User' : '🤖 AI';
-			$body .= '<p><strong>'.$role.':</strong> '.esc_html( $m['content'] ?? '' ).'</p>';
-		}
-		$body .= '<hr><p>Full conversation attached below.</p>'.$pdf_html;
-		add_filter( 'wp_mail_content_type', array( $this, 'html_content_type' ) );
-		$ok = wp_mail( $to, $subject, $body );
-		remove_filter( 'wp_mail_content_type', array( $this, 'html_content_type' ) );
-		return $ok;
+/**
+ * Send handoff via Email using wp_mail.
+ */
+class HandoffEmail {
+
+	public function send( string $to, string $subject, string $html_body ): array {
+		$headers = array( 'Content-Type: text/html; charset=UTF-8', 'From: ' . get_bloginfo( 'name' ) . ' <' . get_option( 'admin_email' ) . '>' );
+		$result  = wp_mail( $to, $subject, $html_body, $headers );
+
+		return array(
+			'ok'    => $result,
+			'to'    => $to,
+			'error' => $result ? '' : 'wp_mail returned false',
+		);
 	}
-	public function html_content_type(): string { return 'text/html'; }
+
+	public function is_configured(): bool {
+		$to = \SitePilot\Core\Settings::get( 'widget_handoff_email', get_option( 'admin_email' ) );
+		return is_string( $to ) && '' !== trim( $to );
+	}
+
+	public function get_recipient(): string {
+		$email = \SitePilot\Core\Settings::get( 'widget_handoff_email', '' );
+		return is_string( $email ) && '' !== trim( $email ) ? $email : (string) get_option( 'admin_email' );
+	}
 }

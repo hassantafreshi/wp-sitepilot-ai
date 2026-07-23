@@ -1,294 +1,306 @@
-/* global SitePilotWidget */
-( function () {
+(function () {
 	'use strict';
 
-	if ( document.getElementById( 'sp-widget' ) === null ) { return; }
-
 	var cfg = window.SitePilotWidget || {};
-	var api = cfg.restUrl || '/wp-json/sitepilot/v1/';
+	var apiRoot = cfg.restUrl || '/wp-json/sitepilot/v1/';
 	var nonce = cfg.nonce || '';
-	var w = document.getElementById( 'sp-widget' );
-	var bubble = w.querySelector( '.sp-widget-bubble' );
-	var panel = w.querySelector( '.sp-widget-panel' );
-	var msgs = w.querySelector( '.sp-widget-msgs' );
-	var input = w.querySelector( '.sp-widget-input textarea' );
-	var sendBtn = w.querySelector( '.sp-widget-send' );
-	var micBtn = w.querySelector( '.sp-widget-mic' );
-	var closeBtn = w.querySelector( '.sp-widget-close' );
-	var color = w.getAttribute( 'data-color' ) || '#4f46e5';
-	var voiceEnabled = w.getAttribute( 'data-voice' ) === '1';
-	var handoffEnabled = w.getAttribute( 'data-handoff' ) === '1';
-	var autoOpen = parseInt( w.getAttribute( 'data-auto-open' ) || '0' );
-	var isDark = w.classList.contains( 'sp-widget--dark' );
+	var convId = null;
 	var isOpen = false;
 	var isRecording = false;
+	var isProcessing = false;
 	var mediaRecorder = null;
 	var audioChunks = [];
 	var synth = window.speechSynthesis;
 	var utterance = null;
+	var wordSpans = [];
+	var settings = {};
 
-	w.style.setProperty( '--sp-color', color );
+	// DOM helpers
+	function $(id) { return document.getElementById(id); }
+	function qs(s, ctx) { return (ctx || document).querySelector(s); }
+	function qsa(s, ctx) { return (ctx || document).querySelectorAll(s); }
 
-	// ── State ──
-	var state = loadState();
-
-	function loadState() {
-		try { return JSON.parse( localStorage.getItem( 'sp_widget_chat' ) ) || { messages: [], convId: null }; }
-		catch ( e ) { return { messages: [], convId: null }; }
+	function el(tag, attrs, children) {
+		var node = document.createElement(tag);
+		if (attrs) Object.keys(attrs).forEach(function (k) {
+			if (k === 'class') node.className = attrs[k];
+			else if (k === 'text') node.textContent = attrs[k];
+			else if (k === 'html') node.innerHTML = attrs[k];
+			else if (k === 'style' && typeof attrs[k] === 'object') {
+				Object.keys(attrs[k]).forEach(function(sk){ node.style[sk] = attrs[k][sk]; });
+			}
+			else node.setAttribute(k, attrs[k]);
+		});
+		if (children) children.forEach(function(c){ if(c) node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+		return node;
 	}
-	function saveState() {
-		try { localStorage.setItem( 'sp_widget_chat', JSON.stringify( state ) ); } catch ( e ) {}
+
+	function esc(s) {
+		var d = document.createElement('div');
+		d.textContent = s || '';
+		return d.innerHTML;
 	}
 
-	// ── API ──
-	function apiCall( path, body ) {
-		return fetch( api + path, {
+	function api(path, body) {
+		return fetch(apiRoot + path, {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': nonce },
-			body: JSON.stringify( body || {} ),
-		} ).then( function ( r ) { return r.json(); } );
+			body: JSON.stringify(body || {}),
+		}).then(function(r){ return r.json(); });
 	}
 
-	// ── UI ──
+	function getSettings() {
+		return api('widget/settings').then(function(data){
+			if (data && data.settings) settings = data.settings;
+			return settings;
+		});
+	}
+
+	// ── Toggle ──
 	function toggle() {
-		isOpen = ! isOpen;
-		w.classList.toggle( 'open', isOpen );
-		if ( isOpen && state.messages.length === 0 ) {
-			addMsg( 'ai', cfg.greeting || 'Hi! How can I help you?' );
+		var panel = $('spw-panel');
+		var btn = $('spw-toggle');
+		if (!panel || !btn) return;
+		isOpen = !isOpen;
+		panel.classList.toggle('spw-panel--open', isOpen);
+		btn.classList.toggle('spw-toggle--open', isOpen);
+		if (isOpen) {
+			loadConversation();
+			qs('.spw-input', panel).focus();
+		} else {
+			if (utterance && synth) synth.cancel();
+			if (mediaRecorder && mediaRecorder.state === 'recording') stopRecording();
 		}
-		if ( isOpen ) { setTimeout( function () { input.focus(); }, 300 ); }
-	}
-
-	bubble.addEventListener( 'click', toggle );
-	closeBtn.addEventListener( 'click', toggle );
-
-	if ( autoOpen > 0 ) {
-		setTimeout( function () {
-			if ( ! isOpen ) { toggle(); }
-		}, autoOpen * 1000 );
 	}
 
 	// ── Messages ──
-	function addMsg( role, content, sources ) {
-		var div = document.createElement( 'div' );
-		div.className = 'sp-wm sp-wm--' + role;
-
-		var avatar = document.createElement( 'div' );
-		avatar.className = 'sp-wm-avatar sp-wm-avatar--' + role;
-		avatar.textContent = role === 'user' ? '👤' : '🤖';
-
-		var bubble = document.createElement( 'div' );
-		bubble.className = 'sp-wm-bubble';
-		bubble.textContent = content;
-
-		// Karaoke: wrap words for AI responses
-		if ( role === 'ai' ) {
-			bubble.innerHTML = '';
-			var words = ( content || '' ).split( /\s+/ );
-			words.forEach( function ( w ) {
-				var span = document.createElement( 'span' );
-				span.className = 'sp-wm-kw';
-				span.textContent = w + '\u00A0';
-				bubble.appendChild( span );
-			} );
+	function addMessage(role, content, sources) {
+		var msgs = $('spw-msgs');
+		if (!msgs) return;
+		var div = el('div', { class: 'spw-msg spw-msg--' + role });
+		div.textContent = content;
+		if (role === 'assistant' && content) {
+			div.textContent = '';
+			var words = content.split(/(\s+)/);
+			wordSpans = [];
+			words.forEach(function(w){
+				var span = el('span', { class: 'spw-word', text: w });
+				wordSpans.push({ span: span, charLen: w.length });
+				div.appendChild(span);
+			});
 		}
-
-		div.appendChild( avatar );
-		div.appendChild( bubble );
-
-		// Voice toggle for AI
-		if ( role === 'ai' && voiceEnabled ) {
-			var voiceBtn = document.createElement( 'button' );
-			voiceBtn.className = 'sp-wm-voice';
-			voiceBtn.textContent = '🔊';
-			voiceBtn.addEventListener( 'click', function () { speakText( content, this ); } );
-			div.appendChild( voiceBtn );
+		if (sources && sources.length) {
+			var srcDiv = el('div', { class: 'spw-msg__sources', html: 'Sources: ' + sources.map(function(s){
+				return '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.title) + '</a>';
+			}).join(', ') });
+			div.appendChild(srcDiv);
 		}
-
-		msgs.appendChild( div );
+		msgs.appendChild(div);
 		msgs.scrollTop = msgs.scrollHeight;
-		return bubble;
+		return div;
 	}
 
-	function addThinking() {
-		var div = document.createElement( 'div' );
-		div.className = 'sp-wm sp-wm--ai sp-wd-thinking';
-		div.id = 'sp-wd-thinking';
-
-		var avatar = document.createElement( 'div' );
-		avatar.className = 'sp-wm-avatar sp-wm-avatar--ai';
-		avatar.textContent = '🤖';
-
-		var dots = document.createElement( 'div' );
-		dots.className = 'sp-wd-think';
-		dots.innerHTML = '<span></span><span></span><span></span>';
-
-		div.appendChild( avatar );
-		div.appendChild( dots );
-		msgs.appendChild( div );
+	function showTyping() {
+		var msgs = $('spw-msgs');
+		if (!msgs || $('spw-typing')) return;
+		var div = el('div', { id: 'spw-typing', class: 'spw-typing' }, [
+			el('span', { class: 'spw-typing__dot' }),
+			el('span', { class: 'spw-typing__dot' }),
+			el('span', { class: 'spw-typing__dot' }),
+		]);
+		msgs.appendChild(div);
 		msgs.scrollTop = msgs.scrollHeight;
 	}
 
-	function removeThinking() {
-		var d = document.getElementById( 'sp-wd-thinking' );
-		if ( d ) { d.remove(); }
+	function hideTyping() {
+		var d = $('spw-typing');
+		if (d) d.remove();
 	}
 
-	// ── Voice ──
-	function speakText( text, btn ) {
-		if ( synth.speaking ) { synth.cancel(); return; }
-		utterance = new SpeechSynthesisUtterance( text );
-		var voices = synth.getVoices();
-		var preferred = cfg.voiceName || 'Google UK English Female';
-		var voice = voices.find( function ( v ) { return v.name === preferred; } ) || voices[0];
-		if ( voice ) { utterance.voice = voice; }
-		utterance.rate = cfg.voiceRate || 1.0;
-		utterance.pitch = cfg.voicePitch || 1.0;
-
-		// Karaoke highlight
-		var spans = btn ? btn.parentElement.querySelectorAll( '.sp-wm-kw' ) : [];
+	// ── Karaoke TTS ──
+	function speakText(text) {
+		if (!synth || !settings.voice_enabled) return;
+		if (utterance) synth.cancel();
+		utterance = new SpeechSynthesisUtterance(text);
+		utterance.rate = 1.0;
+		utterance.pitch = 1.0;
+		utterance.lang = document.documentElement.lang || 'en-US';
+		if (settings.voice_name) {
+			var voices = synth.getVoices();
+			var v = voices.find(function(vv){ return vv.name === settings.voice_name; });
+			if (v) utterance.voice = v;
+		}
 		var charIdx = 0;
-		var wordIdx = 0;
-		utterance.onboundary = function ( e ) {
-			if ( e.name === 'word' ) {
+		utterance.onboundary = function(e) {
+			if (e.name === 'word') {
 				var idx = e.charIndex;
-				spans.forEach( function ( s, i ) { s.classList.toggle( 'sp-wm-kw--active', false ); } );
-				var acc = 0;
-				for ( var i = 0; i < spans.length; i++ ) {
-					acc += spans[i].textContent.length;
-					if ( idx <= acc ) { spans[i].classList.add( 'sp-wm-kw--active' ); break; }
-				}
+				wordSpans.forEach(function(ws, i){
+					ws.span.classList.toggle('spw-word--active', idx >= charIdx && idx < charIdx + ws.charLen);
+				});
 			}
 		};
-		utterance.onend = function () {
-			spans.forEach( function ( s ) { s.classList.remove( 'sp-wm-kw--active' ); } );
-			if ( btn ) { btn.textContent = '🔊'; }
+		utterance.onend = function() {
+			wordSpans.forEach(function(ws){ ws.span.classList.remove('spw-word--active'); });
+			utterance = null;
 		};
-		if ( btn ) { btn.textContent = '⏹'; }
-		synth.speak( utterance );
-	}
-
-	// ── Mic (STT) ──
-	if ( micBtn ) {
-		if ( ! navigator.mediaDevices || ! navigator.mediaDevices.getUserMedia ) {
-			micBtn.style.display = 'none';
-		} else {
-			micBtn.addEventListener( 'click', function () {
-				if ( isRecording ) { stopRecording(); }
-				else { startRecording(); }
-			} );
-		}
-	}
-
-	function startRecording() {
-		isRecording = true;
-		micBtn.classList.add( 'sp-widget-mic--recording' );
-		micBtn.innerHTML = '<span class="sp-mic-wave"><span></span><span></span><span></span></span>';
-		navigator.mediaDevices.getUserMedia( { audio: true } ).then( function ( stream ) {
-			mediaRecorder = new MediaRecorder( stream, { mimeType: 'audio/webm' } );
-			audioChunks = [];
-			mediaRecorder.ondataavailable = function ( e ) { audioChunks.push( e.data ); };
-			mediaRecorder.onstop = function () {
-				stream.getTracks().forEach( function ( t ) { t.stop(); } );
-				var blob = new Blob( audioChunks, { type: 'audio/webm' } );
-				sendAudio( blob );
-			};
-			mediaRecorder.start();
-		} ).catch( function () { micBtn.classList.remove( 'sp-widget-mic--recording' ); micBtn.textContent = '🎤'; } );
-	}
-
-	function stopRecording() {
-		if ( mediaRecorder && mediaRecorder.state !== 'inactive' ) {
-			mediaRecorder.stop();
-		}
-		isRecording = false;
-	}
-
-	function sendAudio( blob ) {
-		var reader = new FileReader();
-		reader.onload = function () {
-			var base64audio = reader.result.split( ',' )[1];
-			apiCall( 'voice/transcribe', { audio: base64audio, format: 'webm' } ).then( function ( res ) {
-				micBtn.classList.remove( 'sp-widget-mic--recording' );
-				micBtn.textContent = '🎤';
-				if ( res.ok && res.text ) {
-					input.value = res.text;
-					sendMsg();
-				} else {
-					input.value = '(transcription failed)';
-				}
-			} );
-		};
-		reader.readAsDataURL( blob );
+		synth.speak(utterance);
 	}
 
 	// ── Send ──
-	function sendMsg() {
-		var text = input.value.trim();
-		if ( ! text ) { return; }
-		input.value = '';
-		input.style.height = 'auto';
+	function send(text) {
+		if (!text || isProcessing) return;
+		var input = qs('.spw-input');
+		if (input) input.value = '';
+		addMessage('user', text);
+		isProcessing = true;
+		showTyping();
 
-		addMsg( 'user', text );
-		state.messages.push( { role: 'user', content: text } );
-		saveState();
-		addThinking();
-
-		// Determine which endpoint to use
-		var ep = state.convId ? 'widget/ask' : 'widget/ask';
-		apiCall( ep, { question: text, conversation_id: state.convId } ).then( function ( res ) {
-			removeThinking();
-			var answer = res.answer || 'Sorry, I could not process that.';
-			addMsg( 'ai', answer, res.sources || [] );
-			state.messages.push( { role: 'ai', content: answer, sources: res.sources } );
-			state.convId = res.conversation_id || state.convId;
-			saveState();
-
-			// Auto-play TTS
-			if ( voiceEnabled && cfg.voiceAuto ) {
-				var lastMsg = msgs.lastElementChild;
-				var vb = lastMsg ? lastMsg.querySelector( '.sp-wm-voice' ) : null;
-				if ( vb ) { setTimeout( function () { speakText( answer, vb ); }, 300 ); }
+		api('widget/ask', { question: text, conversation_id: convId }).then(function(data){
+			hideTyping();
+			isProcessing = false;
+			if (data && data.answer) {
+				convId = data.conversation_id || convId;
+				var msgDiv = addMessage('assistant', data.answer, data.sources);
+				if (settings.voice_enabled && settings.voice_auto_play !== false && data.answer) {
+					speakText(data.answer);
+				}
+			} else if (data && data.message) {
+				addMessage('assistant', data.message);
+			} else {
+				addMessage('assistant', 'Sorry, I could not process your request.');
 			}
-		} ).catch( function () {
-			removeThinking();
-			addMsg( 'ai', 'Network error. Please try again.' );
-		} );
+		}).catch(function(){
+			hideTyping();
+			isProcessing = false;
+			addMessage('assistant', 'Connection error. Please try again.');
+		});
 	}
 
-	sendBtn.addEventListener( 'click', sendMsg );
-	input.addEventListener( 'keydown', function ( e ) {
-		if ( e.key === 'Enter' && ! e.shiftKey ) { e.preventDefault(); sendMsg(); }
-	} );
-	input.addEventListener( 'input', function () {
-		this.style.height = 'auto';
-		this.style.height = Math.min( this.scrollHeight, 80 ) + 'px';
-	} );
-
-	// ── Human Handoff ──
-	if ( handoffEnabled ) {
-		var handoffContainer = document.createElement( 'div' );
-		handoffContainer.className = 'sp-widget-handoff';
-		var handoffBtn = document.createElement( 'button' );
-		handoffBtn.textContent = cfg.handoffText || '👤 Talk to human';
-		handoffBtn.addEventListener( 'click', function () {
-			handoffBtn.disabled = true;
-			handoffContainer.classList.add( 'sp-widget-handoff--sending' );
-			handoffBtn.textContent = '⏳ ' + ( cfg.handoffSending || 'Connecting...' );
-			apiCall( 'widget/handoff', { messages: state.messages, name: state.name || '', email: state.email || '' } ).then( function ( r ) {
-				handoffBtn.textContent = r.ok ? '✅ ' + ( cfg.handoffSent || 'Support notified!' ) : '❌ Failed';
-				addMsg( 'ai', cfg.handoffHook || 'You are now connected to human support. They will reply shortly.' );
-			} ).catch( function () {
-				handoffBtn.textContent = '❌ Error';
-			} );
-		} );
-		handoffContainer.appendChild( handoffBtn );
-		msgs.parentElement.appendChild( handoffContainer );
+	function loadConversation() {
+		if (!convId) return;
+		api('widget/conversation', { id: convId }).then(function(data){
+			if (data && data.messages) {
+				var msgs = $('spw-msgs');
+				if (msgs) msgs.innerHTML = '';
+				data.messages.forEach(function(m){
+					addMessage(m.role || 'user', m.content, m.sources);
+				});
+			}
+		});
 	}
 
-	// ── Restore conversation ──
-	state.messages.forEach( function ( m ) {
-		addMsg( m.role, m.content, m.sources || [] );
-	} );
-} )();
+	// ── Voice Recording ──
+	function startRecording() {
+		if (isRecording) return;
+		navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream){
+			mediaRecorder = new MediaRecorder(stream);
+			audioChunks = [];
+			mediaRecorder.ondataavailable = function(e) {
+				if (e.data.size > 0) audioChunks.push(e.data);
+			};
+			mediaRecorder.onstop = function() {
+				var blob = new Blob(audioChunks, { type: 'audio/webm' });
+				stream.getTracks().forEach(function(t){ t.stop(); });
+				sendAudio(blob);
+			};
+			mediaRecorder.start();
+			isRecording = true;
+			var mic = $('spw-mic');
+			if (mic) mic.classList.add('spw-mic--recording');
+		}).catch(function(){
+			addMessage('assistant', 'Microphone access denied. Please allow microphone access in your browser settings.');
+		});
+	}
+
+	function stopRecording() {
+		if (mediaRecorder && mediaRecorder.state === 'recording') {
+			mediaRecorder.stop();
+		}
+		isRecording = false;
+		var mic = $('spw-mic');
+		if (mic) mic.classList.remove('spw-mic--recording');
+	}
+
+	function sendAudio(blob) {
+		showTyping();
+		var reader = new FileReader();
+		reader.onload = function() {
+			var base64 = reader.result.split(',')[1];
+			api('voice/transcribe', { audio: base64, format: 'webm' }).then(function(data){
+				hideTyping();
+				if (data && data.text) {
+					send(data.text);
+				} else {
+					addMessage('assistant', 'Could not transcribe audio. Please try again.');
+				}
+			}).catch(function(){
+				hideTyping();
+				addMessage('assistant', 'Transcription failed.');
+			});
+		};
+		reader.readAsDataURL(blob);
+	}
+
+	// ── Handoff ──
+	function showHandoffForm() {
+		var btn = $('spw-handoff-btn');
+		if (btn) btn.textContent = 'Sending...';
+		btn.disabled = true;
+
+		var msgs = [];
+		qsa('.spw-msg').forEach(function(el){
+			msgs.push({
+				role: el.classList.contains('spw-msg--user') ? 'user' : 'assistant',
+				content: el.textContent,
+			});
+		});
+
+		api('widget/handoff', { messages: msgs, conversation_id: convId }).then(function(data){
+			btn.textContent = data && data.ok ? 'Sent! We will get back to you.' : 'Send failed. Try email instead.';
+			setTimeout(function(){ btn.disabled = false; }, 3000);
+		}).catch(function(){
+			btn.textContent = 'Error. Please try again.';
+			btn.disabled = false;
+		});
+	}
+
+	// ── Init ──
+	function init() {
+		var btn = $('spw-toggle');
+		if (!btn) return;
+
+		btn.addEventListener('click', toggle);
+
+		var sendBtn = $('spw-send');
+		var input = qs('.spw-input');
+		if (sendBtn && input) {
+			sendBtn.addEventListener('click', function(){ send(input.value); });
+			input.addEventListener('keydown', function(e) {
+				if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input.value); }
+			});
+		}
+
+		var mic = $('spw-mic');
+		if (mic) {
+			mic.addEventListener('click', function() {
+				if (isRecording) stopRecording(); else startRecording();
+			});
+		}
+
+		var handoffBtn = $('spw-handoff-btn');
+		if (handoffBtn) handoffBtn.addEventListener('click', showHandoffForm);
+
+		getSettings().then(function(s) {
+			if (s.auto_open) {
+				setTimeout(toggle, (s.auto_open_delay || 15) * 1000);
+			}
+		});
+
+		// Auto-open if user showed intent to chat
+		if (window.location.hash === '#sitepilot-chat') toggle();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+	else init();
+})();
