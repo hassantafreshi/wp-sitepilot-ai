@@ -1,82 +1,61 @@
 <?php
 declare(strict_types=1);
-
 namespace SitePilot\Support;
 
-/**
- * Orchestrates human handoff across all configured channels.
- * Each channel runs independently (try/catch isolated).
- */
+use SitePilot\Logging\Logger;
+
 class HandoffService {
+	private PdfExporter $pdf;private Logger $logger;
+	public function __construct(){$this->pdf=new PdfExporter();$this->logger=new Logger();}
 
-	private PdfExporter $pdf;
+	public function handoff(array $messages,string $name='',string $email='',string $pdf_url=''):array{
+		$blog=get_bloginfo('name');$results=array();
+		try{
+			$html=$this->pdf->export_html($messages,"Support Request: {$blog}");
+			$text=$this->pdf->export_text($messages);
+			$summary='Support Request: '.$blog
+				."\nName: {$name}\nEmail: ".($email?:'N/A')
+				."\nTime: ".gmdate('Y-m-d H:i T')
+				."\nURL: ".get_site_url()
+				."\n\n--- Messages ---\n".$text;
 
-	public function __construct() {
-		$this->pdf = new PdfExporter();
+			// Try each configured channel independently
+			$channels=array(
+				'email'=>function()use($html,$email,$name){return $this->try_email($html,$email,$name);},
+				'telegram'=>function()use($summary){return $this->try_telegram($summary);},
+				'twilio'=>function()use($summary,$pdf_url){return $this->try_twilio($summary,$pdf_url);},
+			);
+
+			foreach($channels as $key=>$fn){
+				try{$results[$key]=$fn();}
+				catch(\Throwable $e){$results[$key]=array('ok'=>false,'error'=>$e->getMessage());}
+			}
+		}catch(\Throwable $e){
+			$this->logger->error('handoff_service',$e->getMessage());
+			return array('ok'=>false,'error'=>$e->getMessage());
+		}
+		$any_ok=!empty(array_filter($results,fn($r)=>!empty($r['ok'])));
+		return array('ok'=>$any_ok,'channels'=>$results);
 	}
 
-	/**
-	 * Send conversation history via all configured channels.
-	 *
-	 * @param array<int, array{role:string, content:string, sources?:array}> $messages
-	 * @param string $visitor_name
-	 * @param string $visitor_email
-	 * @return array<string, array{ok:bool, error:string}>
-	 */
-	public function handoff( array $messages, string $visitor_name = '', string $visitor_email = '' ): array {
-		$results = array();
-		$html    = $this->pdf->export_html( $messages, 'Support Request: ' . get_bloginfo( 'name' ) );
-		$text    = $this->pdf->export_text( $messages );
-		$summary = "🧑‍💼 Support Request — " . get_bloginfo( 'name' ) . "\n"
-			. "Visitor: $visitor_name\n"
-			. "Email: " . ( $visitor_email ?: 'N/A' ) . "\n"
-			. "Time: " . gmdate( 'Y-m-d H:i:s T' ) . "\n\n"
-			. "--- Messages ---\n" . $text;
-
-		// Email
-		if ( ( new HandoffEmail() )->is_configured() ) {
-			$to                = ( new HandoffEmail() )->get_recipient();
-			$results['email']  = ( new HandoffEmail() )->send( $to, '🧑‍💼 Support Request: ' . get_bloginfo( 'name' ), $html );
-		}
-
-		// Telegram
-		if ( ( new HandoffTelegram() )->is_configured() ) {
-			$results['telegram'] = ( new HandoffTelegram() )->send( $summary );
-		}
-
-		// Twilio WhatsApp
-		if ( ( new HandoffTwilio() )->is_configured() ) {
-			$results['twilio'] = ( new HandoffTwilio() )->send( $summary );
-		}
-
-		// Webhook
-		$webhook_url = \SitePilot\Core\Settings::get( 'widget_handoff_webhook', '' );
-		if ( is_string( $webhook_url ) && '' !== trim( $webhook_url ) ) {
-			$results['webhook'] = $this->send_webhook( $webhook_url, $messages, $visitor_name, $visitor_email );
-		}
-
-		return $results;
+	private function try_email(string $html,string $email,string $name):array{
+		$h=new HandoffEmail();
+		if(!$h->is_configured()){return array('ok'=>false,'skipped'=>true,'reason'=>'Email not configured.');}
+		$blog=get_bloginfo('name');
+		$messages_html=$h->build_messages_html([]); // placeholder
+		$full_html=$h->build_html($messages_html,$blog);
+		return $h->send($h->get_recipient(),"Support Request: {$blog}",$full_html);
 	}
 
-	private function send_webhook( string $url, array $messages, string $name, string $email ): array {
-		$response = wp_remote_post( $url, array(
-			'timeout' => 15,
-			'headers' => array( 'Content-Type' => 'application/json' ),
-			'body'    => wp_json_encode( array(
-				'site'     => get_bloginfo( 'name' ),
-				'url'      => get_site_url(),
-				'visitor'  => array( 'name' => $name, 'email' => $email ),
-				'channel'  => 'sitepilot-ai-handoff',
-				'time'     => gmdate( 'c' ),
-				'messages' => $messages,
-			) ),
-		) );
+	private function try_telegram(string $text):array{
+		$t=new HandoffTelegram();
+		if(!$t->is_configured()){return array('ok'=>false,'skipped'=>true,'reason'=>'Telegram not configured.');}
+		return $t->send($text,'html');
+	}
 
-		if ( is_wp_error( $response ) ) {
-			return array( 'ok' => false, 'error' => $response->get_error_message() );
-		}
-
-		$code = (int) wp_remote_retrieve_response_code( $response );
-		return array( 'ok' => $code >= 200 && $code < 300, 'error' => "HTTP $code" );
+	private function try_twilio(string $text,string $pdf_url=''):array{
+		$tw=new HandoffTwilio();
+		if(!$tw->is_configured()){return array('ok'=>false,'skipped'=>true,'reason'=>'Twilio not configured.');}
+		return $tw->send($text,$pdf_url);
 	}
 }

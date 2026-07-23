@@ -5,45 +5,54 @@ use SitePilot\Core\Settings;
 
 final class ChatWidget {
 	public function render(): string {
-		$s = Settings::all();
-		if ( empty( $s['widget_enabled'] ) ) { return ''; }
-		$theme = $s['widget_theme'] ?? 'light';
-		$pos   = $s['widget_position'] ?? 'bottom-right';
-		$color = $s['widget_color'] ?? '#4f46e5';
-		$title = esc_html( $s['widget_title'] ?? 'SitePilot AI' );
-		$greet = esc_html( $s['widget_greeting'] ?? 'Hi! How can I help you?' );
-		$voice = ! empty( $s['widget_voice_enabled'] );
-		$handoff = ! empty( $s['widget_handoff_enabled'] );
-		$auto_open = (int) ( $s['widget_auto_open'] ?? 0 );
+		$s=Settings::all();
+		$w=$s['widget']??Settings::widget_defaults();
+		if(empty($w['enabled'])){return'';}
+		$theme=$w['theme']??'light';$pos=$w['position']??'bottom-right';$color=$w['color']??'#4f46e5';
+		$bg=($w['bg_color']??'')?:($theme==='dark'?'#1f2937':'#ffffff');
+		$title=esc_html($w['title']??'SitePilot AI');$greet=esc_html($w['greeting']??'Hi! How can I help?');
+		$voice=!empty($w['voice_enabled']);$auto=(int)($w['auto_open']??5);
+		$handoff=!empty($w['handoff_enabled']);
+
+		$state_loading='<div class="sp-state-loading"><div class="sp-spinner"><div></div><div></div><div></div></div><p>'.__('Connecting to AI...','sitepilot-ai').'</p></div>';
+		$state_error='<div class="sp-state-error"><span class="sp-state-icon">⚠️</span><p>'.__('Something went wrong. Please try again.','sitepilot-ai').'</p><button class="sp-retry-btn">'.__('Retry','sitepilot-ai').'</button></div>';
+		$state_empty='<div class="sp-state-empty"><span class="sp-state-icon">💬</span><p>'.__('No messages yet. Start a conversation!','sitepilot-ai').'</p></div>';
+		$state_recording='<div class="sp-state-recording"><div class="sp-wave"><span></span><span></span><span></span><span></span><span></span></div><p>'.__('Listening...','sitepilot-ai').'</p></div>';
+		$state_processing='<div class="sp-state-processing"><span class="sp-state-icon">🤖</span><p>'.__('AI is thinking...','sitepilot-ai').'</p></div>';
+		$state_handoff='<div class="sp-state-handoff"><span class="sp-state-icon">🧑‍💼</span><p>'.__('Connecting you to support...','sitepilot-ai').'</p></div>';
 
 		return sprintf(
-			'<div id="sp-widget" class="sp-widget sp-widget--%s sp-widget--%s" 
-			      data-color="%s" data-theme="%s" data-voice="%d" 
-			      data-handoff="%d" data-auto-open="%d">
-				<div class="sp-widget-bubble">💬</div>
-				<div class="sp-widget-panel">
-					<div class="sp-widget-header">
+			'<div id="sp-widget" class="sp-widget sp-widget--%s sp-widget--%s"
+			      data-color="%s" data-bg="%s" data-theme="%s" data-voice="%d"
+			      data-auto="%d" data-handoff="%d"
+			      data-loading="%s" data-error="%s" data-empty="%s"
+			      data-recording="%s" data-processing="%s" data-handoffs="%s">
+				<div class="sp-widget-bubble" role="button" aria-label="Open chat">💬</div>
+				<div class="sp-widget-panel" role="dialog" aria-label="Chat">
+					<div class="sp-widget-header" style="background:%s;">
+						<span class="sp-widget-indicator"></span>
 						<strong>%s</strong>
-						<span class="sp-widget-close">✕</span>
+						<span class="sp-widget-close" role="button" aria-label="Close">&times;</span>
 					</div>
-					<div class="sp-widget-msgs"></div>
+					<div class="sp-widget-status"></div>
+					<div class="sp-widget-msgs" role="log" aria-live="polite"></div>
 					<div class="sp-widget-input">
-						<textarea placeholder="%s" rows="1"></textarea>
+						<textarea placeholder="%s" rows="1" aria-label="Type your message"></textarea>
 						%s
-						<button class="sp-widget-send">➤</button>
+						<button class="sp-widget-btn sp-widget-send" aria-label="Send">➤</button>
+						<button class="sp-widget-btn sp-widget-handoff" aria-label="Talk to human" style="display:%s;">👤</button>
 					</div>
 				</div>
 			</div>',
-			$theme, $pos, esc_attr( $color ), $theme,
-			$voice ? 1 : 0, $handoff ? 1 : 0, $auto_open,
-			$title, esc_attr( $greet ),
-			$voice ? '<button class="sp-widget-mic">🎤</button>' : ''
+			$theme,$pos,esc_attr($color),esc_attr($bg),$theme,$voice?1:0,$auto,$handoff?1:0,
+			esc_attr($state_loading),esc_attr($state_error),esc_attr($state_empty),
+			esc_attr($state_recording),esc_attr($state_processing),esc_attr($state_handoff),
+			esc_attr($color),$title,esc_attr__('Type your message...','sitepilot-ai'),
+			$voice?'<button class="sp-widget-btn sp-widget-mic" aria-label="Voice input">🎤</button>':'',
+			$handoff?'inline-block':'none'
 		);
 	}
-
-	public static function render_standalone(): void {
-		echo '<div class="sp-widget-standalone">';
-		( new self() )->render();
-		echo '</div>';
+	public static function render_standalone():void{
+		echo '<div class="sp-widget-standalone" style="position:relative;z-index:1;">' . (new self())->render() . '</div>';
 	}
 }
