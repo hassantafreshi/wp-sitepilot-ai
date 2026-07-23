@@ -24,7 +24,7 @@ final class AdminMenu {
 			array('Knowledge Base',self::SLUG_KB,new KnowledgeBasePage()),
 			array('Usage',self::SLUG_USAGE,new UsagePage()),
 			array('Widget',self::SLUG_WIDGET,new ChatWidgetSettings()),
-			array('Settings',self::SLUG_SETTINGS,new SettingsPage()),
+			array('WooCommerce AI',self.SLUG_WC,new WooCommerceSettings()),\n\t\t\t\tarray('Settings',self::SLUG_SETTINGS,new SettingsPage()),
 			array('Logs',self::SLUG_LOGS,new LogsPage()),
 		);
 		foreach($pages as $p){add_submenu_page(self::SLUG_COPILOT,$p[0],$p[0],$cap,$p[1],array($p[2],'render'));}
