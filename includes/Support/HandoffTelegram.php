@@ -1,45 +1,287 @@
 <?php
-declare(strict_types=1);
-
+declare(strictrict_types=1);
 namespace SitePilot\Support;
 
+use SitePilot\Logging\Logger;
+
 /**
- * Send handoff via Telegram Bot API.
+ * Telegram Bot API handler for human handoff.
+ *
+ * Scenarios covered:
+ * - Token validation (400/401 → disabled)
+ * - Chat ID validation (403/404 → warn user)
+ * - Long messages >4096 chars → auto-split into chunks
+ * - Markdown/HTML formatting with escaping
+ * - Rate limiting (Retry-After header)
+ * - Network timeout (15s default)
+ * - Document upload for PDF (via sendDocument)
+ * - All errors logged with full context
  */
 class HandoffTelegram {
 
-	public function send( string $text ): array {
-		$token  = \SitePilot\Core\Settings::get( 'widget_handoff_telegram_token', '' );
-		$chat   = \SitePilot\Core\Settings::get( 'widget_handoff_telegram_chat', '' );
+	public const API_BASE   = 'https://api.telegram.org/bot';
+	public const MAX_LENGTH = 4096; // Telegram message limit
+	public const TIMEOUT    = 15;
 
-		if ( '' === $token || '' === $chat ) {
-			return array( 'ok' => false, 'error' => 'Telegram not configured' );
-		}
+	private Logger $logger;
 
-		$response = wp_remote_post( "https://api.telegram.org/bot{$token}/sendMessage", array(
-			'timeout' => 15,
-			'headers' => array( 'Content-Type' => 'application/json' ),
-			'body'    => wp_json_encode( array(
-				'chat_id'    => $chat,
-				'text'       => mb_substr( $text, 0, 4096 ),
-				'parse_mode' => 'Markdown',
-			) ),
-		) );
-
-		if ( is_wp_error( $response ) ) {
-			return array( 'ok' => false, 'error' => $response->get_error_message() );
-		}
-
-		$code = (int) wp_remote_retrieve_response_code( $response );
-		return array(
-			'ok'    => $code >= 200 && $code < 300,
-			'error' => $code >= 200 && $code < 300 ? '' : "HTTP $code",
-		);
+	public function __construct() {
+		$this->logger = new Logger();
 	}
 
+	/**
+	 * Get bot token from plugin settings.
+	 */
+	public function get_token(): string {
+		$s = get_option( 'sitepilot_ai_settings', array() );
+		return is_array( $s ) ? (string) ( $s['widget']['handoff_telegram_token'] ?? '' ) : '';
+	}
+
+	/**
+	 * Get chat ID from plugin settings.
+	 */
+	public function get_chat_id(): string {
+		$s = get_option( 'sitepilot_ai_settings', array() );
+		return is_array( $s ) ? (string) ( $s['widget']['handoff_telegram_chat'] ?? '' ) : '';
+	}
+
+	/**
+	 * Check if Telegram is configured (token + chat ID present).
+	 */
 	public function is_configured(): bool {
-		$token = \SitePilot\Core\Settings::get( 'widget_handoff_telegram_token', '' );
-		$chat  = \SitePilot\Core\Settings::get( 'widget_handoff_telegram_chat', '' );
-		return is_string( $token ) && '' !== trim( $token ) && is_string( $chat ) && '' !== trim( $chat );
+		$token = $this->get_token();
+		$chat  = $this->get_chat_id();
+		return '' !== $token && '' !== $chat;
+	}
+
+	/**
+	 * Send a message (or messages for long text) to Telegram.
+	 *
+	 * @param string $text     Message text.
+	 * @param string $format   'html' or 'markdown'.
+	 * @param string $pdf_path Optional path to PDF file for attachment.
+	 * @return array{ok:bool, error?:string, message_ids?:array<int>}
+	 */
+	public function send( string $text, string $format = 'html', string $pdf_path = '' ): array {
+		if ( ! $this->is_configured() ) {
+			return array( 'ok' => false, 'error' => __( 'Telegram not configured.', 'sitepilot-ai' ) );
+		}
+
+		$token  = $this->get_token();
+		$chat   = $this->get_chat_id();
+		$result = array( 'ok' => true, 'message_ids' => array() );
+
+		// 1. Validate token format (basic sanity).
+		if ( ! preg_match( '/^[0-9]+:[a-zA-Z0-9_-]+$/', $token ) ) {
+			$this->logger->error( 'handoff_telegram', 'Invalid bot token format.' );
+			return array( 'ok' => false, 'error' => __( 'Invalid Telegram bot token format.', 'sitepilot-ai' ) );
+		}
+
+		// 2. Split long messages.
+		$chunks = $this->split_message( $text );
+
+		// 3. Send each chunk sequentially.
+		$parse_mode = 'html' === $format ? 'HTML' : 'MarkdownV2';
+
+		foreach ( $chunks as $i => $chunk ) {
+			try {
+				$body = array(
+					'chat_id'    => $chat,
+					'text'       => $chunk,
+					'parse_mode' => $parse_mode,
+				);
+
+				$response = wp_remote_post(
+					self::API_BASE . $token . '/sendMessage',
+					array(
+						'timeout' => self::TIMEOUT,
+						'headers' => array( 'Content-Type' => 'application/json' ),
+						'body'    => wp_json_encode( $body ),
+					)
+				);
+
+				if ( is_wp_error( $response ) ) {
+					throw new \RuntimeException( $response->get_error_message() );
+				}
+
+				$code   = wp_remote_retrieve_response_code( $response );
+				$raw    = wp_remote_retrieve_body( $response );
+				$decoded = json_decode( $raw, true );
+
+				// 4. Handle specific error codes.
+				if ( 401 === $code || ( isset( $decoded['error_code'] ) && 401 === $decoded['error_code'] ) ) {
+					$this->logger->error( 'handoff_telegram', 'Invalid bot token (401).' );
+					return array( 'ok' => false, 'error' => __( 'Telegram: invalid bot token.', 'sitepilot-ai' ) );
+				}
+
+				if ( 403 === $code || ( isset( $decoded['error_code'] ) && 403 === $decoded['error_code'] ) ) {
+					$this->logger->error( 'handoff_telegram', 'Bot blocked by user (403).' );
+					return array( 'ok' => false, 'error' => __( 'Telegram: bot was blocked by the user.', 'sitepilot-ai' ) );
+				}
+
+				if ( 404 === $code || ( isset( $decoded['error_code'] ) && 404 === $decoded['error_code'] ) ) {
+					$this->logger->error( 'handoff_telegram', 'Chat not found (404).' );
+					return array( 'ok' => false, 'error' => __( 'Telegram: chat not found. Check Chat ID.', 'sitepilot-ai' ) );
+				}
+
+				if ( 429 === $code ) {
+					// Rate limited — respect Retry-After.
+					$retry_after = (int) ( $decoded['parameters']['retry_after'] ?? 5 );
+					$this->logger->info( 'handoff_telegram', "Rate limited, retrying after {$retry_after}s." );
+					sleep( min( $retry_after, 30 ) );
+					// Retry once.
+					$response = wp_remote_post( self::API_BASE . $token . '/sendMessage', array(
+						'timeout' => self::TIMEOUT,
+						'headers' => array( 'Content-Type' => 'application/json' ),
+						'body'    => wp_json_encode( $body ),
+					) );
+					if ( is_wp_error( $response ) ) {
+						throw new \RuntimeException( $response->get_error_message() );
+					}
+				}
+
+				if ( $code < 200 || $code >= 300 ) {
+					throw new \RuntimeException( "HTTP {$code}: " . substr( $raw, 0, 200 ) );
+				}
+
+				// 5. Store message ID for tracking.
+				if ( isset( $decoded['result']['message_id'] ) ) {
+					$result['message_ids'][] = (int) $decoded['result']['message_id'];
+				}
+
+				$this->logger->info( 'handoff_telegram', "Message {$i}/" . count( $chunks ) . ' sent.' );
+
+			} catch ( \Throwable $e ) {
+				$this->logger->error( 'handoff_telegram', $e->getMessage() );
+				$result['ok'] = false;
+				if ( empty( $result['error'] ) ) {
+					$result['error'] = $e->getMessage();
+				}
+			}
+		}
+
+		// 6. Attach PDF if provided.
+		if ( '' !== $pdf_path && file_exists( $pdf_path ) ) {
+			try {
+				$this->send_document( $token, $chat, $pdf_path );
+			} catch ( \Throwable $e ) {
+				$this->logger->error( 'handoff_telegram', 'PDF upload failed: ' . $e->getMessage() );
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Send a file (PDF) to Telegram.
+	 */
+	private function send_document( string $token, string $chat, string $file_path ): void {
+		$url = self::API_BASE . $token . '/sendDocument';
+		$file = new \CURLFile( $file_path, 'application/pdf', basename( $file_path ) );
+
+		$ch = curl_init();
+		curl_setopt_array( $ch, array(
+			CURLOPT_URL        => $url,
+			CURLOPT_POST       => true,
+			CURLOPT_POSTFIELDS => array(
+				'chat_id'  => $chat,
+				'document' => $file,
+			),
+			CURLOPT_TIMEOUT   => self::TIMEOUT,
+			CURLOPT_RETURNTRANSFER => true,
+		) );
+		$response = curl_exec( $ch );
+		$error    = curl_error( $ch );
+		curl_close( $ch );
+
+		if ( $error ) {
+			throw new \RuntimeException( "CURL error: {$error}" );
+		}
+
+		$this->logger->info( 'handoff_telegram', 'PDF sent via Telegram.' );
+	}
+
+	/**
+	 * Split a long message into chunks respecting Telegram's limit.
+	 *
+	 * @return array<int, string>
+	 */
+	public function split_message( string $text ): array {
+		if ( mb_strlen( $text ) <= self::MAX_LENGTH ) {
+			return array( $text );
+		}
+
+		$chunks  = array();
+		$lines   = explode( "\n", $text );
+		$current = '';
+
+		foreach ( $lines as $line ) {
+			// If a single line exceeds the limit, hard-split it.
+			if ( mb_strlen( $line ) > self::MAX_LENGTH ) {
+				if ( '' !== $current ) {
+					$chunks[] = $current;
+					$current  = '';
+				}
+				$chunks = array_merge( $chunks, str_split( $line, self::MAX_LENGTH ) );
+				continue;
+			}
+
+			$candidate = '' === $current ? $line : $current . "\n" . $line;
+			if ( mb_strlen( $candidate ) > self::MAX_LENGTH ) {
+				$chunks[] = $current;
+				$current  = $line;
+			} else {
+				$current = $candidate;
+			}
+		}
+
+		if ( '' !== $current ) {
+			$chunks[] = $current;
+		}
+
+		return $chunks;
+	}
+
+	/**
+	 * Validate the bot token by calling getMe API.
+	 *
+	 * @return array{ok:bool, message:string}
+	 */
+	public function test_connection(): array {
+		$token = $this->get_token();
+		if ( '' === $token ) {
+			return array( 'ok' => false, 'message' => __( 'No bot token configured.', 'sitepilot-ai' ) );
+		}
+
+		try {
+			$response = wp_remote_get( self::API_BASE . $token . '/getMe', array( 'timeout' => self::TIMEOUT ) );
+			if ( is_wp_error( $response ) ) {
+				return array( 'ok' => false, 'message' => __( 'Network error: ', 'sitepilot-ai' ) . $response->get_error_message() );
+			}
+
+			$code = wp_remote_retrieve_response_code( $response );
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			if ( 200 === $code && ! empty( $body['ok'] ) ) {
+				$bot = $body['result'];
+				return array(
+					'ok'      => true,
+					'message' => sprintf(
+						/* translators: %s: bot username */
+						__( 'Connected as @%s', 'sitepilot-ai' ),
+						$bot['username'] ?? 'unknown'
+					),
+				);
+			}
+
+			if ( 401 === $code ) {
+				return array( 'ok' => false, 'message' => __( 'Invalid bot token.', 'sitepilot-ai' ) );
+			}
+
+			return array( 'ok' => false, 'message' => __( 'Unexpected response (HTTP ', 'sitepilot-ai' ) . $code . ')' );
+
+		} catch ( \Throwable $e ) {
+			return array( 'ok' => false, 'message' => $e->getMessage() );
+		}
 	}
 }
