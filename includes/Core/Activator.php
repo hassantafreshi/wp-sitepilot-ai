@@ -5,6 +5,7 @@ namespace SitePilot\Core;
 
 use SitePilot\Connectors\NativeFormConnector;
 use SitePilot\Content\KnowledgeBase;
+use SitePilot\Chat\ConversationManager;
 
 /**
  * Runs on plugin activation.
@@ -32,5 +33,9 @@ final class Activator {
 		// Create the Knowledge Base table.
 		$kb = new KnowledgeBase();
 		$kb->create_table();
+
+		// Create the Conversations table.
+		$chat = new ConversationManager();
+		$chat->create_table();
 	}
 }
