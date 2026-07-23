@@ -1,0 +1,329 @@
+# SitePilot AI Persian Translation
+# Copyright (C) 2026 SitePilot AI
+# This file is distributed under the GPL-2.0-or-later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: SitePilot AI 0.6.0\n"
+"Report-Msgid-Bugs-To: https://sitepilot.ai\n"
+"POT-Creation-Date: 2026-07-23 12:00+0000\n"
+"PO-Revision-Date: 2026-07-23 12:00+0330\n"
+"Last-Translator: SitePilot AI <info@sitepilot.ai>\n"
+"Language-Team: Persian <fa@li.org>\n"
+"Language: fa_IR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: SitePilot AI 0.6.0\n"
+
+# WooCommerce - General
+msgid "WooCommerce is not active."
+msgstr "ووکامرس فعال نیست."
+
+msgid "Product not found."
+msgstr "محصول یافت نشد."
+
+msgid "Order not found."
+msgstr "سفارش یافت نشد."
+
+msgid "Customer not found."
+msgstr "مشتری یافت نشد."
+
+msgid "Invalid order ID."
+msgstr "شناسه سفارش نامعتبر است."
+
+msgid "Invalid customer ID."
+msgstr "شناسه مشتری نامعتبر است."
+
+msgid "Invalid status."
+msgstr "وضعیت نامعتبر است."
+
+msgid "Refund amount exceeds maximum."
+msgstr "مبلغ بازپرداخت از حداکثر مجاز بیشتر است."
+
+msgid "Refund amount must be positive."
+msgstr "مبلغ بازپرداخت باید مثبت باشد."
+
+msgid "AI provider is not configured."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+# WooCommerce - Product AI
+msgid "Create a simple product called %s with price %s in %s status"
+msgstr "یک محصول ساده با نام %s و قیمت %s در وضعیت %s ایجاد کنید"
+
+msgid "Product plan created successfully."
+msgstr "طرح محصول با موفقیت ایجاد شد."
+
+msgid "Product created successfully."
+msgstr "محصول با موفقیت ایجاد شد."
+
+msgid "Product updated successfully."
+msgstr "محصول با موفقیت به‌روزرسانی شد."
+
+msgid "Search products"
+msgstr "جستجوی محصولات"
+
+msgid "Edit product"
+msgstr "ویرایش محصول"
+
+msgid "Product categories"
+msgstr "دسته‌بندی‌های محصول"
+
+# WooCommerce - Order Intelligence
+msgid "Search orders"
+msgstr "جستجوی سفارش‌ها"
+
+msgid "Recent orders"
+msgstr "سفارش‌های اخیر"
+
+msgid "Update order status"
+msgstr "به‌روزرسانی وضعیت سفارش"
+
+msgid "Create refund"
+msgstr "ایجاد بازپرداخت"
+
+msgid "Order statistics"
+msgstr "آمار سفارش‌ها"
+
+msgid "Add order note"
+msgstr "افزودن یادداشت سفارش"
+
+msgid "Status updated via SitePilot AI."
+msgstr "وضعیت توسط SitePilot AI به‌روزرسانی شد."
+
+msgid "Refund via SitePilot AI."
+msgstr "بازپرداخت توسط SitePilot AI."
+
+# WooCommerce - Analytics
+msgid "Sales report"
+msgstr "گزارش فروش"
+
+msgid "Top selling products"
+msgstr "پرفروش‌ترین محصولات"
+
+msgid "Low stock alerts"
+msgstr "هشدارهای موجودی کم"
+
+msgid "Customer purchase history"
+msgstr "تاریخچه خرید مشتری"
+
+msgid "Revenue by category"
+msgstr "درآمد بر اساس دسته‌بندی"
+
+msgid "Dashboard summary"
+msgstr "خلاصه داشبورد"
+
+msgid "Today"
+msgstr "امروز"
+
+msgid "Last 7 days"
+msgstr "۷ روز گذشته"
+
+msgid "This month"
+msgstr "این ماه"
+
+msgid "This year"
+msgstr "امسال"
+
+# WooCommerce - Content + SEO
+msgid "Generate product description with AI"
+msgstr "تولید توضیحات محصول با هوش مصنوعی"
+
+msgid "Generate SEO title and meta description"
+msgstr "تولید عنوان سئو و توضیحات متا"
+
+msgid "Generate promotional text"
+msgstr "تولید متن تبلیغاتی"
+
+msgid "Bulk content generation"
+msgstr "تولید محتوای دسته‌جمعی"
+
+msgid "Apply content to product"
+msgstr "اعمال محتوا به محصول"
+
+msgid "Content templates"
+msgstr "قالب‌های محتوا"
+
+msgid "Professional and informative"
+msgstr "حرفه‌ای و اطلاع‌رسان"
+
+msgid "Friendly and approachable"
+msgstr "دوستانه و صمیمی"
+
+msgid "Luxurious and premium"
+msgstr "لوکس و ممتاز"
+
+msgid "Technical and detailed"
+msgstr "فنی و دقیق"
+
+msgid "Short social media post (max 280 characters). Include emojis and hashtags."
+msgstr "پست کوتاه شبکه‌های اجتماعی (حداکثر ۲۸۰ کاراکتر). شامل ایموجی و هشتگ."
+
+msgid "Medium email newsletter paragraph (100-150 words). Engaging and persuasive."
+msgstr "پاراگراف متوسط خبرنامه ایمیلی (۱۰۰-۱۵۰ کلمه). جذاب و متقاعدکننده."
+
+msgid "Long blog-style promotional article (300-400 words). Storytelling approach."
+msgstr "مقاله تبلیغاتی بلند به سبک بلاگ (۳۰۰-۴۰۰ کلمه). رویکرد داستان‌سرایی."
+
+# Chat Widget
+msgid "Hi! How can I help you?"
+msgstr "سلام! چطور می‌تونم کمکتون کنم؟"
+
+msgid "SitePilot AI"
+msgstr "SitePilot AI"
+
+msgid "Connecting to AI..."
+msgstr "در حال اتصال به هوش مصنوعی..."
+
+msgid "Something went wrong. Please try again."
+msgstr "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+
+msgid "Retry"
+msgstr "تلاش مجدد"
+
+msgid "No messages yet. Start a conversation!"
+msgstr "هنوز پیامی نیست. یک مکالمه شروع کنید!"
+
+msgid "Listening..."
+msgstr "در حال گوش دادن..."
+
+msgid "AI is thinking..."
+msgstr "هوش مصنوعی در حال فکر کردن است..."
+
+msgid "Talk to human"
+msgstr "صحبت با انسان"
+
+msgid "Want to talk to a human?"
+msgstr "می‌خواهید با یک انسان صحبت کنید؟"
+
+# Handoff
+msgid "Support Request"
+msgstr "درخواست پشتیبانی"
+
+msgid "Support request sent."
+msgstr "درخواست پشتیبانی ارسال شد."
+
+msgid "Failed to send."
+msgstr "ارسال ناموفق بود."
+
+msgid "Email"
+msgstr "ایمیل"
+
+msgid "Telegram"
+msgstr "تلگرام"
+
+msgid "Twilio WhatsApp"
+msgstr "واتساپ Twilio"
+
+msgid "Webhook"
+msgstr "وب‌هوک"
+
+# Settings
+msgid "Settings saved."
+msgstr "تنظیمات ذخیره شد."
+
+msgid "Enable Widget"
+msgstr "فعال‌سازی ویجت"
+
+msgid "Title"
+msgstr "عنوان"
+
+msgid "Greeting"
+msgstr "پیام خوش‌آمدگویی"
+
+msgid "Position"
+msgstr "موقعیت"
+
+msgid "Bottom Right"
+msgstr "پایین راست"
+
+msgid "Bottom Left"
+msgstr "پایین چپ"
+
+msgid "Top Right"
+msgstr "بالا راست"
+
+msgid "Top Left"
+msgstr "بالا چپ"
+
+msgid "Theme"
+msgstr "تم"
+
+msgid "Light"
+msgstr "روشن"
+
+msgid "Dark"
+msgstr "تیره"
+
+msgid "Voice"
+msgstr "صدا"
+
+msgid "Enable voice input"
+msgstr "فعال‌سازی ورودی صدا"
+
+msgid "Auto-play response"
+msgstr "پخش خودکار پاسخ"
+
+msgid "Handoff"
+msgstr "انتقال به انسان"
+
+msgid "Enable human handoff"
+msgstr "فعال‌سازی انتقال به انسان"
+
+msgid "Button text"
+msgstr "متن دکمه"
+
+msgid "Hook text"
+msgstr "متن قلاب"
+
+# General
+msgid "You do not have permission to view this page."
+msgstr "شما اجازه مشاهده این صفحه را ندارید."
+
+msgid "Please enter a question."
+msgstr "لطفاً یک سوال وارد کنید."
+
+msgid "An error occurred while processing your question. Please try again."
+msgstr "هنگام پردازش سوال شما خطایی رخ داد. لطفاً دوباره تلاش کنید."
+
+msgid "No API key configured."
+msgstr "کلید API پیکربندی نشده است."
+
+msgid "Connection successful."
+msgstr "اتصال موفقیت‌آمیز بود."
+
+msgid "Invalid bot token format."
+msgstr "فرمت توکن ربات نامعتبر است."
+
+msgid "Telegram: invalid bot token."
+msgstr "تلگرام: توکن ربات نامعتبر است."
+
+msgid "Telegram: bot was blocked by the user."
+msgstr "تلگرام: ربات توسط کاربر مسدود شده است."
+
+msgid "Telegram: chat not found. Check Chat ID."
+msgstr "تلگرام: چت یافت نشد. شناسه چت را بررسی کنید."
+
+msgid "Connected as @%s"
+msgstr "متصل به عنوان @%s"
+
+msgid "Unexpected response (HTTP "
+msgstr "پاسخ غیرمنتظره (HTTP "
+
+msgid "Network error: "
+msgstr "خطای شبکه: "
+
+msgid "No bot token configured."
+msgstr "توکن ربات پیکربندی نشده است."
+
+msgid "PDF sent via Telegram."
+msgstr "PDF از طریق تلگرام ارسال شد."
+
+msgid "Rate limited, retrying after %ds."
+msgstr "محدودیت نرخ، تلاش مجدد پس از %d ثانیه."
+
+msgid "Message %d/%d sent."
+msgstr "پیام %d/%d ارسال شد."
+
+msgid "CURL error: %s"
+msgstr "خطای CURL: %s"
