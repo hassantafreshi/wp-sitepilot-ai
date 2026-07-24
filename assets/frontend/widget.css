@@ -292,5 +292,117 @@
 	.spw-toggle, .spw-panel, .spw-msg, .spw-typing__dot { animation: none !important; transition: none !important; }
 }
 
+/* ══════════════════════════════════════════════════════
+   Icons, header controls, and launcher positions
+   ══════════════════════════════════════════════════════ */
+
+/* ── Launcher icon swap (chat ⇄ close) ── */
+.spw-toggle__ico {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.spw-toggle svg { width: 26px; height: 26px; }
+.spw-toggle__ico--close { display: none; }
+.spw-toggle--open .spw-toggle__ico--open { display: none; }
+.spw-toggle--open .spw-toggle__ico--close { display: flex; }
+
+/* Open state: keep the red affordance but let the icon swap do the work (no rotate). */
+.spw-toggle--open { transform: none !important; }
+
+/* ── Header meta + avatar + close ── */
+.spw-avatar svg { width: 22px; height: 22px; }
+
+.spw-header__meta {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.spw-header__sub {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.spw-status-dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #34d399;
+	flex-shrink: 0;
+	animation: spwStatus 2s ease-in-out infinite;
+}
+
+@keyframes spwStatus {
+	0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5); }
+	50% { box-shadow: 0 0 0 4px rgba(52, 211, 153, 0); }
+}
+
+.spw-close {
+	margin-inline-start: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px;
+	border: none;
+	border-radius: 8px;
+	background: transparent;
+	color: #fff;
+	opacity: 0.85;
+	cursor: pointer;
+	transition: var(--spw-transition);
+}
+
+.spw-close:hover { opacity: 1; background: rgba(255, 255, 255, 0.15); }
+.spw-close svg { width: 18px; height: 18px; }
+
+/* ── Input / action icons ── */
+.spw-send svg,
+.spw-mic svg { width: 20px; height: 20px; }
+
+/* ── Handoff button with icon ── */
+.spw-handoff-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+
+.spw-handoff-btn svg { width: 18px; height: 18px; }
+
+/* ── Greeting bubble gets a touch more presence ── */
+.spw-msg--greeting { font-size: 14px; }
+
+/* ══════════════════════════════════════════════════════
+   Launcher / panel positions
+   ══════════════════════════════════════════════════════ */
+.spw--bottom-left .spw-toggle,
+.spw--bottom-left .spw-panel {
+	inset-inline-end: auto;
+	inset-inline-start: var(--spw-side);
+}
+
+.spw--top-right .spw-toggle,
+.spw--top-left .spw-toggle {
+	top: var(--spw-bottom);
+	bottom: auto;
+}
+
+.spw--top-right .spw-panel,
+.spw--top-left .spw-panel {
+	top: calc(var(--spw-bottom) + var(--spw-bubble-size) + 16px);
+	bottom: auto;
+}
+
+.spw--top-left .spw-toggle,
+.spw--top-left .spw-panel {
+	inset-inline-end: auto;
+	inset-inline-start: var(--spw-side);
+}
+
 /* ── Print ── */
 @media print { .spw-toggle, .spw-panel { display: none !important; } }

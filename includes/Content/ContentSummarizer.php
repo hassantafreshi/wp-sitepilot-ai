@@ -24,8 +24,14 @@ final class ContentSummarizer {
 	/**
 	 * Summarise a single post into a structured KB entry.
 	 *
+	 * Controlled vocabulary for automatic content classification.
+	 * Stored as the canonical slug; the UI maps these to friendly labels.
+	 */
+	public const CONTENT_TYPES = array( 'tutorial', 'product', 'service', 'article', 'page', 'faq', 'news', 'other' );
+
+	/**
 	 * @param \WP_Post $post
-	 * @return array{title:string, summary:string, keywords:string, category:string, token_count:int}
+	 * @return array{title:string, summary:string, keywords:string, category:string, content_type:string, token_count:int}
 	 * @throws ProviderException
 	 */
 	public function summarize( \WP_Post $post ): array {
@@ -44,12 +50,18 @@ final class ContentSummarizer {
 
 		$result = $this->provider->generate_structured_output( $system_prompt, $user_prompt );
 
+		$content_type = strtolower( trim( (string) ( $result['content_type'] ?? '' ) ) );
+		if ( ! in_array( $content_type, self::CONTENT_TYPES, true ) ) {
+			$content_type = 'other';
+		}
+
 		return array(
-			'title'       => sanitize_text_field( $result['title'] ?? $title ),
-			'summary'     => sanitize_textarea_field( $result['summary'] ?? '' ),
-			'keywords'    => sanitize_text_field( $result['keywords'] ?? '' ),
-			'category'    => sanitize_text_field( $result['category'] ?? '' ),
-			'token_count' => absint( $result['token_count'] ?? 0 ),
+			'title'        => sanitize_text_field( $result['title'] ?? $title ),
+			'summary'      => sanitize_textarea_field( $result['summary'] ?? '' ),
+			'keywords'     => sanitize_text_field( $result['keywords'] ?? '' ),
+			'category'     => sanitize_text_field( $result['category'] ?? '' ),
+			'content_type' => $content_type,
+			'token_count'  => absint( $result['token_count'] ?? 0 ),
 		);
 	}
 
@@ -81,10 +93,20 @@ final class ContentSummarizer {
 			. '- "summary": A 2-4 sentence summary capturing the main points (string, max 500 chars)' . "\n"
 			. '- "keywords": Comma-separated key terms, 3-8 keywords (string, max 300 chars)' . "\n"
 			. '- "category": A single best-fit category label (string, max 50 chars)' . "\n"
+			. '- "content_type": Classify the content into EXACTLY ONE of these slugs:' . "\n"
+			. '    "tutorial"  = how-to guide, walkthrough, documentation, setup/instruction' . "\n"
+			. '    "product"   = a product or item for sale / product description' . "\n"
+			. '    "service"   = a service offering or what the business provides' . "\n"
+			. '    "article"   = blog post, opinion, general informational article' . "\n"
+			. '    "page"      = static/landing/about/contact/informational page' . "\n"
+			. '    "faq"       = questions & answers, help, troubleshooting' . "\n"
+			. '    "news"      = announcement, release note, time-bound news' . "\n"
+			. '    "other"     = none of the above' . "\n"
 			. '- "token_count": Estimated token count of the original content (integer)' . "\n\n"
 			. "Rules:\n"
 			. "- Respond ONLY with valid JSON. No markdown, no explanation.\n"
 			. "- Write the summary in the SAME LANGUAGE as the original content.\n"
+			. "- \"content_type\" MUST be one of the exact slugs listed above, lowercase.\n"
 			. "- Be factual and concise. Do not add information not present in the content.\n"
 			. '- If the content is empty or too short, set summary to "No content available."';
 	}

@@ -37,9 +37,14 @@
 }
 
 /* ── Base Layout ── */
+/* Base wrap is full-width — best for data/table/dashboard pages.
+   Form/text pages opt into a comfortable reading width via .sitepilot-wrap--narrow. */
 .sitepilot-wrap {
-	max-width: 960px;
 	padding: 8px 0 40px;
+}
+
+.sitepilot-wrap--narrow {
+	max-width: 1200px;
 }
 
 /* ── Page Header ── */

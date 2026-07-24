@@ -22,7 +22,7 @@ final class WooCommerceSettings {
 		$w      = is_array( $s ) ? $s : array();
 		$woo    = $w['woocommerce'] ?? array( 'enabled' => true );
 		?>
-		<div class="wrap sitepilot-wrap">
+		<div class="wrap sitepilot-wrap sitepilot-wrap--narrow">
 			<h1 class="sitepilot-title">
 				<span class="dashicons dashicons-products"></span>
 				<?php esc_html_e( 'WooCommerce AI', 'sitepilot-ai' ); ?>

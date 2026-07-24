@@ -78,7 +78,7 @@
 	function addMessage(role, content, sources) {
 		var msgs = $('spw-msgs');
 		if (!msgs) return;
-		var div = el('div', { class: 'spw-msg spw-msg--' + role });
+		var div = el('div', { class: 'spw-msg spw-msg--' + (role === 'user' ? 'user' : 'ai') });
 		div.textContent = content;
 		if (role === 'assistant' && content) {
 			div.textContent = '';
@@ -291,9 +291,14 @@
 		var handoffBtn = $('spw-handoff-btn');
 		if (handoffBtn) handoffBtn.addEventListener('click', showHandoffForm);
 
+		var closeBtn = $('spw-close');
+		if (closeBtn) closeBtn.addEventListener('click', function () { if (isOpen) toggle(); });
+
 		getSettings().then(function(s) {
-			if (s.auto_open) {
-				setTimeout(toggle, (s.auto_open_delay || 15) * 1000);
+			// s.auto_open holds the delay in seconds (0 = disabled).
+			var delay = parseInt(s.auto_open, 10);
+			if (delay > 0) {
+				setTimeout(function () { if (!isOpen) toggle(); }, delay * 1000);
 			}
 		});
 

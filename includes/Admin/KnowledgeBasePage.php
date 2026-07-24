@@ -25,10 +25,18 @@ final class KnowledgeBasePage {
 		$kb          = new KnowledgeBase();
 		$indexer     = new ContentIndexer();
 		$usage       = new UsageTracker();
-		$configured  = ( new ProviderManager() )->is_configured();
-		$stats       = $kb->table_exists() ? $kb->get_stats() : array( 'total' => 0, 'indexed' => 0, 'pending' => 0, 'post_types' => array(), 'last_indexed' => null );
+		$manager     = new ProviderManager();
+		$configured  = $manager->is_configured();
+		$stats       = $kb->table_exists() ? $kb->get_stats() : array( 'total' => 0, 'indexed' => 0, 'pending' => 0, 'post_types' => array(), 'content_types' => array(), 'last_indexed' => null );
 		$total_posts = $indexer->get_total_posts();
 		$warning     = $usage->get_threshold_warning();
+
+		$semantic_on    = $manager->embeddings_enabled();
+		$embedded_count = ( $semantic_on && $kb->table_exists() ) ? $kb->count_with_embeddings( $manager->embedding_model() ) : 0;
+
+		$type_options   = $indexer->get_indexable_types_with_counts();
+		$categories     = get_categories( array( 'hide_empty' => false, 'number' => 200 ) );
+		$ct_labels      = self::content_type_labels();
 		?>
 		<div class="wrap sitepilot-wrap sitepilot-kb-wrap">
 			<h1 class="sitepilot-title">
@@ -90,6 +98,23 @@ final class KnowledgeBasePage {
 					<?php esc_html_e( 'Click the button below to scan and index all your published posts and pages. SitePilot AI will summarize each one into structured knowledge. You only need to do this once — new content is indexed automatically when you publish or edit.', 'sitepilot-ai' ); ?>
 				</p>
 
+				<?php if ( $semantic_on ) : ?>
+					<div class="sitepilot-kb-semantic">
+						<span class="dashicons dashicons-search"></span>
+						<span>
+							<strong><?php esc_html_e( 'Semantic search is ON.', 'sitepilot-ai' ); ?></strong>
+							<?php
+							printf(
+								/* translators: %1$d: embedded items, %2$d: total indexed items. */
+								esc_html__( '%1$d of %2$d indexed items have an embedding. Run indexing to build any missing vectors.', 'sitepilot-ai' ),
+								(int) $embedded_count,
+								(int) $stats['total']
+							);
+							?>
+						</span>
+					</div>
+				<?php endif; ?>
+
 				<div class="sitepilot-kb-indexer__actions">
 					<button type="button" id="sp-kb-start-index" class="button button-primary button-hero"
 						<?php disabled( ! $configured ); ?>>
@@ -116,6 +141,24 @@ final class KnowledgeBasePage {
 				</div>
 			</div>
 
+			<!-- Content Gaps: questions visitors asked that the KB couldn't answer -->
+			<div id="sp-kb-gaps" class="sitepilot-card sitepilot-kb-gaps" hidden>
+				<div class="sitepilot-kb-gaps__header">
+					<h2>
+						<span class="dashicons dashicons-lightbulb" style="color: #d97706;"></span>
+						<?php esc_html_e( 'Questions Without Answers', 'sitepilot-ai' ); ?>
+						<span id="sp-kb-gaps-count" class="sp-kb-gaps-count">0</span>
+					</h2>
+					<button type="button" id="sp-kb-gaps-clear" class="button button-small">
+						<?php esc_html_e( 'Clear all', 'sitepilot-ai' ); ?>
+					</button>
+				</div>
+				<p class="description">
+					<?php esc_html_e( 'These are questions visitors asked that your content does not answer yet. Write or index a page covering them to improve future answers.', 'sitepilot-ai' ); ?>
+				</p>
+				<div id="sp-kb-gaps-list" class="sitepilot-kb-gaps__list"></div>
+			</div>
+
 			<!-- KB Table -->
 			<div class="sitepilot-card sitepilot-kb-table-wrap">
 				<div class="sitepilot-kb-table__header">
@@ -134,6 +177,16 @@ final class KnowledgeBasePage {
 								</option>
 							<?php endforeach; ?>
 						</select>
+						<?php if ( ! empty( $stats['content_types'] ) ) : ?>
+							<select id="sp-kb-ctype-filter" class="sitepilot-kb-type-filter">
+								<option value=""><?php esc_html_e( 'All Categories', 'sitepilot-ai' ); ?></option>
+								<?php foreach ( $stats['content_types'] as $ctype => $count ) : ?>
+									<option value="<?php echo esc_attr( $ctype ); ?>">
+										<?php echo esc_html( ( $ct_labels[ $ctype ] ?? ucfirst( $ctype ) ) . ' (' . $count . ')' ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+						<?php endif; ?>
 					</div>
 				</div>
 
@@ -162,7 +215,87 @@ final class KnowledgeBasePage {
 
 				<div id="sp-kb-pagination" class="sitepilot-kb-pagination"></div>
 			</div>
+
+			<!-- Pre-index picker modal -->
+			<div id="sp-kb-modal" class="sitepilot-kb-modal" hidden>
+				<div class="sitepilot-kb-modal__backdrop" data-close="1"></div>
+				<div class="sitepilot-kb-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="sp-kb-modal-title">
+					<div class="sitepilot-kb-modal__header">
+						<h2 id="sp-kb-modal-title">
+							<span class="dashicons dashicons-filter"></span>
+							<?php esc_html_e( 'What should SitePilot index?', 'sitepilot-ai' ); ?>
+						</h2>
+						<button type="button" class="sitepilot-kb-modal__close" data-close="1" aria-label="<?php esc_attr_e( 'Close', 'sitepilot-ai' ); ?>">&times;</button>
+					</div>
+					<div class="sitepilot-kb-modal__body">
+						<p class="description">
+							<?php esc_html_e( 'Choose which content to read and learn from. You can re-run this any time.', 'sitepilot-ai' ); ?>
+						</p>
+
+						<div class="sitepilot-kb-picker">
+							<h3><?php esc_html_e( 'Content types', 'sitepilot-ai' ); ?></h3>
+							<div class="sitepilot-kb-picker__grid">
+								<?php foreach ( $type_options as $t ) : ?>
+									<label class="sitepilot-kb-check">
+										<input type="checkbox" class="sp-kb-type-opt" value="<?php echo esc_attr( $t['slug'] ); ?>" checked />
+										<span class="sitepilot-kb-check__label"><?php echo esc_html( $t['label'] ); ?></span>
+										<span class="sitepilot-kb-check__count"><?php echo esc_html( (string) $t['count'] ); ?></span>
+									</label>
+								<?php endforeach; ?>
+							</div>
+						</div>
+
+						<?php if ( ! empty( $categories ) ) : ?>
+							<div class="sitepilot-kb-picker">
+								<h3>
+									<?php esc_html_e( 'Post categories', 'sitepilot-ai' ); ?>
+									<span class="sitepilot-kb-picker__hint"><?php esc_html_e( '(applies to Posts)', 'sitepilot-ai' ); ?></span>
+								</h3>
+								<label class="sitepilot-kb-check sitepilot-kb-check--master">
+									<input type="checkbox" id="sp-kb-cat-all" checked />
+									<span class="sitepilot-kb-check__label"><?php esc_html_e( 'All categories', 'sitepilot-ai' ); ?></span>
+								</label>
+								<div class="sitepilot-kb-picker__grid sitepilot-kb-picker__grid--cats" id="sp-kb-cat-list" hidden>
+									<?php foreach ( $categories as $cat ) : ?>
+										<label class="sitepilot-kb-check">
+											<input type="checkbox" class="sp-kb-cat-opt" value="<?php echo esc_attr( (string) $cat->term_id ); ?>" />
+											<span class="sitepilot-kb-check__label"><?php echo esc_html( $cat->name ); ?></span>
+											<span class="sitepilot-kb-check__count"><?php echo esc_html( (string) $cat->count ); ?></span>
+										</label>
+									<?php endforeach; ?>
+								</div>
+							</div>
+						<?php endif; ?>
+					</div>
+					<div class="sitepilot-kb-modal__footer">
+						<button type="button" class="button button-secondary" data-close="1"><?php esc_html_e( 'Cancel', 'sitepilot-ai' ); ?></button>
+						<button type="button" id="sp-kb-modal-start" class="button button-primary">
+							<span class="dashicons dashicons-lightbulb"></span>
+							<?php esc_html_e( 'Start Indexing', 'sitepilot-ai' ); ?>
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
+		<script type="application/json" id="sp-kb-ctype-labels"><?php echo wp_json_encode( $ct_labels ); ?></script>
 		<?php
+	}
+
+	/**
+	 * Friendly, translatable labels for the automatic content-type slugs.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function content_type_labels(): array {
+		return array(
+			'tutorial' => __( 'Tutorial / Guide', 'sitepilot-ai' ),
+			'product'  => __( 'Product', 'sitepilot-ai' ),
+			'service'  => __( 'Service', 'sitepilot-ai' ),
+			'article'  => __( 'Article', 'sitepilot-ai' ),
+			'page'     => __( 'Page', 'sitepilot-ai' ),
+			'faq'      => __( 'FAQ', 'sitepilot-ai' ),
+			'news'     => __( 'News', 'sitepilot-ai' ),
+			'other'    => __( 'Other', 'sitepilot-ai' ),
+		);
 	}
 }

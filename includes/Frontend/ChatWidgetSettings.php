@@ -23,7 +23,7 @@ final class ChatWidgetSettings {
 			'Microsoft David'          => 'David',
 		);
 		?>
-		<div class="wrap sitepilot-wrap">
+		<div class="wrap sitepilot-wrap sitepilot-wrap--narrow">
 			<h1 class="sitepilot-title">
 				<span class="dashicons dashicons-format-chat"></span>
 				<?php esc_html_e( 'Chat Widget', 'sitepilot-ai' ); ?>
@@ -37,6 +37,7 @@ final class ChatWidgetSettings {
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'sitepilot-ai' ); ?></p></div>
 			<?php endif; ?>
 
+			<div class="sitepilot-widget-layout">
 			<form method="post" class="sitepilot-widget-form">
 				<?php wp_nonce_field( 'sp_widget_save' ); ?>
 
@@ -221,6 +222,25 @@ final class ChatWidgetSettings {
 					<button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'sitepilot-ai' ); ?></button>
 				</div>
 			</form>
+
+			<!-- Live preview -->
+			<aside class="sp-wp" aria-hidden="true">
+				<div class="sp-wp__label"><?php esc_html_e( 'Live preview', 'sitepilot-ai' ); ?></div>
+				<div class="sp-wp__stage" id="sp-wp-stage" data-position="<?php echo esc_attr( $w['position'] ?? 'bottom-right' ); ?>">
+					<div class="sp-wp__window" id="sp-wp-window">
+						<div class="sp-wp__header" id="sp-wp-header" style="background: <?php echo esc_attr( $w['color'] ?? '#4f46e5' ); ?>;">
+							<span class="sp-wp__title" id="sp-wp-title"><?php echo esc_html( $w['title'] ?? 'SitePilot AI' ); ?></span>
+							<span class="sp-wp__dot"></span>
+						</div>
+						<div class="sp-wp__body" id="sp-wp-body" style="background: <?php echo esc_attr( $w['bg'] ?? '#ffffff' ); ?>;">
+							<div class="sp-wp__msg" id="sp-wp-greeting"><?php echo esc_html( $w['greeting'] ?? 'Hi! How can I help?' ); ?></div>
+						</div>
+						<div class="sp-wp__input"><span><?php esc_html_e( 'Type a message…', 'sitepilot-ai' ); ?></span></div>
+					</div>
+					<button type="button" class="sp-wp__launcher" id="sp-wp-launcher" tabindex="-1" style="background: <?php echo esc_attr( $w['color'] ?? '#4f46e5' ); ?>;">💬</button>
+				</div>
+			</aside>
+			</div>
 		</div>
 		<?php
 	}

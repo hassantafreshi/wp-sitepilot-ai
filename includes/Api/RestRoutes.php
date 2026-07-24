@@ -26,6 +26,8 @@ final class RestRoutes {
 		register_rest_route( self::NAMESPACE, '/kb/stats', array('methods'=>'GET','callback'=>array($kb,'stats'),'permission_callback'=>array($this,'can_manage')) );
 		register_rest_route( self::NAMESPACE, '/kb/delete', array('methods'=>'POST','callback'=>array($kb,'delete_entry'),'permission_callback'=>array($this,'can_manage')) );
 		register_rest_route( self::NAMESPACE, '/kb/chat', array('methods'=>'POST','callback'=>array($kb,'chat'),'permission_callback'=>array($this,'can_manage')) );
+		register_rest_route( self::NAMESPACE, '/kb/gaps', array('methods'=>'GET','callback'=>array($kb,'gaps'),'permission_callback'=>array($this,'can_manage')) );
+		register_rest_route( self::NAMESPACE, '/kb/gaps/dismiss', array('methods'=>'POST','callback'=>array($kb,'gaps_dismiss'),'permission_callback'=>array($this,'can_manage')) );
 
 		$us = $kb;
 		register_rest_route( self::NAMESPACE, '/usage/report', array('methods'=>'GET','callback'=>array($us,'usage_report'),'permission_callback'=>array($this,'can_manage')) );
@@ -35,9 +37,9 @@ final class RestRoutes {
 		$chat = new ChatController();
 		register_rest_route( self::NAMESPACE, '/chat/ask', array('methods'=>'POST','callback'=>array($chat,'ask'),'permission_callback'=>array($this,'can_manage'),'args'=>array('question'=>array('type'=>'string','required'=>true),'conversation_id'=>array('type'=>'integer'))) );
 		register_rest_route( self::NAMESPACE, '/chat/create', array('methods'=>'POST','callback'=>array($chat,'create'),'permission_callback'=>array($this,'can_manage')) );
-		register_rest_route( self::NAMESPACE, '/chat/list', array('methods'=>'GET','callback'=>array($chat,'list_conv'),'permission_callback'=>array($this,'can_manage')) );
-		register_rest_route( self::NAMESPACE, '/chat/get', array('methods'=>'GET','callback'=>array($chat,'get_conv'),'permission_callback'=>array($this,'can_manage'),'args'=>array('id'=>array('type'=>'integer','required'=>true))) );
-		register_rest_route( self::NAMESPACE, '/chat/delete', array('methods'=>'POST','callback'=>array($chat,'delete_conv'),'permission_callback'=>array($this,'can_manage'),'args'=>array('id'=>array('type'=>'integer','required'=>true))) );
+		register_rest_route( self::NAMESPACE, '/chat/list', array('methods'=>'GET','callback'=>array($chat,'list'),'permission_callback'=>array($this,'can_manage')) );
+		register_rest_route( self::NAMESPACE, '/chat/get', array('methods'=>'GET','callback'=>array($chat,'get'),'permission_callback'=>array($this,'can_manage'),'args'=>array('id'=>array('type'=>'integer','required'=>true))) );
+		register_rest_route( self::NAMESPACE, '/chat/delete', array('methods'=>'POST','callback'=>array($chat,'delete'),'permission_callback'=>array($this,'can_manage'),'args'=>array('id'=>array('type'=>'integer','required'=>true))) );
 
 		$voice = new VoiceController();
 		register_rest_route( self::NAMESPACE, '/voice/transcribe', array('methods'=>'POST','callback'=>array($voice,'transcribe'),'permission_callback'=>'__return_true') );

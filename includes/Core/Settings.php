@@ -6,6 +6,7 @@ use SitePilot\Security\KeyVault;
 final class Settings {
 	public const OPTION = 'sitepilot_ai_settings';
 	public const KEY_OPTION = 'sitepilot_ai_provider_key';
+	public const EMBED_KEY_OPTION = 'sitepilot_ai_embedding_key';
 
 	public static function presets(): array {
 		return array(
@@ -26,6 +27,7 @@ final class Settings {
 			'temperature' => 0.2, 'default_form_status' => 'draft', 'prefer_efb' => true,
 			'key_management' => 'keyvault', 'kb_post_types' => array(), 'kb_auto_index' => true,
 			'monthly_token_budget' => 0, 'widget' => self::widget_defaults(),
+			'embeddings_enabled' => false, 'embedding_base_url' => '', 'embedding_model' => 'text-embedding-3-small',
 		);
 	}
 
@@ -92,5 +94,39 @@ final class Settings {
 
 	public static function delete_api_key(): void {
 		delete_option( self::KEY_OPTION );
+	}
+
+	// ── Embedding API key (optional, separate provider for /embeddings) ──
+
+	public static function set_embedding_key( string $plaintext ): void {
+		if ( '' === $plaintext ) {
+			delete_option( self::EMBED_KEY_OPTION );
+			return;
+		}
+		$vault     = KeyVault::fromWordPress();
+		$encrypted = $vault->encrypt( $plaintext );
+		update_option( self::EMBED_KEY_OPTION, $encrypted, false );
+	}
+
+	/**
+	 * The embedding key, or the main provider key when no separate one is set.
+	 */
+	public static function get_embedding_key(): string {
+		$stored = get_option( self::EMBED_KEY_OPTION, '' );
+		if ( is_string( $stored ) && '' !== $stored ) {
+			try {
+				$vault = KeyVault::fromWordPress();
+				return $vault->decrypt( $stored );
+			} catch ( \Throwable $e ) {
+				return self::get_api_key();
+			}
+		}
+
+		return self::get_api_key();
+	}
+
+	public static function has_embedding_key(): bool {
+		$stored = get_option( self::EMBED_KEY_OPTION, '' );
+		return is_string( $stored ) && '' !== $stored;
 	}
 }

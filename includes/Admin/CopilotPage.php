@@ -23,7 +23,7 @@ final class CopilotPage {
 			__( 'Support request form with name, email, priority (low, medium, high) and details.', 'sitepilot-ai' ),
 		);
 		?>
-		<div class="wrap sitepilot-wrap">
+		<div class="wrap sitepilot-wrap sitepilot-wrap--narrow">
 			<h1 class="sitepilot-title">
 				<span class="dashicons dashicons-superhero"></span>
 				<?php esc_html_e( 'Copilot', 'sitepilot-ai' ); ?>

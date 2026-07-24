@@ -5,6 +5,7 @@ namespace SitePilot\Api;
 
 use SitePilot\Content\ContentIndexer;
 use SitePilot\Content\KnowledgeBase;
+use SitePilot\Content\KbGaps;
 use SitePilot\Providers\ProviderManager;
 use SitePilot\Usage\UsageTracker;
 
@@ -19,7 +20,15 @@ final class KnowledgeBaseController {
 	public function index_batch( \WP_REST_Request $request ): \WP_REST_Response {
 		$offset  = absint( $request->get_param( 'offset' ) );
 		$indexer = new ContentIndexer();
-		$result  = $indexer->process_batch( $offset );
+
+		$post_types = $request->get_param( 'post_types' );
+		$categories = $request->get_param( 'categories' );
+		$filters    = array(
+			'post_types' => is_array( $post_types ) ? array_map( 'sanitize_key', $post_types ) : array(),
+			'categories' => is_array( $categories ) ? array_map( 'absint', $categories ) : array(),
+		);
+
+		$result = $indexer->process_batch( $offset, $filters );
 
 		if ( isset( $result['error'] ) ) {
 			return $this->respond( array( 'message' => $result['error'] ), false, 400, 'not_configured' );
@@ -42,13 +51,14 @@ final class KnowledgeBaseController {
 	 * GET /kb/list — List KB entries with pagination and search.
 	 */
 	public function list_entries( \WP_REST_Request $request ): \WP_REST_Response {
-		$kb        = new KnowledgeBase();
-		$page      = max( 1, absint( $request->get_param( 'page' ) ) );
-		$per_page  = 20;
-		$search    = sanitize_text_field( (string) $request->get_param( 'search' ) );
-		$post_type = sanitize_text_field( (string) $request->get_param( 'post_type' ) );
+		$kb           = new KnowledgeBase();
+		$page         = max( 1, absint( $request->get_param( 'page' ) ) );
+		$per_page     = 20;
+		$search       = sanitize_text_field( (string) $request->get_param( 'search' ) );
+		$post_type    = sanitize_text_field( (string) $request->get_param( 'post_type' ) );
+		$content_type = sanitize_text_field( (string) $request->get_param( 'content_type' ) );
 
-		$result = $kb->get_all( $page, $per_page, $search, $post_type );
+		$result = $kb->get_all( $page, $per_page, $search, $post_type, $content_type );
 		$pages  = max( 1, (int) ceil( $result['total'] / $per_page ) );
 
 		return $this->respond( array(
@@ -129,6 +139,34 @@ final class KnowledgeBaseController {
 		} catch ( \Throwable $e ) {
 			return $this->respond( array( 'message' => $e->getMessage() ), false, 500, 'ai_error' );
 		}
+	}
+
+	/**
+	 * GET /kb/gaps — List questions the KB could not answer (content gaps).
+	 */
+	public function gaps( \WP_REST_Request $request ): \WP_REST_Response {
+		$gaps = new KbGaps();
+
+		return $this->respond( array(
+			'items' => $gaps->open_list( 50 ),
+			'total' => $gaps->open_count(),
+		), true );
+	}
+
+	/**
+	 * POST /kb/gaps/dismiss — Dismiss one gap, or clear all when hash is empty.
+	 */
+	public function gaps_dismiss( \WP_REST_Request $request ): \WP_REST_Response {
+		$hash = sanitize_text_field( (string) $request->get_param( 'hash' ) );
+		$gaps = new KbGaps();
+
+		if ( '' === $hash ) {
+			$gaps->clear();
+		} else {
+			$gaps->dismiss( $hash );
+		}
+
+		return $this->respond( array( 'message' => __( 'Updated.', 'sitepilot-ai' ) ), true );
 	}
 
 	/**

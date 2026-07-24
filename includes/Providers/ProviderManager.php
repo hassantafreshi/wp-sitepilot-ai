@@ -23,12 +23,39 @@ final class ProviderManager {
 	}
 
 	public function make(): ProviderInterface {
+		// Separate embedding key if the user set one, otherwise the effective
+		// provider key (connectors-aware) — so the fallback works in every mode.
+		$embedding_key = Settings::has_embedding_key()
+			? Settings::get_embedding_key()
+			: $this->resolve_api_key();
+
 		return new OpenAiCompatibleProvider(
 			(string) Settings::get( 'base_url' ),
 			(string) Settings::get( 'model' ),
 			$this->resolve_api_key(),
-			(float) Settings::get( 'temperature', 0.2 )
+			(float) Settings::get( 'temperature', 0.2 ),
+			45,
+			(string) Settings::get( 'embedding_base_url', '' ),
+			(string) Settings::get( 'embedding_model', '' ),
+			$embedding_key
 		);
+	}
+
+	/**
+	 * Whether semantic (embeddings) retrieval is turned on and configurable.
+	 */
+	public function embeddings_enabled(): bool {
+		return $this->is_configured()
+			&& (bool) Settings::get( 'embeddings_enabled', false )
+			&& '' !== (string) Settings::get( 'embedding_model', '' );
+	}
+
+	/**
+	 * The embedding model that will be used (for staleness checks).
+	 */
+	public function embedding_model(): string {
+		$model = (string) Settings::get( 'embedding_model', '' );
+		return '' !== $model ? $model : 'text-embedding-3-small';
 	}
 
 	/**

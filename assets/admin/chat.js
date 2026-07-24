@@ -8,6 +8,12 @@
 
 	function $( id ) { return document.getElementById( id ); }
 
+	function autoGrow( node ) {
+		if ( ! node ) { return; }
+		node.style.height = 'auto';
+		node.style.height = Math.min( node.scrollHeight, 140 ) + 'px';
+	}
+
 	function el( tag, attrs, children ) {
 		var node = document.createElement( tag );
 		attrs = attrs || {};
@@ -46,16 +52,70 @@
 		return d.innerHTML;
 	}
 
+	function inlineMd( s ) {
+		return escHtml( s )
+			.replace( /\*\*(.+?)\*\*/g, '<strong>$1</strong>' )
+			.replace( /\*(.+?)\*/g, '<em>$1</em>' )
+			.replace( /`(.+?)`/g, '<code>$1</code>' )
+			.replace( /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>' );
+	}
+
+	// Small block-level Markdown renderer: paragraphs, headings and lists —
+	// so answers read like ChatGPT/Claude instead of one flat wall of text.
 	function markdown( text ) {
-		return escHtml( text )
-			.replace( /\*\*(.*?)\*\*/g, '<strong>$1</strong>' )
-			.replace( /\*(.*?)\*/g, '<em>$1</em>' )
-			.replace( /`(.*?)`/g, '<code>$1</code>' )
-			.replace( /\n/g, '<br>' );
+		var lines = String( text == null ? '' : text ).replace( /\r\n/g, '\n' ).split( '\n' );
+		var html = '';
+		var listType = null;
+		var para = [];
+
+		function flushPara() {
+			if ( para.length ) { html += '<p>' + para.join( '<br>' ) + '</p>'; para = []; }
+		}
+		function closeList() {
+			if ( listType ) { html += '</' + listType + '>'; listType = null; }
+		}
+
+		lines.forEach( function ( raw ) {
+			var trimmed = raw.trim();
+
+			if ( trimmed === '' ) { flushPara(); closeList(); return; }
+
+			var h = trimmed.match( /^(#{1,3})\s+(.*)$/ );
+			if ( h ) {
+				flushPara(); closeList();
+				var lvl = h[ 1 ].length + 2;
+				html += '<h' + lvl + '>' + inlineMd( h[ 2 ] ) + '</h' + lvl + '>';
+				return;
+			}
+
+			var ol = trimmed.match( /^(\d+)[.)]\s+(.*)$/ );
+			if ( ol ) {
+				flushPara();
+				if ( listType !== 'ol' ) { closeList(); html += '<ol>'; listType = 'ol'; }
+				html += '<li>' + inlineMd( ol[ 2 ] ) + '</li>';
+				return;
+			}
+
+			var ul = trimmed.match( /^[-*•]\s+(.*)$/ );
+			if ( ul ) {
+				flushPara();
+				if ( listType !== 'ul' ) { closeList(); html += '<ul>'; listType = 'ul'; }
+				html += '<li>' + inlineMd( ul[ 1 ] ) + '</li>';
+				return;
+			}
+
+			closeList();
+			para.push( inlineMd( trimmed ) );
+		} );
+
+		flushPara();
+		closeList();
+		return html;
 	}
 
 	/* ── Messages ── */
-	function addMessage( role, content, sources ) {
+	function addMessage( role, content, sources, extra ) {
+		extra = extra || {};
 		var msgs = $( 'sp-chat-messages' );
 		// Hide welcome
 		var welcome = msgs.querySelector( '.sitepilot-chat-welcome' );
@@ -68,21 +128,74 @@
 		var body = el( 'div', { class: 'sitepilot-msg__body' } );
 		body.innerHTML = '<div class="sitepilot-msg__content">' + markdown( content ) + '</div>';
 
+		// Disambiguation chips ("which one did you mean?").
+		if ( extra.clarifyOptions && extra.clarifyOptions.length ) {
+			var clarify = el( 'div', { class: 'sitepilot-msg__clarify' } );
+			extra.clarifyOptions.forEach( function ( opt ) {
+				var chip = el( 'button', { class: 'sitepilot-clarify-chip', type: 'button', text: opt } );
+				chip.addEventListener( 'click', function () {
+					var input = $( 'sp-chat-input' );
+					if ( input ) { input.value = opt; }
+					ask();
+				} );
+				clarify.appendChild( chip );
+			} );
+			body.appendChild( clarify );
+		}
+
 		// Sources
 		if ( sources && sources.length > 0 ) {
 			var srcBox = el( 'div', { class: 'sitepilot-msg__sources' } );
-			srcBox.appendChild( el( 'strong', { text: '📚 Sources: ' } ) );
-			sources.forEach( function ( s, i ) {
-				var link = el( 'a', { href: s.url, target: '_blank', text: s.title } );
-				srcBox.appendChild( link );
-				if ( i < sources.length - 1 ) { srcBox.appendChild( document.createTextNode( ', ' ) ); }
+			srcBox.appendChild( el( 'span', { class: 'sitepilot-msg__sources-label', text: '📚 ' + ( cfg.i18nSources || 'Sources' ) } ) );
+			sources.forEach( function ( s ) {
+				srcBox.appendChild( el( 'a', { class: 'sitepilot-source-pill', href: s.url, target: '_blank', rel: 'noopener', text: s.title } ) );
 			} );
 			body.appendChild( srcBox );
+		}
+
+		// Human handoff offer (only when the engine says handoff is available).
+		if ( extra.handoffOffer ) {
+			body.appendChild( buildHandoffOffer() );
 		}
 
 		msg.appendChild( body );
 		msgs.appendChild( msg );
 		msgs.scrollTop = msgs.scrollHeight;
+	}
+
+	function collectTranscript() {
+		var out = [];
+		Array.prototype.forEach.call( document.querySelectorAll( '#sp-chat-messages .sitepilot-msg' ), function ( m ) {
+			var role = m.classList.contains( 'sitepilot-msg--user' ) ? 'user' : 'assistant';
+			var c = m.querySelector( '.sitepilot-msg__content' );
+			out.push( { role: role, content: c ? c.textContent : '' } );
+		} );
+		return out;
+	}
+
+	function buildHandoffOffer() {
+		var wrap = el( 'div', { class: 'sitepilot-msg__handoff' } );
+		var btn = el( 'button', { class: 'sitepilot-handoff-btn', type: 'button', text: '🙋 ' + ( cfg.i18nTalkHuman || 'Talk to a human' ) } );
+		btn.addEventListener( 'click', function () {
+			btn.disabled = true;
+			btn.textContent = '…';
+			api( 'widget/handoff', { messages: collectTranscript(), name: '', email: '' } )
+				.then( function ( res ) {
+					wrap.textContent = '';
+					wrap.appendChild( el( 'span', {
+						class: 'sitepilot-handoff-status',
+						text: res.data && res.data.ok
+							? ( cfg.i18nHandoffSent || 'Your request was sent — a team member will follow up.' )
+							: ( ( res.data && res.data.message ) || 'Could not send the request.' ),
+					} ) );
+				} )
+				.catch( function () {
+					btn.disabled = false;
+					btn.textContent = '🙋 ' + ( cfg.i18nTalkHuman || 'Talk to a human' );
+				} );
+		} );
+		wrap.appendChild( btn );
+		return wrap;
 	}
 
 	function addTypingIndicator() {
@@ -113,6 +226,7 @@
 
 		addMessage( 'user', question, null );
 		input.value = '';
+		autoGrow( input );
 		addTypingIndicator();
 
 		api( 'chat/ask', {
@@ -126,7 +240,10 @@
 
 			if ( res.data.ok ) {
 				currentConvId = res.data.conversation_id;
-				addMessage( 'assistant', res.data.answer, res.data.sources );
+				addMessage( 'assistant', res.data.answer, res.data.sources, {
+					clarifyOptions: res.data.clarify_options || [],
+					handoffOffer: !! res.data.handoff_offer,
+				} );
 				loadConversations();
 			} else {
 				addMessage( 'assistant', 'Error: ' + ( res.data.message || 'Unknown error' ), [] );
@@ -203,6 +320,7 @@
 					ask();
 				}
 			} );
+			input.addEventListener( 'input', function () { autoGrow( input ); } );
 		}
 
 		$( 'sp-chat-new' ).addEventListener( 'click', newConversation );

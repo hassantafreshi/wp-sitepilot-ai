@@ -22,8 +22,11 @@ final class SettingsPage {
 		$s     = Settings::all();
 		$wp_connectors_available = WpConnectors::is_available();
 		$active_key_mode = WpConnectors::get_active_mode();
+
+		$kb             = new \SitePilot\Content\KnowledgeBase();
+		$embedded_count = $kb->table_exists() ? $kb->count_with_embeddings() : 0;
 		?>
-		<div class="wrap sitepilot-wrap">
+		<div class="wrap sitepilot-wrap sitepilot-wrap--narrow">
 			<h1 class="sitepilot-title">
 				<span class="dashicons dashicons-admin-generic"></span>
 				<?php esc_html_e( 'Settings', 'sitepilot-ai' ); ?>
@@ -158,6 +161,53 @@ final class SettingsPage {
 					<p class="description"><?php esc_html_e( 'Lower = more deterministic. Recommended: 0.2', 'sitepilot-ai' ); ?></p>
 				</div>
 
+				<hr class="sitepilot-divider" />
+
+				<h2 class="sitepilot-section-title"><?php esc_html_e( 'Semantic Search (Embeddings)', 'sitepilot-ai' ); ?></h2>
+				<p class="description" style="margin-bottom: 12px;">
+					<?php esc_html_e( 'When enabled, SitePilot ranks knowledge by meaning instead of keywords — so a question in one language finds the right page even if it was written in another. Requires a provider with an /embeddings endpoint (e.g. OpenAI or Qwen). DeepSeek and Groq do not offer embeddings.', 'sitepilot-ai' ); ?>
+				</p>
+
+				<div class="sitepilot-field">
+					<label class="sitepilot-checkbox-inline">
+						<input type="checkbox" name="embeddings_enabled" value="1" <?php checked( ! empty( $s['embeddings_enabled'] ) ); ?> />
+						<?php esc_html_e( 'Enable semantic search', 'sitepilot-ai' ); ?>
+					</label>
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %d: number of indexed items that already have an embedding. */
+							esc_html__( '%d indexed items currently have an embedding. After enabling, run indexing on the Knowledge Base page to build the missing vectors.', 'sitepilot-ai' ),
+							(int) $embedded_count
+						);
+						?>
+					</p>
+				</div>
+
+				<div class="sitepilot-field">
+					<label for="sp-embedding-model"><?php esc_html_e( 'Embedding Model', 'sitepilot-ai' ); ?></label>
+					<input type="text" id="sp-embedding-model" name="embedding_model" class="regular-text" value="<?php echo esc_attr( (string) ( $s['embedding_model'] ?? '' ) ); ?>" placeholder="text-embedding-3-small" />
+					<p class="description"><?php esc_html_e( 'e.g. text-embedding-3-small (OpenAI) or text-embedding-v3 (Qwen). Changing the model requires re-indexing.', 'sitepilot-ai' ); ?></p>
+				</div>
+
+				<div class="sitepilot-field">
+					<label for="sp-embedding-base-url"><?php esc_html_e( 'Embedding Base URL (optional)', 'sitepilot-ai' ); ?></label>
+					<input type="url" id="sp-embedding-base-url" name="embedding_base_url" class="regular-text" value="<?php echo esc_attr( (string) ( $s['embedding_base_url'] ?? '' ) ); ?>" placeholder="https://api.openai.com/v1" />
+					<p class="description"><?php esc_html_e( 'Leave blank to use the same endpoint as your chat provider above.', 'sitepilot-ai' ); ?></p>
+				</div>
+
+				<div class="sitepilot-field">
+					<label for="sp-embedding-key"><?php esc_html_e( 'Embedding API Key (optional)', 'sitepilot-ai' ); ?></label>
+					<input type="password" id="sp-embedding-key" name="embedding_api_key" class="regular-text" autocomplete="off"
+						placeholder="<?php echo Settings::has_embedding_key() ? esc_attr__( '•••••••• (saved — leave blank to keep it)', 'sitepilot-ai' ) : esc_attr__( 'Leave blank to reuse your provider API key', 'sitepilot-ai' ); ?>" />
+					<?php if ( Settings::has_embedding_key() ) : ?>
+						<label class="sitepilot-checkbox-inline">
+							<input type="checkbox" name="clear_embedding_key" value="1" />
+							<?php esc_html_e( 'Remove saved embedding key', 'sitepilot-ai' ); ?>
+						</label>
+					<?php endif; ?>
+				</div>
+
 				<div class="sitepilot-field">
 					<label><?php esc_html_e( 'Default form status', 'sitepilot-ai' ); ?></label>
 					<label class="sitepilot-checkbox-inline">
@@ -252,6 +302,9 @@ final class SettingsPage {
 				'default_form_status' => $status,
 				'prefer_efb'          => ! empty( $_POST['prefer_efb'] ),
 				'key_management'      => $key_mgmt,
+				'embeddings_enabled'  => ! empty( $_POST['embeddings_enabled'] ),
+				'embedding_model'     => sanitize_text_field( wp_unslash( $_POST['embedding_model'] ?? '' ) ),
+				'embedding_base_url'  => esc_url_raw( wp_unslash( $_POST['embedding_base_url'] ?? '' ) ),
 			)
 		);
 
@@ -261,6 +314,15 @@ final class SettingsPage {
 			$api_key = (string) wp_unslash( $_POST['api_key'] ?? '' );
 			if ( '' !== trim( $api_key ) ) {
 				Settings::set_api_key( $api_key );
+			}
+		}
+
+		if ( ! empty( $_POST['clear_embedding_key'] ) ) {
+			Settings::set_embedding_key( '' );
+		} else {
+			$embed_key = (string) wp_unslash( $_POST['embedding_api_key'] ?? '' );
+			if ( '' !== trim( $embed_key ) ) {
+				Settings::set_embedding_key( $embed_key );
 			}
 		}
 

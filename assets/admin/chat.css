@@ -151,8 +151,10 @@
    ═══════════════════════════════════════════════════════ */
 
 /* ── Shell ── */
+/* Chat is an app-style data page: use the full width, but cap each message
+   bubble in px (below) so long answers stay comfortably readable. */
 .sitepilot-chat-wrap {
-	max-width: 1120px;
+	max-width: none;
 }
 
 .sitepilot-chat-layout {
@@ -338,10 +340,16 @@
 }
 
 /* ── Message bubbles ── */
+@keyframes spMsgIn {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: none; }
+}
+
 .sitepilot-msg {
 	display: flex;
 	gap: 10px;
-	max-width: 82%;
+	max-width: min(720px, 85%);
+	animation: spMsgIn 0.28s ease;
 }
 
 .sitepilot-msg--user {
@@ -402,21 +410,124 @@
 	color: #fff;
 }
 
-/* ── Sources ── */
-.sitepilot-msg__sources {
-	margin-top: 8px;
-	font-size: 12px;
-	color: var(--sp-text-secondary, #646970);
-	line-height: 1.6;
-}
+/* ── Rich formatting inside answers (ChatGPT/Claude-like) ── */
+.sitepilot-msg__content p { margin: 0 0 10px; }
+.sitepilot-msg__content p:last-child { margin-bottom: 0; }
 
-.sitepilot-msg__sources a {
+.sitepilot-msg__content h3,
+.sitepilot-msg__content h4,
+.sitepilot-msg__content h5 {
+	margin: 14px 0 6px;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.4;
+}
+.sitepilot-msg__content h3:first-child,
+.sitepilot-msg__content h4:first-child { margin-top: 0; }
+
+.sitepilot-msg__content ul,
+.sitepilot-msg__content ol {
+	margin: 8px 0 10px;
+	padding-inline-start: 22px;
+}
+.sitepilot-msg__content li { margin: 4px 0; line-height: 1.6; }
+.sitepilot-msg__content ol { list-style: decimal; }
+.sitepilot-msg__content ul { list-style: disc; }
+
+.sitepilot-msg__content a {
 	color: var(--sp-primary, #4f46e5);
-	text-decoration: none;
+	text-decoration: underline;
+}
+.sitepilot-msg--user .sitepilot-msg__content a { color: #fff; }
+
+/* ── Disambiguation chips ── */
+.sitepilot-msg__clarify {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 10px;
 }
 
-.sitepilot-msg__sources a:hover {
-	text-decoration: underline;
+.sitepilot-clarify-chip {
+	border: 1px solid var(--sp-border, #e2e4e7);
+	background: var(--sp-surface, #fff);
+	color: var(--sp-primary-dark, #3730a3);
+	border-radius: 999px;
+	padding: 6px 14px;
+	font-size: 13px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.sitepilot-clarify-chip:hover {
+	border-color: var(--sp-primary, #4f46e5);
+	background: var(--sp-gradient-soft, #eef2ff);
+	transform: translateY(-1px);
+}
+
+/* ── Sources (pills) ── */
+.sitepilot-msg__sources {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px dashed var(--sp-border, #e2e4e7);
+	font-size: 12px;
+}
+
+.sitepilot-msg__sources-label {
+	color: var(--sp-text-secondary, #646970);
+	font-weight: 600;
+}
+
+.sitepilot-source-pill {
+	display: inline-block;
+	max-width: 220px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	vertical-align: bottom;
+	background: var(--sp-gradient-soft, #eef2ff);
+	color: var(--sp-primary-dark, #3730a3) !important;
+	border: 1px solid rgba(79, 70, 229, 0.15);
+	border-radius: 999px;
+	padding: 3px 12px;
+	text-decoration: none !important;
+	transition: all 0.2s ease;
+}
+
+.sitepilot-source-pill:hover {
+	background: var(--sp-primary, #4f46e5);
+	color: #fff !important;
+	border-color: var(--sp-primary, #4f46e5);
+}
+
+/* ── Human handoff offer ── */
+.sitepilot-msg__handoff { margin-top: 10px; }
+
+.sitepilot-handoff-btn {
+	border: 1px solid var(--sp-primary, #4f46e5);
+	background: var(--sp-gradient-soft, #eef2ff);
+	color: var(--sp-primary-dark, #3730a3);
+	border-radius: 999px;
+	padding: 8px 16px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.sitepilot-handoff-btn:hover:not(:disabled) {
+	background: var(--sp-primary, #4f46e5);
+	color: #fff;
+}
+
+.sitepilot-handoff-status {
+	font-size: 13px;
+	color: var(--sp-success, #059669);
+	font-weight: 500;
 }
 
 /* ── Typing indicator ── */

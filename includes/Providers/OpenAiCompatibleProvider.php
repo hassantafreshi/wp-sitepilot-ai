@@ -16,13 +16,30 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 	private string $api_key;
 	private float $temperature;
 	private int $timeout;
+	private string $embedding_base_url;
+	private string $embedding_model;
+	private string $embedding_api_key;
 
-	public function __construct( string $base_url, string $model, string $api_key, float $temperature = 0.2, int $timeout = 45 ) {
+	public function __construct(
+		string $base_url,
+		string $model,
+		string $api_key,
+		float $temperature = 0.2,
+		int $timeout = 45,
+		string $embedding_base_url = '',
+		string $embedding_model = '',
+		string $embedding_api_key = ''
+	) {
 		$this->base_url    = rtrim( trim( $base_url ), '/' );
 		$this->model       = trim( $model );
 		$this->api_key     = trim( $api_key );
 		$this->temperature = $temperature;
 		$this->timeout     = $timeout;
+
+		// Embeddings can point at a different endpoint/model/key; default to the chat provider's.
+		$this->embedding_base_url = '' !== trim( $embedding_base_url ) ? rtrim( trim( $embedding_base_url ), '/' ) : $this->base_url;
+		$this->embedding_model    = '' !== trim( $embedding_model ) ? trim( $embedding_model ) : 'text-embedding-3-small';
+		$this->embedding_api_key  = '' !== trim( $embedding_api_key ) ? trim( $embedding_api_key ) : $this->api_key;
 	}
 
 	public function generate_structured_output( string $system_prompt, string $user_prompt ): array {
@@ -73,6 +90,80 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 		$this->track_usage( $result['usage'], 'text_generation' );
 
 		return $result;
+	}
+
+	public function generate_embedding( string $text ): array {
+		$text = trim( $text );
+		if ( '' === $text ) {
+			throw new ProviderException( 'empty_input', __( 'Cannot embed empty text.', 'sitepilot-ai' ) );
+		}
+
+		$endpoint = $this->embedding_base_url . '/embeddings';
+		$response = wp_remote_post(
+			$endpoint,
+			array(
+				'timeout' => $this->timeout,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $this->embedding_api_key,
+					'Content-Type'  => 'application/json',
+				),
+				'body'    => wp_json_encode( array(
+					'model' => $this->embedding_model,
+					'input' => $text,
+				) ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the embedding endpoint. Check the base URL and your connection.', 'sitepilot-ai' ) );
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 401 === $code || 403 === $code ) {
+			throw new ProviderException( 'provider_unauthorized', __( 'The embedding provider rejected your API key.', 'sitepilot-ai' ) );
+		}
+		if ( 404 === $code ) {
+			throw new ProviderException( 'embeddings_unsupported', __( 'This provider does not offer an embeddings endpoint. Set an embedding provider that does (e.g. OpenAI).', 'sitepilot-ai' ) );
+		}
+		if ( $code < 200 || $code >= 300 ) {
+			throw new ProviderException( 'provider_error', sprintf( /* translators: %d: HTTP status code. */ __( 'The embedding provider returned an error (HTTP %d).', 'sitepilot-ai' ), $code ) );
+		}
+
+		$decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+		$vector  = $decoded['data'][0]['embedding'] ?? null;
+
+		if ( ! is_array( $vector ) || empty( $vector ) ) {
+			throw new ProviderException( 'provider_empty_response', __( 'The embedding provider returned no vector.', 'sitepilot-ai' ) );
+		}
+
+		$vector = array_map( 'floatval', $vector );
+
+		$usage = array(
+			'prompt_tokens' => (int) ( $decoded['usage']['prompt_tokens'] ?? 0 ),
+			'total_tokens'  => (int) ( $decoded['usage']['total_tokens'] ?? 0 ),
+		);
+		if ( 0 === $usage['total_tokens'] ) {
+			$usage['prompt_tokens'] = (int) ceil( mb_strlen( $text ) / 4 );
+			$usage['total_tokens']  = $usage['prompt_tokens'];
+		}
+
+		$this->track_usage(
+			array(
+				'prompt_tokens'     => $usage['prompt_tokens'],
+				'completion_tokens' => 0,
+				'total_tokens'      => $usage['total_tokens'],
+			),
+			'embedding'
+		);
+
+		return array(
+			'embedding' => $vector,
+			'usage'     => $usage,
+		);
+	}
+
+	public function embedding_model(): string {
+		return $this->embedding_model;
 	}
 
 	public function health_check(): array {

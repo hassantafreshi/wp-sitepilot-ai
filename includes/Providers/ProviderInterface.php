@@ -33,6 +33,16 @@ interface ProviderInterface {
 	public function generate_text( string $system_prompt, string $user_prompt ): array;
 
 	/**
+	 * Produce an embedding vector for a piece of text (semantic search).
+	 *
+	 * @param string $text Text to embed.
+	 * @return array{embedding:array<int,float>, usage:array{prompt_tokens:int, total_tokens:int}}
+	 *
+	 * @throws ProviderException When embeddings are unsupported or the call fails.
+	 */
+	public function generate_embedding( string $text ): array;
+
+	/**
 	 * Cheap call to verify the key/base/model work.
 	 *
 	 * @return array{ok:bool, message:string}

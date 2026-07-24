@@ -31,17 +31,35 @@ final class ContentIndexer {
 	}
 
 	/**
-	 * Get the total number of indexable posts.
+	 * Get the total number of indexable posts, optionally narrowed by filters.
+	 *
+	 * @param array{post_types?:array<int,string>, categories?:array<int,int>} $filters
 	 */
-	public function get_total_posts(): int {
-		$types = $this->get_indexable_types();
-		$count = 0;
-		foreach ( $types as $type ) {
-			$counts = wp_count_posts( $type );
-			$count += (int) ( $counts->publish ?? 0 );
+	public function get_total_posts( array $filters = array() ): int {
+		$types = $this->resolve_types( $filters );
+		$cats  = $this->resolve_categories( $filters );
+
+		if ( empty( $cats ) ) {
+			$count = 0;
+			foreach ( $types as $type ) {
+				$counts = wp_count_posts( $type );
+				$count += (int) ( $counts->publish ?? 0 );
+			}
+
+			return $count;
 		}
 
-		return $count;
+		// Category filter needs a real query to count accurately.
+		$query = new \WP_Query( array(
+			'post_type'      => $types,
+			'post_status'    => 'publish',
+			'category__in'   => $cats,
+			'fields'         => 'ids',
+			'posts_per_page' => 1,
+			'no_found_rows'  => false,
+		) );
+
+		return (int) $query->found_posts;
 	}
 
 	/**
@@ -57,6 +75,7 @@ final class ContentIndexer {
 	 * Process one batch of posts.
 	 *
 	 * @param int $offset Starting offset in the post list.
+	 * @param array{post_types?:array<int,string>, categories?:array<int,int>} $filters
 	 * @return array{
 	 *   done: bool,
 	 *   processed: int,
@@ -66,14 +85,17 @@ final class ContentIndexer {
 	 *   percent: int
 	 * }
 	 */
-	public function process_batch( int $offset = 0 ): array {
-		$total   = $this->get_total_posts();
-		$types   = $this->get_indexable_types();
+	public function process_batch( int $offset = 0, array $filters = array() ): array {
+		$this->kb->ensure_schema();
+
+		$total   = $this->get_total_posts( $filters );
+		$types   = $this->resolve_types( $filters );
+		$cats    = $this->resolve_categories( $filters );
 		$items   = array();
 		$processed = 0;
 
-		// Build a unified query across all indexable types.
-		$posts = get_posts( array(
+		// Build a unified query across the selected types (and categories, if any).
+		$query_args = array(
 			'post_type'      => $types,
 			'post_status'    => 'publish',
 			'posts_per_page' => self::BATCH_SIZE,
@@ -81,7 +103,12 @@ final class ContentIndexer {
 			'orderby'        => 'ID',
 			'order'          => 'ASC',
 			'no_found_rows'  => true,
-		) );
+		);
+		if ( ! empty( $cats ) ) {
+			$query_args['category__in'] = $cats;
+		}
+
+		$posts = get_posts( $query_args );
 
 		if ( empty( $posts ) ) {
 			return array(
@@ -107,8 +134,10 @@ final class ContentIndexer {
 			);
 		}
 
-		$provider   = $provider_manager->make();
-		$summarizer = new ContentSummarizer( $provider );
+		$provider      = $provider_manager->make();
+		$summarizer    = new ContentSummarizer( $provider );
+		$embeddings_on = $provider_manager->embeddings_enabled();
+		$embed_model   = $provider_manager->embedding_model();
 
 		foreach ( $posts as $post ) {
 			$post_id = (int) $post->ID;
@@ -120,12 +149,26 @@ final class ContentIndexer {
 				$existing     = $this->kb->get_by_post_id( $post_id );
 
 				if ( $existing && $existing['content_hash'] === $content_hash ) {
-					$items[] = array(
-						'post_id' => $post_id,
-						'title'   => $title,
-						'status'  => 'skipped',
-						'message' => __( 'Unchanged — skipped.', 'sitepilot-ai' ),
-					);
+					// Content is unchanged — but backfill a missing/stale embedding
+					// so enabling semantic search doesn't require a full re-index.
+					$needs_embed = $embeddings_on
+						&& ( empty( $existing['embedding'] ) || ( $existing['embedding_model'] ?? '' ) !== $embed_model );
+
+					if ( $needs_embed && $this->embed_entry( $provider, $embed_model, $post_id, (string) $existing['title'], (string) $existing['summary'], (string) $existing['keywords'] ) ) {
+						$items[] = array(
+							'post_id' => $post_id,
+							'title'   => $title,
+							'status'  => 'indexed',
+							'message' => __( 'Added semantic embedding.', 'sitepilot-ai' ),
+						);
+					} else {
+						$items[] = array(
+							'post_id' => $post_id,
+							'title'   => $title,
+							'status'  => 'skipped',
+							'message' => __( 'Unchanged — skipped.', 'sitepilot-ai' ),
+						);
+					}
 					$processed++;
 					continue;
 				}
@@ -141,9 +184,15 @@ final class ContentIndexer {
 					'summary'      => $summary['summary'],
 					'keywords'     => $summary['keywords'],
 					'category'     => $summary['category'],
+					'content_type' => $summary['content_type'] ?? '',
 					'content_hash' => $content_hash,
 					'token_count'  => $summary['token_count'],
 				) );
+
+				// Generate the semantic embedding (best-effort; never blocks indexing).
+				if ( $embeddings_on ) {
+					$this->embed_entry( $provider, $embed_model, $post_id, $summary['title'], $summary['summary'], $summary['keywords'] );
+				}
 
 				$items[] = array(
 					'post_id' => $post_id,
@@ -251,9 +300,15 @@ final class ContentIndexer {
 				'summary'      => $summary['summary'],
 				'keywords'     => $summary['keywords'],
 				'category'     => $summary['category'],
+				'content_type' => $summary['content_type'] ?? '',
 				'content_hash' => $content_hash,
 				'token_count'  => $summary['token_count'],
 			) );
+
+			// Refresh the semantic embedding too (best-effort).
+			if ( $provider_manager->embeddings_enabled() ) {
+				$this->embed_entry( $provider, $provider_manager->embedding_model(), $post_id, $summary['title'], $summary['summary'], $summary['keywords'] );
+			}
 
 			$this->logger->info( 'kb_auto_refresh', sprintf( 'Auto-indexed post %d', $post_id ) );
 
@@ -281,6 +336,25 @@ final class ContentIndexer {
 	}
 
 	/**
+	 * Generate and store a semantic embedding for one entry.
+	 * Best-effort: failures are logged and never abort indexing.
+	 */
+	private function embed_entry( \SitePilot\Providers\ProviderInterface $provider, string $model, int $post_id, string $title, string $summary, string $keywords ): bool {
+		$text = trim( $title . "\n" . $summary . "\n" . $keywords );
+		if ( '' === $text ) {
+			return false;
+		}
+
+		try {
+			$result = $provider->generate_embedding( $text );
+			return $this->kb->update_embedding( $post_id, $result['embedding'], $model );
+		} catch ( \Throwable $e ) {
+			$this->logger->error( 'kb_embed', sprintf( 'Embedding failed for post %d: %s', $post_id, $e->getMessage() ) );
+			return false;
+		}
+	}
+
+	/**
 	 * Compute a SHA-256 hash of the post content for change detection.
 	 */
 	private function compute_hash( \WP_Post $post ): string {
@@ -294,7 +368,7 @@ final class ContentIndexer {
 	 *
 	 * @return array<int, string>
 	 */
-	private function get_indexable_types(): array {
+	public function get_indexable_types(): array {
 		$types = self::INDEXABLE_TYPES;
 
 		// Also include any public CPTs the user has enabled in settings.
@@ -303,6 +377,65 @@ final class ContentIndexer {
 			$types = array_merge( $types, array_filter( $extra, 'is_string' ) );
 		}
 
-		return array_unique( $types );
+		return array_values( array_unique( $types ) );
+	}
+
+	/**
+	 * Indexable post types with a friendly label and published count.
+	 * Used to build the pre-index picker.
+	 *
+	 * @return array<int, array{slug:string, label:string, count:int}>
+	 */
+	public function get_indexable_types_with_counts(): array {
+		$out = array();
+		foreach ( $this->get_indexable_types() as $slug ) {
+			$obj    = get_post_type_object( $slug );
+			$counts = wp_count_posts( $slug );
+			$out[]  = array(
+				'slug'  => $slug,
+				'label' => $obj && isset( $obj->labels->name ) ? $obj->labels->name : $slug,
+				'count' => (int) ( $counts->publish ?? 0 ),
+			);
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Resolve requested post types against what is actually indexable.
+	 * Falls back to all indexable types when nothing valid is requested.
+	 *
+	 * @param array{post_types?:array<int,string>} $filters
+	 * @return array<int, string>
+	 */
+	private function resolve_types( array $filters ): array {
+		$indexable = $this->get_indexable_types();
+		$requested = $filters['post_types'] ?? array();
+
+		if ( ! is_array( $requested ) || empty( $requested ) ) {
+			return $indexable;
+		}
+
+		$requested = array_map( 'sanitize_key', $requested );
+		$valid     = array_values( array_intersect( $indexable, $requested ) );
+
+		return empty( $valid ) ? $indexable : $valid;
+	}
+
+	/**
+	 * Resolve requested category IDs (empty array = no category restriction).
+	 *
+	 * @param array{categories?:array<int,int>} $filters
+	 * @return array<int, int>
+	 */
+	private function resolve_categories( array $filters ): array {
+		$cats = $filters['categories'] ?? array();
+		if ( ! is_array( $cats ) ) {
+			return array();
+		}
+
+		$cats = array_values( array_filter( array_map( 'absint', $cats ) ) );
+
+		return $cats;
 	}
 }

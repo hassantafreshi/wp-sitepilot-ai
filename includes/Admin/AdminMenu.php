@@ -59,6 +59,7 @@ final class AdminMenu {
 		self::SLUG_USAGE    => array( array( 'usage.js', 'SitePilotAI' ) ),
 		self::SLUG_SETTINGS => array( array( 'settings.js', 'SitePilotAI' ) ),
 		self::SLUG_LOGS     => array( array( 'logs.js', 'SitePilotAI' ) ),
+		self::SLUG_WIDGET   => array( array( 'widget-settings.js', 'SitePilotAI' ) ),
 	);
 
 	public function enqueue_assets(string $hook):void{
