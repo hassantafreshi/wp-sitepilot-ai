@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace SitePilot\Api;
 
+use SitePilot\Security\RateLimiter;
 use SitePilot\Voice\VoiceService;
 
 /**
@@ -17,6 +18,12 @@ final class VoiceController {
 	 * Transcribe audio to text via Groq Whisper API.
 	 */
 	public function transcribe( \WP_REST_Request $request ): \WP_REST_Response {
+		if ( ! RateLimiter::allow( 'voice_transcribe', 10, 600 ) ) {
+			return $this->respond( array(
+				'message' => __( 'Too many requests — please wait a moment and try again.', 'sitepilot-ai' ),
+			), false, 429, 'rate_limited' );
+		}
+
 		$audio  = (string) $request->get_param( 'audio' );
 		$format = (string) $request->get_param( 'format' );
 		if ( '' === $format ) {
@@ -46,6 +53,12 @@ final class VoiceController {
 	 * is configured — the frontend should fall back to browser SpeechSynthesis.
 	 */
 	public function synthesize( \WP_REST_Request $request ): \WP_REST_Response {
+		if ( ! RateLimiter::allow( 'voice_synthesize', 10, 600 ) ) {
+			return $this->respond( array(
+				'message' => __( 'Too many requests — please wait a moment and try again.', 'sitepilot-ai' ),
+			), false, 429, 'rate_limited' );
+		}
+
 		$text  = (string) $request->get_param( 'text' );
 		$voice = (string) $request->get_param( 'voice' );
 		if ( '' === $voice ) {
