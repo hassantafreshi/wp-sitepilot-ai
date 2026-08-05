@@ -4,6 +4,7 @@ namespace SitePilot\Api;
 use SitePilot\Content\KnowledgeBase;
 use SitePilot\Chat\ChatEngine;
 use SitePilot\Core\Settings;
+use SitePilot\Security\RateLimiter;
 use SitePilot\Support\HandoffService;
 
 final class ChatWidgetController {
@@ -13,6 +14,9 @@ final class ChatWidgetController {
 		return new \WP_REST_Response(array_merge(array('ok'=>true,'code'=>'ok'),$w));
 	}
 	public function ask(\WP_REST_Request $req):\WP_REST_Response{
+		if(!RateLimiter::allow('widget_ask',20,600)){
+			return new \WP_REST_Response(array('ok'=>false,'code'=>'rate_limited','answer'=>'Too many requests — please wait a moment and try again.'),429);
+		}
 		$q=sanitize_text_field($req->get_param('question')??'');
 		if(''===trim($q)){return new \WP_REST_Response(array('ok'=>false,'code'=>'empty','answer'=>'Please enter a question.'),400);}
 		try{
@@ -26,6 +30,9 @@ final class ChatWidgetController {
 		return new \WP_REST_Response(array('ok'=>true,'messages'=>$req->get_param('messages')??array()));
 	}
 	public function handoff(\WP_REST_Request $req):\WP_REST_Response{
+		if(!RateLimiter::allow('widget_handoff',5,3600)){
+			return new \WP_REST_Response(array('ok'=>false,'code'=>'rate_limited','message'=>'Too many requests — please try again later.'),429);
+		}
 		$msgs=$req->get_param('messages')??array();
 		$name=sanitize_text_field($req->get_param('name')??'');
 		$email=sanitize_email($req->get_param('email')??'');
