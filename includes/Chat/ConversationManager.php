@@ -129,8 +129,9 @@ final class ConversationManager {
 	 */
 	public function get( int $conv_id ): ?array {
 		$table = $this->table();
+		$uid   = get_current_user_id();
 		$row   = $this->db->get_row(
-			$this->db->prepare( "SELECT * FROM {$table} WHERE id = %d", $conv_id ), // phpcs:ignore
+			$this->db->prepare( "SELECT * FROM {$table} WHERE id = %d AND user_id = %d", $conv_id, $uid ), // phpcs:ignore
 			ARRAY_A
 		);
 
