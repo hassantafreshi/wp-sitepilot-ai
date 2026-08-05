@@ -43,7 +43,7 @@ final class RestRoutes {
 
 		$voice = new VoiceController();
 		register_rest_route( self::NAMESPACE, '/voice/transcribe', array('methods'=>'POST','callback'=>array($voice,'transcribe'),'permission_callback'=>'__return_true') );
-		register_rest_route( self::NAMESPACE, '/voice/speak', array('methods'=>'POST','callback'=>array($voice,'speak'),'permission_callback'=>'__return_true') );
+		register_rest_route( self::NAMESPACE, '/voice/speak', array('methods'=>'POST','callback'=>array($voice,'synthesize'),'permission_callback'=>'__return_true') );
 
 		$widget = new ChatWidgetController();
 		register_rest_route( self::NAMESPACE, '/widget/settings', array('methods'=>'GET','callback'=>array($widget,'settings'),'permission_callback'=>'__return_true') );
@@ -51,8 +51,8 @@ final class RestRoutes {
 		register_rest_route( self::NAMESPACE, '/widget/conversation', array('methods'=>'POST','callback'=>array($widget,'conversation'),'permission_callback'=>'__return_true') );
 		register_rest_route( self::NAMESPACE, '/widget/handoff', array('methods'=>'POST','callback'=>array($widget,'handoff'),'permission_callback'=>'__return_true') );
 		register_rest_route( self::NAMESPACE, '/widget/handoff/status', array('methods'=>'GET','callback'=>array($widget,'handoff_status'),'permission_callback'=>'__return_true') );
-		register_rest_route( self::NAMESPACE, '/widget/test/telegram', array('methods'=>'GET','callback'=>array($widget,'test_telegram'),'permission_callback'=>'__return_true') );
-		register_rest_route( self::NAMESPACE, '/widget/test/twilio', array('methods'=>'GET','callback'=>array($widget,'test_twilio'),'permission_callback'=>'__return_true') );
+		register_rest_route( self::NAMESPACE, '/widget/test/telegram', array('methods'=>'GET','callback'=>array($widget,'test_telegram'),'permission_callback'=>array($this,'can_manage')) );
+		register_rest_route( self::NAMESPACE, '/widget/test/twilio', array('methods'=>'GET','callback'=>array($widget,'test_twilio'),'permission_callback'=>array($this,'can_manage')) );
 
 	}
 
