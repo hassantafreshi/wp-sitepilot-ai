@@ -3,18 +3,18 @@ declare(strict_types=1);
 
 namespace SitePilot\Api;
 
+use SitePilot\Core\SiteLanguage;
+use SitePilot\Providers\ProviderException;
 use SitePilot\Voice\VoiceService;
+use SitePilot\Voice\VoiceTranscriber;
 
 /**
- * REST controller for STT (speech-to-text) and TTS (text-to-speech).
- *
- * POST /voice/transcribe — Audio bytes → transcribed text.
- * POST /voice/speak     — Text → synthesized audio (or null → use browser).
+ * Voice REST endpoints for the public widget and the authenticated EFB editor.
  */
 final class VoiceController {
 
 	/**
-	 * Transcribe audio to text via Groq Whisper API.
+	 * Transcribe a base64-encoded public-widget recording.
 	 */
 	public function transcribe( \WP_REST_Request $request ): \WP_REST_Response {
 		$audio  = (string) $request->get_param( 'audio' );
@@ -30,9 +30,7 @@ final class VoiceController {
 		}
 
 		try {
-			$voice = new VoiceService();
-			$text  = $voice->transcribe( $audio, $format );
-
+			$text = ( new VoiceService() )->transcribe( $audio, $format );
 			return $this->respond( array( 'text' => $text ), true );
 		} catch ( \RuntimeException $e ) {
 			return $this->respond( array(
@@ -42,10 +40,35 @@ final class VoiceController {
 	}
 
 	/**
-	 * Synthesize text → speech audio (MP3). Returns null if no TTS provider
-	 * is configured — the frontend should fall back to browser SpeechSynthesis.
+	 * Transcribe a multipart recording from the protected form-builder screen.
 	 */
-	public function synthesize( \WP_REST_Request $request ): \WP_REST_Response {
+	public function transcribe_efb( \WP_REST_Request $request ): \WP_REST_Response {
+		$file     = $request->get_file_params()['audio'] ?? array();
+		$duration = absint( $request->get_param( 'duration_ms' ) );
+		$language = SiteLanguage::primary( (string) $request->get_param( 'language' ) ?: SiteLanguage::site() );
+
+		try {
+			$result = ( new VoiceTranscriber() )->transcribe(
+				is_array( $file ) ? $file : array(),
+				$duration,
+				$language,
+				'admin_voice_transcription'
+			);
+			return new \WP_REST_Response( array( 'ok' => true ) + $result );
+		} catch ( ProviderException $e ) {
+			return new \WP_REST_Response( array(
+				'ok'      => false,
+				'code'    => $e->error_code(),
+				'message' => $e->user_message(),
+			), 400 );
+		}
+	}
+
+	/**
+	 * Synthesize text to speech, or direct the widget to browser speech when
+	 * no TTS provider is configured.
+	 */
+	public function speak( \WP_REST_Request $request ): \WP_REST_Response {
 		$text  = (string) $request->get_param( 'text' );
 		$voice = (string) $request->get_param( 'voice' );
 		if ( '' === $voice ) {
@@ -59,21 +82,18 @@ final class VoiceController {
 		}
 
 		try {
-			$svc   = new VoiceService();
-			$audio = $svc->synthesize( $text, $voice );
-
+			$audio = ( new VoiceService() )->synthesize( $text, $voice );
 			if ( null === $audio ) {
-				// No TTS provider; tell frontend to use browser SpeechSynthesis.
 				return $this->respond( array(
-					'message' => __( 'Using browser TTS.', 'sitepilot-ai' ),
+					'message'     => __( 'Using browser TTS.', 'sitepilot-ai' ),
 					'use_browser' => true,
 				), true );
 			}
 
 			return new \WP_REST_Response( array(
-				'ok'      => true,
-				'audio'   => base64_encode( $audio ),
-				'format'  => 'mp3',
+				'ok'     => true,
+				'audio'  => base64_encode( $audio ),
+				'format' => 'mp3',
 			), 200, array( 'Content-Type' => 'application/json' ) );
 		} catch ( \RuntimeException $e ) {
 			return $this->respond( array(

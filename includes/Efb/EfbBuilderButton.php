@@ -5,6 +5,7 @@ namespace SitePilot\Efb;
 
 use SitePilot\Admin\AdminMenu;
 use SitePilot\Api\RestRoutes;
+use SitePilot\Core\SiteLanguage;
 use SitePilot\Providers\ProviderManager;
 
 /**
@@ -47,6 +48,8 @@ final class EfbBuilderButton {
 				'settingsUrl' => admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETTINGS ),
 				'logsUrl'     => admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ),
 				'isRTL'       => is_rtl(),
+				'language'    => SiteLanguage::primary( SiteLanguage::site() ),
+				'voiceResponses' => (bool) \SitePilot\Core\Settings::get( 'voice_responses_enabled', false ),
 				// Same option and destination used by Easy Form Builder itself.
 				'license'     => EfbLicense::status(),
 				// This is the allowlisted, browser-safe subset of the full EFB
@@ -76,6 +79,7 @@ final class EfbBuilderButton {
 					<span><?php esc_html_e( 'SitePilot AI', 'sitepilot-ai' ); ?></span>
 				</div>
 				<div class="sitepilot-efb-chat__head-actions">
+					<button type="button" id="sitepilot-efb-live-voice" class="sitepilot-efb-chat__icon" title="<?php esc_attr_e( 'Start live voice conversation', 'sitepilot-ai' ); ?>" aria-label="<?php esc_attr_e( 'Start live voice conversation', 'sitepilot-ai' ); ?>" aria-pressed="false"><span class="dashicons dashicons-format-chat"></span></button>
 					<button type="button" id="sitepilot-efb-reset" class="sitepilot-efb-chat__icon" title="<?php esc_attr_e( 'New chat', 'sitepilot-ai' ); ?>" aria-label="<?php esc_attr_e( 'New chat', 'sitepilot-ai' ); ?>"><span class="dashicons dashicons-update"></span></button>
 					<button type="button" id="sitepilot-efb-min" class="sitepilot-efb-chat__icon" title="<?php esc_attr_e( 'Close', 'sitepilot-ai' ); ?>" aria-label="<?php esc_attr_e( 'Close', 'sitepilot-ai' ); ?>"><span class="dashicons dashicons-minus"></span></button>
 				</div>
@@ -88,10 +92,12 @@ final class EfbBuilderButton {
 			<form class="sitepilot-efb-chat__composer" id="sitepilot-efb-form">
 				<textarea id="sitepilot-efb-input" class="sitepilot-efb-chat__input" rows="1"
 					placeholder="<?php esc_attr_e( 'Message SitePilot… (e.g. build a booking form)', 'sitepilot-ai' ); ?>"></textarea>
+				<button type="button" id="sitepilot-efb-voice" class="sitepilot-efb-chat__voice" aria-label="<?php esc_attr_e( 'Speak a message', 'sitepilot-ai' ); ?>"><span class="dashicons dashicons-microphone"></span></button>
 				<button type="submit" id="sitepilot-efb-send" class="sitepilot-efb-chat__send" aria-label="<?php esc_attr_e( 'Send', 'sitepilot-ai' ); ?>">
 					<span class="dashicons dashicons-arrow-up-alt"></span>
 				</button>
 			</form>
+			<div id="sitepilot-efb-voice-status" class="screen-reader-text" aria-live="polite"></div>
 		</div>
 		<?php
 	}

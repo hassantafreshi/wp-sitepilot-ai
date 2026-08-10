@@ -9,6 +9,20 @@
 	var history = [];
 	var busy = false;
 	var greeted = false;
+	var recorder = null;
+	var recorderStream = null;
+	var recorderChunks = [];
+	var recorderStartedAt = 0;
+	var recorderTimer = null;
+	var recognition = null;
+	var voiceInputPrefix = '';
+	var voiceFinalText = '';
+	var liveVoiceEnabled = false;
+	var liveVoiceRecognition = null;
+	var liveVoiceRestartTimer = null;
+	var liveVoiceSending = false;
+	function responseLanguage( text ) { if ( /[\u0600-\u06ff]/.test( text ) ) { return /[\u067e\u0686\u0698\u06af]/.test( text ) ? 'fa' : 'ar'; } if ( /[\u0400-\u04ff]/.test( text ) ) { return 'ru'; } return cfg.language || 'en'; }
+	function speakReply( text, onDone ) { if ( ! cfg.voiceResponses || ! text || ! window.speechSynthesis || ! window.SpeechSynthesisUtterance ) { if ( onDone ) { onDone(); } return; } window.speechSynthesis.cancel(); var utterance = new SpeechSynthesisUtterance( text ); utterance.lang = responseLanguage( text ); utterance.rate = 1; utterance.onend = function () { if ( onDone ) { onDone(); } }; utterance.onerror = function () { if ( onDone ) { onDone(); } }; window.speechSynthesis.speak( utterance ); }
 
 	function el( tag, attrs, children ) {
 		var n = document.createElement( tag );
@@ -33,6 +47,15 @@
 				try { data = text ? JSON.parse( text ) : {}; } catch ( e ) { data = { ok: false, message: 'Invalid server response.' }; }
 				return { status: r.status, data: data };
 			} );
+		} );
+	}
+	function uploadAudio( blob, duration ) {
+		var data = new FormData();
+		data.append( 'audio', blob, 'sitepilot-voice.webm' );
+		data.append( 'duration_ms', String( duration ) );
+		data.append( 'language', cfg.language || 'en' );
+		return fetch( cfg.restUrl + 'efb/voice/transcribe', { method: 'POST', credentials: 'same-origin', headers: { 'X-WP-Nonce': cfg.nonce }, body: data } ).then( function ( r ) {
+			return r.json().catch( function () { return { ok: false, message: 'Invalid server response.' }; } );
 		} );
 	}
 	function makeTraceId() {
@@ -221,7 +244,16 @@
 					if ( ! pf ) { failure( report, index, op, 'field_not_found' ); return; }
 					if ( ! pd || ! pd.storage_key || ! propertyApplies( pd, pf ) ) { failure( report, index, op, 'property_not_available' ); return; }
 					if ( pd.value_type === 'efb_color' ? ! applyEfbColor( pf, pd, op.value ) : ! pd.storage_key ) { failure( report, index, op, 'invalid_colour_or_storage' ); return; }
-					if ( pd.value_type !== 'efb_color' ) { pf[ pd.storage_key ] = catalogValue( pd, op.value, false ); }
+					if ( pd.value_type !== 'efb_color' ) {
+						var stored = catalogValue( pd, op.value, false );
+						pf[ pd.storage_key ] = stored;
+						// Some settings live under two keys that EFB keeps identical
+						// (a file field's category is both `file` and `value`); its own
+						// panel writes both, so leaving one behind desyncs the field.
+						if ( pd.mirror_keys && pd.mirror_keys.length ) {
+							for ( var m = 0; m < pd.mirror_keys.length; m++ ) { pf[ pd.mirror_keys[ m ] ] = stored; }
+						}
+					}
 					report.applied.push( 'Updated ' + propertyLabel( op.property ) + ' for "' + op.target + '"' ); report.changed = true;
 				}
 				else if ( op.op === 'set_form_property' ) {
@@ -307,6 +339,19 @@
 		} );
 		discard.addEventListener( 'click', function () { card.remove(); } );
 		card.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ approve, discard, note ] ) );
+		// Fields the licence cannot render were left out of the plan; name them
+		// and offer the upgrade instead of quietly shipping a lesser form.
+		if ( data.errors && data.errors.length ) {
+			card.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: data.errors.join( ' ' ) } ) );
+		}
+		if ( data.upgrade_required ) {
+			var proBtn = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', text: 'Upgrade Easy Form Builder' } );
+			proBtn.addEventListener( 'click', function () {
+				if ( typeof window.pro_show_efb === 'function' ) { window.pro_show_efb( 1 ); return; }
+				window.open( data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', '_blank', 'noopener' );
+			} );
+			card.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ proBtn ] ) );
+		}
 		box.appendChild( card );
 		addAi( box, true );
 		history.push( { role: 'assistant', text: 'Proposed a form: ' + p.title } );
@@ -321,6 +366,9 @@
 		var report = applyOps( data.operations || [] );
 		var box = el( 'div', {} );
 		box.appendChild( el( 'div', { text: data.reply || 'Done.' } ) );
+		// Server-side notes (e.g. a batch truncated at the op limit) must show here
+		// too, otherwise a partly-applied change still reads as a clean success.
+		if ( data.errors && data.errors.length ) { box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
 		if ( ! report.applied.length ) {
 			var reason = report.failed.length ? report.failed[ 0 ].reason.replace( /_/g, ' ' ) : 'no operation was applied';
 			box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'No change was applied: ' + reason + '.' } ) );
@@ -355,6 +403,7 @@
 		history.push( { role: 'assistant', text: ( data.title || 'How-to' ) + ' answered.' } );
 	}
 	function renderResponse( data, traceId ) {
+		if ( data.reply ) { speakReply( data.reply, continueLiveVoice ); } else { continueLiveVoice(); }
 		if ( data.type === 'preview' ) { return renderPreview( data ); }
 		if ( data.type === 'ops' ) { return renderOps( data, traceId ); }
 		if ( data.type === 'help' ) { return renderHelp( data ); }
@@ -385,7 +434,68 @@
 				clientLog( traceId, data.ok === false ? 'chat_response_error' : 'chat_response', data.ok === false ? ( data.message || 'Chat endpoint returned an error.' ) : 'Chat response received.', context );
 				renderResponse( data, traceId );
 			} )
-			.catch( function ( error ) { removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false; clientLog( traceId, 'chat_network_error', 'The browser could not reach the chat endpoint.', { failed: [ { reason: String( error && error.message ? error.message : 'network_error' ).slice( 0, 160 ) } ] } ); addAi( 'Network error. Please try again.' ); } );
+			.catch( function ( error ) { removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false; clientLog( traceId, 'chat_network_error', 'The browser could not reach the chat endpoint.', { failed: [ { reason: String( error && error.message ? error.message : 'network_error' ).slice( 0, 160 ) } ] } ); addAi( 'Network error. Please try again.' ); continueLiveVoice(); } );
+	}
+
+	/* Hands-free admin conversation. Standard microphone recording remains transcript-first. */
+	function setLiveVoiceButton() { var button = $( 'sitepilot-efb-live-voice' ); if ( button ) { button.classList.toggle( 'is-live', liveVoiceEnabled ); button.setAttribute( 'aria-pressed', liveVoiceEnabled ? 'true' : 'false' ); button.title = liveVoiceEnabled ? 'Stop live voice conversation' : 'Start live voice conversation'; } }
+	function stopRealtimeVoice() { if ( liveVoiceRestartTimer ) { clearTimeout( liveVoiceRestartTimer ); liveVoiceRestartTimer = null; } if ( liveVoiceRecognition ) { var activeRecognition = liveVoiceRecognition; liveVoiceRecognition = null; try { activeRecognition.stop(); } catch ( e ) {} } }
+	function continueLiveVoice() { if ( ! liveVoiceEnabled ) { return; } liveVoiceSending = false; if ( liveVoiceRestartTimer ) { clearTimeout( liveVoiceRestartTimer ); } liveVoiceRestartTimer = setTimeout( startRealtimeVoice, 350 ); }
+	function startRealtimeVoice() {
+		var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+		if ( ! liveVoiceEnabled || busy || ! SpeechRecognition || liveVoiceRecognition ) { return; }
+		var interim = '', finalText = '';
+		var activeRecognition = new SpeechRecognition(); liveVoiceRecognition = activeRecognition; activeRecognition.lang = cfg.language || document.documentElement.lang || 'en'; activeRecognition.continuous = true; activeRecognition.interimResults = true;
+		activeRecognition.onresult = function ( event ) {
+			interim = '';
+			for ( var i = event.resultIndex; i < event.results.length; i++ ) { var words = event.results[ i ][ 0 ].transcript; if ( event.results[ i ].isFinal ) { finalText += words + ' '; } else { interim += words; } }
+			var input = $( 'sitepilot-efb-input' ); input.value = ( finalText + interim ).trim(); autoGrow();
+			if ( finalText.trim() && ! liveVoiceSending ) { liveVoiceSending = true; var message = finalText.trim(); try { activeRecognition.stop(); } catch ( e ) {} setTimeout( function () { submit( message ); }, 450 ); }
+		};
+		activeRecognition.onerror = function () { if ( liveVoiceRecognition === activeRecognition ) { liveVoiceRecognition = null; } if ( liveVoiceEnabled && ! liveVoiceSending ) { continueLiveVoice(); } };
+		activeRecognition.onend = function () { if ( liveVoiceRecognition === activeRecognition ) { liveVoiceRecognition = null; } if ( liveVoiceEnabled && ! liveVoiceSending && ! busy ) { continueLiveVoice(); } };
+		try { activeRecognition.start(); voiceStatus( 'Live voice conversation is listening. Speak naturally; your message sends after you pause.' ); } catch ( e ) { liveVoiceRecognition = null; addAi( 'Live voice could not start in this browser. Use the recording microphone instead.' ); liveVoiceEnabled = false; setLiveVoiceButton(); }
+	}
+	function toggleRealtimeVoice() { var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; if ( liveVoiceEnabled ) { liveVoiceEnabled = false; stopRealtimeVoice(); if ( window.speechSynthesis ) { window.speechSynthesis.cancel(); } voiceStatus( 'Live voice conversation stopped.' ); setLiveVoiceButton(); return; } if ( ! SpeechRecognition ) { addAi( 'Live voice conversation is not supported by this browser. Use Chrome or Edge, or use the recording microphone.' ); return; } if ( recorder && recorder.state === 'recording' ) { stopVoice(); } liveVoiceEnabled = true; setLiveVoiceButton(); startRealtimeVoice(); }
+
+	/* Voice never sends a command by itself: the transcript is placed in the composer for review. */
+	function voiceStatus( message ) { var status = $( 'sitepilot-efb-voice-status' ); if ( status ) { status.textContent = message; } }
+	function setVoiceButton( recording ) { var button = $( 'sitepilot-efb-voice' ); if ( button ) { button.classList.toggle( 'is-recording', recording ); button.setAttribute( 'aria-pressed', recording ? 'true' : 'false' ); } }
+	function stopLiveRecognition() { if ( recognition ) { try { recognition.stop(); } catch ( e ) {} } }
+	function startLiveRecognition() {
+		var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+		if ( ! SpeechRecognition ) { return; }
+		voiceFinalText = '';
+		recognition = new SpeechRecognition(); recognition.lang = cfg.language || document.documentElement.lang || 'en'; recognition.continuous = true; recognition.interimResults = true;
+		recognition.onresult = function ( event ) { var interim = ''; for ( var i = event.resultIndex; i < event.results.length; i++ ) { var words = event.results[ i ][ 0 ].transcript; if ( event.results[ i ].isFinal ) { voiceFinalText += words + ' '; } else { interim += words; } } var input = $( 'sitepilot-efb-input' ); input.value = voiceInputPrefix + ( voiceFinalText + interim ).trim(); autoGrow(); };
+		recognition.onerror = function () {}; try { recognition.start(); } catch ( e ) { recognition = null; }
+	}
+	function stopVoice() { stopLiveRecognition(); if ( recorder && recorder.state !== 'inactive' ) { recorder.stop(); } }
+	function startVoice() {
+		if ( busy ) { return; }
+		if ( recorder && recorder.state === 'recording' ) { stopVoice(); return; }
+		if ( ! navigator.mediaDevices || ! navigator.mediaDevices.getUserMedia || ! window.MediaRecorder ) { addAi( 'Voice recording is not supported by this browser. Please type your message.' ); return; }
+		navigator.mediaDevices.getUserMedia( { audio: true } ).then( function ( stream ) {
+			voiceInputPrefix = $( 'sitepilot-efb-input' ).value.trim(); if ( voiceInputPrefix ) { voiceInputPrefix += ' '; }
+			recorderStream = stream; recorderChunks = []; recorderStartedAt = Date.now(); recorder = new MediaRecorder( stream );
+			recorder.ondataavailable = function ( event ) { if ( event.data && event.data.size ) { recorderChunks.push( event.data ); } };
+			recorder.onstop = function () {
+				stopLiveRecognition(); recognition = null;
+				if ( recorderTimer ) { clearTimeout( recorderTimer ); recorderTimer = null; }
+				if ( recorderStream ) { recorderStream.getTracks().forEach( function ( track ) { track.stop(); } ); recorderStream = null; }
+				setVoiceButton( false );
+				var duration = Date.now() - recorderStartedAt;
+				var blob = new Blob( recorderChunks, { type: recorder.mimeType || 'audio/webm' } );
+				if ( ! blob.size ) { voiceStatus( 'No audio was captured.' ); return; }
+				if ( blob.size > 5000000 ) { addAi( 'That recording is too large. Please record a shorter message.' ); return; }
+				voiceStatus( 'Transcribing…' );
+				uploadAudio( blob, duration ).then( function ( result ) {
+					if ( ! result.ok ) { addAi( result.message || 'Voice transcription failed.' ); return; }
+					var input = $( 'sitepilot-efb-input' ); input.value = voiceInputPrefix + ( result.transcript || voiceFinalText ).trim(); autoGrow(); input.focus(); voiceStatus( 'Transcript ready. Review it, then send.' );
+				} ).catch( function () { addAi( 'Voice transcription failed. Please try again.' ); } );
+			};
+			recorder.start(); startLiveRecognition(); setVoiceButton( true ); voiceStatus( 'Recording. Words appear in the message box as you speak; it stops automatically after 45 seconds.' ); recorderTimer = setTimeout( stopVoice, 45000 );
+		} ).catch( function () { voiceStatus( 'Microphone permission was denied.' ); addAi( 'Microphone permission was denied. You can type your message instead.' ); } );
 	}
 
 	function greet() {
@@ -405,7 +515,7 @@
 
 	/* ---------- window controls ---------- */
 	function open() { var c = $( 'sitepilot-efb-chat' ); if ( ! c ) { return; } c.hidden = false; c.setAttribute( 'aria-hidden', 'false' ); greet(); setTimeout( function () { $( 'sitepilot-efb-input' ).focus(); }, 50 ); }
-	function close() { var c = $( 'sitepilot-efb-chat' ); if ( ! c ) { return; } c.hidden = true; c.setAttribute( 'aria-hidden', 'true' ); }
+	function close() { var c = $( 'sitepilot-efb-chat' ); if ( ! c ) { return; } liveVoiceEnabled = false; stopRealtimeVoice(); setLiveVoiceButton(); c.hidden = true; c.setAttribute( 'aria-hidden', 'true' ); }
 	function toggle() { var c = $( 'sitepilot-efb-chat' ); if ( c && c.hidden ) { open(); } else { close(); } }
 	function reset() { history = []; greeted = false; messages().textContent = ''; greet(); }
 
@@ -416,6 +526,8 @@
 		var min = $( 'sitepilot-efb-min' ); if ( min ) { min.addEventListener( 'click', close ); }
 		var rst = $( 'sitepilot-efb-reset' ); if ( rst ) { rst.addEventListener( 'click', reset ); }
 		var form = $( 'sitepilot-efb-form' ); if ( form ) { form.addEventListener( 'submit', function ( e ) { e.preventDefault(); submit( $( 'sitepilot-efb-input' ).value ); } ); }
+		var voice = $( 'sitepilot-efb-voice' ); if ( voice ) { voice.addEventListener( 'click', startVoice ); }
+		var liveVoice = $( 'sitepilot-efb-live-voice' ); if ( liveVoice ) { liveVoice.addEventListener( 'click', toggleRealtimeVoice ); }
 		var input = $( 'sitepilot-efb-input' );
 		if ( input ) {
 			input.addEventListener( 'input', autoGrow );

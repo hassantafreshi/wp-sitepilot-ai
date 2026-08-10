@@ -27,7 +27,6 @@ final class EfbFormConverter {
 
 		$settings = EfbFormModel::template( 'form_settings' );
 		$settings['formName'] = $title;
-		$settings['steps']    = '1';
 		if ( isset( $settings['thank_you_message'] ) && is_array( $settings['thank_you_message'] ) ) {
 			$confirmation = trim( (string) ( $plan['confirmation_message'] ?? '' ) );
 			if ( '' !== $confirmation ) {
@@ -44,12 +43,48 @@ final class EfbFormConverter {
 		$items    = array( $settings, $step );
 		$used_ids = array( '1' => true ); // step id_ is "1".
 
+		// A plan turns multi-step by placing step breaks between its fields: every
+		// field after a break belongs to the page that break opened.
+		$step_no       = 1;
+		$step_index    = 1; // Position of the open step object inside $items.
+		$step_contents = 0; // Items placed on the open page so far.
+
 		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
 			if ( ! is_array( $field ) ) {
 				continue;
 			}
 			$type = (string) ( $field['type'] ?? 'text' );
+
+			if ( 'steps' === $type || 'step' === $type ) {
+				$label = trim( (string) ( $field['label'] ?? '' ) );
+
+				// A break with nothing above it just titles the page already open,
+				// instead of leaving an empty first page.
+				if ( 0 === $step_contents ) {
+					if ( '' !== $label ) {
+						$items[ $step_index ]['name'] = $label;
+					}
+					continue;
+				}
+
+				++$step_no;
+				++$amount;
+				$new_step            = $this->build_step( '' !== $label ? $label : 'Step ' . $step_no );
+				$new_step['id_']     = (string) $step_no;
+				$new_step['dataId']  = (string) $step_no;
+				$new_step['id']      = (string) $step_no;
+				$new_step['step']    = (string) $step_no;
+				$new_step['amount']  = (string) $amount;
+				$used_ids[ (string) $step_no ] = true;
+
+				$items[]       = $new_step;
+				$step_index    = count( $items ) - 1;
+				$step_contents = 0;
+				continue;
+			}
+
 			++$amount;
+			++$step_contents;
 
 			$key = $this->unique_id( (string) ( $field['key'] ?? ( $field['label'] ?? 'field' ) ), $used_ids );
 
@@ -60,7 +95,7 @@ final class EfbFormConverter {
 				$heading['dataId'] = $key . '-id';
 				$heading['value']  = (string) ( $field['label'] ?? 'Heading' );
 				$heading['amount'] = (string) $amount;
-				$heading['step']   = '1';
+				$heading['step']   = (string) $step_no;
 				$items[]           = $heading;
 				continue;
 			}
@@ -72,7 +107,7 @@ final class EfbFormConverter {
 			$el['name']      = (string) ( $field['label'] ?? '' );
 			$el['placeholder'] = (string) ( $field['placeholder'] ?? ( $field['label'] ?? '' ) );
 			$el['required']  = ! empty( $field['required'] ) ? '1' : '0';
-			$el['step']      = '1';
+			$el['step']      = (string) $step_no;
 			$el['amount']    = (string) $amount;
 
 			// Desktop width from the optional width hint (mobile stays full-width).
@@ -80,10 +115,16 @@ final class EfbFormConverter {
 			$width        = (string) ( $field['width'] ?? 'full' );
 			$el['size']   = $width_map[ $width ] ?? '100';
 
+			$options     = $field['options'] ?? array();
+			$has_options = is_array( $options ) && array() !== $options && in_array( $type, EfbFormModel::option_types(), true );
+			if ( $has_options ) {
+				$el = $this->apply_selection_cap( $el, count( $options ) );
+			}
+			$el = $this->apply_plan_settings( $el, $field, $type );
+
 			$items[] = $el;
 
-			$options = $field['options'] ?? array();
-			if ( is_array( $options ) && array() !== $options && in_array( $type, EfbFormModel::option_types(), true ) ) {
+			if ( $has_options ) {
 				$n = 0;
 				foreach ( $options as $opt ) {
 					++$n;
@@ -96,11 +137,22 @@ final class EfbFormConverter {
 					$option['type']    = 'option';
 					$option['value']   = (string) $opt;
 					$option['id_op']   = $opt_id;
-					$option['step']    = '1';
+					$option['step']    = (string) $step_no;
 					$option['amount']  = (string) $amount;
 					$items[]           = $option;
 				}
 			}
+		}
+
+		// A break after the last field would ship an empty final page.
+		if ( 0 === $step_contents && $step_no > 1 ) {
+			array_splice( $items, $step_index, 1 );
+			--$step_no;
+		}
+
+		$items[0]['steps'] = (string) $step_no;
+		if ( $step_no > 1 ) {
+			$items[0]['button_state'] = 'multi';
 		}
 
 		return $items;
@@ -149,10 +201,16 @@ final class EfbFormConverter {
 		$width_map  = EfbFormModel::width_map();
 		$el['size'] = $width_map[ (string) ( $field['width'] ?? 'full' ) ] ?? '100';
 
+		$options     = $field['options'] ?? array();
+		$has_options = is_array( $options ) && array() !== $options && in_array( $type, EfbFormModel::option_types(), true );
+		if ( $has_options ) {
+			$el = $this->apply_selection_cap( $el, count( $options ) );
+		}
+		$el = $this->apply_plan_settings( $el, $field, $type );
+
 		$items = array( $el );
 
-		$options = $field['options'] ?? array();
-		if ( is_array( $options ) && array() !== $options && in_array( $type, EfbFormModel::option_types(), true ) ) {
+		if ( $has_options ) {
 			$n = 0;
 			foreach ( $options as $opt ) {
 				++$n;
@@ -192,6 +250,48 @@ final class EfbFormConverter {
 		$step['amount']  = '0';
 
 		return $step;
+	}
+
+	/**
+	 * Apply the plan's per-field settings, so a designed form arrives with its
+	 * date bounds, upload limits and selection caps already right instead of
+	 * needing a second round of edits. The catalog decides what survives.
+	 *
+	 * @param array<string,mixed> $el
+	 * @param array<string,mixed> $field
+	 * @return array<string,mixed>
+	 */
+	private function apply_plan_settings( array $el, array $field, string $type ): array {
+		$settings = $field['settings'] ?? array();
+		if ( ! is_array( $settings ) || array() === $settings ) {
+			return $el;
+		}
+
+		foreach ( EfbCustomizeSkill::settings_for_new_field( $settings, $type ) as $key => $value ) {
+			$el[ $key ] = $value;
+		}
+
+		return $el;
+	}
+
+	/**
+	 * Size a multi-select's selection cap to the options it actually owns.
+	 *
+	 * EFB refuses any pick once the selected count passes `maxSelect`, so the
+	 * template's placeholder value would ship a field nobody can fill. Fields
+	 * without the key (every non multi-select type) are returned untouched.
+	 *
+	 * @param array<string,mixed> $el
+	 * @return array<string,mixed>
+	 */
+	private function apply_selection_cap( array $el, int $option_count ): array {
+		if ( ! array_key_exists( 'maxSelect', $el ) ) {
+			return $el;
+		}
+
+		$el['maxSelect'] = (string) max( 1, $option_count );
+
+		return $el;
 	}
 
 	/**

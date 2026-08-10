@@ -107,6 +107,10 @@ final class FormPlanValidator {
 				'placeholder' => $this->clean_text( (string) ( $raw_field['placeholder'] ?? '' ), 120 ),
 				'width'       => $this->normalize_width( (string) ( $raw_field['width'] ?? 'full' ) ),
 				'options'     => array(),
+				// Per-type settings (a date's earliest day, an upload's format…).
+				// Kept as clean scalars here; the connector decides which of them
+				// its own field type actually supports.
+				'settings'    => $this->clean_settings( $raw_field['settings'] ?? array() ),
 			);
 
 			if ( in_array( $type, $this->option_required, true ) ) {
@@ -155,6 +159,32 @@ final class FormPlanValidator {
 		$value = trim( preg_replace( '/\s+/', ' ', strip_tags( $value ) ) ?? '' );
 
 		return function_exists( 'mb_substr' ) ? mb_substr( $value, 0, $max ) : substr( $value, 0, $max );
+	}
+
+	/**
+	 * @param mixed $raw
+	 * @return array<string,scalar>
+	 */
+	private function clean_settings( $raw ): array {
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $raw as $key => $value ) {
+			if ( ! is_string( $key ) || is_array( $value ) || is_object( $value ) || null === $value ) {
+				continue;
+			}
+			$name = strtolower( $this->clean_text( $key, 40 ) );
+			if ( '' === $name || ! preg_match( '/^[a-z0-9_]+$/', $name ) ) {
+				continue;
+			}
+			$out[ $name ] = is_bool( $value ) ? $value : $this->clean_text( (string) $value, 100 );
+			if ( count( $out ) >= 10 ) {
+				break;
+			}
+		}
+
+		return $out;
 	}
 
 	/**

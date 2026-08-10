@@ -54,6 +54,127 @@ final class EfbFormConverterTest extends TestCase {
 		}
 	}
 
+	public function test_designed_fields_carry_their_own_settings(): void {
+		$items = ( new EfbFormConverter() )->convert(
+			array(
+				'title'  => 'Booking',
+				'fields' => array(
+					array( 'key' => 'when', 'type' => 'date', 'label' => 'Preferred date', 'settings' => array( 'minimum' => '1', 'maximum' => '2026-12-31' ) ),
+					array( 'key' => 'cv', 'type' => 'file', 'label' => 'CV', 'settings' => array( 'file_category' => 'document', 'max_file_size_mb' => 10 ) ),
+					array( 'key' => 'services', 'type' => 'multiselect', 'label' => 'Services', 'options' => array( 'Cut', 'Colour', 'Style', 'Wash' ), 'settings' => array( 'max_selections' => 3 ) ),
+					// Settings that belong to another type, or sit behind EFB's Pro
+					// padlock, must not be baked into a brand-new form.
+					array( 'key' => 'name', 'type' => 'text', 'label' => 'Full name', 'settings' => array( 'record_quality' => 'high', 'mobile_width' => 'half' ) ),
+				),
+			)
+		);
+
+		$by = array();
+		foreach ( $items as $item ) {
+			if ( isset( $item['name'] ) && ( $item['type'] ?? '' ) !== 'step' ) { $by[ $item['name'] ] = $item; }
+		}
+
+		$this->assertSame( '1', $by['Preferred date']['milen'] );
+		$this->assertSame( '2026-12-31', $by['Preferred date']['mlen'] );
+		$this->assertSame( 'document', $by['CV']['file'] );
+		$this->assertSame( 'document', $by['CV']['value'] );
+		$this->assertSame( '10', $by['CV']['max_fsize'] );
+		$this->assertSame( '3', $by['Services']['maxSelect'] );
+
+		$this->assertArrayNotHasKey( 'record_quality', $by['Full name'] );
+		$this->assertSame( '100', $by['Full name']['mobile_size'] );
+	}
+
+	public function test_step_breaks_split_the_form_into_pages(): void {
+		$items = ( new EfbFormConverter() )->convert(
+			array(
+				'title'  => 'Job application',
+				'fields' => array(
+					array( 'key' => 'name', 'type' => 'text', 'label' => 'Full name', 'required' => true ),
+					array( 'key' => 'experience', 'type' => 'steps', 'label' => 'Experience' ),
+					array( 'key' => 'years', 'type' => 'select', 'label' => 'Years', 'options' => array( '0-2', '3-5' ) ),
+				),
+			)
+		);
+
+		$steps = array_values( array_filter( $items, static fn ( $it ) => ( $it['type'] ?? '' ) === 'step' ) );
+		$this->assertCount( 2, $steps );
+		$this->assertSame( 'Job application', $steps[0]['name'] );
+		$this->assertSame( '', $steps[0]['classes'] );
+		$this->assertSame( 'Experience', $steps[1]['name'] );
+		$this->assertSame( '2', $steps[1]['id_'] );
+		$this->assertSame( '2', $steps[1]['dataId'] );
+		$this->assertSame( 'stepNavEfb', $steps[1]['classes'] );
+
+		$pages = array();
+		foreach ( $items as $it ) {
+			if ( isset( $it['name'], $it['step'] ) && ( $it['type'] ?? '' ) !== 'step' ) { $pages[ $it['name'] ] = $it['step']; }
+		}
+		$this->assertSame( '1', $pages['Full name'] );
+		$this->assertSame( '2', $pages['Years'] );
+
+		$options = array_values( array_filter( $items, static fn ( $it ) => ( $it['type'] ?? '' ) === 'option' ) );
+		$this->assertSame( '2', $options[0]['step'] );
+
+		$this->assertSame( '2', $items[0]['steps'] );
+		$this->assertSame( 'multi', $items[0]['button_state'] );
+	}
+
+	public function test_degenerate_step_breaks_do_not_create_empty_pages(): void {
+		$items = ( new EfbFormConverter() )->convert(
+			array(
+				'title'  => 'Survey',
+				'fields' => array(
+					array( 'key' => 'about', 'type' => 'steps', 'label' => 'About you' ),
+					array( 'key' => 'name', 'type' => 'text', 'label' => 'Name' ),
+					array( 'key' => 'tail', 'type' => 'steps', 'label' => 'Nothing here' ),
+				),
+			)
+		);
+
+		$steps = array_values( array_filter( $items, static fn ( $it ) => ( $it['type'] ?? '' ) === 'step' ) );
+		$this->assertCount( 1, $steps );
+		$this->assertSame( 'About you', $steps[0]['name'] );
+		$this->assertSame( '1', $items[0]['steps'] );
+		$this->assertSame( 'single', $items[0]['button_state'] );
+	}
+
+	public function test_single_page_plans_stay_single_step(): void {
+		$items = ( new EfbFormConverter() )->convert( $this->plan() );
+
+		$this->assertSame( '1', $items[0]['steps'] );
+		$this->assertSame( 'single', $items[0]['button_state'] );
+		$this->assertCount( 1, array_filter( $items, static fn ( $it ) => ( $it['type'] ?? '' ) === 'step' ) );
+	}
+
+	public function test_multiselect_cap_allows_every_option_it_owns(): void {
+		$plan = $this->plan();
+		$plan['fields'][] = array( 'key' => 'colors', 'type' => 'multiselect', 'label' => 'Colors', 'required' => false, 'placeholder' => '', 'options' => array( 'Blue', 'Red', 'Yellow' ) );
+
+		$items = ( new EfbFormConverter() )->convert( $plan );
+
+		$multiselect = null;
+		foreach ( $items as $it ) {
+			if ( ( $it['type'] ?? '' ) === 'multiselect' ) { $multiselect = $it; }
+		}
+		$this->assertNotNull( $multiselect );
+		$this->assertSame( '3', $multiselect['maxSelect'] );
+		$this->assertSame( '0', $multiselect['minSelect'] );
+
+		// A field added to a live form gets the same treatment.
+		$added = ( new EfbFormConverter() )->build_field(
+			array( 'type' => 'multiselect', 'label' => 'Sizes', 'options' => array( 'S', 'M' ) )
+		);
+		$this->assertSame( '2', $added[0]['maxSelect'] );
+
+		// Types without the key are untouched.
+		$select = null;
+		foreach ( $items as $it ) {
+			if ( ( $it['type'] ?? '' ) === 'select' ) { $select = $it; }
+		}
+		$this->assertArrayNotHasKey( 'maxSelect', $select );
+	}
+
 	public function test_required_and_ids_and_amounts(): void {
 		$items = ( new EfbFormConverter() )->convert( $this->plan() );
 
