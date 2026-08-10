@@ -209,6 +209,20 @@ final class SettingsPage {
 				</div>
 
 				<div class="sitepilot-field">
+					<label for="sp-voice-model"><?php esc_html_e( 'Speech-to-text model', 'sitepilot-ai' ); ?></label>
+					<input type="text" id="sp-voice-model" name="voice_model" class="regular-text" value="<?php echo esc_attr( (string) $s['voice_model'] ); ?>" placeholder="whisper-1" />
+					<p class="description"><?php esc_html_e( 'Requires an OpenAI/Groq-compatible /audio/transcriptions endpoint. Audio is sent only for transcription and is not stored by SitePilot.', 'sitepilot-ai' ); ?></p>
+				</div>
+
+				<div class="sitepilot-field">
+					<label class="sitepilot-checkbox-inline">
+						<input type="checkbox" name="voice_responses_enabled" value="1" <?php checked( ! empty( $s['voice_responses_enabled'] ) ); ?> />
+						<?php esc_html_e( 'Read AI replies aloud', 'sitepilot-ai' ); ?>
+					</label>
+					<p class="description"><?php esc_html_e( 'Uses the browser’s speech engine and follows the language of the AI reply.', 'sitepilot-ai' ); ?></p>
+				</div>
+
+				<div class="sitepilot-field">
 					<label><?php esc_html_e( 'Default form status', 'sitepilot-ai' ); ?></label>
 					<label class="sitepilot-checkbox-inline">
 						<input type="radio" name="default_form_status" value="draft" <?php checked( $s['default_form_status'], 'draft' ); ?> />
@@ -218,6 +232,14 @@ final class SettingsPage {
 						<input type="radio" name="default_form_status" value="publish" <?php checked( $s['default_form_status'], 'publish' ); ?> />
 						<?php esc_html_e( 'Publish immediately', 'sitepilot-ai' ); ?>
 					</label>
+				</div>
+
+				<div class="sitepilot-field">
+					<label class="sitepilot-checkbox-inline">
+						<input type="checkbox" name="public_assistant_enabled" value="1" <?php checked( ! empty( $s['public_assistant_enabled'] ) ); ?> />
+						<?php esc_html_e( 'Enable the public site assistant (text and optional voice input)', 'sitepilot-ai' ); ?>
+					</label>
+					<p class="description"><?php esc_html_e( 'The visitor assistant is read-only and rate-limited. It never edits site content.', 'sitepilot-ai' ); ?></p>
 				</div>
 
 				<div class="sitepilot-field">
@@ -305,6 +327,9 @@ final class SettingsPage {
 				'embeddings_enabled'  => ! empty( $_POST['embeddings_enabled'] ),
 				'embedding_model'     => sanitize_text_field( wp_unslash( $_POST['embedding_model'] ?? '' ) ),
 				'embedding_base_url'  => esc_url_raw( wp_unslash( $_POST['embedding_base_url'] ?? '' ) ),
+				'voice_model'         => sanitize_text_field( wp_unslash( $_POST['voice_model'] ?? 'whisper-1' ) ),
+				'voice_responses_enabled' => ! empty( $_POST['voice_responses_enabled'] ),
+				'public_assistant_enabled' => ! empty( $_POST['public_assistant_enabled'] ),
 			)
 		);
 

@@ -17,6 +17,9 @@ final class EfbCustomizeSkill {
 	private const OPS   = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_step', 'remove_field', 'add_option', 'remove_option' );
 	private const PROPS = array( 'label', 'required', 'placeholder', 'width', 'help' );
 	private const WIDTHS = array( 'full', 'half', 'third', 'quarter' );
+
+	/** Most edits are a handful of ops; a longer batch is truncated and reported. */
+	private const MAX_OPS = 20;
 	private const CHOICE = array( 'select', 'radio', 'checkbox', 'multiselect' );
 
 	private ProviderInterface $provider;
@@ -62,8 +65,10 @@ final class EfbCustomizeSkill {
 	public static function validate_ops_verbose( array $ops, array $fields = array() ): array {
 		$out     = array();
 		$dropped = array();
+		$seen    = 0;
 
 		foreach ( $ops as $op ) {
+			++$seen;
 			if ( ! is_array( $op ) ) {
 				$dropped[] = array( 'op' => 'unknown', 'reason' => 'not_an_object' );
 				continue;
@@ -124,12 +129,14 @@ final class EfbCustomizeSkill {
 						$dropped[] = array( 'op' => $name, 'reason' => 'unknown_target:' . $target );
 						break;
 					}
-					if ( null !== $field_type && ! self::property_applies_to_type( $definition, $field_type ) ) {
+					if ( null !== $field_type
+						&& ( ! self::property_applies_to_type( $definition, $field_type )
+							|| self::type_has_no_control_for( $property, $field_type ) ) ) {
 						$dropped[] = array( 'op' => $name, 'reason' => 'property_not_available_for_type:' . $property . ':' . $field_type );
 						break;
 					}
-					$valid = self::validate_catalog_value( $op['value'] ?? null, $definition );
-					if ( ! $valid['ok'] ) {
+					$valid = self::validate_catalog_value( $op['value'] ?? null, $definition, $field_type );
+					if ( ! $valid['ok'] || ( null !== $field_type && ! self::type_allows_value( $property, $field_type, $valid['value'] ) ) ) {
 						$dropped[] = array( 'op' => $name, 'reason' => 'invalid_property_value:' . $property );
 						break;
 					}
@@ -238,7 +245,13 @@ final class EfbCustomizeSkill {
 					break;
 			}
 
-			if ( count( $out ) >= 20 ) {
+			// Stopping at the cap must be reported: the caller turns `dropped` into
+			// an honest reply, so a silent break would claim the skipped edits ran.
+			if ( count( $out ) >= self::MAX_OPS ) {
+				$skipped = count( $ops ) - $seen;
+				if ( $skipped > 0 ) {
+					$dropped[] = array( 'op' => 'batch', 'reason' => 'operation_limit_reached:' . self::MAX_OPS . ':' . $skipped . '_skipped' );
+				}
 				break;
 			}
 		}
@@ -355,6 +368,88 @@ PROMPT;
 		return null;
 	}
 
+	/**
+	 * Resolve a plan's per-field settings into the exact valj_efb keys EFB stores,
+	 * dropping anything the type does not support. Shares one validation authority
+	 * with set_field_property so a setting means the same thing whether it arrives
+	 * when the form is designed or when it is edited afterwards.
+	 *
+	 * Pro-gated settings are skipped: form creation has no licence context, and a
+	 * new form must never depend on a padlocked control.
+	 *
+	 * @param array<string,mixed> $settings Raw property => value pairs from the plan.
+	 * @return array<string,mixed> Storage key => stored value.
+	 */
+	public static function settings_for_new_field( array $settings, string $type ): array {
+		$out = array();
+
+		foreach ( $settings as $key => $value ) {
+			if ( is_array( $value ) || is_object( $value ) ) {
+				continue;
+			}
+			$property = EfbFormModel::resolve_field_property( (string) $key );
+			if ( null === $property ) {
+				continue;
+			}
+			$definition = EfbFormModel::field_property( $property );
+			if ( ! is_array( $definition ) || empty( $definition['ai_writable'] ) || empty( $definition['storage_key'] ) ) {
+				continue;
+			}
+			if ( ! empty( $definition['requires_pro'] ) ) {
+				continue;
+			}
+			if ( ! self::property_applies_to_type( $definition, $type ) || self::type_has_no_control_for( $property, $type ) ) {
+				continue;
+			}
+			$valid = self::validate_catalog_value( $value, $definition, $type );
+			if ( ! $valid['ok'] || ! self::type_allows_value( $property, $type, $valid['value'] ) ) {
+				continue;
+			}
+
+			$stored = is_bool( $valid['value'] ) ? ( $valid['value'] ? '1' : '0' ) : (string) $valid['value'];
+			if ( 'enum' === (string) ( $definition['value_type'] ?? '' ) && is_array( $definition['values'] ?? null ) && ! array_is_list( $definition['values'] ) ) {
+				// Keyword enums store EFB's value, not the friendly key.
+				$stored = (string) ( $definition['values'][ $valid['value'] ] ?? $stored );
+			}
+
+			$out[ (string) $definition['storage_key'] ] = $stored;
+			foreach ( (array) ( $definition['mirror_keys'] ?? array() ) as $mirror ) {
+				$out[ (string) $mirror ] = $stored;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Types can also narrow a shared property's value list: file_category offers
+	 * "customize" on the drag-and-drop field but not on the plain upload field.
+	 *
+	 * @param mixed $value Already normalised by validate_catalog_value().
+	 */
+	private static function type_allows_value( string $property, string $type, $value ): bool {
+		$definition = EfbFormModel::field_type( $type );
+		$limits     = is_array( $definition ) ? ( $definition['property_values'] ?? array() ) : array();
+		if ( ! is_array( $limits ) || ! isset( $limits[ $property ] ) || ! is_array( $limits[ $property ] ) ) {
+			return true;
+		}
+
+		return in_array( (string) $value, array_map( 'strval', $limits[ $property ] ), true );
+	}
+
+	/**
+	 * A property can be shared by every type yet still be missing from one type's
+	 * settings panel — a step has no width, a range has no corner. Writing those
+	 * keys would look accepted and change nothing, so the catalog lists them per
+	 * type and they are refused here.
+	 */
+	private static function type_has_no_control_for( string $property, string $type ): bool {
+		$definition = EfbFormModel::field_type( $type );
+		$blocked    = is_array( $definition ) ? ( $definition['unsupported_properties'] ?? array() ) : array();
+
+		return is_array( $blocked ) && in_array( $property, $blocked, true );
+	}
+
 	/** @param array<string, mixed> $definition */
 	private static function property_applies_to_type( array $definition, string $type ): bool {
 		$types = $definition['applies_to'] ?? array( '*' );
@@ -365,12 +460,16 @@ PROMPT;
 		return in_array( $type, $types, true );
 	}
 
+	/** Types whose milen/mlen hold a date rather than a length or a slider stop. */
+	private const DATE_TYPES = array( 'date', 'pdate', 'ardate' );
+
 	/**
 	 * @param mixed                $raw
 	 * @param array<string, mixed> $definition
+	 * @param string|null          $field_type Target field type, when the op targets a field.
 	 * @return array{ok:bool,value:mixed}
 	 */
-	private static function validate_catalog_value( $raw, array $definition ): array {
+	private static function validate_catalog_value( $raw, array $definition, ?string $field_type = null ): array {
 		$type = (string) ( $definition['value_type'] ?? 'string' );
 		if ( 'boolean_flag' === $type ) {
 			return array( 'ok' => true, 'value' => self::to_bool( $raw ) );
@@ -393,7 +492,15 @@ PROMPT;
 
 		if ( 'number_or_date' === $type ) {
 			$value = self::clean( (string) $raw, 30 );
-			if ( ! preg_match( '/^(?:\d{1,6}|\d{4}-\d{2}-\d{2})$/', $value ) ) {
+
+			// milen/mlen carry a length on text types and a bound date on the date
+			// pickers. EFB resolves the literal 1 to today and feeds anything else
+			// to strtotime, so a bare number there would silently bound nothing.
+			$pattern = null !== $field_type && in_array( $field_type, self::DATE_TYPES, true )
+				? '/^(?:1|\d{4}-\d{2}-\d{2})$/'
+				: '/^\d{1,6}$/';
+
+			if ( ! preg_match( $pattern, $value ) ) {
 				return array( 'ok' => false, 'value' => null );
 			}
 

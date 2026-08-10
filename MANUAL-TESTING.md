@@ -181,6 +181,28 @@
 - [ ] **11.2 (edit redirect)** Approve the form.
   **Expected:** The page redirects to `admin.php?page=Emsfb&state=edit-form&id=<new id>` and the new
   form loads in EFB’s own builder (dropzone shows it).
+
+## Part 11 — Voice and public live assistant
+
+- [ ] **11.1** In **SitePilot AI → Settings**, set a provider with an OpenAI/Groq-compatible
+  `/audio/transcriptions` endpoint and save its STT model (for example `whisper-1`).
+- [ ] **11.2** Open an Easy Form Builder page, open SitePilot, and use the microphone button.
+  **Expected:** supported browsers show interim words in the message box while speaking; recording
+  visibly stops after 45 seconds at most; its transcript is put in the
+  message box and is not sent until the administrator explicitly presses Send.
+- [ ] **11.3** Deny microphone permission. **Expected:** a clear fallback message; typed chat still works.
+- [ ] **11.4** Enable **public site assistant** in Settings and visit a public page.
+  **Expected:** the floating widget keeps a continuous text conversation, shows only public KB sources,
+  and its microphone similarly produces an editable transcript before Send.
+- [ ] **11.5** With the site in Persian, begin in Persian, then ask a question in English.
+  **Expected:** initial/default interaction follows the site locale; the response to the English turn
+  continues in English. Repeat with a spoken English question to verify STT language auto-detection.
+- [ ] **11.6** Enable **Read AI replies aloud**. **Expected:** the browser reads completed AI answers
+  aloud using the answer language; turning the setting off leaves answers as text only.
+- [ ] **11.7** In the Easy Form Builder chat header, click the speech-bubble button to start **live
+  voice conversation**. **Expected:** words appear while speaking; after a short pause the turn is
+  submitted, the AI response is read aloud when 11.6 is enabled, and the widget listens for the next
+  turn. Click the same button or close the chat to stop it.
 - [ ] **11.3 (customize chat)** On that editor page, open **Build with AI → Customize** tab. Type
   *“Make Email required and reduce its width to half.”* Click **Apply change**.
   **Expected:** A green “Applied. Preview updated.” note, a change-log line, and the **dropzone

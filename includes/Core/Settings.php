@@ -28,6 +28,8 @@ final class Settings {
 			'key_management' => 'keyvault', 'kb_post_types' => array(), 'kb_auto_index' => true,
 			'monthly_token_budget' => 0, 'widget' => self::widget_defaults(),
 			'embeddings_enabled' => false, 'embedding_base_url' => '', 'embedding_model' => 'text-embedding-3-small',
+			'voice_model' => 'whisper-1', 'voice_responses_enabled' => false,
+			'public_assistant_enabled' => false,
 		);
 	}
 

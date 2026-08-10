@@ -3,7 +3,7 @@
  * Plugin Name: SitePilot AI
  * Plugin URI: https://sitepilot.ai
  * Description: AI copilot for WordPress — form builder, content intelligence, RAG chat, voice assistant, frontend widget.
- * Version: 0.5.0
+ * Version: 1.0.1
  * Requires at least: 6.2
  * Requires PHP: 8.1
  * Author: SitePilot AI
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SITEPILOT_AI_VERSION', '1.0.0' );
+define( 'SITEPILOT_AI_VERSION', '1.0.1' );
 define( 'SITEPILOT_AI_FILE', __FILE__ );
 define( 'SITEPILOT_AI_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SITEPILOT_AI_URL', plugin_dir_url( __FILE__ ) );

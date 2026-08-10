@@ -60,11 +60,11 @@ final class EfbCopilotController {
 		}
 
 		try {
-			$result = ( new EfbFormSkill( $this->providers->make() ) )->plan( $prompt );
+			$result = ( new EfbFormSkill( $this->providers->make(), EfbLicense::has_pro_features() ) )->plan( $prompt );
 		} catch ( ProviderException $e ) {
 			$this->logger->error( 'efb.plan.provider_error', $e->getMessage(), array( 'code' => $e->error_code() ) );
 
-			return $this->respond( array( 'message' => $e->getMessage() ), false, 502, $e->error_code() );
+			return $this->respond( array( 'message' => $e->user_message() ), false, 502, $e->error_code() );
 		}
 
 		if ( ! $result->ok ) {
@@ -79,21 +79,77 @@ final class EfbCopilotController {
 			);
 		}
 
-		$blocked = $this->blocked_plan_fields( $result->plan );
-		if ( array() !== $blocked ) {
-			return $this->pro_required_response( $blocked );
+		// Build what this licence can actually render, and say plainly what a
+		// Free Plus or Pro licence would have added instead of failing outright.
+		$split = EfbFormModel::split_pro_fields( $result->plan, EfbLicense::has_pro_features() );
+		$plan  = $split['plan'];
+
+		if ( array() === ( $plan['fields'] ?? array() ) ) {
+			return $this->pro_required_response( $this->pro_blocked_from_fields( $split['pro_fields'] ) );
 		}
 
-		$action_id = $this->store->create( $result->plan, 'easy_form_builder' );
-		$this->logger->info( 'efb.plan.created', 'EFB form plan generated.', array( 'title' => $result->plan['title'] ) );
+		$action_id = $this->store->create( $plan, 'easy_form_builder' );
+		$this->logger->info( 'efb.plan.created', 'EFB form plan generated.', array( 'title' => $plan['title'], 'pro_omitted' => $split['pro_fields'] ) );
 
-		return $this->respond(
-			array(
-				'action_id' => $action_id,
-				'preview'   => $this->build_preview( $result->plan, $connector->get_name() ),
-			),
-			true
+		$payload = array(
+			'action_id' => $action_id,
+			'preview'   => $this->build_preview( $plan, $connector->get_name() ),
 		);
+		$payload = $this->with_pro_upsell( $payload, $split['pro_fields'] );
+
+		return $this->respond( $payload, true );
+	}
+
+	/**
+	 * Attach the "this needed Pro" notice to an otherwise successful response, so
+	 * the admin gets their form AND knows what a licence would add.
+	 *
+	 * @param array<string,mixed>                        $payload
+	 * @param array<int,array{type:string,label:string}> $pro_fields
+	 * @return array<string,mixed>
+	 */
+	private function with_pro_upsell( array $payload, array $pro_fields ): array {
+		if ( array() === $pro_fields ) {
+			return $payload;
+		}
+
+		$names = array();
+		foreach ( $pro_fields as $field ) {
+			$definition = EfbFormModel::field_type( $field['type'] );
+			$names[]    = sprintf( '%s (%s)', $field['label'], (string) ( $definition['label'] ?? $field['type'] ) );
+		}
+
+		$payload['pro_omitted']      = $pro_fields;
+		$payload['upgrade_required'] = true;
+		$payload['upgrade_reason']   = 'pro_field';
+		$payload['upgrade_url']      = EfbLicense::upgrade_url();
+		$payload['errors']           = array(
+			sprintf(
+				/* translators: %s: comma-separated field names. */
+				_n(
+					'I left out %s — that field needs Easy Form Builder Free Plus or Pro. Everything else is ready.',
+					'I left out %s — those fields need Easy Form Builder Free Plus or Pro. Everything else is ready.',
+					count( $names ),
+					'sitepilot-ai'
+				),
+				implode( '، ', $names )
+			),
+		);
+
+		return $payload;
+	}
+
+	/**
+	 * @param array<int,array{type:string,label:string}> $pro_fields
+	 * @return array<int,array{kind:string,type:string,label:string}>
+	 */
+	private function pro_blocked_from_fields( array $pro_fields ): array {
+		$blocked = array();
+		foreach ( $pro_fields as $field ) {
+			$blocked[] = array( 'kind' => 'field', 'type' => $field['type'], 'label' => $field['label'] );
+		}
+
+		return $blocked;
 	}
 
 	public function create( WP_REST_Request $request ): WP_REST_Response {
@@ -188,7 +244,7 @@ final class EfbCopilotController {
 		} catch ( ProviderException $e ) {
 			$this->logger->error( 'efb.chat.provider_error', $e->getMessage(), array( 'trace_id' => $trace_id, 'code' => $e->error_code(), 'message' => mb_substr( $message, 0, 200 ) ) );
 
-			return $this->respond( array( 'type' => 'message', 'reply' => $e->getMessage() ), false, 502, $e->error_code() );
+			return $this->respond( array( 'type' => 'message', 'reply' => $e->user_message() ), false, 502, $e->error_code() );
 		}
 
 		$reply  = trim( (string) ( $raw['reply'] ?? '' ) );
@@ -235,18 +291,20 @@ final class EfbCopilotController {
 				$this->logger->error( 'efb.chat.ops_dropped', 'Some operations were rejected by validation.', array( 'trace_id' => $trace_id, 'dropped' => $dropped, 'message' => mb_substr( $message, 0, 200 ) ) );
 			}
 
+			$notes = $this->customize_notes( $dropped );
+
+			// A Pro-only field is rejected during validation, so it never reaches
+			// the Pro check below. Answer with the real upgrade prompt instead of a
+			// generic failure that reads like the admin phrased it wrong.
+			$pro_blocked = $this->pro_fields_in_dropped( $dropped );
+			if ( array() !== $pro_blocked && array() === $ops ) {
+				$this->logger->info( 'efb.chat.pro_blocked', 'A Pro-only field was requested.', array( 'trace_id' => $trace_id, 'blocked' => $pro_blocked, 'license' => $license ) );
+
+				return $this->pro_required_response( $pro_blocked, $reply );
+			}
+
 			if ( array() === $ops ) {
 				// Never pretend success: explain what was rejected and why.
-				$notes = array();
-				foreach ( $dropped as $d ) {
-					$reason = (string) $d['reason'];
-					if ( str_starts_with( $reason, 'unsupported_type:' ) || str_starts_with( $reason, 'forbidden_type:' ) ) {
-						/* translators: %s: field type. */
-						$notes[] = sprintf( __( 'Field type "%s" is not supported in Easy Form Builder.', 'sitepilot-ai' ), substr( $reason, strpos( $reason, ':' ) + 1 ) );
-					} elseif ( str_starts_with( $reason, 'choice_needs_options:' ) ) {
-						$notes[] = __( 'A choice field needs at least one option — tell me the options.', 'sitepilot-ai' );
-					}
-				}
 				return $this->respond(
 					array(
 						'type'   => 'message',
@@ -269,7 +327,13 @@ final class EfbCopilotController {
 
 			$this->logger->info( 'efb.chat.customize', 'Customize ops ready.', array( 'trace_id' => $trace_id, 'ops' => $ops ) );
 
-			return $this->respond( array( 'type' => 'ops', 'reply' => '' !== $reply ? $reply : __( 'Done — applying your change.', 'sitepilot-ai' ), 'operations' => $ops ), true );
+			// A partly-applied batch must say so rather than answering a plain "Done".
+			$payload = array( 'type' => 'ops', 'reply' => '' !== $reply ? $reply : __( 'Done — applying your change.', 'sitepilot-ai' ), 'operations' => $ops );
+			if ( array() !== $notes ) {
+				$payload['errors'] = $notes;
+			}
+
+			return $this->respond( $payload, true );
 		}
 
 		if ( 'create_form' === $action && is_array( $raw['form'] ?? null ) ) {
@@ -278,23 +342,24 @@ final class EfbCopilotController {
 			if ( ! $result->ok ) {
 				return $this->respond( array( 'type' => 'message', 'reply' => '' !== $reply ? $reply : __( 'I could not build a safe form from that. Could you add a bit more detail?', 'sitepilot-ai' ), 'errors' => $result->errors ), true );
 			}
-			$blocked = $this->blocked_plan_fields( $result->plan );
-			if ( array() !== $blocked ) {
-				return $this->pro_required_response( $blocked );
+			$split = EfbFormModel::split_pro_fields( $result->plan, EfbLicense::has_pro_features() );
+			$plan  = $split['plan'];
+			if ( array() === ( $plan['fields'] ?? array() ) ) {
+				return $this->pro_required_response( $this->pro_blocked_from_fields( $split['pro_fields'] ) );
 			}
 			$connector = $this->registry()->get( 'easy_form_builder' );
 			$name      = ( null !== $connector ) ? $connector->get_name() : 'Easy Form Builder';
-			$action_id = $this->store->create( $result->plan, 'easy_form_builder' );
-			$this->logger->info( 'efb.chat.plan', 'Form planned via chat.', array( 'trace_id' => $trace_id, 'title' => $result->plan['title'] ) );
-			return $this->respond(
-				array(
-					'type'      => 'preview',
-					'reply'     => '' !== $reply ? $reply : __( 'Here is the form I designed — review it and approve to create it.', 'sitepilot-ai' ),
-					'action_id' => $action_id,
-					'preview'   => $this->build_preview( $result->plan, $name ),
-				),
-				true
+			$action_id = $this->store->create( $plan, 'easy_form_builder' );
+			$this->logger->info( 'efb.chat.plan', 'Form planned via chat.', array( 'trace_id' => $trace_id, 'title' => $plan['title'], 'pro_omitted' => $split['pro_fields'] ) );
+
+			$payload = array(
+				'type'      => 'preview',
+				'reply'     => '' !== $reply ? $reply : __( 'Here is the form I designed — review it and approve to create it.', 'sitepilot-ai' ),
+				'action_id' => $action_id,
+				'preview'   => $this->build_preview( $plan, $name ),
 			);
+
+			return $this->respond( $this->with_pro_upsell( $payload, $split['pro_fields'] ), true );
 		}
 
 		// ask / chat / fallback.
@@ -357,7 +422,7 @@ final class EfbCopilotController {
 		$limits = EfbFormModel::limits();
 
 		return new FormPlanValidator(
-			EfbFormModel::allowed_types(),
+			EfbFormModel::designable_types( EfbLicense::has_pro_features() ),
 			EfbFormModel::option_types(),
 			EfbFormModel::forbidden_types(),
 			EfbFormModel::aliases(),
@@ -437,7 +502,7 @@ final class EfbCopilotController {
 		foreach ( $ops as $op ) {
 			if ( 'add_field' === ( $op['op'] ?? '' ) && is_array( $op['field'] ?? null ) ) {
 				$type = (string) ( $op['field']['type'] ?? '' );
-				if ( EfbFormModel::requires_pro_field( $type ) ) {
+				if ( EfbFormModel::requires_pro_to_create( $type ) ) {
 					$blocked[] = array( 'kind' => 'field', 'type' => $type, 'label' => (string) ( $op['field']['label'] ?? $type ) );
 				}
 			}
@@ -446,6 +511,14 @@ final class EfbCopilotController {
 				if ( $step_count > 2 ) {
 					$blocked[] = array( 'kind' => 'step_limit', 'label' => (string) ( $op['label'] ?? 'Step' ) );
 				}
+			}
+			// EFB padlocks the whole mobile responsive block on Free, so writing
+			// those keys would move settings the admin can neither see nor undo.
+			if ( 'set_field_property' === ( $op['op'] ?? '' ) && EfbFormModel::requires_pro_property( (string) ( $op['property'] ?? '' ) ) ) {
+				$blocked[] = array( 'kind' => 'setting', 'type' => (string) $op['property'], 'label' => (string) ( $op['target'] ?? '' ) );
+			}
+			if ( 'set_form_property' === ( $op['op'] ?? '' ) && EfbFormModel::requires_pro_form_property( (string) ( $op['property'] ?? '' ) ) ) {
+				$blocked[] = array( 'kind' => 'setting', 'type' => (string) $op['property'], 'label' => '' );
 			}
 		}
 
@@ -476,6 +549,71 @@ final class EfbCopilotController {
 	}
 
 	/**
+	 * Pro-only field types the validator threw out before the Pro gate could see
+	 * them, shaped like blocked_customize_operations() so the same response works.
+	 *
+	 * @param array<int,array{op:string,reason:string}> $dropped
+	 * @return array<int,array{kind:string,type:string,label:string}>
+	 */
+	private function pro_fields_in_dropped( array $dropped ): array {
+		$blocked = array();
+		foreach ( $dropped as $d ) {
+			$reason = (string) ( $d['reason'] ?? '' );
+			if ( ! str_starts_with( $reason, 'recognized_but_not_creatable:' ) ) {
+				continue;
+			}
+			$type = substr( $reason, strpos( $reason, ':' ) + 1 );
+			if ( '' !== $type && EfbFormModel::requires_pro_field( $type ) ) {
+				$definition = EfbFormModel::field_type( $type );
+				$blocked[]  = array(
+					'kind'  => 'field',
+					'type'  => $type,
+					'label' => (string) ( $definition['label'] ?? $type ),
+				);
+			}
+		}
+
+		return $blocked;
+	}
+
+	/**
+	 * Turn validation rejections into sentences for the admin. Used whether the
+	 * batch was refused outright or only partly applied — either way the reply
+	 * has to account for what did not happen.
+	 *
+	 * @param array<int,array{op:string,reason:string}> $dropped
+	 * @return string[]
+	 */
+	private function customize_notes( array $dropped ): array {
+		$notes = array();
+		foreach ( $dropped as $d ) {
+			$reason = (string) ( $d['reason'] ?? '' );
+			if ( str_starts_with( $reason, 'unsupported_type:' ) || str_starts_with( $reason, 'forbidden_type:' ) ) {
+				/* translators: %s: field type. */
+				$notes[] = sprintf( __( 'Field type "%s" is not supported in Easy Form Builder.', 'sitepilot-ai' ), substr( $reason, strpos( $reason, ':' ) + 1 ) );
+			} elseif ( str_starts_with( $reason, 'choice_needs_options:' ) ) {
+				$notes[] = __( 'A choice field needs at least one option — tell me the options.', 'sitepilot-ai' );
+			} elseif ( str_starts_with( $reason, 'recognized_but_not_creatable:' ) ) {
+				$type       = substr( $reason, strpos( $reason, ':' ) + 1 );
+				$definition = EfbFormModel::field_type( $type );
+				/* translators: %s: field name. */
+				$notes[] = sprintf( __( 'I can configure a "%s" field but not add one — drag it in from the Easy Form Builder palette, then ask me again.', 'sitepilot-ai' ), (string) ( $definition['label'] ?? $type ) );
+			} elseif ( str_starts_with( $reason, 'operation_limit_reached:' ) ) {
+				$parts   = explode( ':', $reason );
+				$skipped = (int) ( $parts[2] ?? 0 );
+				$notes[] = sprintf(
+					/* translators: 1: number of applied operations, 2: number of skipped operations. */
+					__( 'That was too many changes at once: I applied the first %1$d and skipped %2$d. Ask again for the rest.', 'sitepilot-ai' ),
+					(int) ( $parts[1] ?? 0 ),
+					$skipped
+				);
+			}
+		}
+
+		return array_values( array_unique( $notes ) );
+	}
+
+	/**
 	 * Uses EFB's own notion of a locked Pro field. The browser turns this into
 	 * the exact EFB `pro_show_efb()` dialog; the URL is the official fallback.
 	 *
@@ -483,9 +621,14 @@ final class EfbCopilotController {
 	 */
 	private function pro_required_response( array $blocked, ?string $reply = null ): WP_REST_Response {
 		$is_step_limit = (bool) array_filter( $blocked, static fn ( array $item ): bool => 'step_limit' === ( $item['kind'] ?? '' ) );
-		$default = $is_step_limit
-			? __( 'Easy Form Builder Free supports up to two steps. Upgrade to add more steps.', 'sitepilot-ai' )
-			: __( 'This field is available in the Pro version of Easy Form Builder.', 'sitepilot-ai' );
+		$is_setting    = ! $is_step_limit && (bool) array_filter( $blocked, static fn ( array $item ): bool => 'setting' === ( $item['kind'] ?? '' ) );
+		if ( $is_step_limit ) {
+			$default = __( 'Easy Form Builder Free supports up to two steps. Upgrade to add more steps.', 'sitepilot-ai' );
+		} elseif ( $is_setting ) {
+			$default = __( 'The mobile layout settings are part of the Pro version of Easy Form Builder.', 'sitepilot-ai' );
+		} else {
+			$default = __( 'This field is available in the Pro version of Easy Form Builder.', 'sitepilot-ai' );
+		}
 
 		return $this->respond(
 			array(
@@ -618,7 +761,7 @@ final class EfbCopilotController {
 		try {
 			$ops = ( new EfbCustomizeSkill( $this->providers->make() ) )->plan( $command, $fields );
 		} catch ( ProviderException $e ) {
-			return $this->respond( array( 'message' => $e->getMessage() ), false, 502, $e->error_code() );
+			return $this->respond( array( 'message' => $e->user_message() ), false, 502, $e->error_code() );
 		}
 
 		if ( array() === $ops ) {

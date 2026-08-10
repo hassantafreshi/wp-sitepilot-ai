@@ -60,7 +60,7 @@ final class CopilotController {
 		} catch ( ProviderException $e ) {
 			$this->logger->error( 'plan.provider_error', $e->getMessage(), array( 'code' => $e->error_code() ) );
 
-			return $this->respond( array( 'message' => $e->getMessage() ), false, 502, $e->error_code() );
+			return $this->respond( array( 'message' => $e->user_message() ), false, 502, $e->error_code() );
 		}
 
 		if ( ! $result->ok ) {

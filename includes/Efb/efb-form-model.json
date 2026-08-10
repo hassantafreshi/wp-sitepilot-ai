@@ -17,10 +17,15 @@
     { "type": "checkbox",    "label": "Checkboxes (choose many)",    "needs_options": true },
     { "type": "multiselect", "label": "Multi-select (choose many)",  "needs_options": true },
     { "type": "heading",     "label": "Section heading (display only)", "needs_options": false },
-    { "type": "esign",       "label": "Electronic signature",          "needs_options": false }
+    { "type": "esign",       "label": "Electronic signature",          "needs_options": false },
+    { "type": "steps",       "label": "Step break (everything after it becomes the next page)", "needs_options": false }
   ],
 
   "type_aliases": {
+    "step": "steps",
+    "page": "steps",
+    "page_break": "steps",
+    "step_break": "steps",
     "phone": "tel",
     "textbox": "text",
     "long_text": "textarea",
@@ -148,7 +153,7 @@
       "select":      { "corner": "efb-square" },
       "radio":       { "corner": "efb-square" },
       "checkbox":    { "corner": "efb-square", "checked_color": "#0d6efd" },
-      "multiselect": { "corner": "efb-square", "maxSelect": "0", "minSelect": "0" },
+      "multiselect": { "corner": "efb-square", "maxSelect": "1", "minSelect": "0" },
       "esign":       { "elementId": "esign", "pro": "1", "icon": "bi-save", "icon_color": "text-white", "button_single_text": "Clear", "button_color": "btn-primary" },
       "heading": {
         "__replace__": true,

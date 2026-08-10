@@ -134,6 +134,38 @@ final class EfbFormModel {
 	}
 
 	/**
+	 * Whether adding this type needs a licence with Pro features. Wider than
+	 * requires_pro_field(): a field EFB renders on every plan can still be one
+	 * SitePilot only creates for Free Plus and Pro installs. Editing an existing
+	 * field of that type is never gated.
+	 */
+	public static function requires_pro_to_create( string $type ): bool {
+		$definition = self::field_type( $type );
+		if ( ! is_array( $definition ) ) {
+			return false;
+		}
+
+		return 'pro' === (string) ( $definition['plan'] ?? '' ) || ! empty( $definition['ai_create_requires_pro'] );
+	}
+
+	/**
+	 * Settings EFB itself locks behind a Pro licence — the whole mobile
+	 * responsive block sits under a padlock in the builder. Writing them on a
+	 * Free install would change keys the admin cannot see or undo.
+	 */
+	public static function requires_pro_property( string $key ): bool {
+		$definition = self::field_property( $key );
+
+		return is_array( $definition ) && ! empty( $definition['requires_pro'] );
+	}
+
+	public static function requires_pro_form_property( string $key ): bool {
+		$definition = self::form_property( $key );
+
+		return is_array( $definition ) && ! empty( $definition['requires_pro'] );
+	}
+
+	/**
 	 * Resolve a canonical property key from the key itself or an explicit alias.
 	 */
 	public static function resolve_field_property( string $key ): ?string {
@@ -285,23 +317,77 @@ final class EfbFormModel {
 	}
 
 	/**
-	 * Compact capability list rendered for the AI prompt.
+	 * Types the form designer may use. Pro-only ones stay in the list even on a
+	 * Free install: the designer should still reach for the right field so the
+	 * admin can be told what a licence would add, rather than silently getting a
+	 * lesser form. The licence check happens after the plan exists.
+	 *
+	 * @return string[]
 	 */
-	public static function capabilities_for_prompt(): string {
+	public static function designable_types( bool $has_pro_features = true ): array {
+		unset( $has_pro_features );
+
+		return self::allowed_types();
+	}
+
+	/**
+	 * Compact capability list rendered for the AI prompt. Without Pro features the
+	 * Pro-only types are still offered but flagged, so the model uses one only
+	 * when it genuinely belongs and the admin gets a concrete upgrade prompt.
+	 */
+	public static function capabilities_for_prompt( bool $has_pro_features = true ): string {
 		$lines = array();
 		foreach ( self::capabilities() as $c ) {
 			if ( ! is_array( $c ) ) {
 				continue;
 			}
+			$type = (string) $c['type'];
+			$pro  = ! $has_pro_features && self::requires_pro_to_create( $type )
+				? ' [needs Easy Form Builder Free Plus or Pro — use only if the request really calls for it]'
+				: '';
 			$lines[] = sprintf(
-				'- %s: %s%s',
-				(string) $c['type'],
+				'- %s: %s%s%s',
+				$type,
 				(string) ( $c['label'] ?? '' ),
-				! empty( $c['needs_options'] ) ? ' (requires "options")' : ''
+				! empty( $c['needs_options'] ) ? ' (requires "options")' : '',
+				$pro
 			);
 		}
 
 		return implode( "\n", $lines );
+	}
+
+	/**
+	 * Split a plan's fields into the ones this licence can create and the Pro-only
+	 * ones. The caller builds the form from the first list and tells the admin
+	 * exactly what the second would add.
+	 *
+	 * @param array<string,mixed> $plan
+	 * @return array{plan:array<string,mixed>,pro_fields:array<int,array{type:string,label:string}>}
+	 */
+	public static function split_pro_fields( array $plan, bool $has_pro_features ): array {
+		if ( $has_pro_features ) {
+			return array( 'plan' => $plan, 'pro_fields' => array() );
+		}
+
+		$kept = array();
+		$pro  = array();
+		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
+			$type = is_array( $field ) ? (string) ( $field['type'] ?? '' ) : '';
+			if ( '' !== $type && self::requires_pro_to_create( $type ) ) {
+				$definition = self::field_type( $type );
+				$pro[]      = array(
+					'type'  => $type,
+					'label' => (string) ( $field['label'] ?? ( $definition['label'] ?? $type ) ),
+				);
+				continue;
+			}
+			$kept[] = $field;
+		}
+
+		$plan['fields'] = $kept;
+
+		return array( 'plan' => $plan, 'pro_fields' => $pro );
 	}
 
 	/**
@@ -321,7 +407,16 @@ final class EfbFormModel {
 			}
 			$plan = (string) ( $definition['plan'] ?? 'free' );
 			$label = (string) ( $definition['label'] ?? $id );
-			$lines[] = sprintf( '- %s: %s [%s; %s]', $id, $label, $plan, $status );
+			$line = sprintf( '- %s: %s [%s; %s]', $id, $label, $plan, $status );
+
+			// Settings this type's panel simply does not have. Without this the
+			// model keeps proposing edits the validator can only reject.
+			$missing = is_array( $definition['unsupported_properties'] ?? null ) ? $definition['unsupported_properties'] : array();
+			if ( array() !== $missing ) {
+				$line .= ' — has no ' . implode( ', ', array_map( 'strval', $missing ) );
+			}
+
+			$lines[] = $line;
 		}
 
 		return implode( "\n", $lines );
@@ -372,6 +467,8 @@ final class EfbFormModel {
 				'minimum'     => $definition['minimum'] ?? null,
 				'maximum'     => $definition['maximum'] ?? null,
 				'max_length'  => $definition['max_length'] ?? null,
+				// Keys EFB keeps identical to the main one, so the browser writes both.
+				'mirror_keys' => $definition['mirror_keys'] ?? null,
 			);
 		}
 
@@ -392,6 +489,25 @@ final class EfbFormModel {
 		$line .= ')';
 		if ( is_array( $definition['applies_to'] ?? null ) && array( '*' ) !== $definition['applies_to'] ) {
 			$line .= ' for ' . implode( '|', array_map( 'strval', $definition['applies_to'] ) );
+		}
+
+		// Some types accept only part of a shared list. The validator enforces that
+		// either way; saying so here stops the model proposing a doomed value.
+		$narrowed = array();
+		foreach ( self::field_types() as $id => $field ) {
+			$limits = is_array( $field ) ? ( $field['property_values'][ $key ] ?? null ) : null;
+			if ( is_array( $limits ) && array() !== $limits ) {
+				$narrowed[] = $id . ': ' . implode( '|', array_map( 'strval', $limits ) );
+			}
+		}
+		if ( array() !== $narrowed ) {
+			$line .= ' — only ' . implode( ', ', $narrowed );
+		}
+
+		// A few properties mean something the value type alone cannot convey.
+		$hint = trim( (string) ( $definition['prompt_hint'] ?? '' ) );
+		if ( '' !== $hint ) {
+			$line .= ' — ' . $hint;
 		}
 
 		return $line;
