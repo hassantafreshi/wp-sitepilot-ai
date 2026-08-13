@@ -23,9 +23,9 @@ final class EfbFormModel {
 	 */
 	public static function data(): array {
 		if ( null === self::$data ) {
-			$file = __DIR__ . '/efb-form-model.json';
-			$raw  = is_readable( $file ) ? (string) file_get_contents( $file ) : '{}';
-			$decoded = json_decode( $raw, true );
+			$file       = __DIR__ . '/efb-form-model.json';
+			$raw        = is_readable( $file ) ? (string) file_get_contents( $file ) : '{}';
+			$decoded    = json_decode( $raw, true );
 			self::$data = is_array( $decoded ) ? $decoded : array();
 		}
 
@@ -41,9 +41,9 @@ final class EfbFormModel {
 	 */
 	public static function capability_catalog(): array {
 		if ( null === self::$capability_catalog ) {
-			$file = __DIR__ . '/efb-capability-catalog.json';
-			$raw  = is_readable( $file ) ? (string) file_get_contents( $file ) : '{}';
-			$decoded = json_decode( $raw, true );
+			$file                     = __DIR__ . '/efb-capability-catalog.json';
+			$raw                      = is_readable( $file ) ? (string) file_get_contents( $file ) : '{}';
+			$decoded                  = json_decode( $raw, true );
 			self::$capability_catalog = is_array( $decoded ) ? $decoded : array();
 		}
 
@@ -295,7 +295,12 @@ final class EfbFormModel {
 	public static function width_map(): array {
 		$w = self::data()['width_map'] ?? array();
 
-		return is_array( $w ) && array() !== $w ? $w : array( 'full' => '100', 'half' => '50', 'third' => '33', 'quarter' => '25' );
+		return is_array( $w ) && array() !== $w ? $w : array(
+			'full'    => '100',
+			'half'    => '50',
+			'third'   => '33',
+			'quarter' => '25',
+		);
 	}
 
 	/**
@@ -341,8 +346,8 @@ final class EfbFormModel {
 			if ( ! is_array( $c ) ) {
 				continue;
 			}
-			$type = (string) $c['type'];
-			$pro  = ! $has_pro_features && self::requires_pro_to_create( $type )
+			$type    = (string) $c['type'];
+			$pro     = ! $has_pro_features && self::requires_pro_to_create( $type )
 				? ' [needs Easy Form Builder Free Plus or Pro — use only if the request really calls for it]'
 				: '';
 			$lines[] = sprintf(
@@ -367,7 +372,10 @@ final class EfbFormModel {
 	 */
 	public static function split_pro_fields( array $plan, bool $has_pro_features ): array {
 		if ( $has_pro_features ) {
-			return array( 'plan' => $plan, 'pro_fields' => array() );
+			return array(
+				'plan'       => $plan,
+				'pro_fields' => array(),
+			);
 		}
 
 		$kept = array();
@@ -387,7 +395,10 @@ final class EfbFormModel {
 
 		$plan['fields'] = $kept;
 
-		return array( 'plan' => $plan, 'pro_fields' => $pro );
+		return array(
+			'plan'       => $plan,
+			'pro_fields' => $pro,
+		);
 	}
 
 	/**
@@ -405,9 +416,9 @@ final class EfbFormModel {
 			if ( 'steps' === $id ) {
 				$status = 'add_step only (structural, never a heading)';
 			}
-			$plan = (string) ( $definition['plan'] ?? 'free' );
+			$plan  = (string) ( $definition['plan'] ?? 'free' );
 			$label = (string) ( $definition['label'] ?? $id );
-			$line = sprintf( '- %s: %s [%s; %s]', $id, $label, $plan, $status );
+			$line  = sprintf( '- %s: %s [%s; %s]', $id, $label, $plan, $status );
 
 			// Settings this type's panel simply does not have. Without this the
 			// model keeps proposing edits the validator can only reject.
@@ -481,7 +492,7 @@ final class EfbFormModel {
 		$line = $key . ' (' . $type;
 		if ( isset( $definition['values'] ) ) {
 			$raw_values = is_array( $definition['values'] ) ? $definition['values'] : array();
-			$values = array_is_list( $raw_values ) ? $raw_values : array_keys( $raw_values );
+			$values     = array_is_list( $raw_values ) ? $raw_values : array_keys( $raw_values );
 			if ( array() !== $values ) {
 				$line .= ': ' . implode( '|', array_map( 'strval', $values ) );
 			}

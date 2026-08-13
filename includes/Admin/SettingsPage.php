@@ -18,21 +18,36 @@ final class SettingsPage {
 			wp_die( esc_html__( 'You do not have permission to view this page.', 'sitepilot-ai' ) );
 		}
 
-		$saved = $this->maybe_save();
-		$s     = Settings::all();
+		$saved                   = $this->maybe_save();
+		$s                       = Settings::all();
 		$wp_connectors_available = WpConnectors::is_available();
-		$active_key_mode = WpConnectors::get_active_mode();
-
-		$kb             = new \SitePilot\Content\KnowledgeBase();
-		$embedded_count = $kb->table_exists() ? $kb->count_with_embeddings() : 0;
+		$active_key_mode         = WpConnectors::get_active_mode();
+		$provider_preset         = Settings::presets()[ $s['provider'] ] ?? array( 'label' => __( 'Custom provider', 'sitepilot-ai' ) );
+		$kb                      = new \SitePilot\Content\KnowledgeBase();
+		$embedded_count          = $kb->table_exists() ? $kb->count_with_embeddings() : 0;
 		?>
-		<div class="wrap sitepilot-wrap sitepilot-wrap--narrow">
-			<h1 class="sitepilot-title">
+		<div class="wrap sitepilot-wrap sitepilot-screen sitepilot-screen--settings sitepilot-wrap--narrow">
+			<nav class="sitepilot-screen__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sitepilot-ai' ); ?>">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HOME ) ); ?>"><?php esc_html_e( 'Home', 'sitepilot-ai' ); ?></a>
+				<span aria-hidden="true">/</span>
+				<span><?php esc_html_e( 'Settings', 'sitepilot-ai' ); ?></span>
+			</nav>
+			<header class="sitepilot-screen__header">
+				<div>
+					<p class="sitepilot-eyebrow"><?php esc_html_e( 'Provider, safety and delivery', 'sitepilot-ai' ); ?></p>
+					<h1 class="sitepilot-title"><span class="dashicons dashicons-admin-generic" aria-hidden="true"></span><?php esc_html_e( 'Settings', 'sitepilot-ai' ); ?> <span class="sp-ai-badge">AI</span></h1>
+					<p class="sitepilot-subtitle"><?php esc_html_e( 'Configure the provider and privacy controls used by SitePilot. Sensitive keys remain in your selected secure key store.', 'sitepilot-ai' ); ?></p>
+				</div>
+				<div class="sitepilot-screen__status">
+					<span class="sitepilot-screen__badge sitepilot-screen__badge--ready"><?php echo esc_html( (string) $provider_preset['label'] ); ?></span>
+					<span class="sitepilot-screen__badge sitepilot-screen__badge--info"><?php echo esc_html( WpConnectors::get_key_source_label() ); ?></span>
+				</div>
+			</header>
+			<div class="sp-sr-only">
 				<span class="dashicons dashicons-admin-generic"></span>
 				<?php esc_html_e( 'Settings', 'sitepilot-ai' ); ?>
 				<span class="sp-ai-badge">AI</span>
-			</h1>
-
+			</div>
 			<?php if ( $saved ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'sitepilot-ai' ); ?></p></div>
 			<?php endif; ?>
@@ -50,10 +65,12 @@ final class SettingsPage {
 				</span>
 			</div>
 
-			<form method="post" class="sitepilot-card sitepilot-settings-form">
+			<form method="post" class="sitepilot-card sitepilot-settings-form" aria-label="<?php esc_attr_e( 'SitePilot settings', 'sitepilot-ai' ); ?>">
 				<?php wp_nonce_field( 'sitepilot_settings_save', 'sitepilot_settings_nonce' ); ?>
 
 				<!-- Key Management Mode -->
+				<h2 class="sitepilot-section-title"><?php esc_html_e( 'Provider connection', 'sitepilot-ai' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Choose where credentials are held, then configure the AI endpoint used for planning and chat.', 'sitepilot-ai' ); ?></p>
 				<div class="sitepilot-field">
 					<label><?php esc_html_e( 'API Key Management', 'sitepilot-ai' ); ?></label>
 					<div class="sitepilot-key-modes">
@@ -234,19 +251,24 @@ final class SettingsPage {
 					</label>
 				</div>
 
+				<hr class="sitepilot-divider" />
+				<h2 class="sitepilot-section-title"><?php esc_html_e( 'SitePilot Forms delivery', 'sitepilot-ai' ); ?></h2>
+				<div class="sitepilot-field">
+					<label for="sp-form-notification-email"><?php esc_html_e( 'Notification email', 'sitepilot-ai' ); ?></label>
+					<input type="email" id="sp-form-notification-email" name="form_notification_email" class="regular-text" value="<?php echo esc_attr( Settings::form_notification_email() ); ?>" />
+					<p class="description"><?php esc_html_e( 'Every submission from a SitePilot Form is delivered only to this address and is not saved in WordPress. Leave it blank to use the site Administration Email Address.', 'sitepilot-ai' ); ?></p>
+					<p class="sitepilot-inline-action">
+						<button type="button" id="sp-test-form-delivery" class="button button-secondary"><?php esc_html_e( 'Send delivery test', 'sitepilot-ai' ); ?></button>
+						<span id="sp-form-delivery-test-result" class="sitepilot-status" role="status" aria-live="polite"></span>
+					</p>
+					<p class="description"><?php esc_html_e( 'Save changes first if you edited the address. A successful test means WordPress accepted the email; check the inbox and spam folder to confirm delivery.', 'sitepilot-ai' ); ?></p>
+				</div>
 				<div class="sitepilot-field">
 					<label class="sitepilot-checkbox-inline">
 						<input type="checkbox" name="public_assistant_enabled" value="1" <?php checked( ! empty( $s['public_assistant_enabled'] ) ); ?> />
 						<?php esc_html_e( 'Enable the public site assistant (text and optional voice input)', 'sitepilot-ai' ); ?>
 					</label>
 					<p class="description"><?php esc_html_e( 'The visitor assistant is read-only and rate-limited. It never edits site content.', 'sitepilot-ai' ); ?></p>
-				</div>
-
-				<div class="sitepilot-field">
-					<label class="sitepilot-checkbox-inline">
-						<input type="checkbox" name="prefer_efb" value="1" <?php checked( $s['prefer_efb'] ); ?> />
-						<?php esc_html_e( 'Prefer Easy Form Builder when available', 'sitepilot-ai' ); ?>
-					</label>
 				</div>
 
 				<div class="sitepilot-settings-actions">
@@ -256,7 +278,7 @@ final class SettingsPage {
 				</div>
 			</form>
 
-			<div class="sitepilot-card">
+			<div class="sitepilot-card sitepilot-connector-table-card">
 				<h2><?php esc_html_e( 'Form connectors', 'sitepilot-ai' ); ?></h2>
 				<table class="widefat striped">
 					<thead>
@@ -308,8 +330,11 @@ final class SettingsPage {
 			$provider = 'deepseek';
 		}
 
-		$status = ( 'publish' === ( $_POST['default_form_status'] ?? 'draft' ) ) ? 'publish' : 'draft';
-
+		$status                  = ( 'publish' === ( $_POST['default_form_status'] ?? 'draft' ) ) ? 'publish' : 'draft';
+		$form_notification_email = sanitize_email( (string) wp_unslash( $_POST['form_notification_email'] ?? '' ) );
+		if ( '' !== $form_notification_email && ! is_email( $form_notification_email ) ) {
+			$form_notification_email = '';
+		}
 		$key_mgmt = sanitize_key( wp_unslash( $_POST['key_management'] ?? 'keyvault' ) );
 		if ( ! in_array( $key_mgmt, array( 'keyvault', 'wp_connectors' ), true ) ) {
 			$key_mgmt = 'keyvault';
@@ -317,18 +342,18 @@ final class SettingsPage {
 
 		Settings::update(
 			array(
-				'provider'            => $provider,
-				'base_url'            => esc_url_raw( wp_unslash( $_POST['base_url'] ?? '' ) ),
-				'model'               => sanitize_text_field( wp_unslash( $_POST['model'] ?? '' ) ),
-				'temperature'         => max( 0.0, min( 1.0, (float) ( $_POST['temperature'] ?? 0.2 ) ) ),
-				'default_form_status' => $status,
-				'prefer_efb'          => ! empty( $_POST['prefer_efb'] ),
-				'key_management'      => $key_mgmt,
-				'embeddings_enabled'  => ! empty( $_POST['embeddings_enabled'] ),
-				'embedding_model'     => sanitize_text_field( wp_unslash( $_POST['embedding_model'] ?? '' ) ),
-				'embedding_base_url'  => esc_url_raw( wp_unslash( $_POST['embedding_base_url'] ?? '' ) ),
-				'voice_model'         => sanitize_text_field( wp_unslash( $_POST['voice_model'] ?? 'whisper-1' ) ),
-				'voice_responses_enabled' => ! empty( $_POST['voice_responses_enabled'] ),
+				'provider'                 => $provider,
+				'base_url'                 => esc_url_raw( wp_unslash( $_POST['base_url'] ?? '' ) ),
+				'model'                    => sanitize_text_field( wp_unslash( $_POST['model'] ?? '' ) ),
+				'temperature'              => max( 0.0, min( 1.0, (float) ( $_POST['temperature'] ?? 0.2 ) ) ),
+				'default_form_status'      => $status,
+				'form_notification_email'  => $form_notification_email,
+				'key_management'           => $key_mgmt,
+				'embeddings_enabled'       => ! empty( $_POST['embeddings_enabled'] ),
+				'embedding_model'          => sanitize_text_field( wp_unslash( $_POST['embedding_model'] ?? '' ) ),
+				'embedding_base_url'       => esc_url_raw( wp_unslash( $_POST['embedding_base_url'] ?? '' ) ),
+				'voice_model'              => sanitize_text_field( wp_unslash( $_POST['voice_model'] ?? 'whisper-1' ) ),
+				'voice_responses_enabled'  => ! empty( $_POST['voice_responses_enabled'] ),
 				'public_assistant_enabled' => ! empty( $_POST['public_assistant_enabled'] ),
 			)
 		);

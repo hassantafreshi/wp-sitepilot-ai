@@ -158,6 +158,15 @@
 			body.appendChild( buildHandoffOffer() );
 		}
 
+		if ( role === 'assistant' && 'speechSynthesis' in window ) {
+			var audioButton = el( 'button', { class: 'sp-audio-btn', type: 'button', text: '🔊 Listen' } );
+			audioButton.addEventListener( 'click', function () {
+				if ( ! window.SitePilotVoice ) { return; }
+				audioButton.textContent = window.SitePilotVoice.toggleSpeech( content ) ? '⏹ Stop audio' : '🔊 Listen';
+			} );
+			body.appendChild( audioButton );
+		}
+
 		msg.appendChild( body );
 		msgs.appendChild( msg );
 		msgs.scrollTop = msgs.scrollHeight;

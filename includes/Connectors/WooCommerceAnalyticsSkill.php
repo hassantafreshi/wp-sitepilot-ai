@@ -38,45 +38,69 @@ class WooCommerceAnalyticsSkill {
 	 */
 	public function sales_report( string $period = 'month' ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
-			$now = current_time( 'timestamp' );
+			$now     = current_datetime()->getTimestamp();
 			$periods = array(
-				'day'   => array( 'from' => date( 'Y-m-d', $now ), 'to' => date( 'Y-m-d', $now ), 'label' => __( 'Today', 'sitepilot-ai' ) ),
-				'week'  => array( 'from' => date( 'Y-m-d', strtotime( '-7 days', $now ) ), 'to' => date( 'Y-m-d', $now ), 'label' => __( 'Last 7 days', 'sitepilot-ai' ) ),
-				'month' => array( 'from' => date( 'Y-m-01', $now ), 'to' => date( 'Y-m-d', $now ), 'label' => __( 'This month', 'sitepilot-ai' ) ),
-				'year'  => array( 'from' => date( 'Y-01-01', $now ), 'to' => date( 'Y-m-d', $now ), 'label' => __( 'This year', 'sitepilot-ai' ) ),
+				'day'   => array(
+					'from'  => wp_date( 'Y-m-d', $now ),
+					'to'    => wp_date( 'Y-m-d', $now ),
+					'label' => __( 'Today', 'sitepilot-ai' ),
+				),
+				'week'  => array(
+					'from'  => wp_date( 'Y-m-d', strtotime( '-7 days', $now ) ),
+					'to'    => wp_date( 'Y-m-d', $now ),
+					'label' => __( 'Last 7 days', 'sitepilot-ai' ),
+				),
+				'month' => array(
+					'from'  => wp_date( 'Y-m-01', $now ),
+					'to'    => wp_date( 'Y-m-d', $now ),
+					'label' => __( 'This month', 'sitepilot-ai' ),
+				),
+				'year'  => array(
+					'from'  => wp_date( 'Y-01-01', $now ),
+					'to'    => wp_date( 'Y-m-d', $now ),
+					'label' => __( 'This year', 'sitepilot-ai' ),
+				),
 			);
 
 			$p = $periods[ $period ] ?? $periods['month'];
 
 			// Get all orders in period.
-			$orders = wc_get_orders( array(
-				'date_created' => $p['from'] . '...' . $p['to'],
-				'limit'        => -1,
-				'status'       => array( 'processing', 'completed' ),
-			) );
+			$orders = wc_get_orders(
+				array(
+					'date_created' => $p['from'] . '...' . $p['to'],
+					'limit'        => -1,
+					'status'       => array( 'processing', 'completed' ),
+				)
+			);
 
 			$total_revenue = 0;
-			$total_orders = 0;
-			$total_items = 0;
-			$avg_order = 0;
-			$daily_sales = array();
+			$total_orders  = 0;
+			$total_items   = 0;
+			$avg_order     = 0;
+			$daily_sales   = array();
 
 			foreach ( $orders as $order ) {
-				$total = (float) $order->get_total();
+				$total          = (float) $order->get_total();
 				$total_revenue += $total;
-				$total_orders++;
+				++$total_orders;
 				$total_items += $order->get_item_count();
 
 				$day = $order->get_date_created() ? $order->get_date_created()->date( 'Y-m-d' ) : 'unknown';
 				if ( ! isset( $daily_sales[ $day ] ) ) {
-					$daily_sales[ $day ] = array( 'revenue' => 0, 'orders' => 0 );
+					$daily_sales[ $day ] = array(
+						'revenue' => 0,
+						'orders'  => 0,
+					);
 				}
 				$daily_sales[ $day ]['revenue'] += $total;
-				$daily_sales[ $day ]['orders']++;
+				++$daily_sales[ $day ]['orders'];
 			}
 
 			$avg_order = $total_orders > 0 ? round( $total_revenue / $total_orders, 2 ) : 0;
@@ -99,7 +123,10 @@ class WooCommerceAnalyticsSkill {
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_analytics_sales', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 
@@ -112,34 +139,45 @@ class WooCommerceAnalyticsSkill {
 	 */
 	public function top_products( int $limit = 10, string $period = 'month' ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
-			$now = current_time( 'timestamp' );
+			$now     = current_datetime()->getTimestamp();
 			$periods = array(
-				'day'   => date( 'Y-m-d', $now ),
-				'week'  => date( 'Y-m-d', strtotime( '-7 days', $now ) ),
-				'month' => date( 'Y-m-01', $now ),
-				'year'  => date( 'Y-01-01', $now ),
+				'day'   => wp_date( 'Y-m-d', $now ),
+				'week'  => wp_date( 'Y-m-d', strtotime( '-7 days', $now ) ),
+				'month' => wp_date( 'Y-m-01', $now ),
+				'year'  => wp_date( 'Y-01-01', $now ),
 			);
 
 			$from = $periods[ $period ] ?? $periods['month'];
 
 			// Get completed/processing orders.
-			$orders = wc_get_orders( array(
-				'date_created' => '>=' . $from,
-				'limit'        => -1,
-				'status'       => array( 'processing', 'completed' ),
-			) );
+			$orders = wc_get_orders(
+				array(
+					'date_created' => '>=' . $from,
+					'limit'        => -1,
+					'status'       => array( 'processing', 'completed' ),
+				)
+			);
 
 			$product_stats = array();
 
 			foreach ( $orders as $order ) {
 				foreach ( $order->get_items() as $item ) {
+					if ( ! $item instanceof \WC_Order_Item_Product ) {
+						continue;
+					}
 					$product_id = $item->get_product_id();
+					if ( $product_id <= 0 ) {
+						continue;
+					}
 					if ( ! isset( $product_stats[ $product_id ] ) ) {
-						$product = $item->get_product();
+						$product                      = $item->get_product();
 						$product_stats[ $product_id ] = array(
 							'id'       => $product_id,
 							'name'     => $item->get_name(),
@@ -149,14 +187,17 @@ class WooCommerceAnalyticsSkill {
 						);
 					}
 					$product_stats[ $product_id ]['quantity'] += $item->get_quantity();
-					$product_stats[ $product_id ]['revenue'] += (float) $item->get_total();
+					$product_stats[ $product_id ]['revenue']  += (float) $item->get_total();
 				}
 			}
 
 			// Sort by revenue descending.
-			usort( $product_stats, function( $a, $b ) {
-				return $b['revenue'] <=> $a['revenue'];
-			} );
+			usort(
+				$product_stats,
+				function ( $a, $b ) {
+					return $b['revenue'] <=> $a['revenue'];
+				}
+			);
 
 			$top = array_slice( $product_stats, 0, min( $limit, 50 ) );
 
@@ -169,7 +210,10 @@ class WooCommerceAnalyticsSkill {
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_analytics_top', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 
@@ -181,15 +225,20 @@ class WooCommerceAnalyticsSkill {
 	 */
 	public function low_stock( int $threshold = 5 ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
-			$products = wc_get_products( array(
-				'status'       => 'publish',
-				'limit'        => -1,
-				'manage_stock' => true,
-			) );
+			$products = wc_get_products(
+				array(
+					'status'       => 'publish',
+					'limit'        => -1,
+					'manage_stock' => true,
+				)
+			);
 
 			$low = array();
 			foreach ( $products as $product ) {
@@ -207,20 +256,26 @@ class WooCommerceAnalyticsSkill {
 			}
 
 			// Sort by stock ascending.
-			usort( $low, function( $a, $b ) {
-				return $a['stock'] <=> $b['stock'];
-			} );
+			usort(
+				$low,
+				function ( $a, $b ) {
+					return $a['stock'] <=> $b['stock'];
+				}
+			);
 
 			return array(
-				'ok'       => true,
-				'products' => $low,
-				'count'    => count( $low ),
+				'ok'        => true,
+				'products'  => $low,
+				'count'     => count( $low ),
 				'threshold' => $threshold,
 			);
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_analytics_stock', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 
@@ -233,27 +288,35 @@ class WooCommerceAnalyticsSkill {
 	 */
 	public function customer_history( int $customer_id, int $limit = 20 ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
 			$customer = new \WC_Customer( $customer_id );
 			if ( ! $customer->get_id() ) {
-				return array( 'ok' => false, 'error' => __( 'Customer not found.', 'sitepilot-ai' ) );
+				return array(
+					'ok'    => false,
+					'error' => __( 'Customer not found.', 'sitepilot-ai' ),
+				);
 			}
 
-			$orders = wc_get_orders( array(
-				'customer_id' => $customer_id,
-				'limit'       => min( $limit, 100 ),
-				'orderby'     => 'date',
-				'order'       => 'DESC',
-			) );
+			$orders = wc_get_orders(
+				array(
+					'customer_id' => $customer_id,
+					'limit'       => min( $limit, 100 ),
+					'orderby'     => 'date',
+					'order'       => 'DESC',
+				)
+			);
 
-			$order_list = array();
+			$order_list  = array();
 			$total_spent = 0;
 
 			foreach ( $orders as $order ) {
-				$total = (float) $order->get_total();
+				$total        = (float) $order->get_total();
 				$total_spent += $total;
 				$order_list[] = array(
 					'id'     => $order->get_id(),
@@ -279,7 +342,10 @@ class WooCommerceAnalyticsSkill {
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_analytics_customer', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 
@@ -291,36 +357,44 @@ class WooCommerceAnalyticsSkill {
 	 */
 	public function category_breakdown( string $period = 'month' ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
-			$now = current_time( 'timestamp' );
+			$now     = current_datetime()->getTimestamp();
 			$periods = array(
-				'day'   => date( 'Y-m-d', $now ),
-				'week'  => date( 'Y-m-d', strtotime( '-7 days', $now ) ),
-				'month' => date( 'Y-m-01', $now ),
-				'year'  => date( 'Y-01-01', $now ),
+				'day'   => wp_date( 'Y-m-d', $now ),
+				'week'  => wp_date( 'Y-m-d', strtotime( '-7 days', $now ) ),
+				'month' => wp_date( 'Y-m-01', $now ),
+				'year'  => wp_date( 'Y-01-01', $now ),
 			);
 
 			$from = $periods[ $period ] ?? $periods['month'];
 
-			$orders = wc_get_orders( array(
-				'date_created' => '>=' . $from,
-				'limit'        => -1,
-				'status'       => array( 'processing', 'completed' ),
-			) );
+			$orders = wc_get_orders(
+				array(
+					'date_created' => '>=' . $from,
+					'limit'        => -1,
+					'status'       => array( 'processing', 'completed' ),
+				)
+			);
 
 			$cat_stats = array();
 
 			foreach ( $orders as $order ) {
 				foreach ( $order->get_items() as $item ) {
+					if ( ! $item instanceof \WC_Order_Item_Product ) {
+						continue;
+					}
 					$product = $item->get_product();
 					if ( ! $product ) {
 						continue;
 					}
 
-					$terms = get_the_terms( $product->get_id(), 'product_cat' );
+					$terms    = get_the_terms( $product->get_id(), 'product_cat' );
 					$cat_name = __( 'Uncategorized', 'sitepilot-ai' );
 					if ( $terms && ! is_wp_error( $terms ) ) {
 						$cat_name = $terms[0]->name;
@@ -335,15 +409,18 @@ class WooCommerceAnalyticsSkill {
 						);
 					}
 					$cat_stats[ $cat_name ]['revenue'] += (float) $item->get_total();
-					$cat_stats[ $cat_name ]['items'] += $item->get_quantity();
+					$cat_stats[ $cat_name ]['items']   += $item->get_quantity();
 				}
 			}
 
 			// Sort by revenue.
 			$cats = array_values( $cat_stats );
-			usort( $cats, function( $a, $b ) {
-				return $b['revenue'] <=> $a['revenue'];
-			} );
+			usort(
+				$cats,
+				function ( $a, $b ) {
+					return $b['revenue'] <=> $a['revenue'];
+				}
+			);
 
 			return array(
 				'ok'         => true,
@@ -354,7 +431,10 @@ class WooCommerceAnalyticsSkill {
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_analytics_category', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 
@@ -365,13 +445,16 @@ class WooCommerceAnalyticsSkill {
 	 */
 	public function dashboard(): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
 			$sales = $this->sales_report( 'month' );
-			$top = $this->top_products( 5, 'month' );
-			$low = $this->low_stock( 5 );
+			$top   = $this->top_products( 5, 'month' );
+			$low   = $this->low_stock( 5 );
 
 			return array(
 				'ok'        => true,
@@ -385,7 +468,10 @@ class WooCommerceAnalyticsSkill {
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_analytics_dashboard', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 }

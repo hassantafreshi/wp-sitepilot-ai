@@ -75,18 +75,43 @@ final class CopilotController {
 			);
 		}
 
-		$connector = $this->registry()->resolve( 'form.create' );
-		if ( null === $connector ) {
-			return $this->respond( array( 'message' => __( 'No form connector is available.', 'sitepilot-ai' ) ), false, 400, 'connector_not_available' );
+		/*
+		* This endpoint is the independent SitePilot Forms product. It never
+		* auto-switches to Easy Form Builder: EFB has its own advanced route and
+		* editor so the field/data contract remains predictable here.
+		*/
+		$connector = $this->registry()->get( 'native_form' );
+		if ( null === $connector || ! $connector->is_available() ) {
+			return $this->respond( array( 'message' => __( 'SitePilot Forms is not available on this site.', 'sitepilot-ai' ) ), false, 400, 'connector_not_available' );
 		}
 
-		$action_id = $this->store->create( $result->plan, $connector->get_id() );
-		$this->logger->info( 'plan.created', 'Form plan generated.', array( 'title' => $result->plan['title'] ) );
+		$notification_email = Settings::form_notification_email();
+		if ( '' === $notification_email ) {
+			return $this->respond(
+				array( 'message' => __( 'Set a valid SitePilot Forms notification email in Settings before creating a form.', 'sitepilot-ai' ) ),
+				false,
+				400,
+				'notification_email_not_configured'
+			);
+		}
 
+		$plan                       = $result->plan;
+		$plan['notification_email'] = $notification_email;
+
+		$action_id = $this->store->create( $plan, $connector->get_id() );
+		$this->logger->info(
+			'plan.created',
+			'Form plan generated.',
+			array(
+				'connector'   => $connector->get_id(),
+				'field_count' => count( $plan['fields'] ),
+			)
+		);
 		return $this->respond(
 			array(
-				'action_id' => $action_id,
-				'preview'   => $this->build_preview( $result->plan, $connector->get_name() ),
+				'action_id'  => $action_id,
+				'expires_at' => time() + ActionStore::ttl(),
+				'preview'    => $this->build_preview( $plan, $connector->get_name() ),
 			),
 			true
 		);
@@ -176,18 +201,34 @@ final class CopilotController {
 			'risk_level'           => $plan['risk_level'],
 			'notes'                => $plan['notes'],
 			'connector'            => $connector_name,
+			'notification_email'   => $this->mask_email( (string) ( $plan['notification_email'] ?? '' ) ),
 			'field_count'          => count( $plan['fields'] ),
 			'default_status'       => Settings::get( 'default_form_status', 'draft' ),
 		);
 	}
 
+	private function mask_email( string $email ): string {
+
+		$at = strpos( $email, '@' );
+		if ( false === $at ) {
+			return '';
+		}
+		$local = substr( $email, 0, $at );
+		return ( strlen( $local ) > 1 ? substr( $local, 0, 1 ) . '***' : '*' ) . substr( $email, $at );
+	}
 	/**
 	 * Uniform response envelope.
 	 *
 	 * @param array<string, mixed> $data
 	 */
 	private function respond( array $data, bool $ok, int $status = 200, string $code = 'ok' ): WP_REST_Response {
-		$payload = array_merge( array( 'ok' => $ok, 'code' => $code ), $data );
+		$payload = array_merge(
+			array(
+				'ok'   => $ok,
+				'code' => $code,
+			),
+			$data
+		);
 
 		return new WP_REST_Response( $payload, $status );
 	}

@@ -30,7 +30,7 @@ final class EfbFormSkill {
 		$this->provider         = $provider;
 		$this->has_pro_features = $has_pro_features;
 		$limits                 = EfbFormModel::limits();
-		$this->validator = new FormPlanValidator(
+		$this->validator        = new FormPlanValidator(
 			EfbFormModel::designable_types( $has_pro_features ),
 			EfbFormModel::option_types(),
 			EfbFormModel::forbidden_types(),

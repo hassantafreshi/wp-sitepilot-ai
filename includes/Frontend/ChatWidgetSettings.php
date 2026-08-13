@@ -5,10 +5,14 @@ use SitePilot\Core\Settings;
 
 final class ChatWidgetSettings {
 	public function render(): void {
-		if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'You do not have permission to view this page.', 'sitepilot-ai' ) ); }
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to view this page.', 'sitepilot-ai' ) ); }
 		$saved = $this->save();
-		$s = Settings::all();
-		$w = $s['widget'] ?? Settings::widget_defaults();
+		$s     = Settings::all();
+		$w     = $s['widget'] ?? Settings::widget_defaults();
+		$has_telegram_token = Settings::has_handoff_secret( 'handoff_telegram_token' );
+		$has_twilio_sid     = Settings::has_handoff_secret( 'handoff_twilio_sid' );
+		$has_twilio_token   = Settings::has_handoff_secret( 'handoff_twilio_token' );
 
 		$positions = array(
 			'bottom-right' => __( 'Bottom Right', 'sitepilot-ai' ),
@@ -16,20 +20,36 @@ final class ChatWidgetSettings {
 			'top-right'    => __( 'Top Right', 'sitepilot-ai' ),
 			'top-left'     => __( 'Top Left', 'sitepilot-ai' ),
 		);
-		$voices = array(
+		$voices    = array(
 			'Google UK English Female' => 'Google UK Female',
 			'Google US English'        => 'Google US',
 			'Microsoft Zira'           => 'Zira',
 			'Microsoft David'          => 'David',
 		);
 		?>
-		<div class="wrap sitepilot-wrap sitepilot-wrap--narrow">
-			<h1 class="sitepilot-title">
+		<div class="wrap sitepilot-wrap sitepilot-screen sitepilot-screen--widget sitepilot-wrap--narrow">
+			<nav class="sitepilot-screen__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sitepilot-ai' ); ?>">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=sitepilot-ai' ) ); ?>"><?php esc_html_e( 'Home', 'sitepilot-ai' ); ?></a>
+				<span aria-hidden="true">/</span>
+				<span><?php esc_html_e( 'Widget', 'sitepilot-ai' ); ?></span>
+			</nav>
+			<header class="sitepilot-screen__header">
+				<div>
+					<p class="sitepilot-eyebrow"><?php esc_html_e( 'Front-end assistant', 'sitepilot-ai' ); ?></p>
+					<h1 class="sitepilot-title"><span class="dashicons dashicons-format-chat" aria-hidden="true"></span><?php esc_html_e( 'Chat Widget', 'sitepilot-ai' ); ?> <span class="sp-ai-badge">AI</span></h1>
+					<p class="sitepilot-subtitle"><?php esc_html_e( 'Customize the visitor-facing assistant, including appearance, voice, location, and human handoff channels.', 'sitepilot-ai' ); ?></p>
+				</div>
+				<div class="sitepilot-screen__status">
+					<span class="sitepilot-screen__badge <?php echo ! empty( $w['enabled'] ) ? 'sitepilot-screen__badge--ready' : 'sitepilot-screen__badge--attention'; ?>"><?php echo esc_html( ! empty( $w['enabled'] ) ? __( 'Widget enabled', 'sitepilot-ai' ) : __( 'Widget disabled', 'sitepilot-ai' ) ); ?></span>
+					<span class="sitepilot-screen__badge <?php echo ! empty( $w['handoff_enabled'] ) ? 'sitepilot-screen__badge--info' : ''; ?>"><?php echo esc_html( ! empty( $w['handoff_enabled'] ) ? __( 'Handoff enabled', 'sitepilot-ai' ) : __( 'Handoff off', 'sitepilot-ai' ) ); ?></span>
+				</div>
+			</header>
+			<div class="sp-sr-only">
 				<span class="dashicons dashicons-format-chat"></span>
 				<?php esc_html_e( 'Chat Widget', 'sitepilot-ai' ); ?>
 				<span class="sp-ai-badge">AI</span>
-			</h1>
-			<p class="sitepilot-subtitle">
+			</div>
+			<p class="sitepilot-subtitle sp-sr-only">
 				<?php esc_html_e( 'Customize the front-end chat widget: appearance, voice, and human handoff channels.', 'sitepilot-ai' ); ?>
 			</p>
 
@@ -153,7 +173,7 @@ final class ChatWidgetSettings {
 					</label>
 					<div class="sp-w-field">
 						<label class="sp-w-label" for="sp-w-email"><?php esc_html_e( 'Support email', 'sitepilot-ai' ); ?></label>
-						<input id="sp-w-email" type="email" name="widget[handoff_email]" value="<?php echo esc_attr( $w['handoff_email'] ?? get_option( 'admin_email' ) ); ?>" />
+						<input id="sp-w-email" type="email" name="widget[handoff_email_to]" value="<?php echo esc_attr( $w['handoff_email_to'] ?? get_option( 'admin_email' ) ); ?>" />
 					</div>
 				</div>
 
@@ -167,7 +187,10 @@ final class ChatWidgetSettings {
 					<div class="sp-w-row">
 						<div class="sp-w-field">
 							<label class="sp-w-label" for="sp-w-tg-token"><?php esc_html_e( 'Bot token', 'sitepilot-ai' ); ?></label>
-							<input id="sp-w-tg-token" type="password" autocomplete="off" name="widget[handoff_telegram_token]" value="<?php echo esc_attr( $w['handoff_telegram_token'] ?? '' ); ?>" />
+							<input id="sp-w-tg-token" type="password" autocomplete="new-password" name="widget[handoff_telegram_token]" value="" placeholder="<?php echo esc_attr( $has_telegram_token ? __( 'Saved securely — enter a new token to replace it', 'sitepilot-ai' ) : '' ); ?>" />
+							<?php if ( $has_telegram_token ) : ?>
+								<label class="sp-w-check"><input type="checkbox" name="widget[clear_handoff_telegram_token]" value="1" /> <?php esc_html_e( 'Remove saved token', 'sitepilot-ai' ); ?></label>
+							<?php endif; ?>
 						</div>
 						<div class="sp-w-field">
 							<label class="sp-w-label" for="sp-w-tg-chat"><?php esc_html_e( 'Chat ID', 'sitepilot-ai' ); ?></label>
@@ -186,11 +209,17 @@ final class ChatWidgetSettings {
 					<div class="sp-w-row">
 						<div class="sp-w-field">
 							<label class="sp-w-label" for="sp-w-tw-sid"><?php esc_html_e( 'Account SID', 'sitepilot-ai' ); ?></label>
-							<input id="sp-w-tw-sid" type="text" name="widget[handoff_twilio_sid]" value="<?php echo esc_attr( $w['handoff_twilio_sid'] ?? '' ); ?>" />
+							<input id="sp-w-tw-sid" type="text" autocomplete="off" name="widget[handoff_twilio_sid]" value="" placeholder="<?php echo esc_attr( $has_twilio_sid ? __( 'Saved securely — enter a new SID to replace it', 'sitepilot-ai' ) : '' ); ?>" />
+							<?php if ( $has_twilio_sid ) : ?>
+								<label class="sp-w-check"><input type="checkbox" name="widget[clear_handoff_twilio_sid]" value="1" /> <?php esc_html_e( 'Remove saved SID', 'sitepilot-ai' ); ?></label>
+							<?php endif; ?>
 						</div>
 						<div class="sp-w-field">
 							<label class="sp-w-label" for="sp-w-tw-token"><?php esc_html_e( 'Auth token', 'sitepilot-ai' ); ?></label>
-							<input id="sp-w-tw-token" type="password" autocomplete="off" name="widget[handoff_twilio_token]" value="<?php echo esc_attr( $w['handoff_twilio_token'] ?? '' ); ?>" />
+							<input id="sp-w-tw-token" type="password" autocomplete="new-password" name="widget[handoff_twilio_token]" value="" placeholder="<?php echo esc_attr( $has_twilio_token ? __( 'Saved securely — enter a new token to replace it', 'sitepilot-ai' ) : '' ); ?>" />
+							<?php if ( $has_twilio_token ) : ?>
+								<label class="sp-w-check"><input type="checkbox" name="widget[clear_handoff_twilio_token]" value="1" /> <?php esc_html_e( 'Remove saved token', 'sitepilot-ai' ); ?></label>
+							<?php endif; ?>
 						</div>
 					</div>
 					<div class="sp-w-row">
@@ -246,40 +275,49 @@ final class ChatWidgetSettings {
 	}
 
 	private function save(): bool {
-		if ( empty( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'sp_widget_save' ) ) return false;
-		if ( ! current_user_can( 'manage_options' ) ) return false;
-		$w = (array) ( $_POST['widget'] ?? array() );
-		$parsed = array(
-			'enabled' => ! empty( $w['enabled'] ),
-			'position' => sanitize_text_field( $w['position'] ?? 'bottom-right' ),
-			'theme' => sanitize_text_field( $w['theme'] ?? 'light' ),
-			'color' => sanitize_hex_color( $w['color'] ?? '#4f46e5' ),
-			'bg' => sanitize_hex_color( $w['bg'] ?? '#ffffff' ),
-			'title' => sanitize_text_field( $w['title'] ?? 'SitePilot AI' ),
-			'greeting' => sanitize_text_field( $w['greeting'] ?? 'Hi!' ),
-			'auto_open' => absint( $w['auto_open'] ?? 5 ),
-			'voice_enabled' => ! empty( $w['voice_enabled'] ),
-			'voice_auto' => ! empty( $w['voice_auto'] ),
-			'voice_name' => sanitize_text_field( $w['voice_name'] ?? 'Google UK English Female' ),
-			'handoff_enabled' => ! empty( $w['handoff_enabled'] ),
-			'handoff_text' => sanitize_text_field( $w['handoff_text'] ?? 'Talk to human' ),
-			'handoff_hook' => sanitize_textarea_field( $w['handoff_hook'] ?? '' ),
-			'handoff_email_enabled' => ! empty( $w['handoff_email_enabled'] ),
-			'handoff_email' => sanitize_email( $w['handoff_email'] ?? get_option('admin_email') ),
+		if ( empty( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'sp_widget_save' ) ) {
+			return false;
+		}
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+		$w                  = wp_unslash( (array) ( $_POST['widget'] ?? array() ) );
+		$parsed             = array(
+			'enabled'                  => ! empty( $w['enabled'] ),
+			'position'                 => sanitize_text_field( $w['position'] ?? 'bottom-right' ),
+			'theme'                    => sanitize_text_field( $w['theme'] ?? 'light' ),
+			'color'                    => sanitize_hex_color( $w['color'] ?? '#4f46e5' ),
+			'bg'                       => sanitize_hex_color( $w['bg'] ?? '#ffffff' ),
+			'title'                    => sanitize_text_field( $w['title'] ?? 'SitePilot AI' ),
+			'greeting'                 => sanitize_text_field( $w['greeting'] ?? 'Hi!' ),
+			'auto_open'                => absint( $w['auto_open'] ?? 5 ),
+			'voice_enabled'            => ! empty( $w['voice_enabled'] ),
+			'voice_auto'               => ! empty( $w['voice_auto'] ),
+			'voice_name'               => sanitize_text_field( $w['voice_name'] ?? 'Google UK English Female' ),
+			'handoff_enabled'          => ! empty( $w['handoff_enabled'] ),
+			'handoff_text'             => sanitize_text_field( $w['handoff_text'] ?? 'Talk to human' ),
+			'handoff_hook'             => sanitize_textarea_field( $w['handoff_hook'] ?? '' ),
+			'handoff_email_enabled'    => ! empty( $w['handoff_email_enabled'] ),
+			'handoff_email_to'         => sanitize_email( $w['handoff_email_to'] ?? get_option( 'admin_email' ) ),
 			'handoff_telegram_enabled' => ! empty( $w['handoff_telegram_enabled'] ),
-			'handoff_telegram_token' => sanitize_text_field( $w['handoff_telegram_token'] ?? '' ),
-			'handoff_telegram_chat' => sanitize_text_field( $w['handoff_telegram_chat'] ?? '' ),
-			'handoff_twilio_enabled' => ! empty( $w['handoff_twilio_enabled'] ),
-			'handoff_twilio_sid' => sanitize_text_field( $w['handoff_twilio_sid'] ?? '' ),
-			'handoff_twilio_token' => sanitize_text_field( $w['handoff_twilio_token'] ?? '' ),
-			'handoff_twilio_from' => sanitize_text_field( $w['handoff_twilio_from'] ?? '' ),
-			'handoff_twilio_to' => sanitize_text_field( $w['handoff_twilio_to'] ?? '' ),
-			'handoff_webhook_enabled' => ! empty( $w['handoff_webhook_enabled'] ),
-			'handoff_webhook_url' => esc_url_raw( $w['handoff_webhook_url'] ?? '' ),
+			'handoff_telegram_chat'    => sanitize_text_field( $w['handoff_telegram_chat'] ?? '' ),
+			'handoff_twilio_enabled'   => ! empty( $w['handoff_twilio_enabled'] ),
+			'handoff_twilio_from'      => sanitize_text_field( $w['handoff_twilio_from'] ?? '' ),
+			'handoff_twilio_to'        => sanitize_text_field( $w['handoff_twilio_to'] ?? '' ),
+			'handoff_webhook_enabled'  => ! empty( $w['handoff_webhook_enabled'] ),
+			'handoff_webhook_url'      => esc_url_raw( $w['handoff_webhook_url'] ?? '' ),
 		);
-		$settings = Settings::all();
+		foreach ( array( 'handoff_telegram_token', 'handoff_twilio_sid', 'handoff_twilio_token' ) as $secret_key ) {
+			$secret = trim( sanitize_text_field( (string) ( $w[ $secret_key ] ?? '' ) ) );
+			if ( ! empty( $w[ 'clear_' . $secret_key ] ) ) {
+				Settings::set_handoff_secret( $secret_key, '' );
+			} elseif ( '' !== $secret ) {
+				Settings::set_handoff_secret( $secret_key, $secret );
+			}
+		}
+		$settings           = Settings::all();
 		$settings['widget'] = $parsed;
-		update_option( Settings::OPTION, $settings );
+		Settings::update( $settings );
 		return true;
 	}
 }

@@ -50,9 +50,27 @@
 		}).then(function(r){ return r.json(); });
 	}
 
+	function upload(path, form) {
+		return fetch(apiRoot + path, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: nonce ? { 'X-WP-Nonce': nonce } : {},
+			body: form,
+		}).then(function(r){
+			return r.json().then(function(data){
+				if (!r.ok) throw new Error(data.message || 'Request failed');
+				return data;
+			});
+		});
+	}
+
 	function getSettings() {
-		return api('widget/settings').then(function(data){
-			if (data && data.settings) settings = data.settings;
+		return fetch(apiRoot + 'widget/settings', {
+			method: 'GET',
+			credentials: 'same-origin',
+			headers: nonce ? { 'X-WP-Nonce': nonce } : {},
+		}).then(function(response){ return response.json(); }).then(function(data){
+			if (data && data.ok) settings = data;
 			return settings;
 		});
 	}
@@ -162,7 +180,7 @@
 			if (data && data.answer) {
 				convId = data.conversation_id || convId;
 				var msgDiv = addMessage('assistant', data.answer, data.sources);
-				if (settings.voice_enabled && settings.voice_auto_play !== false && data.answer) {
+				if (settings.voice_enabled && settings.voice_auto && data.answer) {
 					speakText(data.answer);
 				}
 			} else if (data && data.message) {
@@ -178,36 +196,49 @@
 	}
 
 	function loadConversation() {
-		if (!convId) return;
-		api('widget/conversation', { id: convId }).then(function(data){
-			if (data && data.messages) {
-				var msgs = $('spw-msgs');
-				if (msgs) msgs.innerHTML = '';
-				data.messages.forEach(function(m){
-					addMessage(m.role || 'user', m.content, m.sources);
-				});
-			}
-		});
+		// Conversations remain in this browser session. The public API must not
+		// persist or return visitor transcripts by an identifier supplied by JS.
+		return;
 	}
 
 	// ── Voice Recording ──
 	function startRecording() {
 		if (isRecording) return;
+		if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+			addMessage('assistant', 'Voice recording is not supported in this browser.');
+			return;
+		}
 		navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream){
-			mediaRecorder = new MediaRecorder(stream);
+			var preferred = MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+				? 'audio/webm;codecs=opus'
+				: '';
+			try {
+				mediaRecorder = preferred ? new MediaRecorder(stream, { mimeType: preferred }) : new MediaRecorder(stream);
+			} catch (e) {
+				stream.getTracks().forEach(function(t){ t.stop(); });
+				addMessage('assistant', 'This browser cannot create a supported voice recording.');
+				return;
+			}
 			audioChunks = [];
+			var startedAt = Date.now();
+			var maxDuration = 45000;
+			var stopTimer = null;
 			mediaRecorder.ondataavailable = function(e) {
 				if (e.data.size > 0) audioChunks.push(e.data);
 			};
 			mediaRecorder.onstop = function() {
-				var blob = new Blob(audioChunks, { type: 'audio/webm' });
+				if (stopTimer) window.clearTimeout(stopTimer);
+				var blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
 				stream.getTracks().forEach(function(t){ t.stop(); });
-				sendAudio(blob);
+				sendAudio(blob, Math.max(0, Date.now() - startedAt));
 			};
 			mediaRecorder.start();
 			isRecording = true;
 			var mic = $('spw-mic');
 			if (mic) mic.classList.add('spw-mic--recording');
+			stopTimer = window.setTimeout(function(){
+				if (mediaRecorder && mediaRecorder.state === 'recording') stopRecording();
+			}, maxDuration);
 		}).catch(function(){
 			addMessage('assistant', 'Microphone access denied. Please allow microphone access in your browser settings.');
 		});
@@ -222,24 +253,27 @@
 		if (mic) mic.classList.remove('spw-mic--recording');
 	}
 
-	function sendAudio(blob) {
+	function sendAudio(blob, durationMs) {
+		if (!blob || !blob.size) {
+			addMessage('assistant', 'No audio was captured. Please try again.');
+			return;
+		}
 		showTyping();
-		var reader = new FileReader();
-		reader.onload = function() {
-			var base64 = reader.result.split(',')[1];
-			api('voice/transcribe', { audio: base64, format: 'webm' }).then(function(data){
-				hideTyping();
-				if (data && data.text) {
-					send(data.text);
-				} else {
-					addMessage('assistant', 'Could not transcribe audio. Please try again.');
-				}
-			}).catch(function(){
-				hideTyping();
-				addMessage('assistant', 'Transcription failed.');
-			});
-		};
-		reader.readAsDataURL(blob);
+		var form = new FormData();
+		form.append('audio', blob, 'sitepilot-widget-command.webm');
+		form.append('duration_ms', String(Math.min(45000, Math.max(0, durationMs || 0))));
+		form.append('language', document.documentElement.lang || '');
+		upload('public/voice', form).then(function(data){
+			hideTyping();
+			if (data && data.ok && data.transcript) {
+				send(data.transcript);
+			} else {
+				addMessage('assistant', (data && data.message) || 'Could not transcribe audio. Please try again.');
+			}
+		}).catch(function(error){
+			hideTyping();
+			addMessage('assistant', error.message || 'Transcription failed.');
+		});
 	}
 
 	// ── Handoff ──

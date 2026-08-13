@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace SitePilot\Api;
 
 use SitePilot\Connectors\WooCommerceOrderSkill;
-
+use SitePilot\Connectors\WooCommerceConnector;
 /**
  * REST controller for WooCommerce Order Intelligence.
  *
@@ -49,7 +49,7 @@ class WooCommerceOrderController {
 	 * GET /woocommerce/orders/recent
 	 */
 	public function recent( \WP_REST_Request $req ): \WP_REST_Response {
-		$limit = min( absint( $req->get_param( 'limit' ) ?? 10 ), 50 );
+		$limit  = min( absint( $req->get_param( 'limit' ) ?? 10 ), 50 );
 		$result = $this->skill->recent_orders( $limit );
 		$status = $result['ok'] ? 200 : 400;
 		return new \WP_REST_Response( array_merge( array( 'code' => $result['ok'] ? 'ok' : 'error' ), $result ), $status );
@@ -61,7 +61,14 @@ class WooCommerceOrderController {
 	public function get_order( \WP_REST_Request $req ): \WP_REST_Response {
 		$id = absint( $req->get_param( 'id' ) );
 		if ( $id <= 0 ) {
-			return new \WP_REST_Response( array( 'ok' => false, 'code' => 'invalid_id', 'error' => __( 'Invalid order ID.', 'sitepilot-ai' ) ), 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'code'  => 'invalid_id',
+					'error' => __( 'Invalid order ID.', 'sitepilot-ai' ),
+				),
+				400
+			);
 		}
 		$result = $this->skill->get_order( $id );
 		$status = $result['ok'] ? 200 : 404;
@@ -77,11 +84,18 @@ class WooCommerceOrderController {
 		$note     = sanitize_textarea_field( $req->get_param( 'note' ) ?? '' );
 
 		if ( $order_id <= 0 || '' === $status ) {
-			return new \WP_REST_Response( array( 'ok' => false, 'code' => 'invalid', 'error' => __( 'order_id and status are required.', 'sitepilot-ai' ) ), 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'code'  => 'invalid',
+					'error' => __( 'order_id and status are required.', 'sitepilot-ai' ),
+				),
+				400
+			);
 		}
 
 		$result = $this->skill->update_status( $order_id, $status, $note );
-		$http = $result['ok'] ? 200 : 400;
+		$http   = $result['ok'] ? 200 : 400;
 		return new \WP_REST_Response( array_merge( array( 'code' => $result['ok'] ? 'ok' : 'error' ), $result ), $http );
 	}
 
@@ -94,11 +108,18 @@ class WooCommerceOrderController {
 		$reason   = sanitize_textarea_field( $req->get_param( 'reason' ) ?? '' );
 
 		if ( $order_id <= 0 || $amount <= 0 ) {
-			return new \WP_REST_Response( array( 'ok' => false, 'code' => 'invalid', 'error' => __( 'order_id and positive amount are required.', 'sitepilot-ai' ) ), 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'code'  => 'invalid',
+					'error' => __( 'order_id and positive amount are required.', 'sitepilot-ai' ),
+				),
+				400
+			);
 		}
 
 		$result = $this->skill->create_refund( $order_id, $amount, $reason );
-		$http = $result['ok'] ? 200 : 400;
+		$http   = $result['ok'] ? 200 : 400;
 		return new \WP_REST_Response( array_merge( array( 'code' => $result['ok'] ? 'ok' : 'error' ), $result ), $http );
 	}
 
@@ -117,9 +138,22 @@ class WooCommerceOrderController {
 	 */
 	public function statuses(): \WP_REST_Response {
 		if ( ! WooCommerceConnector::is_active() ) {
-			return new \WP_REST_Response( array( 'ok' => false, 'code' => 'wc_inactive', 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) ), 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'code'  => 'wc_inactive',
+					'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				),
+				400
+			);
 		}
 		$statuses = wc_get_order_statuses();
-		return new \WP_REST_Response( array( 'ok' => true, 'code' => 'ok', 'statuses' => $statuses ) );
+		return new \WP_REST_Response(
+			array(
+				'ok'       => true,
+				'code'     => 'ok',
+				'statuses' => $statuses,
+			)
+		);
 	}
 }

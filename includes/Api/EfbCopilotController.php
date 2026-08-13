@@ -89,11 +89,19 @@ final class EfbCopilotController {
 		}
 
 		$action_id = $this->store->create( $plan, 'easy_form_builder' );
-		$this->logger->info( 'efb.plan.created', 'EFB form plan generated.', array( 'title' => $plan['title'], 'pro_omitted' => $split['pro_fields'] ) );
+		$this->logger->info(
+			'efb.plan.created',
+			'EFB form plan generated.',
+			array(
+				'title'       => $plan['title'],
+				'pro_omitted' => $split['pro_fields'],
+			)
+		);
 
 		$payload = array(
-			'action_id' => $action_id,
-			'preview'   => $this->build_preview( $plan, $connector->get_name() ),
+			'action_id'  => $action_id,
+			'expires_at' => time() + ActionStore::ttl(),
+			'preview'    => $this->build_preview( $plan, $connector->get_name() ),
 		);
 		$payload = $this->with_pro_upsell( $payload, $split['pro_fields'] );
 
@@ -146,7 +154,11 @@ final class EfbCopilotController {
 	private function pro_blocked_from_fields( array $pro_fields ): array {
 		$blocked = array();
 		foreach ( $pro_fields as $field ) {
-			$blocked[] = array( 'kind' => 'field', 'type' => $field['type'], 'label' => $field['label'] );
+			$blocked[] = array(
+				'kind'  => 'field',
+				'type'  => $field['type'],
+				'label' => $field['label'],
+			);
 		}
 
 		return $blocked;
@@ -158,20 +170,23 @@ final class EfbCopilotController {
 			return $this->respond( array( 'message' => __( 'Missing action reference.', 'sitepilot-ai' ) ), false, 400, 'invalid_payload' );
 		}
 
-		$record = $this->store->consume( $action_id );
-		if ( null === $record ) {
+		$claim = $this->store->claim( $action_id, get_current_user_id() );
+		if ( 'missing' === $claim['status'] ) {
 			return $this->respond( array( 'message' => __( 'This proposal has expired. Please generate the form again.', 'sitepilot-ai' ) ), false, 422, 'action_expired' );
 		}
-		if ( (int) $record['user_id'] !== get_current_user_id() ) {
+		if ( 'forbidden' === $claim['status'] ) {
 			return $this->respond( array( 'message' => __( 'You are not allowed to approve this action.', 'sitepilot-ai' ) ), false, 403, 'permission_denied' );
 		}
-
+		if ( 'already_claimed' === $claim['status'] ) {
+			return $this->respond( array( 'message' => __( 'This proposal is already being processed or has already been used.', 'sitepilot-ai' ) ), false, 422, 'action_already_processed' );
+		}
+		$record    = (array) ( $claim['record'] ?? array() );
 		$connector = $this->registry()->get( 'easy_form_builder' );
 		if ( null === $connector || ! $connector->is_available() ) {
 			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'sitepilot-ai' ) ), false, 400, 'connector_not_available' );
 		}
 
-		$plan   = (array) $record['plan'];
+		$plan    = (array) $record['plan'];
 		$blocked = $this->blocked_plan_fields( $plan );
 		if ( array() !== $blocked ) {
 			return $this->pro_required_response( $blocked );
@@ -188,7 +203,14 @@ final class EfbCopilotController {
 			return $this->respond( array( 'message' => $result['message'] ?? __( 'Creation failed.', 'sitepilot-ai' ) ), false, 422, (string) ( $result['code'] ?? 'execution_failed' ) );
 		}
 
-		$this->logger->info( 'efb.create.executed', 'EFB form created.', array( 'form_id' => $result['form_id'] ?? null, 'title' => $plan['title'] ?? '' ) );
+		$this->logger->info(
+			'efb.create.executed',
+			'EFB form created.',
+			array(
+				'form_id' => $result['form_id'] ?? null,
+				'title'   => $plan['title'] ?? '',
+			)
+		);
 
 		return $this->respond(
 			array(
@@ -209,15 +231,35 @@ final class EfbCopilotController {
 	 */
 	public function chat( WP_REST_Request $request ): WP_REST_Response {
 		$trace_id = $this->trace_id( $request->get_param( 'trace_id' ) );
-		$message = trim( (string) $request->get_param( 'message' ) );
+		$message  = trim( (string) $request->get_param( 'message' ) );
 		if ( '' === $message ) {
-			return $this->respond( array( 'type' => 'message', 'reply' => __( 'Tell me what form you need, ask me to change the open form, or ask how to do something.', 'sitepilot-ai' ) ), true );
+			return $this->respond(
+				array(
+					'type'  => 'message',
+					'reply' => __( 'Tell me what form you need, ask me to change the open form, or ask how to do something.', 'sitepilot-ai' ),
+				),
+				true
+			);
 		}
 		if ( mb_strlen( $message ) > 2000 ) {
-			return $this->respond( array( 'type' => 'message', 'reply' => __( 'That message is a bit long — please shorten it.', 'sitepilot-ai' ) ), true );
+			return $this->respond(
+				array(
+					'type'  => 'message',
+					'reply' => __( 'That message is a bit long — please shorten it.', 'sitepilot-ai' ),
+				),
+				true
+			);
 		}
 		if ( ! $this->providers->is_configured() ) {
-			return $this->respond( array( 'type' => 'message', 'reply' => __( 'Add your AI provider API key in SitePilot AI → Settings first.', 'sitepilot-ai' ) ), false, 400, 'provider_not_configured' );
+			return $this->respond(
+				array(
+					'type'  => 'message',
+					'reply' => __( 'Add your AI provider API key in SitePilot AI → Settings first.', 'sitepilot-ai' ),
+				),
+				false,
+				400,
+				'provider_not_configured'
+			);
 		}
 
 		$has_form = (bool) $request->get_param( 'has_form' );
@@ -229,12 +271,12 @@ final class EfbCopilotController {
 			'efb.chat.received',
 			'Chat request received.',
 			array(
-				'trace_id' => $trace_id,
-				'message' => mb_substr( $message, 0, 200 ),
-				'has_form' => $has_form,
-				'field_count' => count( $fields ),
-				'step_count' => count( $steps ),
-				'plan_tier' => $license['tier'],
+				'trace_id'      => $trace_id,
+				'message'       => mb_substr( $message, 0, 200 ),
+				'has_form'      => $has_form,
+				'field_count'   => count( $fields ),
+				'step_count'    => count( $steps ),
+				'plan_tier'     => $license['tier'],
 				'history_count' => count( $history ),
 			)
 		);
@@ -242,27 +284,43 @@ final class EfbCopilotController {
 		try {
 			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond( $message, $history, $has_form, $fields, $steps, $license );
 		} catch ( ProviderException $e ) {
-			$this->logger->error( 'efb.chat.provider_error', $e->getMessage(), array( 'trace_id' => $trace_id, 'code' => $e->error_code(), 'message' => mb_substr( $message, 0, 200 ) ) );
+			$this->logger->error(
+				'efb.chat.provider_error',
+				$e->getMessage(),
+				array(
+					'trace_id' => $trace_id,
+					'code'     => $e->error_code(),
+					'message'  => mb_substr( $message, 0, 200 ),
+				)
+			);
 
-			return $this->respond( array( 'type' => 'message', 'reply' => $e->user_message() ), false, 502, $e->error_code() );
+			return $this->respond(
+				array(
+					'type'  => 'message',
+					'reply' => $e->user_message(),
+				),
+				false,
+				502,
+				$e->error_code()
+			);
 		}
 
 		$reply  = trim( (string) ( $raw['reply'] ?? '' ) );
 		$action = (string) ( $raw['action'] ?? 'chat' );
 
 		// Trace every turn: what the user asked, what the AI decided, raw op names.
-		$raw_ops = is_array( $raw['operations'] ?? null ) ? $raw['operations'] : array();
+		$raw_ops        = is_array( $raw['operations'] ?? null ) ? $raw['operations'] : array();
 		$normalized_ops = $this->normalize_structural_ops( $raw_ops, $message );
 		$this->logger->info(
 			'efb.chat.turn',
 			'Chat turn decided.',
 			array(
-				'trace_id' => $trace_id,
-				'message'  => mb_substr( $message, 0, 200 ),
-				'action'   => $action,
-				'has_form' => $has_form,
-				'fields'   => count( $fields ),
-				'raw_ops'  => array_map(
+				'trace_id'       => $trace_id,
+				'message'        => mb_substr( $message, 0, 200 ),
+				'action'         => $action,
+				'has_form'       => $has_form,
+				'fields'         => count( $fields ),
+				'raw_ops'        => array_map(
 					static fn ( $o ) => is_array( $o ) ? (string) ( $o['op'] ?? '?' ) : '?',
 					$raw_ops
 				),
@@ -277,9 +335,24 @@ final class EfbCopilotController {
 			$topic  = trim( (string) ( $raw['help_topic'] ?? '' ) );
 			$result = EfbKnowledge::answer( '' !== $topic ? $topic : $message );
 			if ( empty( $result['ok'] ) ) {
-				return $this->respond( array( 'type' => 'help', 'reply' => '' !== $reply ? $reply : __( 'Here are topics I can walk you through:', 'sitepilot-ai' ), 'suggestions' => $result['suggestions'] ?? array() ), true );
+				return $this->respond(
+					array(
+						'type'        => 'help',
+						'reply'       => '' !== $reply ? $reply : __( 'Here are topics I can walk you through:', 'sitepilot-ai' ),
+						'suggestions' => $result['suggestions'] ?? array(),
+					),
+					true
+				);
 			}
-			return $this->respond( array( 'type' => 'help', 'reply' => $reply, 'title' => $result['title'] ?? '', 'answer' => $result['answer'] ?? '' ), true );
+			return $this->respond(
+				array(
+					'type'   => 'help',
+					'reply'  => $reply,
+					'title'  => $result['title'] ?? '',
+					'answer' => $result['answer'] ?? '',
+				),
+				true
+			);
 		}
 
 		if ( 'customize' === $action ) {
@@ -288,7 +361,15 @@ final class EfbCopilotController {
 			$dropped = $verbose['dropped'];
 
 			if ( array() !== $dropped ) {
-				$this->logger->error( 'efb.chat.ops_dropped', 'Some operations were rejected by validation.', array( 'trace_id' => $trace_id, 'dropped' => $dropped, 'message' => mb_substr( $message, 0, 200 ) ) );
+				$this->logger->error(
+					'efb.chat.ops_dropped',
+					'Some operations were rejected by validation.',
+					array(
+						'trace_id' => $trace_id,
+						'dropped'  => $dropped,
+						'message'  => mb_substr( $message, 0, 200 ),
+					)
+				);
 			}
 
 			$notes = $this->customize_notes( $dropped );
@@ -298,7 +379,15 @@ final class EfbCopilotController {
 			// generic failure that reads like the admin phrased it wrong.
 			$pro_blocked = $this->pro_fields_in_dropped( $dropped );
 			if ( array() !== $pro_blocked && array() === $ops ) {
-				$this->logger->info( 'efb.chat.pro_blocked', 'A Pro-only field was requested.', array( 'trace_id' => $trace_id, 'blocked' => $pro_blocked, 'license' => $license ) );
+				$this->logger->info(
+					'efb.chat.pro_blocked',
+					'A Pro-only field was requested.',
+					array(
+						'trace_id' => $trace_id,
+						'blocked'  => $pro_blocked,
+						'license'  => $license,
+					)
+				);
 
 				return $this->pro_required_response( $pro_blocked, $reply );
 			}
@@ -315,20 +404,39 @@ final class EfbCopilotController {
 				);
 			}
 
-			$ops = $this->bind_new_step_references( $ops );
+			$ops     = $this->bind_new_step_references( $ops );
 			$blocked = $this->blocked_customize_operations( $ops, $steps );
 			if ( array() !== $blocked ) {
-				$this->logger->info( 'efb.chat.pro_blocked', 'EFB plan blocked a requested operation.', array( 'trace_id' => $trace_id, 'blocked' => $blocked, 'license' => $license ) );
+				$this->logger->info(
+					'efb.chat.pro_blocked',
+					'EFB plan blocked a requested operation.',
+					array(
+						'trace_id' => $trace_id,
+						'blocked'  => $blocked,
+						'license'  => $license,
+					)
+				);
 
 				return $this->pro_required_response( $blocked );
 			}
 
 			$ops = $this->expand_add_fields( $ops, $fields );
 
-			$this->logger->info( 'efb.chat.customize', 'Customize ops ready.', array( 'trace_id' => $trace_id, 'ops' => $ops ) );
+			$this->logger->info(
+				'efb.chat.customize',
+				'Customize ops ready.',
+				array(
+					'trace_id' => $trace_id,
+					'ops'      => $ops,
+				)
+			);
 
 			// A partly-applied batch must say so rather than answering a plain "Done".
-			$payload = array( 'type' => 'ops', 'reply' => '' !== $reply ? $reply : __( 'Done — applying your change.', 'sitepilot-ai' ), 'operations' => $ops );
+			$payload = array(
+				'type'       => 'ops',
+				'reply'      => '' !== $reply ? $reply : __( 'Done — applying your change.', 'sitepilot-ai' ),
+				'operations' => $ops,
+			);
 			if ( array() !== $notes ) {
 				$payload['errors'] = $notes;
 			}
@@ -340,7 +448,14 @@ final class EfbCopilotController {
 			$validator = $this->efb_validator();
 			$result    = $validator->validate( (array) $raw['form'] );
 			if ( ! $result->ok ) {
-				return $this->respond( array( 'type' => 'message', 'reply' => '' !== $reply ? $reply : __( 'I could not build a safe form from that. Could you add a bit more detail?', 'sitepilot-ai' ), 'errors' => $result->errors ), true );
+				return $this->respond(
+					array(
+						'type'   => 'message',
+						'reply'  => '' !== $reply ? $reply : __( 'I could not build a safe form from that. Could you add a bit more detail?', 'sitepilot-ai' ),
+						'errors' => $result->errors,
+					),
+					true
+				);
 			}
 			$split = EfbFormModel::split_pro_fields( $result->plan, EfbLicense::has_pro_features() );
 			$plan  = $split['plan'];
@@ -350,7 +465,15 @@ final class EfbCopilotController {
 			$connector = $this->registry()->get( 'easy_form_builder' );
 			$name      = ( null !== $connector ) ? $connector->get_name() : 'Easy Form Builder';
 			$action_id = $this->store->create( $plan, 'easy_form_builder' );
-			$this->logger->info( 'efb.chat.plan', 'Form planned via chat.', array( 'trace_id' => $trace_id, 'title' => $plan['title'], 'pro_omitted' => $split['pro_fields'] ) );
+			$this->logger->info(
+				'efb.chat.plan',
+				'Form planned via chat.',
+				array(
+					'trace_id'    => $trace_id,
+					'title'       => $plan['title'],
+					'pro_omitted' => $split['pro_fields'],
+				)
+			);
 
 			$payload = array(
 				'type'      => 'preview',
@@ -363,25 +486,31 @@ final class EfbCopilotController {
 		}
 
 		// ask / chat / fallback.
-		return $this->respond( array( 'type' => 'message', 'reply' => '' !== $reply ? $reply : __( 'How can I help with your form?', 'sitepilot-ai' ) ), true );
+		return $this->respond(
+			array(
+				'type'  => 'message',
+				'reply' => '' !== $reply ? $reply : __( 'How can I help with your form?', 'sitepilot-ai' ),
+			),
+			true
+		);
 	}
 
 	/**
 	 * Server-side expansion of add_field ops: build the full EFB field (+ option)
 	 * items from the model templates, so the browser only splices them in.
 	 *
-	 * @param array<int, array<string, mixed>>                   $ops
+	 * @param array<int, array<string, mixed>>                      $ops
 	 * @param array<int, array{id:string,label:string,type:string}> $fields
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function expand_add_fields( array $ops, array $fields ): array {
-		$existing = array_map( static fn ( $f ) => (string) $f['id'], $fields );
+		$existing  = array_map( static fn ( $f ) => (string) $f['id'], $fields );
 		$converter = new EfbFormConverter();
 
 		foreach ( $ops as &$op ) {
 			if ( 'add_field' === ( $op['op'] ?? '' ) && is_array( $op['field'] ?? null ) ) {
-				$items        = $converter->build_field( $op['field'], $existing );
-				$op['items']  = $items;
+				$items       = $converter->build_field( $op['field'], $existing );
+				$op['items'] = $items;
 				foreach ( $items as $item ) {
 					$existing[] = (string) ( $item['id_'] ?? '' );
 				}
@@ -399,9 +528,9 @@ final class EfbCopilotController {
 	 * which operations were applied in the browser and which failed.
 	 */
 	public function client_log( WP_REST_Request $request ): WP_REST_Response {
-		$event   = sanitize_key( (string) $request->get_param( 'event' ) );
-		$msg     = sanitize_text_field( mb_substr( (string) $request->get_param( 'message' ), 0, 300 ) );
-		$context = $this->clean_trace_context( $request->get_param( 'context' ) );
+		$event               = sanitize_key( (string) $request->get_param( 'event' ) );
+		$msg                 = sanitize_text_field( mb_substr( (string) $request->get_param( 'message' ), 0, 300 ) );
+		$context             = $this->clean_trace_context( $request->get_param( 'context' ) );
 		$context['trace_id'] = $this->trace_id( $request->get_param( 'trace_id' ) );
 
 		if ( '' === $event ) {
@@ -439,7 +568,7 @@ final class EfbCopilotController {
 	 * @return array<int,mixed>
 	 */
 	private function normalize_structural_ops( array $ops, string $message ): array {
-		$asks_for_step = (bool) preg_match( '/(?:\\bstep(?:s)?\\b|گام|مرحله)/iu', $message );
+		$asks_for_step    = (bool) preg_match( '/(?:\\bstep(?:s)?\\b|گام|مرحله)/iu', $message );
 		$asks_for_heading = (bool) preg_match( '/(?:\\bheading\\b|عنوان|سرتیتر)/iu', $message );
 		if ( ! $asks_for_step || $asks_for_heading ) {
 			return $ops;
@@ -449,10 +578,13 @@ final class EfbCopilotController {
 			if ( ! is_array( $op ) || 'add_field' !== ( $op['op'] ?? '' ) || ! is_array( $op['field'] ?? null ) ) {
 				continue;
 			}
-			$type = strtolower( trim( (string) ( $op['field']['type'] ?? '' ) ) );
+			$type  = strtolower( trim( (string) ( $op['field']['type'] ?? '' ) ) );
 			$label = (string) ( $op['field']['label'] ?? '' );
 			if ( 'heading' === $type && ( '' === $label || (bool) preg_match( '/(?:\\bstep(?:s)?\\b|گام|مرحله)/iu', $label ) ) ) {
-				$op = array( 'op' => 'add_step', 'label' => '' !== trim( $label ) ? $label : 'Step' );
+				$op = array(
+					'op'    => 'add_step',
+					'label' => '' !== trim( $label ) ? $label : 'Step',
+				);
 			}
 		}
 		unset( $op );
@@ -470,14 +602,14 @@ final class EfbCopilotController {
 	 */
 	private function bind_new_step_references( array $ops ): array {
 		$active_ref = '';
-		$number = 0;
+		$number     = 0;
 		foreach ( $ops as &$op ) {
 			if ( 'add_step' === ( $op['op'] ?? '' ) ) {
 				++$number;
-				$ref = sanitize_key( (string) ( $op['step_ref'] ?? '' ) );
-				$active_ref = '' !== $ref ? $ref : 'new_step_' . $number;
+				$ref            = sanitize_key( (string) ( $op['step_ref'] ?? '' ) );
+				$active_ref     = '' !== $ref ? $ref : 'new_step_' . $number;
 				$op['step_ref'] = $active_ref;
-			} elseif ( 'add_field' === ( $op['op'] ?? '' ) && $active_ref !== '' && empty( $op['step_ref'] ) ) {
+			} elseif ( 'add_field' === ( $op['op'] ?? '' ) && '' !== $active_ref && empty( $op['step_ref'] ) ) {
 				$op['step_ref'] = $active_ref;
 			}
 		}
@@ -487,7 +619,7 @@ final class EfbCopilotController {
 	}
 
 	/**
-	 * @param array<int,array<string,mixed>> $ops
+	 * @param array<int,array<string,mixed>>           $ops
 	 * @param array<int,array{id:string,label:string}> $steps
 	 * @return array<int,array{kind:string,type?:string,label?:string}>
 	 */
@@ -497,28 +629,43 @@ final class EfbCopilotController {
 			return array();
 		}
 
-		$blocked = array();
+		$blocked    = array();
 		$step_count = count( $steps );
 		foreach ( $ops as $op ) {
 			if ( 'add_field' === ( $op['op'] ?? '' ) && is_array( $op['field'] ?? null ) ) {
 				$type = (string) ( $op['field']['type'] ?? '' );
 				if ( EfbFormModel::requires_pro_to_create( $type ) ) {
-					$blocked[] = array( 'kind' => 'field', 'type' => $type, 'label' => (string) ( $op['field']['label'] ?? $type ) );
+					$blocked[] = array(
+						'kind'  => 'field',
+						'type'  => $type,
+						'label' => (string) ( $op['field']['label'] ?? $type ),
+					);
 				}
 			}
 			if ( 'add_step' === ( $op['op'] ?? '' ) ) {
 				++$step_count;
 				if ( $step_count > 2 ) {
-					$blocked[] = array( 'kind' => 'step_limit', 'label' => (string) ( $op['label'] ?? 'Step' ) );
+					$blocked[] = array(
+						'kind'  => 'step_limit',
+						'label' => (string) ( $op['label'] ?? 'Step' ),
+					);
 				}
 			}
 			// EFB padlocks the whole mobile responsive block on Free, so writing
 			// those keys would move settings the admin can neither see nor undo.
 			if ( 'set_field_property' === ( $op['op'] ?? '' ) && EfbFormModel::requires_pro_property( (string) ( $op['property'] ?? '' ) ) ) {
-				$blocked[] = array( 'kind' => 'setting', 'type' => (string) $op['property'], 'label' => (string) ( $op['target'] ?? '' ) );
+				$blocked[] = array(
+					'kind'  => 'setting',
+					'type'  => (string) $op['property'],
+					'label' => (string) ( $op['target'] ?? '' ),
+				);
 			}
 			if ( 'set_form_property' === ( $op['op'] ?? '' ) && EfbFormModel::requires_pro_form_property( (string) ( $op['property'] ?? '' ) ) ) {
-				$blocked[] = array( 'kind' => 'setting', 'type' => (string) $op['property'], 'label' => '' );
+				$blocked[] = array(
+					'kind'  => 'setting',
+					'type'  => (string) $op['property'],
+					'label' => '',
+				);
 			}
 		}
 
@@ -768,7 +915,7 @@ final class EfbCopilotController {
 			return $this->respond( array( 'message' => __( 'I could not turn that into a change. Try being more specific, e.g. "make Email required" or "rename the form to Contact us".', 'sitepilot-ai' ) ), true, 200, 'no_ops' );
 		}
 
-		$ops = $this->bind_new_step_references( $ops );
+		$ops     = $this->bind_new_step_references( $ops );
 		$blocked = $this->blocked_customize_operations( $ops, array() );
 		if ( array() !== $blocked ) {
 			return $this->pro_required_response( $blocked );
@@ -840,8 +987,8 @@ final class EfbCopilotController {
 	 */
 	private function build_preview( array $plan, string $connector_name ): array {
 		return array(
-			'title'       => $plan['title'],
-			'fields'      => array_map(
+			'title'                => $plan['title'],
+			'fields'               => array_map(
 				static function ( array $f ): array {
 					return array(
 						'label'    => $f['label'],
@@ -854,9 +1001,9 @@ final class EfbCopilotController {
 				$plan['fields']
 			),
 			'confirmation_message' => $plan['confirmation_message'] ?? '',
-			'risk_level'  => $plan['risk_level'] ?? 'medium',
-			'connector'   => $connector_name,
-			'field_count' => count( $plan['fields'] ),
+			'risk_level'           => $plan['risk_level'] ?? 'medium',
+			'connector'            => $connector_name,
+			'field_count'          => count( $plan['fields'] ),
 		);
 	}
 
@@ -864,7 +1011,16 @@ final class EfbCopilotController {
 	 * @param array<string, mixed> $data
 	 */
 	private function respond( array $data, bool $ok, int $status = 200, string $code = 'ok' ): WP_REST_Response {
-		return new WP_REST_Response( array_merge( array( 'ok' => $ok, 'code' => $code ), $data ), $status );
+		return new WP_REST_Response(
+			array_merge(
+				array(
+					'ok'   => $ok,
+					'code' => $code,
+				),
+				$data
+			),
+			$status
+		);
 	}
 
 	/** @param mixed $value */

@@ -735,6 +735,131 @@ body.sp-kb-modal-open { overflow: hidden; }
 	margin-bottom: 4px;
 }
 
+/* Knowledge Base screen: same compact glass cards and status language as the
+   reference dashboard. Existing IDs remain unchanged for knowledge-base.js. */
+.sitepilot-screen--kb .sitepilot-kb-stats {
+	margin: 20px 0;
+}
+
+.sitepilot-screen--kb .sitepilot-kb-stat {
+	position: relative;
+	overflow: hidden;
+	border-color: rgba(226, 228, 231, .86);
+	background: rgba(255, 255, 255, .86);
+	box-shadow: var(--sp-shadow-sm);
+}
+
+.sitepilot-screen--kb .sitepilot-kb-stat::after {
+	position: absolute;
+	top: 0;
+	inset-inline: 14px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--sp-gradient);
+	content: '';
+}
+
+.sitepilot-screen--kb .sitepilot-kb-stat__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border: 1px solid rgba(79, 70, 229, .14);
+	border-radius: 12px;
+	background: var(--sp-gradient-soft);
+	font-size: 0;
+}
+
+.sitepilot-screen--kb .sitepilot-kb-stat__icon::before {
+	font-family: dashicons;
+	color: var(--sp-primary);
+	font-size: 21px;
+	content: "\f331";
+}
+
+.sitepilot-screen--kb .sitepilot-kb-stat:nth-child(2) .sitepilot-kb-stat__icon::before {
+	content: "\f105";
+}
+
+.sitepilot-screen--kb .sitepilot-kb-stat:nth-child(3) .sitepilot-kb-stat__icon::before {
+	content: "\f469";
+}
+
+.sitepilot-screen--kb .sitepilot-kb-stat__number {
+	background: var(--sp-gradient);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: var(--sp-primary);
+}
+
+.sitepilot-screen--kb .sitepilot-kb-stat__number--date {
+	font-size: 18px !important;
+}
+
+.sitepilot-screen--kb .sitepilot-kb-indexer {
+	position: relative;
+	overflow: hidden;
+	padding: 24px;
+}
+
+.sitepilot-screen--kb .sitepilot-kb-indexer::before {
+	position: absolute;
+	top: 0;
+	inset-inline: 0;
+	height: 4px;
+	background: var(--sp-gradient);
+	content: '';
+}
+
+.sitepilot-screen--kb .sitepilot-kb-indexer h2,
+.sitepilot-screen--kb .sitepilot-kb-table__header h2,
+.sitepilot-screen--kb .sitepilot-kb-gaps h2 {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--sp-text);
+	font-size: 16px;
+}
+
+.sitepilot-screen--kb .sitepilot-kb-indexer__actions .button-primary,
+.sitepilot-screen--kb .sitepilot-kb-modal-start {
+	border: 0 !important;
+	background: var(--sp-gradient) !important;
+}
+
+.sitepilot-screen--kb .sitepilot-kb-table-wrap {
+	padding: 0;
+	overflow: hidden;
+}
+
+.sitepilot-screen--kb .sitepilot-kb-table__header {
+	padding: 18px 20px;
+	background: linear-gradient(180deg, rgba(255,255,255,.92), #fbfbfc);
+}
+
+.sitepilot-screen--kb .sitepilot-kb-table {
+	margin: 0;
+	border: 0;
+	box-shadow: none;
+}
+
+.sitepilot-screen--kb .sitepilot-kb-gaps {
+	border-color: #fde68a;
+	background: #fffdf7;
+}
+
+@media (max-width: 782px) {
+	.sitepilot-screen--kb .sitepilot-kb-indexer {
+		padding: 18px;
+	}
+
+	.sitepilot-screen--kb .sitepilot-kb-table__header {
+		padding: 16px;
+	}
+}
+
 .sp-kb-empty__hint {
 	font-size: 13px;
 }

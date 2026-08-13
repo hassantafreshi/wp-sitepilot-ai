@@ -42,16 +42,16 @@ final class EfbBuilderButton {
 			'sitepilot-efb',
 			'SitePilotEFB',
 			array(
-				'restUrl'     => esc_url_raw( rest_url( RestRoutes::NAMESPACE . '/' ) ),
-				'nonce'       => wp_create_nonce( 'wp_rest' ),
-				'configured'  => ( new ProviderManager() )->is_configured(),
-				'settingsUrl' => admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETTINGS ),
-				'logsUrl'     => admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ),
-				'isRTL'       => is_rtl(),
-				'language'    => SiteLanguage::primary( SiteLanguage::site() ),
-				'voiceResponses' => (bool) \SitePilot\Core\Settings::get( 'voice_responses_enabled', false ),
+				'restUrl'         => esc_url_raw( rest_url( RestRoutes::NAMESPACE . '/' ) ),
+				'nonce'           => wp_create_nonce( 'wp_rest' ),
+				'configured'      => ( new ProviderManager() )->is_configured(),
+				'settingsUrl'     => admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETTINGS ),
+				'logsUrl'         => admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ),
+				'isRTL'           => is_rtl(),
+				'language'        => SiteLanguage::primary( SiteLanguage::site() ),
+				'voiceResponses'  => (bool) \SitePilot\Core\Settings::get( 'voice_responses_enabled', false ),
 				// Same option and destination used by Easy Form Builder itself.
-				'license'     => EfbLicense::status(),
+				'license'         => EfbLicense::status(),
 				// This is the allowlisted, browser-safe subset of the full EFB
 				// capability catalog. It keeps the operation executor in lockstep
 				// with the server validator without exposing credentials/settings.

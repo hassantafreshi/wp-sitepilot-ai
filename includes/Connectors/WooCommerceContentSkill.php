@@ -40,34 +40,43 @@ class WooCommerceContentSkill {
 	 */
 	public function generate_description( int $product_id, string $tone = 'professional', int $length = 150 ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
 			$product = wc_get_product( $product_id );
 			if ( ! $product ) {
-				return array( 'ok' => false, 'error' => __( 'Product not found.', 'sitepilot-ai' ) );
+				return array(
+					'ok'    => false,
+					'error' => __( 'Product not found.', 'sitepilot-ai' ),
+				);
 			}
 
 			$manager = new ProviderManager();
 			if ( ! $manager->is_configured() ) {
-				return array( 'ok' => false, 'error' => __( 'AI provider is not configured.', 'sitepilot-ai' ) );
+				return array(
+					'ok'    => false,
+					'error' => __( 'AI provider is not configured.', 'sitepilot-ai' ),
+				);
 			}
 
 			// Gather product info.
-			$name = $product->get_name();
-			$sku = $product->get_sku();
-			$price = $product->get_price();
-			$categories = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'names' ) );
-			$tags = wp_get_post_terms( $product_id, 'product_tag', array( 'fields' => 'names' ) );
-			$attributes = $product->get_attributes();
+			$name          = $product->get_name();
+			$sku           = $product->get_sku();
+			$price         = $product->get_price();
+			$categories    = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'names' ) );
+			$tags          = wp_get_post_terms( $product_id, 'product_tag', array( 'fields' => 'names' ) );
+			$attributes    = $product->get_attributes();
 			$existing_desc = $product->get_description();
 
 			// Build attribute string.
 			$attr_str = '';
 			foreach ( $attributes as $attr ) {
 				if ( $attr->is_taxonomy() ) {
-					$terms = wc_get_product_terms( $product_id, $attr->get_name(), array( 'fields' => 'names' ) );
+					$terms     = wc_get_product_terms( $product_id, $attr->get_name(), array( 'fields' => 'names' ) );
 					$attr_str .= $attr->get_name() . ': ' . implode( ', ', $terms ) . '; ';
 				}
 			}
@@ -87,19 +96,19 @@ class WooCommerceContentSkill {
 				. "Include key features and benefits.\n"
 				. "Use HTML formatting (h2, p, ul, li, strong) for structure.\n"
 				. "Do not include the product name as a heading.\n"
-				. "Respond in the same language as the product name.";
+				. 'Respond in the same language as the product name.';
 
 			$user_prompt = "Product: {$name}\n"
 				. ( $sku ? "SKU: {$sku}\n" : '' )
 				. ( $price ? "Price: {$price}\n" : '' )
-				. ( ! empty( $categories ) && ! is_wp_error( $categories ) ? "Categories: " . implode( ', ', $categories ) . "\n" : '' )
-				. ( ! empty( $tags ) && ! is_wp_error( $tags ) ? "Tags: " . implode( ', ', $tags ) . "\n" : '' )
+				. ( ! empty( $categories ) && ! is_wp_error( $categories ) ? 'Categories: ' . implode( ', ', $categories ) . "\n" : '' )
+				. ( ! empty( $tags ) && ! is_wp_error( $tags ) ? 'Tags: ' . implode( ', ', $tags ) . "\n" : '' )
 				. ( $attr_str ? "Attributes: {$attr_str}\n" : '' )
-				. ( $existing_desc ? "Existing description (improve it): " . wp_strip_all_tags( $existing_desc ) . "\n" : '' )
+				. ( $existing_desc ? 'Existing description (improve it): ' . wp_strip_all_tags( $existing_desc ) . "\n" : '' )
 				. "\nGenerate a compelling product description.";
 
 			$provider = $manager->make();
-			$result = $provider->generate_text( $system_prompt, $user_prompt );
+			$result   = $provider->generate_text( $system_prompt, $user_prompt );
 
 			$this->logger->info( 'wc_content_desc', "Generated description for product #{$product_id}" );
 
@@ -114,7 +123,10 @@ class WooCommerceContentSkill {
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_content_desc', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 
@@ -126,37 +138,46 @@ class WooCommerceContentSkill {
 	 */
 	public function generate_seo( int $product_id ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
 			$product = wc_get_product( $product_id );
 			if ( ! $product ) {
-				return array( 'ok' => false, 'error' => __( 'Product not found.', 'sitepilot-ai' ) );
+				return array(
+					'ok'    => false,
+					'error' => __( 'Product not found.', 'sitepilot-ai' ),
+				);
 			}
 
 			$manager = new ProviderManager();
 			if ( ! $manager->is_configured() ) {
-				return array( 'ok' => false, 'error' => __( 'AI provider is not configured.', 'sitepilot-ai' ) );
+				return array(
+					'ok'    => false,
+					'error' => __( 'AI provider is not configured.', 'sitepilot-ai' ),
+				);
 			}
 
-			$name = $product->get_name();
+			$name       = $product->get_name();
 			$categories = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'names' ) );
-			$cat_str = ( ! empty( $categories ) && ! is_wp_error( $categories ) ) ? implode( ', ', $categories ) : '';
+			$cat_str    = ( ! empty( $categories ) && ! is_wp_error( $categories ) ) ? implode( ', ', $categories ) : '';
 
 			$system_prompt = "You are an SEO expert for e-commerce.\n"
 				. "Generate an SEO-optimized title (max 60 characters) and meta description (max 160 characters).\n"
 				. "Include relevant keywords naturally.\n"
 				. "Respond in JSON format: {\"title\": \"...\", \"meta_description\": \"...\", \"keywords\": [\"...\", \"...\"]}\n"
-				. "Respond in the same language as the product name.";
+				. 'Respond in the same language as the product name.';
 
 			$user_prompt = "Product: {$name}\n"
 				. ( $cat_str ? "Category: {$cat_str}\n" : '' )
-				. "Price: " . $product->get_price() . "\n"
-				. "Generate SEO title and meta description.";
+				. 'Price: ' . $product->get_price() . "\n"
+				. 'Generate SEO title and meta description.';
 
 			$provider = $manager->make();
-			$result = $provider->generate_structured_output( $system_prompt, $user_prompt );
+			$result   = $provider->generate_structured_output( $system_prompt, $user_prompt );
 
 			$seo = array(
 				'title'            => sanitize_text_field( $result['title'] ?? $name ),
@@ -175,7 +196,10 @@ class WooCommerceContentSkill {
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_content_seo', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 
@@ -188,22 +212,31 @@ class WooCommerceContentSkill {
 	 */
 	public function generate_promo( int $product_id, string $type = 'short' ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
 			$product = wc_get_product( $product_id );
 			if ( ! $product ) {
-				return array( 'ok' => false, 'error' => __( 'Product not found.', 'sitepilot-ai' ) );
+				return array(
+					'ok'    => false,
+					'error' => __( 'Product not found.', 'sitepilot-ai' ),
+				);
 			}
 
 			$manager = new ProviderManager();
 			if ( ! $manager->is_configured() ) {
-				return array( 'ok' => false, 'error' => __( 'AI provider is not configured.', 'sitepilot-ai' ) );
+				return array(
+					'ok'    => false,
+					'error' => __( 'AI provider is not configured.', 'sitepilot-ai' ),
+				);
 			}
 
-			$name = $product->get_name();
-			$price = $product->get_price();
+			$name       = $product->get_name();
+			$price      = $product->get_price();
 			$sale_price = $product->get_sale_price();
 
 			$type_map = array(
@@ -217,15 +250,15 @@ class WooCommerceContentSkill {
 			$system_prompt = "You are a marketing copywriter.\n"
 				. "Task: {$type_desc}\n"
 				. "Make it compelling and conversion-focused.\n"
-				. "Respond in the same language as the product name.";
+				. 'Respond in the same language as the product name.';
 
 			$user_prompt = "Product: {$name}\n"
 				. "Price: {$price}\n"
 				. ( $sale_price ? "Sale Price: {$sale_price} (ON SALE!)\n" : '' )
-				. "Generate promotional text.";
+				. 'Generate promotional text.';
 
 			$provider = $manager->make();
-			$result = $provider->generate_text( $system_prompt, $user_prompt );
+			$result   = $provider->generate_text( $system_prompt, $user_prompt );
 
 			$this->logger->info( 'wc_content_promo', "Generated promo for product #{$product_id}" );
 
@@ -239,7 +272,10 @@ class WooCommerceContentSkill {
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_content_promo', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 
@@ -252,12 +288,15 @@ class WooCommerceContentSkill {
 	 */
 	public function bulk_generate( array $product_ids, string $tone = 'professional' ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		$results = array();
 		$success = 0;
-		$failed = 0;
+		$failed  = 0;
 
 		foreach ( array_slice( $product_ids, 0, 20 ) as $pid ) {
 			$pid = absint( $pid );
@@ -267,15 +306,15 @@ class WooCommerceContentSkill {
 
 			$r = $this->generate_description( $pid, $tone );
 			if ( $r['ok'] ) {
-				$success++;
+				++$success;
 				$results[] = array(
 					'product_id'  => $pid,
-					'product'     => $r['product'],
+					'product'     => $r['product'] ?? sprintf( __( 'Product #%d', 'sitepilot-ai' ), $pid ),
 					'description' => $r['description'],
 					'status'      => 'generated',
 				);
 			} else {
-				$failed++;
+				++$failed;
 				$results[] = array(
 					'product_id' => $pid,
 					'status'     => 'failed',
@@ -304,13 +343,19 @@ class WooCommerceContentSkill {
 	 */
 	public function apply_to_product( int $product_id, string $description, string $seo_title = '', string $seo_desc = '' ): array {
 		if ( ! $this->is_available() ) {
-			return array( 'ok' => false, 'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ) );
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+			);
 		}
 
 		try {
 			$product = wc_get_product( $product_id );
 			if ( ! $product ) {
-				return array( 'ok' => false, 'error' => __( 'Product not found.', 'sitepilot-ai' ) );
+				return array(
+					'ok'    => false,
+					'error' => __( 'Product not found.', 'sitepilot-ai' ),
+				);
 			}
 
 			// Update description.
@@ -338,7 +383,10 @@ class WooCommerceContentSkill {
 
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'wc_content_apply', $e->getMessage() );
-			return array( 'ok' => false, 'error' => $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => $e->getMessage(),
+			);
 		}
 	}
 
@@ -352,28 +400,28 @@ class WooCommerceContentSkill {
 			'ok'        => true,
 			'templates' => array(
 				array(
-					'id'   => 'description',
-					'name' => __( 'Product Description', 'sitepilot-ai' ),
+					'id'    => 'description',
+					'name'  => __( 'Product Description', 'sitepilot-ai' ),
 					'tones' => array( 'professional', 'friendly', 'luxury', 'technical' ),
 				),
 				array(
-					'id'   => 'seo',
-					'name' => __( 'SEO Title + Meta', 'sitepilot-ai' ),
+					'id'    => 'seo',
+					'name'  => __( 'SEO Title + Meta', 'sitepilot-ai' ),
 					'tones' => array(),
 				),
 				array(
-					'id'   => 'promo_short',
-					'name' => __( 'Social Media Post', 'sitepilot-ai' ),
+					'id'    => 'promo_short',
+					'name'  => __( 'Social Media Post', 'sitepilot-ai' ),
 					'tones' => array(),
 				),
 				array(
-					'id'   => 'promo_medium',
-					'name' => __( 'Email Newsletter', 'sitepilot-ai' ),
+					'id'    => 'promo_medium',
+					'name'  => __( 'Email Newsletter', 'sitepilot-ai' ),
 					'tones' => array(),
 				),
 				array(
-					'id'   => 'promo_long',
-					'name' => __( 'Blog Article', 'sitepilot-ai' ),
+					'id'    => 'promo_long',
+					'name'  => __( 'Blog Article', 'sitepilot-ai' ),
 					'tones' => array(),
 				),
 			),

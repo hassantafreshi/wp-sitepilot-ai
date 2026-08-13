@@ -11,7 +11,7 @@ final class Redactor {
 	private const REPLACEMENT = '[REDACTED]';
 
 	/** @var string[] Sensitive array keys (case-insensitive). */
-	private const SECRET_KEYS = array( 'authorization', 'api_key', 'apikey', 'key', 'provider_key', 'password', 'token', 'secret' );
+	private const SECRET_KEYS = array( 'authorization', 'api_key', 'apikey', 'key', 'provider_key', 'password', 'token', 'secret', 'sid', 'account_sid', 'auth_token', 'bot_token' );
 
 	public static function text( string $value ): string {
 		// Bearer / sk- style keys and Authorization headers.
@@ -19,6 +19,8 @@ final class Redactor {
 			'/\bBearer\s+[A-Za-z0-9._\-]+/i',
 			'/\bsk-[A-Za-z0-9._\-]{8,}/',
 			'/\b(gsk|rk)_[A-Za-z0-9._\-]{8,}/',
+			'/\b\d{6,}:[A-Za-z0-9_-]{16,}\b/',
+			'/\b(?:AC|SK)[a-zA-Z0-9]{24,}\b/',
 		);
 
 		return (string) preg_replace( $patterns, self::REPLACEMENT, $value );

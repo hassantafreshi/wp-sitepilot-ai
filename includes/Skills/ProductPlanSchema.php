@@ -62,17 +62,17 @@ final class ProductPlanSchema {
 					'enum' => array( 'instock', 'outofstock', 'onbackorder' ),
 				),
 				'stock_quantity'    => array(
-					'type'   => 'integer',
-					'minimum'=> 0,
+					'type'    => 'integer',
+					'minimum' => 0,
 				),
-				'manage_stock'       => array(
+				'manage_stock'      => array(
 					'type' => 'boolean',
 				),
 				'type'              => array(
 					'type' => 'string',
 					'enum' => array( 'simple', 'variable', 'grouped', 'external' ),
 				),
-				'image_url'          => array(
+				'image_url'         => array(
 					'type'   => 'string',
 					'format' => 'uri',
 				),
@@ -83,8 +83,8 @@ final class ProductPlanSchema {
 				'weight'            => array(
 					'type' => 'string',
 				),
-				'dimensions'         => array(
-					'type'     => 'object',
+				'dimensions'        => array(
+					'type'       => 'object',
 					'properties' => array(
 						'length' => array( 'type' => 'string' ),
 						'width'  => array( 'type' => 'string' ),

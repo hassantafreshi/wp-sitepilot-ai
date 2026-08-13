@@ -79,9 +79,12 @@ final class KbCache {
 		);
 
 		if ( count( $store ) > self::MAX_KEEP ) {
-			uasort( $store, static function ( $a, $b ) {
-				return ( (int) ( $b['ts'] ?? 0 ) ) <=> ( (int) ( $a['ts'] ?? 0 ) );
-			} );
+			uasort(
+				$store,
+				static function ( $a, $b ) {
+					return ( (int) ( $b['ts'] ?? 0 ) ) <=> ( (int) ( $a['ts'] ?? 0 ) );
+				}
+			);
 			$store = array_slice( $store, 0, self::MAX_KEEP, true );
 		}
 

@@ -92,13 +92,16 @@ final class ConversationManager {
 		}
 
 		$messages   = json_decode( $row['messages'], true ) ?? array();
-		$messages[] = array_merge( array(
-			'role'      => 'user',
-			'content'   => '',
-			'sources'   => array(),
-			'usage'     => null,
-			'timestamp' => gmdate( 'c' ),
-		), $message );
+		$messages[] = array_merge(
+			array(
+				'role'      => 'user',
+				'content'   => '',
+				'sources'   => array(),
+				'usage'     => null,
+				'timestamp' => gmdate( 'c' ),
+			),
+			$message
+		);
 
 		// Auto-generate title from first user message.
 		$title = $row['title'];
@@ -129,8 +132,9 @@ final class ConversationManager {
 	 */
 	public function get( int $conv_id ): ?array {
 		$table = $this->table();
+		$uid   = get_current_user_id();
 		$row   = $this->db->get_row(
-			$this->db->prepare( "SELECT * FROM {$table} WHERE id = %d", $conv_id ), // phpcs:ignore
+			$this->db->prepare( "SELECT * FROM {$table} WHERE id = %d AND user_id = %d", $conv_id, $uid ), // phpcs:ignore
 			ARRAY_A
 		);
 

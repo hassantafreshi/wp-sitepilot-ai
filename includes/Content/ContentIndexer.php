@@ -50,14 +50,16 @@ final class ContentIndexer {
 		}
 
 		// Category filter needs a real query to count accurately.
-		$query = new \WP_Query( array(
-			'post_type'      => $types,
-			'post_status'    => 'publish',
-			'category__in'   => $cats,
-			'fields'         => 'ids',
-			'posts_per_page' => 1,
-			'no_found_rows'  => false,
-		) );
+		$query = new \WP_Query(
+			array(
+				'post_type'      => $types,
+				'post_status'    => 'publish',
+				'category__in'   => $cats,
+				'fields'         => 'ids',
+				'posts_per_page' => 1,
+				'no_found_rows'  => false,
+			)
+		);
 
 		return (int) $query->found_posts;
 	}
@@ -74,7 +76,7 @@ final class ContentIndexer {
 	/**
 	 * Process one batch of posts.
 	 *
-	 * @param int $offset Starting offset in the post list.
+	 * @param int                                                              $offset Starting offset in the post list.
 	 * @param array{post_types?:array<int,string>, categories?:array<int,int>} $filters
 	 * @return array{
 	 *   done: bool,
@@ -88,10 +90,10 @@ final class ContentIndexer {
 	public function process_batch( int $offset = 0, array $filters = array() ): array {
 		$this->kb->ensure_schema();
 
-		$total   = $this->get_total_posts( $filters );
-		$types   = $this->resolve_types( $filters );
-		$cats    = $this->resolve_categories( $filters );
-		$items   = array();
+		$total     = $this->get_total_posts( $filters );
+		$types     = $this->resolve_types( $filters );
+		$cats      = $this->resolve_categories( $filters );
+		$items     = array();
 		$processed = 0;
 
 		// Build a unified query across the selected types (and categories, if any).
@@ -169,7 +171,7 @@ final class ContentIndexer {
 							'message' => __( 'Unchanged — skipped.', 'sitepilot-ai' ),
 						);
 					}
-					$processed++;
+					++$processed;
 					continue;
 				}
 
@@ -177,17 +179,19 @@ final class ContentIndexer {
 				$summary = $summarizer->summarize( $post );
 
 				// Store in KB.
-				$this->kb->upsert( array(
-					'post_id'      => $post_id,
-					'post_type'    => $post->post_type,
-					'title'        => $summary['title'],
-					'summary'      => $summary['summary'],
-					'keywords'     => $summary['keywords'],
-					'category'     => $summary['category'],
-					'content_type' => $summary['content_type'] ?? '',
-					'content_hash' => $content_hash,
-					'token_count'  => $summary['token_count'],
-				) );
+				$this->kb->upsert(
+					array(
+						'post_id'      => $post_id,
+						'post_type'    => $post->post_type,
+						'title'        => $summary['title'],
+						'summary'      => $summary['summary'],
+						'keywords'     => $summary['keywords'],
+						'category'     => $summary['category'],
+						'content_type' => $summary['content_type'] ?? '',
+						'content_hash' => $content_hash,
+						'token_count'  => $summary['token_count'],
+					)
+				);
 
 				// Generate the semantic embedding (best-effort; never blocks indexing).
 				if ( $embeddings_on ) {
@@ -233,7 +237,7 @@ final class ContentIndexer {
 				$this->logger->error( 'kb_index', sprintf( 'Unexpected error post %d: %s', $post_id, $e->getMessage() ) );
 			}
 
-			$processed++;
+			++$processed;
 		}
 
 		$new_offset = $offset + $processed;
@@ -293,17 +297,19 @@ final class ContentIndexer {
 			$summarizer = new ContentSummarizer( $provider );
 			$summary    = $summarizer->summarize( $post );
 
-			$this->kb->upsert( array(
-				'post_id'      => $post_id,
-				'post_type'    => $post->post_type,
-				'title'        => $summary['title'],
-				'summary'      => $summary['summary'],
-				'keywords'     => $summary['keywords'],
-				'category'     => $summary['category'],
-				'content_type' => $summary['content_type'] ?? '',
-				'content_hash' => $content_hash,
-				'token_count'  => $summary['token_count'],
-			) );
+			$this->kb->upsert(
+				array(
+					'post_id'      => $post_id,
+					'post_type'    => $post->post_type,
+					'title'        => $summary['title'],
+					'summary'      => $summary['summary'],
+					'keywords'     => $summary['keywords'],
+					'category'     => $summary['category'],
+					'content_type' => $summary['content_type'] ?? '',
+					'content_hash' => $content_hash,
+					'token_count'  => $summary['token_count'],
+				)
+			);
 
 			// Refresh the semantic embedding too (best-effort).
 			if ( $provider_manager->embeddings_enabled() ) {

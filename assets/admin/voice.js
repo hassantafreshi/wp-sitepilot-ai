@@ -1,227 +1,170 @@
 /* global SitePilotAI, SitePilotChat */
-/* Voice Input (STT) + Text-to-Speech + Karaoke Word Highlighting */
 ( function () {
 	'use strict';
 
-	var cfg = window.SitePilotAI || window.SitePilotChat || {};
+	var cfg = window.SitePilotChat || window.SitePilotAI || {};
+	var recorder = null;
+	var stream = null;
+	var chunks = [];
 	var isRecording = false;
-	var mediaRecorder = null;
-	var audioChunks = [];
+	var startedAt = 0;
+	var stopTimer = null;
+	var maxDurationMs = 45000;
 	var synth = window.speechSynthesis;
-	var currentUtterance = null;
-	var wordSpans = [];
 
-	/* ── MediaRecorder helpers ── */
+	function setStatus( message, state ) {
+		var status = document.getElementById( 'sp-chat-status' );
+		if ( ! status ) { return; }
+		status.textContent = message;
+		status.className = 'sitepilot-status' + ( state ? ' sitepilot-status--' + state : '' );
+	}
 
-	function startRecording() {
-		if ( isRecording ) { return; }
-		if ( ! navigator.mediaDevices || ! navigator.mediaDevices.getUserMedia ) {
-			setStatus( 'Voice recording is not supported in this browser.', 'error' );
-			return;
+	function updateMicButton() {
+		var button = document.getElementById( 'sp-mic-btn' );
+		if ( ! button ) { return; }
+		button.classList.toggle( 'sp-mic-btn--recording', isRecording );
+		button.setAttribute( 'aria-label', isRecording ? 'Stop voice input' : 'Start voice input' );
+		button.title = isRecording ? 'Stop voice input' : 'Start voice input';
+	}
+
+	function stopTracks() {
+		if ( stream ) {
+			stream.getTracks().forEach( function ( track ) { track.stop(); } );
+			stream = null;
 		}
-		navigator.mediaDevices.getUserMedia( { audio: true } )
-			.then( function ( stream ) {
-				mediaRecorder = new MediaRecorder( stream, { mimeType: 'audio/webm;codecs=opus' } );
-				audioChunks = [];
-				mediaRecorder.ondataavailable = function ( e ) {
-					if ( e.data.size > 0 ) { audioChunks.push( e.data ); }
-				};
-				mediaRecorder.onstop = function () {
-					stream.getTracks().forEach( function ( t ) { t.stop(); } );
-					var blob = new Blob( audioChunks, { type: 'audio/webm' } );
-					sendAudio( blob );
-				};
-				mediaRecorder.start();
-				isRecording = true;
-				setStatus( '🎤 Recording… tap mic to stop', 'recording' );
-				updateMicButton( true );
-			} )
-			.catch( function ( err ) {
-				setStatus( 'Microphone access denied: ' + err.message, 'error' );
-			} );
 	}
 
 	function stopRecording() {
-		if ( ! isRecording || ! mediaRecorder ) { return; }
-		mediaRecorder.stop();
+		if ( ! recorder || ! isRecording ) { return; }
+		if ( stopTimer ) {
+			window.clearTimeout( stopTimer );
+			stopTimer = null;
+		}
 		isRecording = false;
-		updateMicButton( false );
+		updateMicButton();
+		recorder.stop();
+	}
+
+	function submitText( transcript ) {
+		var input = document.getElementById( 'sp-chat-input' );
+		var button = document.getElementById( 'sp-chat-send' );
+		if ( ! input || ! button || button.disabled ) { return; }
+		input.value = transcript;
+		input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+		button.click();
+	}
+
+	function sendAudio( blob, durationMs ) {
+		if ( ! blob || ! blob.size ) {
+			setStatus( 'No audio was captured. Please try again.', 'error' );
+			return;
+		}
+		setStatus( 'Transcribing voice input…', 'loading' );
+		var form = new FormData();
+		form.append( 'audio', blob, 'sitepilot-chat-command.webm' );
+		form.append( 'duration_ms', String( Math.min( maxDurationMs, Math.max( 0, durationMs ) ) ) );
+		form.append( 'language', document.documentElement.lang || '' );
+
+		fetch( cfg.restUrl + 'chat/voice/transcribe', {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'X-WP-Nonce': cfg.nonce },
+			body: form,
+		} ).then( function ( response ) {
+			return response.json().then( function ( data ) {
+				if ( ! response.ok ) { throw new Error( data.message || 'Could not transcribe audio.' ); }
+				return data;
+			} );
+		} ).then( function ( data ) {
+			if ( data.ok && data.transcript ) {
+				setStatus( 'Voice command recognized. Sending it to SitePilot…', 'ok' );
+				submitText( data.transcript );
+				return;
+			}
+			setStatus( data.message || 'Could not transcribe audio.', 'error' );
+		} ).catch( function ( error ) {
+			setStatus( error.message || 'Voice transcription failed. Please try again.', 'error' );
+		} );
+	}
+
+	function startRecording() {
+		if ( isRecording ) { return; }
+		if ( ! navigator.mediaDevices || ! navigator.mediaDevices.getUserMedia || ! window.MediaRecorder ) {
+			setStatus( 'Voice recording is not supported in this browser.', 'error' );
+			return;
+		}
+
+		navigator.mediaDevices.getUserMedia( { audio: true } ).then( function ( mediaStream ) {
+			stream = mediaStream;
+			var preferred = window.MediaRecorder.isTypeSupported && window.MediaRecorder.isTypeSupported( 'audio/webm;codecs=opus' )
+				? 'audio/webm;codecs=opus'
+				: '';
+			try {
+				recorder = preferred ? new MediaRecorder( stream, { mimeType: preferred } ) : new MediaRecorder( stream );
+			} catch ( error ) {
+				stopTracks();
+				setStatus( 'This browser cannot create a supported voice recording.', 'error' );
+				return;
+			}
+			chunks = [];
+			recorder.ondataavailable = function ( event ) {
+				if ( event.data && event.data.size ) { chunks.push( event.data ); }
+			};
+			recorder.onstop = function () {
+				var duration = Math.max( 0, Date.now() - startedAt );
+				var blob = new Blob( chunks, { type: recorder.mimeType || 'audio/webm' } );
+				stopTracks();
+				sendAudio( blob, duration );
+			};
+			recorder.start();
+			startedAt = Date.now();
+			isRecording = true;
+			stopTimer = window.setTimeout( function () {
+				if ( isRecording ) {
+					setStatus( 'Maximum recording time reached. Transcribing…', 'loading' );
+					stopRecording();
+				}
+			}, maxDurationMs );
+			updateMicButton();
+			setStatus( 'Listening… Select the microphone again when you are finished.', 'recording' );
+		} ).catch( function ( error ) {
+			setStatus( 'Microphone access was denied: ' + error.message, 'error' );
+		} );
 	}
 
 	function toggleRecording() {
-		if ( isRecording ) { stopRecording(); }
-		else { startRecording(); }
+		if ( isRecording ) { stopRecording(); } else { startRecording(); }
 	}
 
-	function sendAudio( blob ) {
-		setStatus( '🧠 Transcribing speech…', 'loading' );
-		var reader = new FileReader();
-		reader.onloadend = function () {
-			var base64 = reader.result.split( ',' )[ 1 ];
-			fetch( cfg.restUrl + 'voice/transcribe', {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
-				body: JSON.stringify( { audio: base64, format: 'webm' } ),
-			} )
-				.then( function ( r ) { return r.json(); } )
-				.then( function ( data ) {
-					if ( data.ok && data.text ) {
-						setStatus( '✅ Transcribed: "' + data.text + '"', 'ok' );
-						submitText( data.text );
-					} else {
-						setStatus( data.message || 'Transcription failed.', 'error' );
-					}
-				} )
-				.catch( function () {
-					setStatus( 'Transcription network error.', 'error' );
-				} );
-		};
-		reader.readAsDataURL( blob );
-	}
-
-	function submitText( text ) {
-		var input = document.getElementById( 'sp-chat-input' );
-		if ( input ) {
-			input.value = text;
-			var event = new Event( 'input', { bubbles: true } );
-			input.dispatchEvent( event );
-			var btn = document.querySelector( '.sp-chat-send' );
-			if ( btn && ! btn.disabled ) { btn.click(); }
-		}
-	}
-
-	/* ── TTS + Karaoke Word Highlighting ── */
-
-	function speakText( text, containerEl ) {
-		if ( ! synth ) {
-			console.warn( 'SpeechSynthesis not available' );
-			return;
-		}
+	function speakText( text ) {
+		if ( ! synth || ! text ) { return false; }
 		synth.cancel();
-
-		// Build per-word spans for karaoke highlighting.
-		wordSpans = [];
-		var words = text.split( /\b/ );
-		containerEl.innerHTML = '';
-		var charOffset = 0;
-		words.forEach( function ( w ) {
-			var span = document.createElement( 'span' );
-			span.className = 'sp-word';
-			span.textContent = w;
-			span.dataset.start = charOffset;
-			span.dataset.end = charOffset + w.length;
-			containerEl.appendChild( span );
-			wordSpans.push( span );
-			charOffset += w.length;
-		} );
-
 		var utterance = new SpeechSynthesisUtterance( text );
-		utterance.rate = 1.0;
-		utterance.pitch = 1.0;
-
-		// Pick a natural voice if available.
+		utterance.lang = document.documentElement.lang || 'en-US';
 		var voices = synth.getVoices();
-		var preferred = voices.filter( function ( v ) {
-			return v.lang.startsWith( 'en' ) && v.name.includes( 'Google' );
-		} );
-		utterance.voice = preferred.length > 0 ? preferred[ 0 ] : ( voices[ 0 ] || null );
-
-		utterance.onboundary = function ( e ) {
-			if ( e.name === 'word' ) {
-				var idx = e.charIndex;
-				wordSpans.forEach( function ( span ) {
-					var start = parseInt( span.dataset.start, 10 );
-					var end = parseInt( span.dataset.end, 10 );
-					if ( idx >= start && idx < end ) {
-						wordSpans.forEach( function ( s ) { s.classList.remove( 'sp-word--active' ); } );
-						span.classList.add( 'sp-word--active' );
-						span.scrollIntoView( { block: 'nearest', behavior: 'smooth' } );
-					}
-				} );
-			}
-		};
-
-		utterance.onend = function () {
-			wordSpans.forEach( function ( s ) { s.classList.remove( 'sp-word--active' ); } );
-			updateAudioBtn( 'play' );
-		};
-
-		currentUtterance = utterance;
+		var language = utterance.lang.toLowerCase().slice( 0, 2 );
+		var preferred = voices.filter( function ( voice ) { return voice.lang.toLowerCase().slice( 0, 2 ) === language; } );
+		if ( preferred.length ) { utterance.voice = preferred[ 0 ]; }
 		synth.speak( utterance );
-		updateAudioBtn( 'pause' );
+		return true;
 	}
 
-	function stopSpeech() {
-		if ( synth ) { synth.cancel(); }
-		wordSpans.forEach( function ( s ) { s.classList.remove( 'sp-word--active' ); } );
-		updateAudioBtn( 'play' );
-	}
-
-	function toggleSpeech( text, containerEl ) {
-		if ( synth && synth.speaking ) {
-			if ( synth.paused ) { synth.resume(); updateAudioBtn( 'pause' ); }
-			else { synth.pause(); updateAudioBtn( 'play' ); }
-		} else {
-			speakText( text, containerEl );
-		}
-	}
-
-	/* ── UI helpers ── */
-
-	function updateMicButton( active ) {
-		var btn = document.getElementById( 'sp-mic-btn' );
-		if ( ! btn ) { return; }
-		btn.classList.toggle( 'sp-mic--recording', active );
-		btn.title = active ? 'Stop recording' : 'Start voice input';
-	}
-
-	function updateAudioBtn( state ) {
-		var btns = document.querySelectorAll( '.sp-audio-btn' );
-		btns.forEach( function ( b ) {
-			b.textContent = 'pause' === state ? '⏸' : '🔊';
-			b.classList.toggle( 'sp-audio--playing', 'pause' === state );
-		} );
-	}
-
-	function setStatus( msg, kind ) {
-		var el = document.getElementById( 'sp-mic-status' );
-		if ( ! el ) { return; }
-		el.textContent = msg;
-		el.className = 'sp-mic-status' + ( kind ? ' sp-mic-status--' + kind : '' );
-	}
-
-	/* ── Init ── */
-
-	function initVoice() {
-		// Wire up the mic button.
-		var micBtn = document.getElementById( 'sp-mic-btn' );
-		if ( micBtn ) {
-			micBtn.addEventListener( 'click', toggleRecording );
-		}
-
-		// Pre-load voices.
-		if ( synth ) {
-			synth.getVoices(); // Trigger async load.
-			synth.onvoiceschanged = function () { synth.getVoices(); };
-		}
-
-		// Expose for chat.js integration.
+	function init() {
+		var button = document.getElementById( 'sp-mic-btn' );
+		if ( button ) { button.addEventListener( 'click', toggleRecording ); }
+		if ( synth ) { synth.getVoices(); }
 		window.SitePilotVoice = {
 			startRecording: startRecording,
 			stopRecording: stopRecording,
 			toggleRecording: toggleRecording,
 			speakText: speakText,
-			stopSpeech: stopSpeech,
-			toggleSpeech: toggleSpeech,
-			setStatus: setStatus,
-			isSpeaking: function () { return synth && synth.speaking; },
+			toggleSpeech: function ( text ) {
+				if ( synth && synth.speaking ) { synth.cancel(); return false; }
+				return speakText( text );
+			},
+			stopSpeech: function () { if ( synth ) { synth.cancel(); } },
 		};
 	}
 
-	if ( document.readyState === 'loading' ) {
-		document.addEventListener( 'DOMContentLoaded', initVoice );
-	} else {
-		initVoice();
-	}
+	if ( document.readyState === 'loading' ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }
 } )();

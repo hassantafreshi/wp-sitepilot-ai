@@ -26,9 +26,9 @@ final class FormPlanValidator {
 	private int $max_fields;
 
 	/**
-	 * @param string[]|null            $allowed         Allowed field types.
-	 * @param string[]|null            $option_required Types that must have options.
-	 * @param string[]|null            $forbidden       Rejected field types.
+	 * @param string[]|null             $allowed         Allowed field types.
+	 * @param string[]|null             $option_required Types that must have options.
+	 * @param string[]|null             $forbidden       Rejected field types.
 	 * @param array<string,string>|null $aliases        Alias => canonical type.
 	 */
 	public function __construct(
@@ -41,8 +41,13 @@ final class FormPlanValidator {
 		$this->allowed         = $allowed ?? FormPlanSchema::ALLOWED_FIELD_TYPES;
 		$this->option_required = $option_required ?? array( 'select', 'radio' );
 		$this->forbidden       = $forbidden ?? FormPlanSchema::FORBIDDEN_FIELD_TYPES;
-		$this->aliases         = $aliases ?? array( 'phone' => 'phone' );
-		$this->max_fields      = $max_fields ?? FormPlanSchema::MAX_FIELDS;
+		// "phone" remains a friendly prompt alias; the persisted contract is
+		// the HTML-native `tel` field type.
+		$this->aliases    = $aliases ?? array(
+			'phone'     => 'tel',
+			'telephone' => 'tel',
+		);
+		$this->max_fields = $max_fields ?? FormPlanSchema::MAX_FIELDS;
 	}
 
 	public function validate( array $raw ): ValidationResult {

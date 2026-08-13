@@ -25,7 +25,7 @@ final class EfbFormConverter {
 			$title = 'Form';
 		}
 
-		$settings = EfbFormModel::template( 'form_settings' );
+		$settings             = EfbFormModel::template( 'form_settings' );
 		$settings['formName'] = $title;
 		if ( isset( $settings['thank_you_message'] ) && is_array( $settings['thank_you_message'] ) ) {
 			$confirmation = trim( (string) ( $plan['confirmation_message'] ?? '' ) );
@@ -34,10 +34,10 @@ final class EfbFormConverter {
 			}
 		}
 
-		$step         = EfbFormModel::template( 'step' );
-		$step['name'] = $title;
-		$step['step'] = '1';
-		$amount       = 1;
+		$step           = EfbFormModel::template( 'step' );
+		$step['name']   = $title;
+		$step['step']   = '1';
+		$amount         = 1;
 		$step['amount'] = (string) $amount;
 
 		$items    = array( $settings, $step );
@@ -69,12 +69,12 @@ final class EfbFormConverter {
 
 				++$step_no;
 				++$amount;
-				$new_step            = $this->build_step( '' !== $label ? $label : 'Step ' . $step_no );
-				$new_step['id_']     = (string) $step_no;
-				$new_step['dataId']  = (string) $step_no;
-				$new_step['id']      = (string) $step_no;
-				$new_step['step']    = (string) $step_no;
-				$new_step['amount']  = (string) $amount;
+				$new_step                      = $this->build_step( '' !== $label ? $label : 'Step ' . $step_no );
+				$new_step['id_']               = (string) $step_no;
+				$new_step['dataId']            = (string) $step_no;
+				$new_step['id']                = (string) $step_no;
+				$new_step['step']              = (string) $step_no;
+				$new_step['amount']            = (string) $amount;
 				$used_ids[ (string) $step_no ] = true;
 
 				$items[]       = $new_step;
@@ -89,7 +89,7 @@ final class EfbFormConverter {
 			$key = $this->unique_id( (string) ( $field['key'] ?? ( $field['label'] ?? 'field' ) ), $used_ids );
 
 			if ( 'heading' === $type ) {
-				$heading            = EfbFormModel::overrides( 'heading' );
+				$heading = EfbFormModel::overrides( 'heading' );
 				unset( $heading['__replace__'] );
 				$heading['id_']    = $key;
 				$heading['dataId'] = $key . '-id';
@@ -100,20 +100,20 @@ final class EfbFormConverter {
 				continue;
 			}
 
-			$el              = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
-			$el['id_']       = $key;
-			$el['dataId']    = $key . '-id';
-			$el['type']      = $type;
-			$el['name']      = (string) ( $field['label'] ?? '' );
+			$el                = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
+			$el['id_']         = $key;
+			$el['dataId']      = $key . '-id';
+			$el['type']        = $type;
+			$el['name']        = (string) ( $field['label'] ?? '' );
 			$el['placeholder'] = (string) ( $field['placeholder'] ?? ( $field['label'] ?? '' ) );
-			$el['required']  = ! empty( $field['required'] ) ? '1' : '0';
-			$el['step']      = (string) $step_no;
-			$el['amount']    = (string) $amount;
+			$el['required']    = ! empty( $field['required'] ) ? '1' : '0';
+			$el['step']        = (string) $step_no;
+			$el['amount']      = (string) $amount;
 
 			// Desktop width from the optional width hint (mobile stays full-width).
-			$width_map    = EfbFormModel::width_map();
-			$width        = (string) ( $field['width'] ?? 'full' );
-			$el['size']   = $width_map[ $width ] ?? '100';
+			$width_map  = EfbFormModel::width_map();
+			$width      = (string) ( $field['width'] ?? 'full' );
+			$el['size'] = $width_map[ $width ] ?? '100';
 
 			$options     = $field['options'] ?? array();
 			$has_options = is_array( $options ) && array() !== $options && in_array( $type, EfbFormModel::option_types(), true );
@@ -129,17 +129,17 @@ final class EfbFormConverter {
 				foreach ( $options as $opt ) {
 					++$n;
 					++$amount;
-					$opt_id            = $this->unique_id( $key . '_o' . $n, $used_ids );
-					$option            = EfbFormModel::template( 'option' );
-					$option['id_']     = $opt_id;
-					$option['dataId']  = $opt_id . '-id';
-					$option['parent']  = $key;
-					$option['type']    = 'option';
-					$option['value']   = (string) $opt;
-					$option['id_op']   = $opt_id;
-					$option['step']    = (string) $step_no;
-					$option['amount']  = (string) $amount;
-					$items[]           = $option;
+					$opt_id           = $this->unique_id( $key . '_o' . $n, $used_ids );
+					$option           = EfbFormModel::template( 'option' );
+					$option['id_']    = $opt_id;
+					$option['dataId'] = $opt_id . '-id';
+					$option['parent'] = $key;
+					$option['type']   = 'option';
+					$option['value']  = (string) $opt;
+					$option['id_op']  = $opt_id;
+					$option['step']   = (string) $step_no;
+					$option['amount'] = (string) $amount;
+					$items[]          = $option;
 				}
 			}
 		}
@@ -177,7 +177,7 @@ final class EfbFormConverter {
 		$key  = $this->unique_id( (string) ( $field['label'] ?? 'field' ), $used );
 
 		if ( 'heading' === $type ) {
-			$h            = EfbFormModel::overrides( 'heading' );
+			$h = EfbFormModel::overrides( 'heading' );
 			unset( $h['__replace__'] );
 			$h['id_']    = $key;
 			$h['dataId'] = $key . '-id';
@@ -188,15 +188,15 @@ final class EfbFormConverter {
 			return array( $h );
 		}
 
-		$el              = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
-		$el['id_']       = $key;
-		$el['dataId']    = $key . '-id';
-		$el['type']      = $type;
-		$el['name']      = (string) ( $field['label'] ?? '' );
+		$el                = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
+		$el['id_']         = $key;
+		$el['dataId']      = $key . '-id';
+		$el['type']        = $type;
+		$el['name']        = (string) ( $field['label'] ?? '' );
 		$el['placeholder'] = (string) ( $field['placeholder'] ?? ( $field['label'] ?? '' ) );
-		$el['required']  = ! empty( $field['required'] ) ? '1' : '0';
-		$el['step']      = '1';
-		$el['amount']    = '0';
+		$el['required']    = ! empty( $field['required'] ) ? '1' : '0';
+		$el['step']        = '1';
+		$el['amount']      = '0';
 
 		$width_map  = EfbFormModel::width_map();
 		$el['size'] = $width_map[ (string) ( $field['width'] ?? 'full' ) ] ?? '100';

@@ -56,6 +56,30 @@ if ( ! function_exists( 'esc_url' ) ) {
 	}
 }
 
+if ( ! function_exists( 'esc_url_raw' ) ) {
+	function esc_url_raw( string $url ): string {
+		return filter_var( $url, FILTER_SANITIZE_URL ) ?: '';
+	}
+}
+
+if ( ! function_exists( 'wp_parse_url' ) ) {
+	function wp_parse_url( string $url, int $component = -1 ) {
+		return -1 === $component ? parse_url( $url ) : parse_url( $url, $component );
+	}
+}
+
+if ( ! function_exists( 'wp_salt' ) ) {
+	function wp_salt( string $scheme = 'auth' ): string {
+		return 'sitepilot-test-salt-' . $scheme;
+	}
+}
+
+if ( ! function_exists( 'apply_filters' ) ) {
+	function apply_filters( string $hook_name, $value ) {
+		return $value;
+	}
+}
+
 if ( ! function_exists( 'sanitize_text_field' ) ) {
 	function sanitize_text_field( string $str ): string {
 		return trim( strip_tags( $str ) );
@@ -74,6 +98,18 @@ if ( ! function_exists( 'sanitize_email' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_key' ) ) {
+	function sanitize_key( string $key ): string {
+		return strtolower( preg_replace( '/[^a-z0-9_\-]/', '', $key ) ?? '' );
+	}
+}
+
+if ( ! function_exists( 'is_email' ) ) {
+	function is_email( string $email ) {
+		return false !== filter_var( $email, FILTER_VALIDATE_EMAIL ) ? $email : false;
+	}
+}
+
 if ( ! function_exists( 'absint' ) ) {
 	function absint( $number ): int {
 		return abs( (int) $number );
@@ -87,7 +123,11 @@ if ( ! function_exists( 'wp_kses_post' ) ) {
 }
 
 if ( ! function_exists( 'wp_strip_all_tags' ) ) {
-	function wp_strip_all_tags( string $string ): string {
+	function wp_strip_all_tags( string $string, bool $remove_breaks = false ): string {
+		$string = preg_replace( '@<(script|style)[^>]*?>.*?</\1>@si', '', $string ) ?? $string;
+		if ( $remove_breaks ) {
+			$string = preg_replace( '/[\r\n\t ]+/', ' ', $string ) ?? $string;
+		}
 		return strip_tags( $string );
 	}
 }
@@ -95,6 +135,42 @@ if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 if ( ! function_exists( 'get_option' ) ) {
 	function get_option( string $option, $default = false ) {
 		return $default;
+	}
+}
+
+if ( ! function_exists( 'get_current_user_id' ) ) {
+	function get_current_user_id(): int {
+		return (int) ( $GLOBALS['sitepilot_test_user_id'] ?? 1 );
+	}
+}
+
+if ( ! function_exists( 'set_transient' ) ) {
+	function set_transient( string $key, $value, int $expiration = 0 ): bool {
+		$GLOBALS['sitepilot_test_transients'][ $key ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_transient' ) ) {
+	function get_transient( string $key ) {
+		return $GLOBALS['sitepilot_test_transients'][ $key ] ?? false;
+	}
+}
+
+if ( ! function_exists( 'delete_transient' ) ) {
+	function delete_transient( string $key ): bool {
+		unset( $GLOBALS['sitepilot_test_transients'][ $key ] );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'add_option' ) ) {
+	function add_option( string $option, $value = '', string $deprecated = '', $autoload = true ): bool {
+		if ( isset( $GLOBALS['sitepilot_test_added_options'][ $option ] ) ) {
+			return false;
+		}
+		$GLOBALS['sitepilot_test_added_options'][ $option ] = $value;
+		return true;
 	}
 }
 

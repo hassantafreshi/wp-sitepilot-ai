@@ -653,3 +653,76 @@
 .rtl .sitepilot-chat-input__actions .button-primary .dashicons {
 	transform: scaleX(-1);
 }
+
+/* WP-06 visual alignment: the shared screen header sits above the chat app;
+   this compact rail is the active conversation context inside the app. */
+.sitepilot-screen--chat .sitepilot-chat-layout {
+	margin-top: 0;
+	border-radius: 16px;
+	background: rgba(255, 255, 255, .92);
+}
+
+.sitepilot-screen--chat .sitepilot-chat-sidebar {
+	background: linear-gradient(160deg, #eef2ff 0%, #f5f3ff 55%, #faf5ff 100%);
+}
+
+.sitepilot-screen--chat .sitepilot-chat-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 42px;
+	padding: 13px 18px;
+	background: rgba(255, 255, 255, .8);
+}
+
+.sitepilot-screen--chat .sitepilot-chat-header strong,
+.sitepilot-screen--chat .sitepilot-chat-header span {
+	display: block;
+}
+
+.sitepilot-screen--chat .sitepilot-chat-header strong {
+	color: var(--sp-text);
+	font-size: 13px;
+}
+
+.sitepilot-screen--chat .sitepilot-chat-header div > span {
+	margin-top: 2px;
+	color: var(--sp-text-muted);
+	font-size: 11px;
+}
+
+.sitepilot-screen--chat .sitepilot-chat-header > .sitepilot-screen__badge {
+	display: inline-flex;
+}
+
+.sitepilot-screen--chat .sitepilot-chat-welcome__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 56px;
+	height: 56px;
+	border: 1px solid rgba(79, 70, 229, .16);
+	border-radius: 16px;
+	background: var(--sp-gradient-soft);
+	color: var(--sp-primary);
+	font-size: 0;
+}
+
+.sitepilot-screen--chat .sitepilot-chat-welcome__icon::before {
+	font-family: dashicons;
+	font-size: 26px;
+	content: "\f125";
+}
+
+.sitepilot-screen--chat .sitepilot-chat-input-wrap {
+	padding: 14px 18px;
+	background: #fcfcfd;
+}
+
+@media (max-width: 782px) {
+	.sitepilot-screen--chat .sitepilot-chat-header {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}

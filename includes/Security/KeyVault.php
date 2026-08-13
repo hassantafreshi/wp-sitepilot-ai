@@ -12,7 +12,7 @@ namespace SitePilot\Security;
  */
 final class KeyVault {
 
-	private const MAGIC_SODIUM = 'sp1';
+	private const MAGIC_SODIUM  = 'sp1';
 	private const MAGIC_OPENSSL = 'sp2';
 
 	/** @var string 32 raw bytes. */
@@ -79,6 +79,9 @@ final class KeyVault {
 			if ( ! function_exists( 'sodium_crypto_secretbox_open' ) ) {
 				throw new \RuntimeException( 'libsodium unavailable to decrypt.' );
 			}
+			if ( strlen( $raw ) <= SODIUM_CRYPTO_SECRETBOX_NONCEBYTES ) {
+				throw new \RuntimeException( 'Malformed ciphertext.' );
+			}
 			$nonce  = substr( $raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
 			$cipher = substr( $raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
 			$plain  = sodium_crypto_secretbox_open( $cipher, $nonce, $this->key );
@@ -90,6 +93,9 @@ final class KeyVault {
 		}
 
 		if ( self::MAGIC_OPENSSL === $magic ) {
+			if ( strlen( $raw ) <= 28 ) {
+				throw new \RuntimeException( 'Malformed ciphertext.' );
+			}
 			$iv     = substr( $raw, 0, 12 );
 			$tag    = substr( $raw, 12, 16 );
 			$cipher = substr( $raw, 28 );

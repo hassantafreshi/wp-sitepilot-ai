@@ -78,6 +78,33 @@
 			} );
 	}
 
+	function onFormDeliveryTest() {
+		var result = $( 'sp-form-delivery-test-result' );
+		if ( ! result ) {
+			return;
+		}
+		result.className = 'sitepilot-status';
+		result.textContent = 'Sending test…';
+
+		fetch( cfg.restUrl + 'forms/delivery/test', {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
+			body: JSON.stringify( {} ),
+		} )
+			.then( function ( response ) {
+				return response.json();
+			} )
+			.then( function ( data ) {
+				result.className = 'sitepilot-status ' + ( data.ok ? 'sitepilot-status--ok' : 'sitepilot-status--error' );
+				result.textContent = data.message || ( data.ok ? 'Test accepted.' : 'Test failed.' );
+			} )
+			.catch( function () {
+				result.className = 'sitepilot-status sitepilot-status--error';
+				result.textContent = 'Network error.';
+			} );
+	}
+
 	function init() {
 		var provider = $( 'sp-provider' );
 		if ( provider ) {
@@ -89,6 +116,10 @@
 		var test = $( 'sp-test' );
 		if ( test ) {
 			test.addEventListener( 'click', onTest );
+		}
+		var deliveryTest = $( 'sp-test-form-delivery' );
+		if ( deliveryTest ) {
+			deliveryTest.addEventListener( 'click', onFormDeliveryTest );
 		}
 	}
 

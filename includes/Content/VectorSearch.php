@@ -81,9 +81,12 @@ final class VectorSearch {
 			$scored[]       = $entry;
 		}
 
-		usort( $scored, static function ( $a, $b ) {
-			return $b['score'] <=> $a['score'];
-		} );
+		usort(
+			$scored,
+			static function ( $a, $b ) {
+				return $b['score'] <=> $a['score'];
+			}
+		);
 
 		return array_slice( $scored, 0, max( 1, $limit ) );
 	}

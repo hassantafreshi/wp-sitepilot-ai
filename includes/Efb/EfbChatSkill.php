@@ -18,10 +18,10 @@ final class EfbChatSkill {
 	}
 
 	/**
-	 * @param array<int,array{role:string,text:string}> $history
+	 * @param array<int,array{role:string,text:string}>            $history
 	 * @param array<int,array{id:string,label:string,type:string}> $fields
-	 * @param array<int,array{id:string,label:string}> $steps
-	 * @param array<string,mixed> $license
+	 * @param array<int,array{id:string,label:string}>             $steps
+	 * @param array<string,mixed>                                  $license
 	 * @return array<string,mixed>
 	 * @throws \SitePilot\Providers\ProviderException
 	 */
@@ -33,10 +33,10 @@ final class EfbChatSkill {
 	}
 
 	private function system_prompt(): string {
-		$caps = EfbFormModel::capabilities_for_prompt();
+		$caps                       = EfbFormModel::capabilities_for_prompt();
 		$customization_capabilities = EfbFormModel::customization_capabilities_for_prompt();
-		$field_types = EfbFormModel::field_types_for_prompt();
-		$language_rule = $this->language_rule();
+		$field_types                = EfbFormModel::field_types_for_prompt();
+		$language_rule              = $this->language_rule();
 
 		return <<<PROMPT
 You are SitePilot, a friendly assistant embedded in the WordPress plugin Easy Form Builder.
@@ -117,13 +117,13 @@ PROMPT;
 	}
 
 	/**
-	 * @param array<int,array{role:string,text:string}> $history
+	 * @param array<int,array{role:string,text:string}>            $history
 	 * @param array<int,array{id:string,label:string,type:string}> $fields
-	 * @param array<int,array{id:string,label:string}> $steps
-	 * @param array<string,mixed> $license
+	 * @param array<int,array{id:string,label:string}>             $steps
+	 * @param array<string,mixed>                                  $license
 	 */
 	private function user_prompt( string $message, array $history, bool $has_form, array $fields, array $steps, array $license ): string {
-		$ctx = 'FORM_OPEN=' . ( $has_form ? 'yes' : 'no' ) . "\n";
+		$ctx  = 'FORM_OPEN=' . ( $has_form ? 'yes' : 'no' ) . "\n";
 		$ctx .= 'EFB_PLAN=' . (string) ( $license['tier'] ?? 'unknown' ) . "\n";
 
 		if ( $has_form && array() !== $fields ) {
@@ -145,7 +145,7 @@ PROMPT;
 		if ( array() !== $history ) {
 			$turns = array();
 			foreach ( array_slice( $history, -8 ) as $turn ) {
-				$role = ( ( $turn['role'] ?? '' ) === 'user' ) ? 'User' : 'Assistant';
+				$role    = ( ( $turn['role'] ?? '' ) === 'user' ) ? 'User' : 'Assistant';
 				$turns[] = $role . ': ' . trim( (string) ( $turn['text'] ?? '' ) );
 			}
 			$ctx .= "HISTORY:\n" . implode( "\n", $turns ) . "\n";

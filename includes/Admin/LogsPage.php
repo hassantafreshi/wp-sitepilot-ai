@@ -50,10 +50,9 @@ final class LogsPage {
 		<div class="wrap sitepilot-wrap">
 			<h1 class="sitepilot-title">
 				<span class="dashicons dashicons-list-view"></span>
-				<?php esc_html_e( 'Activity Log', 'sitepilot-ai' ); ?>
+				<?php esc_html_e( 'Action history', 'sitepilot-ai' ); ?>
 			</h1>
-			<p class="sitepilot-subtitle"><?php esc_html_e( 'Recent Copilot activity. Secrets are never stored here.', 'sitepilot-ai' ); ?></p>
-
+			<p class="sitepilot-subtitle"><?php esc_html_e( 'Review recent Copilot actions and operational events. Secrets and visitor submissions are never stored here.', 'sitepilot-ai' ); ?></p>
 			<div class="sitepilot-card sp-logs-card">
 				<div class="sp-logs-toolbar">
 					<div class="sp-logs-filters">

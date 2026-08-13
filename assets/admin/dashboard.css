@@ -292,6 +292,49 @@
 	color: var(--sp-text-secondary, #646970);
 }
 
+/* WP-12 dashboard hierarchy. All dashboard.js IDs remain untouched. */
+.sitepilot-screen--woo-dashboard .sp-dashboard-stats {
+	margin-top: 0;
+}
+
+.sitepilot-screen--woo-dashboard .sp-stat-card {
+	position: relative;
+	overflow: hidden;
+	border-color: rgba(226, 228, 231, .9);
+	background: rgba(255, 255, 255, .86);
+}
+
+.sitepilot-screen--woo-dashboard .sp-stat-card::after {
+	position: absolute;
+	top: 0;
+	inset-inline: 14px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--sp-gradient);
+	content: '';
+}
+
+.sitepilot-screen--woo-dashboard .sp-dashboard-card {
+	border-color: rgba(226, 228, 231, .9);
+	background: rgba(255, 255, 255, .88);
+}
+
+.sitepilot-screen--woo-dashboard .sp-dashboard-card h2 {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--sp-border-light);
+}
+
+.sitepilot-screen--woo-dashboard .sp-dashboard-card--actions {
+	background: linear-gradient(135deg, rgba(238,242,255,.72), rgba(255,255,255,.9));
+}
+
+.sitepilot-screen--woo-dashboard .sp-action-btn {
+	background: rgba(255,255,255,.9);
+}
+
 /* RTL Support */
 .rtl .sp-product-rank {
 	margin-right: 0;

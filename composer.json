@@ -10,7 +10,10 @@
 		"phpunit/phpunit": "^9.6 || ^10.5",
 		"squizlabs/php_codesniffer": "^3.9",
 		"wp-coding-standards/wpcs": "^3.1",
-		"phpstan/phpstan": "^1.11"
+		"phpstan/phpstan": "^2.2",
+		"php-stubs/wordpress-stubs": "^6.9",
+		"szepeviktor/phpstan-wordpress": "^2.0",
+		"php-stubs/woocommerce-stubs": "^11"
 	},
 	"autoload": {
 		"psr-4": {
@@ -29,7 +32,7 @@
 	},
 	"scripts": {
 		"test": "phpunit",
-		"lint": "phpcs",
-		"analyze": "phpstan analyse includes --level=5"
+		"lint": "phpcs --warning-severity=0",
+		"analyze": "phpstan analyse --configuration=phpstan.neon --memory-limit=2G"
 	}
 }

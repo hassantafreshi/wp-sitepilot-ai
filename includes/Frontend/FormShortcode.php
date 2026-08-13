@@ -4,14 +4,21 @@ declare(strict_types=1);
 namespace SitePilot\Frontend;
 
 use SitePilot\Connectors\NativeFormConnector;
+use SitePilot\Forms\NativeFormSubmission;
+use SitePilot\Logging\Logger;
 
 /**
- * Renders a built-in SitePilot form via [sitepilot_form id="123"] and handles
- * its submissions safely (nonce + sanitize + store).
+ * Renders [sitepilot_form id="123"] and delivers submissions by email only.
+ *
+ * Submission values are validated in memory, sent with wp_mail(), then
+ * discarded. SitePilot never creates a submission post, post meta, log entry,
+ * or option containing visitor-supplied values.
  */
 final class FormShortcode {
 
-	private const ACTION = 'sitepilot_form_submit';
+	private const ACTION      = 'sitepilot_form_submit';
+	private const RATE_LIMIT  = 5;
+	private const RATE_WINDOW = 600;
 
 	public function register(): void {
 		add_shortcode( 'sitepilot_form', array( $this, 'render' ) );
@@ -36,13 +43,17 @@ final class FormShortcode {
 		if ( ! $post || NativeFormConnector::POST_TYPE !== $post->post_type ) {
 			return '';
 		}
+		if ( 'publish' !== $post->post_status && ! current_user_can( 'edit_post', $id ) ) {
+			return '';
+		}
 
 		$plan = get_post_meta( $id, NativeFormConnector::META_KEY, true );
 		if ( ! is_array( $plan ) || empty( $plan['fields'] ) ) {
 			return '';
 		}
 
-		$submitted = isset( $_GET['sp_form_sent'] ) && (int) $_GET['sp_form_sent'] === $id; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$submitted = isset( $_GET['sp_form_sent'] ) && (int) $_GET['sp_form_sent'] === $id; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only redirect state.
+		$error     = isset( $_GET['sp_form_error'] ) ? sanitize_key( (string) wp_unslash( $_GET['sp_form_error'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only redirect state.
 
 		wp_enqueue_style( 'sitepilot-form' );
 
@@ -50,18 +61,25 @@ final class FormShortcode {
 		?>
 		<div class="sitepilot-form">
 			<?php if ( $submitted ) : ?>
-				<div class="sitepilot-form__confirmation">
+				<div class="sitepilot-form__confirmation" role="status">
 					<?php echo esc_html( (string) ( $plan['confirmation_message'] ?? __( 'Thank you.', 'sitepilot-ai' ) ) ); ?>
 				</div>
 			<?php else : ?>
+				<?php if ( '' !== $error ) : ?>
+					<div class="sitepilot-form__error" role="alert"><?php echo esc_html( $this->error_message( $error ) ); ?></div>
+				<?php endif; ?>
 				<?php if ( ! empty( $plan['description'] ) ) : ?>
 					<p class="sitepilot-form__desc"><?php echo esc_html( (string) $plan['description'] ); ?></p>
 				<?php endif; ?>
-				<form class="sitepilot-form__form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
+				<form class="sitepilot-form__form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 					<input type="hidden" name="action" value="<?php echo esc_attr( self::ACTION ); ?>" />
 					<input type="hidden" name="form_id" value="<?php echo esc_attr( (string) $id ); ?>" />
 					<?php wp_nonce_field( self::ACTION . '_' . $id, 'sp_nonce' ); ?>
-					<?php echo $this->render_fields( (array) $plan['fields'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped per field below. ?>
+					<div class="sitepilot-form__honeypot" aria-hidden="true">
+						<label for="sp-website-<?php echo esc_attr( (string) $id ); ?>"><?php esc_html_e( 'Website', 'sitepilot-ai' ); ?></label>
+						<input id="sp-website-<?php echo esc_attr( (string) $id ); ?>" type="text" name="sp_website" tabindex="-1" autocomplete="off" />
+					</div>
+					<?php echo $this->render_fields( (array) $plan['fields'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every dynamic field value is escaped below. ?>
 					<button type="submit" class="sitepilot-form__submit">
 						<?php echo esc_html( (string) ( $plan['submit_button'] ?? __( 'Submit', 'sitepilot-ai' ) ) ); ?>
 					</button>
@@ -86,16 +104,20 @@ final class FormShortcode {
 			$name     = 'sp_field_' . $key;
 			$id_attr  = 'sp-' . $key;
 			$req_attr = $required ? ' required' : '';
-			$req_mark = $required ? ' <span class="sitepilot-form__req">*</span>' : '';
+			$req_mark = $required ? ' <span class="sitepilot-form__req" aria-hidden="true">*</span>' : '';
+
+			if ( '' === $key || '' === $label ) {
+				continue;
+			}
 
 			$html .= '<div class="sitepilot-form__row">';
-			$html .= '<label for="' . esc_attr( $id_attr ) . '">' . $label . $req_mark . '</label>';
-
 			switch ( $type ) {
 				case 'textarea':
+					$html .= '<label for="' . esc_attr( $id_attr ) . '">' . $label . $req_mark . '</label>';
 					$html .= '<textarea id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" placeholder="' . $ph . '"' . $req_attr . '></textarea>';
 					break;
 				case 'select':
+					$html .= '<label for="' . esc_attr( $id_attr ) . '">' . $label . $req_mark . '</label>';
 					$html .= '<select id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '"' . $req_attr . '>';
 					$html .= '<option value="">' . esc_html__( '— Select —', 'sitepilot-ai' ) . '</option>';
 					foreach ( (array) ( $field['options'] ?? array() ) as $opt ) {
@@ -105,45 +127,58 @@ final class FormShortcode {
 					break;
 				case 'radio':
 				case 'checkbox':
-					$input_type = 'radio' === $type ? 'radio' : 'checkbox';
-					$options    = (array) ( $field['options'] ?? array() );
-					if ( 'checkbox' === $type && array() === $options ) {
-						$html .= '<label class="sitepilot-form__check"><input type="checkbox" name="' . esc_attr( $name ) . '" value="1"' . $req_attr . ' /> ' . $label . '</label>';
-					} else {
-						$field_name = 'checkbox' === $type ? $name . '[]' : $name;
-						foreach ( $options as $opt ) {
-							$html .= '<label class="sitepilot-form__check"><input type="' . esc_attr( $input_type ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( (string) $opt ) . '" /> ' . esc_html( (string) $opt ) . '</label>';
-						}
-					}
-					break;
-				case 'file':
-					$html .= '<input type="file" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '"' . $req_attr . ' />';
+					$html .= $this->render_choice_field( $field, $name, $id_attr, $label, $required, $req_mark );
 					break;
 				case 'email':
-					$html .= '<input type="email" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" placeholder="' . $ph . '"' . $req_attr . ' />';
-					break;
-				case 'phone':
-					$html .= '<input type="tel" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" placeholder="' . $ph . '"' . $req_attr . ' />';
-					break;
+				case 'tel':
+				case 'text':
 				default:
-					$html .= '<input type="text" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" placeholder="' . $ph . '"' . $req_attr . ' />';
+					$input_type = in_array( $type, array( 'email', 'tel' ), true ) ? $type : 'text';
+					$html      .= '<label for="' . esc_attr( $id_attr ) . '">' . $label . $req_mark . '</label>';
+					$html      .= '<input type="' . esc_attr( $input_type ) . '" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" placeholder="' . $ph . '"' . $req_attr . ' />';
 			}
-
 			$html .= '</div>';
 		}
 
 		return $html;
 	}
 
-	/**
-	 * Store a submission and redirect back with a confirmation flag.
-	 */
+	/** @param array<string,mixed> $field */
+	private function render_choice_field( array $field, string $name, string $id_attr, string $label, bool $required, string $req_mark ): string {
+		$type    = (string) $field['type'];
+		$options = (array) ( $field['options'] ?? array() );
+		$html    = '<fieldset class="sitepilot-form__choices"><legend>' . $label . $req_mark . '</legend>';
+
+		if ( 'checkbox' === $type && array() === $options ) {
+			$html .= '<label class="sitepilot-form__check" for="' . esc_attr( $id_attr ) . '">';
+			$html .= '<input type="checkbox" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" value="1"' . ( $required ? ' required' : '' ) . ' /> ';
+			$html .= $label . '</label>';
+			return $html . '</fieldset>';
+		}
+
+		$field_name = 'checkbox' === $type ? $name . '[]' : $name;
+		foreach ( $options as $index => $option ) {
+			$choice_id = $id_attr . '-' . (int) $index;
+			$html     .= '<label class="sitepilot-form__check" for="' . esc_attr( $choice_id ) . '">';
+			$html     .= '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $choice_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( (string) $option ) . '" /> ';
+			$html     .= esc_html( (string) $option ) . '</label>';
+		}
+
+		return $html . '</fieldset>';
+	}
+
+	/** Deliver a validated submission and redirect without persisting values. */
 	public function handle_submit(): void {
-		$form_id = isset( $_POST['form_id'] ) ? (int) $_POST['form_id'] : 0;
-		$nonce   = isset( $_POST['sp_nonce'] ) ? sanitize_key( wp_unslash( $_POST['sp_nonce'] ) ) : '';
+		$form_id = isset( $_POST['form_id'] ) ? absint( wp_unslash( $_POST['form_id'] ) ) : 0;
+		$nonce   = isset( $_POST['sp_nonce'] ) ? sanitize_text_field( (string) wp_unslash( $_POST['sp_nonce'] ) ) : '';
 
 		if ( $form_id <= 0 || ! wp_verify_nonce( $nonce, self::ACTION . '_' . $form_id ) ) {
 			wp_die( esc_html__( 'Invalid form submission.', 'sitepilot-ai' ), '', array( 'response' => 400 ) );
+		}
+
+		$post = get_post( $form_id );
+		if ( ! $post || NativeFormConnector::POST_TYPE !== $post->post_type || 'publish' !== $post->post_status ) {
+			wp_die( esc_html__( 'Form not found.', 'sitepilot-ai' ), '', array( 'response' => 404 ) );
 		}
 
 		$plan = get_post_meta( $form_id, NativeFormConnector::META_KEY, true );
@@ -151,38 +186,121 @@ final class FormShortcode {
 			wp_die( esc_html__( 'Form not found.', 'sitepilot-ai' ), '', array( 'response' => 404 ) );
 		}
 
-		$values = array();
-		foreach ( (array) $plan['fields'] as $field ) {
-			$key  = sanitize_key( (string) ( $field['key'] ?? '' ) );
-			$name = 'sp_field_' . $key;
-			if ( ! isset( $_POST[ $name ] ) ) {
+		// A completed honeypot receives a harmless success redirect. No mail,
+		// no logging and no rate-limit state is created for bot-supplied data.
+		if ( ! empty( $_POST['sp_website'] ) ) {
+			$this->redirect( $form_id, 'sent' );
+		}
+		if ( $this->is_rate_limited( $form_id ) ) {
+			$this->redirect( $form_id, 'rate_limited' );
+		}
+
+		$input  = wp_unslash( $_POST );
+		$result = ( new NativeFormSubmission() )->validate( (array) $plan['fields'], is_array( $input ) ? $input : array() );
+		if ( ! $result['ok'] ) {
+			$this->redirect( $form_id, 'invalid' );
+		}
+
+		$recipient = sanitize_email( (string) ( $plan['notification_email'] ?? '' ) );
+		if ( '' === $recipient || ! is_email( $recipient ) ) {
+			$this->audit_delivery( 'form.delivery_config_invalid', $form_id );
+			$this->redirect( $form_id, 'delivery' );
+		}
+
+		if ( ! wp_mail( $recipient, $this->email_subject( $plan ), $this->email_body( $plan, $result['values'] ), $this->email_headers( $plan, $result['values'] ) ) ) {
+			$this->audit_delivery( 'form.email_failed', $form_id );
+			$this->redirect( $form_id, 'delivery' );
+		}
+
+		$this->audit_delivery( 'form.email_sent', $form_id );
+		$this->redirect( $form_id, 'sent' );
+	}
+
+	/** @param array<string,mixed> $plan */
+	private function email_subject( array $plan ): string {
+		$site  = str_replace( array( "\r", "\n" ), '', wp_strip_all_tags( (string) get_bloginfo( 'name' ) ) );
+		$title = str_replace( array( "\r", "\n" ), '', wp_strip_all_tags( (string) ( $plan['title'] ?? __( 'Form', 'sitepilot-ai' ) ) ) );
+		return sprintf( '[%s] %s', $site, $title );
+	}
+
+	/** @param array<string,mixed> $plan @param array<string,string> $values */
+	private function email_body( array $plan, array $values ): string {
+		$lines = array(
+			__( 'New SitePilot Form submission', 'sitepilot-ai' ),
+			sprintf( __( 'Form: %s', 'sitepilot-ai' ), wp_strip_all_tags( (string) ( $plan['title'] ?? '' ) ) ),
+			'',
+		);
+		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
+			$key = sanitize_key( (string) ( $field['key'] ?? '' ) );
+			if ( '' === $key || ! isset( $values[ $key ] ) ) {
 				continue;
 			}
-			$raw = wp_unslash( $_POST[ $name ] );
-			if ( is_array( $raw ) ) {
-				$values[ $key ] = implode( ', ', array_map( 'sanitize_text_field', $raw ) );
-			} else {
-				$values[ $key ] = sanitize_textarea_field( (string) $raw );
+			$label   = wp_strip_all_tags( (string) ( $field['label'] ?? $key ) );
+			$lines[] = $label . ': ' . $values[ $key ];
+		}
+		if ( 3 === count( $lines ) ) {
+			$lines[] = __( '(No optional fields were completed.)', 'sitepilot-ai' );
+		}
+
+		return implode( "\n", $lines );
+	}
+
+	/** @param array<string,mixed> $plan @param array<string,string> $values @return string[] */
+	private function email_headers( array $plan, array $values ): array {
+		$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
+		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
+			if ( 'email' !== ( $field['type'] ?? '' ) ) {
+				continue;
+			}
+			$key   = sanitize_key( (string) ( $field['key'] ?? '' ) );
+			$email = sanitize_email( (string) ( $values[ $key ] ?? '' ) );
+			if ( '' !== $email && is_email( $email ) ) {
+				$headers[] = 'Reply-To: ' . $email;
+				break;
 			}
 		}
+		return $headers;
+	}
 
-		$submission_id = wp_insert_post(
-			array(
-				'post_type'   => NativeFormConnector::SUBMISSION_TYPE,
-				'post_status' => 'private',
-				/* translators: %s: form title. */
-				'post_title'  => sprintf( __( 'Submission: %s', 'sitepilot-ai' ), (string) ( $plan['title'] ?? '' ) ),
-			),
-			true
-		);
-
-		if ( ! is_wp_error( $submission_id ) ) {
-			update_post_meta( $submission_id, '_sitepilot_submission_form', $form_id );
-			update_post_meta( $submission_id, '_sitepilot_submission_values', wp_slash( $values ) );
+	private function is_rate_limited( int $form_id ): bool {
+		$key   = $this->rate_limit_key( $form_id );
+		$count = (int) get_transient( $key );
+		if ( $count >= self::RATE_LIMIT ) {
+			return true;
 		}
+		set_transient( $key, $count + 1, self::RATE_WINDOW );
+		return false;
+	}
 
-		$redirect = wp_get_referer() ? wp_get_referer() : home_url();
-		wp_safe_redirect( add_query_arg( 'sp_form_sent', $form_id, remove_query_arg( 'sp_form_sent', $redirect ) ) );
+	private function rate_limit_key( int $form_id ): string {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : 'unknown';
+		if ( false === filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+			$ip = 'unknown';
+		}
+		return 'sitepilot_form_rate_' . $form_id . '_' . substr( hash_hmac( 'sha256', $form_id . '|' . $ip, wp_salt( 'nonce' ) ), 0, 20 );
+	}
+
+	private function redirect( int $form_id, string $state ): void {
+		$redirect = wp_get_referer() ?: get_permalink( $form_id );
+		if ( ! is_string( $redirect ) || '' === $redirect ) {
+			$redirect = home_url();
+		}
+		$redirect = remove_query_arg( array( 'sp_form_sent', 'sp_form_error' ), $redirect );
+		$args     = 'sent' === $state ? array( 'sp_form_sent' => $form_id ) : array( 'sp_form_error' => sanitize_key( $state ) );
+		wp_safe_redirect( add_query_arg( $args, $redirect ) );
 		exit;
+	}
+
+	private function error_message( string $error ): string {
+		$messages = array(
+			'invalid'      => __( 'Please check the required fields and try again.', 'sitepilot-ai' ),
+			'rate_limited' => __( 'Too many submissions. Please wait a few minutes and try again.', 'sitepilot-ai' ),
+			'delivery'     => __( 'We could not send your submission. Please try again later.', 'sitepilot-ai' ),
+		);
+		return $messages[ $error ] ?? __( 'We could not process your submission. Please try again.', 'sitepilot-ai' );
+	}
+
+	private function audit_delivery( string $event, int $form_id ): void {
+		( new Logger() )->info( $event, 'SitePilot Form delivery outcome.', array( 'form_id' => $form_id ) );
 	}
 }

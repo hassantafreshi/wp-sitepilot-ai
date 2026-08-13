@@ -45,13 +45,13 @@ final class WpConnectors {
 			'description' => __( 'AI copilot for WordPress — form creation, content intelligence, and site assistance.', 'sitepilot-ai' ),
 			'icon'        => 'dashicons-superhero',
 			'auth'        => array(
-				'type'         => 'api_key',
-				'setting_name' => self::WP_OPTION_KEY,
-				'env_var_name' => 'SITEPILOT_AI_API_KEY',
+				'type'          => 'api_key',
+				'setting_name'  => self::WP_OPTION_KEY,
+				'env_var_name'  => 'SITEPILOT_AI_API_KEY',
 				'constant_name' => 'SITEPILOT_AI_API_KEY',
-				'label'        => __( 'API Key', 'sitepilot-ai' ),
-				'description'  => __( 'Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Clusy.io, or any OpenAI-compatible provider).', 'sitepilot-ai' ),
-				'key_url'      => 'https://platform.deepseek.com/api_keys',
+				'label'         => __( 'API Key', 'sitepilot-ai' ),
+				'description'   => __( 'Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Clusy.io, or any OpenAI-compatible provider).', 'sitepilot-ai' ),
+				'key_url'       => 'https://platform.deepseek.com/api_keys',
 			),
 		);
 

@@ -15,9 +15,9 @@ final class ChatController {
 	 * POST /chat/ask — Ask a question (with existing conversation context).
 	 */
 	public function ask( \WP_REST_Request $request ): \WP_REST_Response {
-		$question = sanitize_text_field( (string) $request->get_param( 'question' ) );
-		if ( '' === trim( $question ) ) {
-			return $this->respond( array( 'message' => __( 'Please enter a question.', 'sitepilot-ai' ) ), false, 400 );
+		$question = trim( sanitize_textarea_field( (string) $request->get_param( 'question' ) ) );
+		if ( '' === $question || mb_strlen( $question ) > 2000 ) {
+			return $this->respond( array( 'message' => __( 'Please enter a question of up to 2,000 characters.', 'sitepilot-ai' ) ), false, 400 );
 		}
 
 		$conv_id = absint( $request->get_param( 'conversation_id' ) );
@@ -26,6 +26,8 @@ final class ChatController {
 		// Create or get conversation.
 		if ( $conv_id <= 0 ) {
 			$conv_id = $manager->create();
+		} elseif ( ! $manager->get( $conv_id ) ) {
+			return $this->respond( array( 'message' => __( 'Conversation not found.', 'sitepilot-ai' ) ), false, 404 );
 		}
 
 		// Get conversation context.
@@ -36,16 +38,22 @@ final class ChatController {
 		$result = $engine->ask( $question, $context );
 
 		// Save messages.
-		$manager->add_message( $conv_id, array(
-			'role'    => 'user',
-			'content' => $question,
-		) );
-		$manager->add_message( $conv_id, array(
-			'role'    => 'assistant',
-			'content' => $result['answer'],
-			'sources' => $result['sources'],
-			'usage'   => $result['usage'],
-		) );
+		$manager->add_message(
+			$conv_id,
+			array(
+				'role'    => 'user',
+				'content' => $question,
+			)
+		);
+		$manager->add_message(
+			$conv_id,
+			array(
+				'role'    => 'assistant',
+				'content' => $result['answer'],
+				'sources' => $result['sources'],
+				'usage'   => $result['usage'],
+			)
+		);
 
 		$result['conversation_id'] = $conv_id;
 
@@ -56,7 +64,7 @@ final class ChatController {
 	 * POST /chat/create — Create a new empty conversation.
 	 */
 	public function create( \WP_REST_Request $request ): \WP_REST_Response {
-		$title  = sanitize_text_field( (string) $request->get_param( 'title' ) );
+		$title   = mb_substr( sanitize_text_field( (string) $request->get_param( 'title' ) ), 0, 120 );
 		$manager = new ConversationManager();
 		$conv_id = $manager->create( $title );
 

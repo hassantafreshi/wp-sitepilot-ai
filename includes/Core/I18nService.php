@@ -63,11 +63,13 @@ final class I18nService {
 	 * REST callback — returns all phrases as JSON.
 	 */
 	public static function get_strings(): \WP_REST_Response {
-		return new \WP_REST_Response( array(
-			'ok'      => true,
-			'domain'  => Phrases::DOMAIN,
-			'strings' => Phrases::all(),
-		) );
+		return new \WP_REST_Response(
+			array(
+				'ok'      => true,
+				'domain'  => Phrases::DOMAIN,
+				'strings' => Phrases::all(),
+			)
+		);
 	}
 
 	/**

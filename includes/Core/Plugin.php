@@ -35,10 +35,12 @@ final class Plugin {
 	}
 
 	public function boot(): void {
+		$this->load_translations();
 		if ( $this->booted ) {
 			return;
 		}
 		$this->booted = true;
+		Settings::migrate_legacy_handoff_secrets();
 
 		$this->register_services();
 		add_action( 'init', array( $this, 'on_init' ) );
@@ -63,7 +65,6 @@ final class Plugin {
 			( new ContentHooks() )->register();
 		}
 		WpConnectors::register();
-		load_plugin_textdomain( 'sitepilot-ai', false, dirname( SITEPILOT_AI_BASENAME ) . '/languages' );
 	}
 
 	private function register_services(): void {
@@ -71,6 +72,25 @@ final class Plugin {
 		$registry->register( new EasyFormBuilderConnector() );
 		$registry->register( new NativeFormConnector() );
 		$this->container->set( ConnectorRegistry::class, $registry );
+	}
+
+	/**
+	 * Load the plugin's bundled translations, including local development copies.
+	 *
+	 * WordPress normally finds a language pack automatically. The explicit local
+	 * file makes the packaged Persian translation work as well when the plugin is
+	 * installed under a versioned or test directory.
+	 */
+	private function load_translations(): void {
+		$domain   = 'sitepilot-ai';
+		$relative = dirname( SITEPILOT_AI_BASENAME ) . '/languages';
+		$locale   = determine_locale();
+		$mofile   = plugin_dir_path( SITEPILOT_AI_FILE ) . 'languages/' . $domain . '-' . $locale . '.mo';
+
+		load_plugin_textdomain( $domain, false, $relative );
+		if ( is_readable( $mofile ) ) {
+			load_textdomain( $domain, $mofile );
+		}
 	}
 
 	/**
@@ -83,9 +103,13 @@ final class Plugin {
 	}
 
 	public function enqueue_widget_assets(): void {
+
 		$settings = Settings::all();
-		if ( empty( $settings['widget']['enabled'] ) ) {
-			return;
+		// The opt-in public assistant has its own renderer. Never enqueue the
+		// legacy configurable widget alongside it, otherwise visitors receive
+		// two overlapping chat launchers.
+		if ( ! empty( $settings['public_assistant_enabled'] ) || empty( $settings['widget']['enabled'] ) ) {
+				return;
 		}
 		wp_enqueue_style( 'sitepilot-widget', SITEPILOT_AI_URL . 'assets/frontend/widget.css', array(), SITEPILOT_AI_VERSION );
 		wp_enqueue_script( 'sitepilot-widget', SITEPILOT_AI_URL . 'assets/frontend/widget.js', array(), SITEPILOT_AI_VERSION, true );
@@ -107,8 +131,9 @@ final class Plugin {
 	}
 
 	public function render_widget(): void {
+
 		$settings = Settings::all();
-		if ( empty( $settings['widget']['enabled'] ) ) {
+		if ( ! empty( $settings['public_assistant_enabled'] ) || empty( $settings['widget']['enabled'] ) ) {
 			return;
 		}
 		echo ( new ChatWidget() )->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes dynamic values.

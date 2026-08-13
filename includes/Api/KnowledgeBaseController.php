@@ -61,12 +61,15 @@ final class KnowledgeBaseController {
 		$result = $kb->get_all( $page, $per_page, $search, $post_type, $content_type );
 		$pages  = max( 1, (int) ceil( $result['total'] / $per_page ) );
 
-		return $this->respond( array(
-			'items' => $result['items'],
-			'total' => $result['total'],
-			'page'  => $page,
-			'pages' => $pages,
-		), true );
+		return $this->respond(
+			array(
+				'items' => $result['items'],
+				'total' => $result['total'],
+				'page'  => $page,
+				'pages' => $pages,
+			),
+			true
+		);
 	}
 
 	/**
@@ -115,9 +118,14 @@ final class KnowledgeBaseController {
 		$context = $kb->get_context_for_ai( 50, 12000 );
 
 		if ( '' === $context ) {
-			return $this->respond( array(
-				'message' => __( 'The knowledge base is empty. Please index your content first.', 'sitepilot-ai' ),
-			), false, 400, 'empty_kb' );
+			return $this->respond(
+				array(
+					'message' => __( 'The knowledge base is empty. Please index your content first.', 'sitepilot-ai' ),
+				),
+				false,
+				400,
+				'empty_kb'
+			);
 		}
 
 		$system_prompt = "You are SitePilot AI, a helpful assistant for a WordPress website.\n"
@@ -131,10 +139,13 @@ final class KnowledgeBaseController {
 			$provider = $provider_manager->make();
 			$result   = $provider->generate_text( $system_prompt, $question );
 
-			return $this->respond( array(
-				'answer' => $result['content'],
-				'usage'  => $result['usage'],
-			), true );
+			return $this->respond(
+				array(
+					'answer' => $result['content'],
+					'usage'  => $result['usage'],
+				),
+				true
+			);
 
 		} catch ( \Throwable $e ) {
 			return $this->respond( array( 'message' => $e->getMessage() ), false, 500, 'ai_error' );
@@ -147,10 +158,13 @@ final class KnowledgeBaseController {
 	public function gaps( \WP_REST_Request $request ): \WP_REST_Response {
 		$gaps = new KbGaps();
 
-		return $this->respond( array(
-			'items' => $gaps->open_list( 50 ),
-			'total' => $gaps->open_count(),
-		), true );
+		return $this->respond(
+			array(
+				'items' => $gaps->open_list( 50 ),
+				'total' => $gaps->open_count(),
+			),
+			true
+		);
 	}
 
 	/**
@@ -187,10 +201,13 @@ final class KnowledgeBaseController {
 		$tracker = new UsageTracker();
 		$tracker->set_budget( $budget );
 
-		return $this->respond( array(
-			'message' => __( 'Budget updated.', 'sitepilot-ai' ),
-			'budget'  => $budget,
-		), true );
+		return $this->respond(
+			array(
+				'message' => __( 'Budget updated.', 'sitepilot-ai' ),
+				'budget'  => $budget,
+			),
+			true
+		);
 	}
 
 	/**
@@ -209,7 +226,13 @@ final class KnowledgeBaseController {
 	 * @param array<string, mixed> $data
 	 */
 	private function respond( array $data, bool $ok, int $status = 200, string $code = 'ok' ): \WP_REST_Response {
-		$payload = array_merge( array( 'ok' => $ok, 'code' => $code ), $data );
+		$payload = array_merge(
+			array(
+				'ok'   => $ok,
+				'code' => $code,
+			),
+			$data
+		);
 
 		return new \WP_REST_Response( $payload, $status );
 	}

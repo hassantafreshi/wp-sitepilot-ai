@@ -14,10 +14,10 @@ namespace SitePilot\Usage;
  */
 final class UsageTracker {
 
-	private const OPTION_LOG     = 'sitepilot_ai_usage_log';
-	private const OPTION_TOTALS  = 'sitepilot_ai_usage_totals';
-	private const OPTION_BUDGET  = 'sitepilot_ai_monthly_budget';
-	private const MAX_LOG        = 500;
+	private const OPTION_LOG    = 'sitepilot_ai_usage_log';
+	private const OPTION_TOTALS = 'sitepilot_ai_usage_totals';
+	private const OPTION_BUDGET = 'sitepilot_ai_monthly_budget';
+	private const MAX_LOG       = 500;
 
 	/** Threshold percentages that trigger warnings. */
 	public const THRESHOLDS = array( 50, 25, 15, 5 );
@@ -56,7 +56,7 @@ final class UsageTracker {
 		update_option( self::OPTION_LOG, $log, false );
 
 		// Update cumulative totals.
-		$totals = $this->get_totals();
+		$totals                       = $this->get_totals();
 		$totals['prompt_tokens']     += $prompt;
 		$totals['completion_tokens'] += $completion;
 		$totals['total_tokens']      += $total;
@@ -77,13 +77,16 @@ final class UsageTracker {
 			$totals = array();
 		}
 
-		return array_merge( array(
-			'prompt_tokens'     => 0,
-			'completion_tokens' => 0,
-			'total_tokens'      => 0,
-			'request_count'     => 0,
-			'last_used'         => '',
-		), $totals );
+		return array_merge(
+			array(
+				'prompt_tokens'     => 0,
+				'completion_tokens' => 0,
+				'total_tokens'      => 0,
+				'request_count'     => 0,
+				'last_used'         => '',
+			),
+			$totals
+		);
 	}
 
 	/**
@@ -147,7 +150,7 @@ final class UsageTracker {
 
 		// Find the most severe threshold crossed (smallest remaining %).
 		$remaining_percent = 100 - $used_percent;
-		$crossed = null;
+		$crossed           = null;
 		foreach ( self::THRESHOLDS as $threshold ) {
 			if ( $remaining_percent <= $threshold ) {
 				$crossed = $threshold;
@@ -184,16 +187,19 @@ final class UsageTracker {
 		$warning = $this->get_threshold_warning();
 
 		// Group recent usage by context.
-		$log      = get_option( self::OPTION_LOG, array() );
+		$log        = get_option( self::OPTION_LOG, array() );
 		$by_context = array();
 		if ( is_array( $log ) ) {
 			foreach ( $log as $entry ) {
 				$ctx = $entry['context'] ?: 'general';
 				if ( ! isset( $by_context[ $ctx ] ) ) {
-					$by_context[ $ctx ] = array( 'tokens' => 0, 'requests' => 0 );
+					$by_context[ $ctx ] = array(
+						'tokens'   => 0,
+						'requests' => 0,
+					);
 				}
-				$by_context[ $ctx ]['tokens']    += (int) $entry['total'];
-				$by_context[ $ctx ]['requests']  += 1;
+				$by_context[ $ctx ]['tokens']   += (int) $entry['total'];
+				$by_context[ $ctx ]['requests'] += 1;
 			}
 		}
 
@@ -203,7 +209,10 @@ final class UsageTracker {
 			foreach ( $log as $entry ) {
 				$model = $entry['model'] ?: 'unknown';
 				if ( ! isset( $by_model[ $model ] ) ) {
-					$by_model[ $model ] = array( 'tokens' => 0, 'requests' => 0 );
+					$by_model[ $model ] = array(
+						'tokens'   => 0,
+						'requests' => 0,
+					);
 				}
 				$by_model[ $model ]['tokens']   += (int) $entry['total'];
 				$by_model[ $model ]['requests'] += 1;
@@ -211,14 +220,14 @@ final class UsageTracker {
 		}
 
 		return array(
-			'totals'        => $totals,
-			'budget'        => $budget,
-			'used_percent'  => $this->get_usage_percent(),
-			'remaining'     => $this->get_remaining(),
-			'warning'       => $warning,
-			'by_context'    => $by_context,
-			'by_model'      => $by_model,
-			'recent'        => is_array( $log ) ? array_slice( array_reverse( $log ), 0, 20 ) : array(),
+			'totals'       => $totals,
+			'budget'       => $budget,
+			'used_percent' => $this->get_usage_percent(),
+			'remaining'    => $this->get_remaining(),
+			'warning'      => $warning,
+			'by_context'   => $by_context,
+			'by_model'     => $by_model,
+			'recent'       => is_array( $log ) ? array_slice( array_reverse( $log ), 0, 20 ) : array(),
 		);
 	}
 
@@ -234,7 +243,7 @@ final class UsageTracker {
 	 * Reset only the monthly counter (called by WP-Cron at month start).
 	 */
 	public function reset_monthly(): void {
-		$totals = $this->get_totals();
+		$totals                      = $this->get_totals();
 		$totals['prompt_tokens']     = 0;
 		$totals['completion_tokens'] = 0;
 		$totals['total_tokens']      = 0;

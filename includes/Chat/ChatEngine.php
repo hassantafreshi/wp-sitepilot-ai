@@ -154,8 +154,8 @@ final class ChatEngine {
 	/**
 	 * Turn the model's structured decision into a final result.
 	 *
-	 * @param array<string,mixed>                                $decision
-	 * @param array<int,array{post_id:int,title:string}>         $map
+	 * @param array<string,mixed>                        $decision
+	 * @param array<int,array{post_id:int,title:string}> $map
 	 */
 	private function finalise( string $question, array $decision, array $map, KbCache $cache, bool $is_followup ): array {
 		$status = strtolower( (string) ( $decision['status'] ?? 'answered' ) );
@@ -211,8 +211,8 @@ final class ChatEngine {
 	/**
 	 * Finalise a plain-text fallback answer (no structured decision available).
 	 *
-	 * @param array{content:string,usage:array}                 $plain
-	 * @param array<int,array{post_id:int,title:string}>         $map
+	 * @param array{content:string,usage:array}          $plain
+	 * @param array<int,array{post_id:int,title:string}> $map
 	 */
 	private function finalise_plain( string $question, array $plain, array $map, KbCache $cache, bool $is_followup ): array {
 		$answer  = trim( (string) ( $plain['content'] ?? '' ) );
@@ -261,9 +261,9 @@ final class ChatEngine {
 			if ( ! isset( $map[ $n ] ) || isset( $seen[ $map[ $n ]['post_id'] ] ) ) {
 				continue;
 			}
-			$pid                 = $map[ $n ]['post_id'];
-			$seen[ $pid ]        = true;
-			$sources[]           = array(
+			$pid          = $map[ $n ]['post_id'];
+			$seen[ $pid ] = true;
+			$sources[]    = array(
 				'post_id'   => $pid,
 				'title'     => $map[ $n ]['title'],
 				'url'       => (string) get_permalink( $pid ),
@@ -289,7 +289,7 @@ final class ChatEngine {
 		}
 		preg_match_all( '/\d+/', $m[1], $nums );
 
-		return $this->map_sources( array( 'sources' => $nums[0] ?? array() ), $map );
+		return $this->map_sources( array( 'sources' => $nums[0] ), $map );
 	}
 
 	/**
@@ -314,7 +314,7 @@ final class ChatEngine {
 	}
 
 	private function build_system_prompt( string $context ): string {
-		return "You are SitePilot, a warm, knowledgeable support specialist for this website. "
+		return 'You are SitePilot, a warm, knowledgeable support specialist for this website. '
 			. "You speak like a helpful human expert — friendly, clear and genuinely useful — never robotic.\n\n"
 			. "You are given numbered KNOWLEDGE entries drawn from the site's own content. "
 			. "Decide how to respond and reply with a JSON object using EXACTLY these keys:\n"
@@ -365,9 +365,10 @@ final class ChatEngine {
 			return false;
 		}
 
-		$has_email    = ! empty( $w['handoff_email_to'] );
-		$has_telegram = ! empty( $w['handoff_telegram_token'] ) && ! empty( $w['handoff_telegram_chat'] );
-		$has_twilio   = ! empty( $w['handoff_twilio_sid'] ) && ! empty( $w['handoff_twilio_token'] );
+		$email         = sanitize_email( (string) ( $w['handoff_email_to'] ?? get_option( 'admin_email', '' ) ) );
+		$has_email    = ! empty( $w['handoff_email_enabled'] ) && '' !== $email && is_email( $email );
+		$has_telegram = Settings::has_handoff_secret( 'handoff_telegram_token' ) && ! empty( $w['handoff_telegram_chat'] );
+		$has_twilio   = Settings::has_handoff_secret( 'handoff_twilio_sid' ) && Settings::has_handoff_secret( 'handoff_twilio_token' );
 
 		return $has_email || $has_telegram || $has_twilio;
 	}
@@ -401,7 +402,11 @@ final class ChatEngine {
 			'handoff_offer'   => $handoff_offer,
 			'cached'          => false,
 			'context'         => '',
-			'usage'           => array( 'prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0 ),
+			'usage'           => array(
+				'prompt_tokens'     => 0,
+				'completion_tokens' => 0,
+				'total_tokens'      => 0,
+			),
 		);
 	}
 }

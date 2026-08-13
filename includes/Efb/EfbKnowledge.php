@@ -15,9 +15,9 @@ final class EfbKnowledge {
 	/** @return array<string, mixed> */
 	public static function data(): array {
 		if ( null === self::$data ) {
-			$file    = __DIR__ . '/efb-knowledge.json';
-			$raw     = is_readable( $file ) ? (string) file_get_contents( $file ) : '{}';
-			$decoded = json_decode( $raw, true );
+			$file       = __DIR__ . '/efb-knowledge.json';
+			$raw        = is_readable( $file ) ? (string) file_get_contents( $file ) : '{}';
+			$decoded    = json_decode( $raw, true );
 			self::$data = is_array( $decoded ) ? $decoded : array();
 		}
 
@@ -47,8 +47,8 @@ final class EfbKnowledge {
 		$best_score = 0;
 
 		foreach ( self::entries() as $entry ) {
-			$score   = 0;
-			$aliases = (array) ( $entry['aliases'] ?? array() );
+			$score     = 0;
+			$aliases   = (array) ( $entry['aliases'] ?? array() );
 			$aliases[] = (string) ( $entry['title'] ?? '' );
 
 			foreach ( $aliases as $alias ) {
@@ -121,7 +121,10 @@ final class EfbKnowledge {
 			);
 		}
 
-		return array( 'ok' => false, 'suggestions' => $out );
+		return array(
+			'ok'          => false,
+			'suggestions' => $out,
+		);
 	}
 
 	private static function normalize( string $s ): string {

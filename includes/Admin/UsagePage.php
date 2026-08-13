@@ -20,21 +20,26 @@ final class UsagePage {
 			wp_die( esc_html__( 'You do not have permission.', 'sitepilot-ai' ) );
 		}
 
-		$tracker = new UsageTracker();
-		$report  = $tracker->get_report();
-		$totals  = $report['totals'];
-		$budget  = $report['budget'];
-		$percent = $report['used_percent'];
-		$remaining = $report['remaining'];
-		$warning = $report['warning'];
-		$by_model = $report['by_model'];
+		$tracker    = new UsageTracker();
+		$report     = $tracker->get_report();
+		$totals     = $report['totals'];
+		$budget     = $report['budget'];
+		$percent    = $report['used_percent'];
+		$remaining  = $report['remaining'];
+		$warning    = $report['warning'];
+		$by_model   = $report['by_model'];
 		$by_context = $report['by_context'];
-		$recent  = $report['recent'];
+		$recent     = $report['recent'];
 		?>
-		<div class="wrap sitepilot-wrap sitepilot-usage-wrap">
-			<!-- Header -->
-			<div class="sp-usage-header">
+		<div class="wrap sitepilot-wrap sitepilot-screen sitepilot-screen--usage sitepilot-usage-wrap">
+			<nav class="sitepilot-screen__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sitepilot-ai' ); ?>">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HOME ) ); ?>"><?php esc_html_e( 'Home', 'sitepilot-ai' ); ?></a>
+				<span aria-hidden="true">/</span>
+				<span><?php esc_html_e( 'Usage', 'sitepilot-ai' ); ?></span>
+			</nav>
+			<header class="sitepilot-screen__header sp-usage-header">
 				<div>
+					<p class="sitepilot-eyebrow"><?php esc_html_e( 'Local usage insights', 'sitepilot-ai' ); ?></p>
 					<h1 class="sitepilot-title">
 						<span class="dashicons dashicons-chart-area"></span>
 						<?php esc_html_e( 'Usage Dashboard', 'sitepilot-ai' ); ?>
@@ -44,15 +49,17 @@ final class UsagePage {
 						<?php esc_html_e( 'Monitor your AI token consumption, credit balance, and usage patterns across all providers and features.', 'sitepilot-ai' ); ?>
 					</p>
 				</div>
-				<button type="button" id="sp-usage-refresh" class="button sp-btn-ghost">
-					<span class="dashicons dashicons-update"></span>
-					<?php esc_html_e( 'Refresh', 'sitepilot-ai' ); ?>
-				</button>
-			</div>
-
+				<div class="sitepilot-screen__actions">
+					<span class="sitepilot-screen__badge <?php echo $warning ? 'sitepilot-screen__badge--attention' : 'sitepilot-screen__badge--ready'; ?>"><?php echo esc_html( $warning ? __( 'Budget attention', 'sitepilot-ai' ) : __( 'Usage healthy', 'sitepilot-ai' ) ); ?></span>
+					<button type="button" id="sp-usage-refresh" class="button sp-btn-ghost">
+						<span class="dashicons dashicons-update"></span>
+						<?php esc_html_e( 'Refresh', 'sitepilot-ai' ); ?>
+					</button>
+				</div>
+			</header>
 			<?php if ( $warning ) : ?>
 				<div class="sp-credit-banner sp-credit-banner--<?php echo esc_attr( $warning['level'] ); ?>">
-					<span class="dashicons dashicons-<?php echo $warning['level'] === 'critical' ? 'warning' : 'info'; ?>"></span>
+					<span class="dashicons dashicons-<?php echo 'critical' === $warning['level'] ? 'warning' : 'info'; ?>"></span>
 					<span><?php echo esc_html( $warning['message'] ); ?></span>
 				</div>
 			<?php endif; ?>
@@ -101,16 +108,16 @@ final class UsagePage {
 			<div class="sp-card sp-credit-health">
 				<div class="sp-credit-health__header">
 					<h2><span class="dashicons dashicons-shield-alt"></span> <?php esc_html_e( 'Credit Health', 'sitepilot-ai' ); ?></h2>
-					<span class="sp-credit-health__pct"><?php echo esc_html( round( $percent, 1 ) ); ?>% <?php esc_html_e( 'used', 'sitepilot-ai' ); ?></span>
+					<span class="sp-credit-health__pct"><?php echo esc_html( number_format_i18n( round( $percent, 1 ), 1 ) ); ?>% <?php esc_html_e( 'used', 'sitepilot-ai' ); ?></span>
 				</div>
 
 				<div class="sp-credit-bar-container">
 					<div class="sp-credit-bar-track">
 						<div class="sp-credit-bar-fill" style="width: <?php echo esc_attr( min( 100, $percent ) ); ?>%"></div>
-						<?php $markers = [50, 75, 85, 95]; foreach ( $markers as $m ) : ?>
-							<div class="sp-credit-marker" style="left: <?php echo esc_attr( $m ); ?>%">
+						<?php $markers = array( 50, 75, 85, 95 ); foreach ( $markers as $m ) : ?>
+							<div class="sp-credit-marker" style="left: <?php echo esc_attr( (string) $m ); ?>%">
 								<span class="sp-credit-marker-dot"></span>
-								<span class="sp-credit-marker-label"><?php echo esc_html( $m ); ?>%</span>
+								<span class="sp-credit-marker-label"><?php echo esc_html( (string) $m ); ?>%</span>
 							</div>
 						<?php endforeach; ?>
 					</div>
@@ -141,20 +148,24 @@ final class UsagePage {
 					<div class="sp-bar-chart">
 						<?php if ( empty( $by_model ) ) : ?>
 							<p class="sp-empty"><?php esc_html_e( 'No usage data yet.', 'sitepilot-ai' ); ?></p>
-						<?php else :
+							<?php
+						else :
 							$max_model = max( array_column( $by_model, 'tokens' ) );
-							foreach ( $by_model as $model => $data ) : ?>
+							foreach ( $by_model as $model => $data ) :
+								?>
 								<div class="sp-bar-row">
 									<span class="sp-bar-label"><?php echo esc_html( $model ); ?></span>
 									<div class="sp-bar-track">
-										<div class="sp-bar-fill" style="width: <?php echo esc_attr( $max_model > 0 ? ( $data['tokens'] / $max_model * 100 ) : 0 ); ?>%">
+									<div class="sp-bar-fill" style="width: <?php echo esc_attr( (string) ( $max_model > 0 ? ( $data['tokens'] / $max_model * 100 ) : 0 ) ); ?>%">
 											<span class="sp-bar-val"><?php echo esc_html( number_format_i18n( $data['tokens'] ) ); ?></span>
 										</div>
 									</div>
 									<span class="sp-bar-count"><?php echo esc_html( $data['requests'] ); ?> req</span>
 								</div>
-							<?php endforeach;
-						endif; ?>
+								<?php
+							endforeach;
+						endif;
+						?>
 					</div>
 				</div>
 
@@ -164,20 +175,24 @@ final class UsagePage {
 					<div class="sp-bar-chart">
 						<?php if ( empty( $by_context ) ) : ?>
 							<p class="sp-empty"><?php esc_html_e( 'No usage data yet.', 'sitepilot-ai' ); ?></p>
-						<?php else :
+							<?php
+						else :
 							$max_ctx = max( array_column( $by_context, 'tokens' ) );
-							foreach ( $by_context as $ctx => $data ) : ?>
+							foreach ( $by_context as $ctx => $data ) :
+								?>
 								<div class="sp-bar-row">
 									<span class="sp-bar-label"><?php echo esc_html( $ctx ); ?></span>
 									<div class="sp-bar-track">
-										<div class="sp-bar-fill sp-bar-fill--accent" style="width: <?php echo esc_attr( $max_ctx > 0 ? ( $data['tokens'] / $max_ctx * 100 ) : 0 ); ?>%">
+									<div class="sp-bar-fill sp-bar-fill--accent" style="width: <?php echo esc_attr( (string) ( $max_ctx > 0 ? ( $data['tokens'] / $max_ctx * 100 ) : 0 ) ); ?>%">
 											<span class="sp-bar-val"><?php echo esc_html( number_format_i18n( $data['tokens'] ) ); ?></span>
 										</div>
 									</div>
 									<span class="sp-bar-count"><?php echo esc_html( $data['requests'] ); ?> req</span>
 								</div>
-							<?php endforeach;
-						endif; ?>
+								<?php
+							endforeach;
+						endif;
+						?>
 					</div>
 				</div>
 			</div>

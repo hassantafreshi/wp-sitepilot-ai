@@ -10,10 +10,23 @@ namespace SitePilot\Execution;
  */
 final class ActionStore {
 
-	private const TTL = 900; // 15 minutes.
+	private const TTL             = 900; // 15 minutes.
+	private const CLAIM_RETENTION = 86400; // One day; only replay locks use options.
+
+	/**
+	 * The public UI may display this deadline, but execution still enforces the
+	 * transient expiry server-side.
+	 */
+	public static function ttl(): int {
+		return self::TTL;
+	}
 
 	private function transient_key( string $action_id ): string {
 		return 'sitepilot_action_' . $action_id;
+	}
+
+	private function claim_key( string $action_id ): string {
+		return 'sitepilot_action_claim_' . str_replace( '-', '', $action_id );
 	}
 
 	/**
@@ -21,6 +34,7 @@ final class ActionStore {
 	 * @return string The action id.
 	 */
 	public function create( array $plan, string $connector_id ): string {
+		$this->purge_stale_claims();
 		$action_id = $this->uuid();
 		$record    = array(
 			'action_id'    => $action_id,
@@ -46,17 +60,54 @@ final class ActionStore {
 	}
 
 	/**
-	 * Fetch and delete atomically-ish so the same approval can't run twice.
+	 * Atomically claim a proposal for its original creator.
 	 *
-	 * @return array<string, mixed>|null
+	 * A persistent, non-autoloaded option is used as a compare-and-set lock:
+	 * `add_option()` succeeds for exactly one request. We deliberately do not
+	 * remove that lock after execution; doing so would allow a second concurrent
+	 * request that already read the transient to replay the action.
+	 *
+	 * @return array{status:string,record?:array<string,mixed>}
 	 */
-	public function consume( string $action_id ): ?array {
+	public function claim( string $action_id, int $user_id ): array {
 		$record = $this->get( $action_id );
-		if ( null !== $record ) {
-			delete_transient( $this->transient_key( $action_id ) );
+		if ( null === $record ) {
+			return array( 'status' => 'missing' );
 		}
 
-		return $record;
+		if ( (int) ( $record['user_id'] ?? 0 ) !== $user_id ) {
+			return array( 'status' => 'forbidden' );
+		}
+
+		if ( ! add_option( $this->claim_key( $action_id ), (string) time(), '', false ) ) {
+			return array( 'status' => 'already_claimed' );
+		}
+
+		delete_transient( $this->transient_key( $action_id ) );
+
+		return array(
+			'status' => 'claimed',
+			'record' => $record,
+		);
+	}
+
+	/**
+	 * Removes only SitePilot's expired, non-autoloaded replay locks. This keeps
+	 * the one-time-action guarantee without accumulating options indefinitely.
+	 */
+	private function purge_stale_claims(): void {
+		global $wpdb;
+		if ( ! isset( $wpdb ) || ! isset( $wpdb->options ) || ! method_exists( $wpdb, 'prepare' ) ) {
+			return;
+		}
+
+		$like = $wpdb->esc_like( 'sitepilot_action_claim_' ) . '%';
+		$sql  = $wpdb->prepare(
+			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s AND CAST(option_value AS UNSIGNED) < %d",
+			$like,
+			time() - self::CLAIM_RETENTION
+		);
+		$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared immediately above.
 	}
 
 	private function uuid(): string {

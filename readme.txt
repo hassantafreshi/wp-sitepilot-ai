@@ -1,118 +1,79 @@
 === SitePilot AI ===
 Contributors: sitepilot
-Tags: ai, chatbot, woocommerce, voice, assistant
+Tags: ai, forms, form-builder, voice, email
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.0.0
+Stable tag: 1.0.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Safe AI copilot for WordPress with WooCommerce integration, voice support, and human handoff.
+Safe AI form copilot for WordPress: describe a simple form by text or voice,
+review it, approve it, and deliver submissions by email without storing visitor
+field values.
 
 == Description ==
 
-SitePilot AI is a comprehensive AI copilot plugin for WordPress that brings the power of artificial intelligence to your website management.
+SitePilot AI creates simple, single-step SitePilot Forms through a safe admin
+flow: request, AI plan, preview, explicit approval, and create.
 
-= Key Features =
+The native SitePilot Forms product supports text, email, telephone, textarea,
+select, radio and checkbox fields (up to 20 fields). Public submissions are
+validated server-side and sent with wp_mail(). SitePilot does not save form
+values in posts, post meta, options or activity logs.
 
-**🛍️ WooCommerce Integration**
-* Create products with AI assistance
-* Manage orders intelligently
-* View analytics and sales reports
-* Generate product descriptions and SEO content
-* Low stock alerts
-* Customer purchase history
-
-**💬 Chat Widget**
-* AI-powered chat for your visitors
-* Voice input and output support
-* Human handoff when needed
-* Customizable appearance
-* RTL support
-
-**🎤 Voice Support**
-* Speech-to-text (STT) via Groq Whisper
-* Text-to-speech (TTS) with browser fallback
-* Voice commands for hands-free operation
-
-**📊 Dashboards**
-* WooCommerce dashboard with sales charts
-* Usage tracking and credit monitoring
-* Real-time statistics
-
-**🌐 Multilingual**
-* Full Persian (Farsi) translation
-* RTL support
-* Easy to add more languages
-
-**🔒 Security**
-* API keys encrypted at rest
-* Secure handoff channels (Email, Telegram, Twilio)
-* Input sanitization and validation
-
-= Supported AI Providers =
-
-* DeepSeek (default)
-* OpenAI
-* Qwen (Alibaba)
-* Clusy.io
-* Groq
-* Any OpenAI-compatible API
-
-= Handoff Channels =
-
-* Email
-* Telegram Bot
-* Twilio WhatsApp
-* Custom Webhook
+Easy Form Builder is a separate, optional advanced-form path. Use it for
+uploads, payments, conditional logic, calculations, multi-step flows or its
+own advanced integrations.
 
 == Installation ==
 
-1. Upload the plugin files to `/wp-content/plugins/sitepilot-ai/`
-2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Go to SitePilot AI → Settings
-4. Add your AI provider API key
-5. Configure the chat widget and handoff channels
+1. Upload the plugin folder to `/wp-content/plugins/` or install its zip.
+2. Activate SitePilot AI.
+3. Go to SitePilot AI > Settings and configure an AI provider plus the
+   SitePilot Forms notification email.
+4. Go to SitePilot AI > Create with AI and type or record a form request.
+5. Review the fields and delivery destination, approve it, and place the
+   generated shortcode in a page or post.
 
 == Frequently Asked Questions ==
 
-= Which AI providers are supported? =
+= Are form submissions stored in WordPress? =
 
-Any OpenAI-compatible API is supported, including DeepSeek, OpenAI, Qwen, Clusy.io, and Groq.
+No. SitePilot validates each submission in memory, sends an email, and
+discards the visitor values.
 
-= Is WooCommerce required? =
+= Can I make a payment, upload, login or multi-step form? =
 
-No, WooCommerce is optional. The chat widget and voice features work without WooCommerce. WooCommerce features are automatically enabled when WooCommerce is active.
+No. Install and use Easy Form Builder for advanced form features.
 
-= How does the human handoff work? =
+= Can AI choose the email recipient? =
 
-When a visitor requests human assistance, the chat history is sent to your configured channels (Email, Telegram, Twilio WhatsApp, or Webhook).
+No. The recipient is configured by an administrator in SitePilot Settings and
+is shown masked in the preview.
 
-= Is my API key secure? =
+= Why is voice input unavailable? =
 
-Yes, API keys are encrypted using XSalsa20-Poly1305 or AES-256-GCM before being stored in the database.
-
-== Screenshots ==
-
-1. WooCommerce Dashboard
-2. Chat Widget
-3. Settings Page
-4. Product AI
+Voice requires browser microphone support and an AI provider compatible with
+the `/audio/transcriptions` endpoint.
 
 == Changelog ==
 
-= 1.0.0 =
-* Initial release
-* WooCommerce Connector (Product AI, Order Intelligence, Analytics, Content + SEO)
-* Chat Widget with voice support
-* Human handoff (Email, Telegram, Twilio, Webhook)
-* WooCommerce Dashboard
-* Usage tracking
-* Persian translation
-* PHPUnit tests and CI/CD
+= 1.0.3 =
+* Security hardening: scoped administrator conversations, encrypted handoff credentials, rate-limited public and voice endpoints, and safe outbound HTTP handling.
 
-== Upgrade Notice ==
+= 1.0.2 =
+* Finalized the Phase 1 release contract and cross-page admin UI.
+* Added a protected text/voice form creation flow with immutable preview,
+  explicit approval, one-time execution, and redacted audit events.
+* Added the independent, email-only SitePilot Forms product and its safe
+  delivery controls.
+* Added the optional Easy Form Builder handoff and safe WooCommerce simple
+  product draft workflow.
 
-= 1.0.0 =
-Initial release with full WooCommerce integration, chat widget, voice support, and human handoff.
+= 1.0.1 =
+* Added the P1 safe, text/voice SitePilot Forms flow.
+* Added email-only delivery, no visitor-value storage, validation and abuse
+  controls.
+* Added one-time pinned action execution and redacted audit events.
+* Separated the Easy Form Builder advanced-form path.

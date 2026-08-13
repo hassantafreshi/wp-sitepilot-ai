@@ -23,13 +23,23 @@ class WooCommerceDashboardPage {
 
 		$wc_active = WooCommerceConnector::is_active();
 		?>
-		<div class="wrap sitepilot-wrap sitepilot-dashboard">
-			<h1 class="sitepilot-title">
-				<span class="dashicons dashicons-dashboard"></span>
-				<?php esc_html_e( 'WooCommerce Dashboard', 'sitepilot-ai' ); ?>
-				<span class="sp-ai-badge">AI</span>
-			</h1>
-
+		<div class="wrap sitepilot-wrap sitepilot-screen sitepilot-screen--woo-dashboard sitepilot-dashboard">
+			<nav class="sitepilot-screen__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sitepilot-ai' ); ?>">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HOME ) ); ?>"><?php esc_html_e( 'Home', 'sitepilot-ai' ); ?></a>
+				<span aria-hidden="true">/</span>
+				<span><?php esc_html_e( 'WooCommerce Dashboard', 'sitepilot-ai' ); ?></span>
+			</nav>
+			<header class="sitepilot-screen__header">
+				<div>
+					<p class="sitepilot-eyebrow"><?php esc_html_e( 'Store overview', 'sitepilot-ai' ); ?></p>
+					<h1 class="sitepilot-title"><span class="dashicons dashicons-store" aria-hidden="true"></span><?php esc_html_e( 'WooCommerce Dashboard', 'sitepilot-ai' ); ?> <span class="sp-ai-badge">AI</span></h1>
+					<p class="sitepilot-subtitle"><?php esc_html_e( 'Review sales, stock, recent orders, and the SitePilot tools available for this store.', 'sitepilot-ai' ); ?></p>
+				</div>
+				<div class="sitepilot-screen__actions">
+					<span class="sitepilot-screen__badge <?php echo $wc_active ? 'sitepilot-screen__badge--ready' : 'sitepilot-screen__badge--attention'; ?>"><?php echo esc_html( $wc_active ? __( 'WooCommerce active', 'sitepilot-ai' ) : __( 'WooCommerce inactive', 'sitepilot-ai' ) ); ?></span>
+					<a class="button button-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . WooCommerceSettings::SLUG ) ); ?>"><?php esc_html_e( 'Woo AI settings', 'sitepilot-ai' ); ?></a>
+				</div>
+			</header>
 			<?php if ( ! $wc_active ) : ?>
 				<div class="sitepilot-banner sitepilot-banner--warn">
 					<span class="dashicons dashicons-warning"></span>

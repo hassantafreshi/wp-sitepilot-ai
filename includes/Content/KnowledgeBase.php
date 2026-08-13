@@ -273,7 +273,7 @@ final class KnowledgeBase {
 		$pending = (int) $this->db->get_var( $this->db->prepare( "SELECT COUNT(*) FROM {$table} WHERE status = %s", 'pending' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$last    = $this->db->get_var( "SELECT MAX(updated_at) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		$type_rows = $this->db->get_results(
+		$type_rows  = $this->db->get_results(
 			"SELECT post_type, COUNT(*) as cnt FROM {$table} GROUP BY post_type ORDER BY cnt DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			ARRAY_A
 		);
@@ -284,7 +284,7 @@ final class KnowledgeBase {
 			}
 		}
 
-		$ct_rows = $this->db->get_results(
+		$ct_rows       = $this->db->get_results(
 			"SELECT content_type, COUNT(*) as cnt FROM {$table} WHERE content_type <> '' GROUP BY content_type ORDER BY cnt DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			ARRAY_A
 		);
@@ -325,7 +325,13 @@ final class KnowledgeBase {
 				WHERE (title LIKE %s OR keywords LIKE %s OR summary LIKE %s) AND status = 'indexed'
 				ORDER BY relevance DESC, updated_at DESC
 				LIMIT %d",
-				$like, $like, $like, $like, $like, $like, $limit
+				$like,
+				$like,
+				$like,
+				$like,
+				$like,
+				$like,
+				$limit
 			),
 			ARRAY_A
 		);
@@ -366,7 +372,10 @@ final class KnowledgeBase {
 	 */
 	public function build_context_refs( array $entries, int $max_chars = 12000 ): array {
 		if ( empty( $entries ) ) {
-			return array( 'context' => '', 'map' => array() );
+			return array(
+				'context' => '',
+				'map'     => array(),
+			);
 		}
 
 		$context = '';
@@ -374,7 +383,7 @@ final class KnowledgeBase {
 		$n       = 0;
 
 		foreach ( $entries as $entry ) {
-			$n++;
+			++$n;
 			$kind = ( $entry['content_type'] ?? '' ) ?: ( $entry['post_type'] ?? '' );
 			$line = sprintf(
 				"[%d] (%s) %s: %s (keywords: %s)\n",
@@ -386,18 +395,21 @@ final class KnowledgeBase {
 			);
 
 			if ( strlen( $context ) + strlen( $line ) > $max_chars ) {
-				$n--;
+				--$n;
 				break;
 			}
 
-			$context   .= $line;
-			$map[ $n ]  = array(
+			$context  .= $line;
+			$map[ $n ] = array(
 				'post_id' => (int) ( $entry['post_id'] ?? 0 ),
 				'title'   => html_entity_decode( (string) ( $entry['title'] ?? '' ), ENT_QUOTES, 'UTF-8' ),
 			);
 		}
 
-		return array( 'context' => trim( $context ), 'map' => $map );
+		return array(
+			'context' => trim( $context ),
+			'map'     => $map,
+		);
 	}
 
 	/**
@@ -460,7 +472,7 @@ final class KnowledgeBase {
 		}
 		$args[] = $limit;
 
-		$sql = "SELECT post_id, title, post_type, summary, keywords, content_type, embedding FROM {$table} WHERE {$where} ORDER BY updated_at DESC LIMIT %d"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$sql  = "SELECT post_id, title, post_type, summary, keywords, content_type, embedding FROM {$table} WHERE {$where} ORDER BY updated_at DESC LIMIT %d"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $this->db->get_results(
 			$this->db->prepare( $sql, ...$args ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			ARRAY_A
@@ -504,7 +516,7 @@ final class KnowledgeBase {
 		$context = '';
 		foreach ( $entries as $entry ) {
 			$line = sprintf(
-				"[%s] %s: %s (keywords: %s)",
+				'[%s] %s: %s (keywords: %s)',
 				$entry['post_type'],
 				$entry['title'],
 				$entry['summary'],
@@ -532,7 +544,7 @@ final class KnowledgeBase {
 	 * Check if the KB table exists.
 	 */
 	public function table_exists(): bool {
-		$table = $this->table();
+		$table  = $this->table();
 		$exists = $this->db->get_var(
 			$this->db->prepare( 'SHOW TABLES LIKE %s', $table )
 		);

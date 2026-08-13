@@ -454,6 +454,82 @@
 	line-height: 1.6;
 }
 
+/* WP-08 dashboard treatment: preserve the data model while making the
+   hierarchy match the shared SitePilot admin screens. */
+.sitepilot-screen--usage .sp-usage-header {
+	margin-bottom: 18px;
+}
+
+.sitepilot-screen--usage .sp-btn-ghost {
+	border-radius: 8px;
+}
+
+.sitepilot-screen--usage .sp-usage-stats {
+	margin: 0 0 16px;
+}
+
+.sitepilot-screen--usage .sp-stat-card {
+	position: relative;
+	overflow: hidden;
+	border-color: rgba(226, 228, 231, .9);
+	background: rgba(255, 255, 255, .86);
+}
+
+.sitepilot-screen--usage .sp-stat-card::after {
+	position: absolute;
+	top: 0;
+	inset-inline: 14px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--sp-gradient);
+	content: '';
+}
+
+.sitepilot-screen--usage .sp-credit-health {
+	border-color: rgba(79, 70, 229, .16);
+	background: linear-gradient(135deg, rgba(238,242,255,.76), rgba(255,255,255,.93) 54%);
+}
+
+.sitepilot-screen--usage .sp-credit-health__header h2,
+.sitepilot-screen--usage .sp-card > h2 {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.sitepilot-screen--usage .sp-usage-grid .sp-card,
+.sitepilot-screen--usage > .sp-card {
+	background: rgba(255, 255, 255, .88);
+}
+
+.sitepilot-screen--usage .sp-budget-card {
+	border-top: 3px solid var(--sp-primary);
+}
+
+.sitepilot-screen--usage .sp-budget-actions {
+	padding-top: 14px;
+	border-top: 1px solid var(--sp-border-light);
+}
+
+.sitepilot-screen--usage .sp-usage-table-wrap {
+	border: 1px solid var(--sp-border-light);
+	border-radius: 10px;
+}
+
+.sitepilot-screen--usage .sp-usage-table {
+	margin: 0;
+	border: 0;
+	box-shadow: none;
+}
+
+.sitepilot-screen--usage .sp-usage-footnote {
+	padding: 11px 13px;
+	border: 1px solid #bfdbfe;
+	border-radius: 9px;
+	background: var(--sp-info-bg);
+	color: #1e40af;
+}
+
 /* ── RTL ── */
 .rtl .sp-usage-stats {
 	direction: rtl;

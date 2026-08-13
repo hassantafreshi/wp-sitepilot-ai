@@ -29,9 +29,9 @@ final class KbGaps {
 		$now  = current_time( 'mysql', true );
 
 		if ( isset( $gaps[ $key ] ) ) {
-			$gaps[ $key ]['count']   = (int) $gaps[ $key ]['count'] + 1;
-			$gaps[ $key ]['last']    = $now;
-			$gaps[ $key ]['status']  = 'open';
+			$gaps[ $key ]['count']  = (int) $gaps[ $key ]['count'] + 1;
+			$gaps[ $key ]['last']   = $now;
+			$gaps[ $key ]['status'] = 'open';
 		} else {
 			$gaps[ $key ] = array(
 				'question' => mb_substr( $question, 0, 300 ),
@@ -45,9 +45,12 @@ final class KbGaps {
 
 		// Keep the list bounded: drop the least-recently-seen entries.
 		if ( count( $gaps ) > self::MAX_KEEP ) {
-			uasort( $gaps, static function ( $a, $b ) {
-				return strcmp( (string) $b['last'], (string) $a['last'] );
-			} );
+			uasort(
+				$gaps,
+				static function ( $a, $b ) {
+					return strcmp( (string) $b['last'], (string) $a['last'] );
+				}
+			);
 			$gaps = array_slice( $gaps, 0, self::MAX_KEEP, true );
 		}
 
@@ -71,14 +74,20 @@ final class KbGaps {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public function open_list( int $limit = 50 ): array {
-		$gaps = array_filter( $this->all(), static function ( $g ) {
-			return ( $g['status'] ?? 'open' ) === 'open';
-		} );
+		$gaps = array_filter(
+			$this->all(),
+			static function ( $g ) {
+				return ( $g['status'] ?? 'open' ) === 'open';
+			}
+		);
 
-		uasort( $gaps, static function ( $a, $b ) {
-			$c = ( (int) $b['count'] ) <=> ( (int) $a['count'] );
-			return 0 !== $c ? $c : strcmp( (string) $b['last'], (string) $a['last'] );
-		} );
+		uasort(
+			$gaps,
+			static function ( $a, $b ) {
+				$c = ( (int) $b['count'] ) <=> ( (int) $a['count'] );
+				return 0 !== $c ? $c : strcmp( (string) $b['last'], (string) $a['last'] );
+			}
+		);
 
 		$out = array();
 		foreach ( $gaps as $hash => $g ) {
@@ -93,9 +102,14 @@ final class KbGaps {
 	}
 
 	public function open_count(): int {
-		return count( array_filter( $this->all(), static function ( $g ) {
-			return ( $g['status'] ?? 'open' ) === 'open';
-		} ) );
+		return count(
+			array_filter(
+				$this->all(),
+				static function ( $g ) {
+					return ( $g['status'] ?? 'open' ) === 'open';
+				}
+			)
+		);
 	}
 
 	/**

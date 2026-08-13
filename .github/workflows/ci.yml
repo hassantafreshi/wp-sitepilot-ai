@@ -29,13 +29,15 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: Run PHPUnit
-      run: vendor/bin/phpunit --testsuite Unit
+      run: composer test
 
     - name: PHP Syntax Check
       run: |
-        find includes -name "*.php" -exec php -l {} \; | grep -v "No syntax errors"
+        find includes -name "*.php" -exec php -l {} \;
+        php -l sitepilot-ai.php
+        php -l uninstall.php
 
-  lint:
+  quality:
     runs-on: ubuntu-latest
 
     steps:
@@ -52,5 +54,7 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: Run PHPStan
-      run: vendor/bin/phpstan analyse includes --level=5 --no-progress
-      continue-on-error: true
+      run: composer analyze -- --no-progress
+
+    - name: Run PHP_CodeSniffer
+      run: composer lint -- --report=summary

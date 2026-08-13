@@ -14,13 +14,13 @@ use SitePilot\Providers\ProviderInterface;
  */
 final class EfbCustomizeSkill {
 
-	private const OPS   = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_step', 'remove_field', 'add_option', 'remove_option' );
-	private const PROPS = array( 'label', 'required', 'placeholder', 'width', 'help' );
+	private const OPS    = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_step', 'remove_field', 'add_option', 'remove_option' );
+	private const PROPS  = array( 'label', 'required', 'placeholder', 'width', 'help' );
 	private const WIDTHS = array( 'full', 'half', 'third', 'quarter' );
 
 	/** Most edits are a handful of ops; a longer batch is truncated and reported. */
 	private const MAX_OPS = 20;
-	private const CHOICE = array( 'select', 'radio', 'checkbox', 'multiselect' );
+	private const CHOICE  = array( 'select', 'radio', 'checkbox', 'multiselect' );
 
 	private ProviderInterface $provider;
 
@@ -70,12 +70,18 @@ final class EfbCustomizeSkill {
 		foreach ( $ops as $op ) {
 			++$seen;
 			if ( ! is_array( $op ) ) {
-				$dropped[] = array( 'op' => 'unknown', 'reason' => 'not_an_object' );
+				$dropped[] = array(
+					'op'     => 'unknown',
+					'reason' => 'not_an_object',
+				);
 				continue;
 			}
 			$name = (string) ( $op['op'] ?? '' );
 			if ( ! in_array( $name, self::OPS, true ) ) {
-				$dropped[] = array( 'op' => '' !== $name ? $name : 'unknown', 'reason' => 'unknown_operation' );
+				$dropped[] = array(
+					'op'     => '' !== $name ? $name : 'unknown',
+					'reason' => 'unknown_operation',
+				);
 				continue;
 			}
 
@@ -84,9 +90,15 @@ final class EfbCustomizeSkill {
 				case 'set_confirmation':
 					$value = self::clean( (string) ( $op['value'] ?? '' ), 300 );
 					if ( '' !== $value ) {
-						$out[] = array( 'op' => $name, 'value' => $value );
+						$out[] = array(
+							'op'    => $name,
+							'value' => $value,
+						);
 					} else {
-						$dropped[] = array( 'op' => $name, 'reason' => 'empty_value' );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'empty_value',
+						);
 					}
 					break;
 
@@ -94,7 +106,10 @@ final class EfbCustomizeSkill {
 					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
 					$prop   = strtolower( (string) ( $op['prop'] ?? '' ) );
 					if ( '' === $target || ! in_array( $prop, self::PROPS, true ) ) {
-						$dropped[] = array( 'op' => $name, 'reason' => '' === $target ? 'missing_target' : 'unknown_prop:' . $prop );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => '' === $target ? 'missing_target' : 'unknown_prop:' . $prop,
+						);
 						break;
 					}
 					$value = $op['value'] ?? '';
@@ -103,63 +118,104 @@ final class EfbCustomizeSkill {
 					} elseif ( 'width' === $prop ) {
 						$value = strtolower( (string) $value );
 						if ( ! in_array( $value, self::WIDTHS, true ) ) {
-							$dropped[] = array( 'op' => $name, 'reason' => 'invalid_width:' . $value );
+							$dropped[] = array(
+								'op'     => $name,
+								'reason' => 'invalid_width:' . $value,
+							);
 							break;
 						}
 					} else {
 						$value = self::clean( (string) $value, 200 );
 					}
-					$out[] = array( 'op' => 'set_field', 'target' => $target, 'prop' => $prop, 'value' => $value );
+					$out[] = array(
+						'op'     => 'set_field',
+						'target' => $target,
+						'prop'   => $prop,
+						'value'  => $value,
+					);
 					break;
 
 				case 'set_field_property':
-					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
+					$target   = self::clean( (string) ( $op['target'] ?? '' ), 120 );
 					$property = EfbFormModel::resolve_field_property( (string) ( $op['property'] ?? ( $op['prop'] ?? '' ) ) );
 					if ( '' === $target || null === $property ) {
-						$dropped[] = array( 'op' => $name, 'reason' => '' === $target ? 'missing_target' : 'unknown_property' );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => '' === $target ? 'missing_target' : 'unknown_property',
+						);
 						break;
 					}
 					$definition = EfbFormModel::field_property( $property );
 					if ( ! is_array( $definition ) || empty( $definition['ai_writable'] ) ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'property_not_writable:' . $property );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'property_not_writable:' . $property,
+						);
 						break;
 					}
 					$field_type = self::field_type_for_target( $target, $fields );
 					if ( array() !== $fields && null === $field_type ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'unknown_target:' . $target );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'unknown_target:' . $target,
+						);
 						break;
 					}
 					if ( null !== $field_type
 						&& ( ! self::property_applies_to_type( $definition, $field_type )
 							|| self::type_has_no_control_for( $property, $field_type ) ) ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'property_not_available_for_type:' . $property . ':' . $field_type );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'property_not_available_for_type:' . $property . ':' . $field_type,
+						);
 						break;
 					}
 					$valid = self::validate_catalog_value( $op['value'] ?? null, $definition, $field_type );
 					if ( ! $valid['ok'] || ( null !== $field_type && ! self::type_allows_value( $property, $field_type, $valid['value'] ) ) ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'invalid_property_value:' . $property );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'invalid_property_value:' . $property,
+						);
 						break;
 					}
-					$out[] = array( 'op' => 'set_field_property', 'target' => $target, 'property' => $property, 'value' => $valid['value'] );
+					$out[] = array(
+						'op'       => 'set_field_property',
+						'target'   => $target,
+						'property' => $property,
+						'value'    => $valid['value'],
+					);
 					break;
 
 				case 'set_form_property':
 					$property = EfbFormModel::resolve_form_property( (string) ( $op['property'] ?? ( $op['prop'] ?? '' ) ) );
 					if ( null === $property ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'unknown_property' );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'unknown_property',
+						);
 						break;
 					}
 					$definition = EfbFormModel::form_property( $property );
 					if ( ! is_array( $definition ) || empty( $definition['ai_writable'] ) ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'property_not_writable:' . $property );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'property_not_writable:' . $property,
+						);
 						break;
 					}
 					$valid = self::validate_catalog_value( $op['value'] ?? null, $definition );
 					if ( ! $valid['ok'] ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'invalid_property_value:' . $property );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'invalid_property_value:' . $property,
+						);
 						break;
 					}
-					$out[] = array( 'op' => 'set_form_property', 'property' => $property, 'value' => $valid['value'] );
+					$out[] = array(
+						'op'       => 'set_form_property',
+						'property' => $property,
+						'value'    => $valid['value'],
+					);
 					break;
 
 				case 'add_field':
@@ -167,32 +223,50 @@ final class EfbCustomizeSkill {
 					$type  = EfbFormModel::resolve_field_type( (string) ( $f['type'] ?? '' ) );
 					$label = self::clean( (string) ( $f['label'] ?? '' ), 120 );
 					if ( '' === $label ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'missing_label' );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'missing_label',
+						);
 						break;
 					}
 					if ( null === $type ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'unsupported_type:' . trim( (string) ( $f['type'] ?? '' ) ) );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'unsupported_type:' . trim( (string) ( $f['type'] ?? '' ) ),
+						);
 						break;
 					}
 					if ( 'steps' === $type ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'step_requires_add_step' );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'step_requires_add_step',
+						);
 						break;
 					}
 					if ( in_array( $type, EfbFormModel::forbidden_types(), true ) ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'forbidden_type:' . $type );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'forbidden_type:' . $type,
+						);
 						break;
 					}
 					if ( ! in_array( $type, EfbFormModel::addable_types(), true ) ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'recognized_but_not_creatable:' . $type );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'recognized_but_not_creatable:' . $type,
+						);
 						break;
 					}
 					$width   = strtolower( (string) ( $f['width'] ?? 'full' ) );
 					$options = self::clean_options( $f['options'] ?? array() );
 					if ( in_array( $type, self::CHOICE, true ) && array() === $options ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'choice_needs_options:' . $type );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'choice_needs_options:' . $type,
+						);
 						break;
 					}
-					$add = array(
+					$add      = array(
 						'op'    => 'add_field',
 						'field' => array(
 							'type'        => $type,
@@ -213,10 +287,16 @@ final class EfbCustomizeSkill {
 				case 'add_step':
 					$label = self::clean( (string) ( $op['label'] ?? ( $op['value'] ?? '' ) ), 120 );
 					if ( '' === $label ) {
-						$dropped[] = array( 'op' => $name, 'reason' => 'missing_label' );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'missing_label',
+						);
 						break;
 					}
-					$step = array( 'op' => 'add_step', 'label' => $label );
+					$step     = array(
+						'op'    => 'add_step',
+						'label' => $label,
+					);
 					$step_ref = self::clean_step_ref( (string) ( $op['step_ref'] ?? '' ) );
 					if ( '' !== $step_ref ) {
 						$step['step_ref'] = $step_ref;
@@ -227,9 +307,15 @@ final class EfbCustomizeSkill {
 				case 'remove_field':
 					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
 					if ( '' !== $target ) {
-						$out[] = array( 'op' => 'remove_field', 'target' => $target );
+						$out[] = array(
+							'op'     => 'remove_field',
+							'target' => $target,
+						);
 					} else {
-						$dropped[] = array( 'op' => $name, 'reason' => 'missing_target' );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'missing_target',
+						);
 					}
 					break;
 
@@ -238,9 +324,16 @@ final class EfbCustomizeSkill {
 					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
 					$value  = self::clean( (string) ( $op['value'] ?? '' ), 120 );
 					if ( '' !== $target && '' !== $value ) {
-						$out[] = array( 'op' => $name, 'target' => $target, 'value' => $value );
+						$out[] = array(
+							'op'     => $name,
+							'target' => $target,
+							'value'  => $value,
+						);
 					} else {
-						$dropped[] = array( 'op' => $name, 'reason' => '' === $target ? 'missing_target' : 'empty_value' );
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => '' === $target ? 'missing_target' : 'empty_value',
+						);
 					}
 					break;
 			}
@@ -250,7 +343,10 @@ final class EfbCustomizeSkill {
 			if ( count( $out ) >= self::MAX_OPS ) {
 				$skipped = count( $ops ) - $seen;
 				if ( $skipped > 0 ) {
-					$dropped[] = array( 'op' => 'batch', 'reason' => 'operation_limit_reached:' . self::MAX_OPS . ':' . $skipped . '_skipped' );
+					$dropped[] = array(
+						'op'     => 'batch',
+						'reason' => 'operation_limit_reached:' . self::MAX_OPS . ':' . $skipped . '_skipped',
+					);
 				}
 				break;
 			}
@@ -472,22 +568,37 @@ PROMPT;
 	private static function validate_catalog_value( $raw, array $definition, ?string $field_type = null ): array {
 		$type = (string) ( $definition['value_type'] ?? 'string' );
 		if ( 'boolean_flag' === $type ) {
-			return array( 'ok' => true, 'value' => self::to_bool( $raw ) );
+			return array(
+				'ok'    => true,
+				'value' => self::to_bool( $raw ),
+			);
 		}
 
 		if ( 'integer' === $type ) {
 			if ( filter_var( $raw, FILTER_VALIDATE_INT ) === false ) {
-				return array( 'ok' => false, 'value' => null );
+				return array(
+					'ok'    => false,
+					'value' => null,
+				);
 			}
 			$value = (int) $raw;
 			if ( isset( $definition['minimum'] ) && $value < (int) $definition['minimum'] ) {
-				return array( 'ok' => false, 'value' => null );
+				return array(
+					'ok'    => false,
+					'value' => null,
+				);
 			}
 			if ( isset( $definition['maximum'] ) && $value > (int) $definition['maximum'] ) {
-				return array( 'ok' => false, 'value' => null );
+				return array(
+					'ok'    => false,
+					'value' => null,
+				);
 			}
 
-			return array( 'ok' => true, 'value' => $value );
+			return array(
+				'ok'    => true,
+				'value' => $value,
+			);
 		}
 
 		if ( 'number_or_date' === $type ) {
@@ -501,57 +612,87 @@ PROMPT;
 				: '/^\d{1,6}$/';
 
 			if ( ! preg_match( $pattern, $value ) ) {
-				return array( 'ok' => false, 'value' => null );
+				return array(
+					'ok'    => false,
+					'value' => null,
+				);
 			}
 
-			return array( 'ok' => true, 'value' => $value );
+			return array(
+				'ok'    => true,
+				'value' => $value,
+			);
 		}
 
 		if ( 'hex_color' === $type ) {
 			$value = strtolower( self::clean( (string) $raw, 7 ) );
 
-			return array( 'ok' => (bool) preg_match( '/^#[a-f0-9]{6}$/', $value ), 'value' => $value );
+			return array(
+				'ok'    => (bool) preg_match( '/^#[a-f0-9]{6}$/', $value ),
+				'value' => $value,
+			);
 		}
 
 		if ( 'efb_color' === $type ) {
 			$value = self::normalize_efb_color( $raw );
 
-			return array( 'ok' => null !== $value, 'value' => $value );
+			return array(
+				'ok'    => null !== $value,
+				'value' => $value,
+			);
 		}
 
 		if ( 'css_classes' === $type ) {
 			$value = self::clean( (string) $raw, (int) ( $definition['max_length'] ?? 200 ) );
 
-			return array( 'ok' => '' !== $value && (bool) preg_match( '/^[A-Za-z0-9_\-\s]+$/', $value ), 'value' => $value );
+			return array(
+				'ok'    => '' !== $value && (bool) preg_match( '/^[A-Za-z0-9_\-\s]+$/', $value ),
+				'value' => $value,
+			);
 		}
 
 		if ( 'enum' === $type ) {
 			$value  = strtolower( self::clean( (string) $raw, 100 ) );
 			$values = $definition['values'] ?? array();
 			if ( ! is_array( $values ) ) {
-				return array( 'ok' => false, 'value' => null );
+				return array(
+					'ok'    => false,
+					'value' => null,
+				);
 			}
 			if ( array_is_list( $values ) ) {
 				foreach ( $values as $allowed ) {
 					if ( strtolower( (string) $allowed ) === $value ) {
-						return array( 'ok' => true, 'value' => (string) $allowed );
+						return array(
+							'ok'    => true,
+							'value' => (string) $allowed,
+						);
 					}
 				}
 			} else {
 				foreach ( $values as $key => $stored ) {
 					if ( strtolower( (string) $key ) === $value || strtolower( (string) $stored ) === $value ) {
-						return array( 'ok' => true, 'value' => (string) $key );
+						return array(
+							'ok'    => true,
+							'value' => (string) $key,
+						);
 					}
 				}
 			}
 
-			return array( 'ok' => false, 'value' => null );
+			return array(
+				'ok'    => false,
+				'value' => null,
+			);
 		}
 
-		$max = (int) ( $definition['max_length'] ?? 500 );
+		$max   = (int) ( $definition['max_length'] ?? 500 );
 		$value = self::clean( (string) $raw, $max );
 
-		return array( 'ok' => '' !== $value, 'value' => $value );
+		return array(
+			'ok'    => '' !== $value,
+			'value' => $value,
+		);
 	}
 
 	/**
@@ -568,16 +709,33 @@ PROMPT;
 		}
 
 		$colors = array(
-			'red' => '#ff455f', 'قرمز' => '#ff455f',
-			'green' => '#198754', 'سبز' => '#198754',
-			'blue' => '#0d6efd', 'آبی' => '#0d6efd', 'ابي' => '#0d6efd',
-			'yellow' => '#e9c31a', 'زرد' => '#e9c31a',
-			'white' => '#ffffff', 'سفید' => '#ffffff', 'سفيد' => '#ffffff',
-			'black' => '#212529', 'مشکی' => '#212529', 'مشکي' => '#212529',
-			'gray' => '#6c757d', 'grey' => '#6c757d', 'خاکستری' => '#6c757d', 'خاکستري' => '#6c757d',
-			'pink' => '#ff4b93', 'صورتی' => '#ff4b93', 'صورتي' => '#ff4b93',
-			'purple' => '#6f42c1', 'بنفش' => '#6f42c1',
-			'orange' => '#fd7e14', 'نارنجی' => '#fd7e14', 'نارنجي' => '#fd7e14',
+			'red'     => '#ff455f',
+			'قرمز'    => '#ff455f',
+			'green'   => '#198754',
+			'سبز'     => '#198754',
+			'blue'    => '#0d6efd',
+			'آبی'     => '#0d6efd',
+			'ابي'     => '#0d6efd',
+			'yellow'  => '#e9c31a',
+			'زرد'     => '#e9c31a',
+			'white'   => '#ffffff',
+			'سفید'    => '#ffffff',
+			'سفيد'    => '#ffffff',
+			'black'   => '#212529',
+			'مشکی'    => '#212529',
+			'مشکي'    => '#212529',
+			'gray'    => '#6c757d',
+			'grey'    => '#6c757d',
+			'خاکستری' => '#6c757d',
+			'خاکستري' => '#6c757d',
+			'pink'    => '#ff4b93',
+			'صورتی'   => '#ff4b93',
+			'صورتي'   => '#ff4b93',
+			'purple'  => '#6f42c1',
+			'بنفش'    => '#6f42c1',
+			'orange'  => '#fd7e14',
+			'نارنجی'  => '#fd7e14',
+			'نارنجي'  => '#fd7e14',
 		);
 
 		return $colors[ $value ] ?? null;

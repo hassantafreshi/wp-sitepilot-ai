@@ -27,27 +27,54 @@ final class KnowledgeBasePage {
 		$usage       = new UsageTracker();
 		$manager     = new ProviderManager();
 		$configured  = $manager->is_configured();
-		$stats       = $kb->table_exists() ? $kb->get_stats() : array( 'total' => 0, 'indexed' => 0, 'pending' => 0, 'post_types' => array(), 'content_types' => array(), 'last_indexed' => null );
+		$stats       = $kb->table_exists() ? $kb->get_stats() : array(
+			'total'         => 0,
+			'indexed'       => 0,
+			'pending'       => 0,
+			'post_types'    => array(),
+			'content_types' => array(),
+			'last_indexed'  => null,
+		);
 		$total_posts = $indexer->get_total_posts();
 		$warning     = $usage->get_threshold_warning();
 
 		$semantic_on    = $manager->embeddings_enabled();
 		$embedded_count = ( $semantic_on && $kb->table_exists() ) ? $kb->count_with_embeddings( $manager->embedding_model() ) : 0;
 
-		$type_options   = $indexer->get_indexable_types_with_counts();
-		$categories     = get_categories( array( 'hide_empty' => false, 'number' => 200 ) );
-		$ct_labels      = self::content_type_labels();
+		$type_options = $indexer->get_indexable_types_with_counts();
+		$categories   = get_categories(
+			array(
+				'hide_empty' => false,
+				'number'     => 200,
+			)
+		);
+		$ct_labels    = self::content_type_labels();
 		?>
-		<div class="wrap sitepilot-wrap sitepilot-kb-wrap">
-			<h1 class="sitepilot-title">
+		<div class="wrap sitepilot-wrap sitepilot-screen sitepilot-screen--kb sitepilot-kb-wrap">
+			<nav class="sitepilot-screen__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sitepilot-ai' ); ?>">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HOME ) ); ?>"><?php esc_html_e( 'Home', 'sitepilot-ai' ); ?></a>
+				<span aria-hidden="true">/</span>
+				<span><?php esc_html_e( 'Knowledge Base', 'sitepilot-ai' ); ?></span>
+			</nav>
+			<header class="sitepilot-screen__header">
+				<div>
+					<p class="sitepilot-eyebrow"><?php esc_html_e( 'Site knowledge', 'sitepilot-ai' ); ?></p>
+					<h1 class="sitepilot-title"><span class="dashicons dashicons-database" aria-hidden="true"></span><?php esc_html_e( 'Knowledge Base', 'sitepilot-ai' ); ?> <span class="sp-ai-badge">AI</span></h1>
+					<p class="sitepilot-subtitle"><?php esc_html_e( 'Index the content SitePilot may use for accurate, source-aware answers. New and changed content can be indexed automatically.', 'sitepilot-ai' ); ?></p>
+				</div>
+				<div class="sitepilot-screen__status">
+					<span class="sitepilot-screen__badge <?php echo $configured ? 'sitepilot-screen__badge--ready' : 'sitepilot-screen__badge--attention'; ?>"><?php echo esc_html( $configured ? __( 'Provider ready', 'sitepilot-ai' ) : __( 'Provider needs setup', 'sitepilot-ai' ) ); ?></span>
+					<span class="sitepilot-screen__badge <?php echo $semantic_on ? 'sitepilot-screen__badge--info' : ''; ?>"><?php echo esc_html( $semantic_on ? __( 'Semantic search on', 'sitepilot-ai' ) : __( 'Keyword search', 'sitepilot-ai' ) ); ?></span>
+				</div>
+			</header>
+			<div class="sp-sr-only">
 				<span class="dashicons dashicons-database"></span>
 				<?php esc_html_e( 'Knowledge Base', 'sitepilot-ai' ); ?>
 				<span class="sp-ai-badge">AI</span>
-			</h1>
-			<p class="sitepilot-subtitle">
+			</div>
+			<p class="sitepilot-subtitle sp-sr-only">
 				<?php esc_html_e( 'SitePilot reads and understands your site content so it can answer questions accurately. Index your content once — new content is indexed automatically.', 'sitepilot-ai' ); ?>
 			</p>
-
 			<?php if ( ! $configured ) : ?>
 				<div class="sitepilot-banner sitepilot-banner--warn">
 					<span class="dashicons dashicons-warning"></span>

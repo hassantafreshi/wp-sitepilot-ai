@@ -10,7 +10,7 @@ use SitePilot\Usage\VoiceUsageTracker;
 
 /** Short-lived, OpenAI/Whisper-compatible audio transcription. */
 final class VoiceTranscriber {
-	public const MAX_BYTES = 5_000_000;
+	public const MAX_BYTES       = 5_000_000;
 	public const MAX_DURATION_MS = 45_000;
 
 	/** @param array<string,mixed> $file */
@@ -37,9 +37,9 @@ final class VoiceTranscriber {
 		if ( null !== $error ) {
 			throw new ProviderException( $error, __( 'The audio recording is invalid, too large, or too long.', 'sitepilot-ai' ) );
 		}
-		$key = WpConnectors::get_effective_api_key();
+		$key  = WpConnectors::get_effective_api_key();
 		$base = rtrim( (string) Settings::get( 'base_url', '' ), '/' );
-		if ( '' === $key || '' === $base ) {
+		if ( '' === $key || '' === $base || ! $this->is_safe_endpoint( $base . '/audio/transcriptions' ) ) {
 			throw new ProviderException( 'provider_not_configured', __( 'Configure an AI provider before using voice input.', 'sitepilot-ai' ) );
 		}
 
@@ -61,9 +61,14 @@ final class VoiceTranscriber {
 		$response = wp_remote_post(
 			$base . '/audio/transcriptions',
 			array(
-				'timeout' => 60,
-				'headers' => array( 'Authorization' => 'Bearer ' . $key, 'Content-Type' => 'multipart/form-data; boundary=' . $boundary ),
-				'body' => $body,
+				'timeout'            => 60,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $key,
+					'Content-Type'  => 'multipart/form-data; boundary=' . $boundary,
+				),
+				'body'               => $body,
+				'redirection'        => 0,
+				'reject_unsafe_urls' => true,
 			)
 		);
 		if ( is_wp_error( $response ) ) {
@@ -76,15 +81,31 @@ final class VoiceTranscriber {
 			throw new ProviderException( 'stt_failed', __( 'The speech-to-text provider could not transcribe this recording. Check that your provider supports /audio/transcriptions.', 'sitepilot-ai' ) );
 		}
 		( new VoiceUsageTracker() )->record( $duration_ms / 1000, $scope, $model );
-		return array( 'transcript' => mb_substr( $text, 0, 2000 ), 'language' => $language );
+		return array(
+			'transcript' => mb_substr( $text, 0, 2000 ),
+			'language'   => $language,
+		);
 	}
 
 	private function multipart( string $boundary, string $model, string $filename, string $mime, string $contents ): string {
-		$eol = "\r\n";
-		$body = '--' . $boundary . $eol . 'Content-Disposition: form-data; name="model"' . $eol . $eol . $model . $eol;
+		$eol   = "\r\n";
+		$body  = '--' . $boundary . $eol . 'Content-Disposition: form-data; name="model"' . $eol . $eol . $model . $eol;
 		$body .= '--' . $boundary . $eol . 'Content-Disposition: form-data; name="response_format"' . $eol . $eol . 'json' . $eol;
-		$body .= '--' . $boundary . $eol . 'Content-Disposition: form-data; name="file"; filename="' . addcslashes( $filename, "\\\"") . '"' . $eol;
+		$body .= '--' . $boundary . $eol . 'Content-Disposition: form-data; name="file"; filename="' . addcslashes( $filename, '\\"' ) . '"' . $eol;
 		$body .= 'Content-Type: ' . $mime . $eol . $eol . $contents . $eol . '--' . $boundary . '--' . $eol;
 		return $body;
+	}
+
+	private function is_safe_endpoint( string $endpoint ): bool {
+		$parts = wp_parse_url( $endpoint );
+		if ( ! is_array( $parts ) || empty( $parts['host'] ) || ! empty( $parts['user'] ) || ! empty( $parts['pass'] ) ) {
+			return false;
+		}
+
+		if ( 'https' === strtolower( (string) ( $parts['scheme'] ?? '' ) ) ) {
+			return true;
+		}
+
+		return (bool) apply_filters( 'sitepilot_ai_allow_insecure_provider_url', false, $endpoint );
 	}
 }

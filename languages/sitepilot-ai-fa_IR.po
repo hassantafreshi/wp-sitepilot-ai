@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SitePilot AI 0.6.0\n"
-"Report-Msgid-Bugs-To: https://sitepilot.ai\n"
-"POT-Creation-Date: 2026-07-23 12:00+0000\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/sitepilot-ai\n"
+"POT-Creation-Date: 2026-08-13T19:12:46+02:00\n"
 "PO-Revision-Date: 2026-07-23 12:00+0330\n"
 "Last-Translator: SitePilot AI <info@sitepilot.ai>\n"
 "Language-Team: Persian <fa@li.org>\n"
@@ -16,314 +16,3199 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: SitePilot AI 0.6.0\n"
 
-# WooCommerce - General
-msgid "WooCommerce is not active."
-msgstr "ووکامرس فعال نیست."
-
-msgid "Product not found."
-msgstr "محصول یافت نشد."
-
-msgid "Order not found."
-msgstr "سفارش یافت نشد."
-
-msgid "Customer not found."
-msgstr "مشتری یافت نشد."
-
-msgid "Invalid order ID."
-msgstr "شناسه سفارش نامعتبر است."
-
-msgid "Invalid customer ID."
-msgstr "شناسه مشتری نامعتبر است."
-
-msgid "Invalid status."
-msgstr "وضعیت نامعتبر است."
-
-msgid "Refund amount exceeds maximum."
-msgstr "مبلغ بازپرداخت از حداکثر مجاز بیشتر است."
-
-msgid "Refund amount must be positive."
-msgstr "مبلغ بازپرداخت باید مثبت باشد."
-
-msgid "AI provider is not configured."
-msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
-
-# WooCommerce - Product AI
-msgid "Create a simple product called %s with price %s in %s status"
-msgstr "یک محصول ساده با نام %s و قیمت %s در وضعیت %s ایجاد کنید"
-
-msgid "Product plan created successfully."
-msgstr "طرح محصول با موفقیت ایجاد شد."
-
-msgid "Product created successfully."
-msgstr "محصول با موفقیت ایجاد شد."
-
-msgid "Product updated successfully."
-msgstr "محصول با موفقیت به‌روزرسانی شد."
-
-msgid "Search products"
-msgstr "جستجوی محصولات"
-
-msgid "Edit product"
-msgstr "ویرایش محصول"
-
-msgid "Product categories"
-msgstr "دسته‌بندی‌های محصول"
-
-# WooCommerce - Order Intelligence
-msgid "Search orders"
-msgstr "جستجوی سفارش‌ها"
-
-msgid "Recent orders"
-msgstr "سفارش‌های اخیر"
-
-msgid "Update order status"
-msgstr "به‌روزرسانی وضعیت سفارش"
-
-msgid "Create refund"
-msgstr "ایجاد بازپرداخت"
-
-msgid "Order statistics"
-msgstr "آمار سفارش‌ها"
-
-msgid "Add order note"
-msgstr "افزودن یادداشت سفارش"
-
-msgid "Status updated via SitePilot AI."
-msgstr "وضعیت توسط SitePilot AI به‌روزرسانی شد."
-
-msgid "Refund via SitePilot AI."
-msgstr "بازپرداخت توسط SitePilot AI."
-
-# WooCommerce - Analytics
-msgid "Sales report"
-msgstr "گزارش فروش"
-
-msgid "Top selling products"
-msgstr "پرفروش‌ترین محصولات"
-
-msgid "Low stock alerts"
-msgstr "هشدارهای موجودی کم"
-
-msgid "Customer purchase history"
-msgstr "تاریخچه خرید مشتری"
-
-msgid "Revenue by category"
-msgstr "درآمد بر اساس دسته‌بندی"
-
-msgid "Dashboard summary"
-msgstr "خلاصه داشبورد"
-
-msgid "Today"
-msgstr "امروز"
-
-msgid "Last 7 days"
-msgstr "۷ روز گذشته"
-
-msgid "This month"
-msgstr "این ماه"
-
-msgid "This year"
-msgstr "امسال"
-
-# WooCommerce - Content + SEO
-msgid "Generate product description with AI"
-msgstr "تولید توضیحات محصول با هوش مصنوعی"
-
-msgid "Generate SEO title and meta description"
-msgstr "تولید عنوان سئو و توضیحات متا"
-
-msgid "Generate promotional text"
-msgstr "تولید متن تبلیغاتی"
-
-msgid "Bulk content generation"
-msgstr "تولید محتوای دسته‌جمعی"
-
-msgid "Apply content to product"
-msgstr "اعمال محتوا به محصول"
-
-msgid "Content templates"
-msgstr "قالب‌های محتوا"
-
-msgid "Professional and informative"
-msgstr "حرفه‌ای و اطلاع‌رسان"
-
-msgid "Friendly and approachable"
-msgstr "دوستانه و صمیمی"
-
-msgid "Luxurious and premium"
-msgstr "لوکس و ممتاز"
-
-msgid "Technical and detailed"
-msgstr "فنی و دقیق"
-
-msgid "Short social media post (max 280 characters). Include emojis and hashtags."
-msgstr "پست کوتاه شبکه‌های اجتماعی (حداکثر ۲۸۰ کاراکتر). شامل ایموجی و هشتگ."
-
-msgid "Medium email newsletter paragraph (100-150 words). Engaging and persuasive."
-msgstr "پاراگراف متوسط خبرنامه ایمیلی (۱۰۰-۱۵۰ کلمه). جذاب و متقاعدکننده."
-
-msgid "Long blog-style promotional article (300-400 words). Storytelling approach."
-msgstr "مقاله تبلیغاتی بلند به سبک بلاگ (۳۰۰-۴۰۰ کلمه). رویکرد داستان‌سرایی."
-
-# Chat Widget
-msgid "Hi! How can I help you?"
-msgstr "سلام! چطور می‌تونم کمکتون کنم؟"
-
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: sitepilot-ai.php includes/Admin/ConnectionsPage.php:29
+#: includes/Core/WpConnectors.php:44 includes/Efb/EfbBuilderButton.php:79
+#: includes/Frontend/WidgetRenderer.php:34
 msgid "SitePilot AI"
 msgstr "SitePilot AI"
 
-msgid "Connecting to AI..."
-msgstr "در حال اتصال به هوش مصنوعی..."
+#. Plugin URI of the plugin
+#: sitepilot-ai.php
+msgid "https://sitepilot.ai"
+msgstr ""
 
-msgid "Something went wrong. Please try again."
-msgstr "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
-
-msgid "Retry"
-msgstr "تلاش مجدد"
-
-msgid "No messages yet. Start a conversation!"
-msgstr "هنوز پیامی نیست. یک مکالمه شروع کنید!"
-
-msgid "Listening..."
-msgstr "در حال گوش دادن..."
-
-msgid "AI is thinking..."
-msgstr "هوش مصنوعی در حال فکر کردن است..."
-
-msgid "Talk to human"
-msgstr "صحبت با انسان"
-
-msgid "Want to talk to a human?"
-msgstr "می‌خواهید با یک انسان صحبت کنید؟"
-
-# Handoff
-msgid "Support Request"
-msgstr "درخواست پشتیبانی"
-
-msgid "Support request sent."
-msgstr "درخواست پشتیبانی ارسال شد."
-
-msgid "Failed to send."
-msgstr "ارسال ناموفق بود."
-
-msgid "Email"
-msgstr "ایمیل"
-
-msgid "Telegram"
-msgstr "تلگرام"
-
-msgid "Twilio WhatsApp"
-msgstr "واتساپ Twilio"
-
-msgid "Webhook"
-msgstr "وب‌هوک"
-
-# Settings
-msgid "Settings saved."
-msgstr "تنظیمات ذخیره شد."
-
-msgid "Enable Widget"
-msgstr "فعال‌سازی ویجت"
-
-msgid "Title"
-msgstr "عنوان"
-
-msgid "Greeting"
-msgstr "پیام خوش‌آمدگویی"
-
-msgid "Position"
-msgstr "موقعیت"
-
-msgid "Bottom Right"
-msgstr "پایین راست"
-
-msgid "Bottom Left"
-msgstr "پایین چپ"
-
-msgid "Top Right"
-msgstr "بالا راست"
-
-msgid "Top Left"
-msgstr "بالا چپ"
-
-msgid "Theme"
-msgstr "تم"
-
-msgid "Light"
-msgstr "روشن"
-
-msgid "Dark"
-msgstr "تیره"
-
-msgid "Voice"
-msgstr "صدا"
-
-msgid "Enable voice input"
-msgstr "فعال‌سازی ورودی صدا"
-
-msgid "Auto-play response"
-msgstr "پخش خودکار پاسخ"
-
-msgid "Handoff"
-msgstr "انتقال به انسان"
-
-msgid "Enable human handoff"
-msgstr "فعال‌سازی انتقال به انسان"
-
-msgid "Button text"
-msgstr "متن دکمه"
-
-msgid "Hook text"
-msgstr "متن قلاب"
+#. Description of the plugin
+#: sitepilot-ai.php
+msgid ""
+"AI copilot for WordPress — form builder, content intelligence, RAG chat, "
+"voice assistant, frontend widget."
+msgstr ""
 
 # General
+#: includes/Admin/ChatPage.php:17 includes/Admin/ConnectionsPage.php:18
+#: includes/Admin/CopilotPage.php:18 includes/Admin/EasyFormBuilderPage.php:16
+#: includes/Admin/HomePage.php:20 includes/Admin/KnowledgeBasePage.php:22
+#: includes/Admin/LogsPage.php:15 includes/Admin/NativeFormsPage.php:15
+#: includes/Admin/SettingsPage.php:18 includes/Admin/SetupPage.php:19
+#: includes/Admin/WooCommerceDashboardPage.php:21
+#: includes/Admin/WooCommerceSettings.php:15
+#: includes/Frontend/ChatWidgetSettings.php:9
 msgid "You do not have permission to view this page."
 msgstr "شما اجازه مشاهده این صفحه را ندارید."
 
+#: includes/Admin/ChatPage.php:26 includes/Admin/CopilotPage.php:36
+#: includes/Admin/KnowledgeBasePage.php:54 includes/Admin/SettingsPage.php:30
+#: includes/Admin/SetupPage.php:35 includes/Admin/UsagePage.php:35
+#: includes/Admin/WooCommerceDashboardPage.php:27
+#: includes/Admin/WooCommerceSettings.php:27
+#: includes/Frontend/ChatWidgetSettings.php:28
+msgid "Breadcrumb"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:27 includes/Admin/CopilotPage.php:37
+#: includes/Admin/HomePage.php:42 includes/Admin/KnowledgeBasePage.php:55
+#: includes/Admin/SettingsPage.php:31 includes/Admin/UsagePage.php:36
+#: includes/Admin/WooCommerceDashboardPage.php:28
+#: includes/Frontend/ChatWidgetSettings.php:29
+msgid "Home"
+msgstr "خانه"
+
+#: includes/Admin/ChatPage.php:29
+msgid "AI Chat"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:33
+msgid "Knowledge-grounded answers"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:34
+#, fuzzy
+msgid "SitePilot AI Chat"
+msgstr "SitePilot AI"
+
+#: includes/Admin/ChatPage.php:35
+msgid ""
+"Ask questions about your website content. Answers are grounded in the "
+"knowledge base available on this site."
+msgstr ""
+
+#: includes/Admin/ChatPage.php:37
+msgid "Chat readiness"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:38 includes/Admin/KnowledgeBasePage.php:66
+msgid "Provider ready"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:38 includes/Admin/KnowledgeBasePage.php:66
+msgid "Provider needs setup"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:39
+msgid "Knowledge ready"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:39
+msgid "Knowledge base empty"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:48
+msgid "Conversations"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:50 includes/Chat/ConversationManager.php:70
+msgid "New conversation"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:55 includes/Admin/KnowledgeBasePage.php:236
+msgid "Loading…"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:63
+#, fuzzy
+msgid "Conversation"
+msgstr "موقعیت"
+
+#: includes/Admin/ChatPage.php:64
+msgid "Private admin workspace"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:66
+msgid "Sources shown in replies"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:72 includes/Admin/KnowledgeBasePage.php:82
+#, fuzzy
+msgid "No AI provider is connected."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+#: includes/Admin/ChatPage.php:74 includes/Admin/KnowledgeBasePage.php:84
+msgid "Add your API key in Settings"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:84
+msgid "Your knowledge base is empty."
+msgstr ""
+
+#: includes/Admin/ChatPage.php:86
+msgid "Index your content first"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:96
+msgid "Hello! Ask me anything about your website."
+msgstr ""
+
+#: includes/Admin/ChatPage.php:97
+msgid "For example:"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:100 includes/Frontend/WidgetRenderer.php:39
+msgid "What is this website about?"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:103
+msgid "Summarize my latest posts"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:106
+msgid "How many pages do I have?"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:115
+msgid "Ask anything about your site…"
+msgstr ""
+
+#: includes/Admin/ChatPage.php:118
+#, fuzzy
+msgid "Start voice input"
+msgstr "فعال‌سازی ورودی صدا"
+
+#: includes/Admin/ChatPage.php:122
+msgid "Send message"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:30
+#, fuzzy
+msgid "Connections & health"
+msgstr "اتصال موفقیت‌آمیز بود."
+
+#: includes/Admin/ConnectionsPage.php:31
+msgid "Check every dependency SitePilot relies on before you start a task."
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:36
+msgid "AI provider"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:36
+#, fuzzy
+msgid "An encrypted provider key is configured."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+#: includes/Admin/ConnectionsPage.php:36
+msgid "Connect a provider before using AI generation."
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:36 includes/Admin/CopilotPage.php:86
+#: includes/Admin/HomePage.php:56
+msgid "Open settings"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:36 includes/Admin/SetupPage.php:46
+msgid "Connect provider"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:37 includes/Admin/CopilotPage.php:113
+#: includes/Admin/HomePage.php:61 includes/Admin/NativeFormsPage.php:32
+#: includes/Connectors/NativeFormConnector.php:130
+#, fuzzy
+msgid "SitePilot Forms"
+msgstr "SitePilot AI"
+
+#: includes/Admin/ConnectionsPage.php:37
+msgid "The built-in simple-form connector is always available."
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:37 includes/Admin/HomePage.php:61
+msgid "Manage forms"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:38
+#: includes/Admin/EasyFormBuilderPage.php:29 includes/Admin/HomePage.php:62
+#: includes/Connectors/EasyFormBuilderConnector.php:42
+msgid "Easy Form Builder"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:38
+msgid "Installed. Use it for advanced form capabilities."
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:38
+msgid ""
+"Not active. Install it for multi-step, files, payments, and conditional "
+"logic."
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:38
+msgid "Open Easy Form Builder"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:38
+#: includes/Admin/EasyFormBuilderPage.php:42
+msgid "Install Easy Form Builder"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:39 includes/Admin/HomePage.php:63
+msgid "WooCommerce"
+msgstr ""
+
+# WooCommerce - General
+#: includes/Admin/ConnectionsPage.php:39
+#, fuzzy, php-format
+msgid "WooCommerce %s is active."
+msgstr "ووکامرس فعال نیست."
+
+#: includes/Admin/ConnectionsPage.php:39
+msgid "Not active. Store tools stay disabled until it is installed."
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:39 includes/Admin/HomePage.php:63
+msgid "Open dashboard"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:39
+#: includes/Admin/WooCommerceSettings.php:47
+msgid "Install WooCommerce"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:53
+#: includes/Admin/EasyFormBuilderPage.php:52
+#: includes/Admin/WooCommerceSettings.php:62
+msgid "Active"
+msgstr ""
+
+#: includes/Admin/ConnectionsPage.php:53
+msgid "Inactive"
+msgstr ""
+
+#: includes/Admin/CopilotPage.php:28
+msgid "Create a contact form with name, email, phone, and message."
+msgstr "یک فرم تماس با نام، ایمیل، تلفن و پیام بسازید."
+
+#: includes/Admin/CopilotPage.php:29
+msgid ""
+"Build a job application form with full name, email, phone, and a cover "
+"letter."
+msgstr "یک فرم درخواست شغل با نام کامل، ایمیل، تلفن و نامهٔ معرفی بسازید."
+
+#: includes/Admin/CopilotPage.php:30
+msgid "Make a newsletter signup with first name and email."
+msgstr "یک فرم عضویت خبرنامه با نام و ایمیل بسازید."
+
+#: includes/Admin/CopilotPage.php:31
+msgid ""
+"Support request form with name, email, priority (low, medium, high) and "
+"details."
+msgstr "فرم درخواست پشتیبانی با نام، ایمیل، اولویت (کم، متوسط، زیاد) و جزئیات بسازید."
+
+#: includes/Admin/CopilotPage.php:39 includes/Admin/CopilotPage.php:44
+msgid "Create with AI"
+msgstr "ساخت با هوش مصنوعی"
+
+#: includes/Admin/CopilotPage.php:45
+msgid "Copilot"
+msgstr "دستیار هوشمند"
+
+#: includes/Admin/CopilotPage.php:46
+msgid ""
+"Describe the form you need. Nothing is created until you review and "
+"explicitly approve the plan."
+msgstr "فرم موردنیاز خود را توضیح دهید. تا زمانی که طرح را بررسی و صریحاً تأیید نکنید، چیزی ساخته نمی‌شود."
+
+#: includes/Admin/CopilotPage.php:52
+msgid "Create a form request"
+msgstr "درخواست ساخت فرم"
+
+#: includes/Admin/CopilotPage.php:53
+msgid "AI task type"
+msgstr "نوع کار هوش مصنوعی"
+
+#: includes/Admin/CopilotPage.php:54 includes/Admin/NativeFormsPage.php:35
+msgid "Create a form"
+msgstr "ساخت فرم"
+
+# WooCommerce - General
+#: includes/Admin/CopilotPage.php:55
+#, fuzzy
+msgid "WooCommerce is required for product drafts."
+msgstr "برای پیش‌نویس محصول، ووکامرس لازم است."
+
+#: includes/Admin/CopilotPage.php:55
+msgid "Product draft — needs WooCommerce"
+msgstr "پیش‌نویس محصول — نیازمند ووکامرس"
+
+#: includes/Admin/CopilotPage.php:58
+msgid "Describe the form you want to create"
+msgstr "فرمی را که می‌خواهید بسازید توضیح دهید"
+
+#: includes/Admin/CopilotPage.php:59
+msgid "For example: Create a contact form with name, email, phone and message."
+msgstr "برای نمونه: یک فرم تماس با نام، ایمیل، تلفن و پیام بسازید."
+
+#: includes/Admin/CopilotPage.php:62
+msgid "Start voice command"
+msgstr "شروع فرمان صوتی"
+
+#: includes/Admin/CopilotPage.php:64
+msgid "Speak"
+msgstr "صحبت کنید"
+
+#: includes/Admin/CopilotPage.php:66
+msgid "Type or speak your request."
+msgstr "درخواست خود را بنویسید یا بگویید."
+
+#: includes/Admin/CopilotPage.php:69
+msgid "Generate preview"
+msgstr "ساخت پیش‌نمایش"
+
+#: includes/Admin/CopilotPage.php:77
+msgid "This action needs setup"
+msgstr "این کار به تنظیمات نیاز دارد"
+
+#: includes/Admin/CopilotPage.php:80
+msgid ""
+"Connect an AI provider and set the form notification email before generating "
+"a plan."
+msgstr "پیش از ساخت طرح، یک ارائه‌دهندهٔ AI متصل و ایمیل اعلان فرم را تعیین کنید."
+
+#: includes/Admin/CopilotPage.php:82
+msgid "Connect an AI provider before generating a plan."
+msgstr "پیش از ساخت طرح، یک ارائه‌دهندهٔ AI متصل کنید."
+
+#: includes/Admin/CopilotPage.php:84
+msgid "Set the notification email before generating a plan."
+msgstr "پیش از ساخت طرح، ایمیل اعلان را تعیین کنید."
+
+#: includes/Admin/CopilotPage.php:95
+msgid "Preparing a reviewable plan"
+msgstr "در حال آماده‌سازی طرح قابل بررسی"
+
+#: includes/Admin/CopilotPage.php:96
+msgid "Analyze request"
+msgstr "تحلیل درخواست"
+
+#: includes/Admin/CopilotPage.php:96
+msgid "Run safety checks"
+msgstr "اجرای بررسی‌های ایمنی"
+
+#: includes/Admin/CopilotPage.php:96
+msgid "Build preview"
+msgstr "ساخت پیش‌نمایش"
+
+#: includes/Admin/CopilotPage.php:102
+msgid "Try an example:"
+msgstr "یک نمونه را امتحان کنید:"
+
+#: includes/Admin/CopilotPage.php:109 includes/Admin/CopilotPage.php:111
+msgid "Context of this request"
+msgstr "زمینهٔ این درخواست"
+
+#: includes/Admin/CopilotPage.php:113 includes/Admin/SettingsPage.php:286
+msgid "Connector"
+msgstr "اتصال‌دهنده"
+
+#: includes/Admin/CopilotPage.php:114
+msgid "Result state"
+msgstr "وضعیت نتیجه"
+
+#: includes/Admin/CopilotPage.php:114
+msgid "Draft"
+msgstr "پیش‌نویس"
+
+#: includes/Admin/CopilotPage.php:115
+msgid "Site language"
+msgstr "زبان سایت"
+
+#: includes/Admin/CopilotPage.php:116
+msgid "Knowledge base"
+msgstr "پایگاه دانش"
+
+#: includes/Admin/CopilotPage.php:116
+msgid "Not used"
+msgstr "استفاده نشده"
+
+#: includes/Admin/CopilotPage.php:117
+msgid "Estimated usage"
+msgstr "مصرف تخمینی"
+
+#: includes/Admin/CopilotPage.php:117
+msgid "Shown before approval"
+msgstr "پیش از تأیید نشان داده می‌شود"
+
+#: includes/Admin/CopilotPage.php:120
+msgid ""
+"Nothing runs automatically. The final form is created only after your "
+"approval."
+msgstr "هیچ کاری خودکار اجرا نمی‌شود. فرم نهایی فقط پس از تأیید شما ساخته می‌شود."
+
+#: includes/Admin/CopilotPage.php:121
+msgid ""
+"Voice input is transcribed into editable text before any AI request is sent."
+msgstr "ورودی صوتی پیش از ارسال هر درخواست AI به متن قابل ویرایش تبدیل می‌شود."
+
+#: includes/Admin/CopilotPage.php:132
+msgid "View all SitePilot Forms"
+msgstr "مشاهدهٔ همهٔ فرم‌های SitePilot"
+
+#: includes/Admin/EasyFormBuilderPage.php:28
+msgid "Advanced forms"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:30
+msgid ""
+"Use Easy Form Builder for multi-step forms, uploads, calculations, "
+"conditional logic, payment, and its own advanced settings."
+msgstr ""
+
+# WooCommerce - General
+#: includes/Admin/EasyFormBuilderPage.php:38
+#, fuzzy
+msgid "Easy Form Builder is not active"
+msgstr "ووکامرس فعال نیست."
+
+#: includes/Admin/EasyFormBuilderPage.php:39
+msgid ""
+"The built-in SitePilot Forms connector remains available for simple, single-"
+"step forms sent by email."
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:49 includes/Admin/HomePage.php:60
+#, fuzzy
+msgid "Connector status"
+msgstr "اتصال موفقیت‌آمیز بود."
+
+#: includes/Admin/EasyFormBuilderPage.php:55
+msgid "Detected version"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:56
+#, fuzzy
+msgid "SitePilot action"
+msgstr "SitePilot AI"
+
+#: includes/Admin/EasyFormBuilderPage.php:56
+msgid "Create an EFB form from an approved plan"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:60
+msgid "Continue in Easy Form Builder"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:61
+msgid ""
+"SitePilot does not replace EFB’s editor. Open EFB to create, edit, save, and "
+"configure advanced form features."
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:63
+#, fuzzy
+msgid "Create in EFB"
+msgstr "ایجاد بازپرداخت"
+
+#: includes/Admin/EasyFormBuilderPage.php:64
+msgid "Open EFB forms"
+msgstr ""
+
+#: includes/Admin/HomePage.php:43
+#, php-format
+msgid "Welcome back, %s"
+msgstr ""
+
+#: includes/Admin/HomePage.php:43
+msgid "Welcome back"
+msgstr ""
+
+#: includes/Admin/HomePage.php:44
+msgid ""
+"Start a safe AI task, review the plan, and keep every site change under your "
+"control."
+msgstr ""
+
+#: includes/Admin/HomePage.php:47
+msgid "System ready"
+msgstr ""
+
+#: includes/Admin/HomePage.php:47
+msgid "Setup needs attention"
+msgstr ""
+
+#: includes/Admin/HomePage.php:48
+msgid "New AI task"
+msgstr ""
+
+#: includes/Admin/HomePage.php:55
+msgid "Connect an AI provider before generating a form or product plan."
+msgstr ""
+
+#: includes/Admin/HomePage.php:61
+#, php-format
+msgid "%d form is available."
+msgid_plural "%d forms are available."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/HomePage.php:62
+msgid "Installed and ready for advanced forms."
+msgstr ""
+
+#: includes/Admin/HomePage.php:62
+msgid "Install it for advanced fields, logic, files, and multi-step forms."
+msgstr ""
+
+#: includes/Admin/HomePage.php:62
+msgid "Open connector"
+msgstr ""
+
+#: includes/Admin/HomePage.php:62 includes/Admin/HomePage.php:63
+msgid "View setup"
+msgstr ""
+
+#: includes/Admin/HomePage.php:63
+msgid "Store tools are available."
+msgstr ""
+
+#: includes/Admin/HomePage.php:63
+msgid "Install and activate WooCommerce to use store tools."
+msgstr ""
+
+#: includes/Admin/HomePage.php:70
+msgid "Start with a safe, reviewable action"
+msgstr ""
+
+#: includes/Admin/HomePage.php:71
+msgid ""
+"SitePilot prepares a plan first. Nothing is created until an administrator "
+"reviews and approves it."
+msgstr ""
+
+#: includes/Admin/HomePage.php:73
+msgid "Approval required"
+msgstr ""
+
+#: includes/Admin/HomePage.php:78
+msgid "Build a simple form"
+msgstr ""
+
+#: includes/Admin/HomePage.php:78
+msgid "Single step, email delivery"
+msgstr ""
+
+#: includes/Admin/HomePage.php:82
+msgid "Use an advanced connector"
+msgstr ""
+
+#: includes/Admin/HomePage.php:82
+msgid "Easy Form Builder and WooCommerce"
+msgstr ""
+
+#: includes/Admin/HomePage.php:90
+msgid "Recent activity"
+msgstr ""
+
+#: includes/Admin/HomePage.php:91
+msgid ""
+"Only operational events are shown here; sensitive form submissions are never "
+"displayed."
+msgstr ""
+
+#: includes/Admin/HomePage.php:93
+msgid "View all"
+msgstr ""
+
+#: includes/Admin/HomePage.php:96
+msgid "No activity has been recorded yet."
+msgstr ""
+
+#: includes/Admin/HomePage.php:123 includes/Admin/SetupPage.php:67
+msgid "Ready"
+msgstr ""
+
+#: includes/Admin/HomePage.php:123 includes/Admin/SetupPage.php:67
+msgid "Needs setup"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:57
+#: includes/Admin/KnowledgeBasePage.php:62
+#: includes/Admin/KnowledgeBasePage.php:72
+msgid "Knowledge Base"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:61
+msgid "Site knowledge"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:63
+msgid ""
+"Index the content SitePilot may use for accurate, source-aware answers. New "
+"and changed content can be indexed automatically."
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:67
+msgid "Semantic search on"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:67
+msgid "Keyword search"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:76
+msgid ""
+"SitePilot reads and understands your site content so it can answer questions "
+"accurately. Index your content once — new content is indexed automatically."
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:102
+msgid "Indexed Items"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:107
+msgid "Total Posts & Pages"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:114
+#, fuzzy
+msgid "Last Updated"
+msgstr "۷ روز گذشته"
+
+#: includes/Admin/KnowledgeBasePage.php:122
+msgid "Content Indexing"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:125
+msgid ""
+"Click the button below to scan and index all your published posts and pages. "
+"SitePilot AI will summarize each one into structured knowledge. You only "
+"need to do this once — new content is indexed automatically when you publish "
+"or edit."
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:132
+msgid "Semantic search is ON."
+msgstr ""
+
+#. translators: %1$d: embedded items, %2$d: total indexed items.
+#: includes/Admin/KnowledgeBasePage.php:136
+#, php-format
+msgid ""
+"%1$d of %2$d indexed items have an embedding. Run indexing to build any "
+"missing vectors."
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:149
+#: includes/Admin/KnowledgeBasePage.php:301
+msgid "Start Indexing"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:154
+msgid "Full Re-index"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:164
+msgid "Preparing…"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:176
+msgid "Questions Without Answers"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:180
+msgid "Clear all"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:184
+msgid ""
+"These are questions visitors asked that your content does not answer yet. "
+"Write or index a page covering them to improve future answers."
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:194
+msgid "Indexed Content"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:198
+msgid "Search indexed content…"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:200
+msgid "All Types"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:209
+#, fuzzy
+msgid "All Categories"
+msgstr "دسته‌بندی‌های محصول"
+
+#: includes/Admin/KnowledgeBasePage.php:223
+#: includes/Frontend/ChatWidgetSettings.php:70
+msgid "Title"
+msgstr "عنوان"
+
+#: includes/Admin/KnowledgeBasePage.php:224
+msgid "Type"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:225
+msgid "Summary"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:226
+msgid "Keywords"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:227
+msgid "Updated"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:228
+#: includes/Admin/NativeFormsPage.php:50
+msgid "Actions"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:253
+msgid "What should SitePilot index?"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:255
+#: includes/Efb/EfbBuilderButton.php:84 includes/Frontend/ChatWidget.php:50
+#: includes/Frontend/WidgetRenderer.php:36
+msgid "Close"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:259
+msgid ""
+"Choose which content to read and learn from. You can re-run this any time."
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:263
+#, fuzzy
+msgid "Content types"
+msgstr "قالب‌های محتوا"
+
+#: includes/Admin/KnowledgeBasePage.php:278
+#, fuzzy
+msgid "Post categories"
+msgstr "دسته‌بندی‌های محصول"
+
+#: includes/Admin/KnowledgeBasePage.php:279
+msgid "(applies to Posts)"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:283
+#, fuzzy
+msgid "All categories"
+msgstr "دسته‌بندی‌های محصول"
+
+#: includes/Admin/KnowledgeBasePage.php:298
+msgid "Cancel"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:318
+msgid "Tutorial / Guide"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:319
+#, fuzzy
+msgid "Product"
+msgstr "ویرایش محصول"
+
+#: includes/Admin/KnowledgeBasePage.php:320
+msgid "Service"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:321
+msgid "Article"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:322
+msgid "Page"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:323
+msgid "FAQ"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:324
+msgid "News"
+msgstr ""
+
+#: includes/Admin/KnowledgeBasePage.php:325
+msgid "Other"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:23
+msgid "Logs cleared."
+msgstr ""
+
+#: includes/Admin/LogsPage.php:53
+msgid "Action history"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:55
+msgid ""
+"Review recent Copilot actions and operational events. Secrets and visitor "
+"submissions are never stored here."
+msgstr ""
+
+#: includes/Admin/LogsPage.php:60
+msgid "Search messages, events, traces…"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:61
+msgid "Search activity log"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:62
+msgid "Filter by level"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:63
+msgid "All levels"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:73
+msgid "Clear log"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:81
+msgid "Time (UTC)"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:82
+msgid "Level"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:83
+msgid "Event"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:84
+msgid "Trace"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:85
+msgid "Message"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:86
+msgid "Details"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:94
+msgid "No activity yet."
+msgstr ""
+
+#: includes/Admin/LogsPage.php:116
+msgid "Copy trace ID"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:126
+msgid "View"
+msgstr ""
+
+#: includes/Admin/LogsPage.php:135
+msgid "No entries match your filter."
+msgstr ""
+
+#: includes/Admin/NativeFormsPage.php:31
+msgid "Simple email forms"
+msgstr ""
+
+#: includes/Admin/NativeFormsPage.php:33
+msgid ""
+"Manage the simple, single-step forms created by SitePilot. Visitor "
+"submissions are sent by email and are not stored here."
+msgstr ""
+
+#: includes/Admin/NativeFormsPage.php:40
+msgid "No SitePilot forms have been created yet."
+msgstr ""
+
+#: includes/Admin/NativeFormsPage.php:46
+#: includes/Frontend/FormShortcode.php:222
+msgid "Form"
+msgstr ""
+
+#: includes/Admin/NativeFormsPage.php:47 includes/Admin/SettingsPage.php:287
+msgid "Status"
+msgstr ""
+
+#: includes/Admin/NativeFormsPage.php:48
+msgid "Shortcode"
+msgstr ""
+
+#: includes/Admin/NativeFormsPage.php:49
+#, fuzzy
+msgid "Last updated"
+msgstr "۷ روز گذشته"
+
+#: includes/Admin/NativeFormsPage.php:60
+msgid "Open"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:25
+msgid "Custom provider"
+msgstr ""
+
+# Settings
+#: includes/Admin/SettingsPage.php:33 includes/Admin/SettingsPage.php:38
+#: includes/Admin/SettingsPage.php:48
+#, fuzzy
+msgid "Settings"
+msgstr "تنظیمات ذخیره شد."
+
+#: includes/Admin/SettingsPage.php:37
+msgid "Provider, safety and delivery"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:39
+msgid ""
+"Configure the provider and privacy controls used by SitePilot. Sensitive "
+"keys remain in your selected secure key store."
+msgstr ""
+
+# Settings
+#: includes/Admin/SettingsPage.php:52 includes/Admin/WooCommerceSettings.php:45
+#: includes/Frontend/ChatWidgetSettings.php:54
+msgid "Settings saved."
+msgstr "تنظیمات ذخیره شد."
+
+#. translators: %s: key source label.
+#: includes/Admin/SettingsPage.php:61
+#, php-format
+msgid ""
+"API key security: %s. Your key is never sent anywhere except your chosen AI "
+"provider."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:68
+#, fuzzy
+msgid "SitePilot settings"
+msgstr "SitePilot AI"
+
+#: includes/Admin/SettingsPage.php:72
+msgid "Provider connection"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:73
+msgid ""
+"Choose where credentials are held, then configure the AI endpoint used for "
+"planning and chat."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:75
+msgid "API Key Management"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:82 includes/Core/WpConnectors.php:157
+msgid "SitePilot Encrypted Vault"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:83
+msgid ""
+"API key encrypted with XSalsa20-Poly1305 / AES-256-GCM and stored on this "
+"site."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:93 includes/Admin/SettingsPage.php:107
+msgid "WordPress Connectors"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:95
+msgid "Use the native WordPress 7 key manager."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:97
+msgid "Settings → Connectors"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:108
+msgid "Available in WordPress 7.0+. Update WordPress to enable this option."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:118
+msgid "AI Provider"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:126
+msgid ""
+"Choose a provider preset. Fields below auto-fill; you can override them for "
+"a custom endpoint."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:130
+msgid "API Base URL"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:135 includes/Admin/UsagePage.php:211
+msgid "Model"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:141 includes/Core/WpConnectors.php:52
+msgid "API Key"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:143
+msgid "•••••••• (a key is saved — leave blank to keep it)"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:143
+msgid "Paste your API key here"
+msgstr ""
+
+#. translators: %s: URL to get API key.
+#: includes/Admin/SettingsPage.php:150
+#, php-format
+msgid "Get your key from %s"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:159
+msgid "Remove saved API key"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:167
+msgid "API key is managed by WordPress Connectors."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:169
+msgid "Manage key in Settings → Connectors"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:176
+msgid "Temperature"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:178
+msgid "Lower = more deterministic. Recommended: 0.2"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:183
+msgid "Semantic Search (Embeddings)"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:185
+msgid ""
+"When enabled, SitePilot ranks knowledge by meaning instead of keywords — so "
+"a question in one language finds the right page even if it was written in "
+"another. Requires a provider with an /embeddings endpoint (e.g. OpenAI or "
+"Qwen). DeepSeek and Groq do not offer embeddings."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:191
+msgid "Enable semantic search"
+msgstr ""
+
+#. translators: %d: number of indexed items that already have an embedding.
+#: includes/Admin/SettingsPage.php:197
+#, php-format
+msgid ""
+"%d indexed items currently have an embedding. After enabling, run indexing "
+"on the Knowledge Base page to build the missing vectors."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:205
+msgid "Embedding Model"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:207
+msgid ""
+"e.g. text-embedding-3-small (OpenAI) or text-embedding-v3 (Qwen). Changing "
+"the model requires re-indexing."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:211
+msgid "Embedding Base URL (optional)"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:213
+msgid "Leave blank to use the same endpoint as your chat provider above."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:217
+msgid "Embedding API Key (optional)"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:219
+msgid "•••••••• (saved — leave blank to keep it)"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:219
+msgid "Leave blank to reuse your provider API key"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:223
+msgid "Remove saved embedding key"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:229
+msgid "Speech-to-text model"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:231
+msgid ""
+"Requires an OpenAI/Groq-compatible /audio/transcriptions endpoint. Audio is "
+"sent only for transcription and is not stored by SitePilot."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:237
+msgid "Read AI replies aloud"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:239
+msgid ""
+"Uses the browser’s speech engine and follows the language of the AI reply."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:243
+#, fuzzy
+msgid "Default form status"
+msgstr "به‌روزرسانی وضعیت سفارش"
+
+#: includes/Admin/SettingsPage.php:246
+msgid "Draft (recommended)"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:250
+msgid "Publish immediately"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:255
+msgid "SitePilot Forms delivery"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:257
+msgid "Notification email"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:259
+msgid ""
+"Every submission from a SitePilot Form is delivered only to this address and "
+"is not saved in WordPress. Leave it blank to use the site Administration "
+"Email Address."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:261
+msgid "Send delivery test"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:264
+msgid ""
+"Save changes first if you edited the address. A successful test means "
+"WordPress accepted the email; check the inbox and spam folder to confirm "
+"delivery."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:269
+msgid "Enable the public site assistant (text and optional voice input)"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:271
+msgid ""
+"The visitor assistant is read-only and rate-limited. It never edits site "
+"content."
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:275
+#: includes/Admin/WooCommerceSettings.php:56
+#: includes/Frontend/ChatWidgetSettings.php:239
+msgid "Save settings"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:276
+msgid "Test connection"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:282
+msgid "Form connectors"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:288
+msgid "Notes"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:302
+msgid "Available"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:304
+msgid "Not active"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:35
+msgid "Setup"
+msgstr ""
+
+# Settings
+#: includes/Admin/SetupPage.php:38
+#, fuzzy
+msgid "Getting started"
+msgstr "تنظیمات ذخیره شد."
+
+#: includes/Admin/SetupPage.php:39
+#, fuzzy
+msgid "Set up SitePilot AI"
+msgstr "SitePilot AI"
+
+#: includes/Admin/SetupPage.php:40
+msgid ""
+"Complete the essentials once, then every AI action remains explicit, "
+"reviewable, and under your control."
+msgstr ""
+
+#: includes/Admin/SetupPage.php:42
+#, php-format
+msgid "%1$d of %2$d ready"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:45
+msgid "Setup checklist"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:46
+msgid "Connect an AI provider"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:46
+msgid "Store an encrypted provider key and select the model used for planning."
+msgstr ""
+
+#: includes/Admin/SetupPage.php:46
+msgid "Review provider"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:47
+msgid "Set form delivery"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:47
+msgid ""
+"Choose the email address that receives every submission from SitePilot Forms."
+msgstr ""
+
+#: includes/Admin/SetupPage.php:47
+msgid "Review delivery"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:47
+msgid "Set email address"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:48
+msgid "Choose your form connector"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:48
+msgid ""
+"SitePilot Forms is ready for basic single-step email forms. Easy Form "
+"Builder is also ready for advanced forms."
+msgstr ""
+
+#: includes/Admin/SetupPage.php:48
+msgid ""
+"SitePilot Forms is ready for basic single-step email forms. Install Easy "
+"Form Builder when you need advanced forms."
+msgstr ""
+
+#: includes/Admin/SetupPage.php:48
+msgid "View connectors"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:49
+msgid "Prepare optional knowledge"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:49
+msgid ""
+"Add knowledge-base content when you want answers to use your own site "
+"context."
+msgstr ""
+
+#: includes/Admin/SetupPage.php:49
+msgid "Open knowledge base"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:49
+msgid "Optional"
+msgstr ""
+
+#: includes/Admin/SetupPage.php:54
+msgid ""
+"Every create action produces a plan first. You can inspect it, approve it, "
+"or go back to edit it; SitePilot never creates content automatically."
+msgstr ""
+
+#: includes/Admin/SetupPage.php:57
+msgid "Open Create with AI"
+msgstr ""
+
+# General
+#: includes/Admin/UsagePage.php:20
+#, fuzzy
+msgid "You do not have permission."
+msgstr "شما اجازه مشاهده این صفحه را ندارید."
+
+#: includes/Admin/UsagePage.php:38
+msgid "Usage"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:42
+msgid "Local usage insights"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:45
+msgid "Usage Dashboard"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:49
+msgid ""
+"Monitor your AI token consumption, credit balance, and usage patterns across "
+"all providers and features."
+msgstr ""
+
+#: includes/Admin/UsagePage.php:53
+msgid "Budget attention"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:53
+msgid "Usage healthy"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:56
+msgid "Refresh"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:75
+msgid "Total Tokens"
+msgstr ""
+
+# Handoff
+#: includes/Admin/UsagePage.php:84
+#, fuzzy
+msgid "Total Requests"
+msgstr "درخواست پشتیبانی"
+
+#: includes/Admin/UsagePage.php:93
+msgid "Monthly Budget"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:102
+msgid "Remaining Tokens"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:110
+msgid "Credit Health"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:111
+msgid "used"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:147
+msgid "By Model"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:150 includes/Admin/UsagePage.php:177
+msgid "No usage data yet."
+msgstr ""
+
+#: includes/Admin/UsagePage.php:174
+msgid "By Feature"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:202
+msgid "Recent Activity"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:204
+msgid "No recent activity."
+msgstr ""
+
+#: includes/Admin/UsagePage.php:210
+msgid "Time"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:212
+msgid "Feature"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:213
+msgid "Input"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:214
+msgid "Output"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:215
+msgid "Total"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:237
+msgid "Budget Settings"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:240
+msgid "Monthly Token Budget"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:244
+msgid "Set to 0 for unlimited usage."
+msgstr ""
+
+#: includes/Admin/UsagePage.php:249
+msgid "Save Budget"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:252
+msgid "Reset All Usage"
+msgstr ""
+
+#: includes/Admin/UsagePage.php:260
+msgid ""
+"Usage data is stored locally on this site. No data is sent to external "
+"servers."
+msgstr ""
+
+#: includes/Admin/UsagePage.php:262
+msgid "Last AI request:"
+msgstr ""
+
+# WooCommerce - General
+#: includes/Admin/WooCommerceDashboardPage.php:30
+#: includes/Admin/WooCommerceDashboardPage.php:35
+#: includes/Admin/WooCommerceSettings.php:28
+#, fuzzy
+msgid "WooCommerce Dashboard"
+msgstr "ووکامرس فعال نیست."
+
+#: includes/Admin/WooCommerceDashboardPage.php:34
+msgid "Store overview"
+msgstr ""
+
+#: includes/Admin/WooCommerceDashboardPage.php:36
+msgid ""
+"Review sales, stock, recent orders, and the SitePilot tools available for "
+"this store."
+msgstr ""
+
+# WooCommerce - General
+#: includes/Admin/WooCommerceDashboardPage.php:39
+#: includes/Admin/WooCommerceSettings.php:37
+#, fuzzy
+msgid "WooCommerce active"
+msgstr "ووکامرس فعال نیست."
+
+# WooCommerce - General
+#: includes/Admin/WooCommerceDashboardPage.php:39
+#: includes/Admin/WooCommerceSettings.php:37
+#, fuzzy
+msgid "WooCommerce inactive"
+msgstr "ووکامرس فعال نیست."
+
+#: includes/Admin/WooCommerceDashboardPage.php:40
+msgid "Woo AI settings"
+msgstr ""
+
+#: includes/Admin/WooCommerceDashboardPage.php:47
+msgid ""
+"WooCommerce is not active. Please install and activate WooCommerce to use "
+"this dashboard."
+msgstr ""
+
+#: includes/Admin/WooCommerceDashboardPage.php:58
+msgid "Total Revenue"
+msgstr ""
+
+#: includes/Admin/WooCommerceDashboardPage.php:65
+msgid "Total Orders"
+msgstr ""
+
+#: includes/Admin/WooCommerceDashboardPage.php:72
+msgid "Avg Order Value"
+msgstr ""
+
+#: includes/Admin/WooCommerceDashboardPage.php:79
+#: includes/Admin/WooCommerceDashboardPage.php:131
+#: includes/Admin/WooCommerceSettings.php:66
+#, fuzzy
+msgid "Products"
+msgstr "دسته‌بندی‌های محصول"
+
+#: includes/Admin/WooCommerceDashboardPage.php:88
+#, fuzzy
+msgid "Sales (Last 7 Days)"
+msgstr "۷ روز گذشته"
+
+#: includes/Admin/WooCommerceDashboardPage.php:90
+#: includes/Admin/WooCommerceDashboardPage.php:98
+#: includes/Admin/WooCommerceDashboardPage.php:112
+#: includes/Admin/WooCommerceDashboardPage.php:120
+#, fuzzy
+msgid "Loading..."
+msgstr "در حال گوش دادن..."
+
+#: includes/Admin/WooCommerceDashboardPage.php:96
+#, fuzzy
+msgid "Top Products"
+msgstr "پرفروش‌ترین محصولات"
+
+#: includes/Admin/WooCommerceDashboardPage.php:108
+#, fuzzy
+msgid "Low Stock Alerts"
+msgstr "هشدارهای موجودی کم"
+
+#: includes/Admin/WooCommerceDashboardPage.php:118
+#, fuzzy
+msgid "Recent Orders"
+msgstr "سفارش‌های اخیر"
+
+#: includes/Admin/WooCommerceDashboardPage.php:127
+msgid "Quick Actions"
+msgstr ""
+
+#: includes/Admin/WooCommerceDashboardPage.php:135
+msgid "Orders"
+msgstr ""
+
+#: includes/Admin/WooCommerceDashboardPage.php:139
+msgid "Analytics"
+msgstr ""
+
+#: includes/Admin/WooCommerceDashboardPage.php:143
+msgid "Content AI"
+msgstr ""
+
+# WooCommerce - General
+#: includes/Admin/WooCommerceSettings.php:28
+#: includes/Admin/WooCommerceSettings.php:33
+#, fuzzy
+msgid "WooCommerce AI"
+msgstr "ووکامرس فعال نیست."
+
+#: includes/Admin/WooCommerceSettings.php:32
+msgid "Safe store automation"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:34
+msgid ""
+"Create one reviewed simple-product draft at a time. Store changes are never "
+"published automatically."
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:38
+msgid "AI connector enabled"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:38
+msgid "AI connector off"
+msgstr ""
+
+# WooCommerce - General
+#: includes/Admin/WooCommerceSettings.php:47
+#, fuzzy
+msgid "WooCommerce is not installed or active."
+msgstr "ووکامرس فعال نیست."
+
+#: includes/Admin/WooCommerceSettings.php:53
+msgid "AI capabilities"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:54
+msgid "Enable WooCommerce AI Connector"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:54
+msgid ""
+"Allow SitePilot to prepare a single product draft from a natural-language "
+"request."
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:55
+msgid ""
+"Phase 1 creates only simple product drafts after explicit review. "
+"Publishing, edits, bulk operations, and order changes are reserved for Phase "
+"2."
+msgstr ""
+
+# WooCommerce - General
+#: includes/Admin/WooCommerceSettings.php:60
+#, fuzzy
+msgid "WooCommerce status"
+msgstr "ووکامرس فعال نیست."
+
+#: includes/Admin/WooCommerceSettings.php:62
+msgid "Yes"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:62
+msgid "No"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:63
+msgid "Version"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:64
+msgid "Access"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:64
+msgid "Granted"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:64
+msgid "Unavailable"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:65
+#, fuzzy
+msgid "Categories"
+msgstr "دسته‌بندی‌های محصول"
+
+#: includes/Admin/WooCommerceSettings.php:72
+#, fuzzy
+msgid "Product drafts"
+msgstr "دسته‌بندی‌های محصول"
+
+# WooCommerce - Content + SEO
+#: includes/Admin/WooCommerceSettings.php:72
+#, fuzzy
+msgid "Create a product draft with AI"
+msgstr "تولید توضیحات محصول با هوش مصنوعی"
+
+#: includes/Admin/WooCommerceSettings.php:72
+msgid ""
+"Describe one product. Review every generated detail, then create a "
+"WooCommerce draft for manual publishing."
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:72
+msgid "Draft only"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:74
+msgid "What product should be drafted?"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:75
+msgid ""
+"For example: Create a simple draft for a 500g organic Arabic coffee product, "
+"with an introductory price and a short product description."
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:76
+#, fuzzy
+msgid "Generate draft proposal"
+msgstr "تولید متن تبلیغاتی"
+
+#: includes/Admin/WooCommerceSettings.php:78
+msgid "Review the proposal"
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:78
+msgid ""
+"Approving creates a single WooCommerce product in draft status. The proposal "
+"expires after 15 minutes and cannot be used twice."
+msgstr ""
+
+#: includes/Admin/WooCommerceSettings.php:78
+#, fuzzy
+msgid "Create product draft"
+msgstr "ایجاد بازپرداخت"
+
+#: includes/Admin/WooCommerceSettings.php:78
+msgid "Start over"
+msgstr ""
+
+#: includes/Api/ChatController.php:20 includes/Api/ChatWidgetController.php:62
+#: includes/Api/KnowledgeBaseController.php:109
 msgid "Please enter a question."
 msgstr "لطفاً یک سوال وارد کنید."
 
+#: includes/Api/ChatController.php:91
+#, fuzzy
+msgid "Conversation not found."
+msgstr "مشتری یافت نشد."
+
+#: includes/Api/ChatController.php:108
+msgid "Conversation deleted."
+msgstr ""
+
+#: includes/Api/ChatWidgetController.php:50
+#: includes/Api/ChatWidgetController.php:118
+msgid "The assistant widget is disabled."
+msgstr ""
+
+#: includes/Api/ChatWidgetController.php:72
+msgid "Please shorten your message and try again."
+msgstr ""
+
+#: includes/Api/ChatWidgetController.php:82
+msgid "Please wait before sending another message."
+msgstr ""
+
+#: includes/Api/ChatWidgetController.php:128
+msgid "Please wait before requesting another handoff."
+msgstr ""
+
+#: includes/Api/ChatWidgetController.php:142
+#, fuzzy
+msgid "No messages to send."
+msgstr "ارسال ناموفق بود."
+
+#: includes/Api/CopilotController.php:41
+#: includes/Api/EfbCopilotController.php:43
+msgid "Please describe the form you want."
+msgstr ""
+
+#: includes/Api/CopilotController.php:44
+#: includes/Api/EfbCopilotController.php:46
+#, fuzzy
+msgid "Your request is too long."
+msgstr "درخواست پشتیبانی ارسال شد."
+
+#: includes/Api/CopilotController.php:49
+#: includes/Api/EfbCopilotController.php:50
+#: includes/Api/EfbCopilotController.php:257
+#: includes/Api/EfbCopilotController.php:893
+msgid "Add your AI provider API key in SitePilot AI → Settings first."
+msgstr ""
+
+#: includes/Api/CopilotController.php:69
+#: includes/Api/EfbCopilotController.php:73
+msgid "The form plan was not safe or complete."
+msgstr ""
+
+#: includes/Api/CopilotController.php:85
+msgid "SitePilot Forms is not available on this site."
+msgstr ""
+
+#: includes/Api/CopilotController.php:91
+msgid ""
+"Set a valid SitePilot Forms notification email in Settings before creating a "
+"form."
+msgstr ""
+
+#: includes/Api/CopilotController.php:126
+#: includes/Api/EfbCopilotController.php:170
+msgid "Missing action reference."
+msgstr ""
+
+#: includes/Api/CopilotController.php:134
+msgid "Execution failed."
+msgstr ""
+
+# WooCommerce - General
+#: includes/Api/EfbCopilotController.php:59
+#: includes/Api/EfbCopilotController.php:186
+#: includes/Connectors/EasyFormBuilderConnector.php:154
+#, fuzzy
+msgid "Easy Form Builder is not active."
+msgstr "ووکامرس فعال نیست."
+
+#. translators: %s: comma-separated field names.
+#: includes/Api/EfbCopilotController.php:137
+#, php-format
+msgid ""
+"I left out %s — that field needs Easy Form Builder Free Plus or Pro. "
+"Everything else is ready."
+msgid_plural ""
+"I left out %s — those fields need Easy Form Builder Free Plus or Pro. "
+"Everything else is ready."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Api/EfbCopilotController.php:175
+#: includes/Execution/ActionExecutor.php:38
+msgid "This proposal has expired. Please generate the form again."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:178
+#: includes/Execution/ActionExecutor.php:31
+#: includes/Execution/ActionExecutor.php:43
+msgid "You are not allowed to approve this action."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:181
+#: includes/Execution/ActionExecutor.php:46
+msgid "This proposal is already being processed or has already been used."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:203
+msgid "Creation failed."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:239
+msgid ""
+"Tell me what form you need, ask me to change the open form, or ask how to do "
+"something."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:248
+msgid "That message is a bit long — please shorten it."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:341
+msgid "Here are topics I can walk you through:"
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:400
+msgid ""
+"I could not turn that into a change. Try e.g. \"add a mobile field\" or "
+"\"make Email required\"."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:437
+msgid "Done — applying your change."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:454
+msgid ""
+"I could not build a safe form from that. Could you add a bit more detail?"
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:480
+msgid "Here is the form I designed — review it and approve to create it."
+msgstr ""
+
+# Chat Widget
+#: includes/Api/EfbCopilotController.php:492
+#, fuzzy
+msgid "How can I help with your form?"
+msgstr "سلام! چطور می‌تونم کمکتون کنم؟"
+
+#. translators: %s: field type.
+#: includes/Api/EfbCopilotController.php:740
+#, php-format
+msgid "Field type \"%s\" is not supported in Easy Form Builder."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:742
+msgid "A choice field needs at least one option — tell me the options."
+msgstr ""
+
+#. translators: %s: field name.
+#: includes/Api/EfbCopilotController.php:747
+#, php-format
+msgid ""
+"I can configure a \"%s\" field but not add one — drag it in from the Easy "
+"Form Builder palette, then ask me again."
+msgstr ""
+
+#. translators: 1: number of applied operations, 2: number of skipped operations.
+#: includes/Api/EfbCopilotController.php:753
+#, php-format
+msgid ""
+"That was too many changes at once: I applied the first %1$d and skipped "
+"%2$d. Ask again for the rest."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:773
+msgid ""
+"Easy Form Builder Free supports up to two steps. Upgrade to add more steps."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:775
+msgid ""
+"The mobile layout settings are part of the Pro version of Easy Form Builder."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:777
+msgid "This field is available in the Pro version of Easy Form Builder."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:857
+msgid "Ask a question, e.g. \"how do I make a field required?\""
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:865
+msgid "I could not match that exactly. Try one of these topics:"
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:890
+msgid "Type what you want to change."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:915
+msgid ""
+"I could not turn that into a change. Try being more specific, e.g. \"make "
+"Email required\" or \"rename the form to Contact us\"."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:942
+#, fuzzy
+msgid "Invalid save request."
+msgstr "وضعیت نامعتبر است."
+
+#: includes/Api/EfbCopilotController.php:948
+msgid "Unsafe content rejected."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:969
+msgid "Could not save the form."
+msgstr ""
+
+#: includes/Api/FormDeliveryController.php:27
+msgid "Save a valid SitePilot Forms notification email before sending a test."
+msgstr ""
+
+#: includes/Api/FormDeliveryController.php:38
+msgid ""
+"A delivery test was sent recently. Please wait five minutes before trying "
+"again."
+msgstr ""
+
+#: includes/Api/FormDeliveryController.php:44
+#, php-format
+msgid "[%s] SitePilot Forms delivery test"
+msgstr ""
+
+#: includes/Api/FormDeliveryController.php:45
+msgid ""
+"This is a SitePilot Forms delivery test.\n"
+"\n"
+"No visitor data is included in this message."
+msgstr ""
+
+#: includes/Api/FormDeliveryController.php:56
+msgid ""
+"WordPress could not send the test message. Check your site mail "
+"configuration and try again."
+msgstr ""
+
+#: includes/Api/FormDeliveryController.php:60
+msgid ""
+"WordPress accepted the test email. Check the inbox (and spam folder) for the "
+"configured address."
+msgstr ""
+
+#: includes/Api/KnowledgeBaseController.php:47
+msgid "Knowledge base cleared."
+msgstr ""
+
+#: includes/Api/KnowledgeBaseController.php:91
+#, fuzzy
+msgid "Invalid post ID."
+msgstr "شناسه سفارش نامعتبر است."
+
+#: includes/Api/KnowledgeBaseController.php:98
+msgid "Entry removed."
+msgstr ""
+
+#: includes/Api/KnowledgeBaseController.php:98
+#, fuzzy
+msgid "Entry not found."
+msgstr "سفارش یافت نشد."
+
+#: includes/Api/KnowledgeBaseController.php:114
+#: includes/Connectors/WooCommerceContentSkill.php:62
+#: includes/Connectors/WooCommerceContentSkill.php:160
+#: includes/Connectors/WooCommerceContentSkill.php:234
+msgid "AI provider is not configured."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+#: includes/Api/KnowledgeBaseController.php:123
+msgid "The knowledge base is empty. Please index your content first."
+msgstr ""
+
+#: includes/Api/KnowledgeBaseController.php:183
+msgid "Updated."
+msgstr ""
+
+#: includes/Api/KnowledgeBaseController.php:206
+msgid "Budget updated."
+msgstr ""
+
+#: includes/Api/KnowledgeBaseController.php:220
+#, fuzzy
+msgid "Usage data reset."
+msgstr "پیام %d/%d ارسال شد."
+
+#: includes/Api/PublicChatController.php:19
+#: includes/Api/PublicChatController.php:36
+msgid "The site assistant is not enabled."
+msgstr ""
+
+#: includes/Api/PublicChatController.php:22
+#, fuzzy
+msgid "Too many messages. Please try again later."
+msgstr "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+
+#: includes/Api/PublicChatController.php:26
+#, fuzzy
+msgid "Please enter a question of up to 1,500 characters."
+msgstr "لطفاً یک سوال وارد کنید."
+
+#: includes/Api/PublicChatController.php:39
+msgid "Too many voice requests. Please try again later."
+msgstr ""
+
+#: includes/Api/WooCommerceAnalyticsController.php:68
+msgid "Invalid customer ID."
+msgstr "شناسه مشتری نامعتبر است."
+
+#: includes/Api/WooCommerceContentController.php:39
+#: includes/Api/WooCommerceContentController.php:61
+#: includes/Api/WooCommerceContentController.php:84
+msgid "product_id is required."
+msgstr ""
+
+#: includes/Api/WooCommerceContentController.php:107
+msgid "product_ids array is required."
+msgstr ""
+
+#: includes/Api/WooCommerceContentController.php:132
+msgid "product_id and description are required."
+msgstr ""
+
+#: includes/Api/WooCommerceController.php:36
+msgid "Please describe the product draft you want to create."
+msgstr ""
+
+#: includes/Api/WooCommerceController.php:46
+msgid "Your product request is too long."
+msgstr ""
+
+#: includes/Api/WooCommerceOrderController.php:68
+msgid "Invalid order ID."
+msgstr "شناسه سفارش نامعتبر است."
+
+#: includes/Api/WooCommerceOrderController.php:91
+msgid "order_id and status are required."
+msgstr ""
+
+#: includes/Api/WooCommerceOrderController.php:115
+msgid "order_id and positive amount are required."
+msgstr ""
+
+# WooCommerce - General
+#: includes/Api/WooCommerceOrderController.php:145
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:43
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:144
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:230
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:293
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:362
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:450
+#: includes/Connectors/WooCommerceContentSkill.php:45
+#: includes/Connectors/WooCommerceContentSkill.php:143
+#: includes/Connectors/WooCommerceContentSkill.php:217
+#: includes/Connectors/WooCommerceContentSkill.php:293
+#: includes/Connectors/WooCommerceContentSkill.php:348
+#: includes/Connectors/WooCommerceOrderSkill.php:44
+#: includes/Connectors/WooCommerceOrderSkill.php:131
+#: includes/Connectors/WooCommerceOrderSkill.php:201
+#: includes/Connectors/WooCommerceOrderSkill.php:252
+#: includes/Connectors/WooCommerceOrderSkill.php:322
+#: includes/Connectors/WooCommerceOrderSkill.php:396
+msgid "WooCommerce is not active."
+msgstr "ووکامرس فعال نیست."
+
+#: includes/Chat/ChatEngine.php:64 includes/Content/ContentIndexer.php:135
+#, fuzzy
+msgid "AI provider is not configured. Please add your API key in Settings."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+#: includes/Chat/ChatEngine.php:122
 msgid "An error occurred while processing your question. Please try again."
 msgstr "هنگام پردازش سوال شما خطایی رخ داد. لطفاً دوباره تلاش کنید."
 
-msgid "No API key configured."
+#: includes/Chat/ChatEngine.php:177
+msgid ""
+"I found a few different things that could match. Which one did you mean?"
+msgstr ""
+
+#: includes/Chat/ChatEngine.php:376
+msgid ""
+"I looked through the site's content but couldn't find a clear answer to that "
+"yet."
+msgstr ""
+
+#: includes/Chat/ChatEngine.php:381
+msgid "Could you try rephrasing, or asking about something else?"
+msgstr ""
+
+#: includes/Chat/ChatEngine.php:385
+msgid "Would you like me to connect you with a member of our team?"
+msgstr ""
+
+#: includes/Connectors/EasyFormBuilderConnector.php:67
+msgid ""
+"Easy Form Builder is not active or does not match the supported 4.1+ storage "
+"contract."
+msgstr ""
+
+#: includes/Connectors/EasyFormBuilderConnector.php:71
+#: includes/Connectors/NativeFormConnector.php:41
+msgid "The form has no title."
+msgstr ""
+
+#. translators: %s: field type.
+#: includes/Connectors/EasyFormBuilderConnector.php:77
+#, php-format
+msgid "Unsupported Easy Form Builder field type \"%s\"."
+msgstr ""
+
+#: includes/Connectors/EasyFormBuilderConnector.php:129
+msgid "The form could not be saved into Easy Form Builder."
+msgstr ""
+
+#: includes/Connectors/EasyFormBuilderConnector.php:156
+#, php-format
+msgid ""
+"Easy Form Builder %1$s is detected, but SitePilot currently supports version "
+"%2$s or newer."
+msgstr ""
+
+#: includes/Connectors/EasyFormBuilderConnector.php:158
+msgid ""
+"Easy Form Builder is active, but its form storage table is incomplete. Run "
+"its update/repair process before creating forms."
+msgstr ""
+
+#: includes/Connectors/EasyFormBuilderConnector.php:160
+msgid ""
+"Compatible. New forms are created in Easy Form Builder and open in its "
+"editor."
+msgstr ""
+
+#: includes/Connectors/NativeFormConnector.php:26
+msgid "SitePilot Built-in Forms"
+msgstr ""
+
+#: includes/Connectors/NativeFormConnector.php:46
+msgid "The form has no fields."
+msgstr ""
+
+#. translators: %d: maximum number of fields.
+#: includes/Connectors/NativeFormConnector.php:50
+#, php-format
+msgid "A SitePilot Form can contain at most %d fields."
+msgstr ""
+
+#: includes/Connectors/NativeFormConnector.php:55
+msgid "The form contains an invalid field definition."
+msgstr ""
+
+#. translators: %s: field type.
+#: includes/Connectors/NativeFormConnector.php:60
+#, php-format
+msgid "Field type \"%s\" is not allowed."
+msgstr ""
+
+#. translators: %s: field type.
+#: includes/Connectors/NativeFormConnector.php:62
+#, php-format
+msgid "Unsupported field type \"%s\"."
+msgstr ""
+
+#: includes/Connectors/NativeFormConnector.php:65
+msgid "Every form field needs a stable key and a label."
+msgstr ""
+
+#: includes/Connectors/NativeFormConnector.php:68
+msgid "Select and radio fields need at least one option."
+msgstr ""
+
+#: includes/Connectors/NativeFormConnector.php:74
+msgid "The form needs a valid notification email address."
+msgstr ""
+
+#: includes/Connectors/NativeFormConnector.php:97
+msgid "The form could not be saved."
+msgstr ""
+
+#: includes/Connectors/NativeFormConnector.php:118
+msgid "Always available."
+msgstr ""
+
+#: includes/Connectors/NativeFormConnector.php:146
+msgid "Form Submissions"
+msgstr ""
+
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:53
+msgid "Today"
+msgstr "امروز"
+
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:58
+msgid "Last 7 days"
+msgstr "۷ روز گذشته"
+
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:63
+msgid "This month"
+msgstr "این ماه"
+
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:68
+msgid "This year"
+msgstr "امسال"
+
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:302
+msgid "Customer not found."
+msgstr "مشتری یافت نشد."
+
+#: includes/Connectors/WooCommerceAnalyticsSkill.php:398
+msgid "Uncategorized"
+msgstr ""
+
+#: includes/Connectors/WooCommerceContentSkill.php:54
+#: includes/Connectors/WooCommerceContentSkill.php:152
+#: includes/Connectors/WooCommerceContentSkill.php:226
+#: includes/Connectors/WooCommerceContentSkill.php:357
+msgid "Product not found."
+msgstr "محصول یافت نشد."
+
+#: includes/Connectors/WooCommerceContentSkill.php:85
+msgid "Professional and informative"
+msgstr "حرفه‌ای و اطلاع‌رسان"
+
+#: includes/Connectors/WooCommerceContentSkill.php:86
+msgid "Friendly and approachable"
+msgstr "دوستانه و صمیمی"
+
+#: includes/Connectors/WooCommerceContentSkill.php:87
+msgid "Luxurious and premium"
+msgstr "لوکس و ممتاز"
+
+#: includes/Connectors/WooCommerceContentSkill.php:88
+msgid "Technical and detailed"
+msgstr "فنی و دقیق"
+
+#: includes/Connectors/WooCommerceContentSkill.php:243
+msgid ""
+"Short social media post (max 280 characters). Include emojis and hashtags."
+msgstr "پست کوتاه شبکه‌های اجتماعی (حداکثر ۲۸۰ کاراکتر). شامل ایموجی و هشتگ."
+
+#: includes/Connectors/WooCommerceContentSkill.php:244
+msgid ""
+"Medium email newsletter paragraph (100-150 words). Engaging and persuasive."
+msgstr "پاراگراف متوسط خبرنامه ایمیلی (۱۰۰-۱۵۰ کلمه). جذاب و متقاعدکننده."
+
+#: includes/Connectors/WooCommerceContentSkill.php:245
+msgid ""
+"Long blog-style promotional article (300-400 words). Storytelling approach."
+msgstr "مقاله تبلیغاتی بلند به سبک بلاگ (۳۰۰-۴۰۰ کلمه). رویکرد داستان‌سرایی."
+
+#: includes/Connectors/WooCommerceContentSkill.php:312
+#, fuzzy, php-format
+msgid "Product #%d"
+msgstr "محصول یافت نشد."
+
+# WooCommerce - Content + SEO
+#: includes/Connectors/WooCommerceContentSkill.php:404
+#, fuzzy
+msgid "Product Description"
+msgstr "تولید توضیحات محصول با هوش مصنوعی"
+
+#: includes/Connectors/WooCommerceContentSkill.php:409
+msgid "SEO Title + Meta"
+msgstr ""
+
+#: includes/Connectors/WooCommerceContentSkill.php:414
+msgid "Social Media Post"
+msgstr ""
+
+#: includes/Connectors/WooCommerceContentSkill.php:419
+msgid "Email Newsletter"
+msgstr ""
+
+#: includes/Connectors/WooCommerceContentSkill.php:424
+msgid "Blog Article"
+msgstr ""
+
+#: includes/Connectors/WooCommerceOrderSkill.php:140
+#: includes/Connectors/WooCommerceOrderSkill.php:210
+#: includes/Connectors/WooCommerceOrderSkill.php:261
+#: includes/Connectors/WooCommerceOrderSkill.php:405
+msgid "Order not found."
+msgstr "سفارش یافت نشد."
+
+#: includes/Connectors/WooCommerceOrderSkill.php:219
+msgid "Invalid status."
+msgstr "وضعیت نامعتبر است."
+
+#: includes/Connectors/WooCommerceOrderSkill.php:225
+msgid "Status updated via SitePilot AI."
+msgstr "وضعیت توسط SitePilot AI به‌روزرسانی شد."
+
+#: includes/Connectors/WooCommerceOrderSkill.php:269
+msgid "Refund amount exceeds maximum."
+msgstr "مبلغ بازپرداخت از حداکثر مجاز بیشتر است."
+
+#: includes/Connectors/WooCommerceOrderSkill.php:277
+msgid "Refund amount must be positive."
+msgstr "مبلغ بازپرداخت باید مثبت باشد."
+
+#: includes/Connectors/WooCommerceOrderSkill.php:285
+msgid "Refund via SitePilot AI."
+msgstr "بازپرداخت توسط SitePilot AI."
+
+#: includes/Connectors/WooCommerceProductSkill.php:31
+#: includes/Connectors/WooCommerceProductSkill.php:84
+msgid "WooCommerce AI draft creation is not available for this account."
+msgstr ""
+
+#: includes/Connectors/WooCommerceProductSkill.php:36
+#: includes/Content/ContentIndexer.php:281
+#, fuzzy
+msgid "AI provider not configured."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+#: includes/Connectors/WooCommerceProductSkill.php:77
+msgid "The product proposal could not be created. Please try again."
+msgstr ""
+
+#: includes/Connectors/WooCommerceProductSkill.php:89
+msgid "This product proposal has expired. Please create a new proposal."
+msgstr ""
+
+#: includes/Connectors/WooCommerceProductSkill.php:92
+msgid "You are not allowed to approve this product proposal."
+msgstr ""
+
+#: includes/Connectors/WooCommerceProductSkill.php:95
+msgid ""
+"This product proposal is already being processed or has already been used."
+msgstr ""
+
+#: includes/Connectors/WooCommerceProductSkill.php:100
+msgid "This approval is not a WooCommerce product draft."
+msgstr ""
+
+#: includes/Connectors/WooCommerceProductSkill.php:116
+msgid "The product draft could not be created. Please try again."
+msgstr ""
+
+#: includes/Connectors/WooCommerceProductSkill.php:124
+msgid ""
+"A product with this SKU already exists. Edit the proposal and use a unique "
+"SKU."
+msgstr ""
+
+#: includes/Connectors/WooCommerceProductSkill.php:156
+msgid "Product draft created. Review it in WooCommerce before publishing."
+msgstr ""
+
+#: includes/Content/ContentIndexer.php:164
+msgid "Added semantic embedding."
+msgstr ""
+
+#: includes/Content/ContentIndexer.php:171
+msgid "Unchanged — skipped."
+msgstr ""
+
+#. translators: %s: post title.
+#: includes/Content/ContentIndexer.php:207
+#, fuzzy, php-format
+msgid "Indexed \"%s\" successfully."
+msgstr "محصول با موفقیت ایجاد شد."
+
+#. translators: 1: post title, 2: error message.
+#: includes/Content/ContentIndexer.php:221
+#, php-format
+msgid "Failed to index \"%1$s\": %2$s"
+msgstr ""
+
+#: includes/Content/ContentIndexer.php:234
+msgid "Unexpected error during indexing."
+msgstr ""
+
+#: includes/Content/ContentIndexer.php:266
+msgid "Post not found or not published."
+msgstr ""
+
+#: includes/Content/ContentIndexer.php:273
+msgid "Post type is not indexable."
+msgstr ""
+
+#: includes/Content/ContentIndexer.php:292
+msgid "Content unchanged."
+msgstr ""
+
+#: includes/Content/ContentIndexer.php:323
+#, fuzzy
+msgid "Content indexed successfully."
+msgstr "اتصال موفقیت‌آمیز بود."
+
+#: includes/Core/Activator.php:19
+msgid "SitePilot AI requires PHP 8.1 or higher."
+msgstr ""
+
+#: includes/Core/Activator.php:20
+msgid "Plugin activation error"
+msgstr ""
+
+#: includes/Core/WpConnectors.php:45
+msgid ""
+"AI copilot for WordPress — form creation, content intelligence, and site "
+"assistance."
+msgstr ""
+
+#: includes/Core/WpConnectors.php:53
+msgid ""
+"Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Clusy.io, or any "
+"OpenAI-compatible provider)."
+msgstr ""
+
+#: includes/Core/WpConnectors.php:156
+msgid "WordPress Connectors (Settings → Connectors)"
+msgstr ""
+
+#: includes/Core/WpConnectors.php:158
+#, fuzzy
+msgid "No API key configured"
 msgstr "کلید API پیکربندی نشده است."
 
+#: includes/Efb/EfbBuilderButton.php:69
+#, fuzzy
+msgid "Chat with SitePilot AI"
+msgstr "SitePilot AI"
+
+#: includes/Efb/EfbBuilderButton.php:71 includes/Frontend/WidgetRenderer.php:33
+#, fuzzy
+msgid "Ask SitePilot AI"
+msgstr "SitePilot AI"
+
+#: includes/Efb/EfbBuilderButton.php:75
+#, fuzzy
+msgid "SitePilot AI chat"
+msgstr "SitePilot AI"
+
+#: includes/Efb/EfbBuilderButton.php:82
+msgid "Start live voice conversation"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:83 includes/Frontend/WidgetRenderer.php:35
+msgid "New chat"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:94
+msgid "Message SitePilot… (e.g. build a booking form)"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:95
+msgid "Speak a message"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:96 includes/Frontend/ChatWidget.php:75
+#: includes/Frontend/WidgetRenderer.php:50
+msgid "Send"
+msgstr ""
+
+#: includes/Execution/ActionExecutor.php:64
+msgid ""
+"The connector selected for this proposal is no longer available. Generate a "
+"new proposal."
+msgstr ""
+
+#: includes/Execution/ActionExecutor.php:101
+msgid "The form could not be created."
+msgstr ""
+
+# Chat Widget
+#: includes/Frontend/ChatWidget.php:28
+#, fuzzy
+msgid "Hi! How can I help?"
+msgstr "سلام! چطور می‌تونم کمکتون کنم؟"
+
+#: includes/Frontend/ChatWidget.php:29
+msgid "AI Assistant"
+msgstr ""
+
+#: includes/Frontend/ChatWidget.php:38
+msgid "Open chat"
+msgstr ""
+
+#: includes/Frontend/ChatWidget.php:43
+msgid "Chat"
+msgstr ""
+
+#: includes/Frontend/ChatWidget.php:63
+#, fuzzy
+msgid "Talk to a human"
+msgstr "صحبت با انسان"
+
+#: includes/Frontend/ChatWidget.php:70
+#, fuzzy
+msgid "Voice input"
+msgstr "فعال‌سازی ورودی صدا"
+
+#: includes/Frontend/ChatWidget.php:74
+msgid "Type your message…"
+msgstr ""
+
+#: includes/Frontend/ChatWidget.php:74
+msgid "Type your message"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:15
+msgid "Bottom Right"
+msgstr "پایین راست"
+
+#: includes/Frontend/ChatWidgetSettings.php:16
+msgid "Bottom Left"
+msgstr "پایین چپ"
+
+#: includes/Frontend/ChatWidgetSettings.php:17
+msgid "Top Right"
+msgstr "بالا راست"
+
+#: includes/Frontend/ChatWidgetSettings.php:18
+msgid "Top Left"
+msgstr "بالا چپ"
+
+#: includes/Frontend/ChatWidgetSettings.php:31
+#, fuzzy
+msgid "Widget"
+msgstr "فعال‌سازی ویجت"
+
+#: includes/Frontend/ChatWidgetSettings.php:35
+msgid "Front-end assistant"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:36
+#: includes/Frontend/ChatWidgetSettings.php:46
+#, fuzzy
+msgid "Chat Widget"
+msgstr "فعال‌سازی ویجت"
+
+#: includes/Frontend/ChatWidgetSettings.php:37
+msgid ""
+"Customize the visitor-facing assistant, including appearance, voice, "
+"location, and human handoff channels."
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:40
+msgid "Widget enabled"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:40
+msgid "Widget disabled"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:41
+#, fuzzy
+msgid "Handoff enabled"
+msgstr "انتقال به انسان"
+
+#: includes/Frontend/ChatWidgetSettings.php:41
+#, fuzzy
+msgid "Handoff off"
+msgstr "انتقال به انسان"
+
+#: includes/Frontend/ChatWidgetSettings.php:50
+msgid ""
+"Customize the front-end chat widget: appearance, voice, and human handoff "
+"channels."
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:63
+msgid "General"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:66
+msgid "Enable the widget on the site"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:74
+msgid "Greeting"
+msgstr "پیام خوش‌آمدگویی"
+
+#: includes/Frontend/ChatWidgetSettings.php:80
+msgid "Position"
+msgstr "موقعیت"
+
+#: includes/Frontend/ChatWidgetSettings.php:88
+#, fuzzy
+msgid "Auto-open delay (seconds)"
+msgstr "پخش خودکار پاسخ"
+
+#: includes/Frontend/ChatWidgetSettings.php:90
+msgid "Set to 0 to disable auto-open."
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:97
+msgid "Theme"
+msgstr "تم"
+
+#: includes/Frontend/ChatWidgetSettings.php:99
+msgid "Color scheme"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:103
+msgid "Light"
+msgstr "روشن"
+
+#: includes/Frontend/ChatWidgetSettings.php:107
+msgid "Dark"
+msgstr "تیره"
+
+#: includes/Frontend/ChatWidgetSettings.php:112
+msgid "Colors"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:116
+msgid "Brand"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:120
+msgid "Background"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:128
+#: includes/Frontend/ChatWidgetSettings.php:138
+msgid "Voice"
+msgstr "صدا"
+
+#: includes/Frontend/ChatWidgetSettings.php:131
+#, fuzzy
+msgid "Enable voice input & playback"
+msgstr "فعال‌سازی ورودی صدا"
+
+#: includes/Frontend/ChatWidgetSettings.php:135
+#, fuzzy
+msgid "Auto-play responses"
+msgstr "پخش خودکار پاسخ"
+
+#: includes/Frontend/ChatWidgetSettings.php:149
+#, fuzzy
+msgid "Human Handoff"
+msgstr "انتقال به انسان"
+
+#: includes/Frontend/ChatWidgetSettings.php:152
+#, fuzzy
+msgid "Enable handoff to a human"
+msgstr "فعال‌سازی انتقال به انسان"
+
+#: includes/Frontend/ChatWidgetSettings.php:155
+msgid "Button text"
+msgstr "متن دکمه"
+
+#: includes/Frontend/ChatWidgetSettings.php:159
+msgid "Hook message"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:166
+#: includes/Support/HandoffService.php:72
+msgid "Email"
+msgstr "ایمیل"
+
+#: includes/Frontend/ChatWidgetSettings.php:169
+msgid "Enable email notifications"
+msgstr ""
+
+# Handoff
+#: includes/Frontend/ChatWidgetSettings.php:172
+#, fuzzy
+msgid "Support email"
+msgstr "درخواست پشتیبانی"
+
+#: includes/Frontend/ChatWidgetSettings.php:179
+msgid "Telegram"
+msgstr "تلگرام"
+
+#: includes/Frontend/ChatWidgetSettings.php:182
+msgid "Enable Telegram notifications"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:186
+msgid "Bot token"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:190
+msgid "Chat ID"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:198
+msgid "Twilio WhatsApp"
+msgstr "واتساپ Twilio"
+
+#: includes/Frontend/ChatWidgetSettings.php:201
+msgid "Enable Twilio WhatsApp notifications"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:205
+msgid "Account SID"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:209
+msgid "Auth token"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:215
+#, fuzzy
+msgid "From (WhatsApp)"
+msgstr "واتساپ Twilio"
+
+#: includes/Frontend/ChatWidgetSettings.php:219
+msgid "To (your number)"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:227
+#, fuzzy
+msgid "Custom Webhook"
+msgstr "وب‌هوک"
+
+#: includes/Frontend/ChatWidgetSettings.php:230
+msgid "Enable custom webhook"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:233
+#, fuzzy
+msgid "Webhook URL"
+msgstr "وب‌هوک"
+
+#: includes/Frontend/ChatWidgetSettings.php:245
+msgid "Live preview"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:255
+msgid "Type a message…"
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:65
+msgid "Thank you."
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:79
+msgid "Website"
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:84
+msgid "Submit"
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:122
+msgid "— Select —"
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:176
+#, fuzzy
+msgid "Invalid form submission."
+msgstr "وضعیت نامعتبر است."
+
+#: includes/Frontend/FormShortcode.php:181
+#: includes/Frontend/FormShortcode.php:186
+#, fuzzy
+msgid "Form not found."
+msgstr "سفارش یافت نشد."
+
+#: includes/Frontend/FormShortcode.php:229
+msgid "New SitePilot Form submission"
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:230
+#, php-format
+msgid "Form: %s"
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:242
+msgid "(No optional fields were completed.)"
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:296
+msgid "Please check the required fields and try again."
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:297
+msgid "Too many submissions. Please wait a few minutes and try again."
+msgstr ""
+
+#: includes/Frontend/FormShortcode.php:298
+#, fuzzy
+msgid "We could not send your submission. Please try again later."
+msgstr "هنگام پردازش سوال شما خطایی رخ داد. لطفاً دوباره تلاش کنید."
+
+#: includes/Frontend/FormShortcode.php:300
+#, fuzzy
+msgid "We could not process your submission. Please try again."
+msgstr "هنگام پردازش سوال شما خطایی رخ داد. لطفاً دوباره تلاش کنید."
+
+#: includes/Frontend/WidgetRenderer.php:37
+msgid "Hi! I can answer questions about this website."
+msgstr ""
+
+# Chat Widget
+#: includes/Frontend/WidgetRenderer.php:40
+#, fuzzy
+msgid "How can I contact you?"
+msgstr "سلام! چطور می‌تونم کمکتون کنم؟"
+
+#: includes/Frontend/WidgetRenderer.php:41
+msgid "What services do you offer?"
+msgstr ""
+
+#: includes/Frontend/WidgetRenderer.php:43
+msgid "Sorry, I could not answer that."
+msgstr ""
+
+#: includes/Frontend/WidgetRenderer.php:44
+#, fuzzy
+msgid "Network error. Please try again."
+msgstr "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+
+#: includes/Frontend/WidgetRenderer.php:45
+msgid "Voice recording is not supported by this browser."
+msgstr ""
+
+#: includes/Frontend/WidgetRenderer.php:46
+msgid "The recording is empty or too large. Please try a shorter message."
+msgstr ""
+
+#: includes/Frontend/WidgetRenderer.php:47
+#, fuzzy
+msgid "Voice transcription failed. Please try again."
+msgstr "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+
+#: includes/Frontend/WidgetRenderer.php:48
+msgid "Microphone permission was denied. You can type your question instead."
+msgstr ""
+
+#: includes/Frontend/WidgetRenderer.php:49
+msgid "Write a message…"
+msgstr ""
+
+#: includes/Frontend/WidgetRenderer.php:51
+#, fuzzy
+msgid "Speak your question"
+msgstr "لطفاً یک سوال وارد کنید."
+
+#: includes/Frontend/WidgetRenderer.php:52
+msgid "Stop recording"
+msgstr ""
+
+#: includes/Frontend/WidgetRenderer.php:53
+#, fuzzy
+msgid "Listening…"
+msgstr "در حال گوش دادن..."
+
+#: includes/Frontend/WidgetRenderer.php:54
+msgid "Your transcript is ready. Review it, then send."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:98
+msgid "Cannot embed empty text."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:120
+msgid ""
+"Could not reach the embedding endpoint. Check the base URL and your "
+"connection."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:125
+msgid "The embedding provider rejected your API key."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:128
+msgid ""
+"This provider does not offer an embeddings endpoint. Set an embedding "
+"provider that does (e.g. OpenAI)."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: includes/Providers/OpenAiCompatibleProvider.php:131
+#, php-format
+msgid "The embedding provider returned an error (HTTP %d)."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:138
+msgid "The embedding provider returned no vector."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:175
+#, fuzzy
+msgid "No API key is set."
+msgstr "کلید API پیکربندی نشده است."
+
+#: includes/Providers/OpenAiCompatibleProvider.php:181
+msgid "Base URL and model are required."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:200
 msgid "Connection successful."
 msgstr "اتصال موفقیت‌آمیز بود."
 
-msgid "Invalid bot token format."
+#: includes/Providers/OpenAiCompatibleProvider.php:233
+msgid ""
+"Could not reach the AI provider. Check the base URL and your connection."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:240
+msgid "The AI provider rejected your API key."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:243
+msgid "The AI provider is rate-limiting requests. Please try again shortly."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: includes/Providers/OpenAiCompatibleProvider.php:246
+#, php-format
+msgid "The AI provider returned an error (HTTP %d)."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:253
+msgid "The AI provider returned an empty response."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:324
+msgid ""
+"The AI did not return a valid structured result. Please simplify your "
+"request and try again."
+msgstr ""
+
+#: includes/Providers/ProviderException.php:25
+msgid ""
+"The AI provider rejected the API key. Check the selected key in SitePilot AI "
+"→ Settings, save it, then test the connection."
+msgstr ""
+
+#: includes/Providers/ProviderException.php:26
+msgid ""
+"The AI provider is temporarily rate-limiting requests. Please wait a moment "
+"and try again."
+msgstr ""
+
+#: includes/Providers/ProviderException.php:27
+msgid ""
+"SitePilot could not reach the AI provider. Check the API base URL, server "
+"internet access, and the provider status, then test the connection in "
+"Settings."
+msgstr ""
+
+#: includes/Providers/ProviderException.php:28
+msgid ""
+"No usable AI provider is configured. Add an API key, base URL, and model in "
+"SitePilot AI → Settings, then test the connection."
+msgstr ""
+
+#: includes/Providers/ProviderException.php:29
+msgid ""
+"The AI provider could not complete this request. Check that the configured "
+"base URL and model are supported by your provider, then test the connection "
+"in SitePilot AI → Settings. No changes were made."
+msgstr ""
+
+#: includes/Skills/ProductPlanValidator.php:22
+#, fuzzy
+msgid "Product name is required."
+msgstr "محصول یافت نشد."
+
+#: includes/Skills/ProductPlanValidator.php:24
+msgid "Product name is too long (max 255 chars)."
+msgstr ""
+
+#: includes/Skills/ProductPlanValidator.php:33
+#, php-format
+msgid ""
+"Product type \"%s\" is not available in the Phase 1 draft workflow. Only "
+"simple products can be created."
+msgstr ""
+
+#: includes/Skills/ProductPlanValidator.php:40
+msgid "Price must be a valid number (e.g. 29.99)."
+msgstr ""
+
+#: includes/Skills/ProductPlanValidator.php:43
+msgid "Regular price must be a valid number."
+msgstr ""
+
+#: includes/Skills/ProductPlanValidator.php:46
+msgid "Sale price must be a valid number."
+msgstr ""
+
+#: includes/Skills/ProductPlanValidator.php:53
+#, php-format
+msgid ""
+"Product status \"%s\" is not available in the Phase 1 workflow. New products "
+"are always drafts."
+msgstr ""
+
+#: includes/Skills/ProductPlanValidator.php:61
+#, php-format
+msgid "Invalid stock status \"%s\". Allowed: instock, outofstock, onbackorder."
+msgstr ""
+
+#: includes/Skills/ProductPlanValidator.php:68
+msgid "Stock quantity must be a non-negative integer."
+msgstr ""
+
+#: includes/Skills/ProductPlanValidator.php:73
+msgid "Categories must be an array of IDs."
+msgstr ""
+
+#: includes/Support/HandoffService.php:72
+msgid "Visitor"
+msgstr ""
+
+#: includes/Support/HandoffService.php:72
+msgid "Not provided"
+msgstr ""
+
+#: includes/Support/HandoffTelegram.php:69
+#, fuzzy
+msgid "Telegram not configured."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+#: includes/Support/HandoffTelegram.php:85
+#, fuzzy
+msgid "Invalid Telegram bot token format."
 msgstr "فرمت توکن ربات نامعتبر است."
 
+#: includes/Support/HandoffTelegram.php:125
 msgid "Telegram: invalid bot token."
 msgstr "تلگرام: توکن ربات نامعتبر است."
 
+#: includes/Support/HandoffTelegram.php:133
 msgid "Telegram: bot was blocked by the user."
 msgstr "تلگرام: ربات توسط کاربر مسدود شده است."
 
+#: includes/Support/HandoffTelegram.php:141
 msgid "Telegram: chat not found. Check Chat ID."
 msgstr "تلگرام: چت یافت نشد. شناسه چت را بررسی کنید."
 
-msgid "Connected as @%s"
-msgstr "متصل به عنوان @%s"
-
-msgid "Unexpected response (HTTP "
-msgstr "پاسخ غیرمنتظره (HTTP "
-
-msgid "Network error: "
-msgstr "خطای شبکه: "
-
+#: includes/Support/HandoffTelegram.php:279
 msgid "No bot token configured."
 msgstr "توکن ربات پیکربندی نشده است."
 
-msgid "PDF sent via Telegram."
-msgstr "PDF از طریق تلگرام ارسال شد."
+#: includes/Support/HandoffTelegram.php:288
+msgid "Network error: "
+msgstr "خطای شبکه: "
 
-msgid "Rate limited, retrying after %ds."
-msgstr "محدودیت نرخ، تلاش مجدد پس از %d ثانیه."
+#. translators: %s: bot username
+#: includes/Support/HandoffTelegram.php:301
+#, php-format
+msgid "Connected as @%s"
+msgstr "متصل به عنوان @%s"
 
-msgid "Message %d/%d sent."
-msgstr "پیام %d/%d ارسال شد."
+#: includes/Support/HandoffTelegram.php:310
+#, fuzzy
+msgid "Invalid bot token."
+msgstr "فرمت توکن ربات نامعتبر است."
 
-msgid "CURL error: %s"
-msgstr "خطای CURL: %s"
+#: includes/Support/HandoffTelegram.php:316
+msgid "Unexpected response (HTTP "
+msgstr "پاسخ غیرمنتظره (HTTP "
+
+#. translators: 1: remaining percentage, 2: remaining tokens.
+#: includes/Usage/UsageTracker.php:172
+#, php-format
+msgid "AI credit alert: Only %1$d%% remaining (%2$s tokens left)."
+msgstr ""
+
+#: includes/Voice/VoiceService.php:36
+#, fuzzy
+msgid "AI provider is not configured for speech recognition."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+#: includes/Voice/VoiceService.php:41
+msgid "Invalid or oversized audio data."
+msgstr ""
+
+#: includes/Voice/VoiceService.php:69
+msgid "Speech recognition service unreachable."
+msgstr ""
+
+#: includes/Voice/VoiceService.php:77
+msgid "STT API key rejected. Check your provider key in Settings."
+msgstr ""
+
+#. translators: %d: HTTP response code.
+#: includes/Voice/VoiceService.php:83
+#, php-format
+msgid "Speech recognition failed (HTTP %d)."
+msgstr ""
+
+#: includes/Voice/VoiceTranscriber.php:38
+msgid "The audio recording is invalid, too large, or too long."
+msgstr ""
+
+#: includes/Voice/VoiceTranscriber.php:43
+msgid "Configure an AI provider before using voice input."
+msgstr ""
+
+#: includes/Voice/VoiceTranscriber.php:50
+msgid "The recording could not be read."
+msgstr ""
+
+#: includes/Voice/VoiceTranscriber.php:73
+msgid "Could not reach the speech-to-text provider."
+msgstr ""
+
+#: includes/Voice/VoiceTranscriber.php:79
+msgid ""
+"The speech-to-text provider could not transcribe this recording. Check that "
+"your provider supports /audio/transcriptions."
+msgstr ""
+
+# WooCommerce - Product AI
+#~ msgid "Create a simple product called %s with price %s in %s status"
+#~ msgstr "یک محصول ساده با نام %s و قیمت %s در وضعیت %s ایجاد کنید"
+
+#~ msgid "Product plan created successfully."
+#~ msgstr "طرح محصول با موفقیت ایجاد شد."
+
+#~ msgid "Product updated successfully."
+#~ msgstr "محصول با موفقیت به‌روزرسانی شد."
+
+#~ msgid "Search products"
+#~ msgstr "جستجوی محصولات"
+
+# WooCommerce - Order Intelligence
+#~ msgid "Search orders"
+#~ msgstr "جستجوی سفارش‌ها"
+
+#~ msgid "Order statistics"
+#~ msgstr "آمار سفارش‌ها"
+
+#~ msgid "Add order note"
+#~ msgstr "افزودن یادداشت سفارش"
+
+# WooCommerce - Analytics
+#~ msgid "Sales report"
+#~ msgstr "گزارش فروش"
+
+#~ msgid "Customer purchase history"
+#~ msgstr "تاریخچه خرید مشتری"
+
+#~ msgid "Revenue by category"
+#~ msgstr "درآمد بر اساس دسته‌بندی"
+
+#~ msgid "Dashboard summary"
+#~ msgstr "خلاصه داشبورد"
+
+#~ msgid "Generate SEO title and meta description"
+#~ msgstr "تولید عنوان سئو و توضیحات متا"
+
+#~ msgid "Bulk content generation"
+#~ msgstr "تولید محتوای دسته‌جمعی"
+
+#~ msgid "Apply content to product"
+#~ msgstr "اعمال محتوا به محصول"
+
+#~ msgid "Connecting to AI..."
+#~ msgstr "در حال اتصال به هوش مصنوعی..."
+
+#~ msgid "Retry"
+#~ msgstr "تلاش مجدد"
+
+#~ msgid "No messages yet. Start a conversation!"
+#~ msgstr "هنوز پیامی نیست. یک مکالمه شروع کنید!"
+
+#~ msgid "AI is thinking..."
+#~ msgstr "هوش مصنوعی در حال فکر کردن است..."
+
+#~ msgid "Want to talk to a human?"
+#~ msgstr "می‌خواهید با یک انسان صحبت کنید؟"
+
+#~ msgid "Hook text"
+#~ msgstr "متن قلاب"
+
+#~ msgid "PDF sent via Telegram."
+#~ msgstr "PDF از طریق تلگرام ارسال شد."
+
+#~ msgid "Rate limited, retrying after %ds."
+#~ msgstr "محدودیت نرخ، تلاش مجدد پس از %d ثانیه."
+
+#~ msgid "CURL error: %s"
+#~ msgstr "خطای CURL: %s"

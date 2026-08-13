@@ -24,11 +24,13 @@ final class ProductPlanValidator {
 			$errors[] = __( 'Product name is too long (max 255 chars).', 'sitepilot-ai' );
 		}
 
-		// Type (default: simple).
+		// Phase 1 is intentionally limited to a safe, manually-reviewed simple
+		// product. Variations, grouped/external products, and publishing belong to
+		// the Phase 2 contract.
 		$type = $plan['type'] ?? 'simple';
-		if ( ! in_array( $type, ProductPlanSchema::ALLOWED_TYPES, true ) ) {
+		if ( 'simple' !== $type ) {
 			$errors[] = sprintf(
-				__( 'Invalid product type "%s". Allowed: simple, variable, grouped, external.', 'sitepilot-ai' ),
+				__( 'Product type "%s" is not available in the Phase 1 draft workflow. Only simple products can be created.', 'sitepilot-ai' ),
 				$type
 			);
 		}
@@ -46,9 +48,9 @@ final class ProductPlanValidator {
 
 		// Status.
 		$status = $plan['status'] ?? 'draft';
-		if ( ! in_array( $status, ProductPlanSchema::ALLOWED_STATUSES, true ) ) {
+		if ( 'draft' !== $status ) {
 			$errors[] = sprintf(
-				__( 'Invalid status "%s". Allowed: draft, pending, publish.', 'sitepilot-ai' ),
+				__( 'Product status "%s" is not available in the Phase 1 workflow. New products are always drafts.', 'sitepilot-ai' ),
 				$status
 			);
 		}
@@ -83,36 +85,54 @@ final class ProductPlanValidator {
 	 * @return array
 	 */
 	public function sanitize( array $plan ): array {
+
+		$stock_status = (string) ( $plan['stock_status'] ?? 'instock' );
+
 		return array(
-			'name'              => sanitize_text_field( $plan['name'] ?? '' ),
+			'name'              => $this->sanitize_text( $plan['name'] ?? '' ),
 			'description'       => wp_kses_post( $plan['description'] ?? '' ),
 			'short_description' => wp_kses_post( $plan['short_description'] ?? '' ),
 			'price'             => $this->sanitize_price( $plan['price'] ?? '' ),
 			'regular_price'     => $this->sanitize_price( $plan['regular_price'] ?? '' ),
 			'sale_price'        => $this->sanitize_price( $plan['sale_price'] ?? '' ),
-			'categories'        => array_map( 'absint', (array) ( $plan['categories'] ?? array() ) ),
-			'tags'              => array_map( 'absint', (array) ( $plan['tags'] ?? array() ) ),
-			'status'            => in_array( $plan['status'] ?? 'draft', ProductPlanSchema::ALLOWED_STATUSES, true ) ? $plan['status'] : 'draft',
-			'stock_status'      => in_array( $plan['stock_status'] ?? 'instock', ProductPlanSchema::ALLOWED_STOCK, true ) ? $plan['stock_status'] : 'instock',
+			'categories'        => $this->sanitize_ids( (array) ( $plan['categories'] ?? array() ) ),
+			'tags'              => $this->sanitize_ids( (array) ( $plan['tags'] ?? array() ) ),
+			'status'            => 'draft',
+			'stock_status'      => in_array( $stock_status, ProductPlanSchema::ALLOWED_STOCK, true ) ? $stock_status : 'instock',
 			'stock_quantity'    => absint( $plan['stock_quantity'] ?? 0 ),
 			'manage_stock'      => ! empty( $plan['manage_stock'] ),
-			'type'              => in_array( $plan['type'] ?? 'simple', ProductPlanSchema::ALLOWED_TYPES, true ) ? $plan['type'] : 'simple',
+			'type'              => 'simple',
 			'image_url'         => esc_url_raw( $plan['image_url'] ?? '' ),
-			'sku'               => sanitize_text_field( $plan['sku'] ?? '' ),
-			'weight'            => sanitize_text_field( $plan['weight'] ?? '' ),
+			'sku'               => $this->sanitize_text( $plan['sku'] ?? '' ),
+			'weight'            => $this->sanitize_text( $plan['weight'] ?? '' ),
 			'dimensions'        => array(
-				'length' => sanitize_text_field( $plan['dimensions']['length'] ?? '' ),
-				'width'  => sanitize_text_field( $plan['dimensions']['width'] ?? '' ),
-				'height' => sanitize_text_field( $plan['dimensions']['height'] ?? '' ),
+				'length' => $this->sanitize_text( $plan['dimensions']['length'] ?? '' ),
+				'width'  => $this->sanitize_text( $plan['dimensions']['width'] ?? '' ),
+				'height' => $this->sanitize_text( $plan['dimensions']['height'] ?? '' ),
 			),
 		);
 	}
 
-	private function sanitize_price( string $price ): string {
-		$price = str_replace( ',', '.', $price );
+	private function sanitize_price( $price ): string {
+
+		$price = str_replace( ',', '.', trim( (string) $price ) );
 		if ( preg_match( '/^[0-9]+(\.[0-9]{1,2})?$/', $price ) ) {
 			return $price;
 		}
 		return '';
+	}
+
+	/** @param mixed $value */
+	private function sanitize_text( $value ): string {
+
+		return sanitize_text_field( wp_strip_all_tags( (string) $value, true ) );
+	}
+
+	/** @param array<int,mixed> $ids @return array<int,int> */
+	private function sanitize_ids( array $ids ): array {
+
+			$clean = array_map( 'absint', $ids );
+		$clean     = array_filter( $clean, static fn( int $id ): bool => $id > 0 );
+		return array_values( array_unique( $clean ) );
 	}
 }

@@ -18,8 +18,8 @@ use SitePilot\Core\Settings;
  */
 final class VoiceService {
 
-	private const GROQ_WHISPER = 'https://api.groq.com/openai/v1/audio/transcriptions';
-	private const OPENAI_TTS    = 'https://api.openai.com/v1/audio/speech';
+	private const GROQ_WHISPER   = 'https://api.groq.com/openai/v1/audio/transcriptions';
+	private const OPENAI_TTS     = 'https://api.openai.com/v1/audio/speech';
 	private const MAX_AUDIO_SIZE = 25 * 1024 * 1024; // 25 MB
 
 	/**
@@ -53,32 +53,39 @@ final class VoiceService {
 		$body .= "whisper-large-v3-turbo\r\n";
 		$body .= "--{$boundary}--\r\n";
 
-		$response = wp_remote_post( self::GROQ_WHISPER, array(
-			'timeout' => 30,
-			'headers' => array(
-				'Authorization' => 'Bearer ' . $api_key,
-				'Content-Type'  => 'multipart/form-data; boundary=' . $boundary,
-			),
-			'body'    => $body,
-		) );
+		$response = wp_remote_post(
+			self::GROQ_WHISPER,
+			array(
+				'timeout'            => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $api_key,
+					'Content-Type'  => 'multipart/form-data; boundary=' . $boundary,
+				),
+				'body'               => $body,
+				'redirection'        => 0,
+				'reject_unsafe_urls' => true,
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
 			throw new \RuntimeException( __( 'Speech recognition service unreachable.', 'sitepilot-ai' ) );
 		}
 
-		$code  = (int) wp_remote_retrieve_response_code( $response );
-		$raw   = (string) wp_remote_retrieve_body( $response );
-		$data  = json_decode( $raw, true );
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		$raw  = (string) wp_remote_retrieve_body( $response );
+		$data = json_decode( $raw, true );
 
 		if ( 401 === $code ) {
 			throw new \RuntimeException( __( 'STT API key rejected. Check your provider key in Settings.', 'sitepilot-ai' ) );
 		}
 		if ( $code < 200 || $code >= 300 || ! isset( $data['text'] ) ) {
-			throw new \RuntimeException( sprintf(
+			throw new \RuntimeException(
+				sprintf(
 				/* translators: %d: HTTP response code. */
-				__( 'Speech recognition failed (HTTP %d).', 'sitepilot-ai' ),
-				$code
-			) );
+					__( 'Speech recognition failed (HTTP %d).', 'sitepilot-ai' ),
+					$code
+				)
+			);
 		}
 
 		return sanitize_text_field( $data['text'] );
@@ -101,18 +108,25 @@ final class VoiceService {
 
 		$text = mb_substr( $text, 0, 4000 );
 
-		$response = wp_remote_post( self::OPENAI_TTS, array(
-			'timeout' => 30,
-			'headers' => array(
-				'Authorization' => 'Bearer ' . $api_key,
-				'Content-Type'  => 'application/json',
-			),
-			'body'    => wp_json_encode( array(
-				'model' => 'tts-1',
-				'input' => $text,
-				'voice' => $voice,
-			) ),
-		) );
+		$response = wp_remote_post(
+			self::OPENAI_TTS,
+			array(
+				'timeout'            => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $api_key,
+					'Content-Type'  => 'application/json',
+				),
+				'body'               => wp_json_encode(
+					array(
+						'model' => 'tts-1',
+						'input' => $text,
+						'voice' => $voice,
+					)
+				),
+				'redirection'        => 0,
+				'reject_unsafe_urls' => true,
+			)
+		);
 
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return null; // Silent fallback to browser TTS.

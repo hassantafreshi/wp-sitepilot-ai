@@ -2,7 +2,8 @@
 /node_modules/
 /.phpunit.cache/
 /.phpunit.result.cache
-composer.lock
+/.phpstan.cache/
+/dist/
 *.log
 .DS_Store
 Thumbs.db

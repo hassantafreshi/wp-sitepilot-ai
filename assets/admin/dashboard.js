@@ -75,6 +75,15 @@
 			});
 		},
 
+		escapeHtml: function(value) {
+			return String(value === undefined || value === null ? '' : value)
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;');
+		},
+
 		renderStats: function(dashboard) {
 			if (dashboard.sales) {
 				this.setText('sp-stat-revenue', dashboard.sales.total_revenue + ' ' + dashboard.currency);
@@ -85,6 +94,7 @@
 
 		renderSalesChart: function(dailySales) {
 			var container = document.getElementById('sp-sales-chart');
+			var self = this;
 			if (!container) return;
 
 			var days = Object.keys(dailySales).sort();
@@ -107,8 +117,8 @@
 				var label = date.toLocaleDateString('fa-IR', { weekday: 'short' });
 
 				html += '<div class="sp-bar-item">';
-				html += '<div class="sp-bar" style="height: ' + Math.max(height, 5) + '%" title="' + data.revenue + '"></div>';
-				html += '<div class="sp-bar-label">' + label + '</div>';
+				html += '<div class="sp-bar" style="height: ' + Math.max(height, 5) + '%" title="' + self.escapeHtml(data.revenue) + '"></div>';
+				html += '<div class="sp-bar-label">' + self.escapeHtml(label) + '</div>';
 				html += '</div>';
 			});
 
@@ -118,6 +128,7 @@
 
 		renderTopProducts: function(products) {
 			var container = document.getElementById('sp-top-products');
+			var self = this;
 			if (!container) return;
 
 			if (products.length === 0) {
@@ -129,8 +140,8 @@
 			products.slice(0, 5).forEach(function(p, i) {
 				html += '<li class="sp-product-item">';
 				html += '<span class="sp-product-rank">' + (i + 1) + '</span>';
-				html += '<span class="sp-product-name">' + p.name + '</span>';
-				html += '<span class="sp-product-revenue">' + p.revenue + '</span>';
+				 html += '<span class="sp-product-name">' + self.escapeHtml(p.name) + '</span>';
+				 html += '<span class="sp-product-revenue">' + self.escapeHtml(p.revenue) + '</span>';
 				html += '</li>';
 			});
 			html += '</ul>';
@@ -140,6 +151,7 @@
 		renderLowStock: function(products) {
 			var container = document.getElementById('sp-low-stock');
 			var countEl = document.getElementById('sp-low-stock-count');
+			var self = this;
 			if (!container) return;
 
 			if (countEl) {
@@ -155,8 +167,8 @@
 			products.slice(0, 5).forEach(function(p) {
 				var statusClass = p.stock <= 2 ? 'sp-stock--critical' : 'sp-stock--low';
 				html += '<li class="sp-stock-item ' + statusClass + '">';
-				html += '<span class="sp-stock-name">' + p.name + '</span>';
-				html += '<span class="sp-stock-qty">' + p.stock + ' ' + SitePilotDashboard.i18n('left') + '</span>';
+				html += '<span class="sp-stock-name">' + self.escapeHtml(p.name) + '</span>';
+				html += '<span class="sp-stock-qty">' + self.escapeHtml(p.stock) + ' ' + self.escapeHtml(SitePilotDashboard.i18n('left')) + '</span>';
 				html += '</li>';
 			});
 			html += '</ul>';
@@ -165,6 +177,7 @@
 
 		renderRecentOrders: function(orders) {
 			var container = document.getElementById('sp-recent-orders');
+			var self = this;
 			if (!container) return;
 
 			if (orders.length === 0) {
@@ -174,12 +187,12 @@
 
 			var html = '<ul class="sp-order-list">';
 			orders.forEach(function(o) {
-				var statusClass = 'sp-status--' + o.status;
+				var statusClass = 'sp-status--' + self.escapeHtml(o.status).replace(/[^a-z0-9_-]/gi, '');
 				html += '<li class="sp-order-item">';
-				html += '<span class="sp-order-id">#' + o.number + '</span>';
-				html += '<span class="sp-order-customer">' + o.customer.name + '</span>';
-				html += '<span class="sp-order-total">' + o.total + ' ' + o.currency + '</span>';
-				html += '<span class="sp-order-status ' + statusClass + '">' + o.status + '</span>';
+				html += '<span class="sp-order-id">#' + self.escapeHtml(o.number) + '</span>';
+				html += '<span class="sp-order-customer">' + self.escapeHtml(o.customer && o.customer.name) + '</span>';
+				html += '<span class="sp-order-total">' + self.escapeHtml(o.total) + ' ' + self.escapeHtml(o.currency) + '</span>';
+				html += '<span class="sp-order-status ' + statusClass + '">' + self.escapeHtml(o.status) + '</span>';
 				html += '</li>';
 			});
 			html += '</ul>';

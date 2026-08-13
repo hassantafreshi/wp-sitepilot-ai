@@ -99,18 +99,15 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 		}
 
 		$endpoint = $this->embedding_base_url . '/embeddings';
-		$response = wp_remote_post(
+		$response = $this->post_json(
 			$endpoint,
 			array(
-				'timeout' => $this->timeout,
-				'headers' => array(
-					'Authorization' => 'Bearer ' . $this->embedding_api_key,
-					'Content-Type'  => 'application/json',
-				),
-				'body'    => wp_json_encode( array(
-					'model' => $this->embedding_model,
-					'input' => $text,
-				) ),
+				'Authorization' => 'Bearer ' . $this->embedding_api_key,
+				'Content-Type'  => 'application/json',
+			),
+			array(
+				'model' => $this->embedding_model,
+				'input' => $text,
 			)
 		);
 
@@ -215,16 +212,13 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 	private function request_chat( array $body ): array {
 		$endpoint = $this->base_url . '/chat/completions';
 
-		$response = wp_remote_post(
+		$response = $this->post_json(
 			$endpoint,
 			array(
-				'timeout' => $this->timeout,
-				'headers' => array(
-					'Authorization' => 'Bearer ' . $this->api_key,
-					'Content-Type'  => 'application/json',
-				),
-				'body'    => wp_json_encode( $body ),
-			)
+				'Authorization' => 'Bearer ' . $this->api_key,
+				'Content-Type'  => 'application/json',
+			),
+			$body
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -288,6 +282,45 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 		} catch ( \Throwable $e ) {
 			// Usage tracking must never break the main flow.
 		}
+	}
+
+	/**
+	 * Provider URLs are administrator-configured, but must still not turn the
+	 * plugin into an SSRF primitive when a saved setting is compromised.
+	 *
+	 * @param array<string,string> $headers
+	 * @param array<string,mixed> $body
+	 * @return array|\WP_Error
+	 */
+	private function post_json( string $endpoint, array $headers, array $body ) {
+		if ( ! $this->is_safe_endpoint( $endpoint ) ) {
+			return new \WP_Error( 'sitepilot_unsafe_endpoint', __( 'The provider URL is not allowed.', 'sitepilot-ai' ) );
+		}
+
+		return wp_remote_post(
+			$endpoint,
+			array(
+				'timeout'            => $this->timeout,
+				'headers'            => $headers,
+				'body'               => wp_json_encode( $body ),
+				'redirection'        => 0,
+				'reject_unsafe_urls' => true,
+			)
+		);
+	}
+
+	private function is_safe_endpoint( string $endpoint ): bool {
+		$parts = wp_parse_url( $endpoint );
+		if ( ! is_array( $parts ) || empty( $parts['host'] ) || ! empty( $parts['user'] ) || ! empty( $parts['pass'] ) ) {
+			return false;
+		}
+
+		$scheme = strtolower( (string) ( $parts['scheme'] ?? '' ) );
+		if ( 'https' === $scheme ) {
+			return true;
+		}
+
+		return (bool) apply_filters( 'sitepilot_ai_allow_insecure_provider_url', false, $endpoint );
 	}
 
 	/**

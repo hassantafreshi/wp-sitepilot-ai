@@ -7,11 +7,12 @@ use SitePilot\Chat\ChatEngine;
 use SitePilot\Core\Settings;
 use SitePilot\Core\SiteLanguage;
 use SitePilot\Providers\ProviderException;
+use SitePilot\Security\RateLimiter;
 use SitePilot\Voice\VoiceTranscriber;
 
 /** Public, read-only assistant endpoints. They retain neither audio nor chats. */
 final class PublicChatController {
-	private const TEXT_LIMIT = 20;
+	private const TEXT_LIMIT  = 20;
 	private const VOICE_LIMIT = 8;
 
 	public function ask( \WP_REST_Request $request ): \WP_REST_Response {
@@ -27,8 +28,12 @@ final class PublicChatController {
 		}
 		$history = $this->clean_history( (array) $request->get_param( 'history' ) );
 		$context = $this->conversation_context( $history, $question );
-		$result = ( new ChatEngine() )->ask( $question, $context );
-		return new \WP_REST_Response( array( 'ok' => true ) + $result );
+		try {
+			$result = ( new ChatEngine() )->ask( $question, $context );
+			return new \WP_REST_Response( array( 'ok' => true ) + $result );
+		} catch ( \Throwable $e ) {
+			return $this->error( 'assistant_unavailable', __( 'The assistant is temporarily unavailable. Please try again later.', 'sitepilot-ai' ), 503 );
+		}
 	}
 
 	public function transcribe( \WP_REST_Request $request ): \WP_REST_Response {
@@ -38,7 +43,7 @@ final class PublicChatController {
 		if ( ! $this->allow( 'voice', self::VOICE_LIMIT ) ) {
 			return $this->error( 'rate_limited', __( 'Too many voice requests. Please try again later.', 'sitepilot-ai' ), 429 );
 		}
-		$file = $request->get_file_params()['audio'] ?? array();
+		$file     = $request->get_file_params()['audio'] ?? array();
 		$duration = absint( $request->get_param( 'duration_ms' ) );
 		$language = SiteLanguage::primary( (string) $request->get_param( 'language' ) ?: SiteLanguage::site() );
 		try {
@@ -46,24 +51,24 @@ final class PublicChatController {
 			return new \WP_REST_Response( array( 'ok' => true ) + $result );
 		} catch ( ProviderException $e ) {
 			return $this->error( $e->error_code(), $e->user_message(), 400 );
+		} catch ( \Throwable $e ) {
+			return $this->error( 'voice_unavailable', __( 'Voice input is temporarily unavailable. Please try again later.', 'sitepilot-ai' ), 503 );
 		}
 	}
 
 	private function allow( string $kind, int $limit ): bool {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : 'unknown';
-		$key = 'sitepilot_public_' . $kind . '_' . hash( 'sha256', $ip . wp_salt( 'nonce' ) );
-		$count = (int) get_transient( $key );
-		if ( $count >= $limit ) {
-			return false;
-		}
-		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
-		return true;
+		return RateLimiter::allow( 'public_' . $kind, $limit, HOUR_IN_SECONDS );
 	}
 
 	private function is_enabled(): bool {
-		return (bool) Settings::get( 'public_assistant_enabled', false );
-	}
 
+		if ( (bool) Settings::get( 'public_assistant_enabled', false ) ) {
+			return true;
+		}
+
+		$widget = Settings::get( 'widget', array() );
+		return is_array( $widget ) && ! empty( $widget['enabled'] );
+	}
 	/** @return array<int,array{role:string,text:string}> */
 	private function clean_history( array $history ): array {
 		$clean = array();
@@ -73,7 +78,10 @@ final class PublicChatController {
 			}
 			$text = trim( sanitize_textarea_field( (string) ( $turn['text'] ?? '' ) ) );
 			if ( '' !== $text ) {
-				$clean[] = array( 'role' => ( 'assistant' === ( $turn['role'] ?? '' ) ) ? 'assistant' : 'user', 'text' => mb_substr( $text, 0, 1200 ) );
+				$clean[] = array(
+					'role' => ( 'assistant' === ( $turn['role'] ?? '' ) ) ? 'assistant' : 'user',
+					'text' => mb_substr( $text, 0, 1200 ),
+				);
 			}
 		}
 		return $clean;
@@ -90,6 +98,13 @@ final class PublicChatController {
 	}
 
 	private function error( string $code, string $message, int $status ): \WP_REST_Response {
-		return new \WP_REST_Response( array( 'ok' => false, 'code' => $code, 'message' => $message ), $status );
+		return new \WP_REST_Response(
+			array(
+				'ok'      => false,
+				'code'    => $code,
+				'message' => $message,
+			),
+			$status
+		);
 	}
 }

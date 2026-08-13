@@ -146,4 +146,25 @@ final class FormPlanValidatorTest extends TestCase {
 		$this->assertSame( 'Contact', $result->plan['title'] );
 		$this->assertStringNotContainsString( '<', $result->plan['fields'][0]['label'] );
 	}
+
+	public function test_phone_alias_normalizes_to_tel(): void {
+		$result = $this->validator->validate(
+			array(
+				'title'  => 'Call me',
+				'fields' => array( array( 'type' => 'phone', 'label' => 'Phone' ) ),
+			)
+		);
+		$this->assertTrue( $result->ok, implode( ' ', $result->errors ) );
+		$this->assertSame( 'tel', $result->plan['fields'][0]['type'] );
+	}
+
+	public function test_file_upload_is_not_available_in_independent_forms(): void {
+		$result = $this->validator->validate(
+			array(
+				'title'  => 'Upload',
+				'fields' => array( array( 'type' => 'file', 'label' => 'Attachment' ) ),
+			)
+		);
+		$this->assertFalse( $result->ok );
+	}
 }

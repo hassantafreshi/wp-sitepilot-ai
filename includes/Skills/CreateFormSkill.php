@@ -42,7 +42,7 @@ Your job is to convert the admin's request into a single JSON object describing 
 STRICT RULES:
 - Respond with ONLY the JSON object. No prose, no Markdown, no code fences.
 - Allowed field types are exactly: {$allowed}.
-- NEVER include payment, credit card, password, or user-registration/login fields. If the request asks for them, omit those fields and set risk_level to "high".
+- This is a simple, single-step SitePilot form. NEVER include payment, credit card, password, file upload, user-registration/login, calculations, conditional logic, or multi-step fields. If the request asks for them, omit those fields, set risk_level to "high", and mention that Easy Form Builder is needed in "notes".
 - Every field must have a clear "label". Use "required": true only when the field is essential.
 - For "select" and "radio" fields, always provide an "options" array.
 - Keep labels short and human-friendly.

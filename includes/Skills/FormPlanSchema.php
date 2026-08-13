@@ -9,13 +9,19 @@ namespace SitePilot\Skills;
  */
 final class FormPlanSchema {
 
-	/** Field types allowed in the MVP. */
-	public const ALLOWED_FIELD_TYPES = array( 'text', 'email', 'phone', 'textarea', 'select', 'checkbox', 'radio', 'file' );
+	/**
+	 * Field types offered by the independent SitePilot Forms product.
+	 *
+	 * This is intentionally smaller than Easy Form Builder. SitePilot Forms is
+	 * a single-step, email-only form flow; uploads, payments, passwords and
+	 * account fields belong in an advanced form product instead.
+	 */
+	public const ALLOWED_FIELD_TYPES = array( 'text', 'email', 'tel', 'textarea', 'select', 'checkbox', 'radio' );
 
 	/** Field types explicitly forbidden for safety in the MVP. */
 	public const FORBIDDEN_FIELD_TYPES = array( 'password', 'payment', 'credit_card', 'card', 'registration', 'user', 'ssn' );
 
-	public const MAX_FIELDS = 30;
+	public const MAX_FIELDS = 20;
 
 	public const RISK_LEVELS = array( 'low', 'medium', 'high' );
 
@@ -31,7 +37,7 @@ final class FormPlanSchema {
     "description": "string (optional)",
     "fields": [
       {
-        "type": "one of: text | email | phone | textarea | select | checkbox | radio | file",
+        "type": "one of: text | email | tel | textarea | select | checkbox | radio",
         "label": "string (required)",
         "required": true,
         "placeholder": "string (optional)",
