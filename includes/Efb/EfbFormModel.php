@@ -19,6 +19,19 @@ final class EfbFormModel {
 	private static ?array $capability_catalog = null;
 
 	/**
+	 * Whether an array is a list (keys 0..n-1 in order) rather than a keyed map.
+	 *
+	 * Spelled out instead of array_is_list() because Plugin Check reads that as a
+	 * WordPress 6.5 function and flags it against our 6.2 floor, even though it is
+	 * a PHP 8.1 builtin and the plugin already requires PHP 8.1.
+	 *
+	 * @param array<mixed> $value Array to test.
+	 */
+	public static function is_list( array $value ): bool {
+		return array_values( $value ) === $value;
+	}
+
+	/**
 	 * @return array<string, mixed>
 	 */
 	public static function data(): array {
@@ -492,7 +505,7 @@ final class EfbFormModel {
 		$line = $key . ' (' . $type;
 		if ( isset( $definition['values'] ) ) {
 			$raw_values = is_array( $definition['values'] ) ? $definition['values'] : array();
-			$values     = array_is_list( $raw_values ) ? $raw_values : array_keys( $raw_values );
+			$values     = self::is_list( $raw_values ) ? $raw_values : array_keys( $raw_values );
 			if ( array() !== $values ) {
 				$line .= ': ' . implode( '|', array_map( 'strval', $values ) );
 			}

@@ -190,8 +190,16 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 		}
 
 		$table = $wpdb->prefix . 'emsfb_form';
-		// The table name is made only from WordPress' trusted prefix; it is not user input.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// SHOW COLUMNS takes no bound parameters, so the name is checked against the
+		// characters MySQL allows in an unquoted identifier first. It is built from
+		// WordPress' own prefix plus a fixed suffix and never from user input, so
+		// this can only fail on a malformed prefix.
+		if ( 1 !== preg_match( '/^[A-Za-z0-9_]+$/', $table ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- validated identifier; SHOW COLUMNS cannot be prepared.
 		$columns = $wpdb->get_col( "SHOW COLUMNS FROM `{$table}`", 0 );
 		return array() === array_diff( self::REQUIRED_COLUMNS, array_map( 'strval', is_array( $columns ) ? $columns : array() ) );
 	}

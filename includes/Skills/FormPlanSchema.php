@@ -29,27 +29,30 @@ final class FormPlanSchema {
 	 * The JSON shape we instruct the model to return.
 	 */
 	public static function json_shape_hint(): string {
-		return <<<JSON
-{
-  "intent": "create_form",
-  "form": {
-    "title": "string (required)",
-    "description": "string (optional)",
-    "fields": [
-      {
-        "type": "one of: text | email | tel | textarea | select | checkbox | radio",
-        "label": "string (required)",
-        "required": true,
-        "placeholder": "string (optional)",
-        "options": ["only for select | radio | checkbox groups"]
-      }
-    ],
-    "submit_button": "string (optional, defaults to Submit)",
-    "confirmation_message": "string (optional)"
-  },
-  "risk_level": "low | medium | high",
-  "notes": "short note to the admin (optional)"
-}
-JSON;
+		return implode(
+			"\n",
+			array(
+				'{',
+				'  "intent": "create_form",',
+				'  "form": {',
+				'    "title": "string (required)",',
+				'    "description": "string (optional)",',
+				'    "fields": [',
+				'      {',
+				'        "type": "one of: text | email | tel | textarea | select | checkbox | radio",',
+				'        "label": "string (required)",',
+				'        "required": true,',
+				'        "placeholder": "string (optional)",',
+				'        "options": ["only for select | radio | checkbox groups"]',
+				'      }',
+				'    ],',
+				'    "submit_button": "string (optional, defaults to Submit)",',
+				'    "confirmation_message": "string (optional)"',
+				'  },',
+				'  "risk_level": "low | medium | high",',
+				'  "notes": "short note to the admin (optional)"',
+				'}',
+			)
+		);
 	}
 }

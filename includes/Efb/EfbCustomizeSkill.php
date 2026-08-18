@@ -361,31 +361,34 @@ final class EfbCustomizeSkill {
 	private function system_prompt(): string {
 		$capabilities = $this->customization_capabilities_for_prompt();
 
-		return <<<PROMPT
-You convert a WordPress admin's plain-language request into edit operations for an existing form.
-Respond with ONLY a JSON object: { "operations": [ ... ] }. No prose, no code fences.
-
-Allowed operations (use the field's exact label or id from the provided list as "target"):
-- { "op": "set_form_name", "value": "New form title" }
-- { "op": "set_confirmation", "value": "Thank-you message shown after submit" }
-- { "op": "set_field", "target": "<field label or id>", "prop": "label|required|placeholder|width|help", "value": <string, or true/false for required, or one of full|half|third|quarter for width> }
-- { "op": "set_field_property", "target": "<field label or id>", "property": "<one supported FIELD_PROPERTIES key>", "value": <value matching that property> }
-- { "op": "set_form_property", "property": "<one supported FORM_PROPERTIES key>", "value": <value matching that property> }
-- { "op": "add_step", "label": "Step title", "step_ref": "optional_key" }
-- { "op": "add_field", "step_ref": "optional_key", "field": { "type": "...", "label": "..." } }
-- { "op": "remove_field", "target": "<field label or id>" }
-- { "op": "add_option", "target": "<choice field label or id>", "value": "Option text" }
-- { "op": "remove_option", "target": "<choice field label or id>", "value": "Option text" }
-
-Rules:
-- Only emit operations that clearly match the request. If nothing matches, return {"operations":[]}.
-- Never invent fields that are not in the provided list (except values for set_field/add_option).
-- "width": full=100%, half=50%, third=33%, quarter=25%.
-- Do not emit operations for add-ons, credentials, payment settings, raw HTML, URLs, or conditional logic. Explain those as help instead.
-- A Step is structural. Always emit add_step for a step; never use heading as a substitute.
-
-{$capabilities}
-PROMPT;
+		return implode(
+			"\n",
+			array(
+				'You convert a WordPress admin\'s plain-language request into edit operations for an existing form.',
+				'Respond with ONLY a JSON object: { "operations": [ ... ] }. No prose, no code fences.',
+				'',
+				'Allowed operations (use the field\'s exact label or id from the provided list as "target"):',
+				'- { "op": "set_form_name", "value": "New form title" }',
+				'- { "op": "set_confirmation", "value": "Thank-you message shown after submit" }',
+				'- { "op": "set_field", "target": "<field label or id>", "prop": "label|required|placeholder|width|help", "value": <string, or true/false for required, or one of full|half|third|quarter for width> }',
+				'- { "op": "set_field_property", "target": "<field label or id>", "property": "<one supported FIELD_PROPERTIES key>", "value": <value matching that property> }',
+				'- { "op": "set_form_property", "property": "<one supported FORM_PROPERTIES key>", "value": <value matching that property> }',
+				'- { "op": "add_step", "label": "Step title", "step_ref": "optional_key" }',
+				'- { "op": "add_field", "step_ref": "optional_key", "field": { "type": "...", "label": "..." } }',
+				'- { "op": "remove_field", "target": "<field label or id>" }',
+				'- { "op": "add_option", "target": "<choice field label or id>", "value": "Option text" }',
+				'- { "op": "remove_option", "target": "<choice field label or id>", "value": "Option text" }',
+				'',
+				'Rules:',
+				'- Only emit operations that clearly match the request. If nothing matches, return {"operations":[]}.',
+				'- Never invent fields that are not in the provided list (except values for set_field/add_option).',
+				'- "width": full=100%, half=50%, third=33%, quarter=25%.',
+				'- Do not emit operations for add-ons, credentials, payment settings, raw HTML, URLs, or conditional logic. Explain those as help instead.',
+				'- A Step is structural. Always emit add_step for a step; never use heading as a substitute.',
+				'',
+				"{$capabilities}",
+			)
+		);
 	}
 
 	/**
@@ -503,7 +506,7 @@ PROMPT;
 			}
 
 			$stored = is_bool( $valid['value'] ) ? ( $valid['value'] ? '1' : '0' ) : (string) $valid['value'];
-			if ( 'enum' === (string) ( $definition['value_type'] ?? '' ) && is_array( $definition['values'] ?? null ) && ! array_is_list( $definition['values'] ) ) {
+			if ( 'enum' === (string) ( $definition['value_type'] ?? '' ) && is_array( $definition['values'] ?? null ) && ! EfbFormModel::is_list( $definition['values'] ) ) {
 				// Keyword enums store EFB's value, not the friendly key.
 				$stored = (string) ( $definition['values'][ $valid['value'] ] ?? $stored );
 			}
@@ -660,7 +663,7 @@ PROMPT;
 					'value' => null,
 				);
 			}
-			if ( array_is_list( $values ) ) {
+			if ( EfbFormModel::is_list( $values ) ) {
 				foreach ( $values as $allowed ) {
 					if ( strtolower( (string) $allowed ) === $value ) {
 						return array(

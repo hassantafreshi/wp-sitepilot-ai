@@ -75,19 +75,19 @@ final class Plugin {
 	}
 
 	/**
-	 * Load the plugin's bundled translations, including local development copies.
+	 * Load the plugin's bundled translations.
 	 *
-	 * WordPress normally finds a language pack automatically. The explicit local
-	 * file makes the packaged Persian translation work as well when the plugin is
-	 * installed under a versioned or test directory.
+	 * WordPress.org language packs load on their own since 4.6, so there is no
+	 * load_plugin_textdomain() call here. The explicit load_textdomain() below is
+	 * still needed for the Persian catalogue we ship ourselves, which WordPress
+	 * does not know about, and which also has to resolve when the plugin sits in
+	 * a versioned or test directory.
 	 */
 	private function load_translations(): void {
-		$domain   = 'ai-site-assistant-autopilot';
-		$relative = dirname( AISAAUTOPILOT_BASENAME ) . '/languages';
-		$locale   = determine_locale();
-		$mofile   = plugin_dir_path( AISAAUTOPILOT_FILE ) . 'languages/' . $domain . '-' . $locale . '.mo';
+		$domain = 'ai-site-assistant-autopilot';
+		$locale = determine_locale();
+		$mofile = plugin_dir_path( AISAAUTOPILOT_FILE ) . 'languages/' . $domain . '-' . $locale . '.mo';
 
-		load_plugin_textdomain( $domain, false, $relative );
 		if ( is_readable( $mofile ) ) {
 			load_textdomain( $domain, $mofile );
 		}

@@ -1,8 +1,10 @@
 <?php
-define('ABSPATH','/home/user/wordpress/');
+// WordPress root, overridable so this runs on any machine. Matches the
+// convention used by the scripts in tests/.
+$wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\xampp\htdocs\wp';
 $_SERVER['HTTP_HOST']='localhost';
 $_SERVER['REQUEST_URI']='/';
-require_once ABSPATH.'wp-load.php';
+require_once $wp_root . '/wp-load.php';
 wp_set_current_user(1);
 $pass=0;$fail=0;$results=[];
 function t($s,$n,$c,$d=''){global$pass,$fail,$results;if($c){$pass++;}else{$fail++;$results[]=[$s,$n,$d];echo" X $s/$n: $d\n";}}

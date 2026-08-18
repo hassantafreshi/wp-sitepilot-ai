@@ -81,9 +81,26 @@ final class RebrandMigrator {
 				continue;
 			}
 
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- identifiers come from constants and the WP prefix; a rename cannot be prepared.
+			// A table name cannot be bound as a parameter, so both identifiers are
+			// checked against the character set MySQL allows in an unquoted name
+			// before they reach the query. Both are built from class constants and
+			// $wpdb->prefix, so this can only fail if one of those is malformed.
+			if ( ! self::is_safe_identifier( $old ) || ! self::is_safe_identifier( $new ) ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- identifiers come from constants and the WP prefix and are validated just above; a rename cannot be prepared.
 			$wpdb->query( "RENAME TABLE `{$old}` TO `{$new}`" );
 		}
+	}
+
+	/**
+	 * Whether a table name is safe to interpolate into a statement.
+	 *
+	 * @param string $identifier Fully qualified table name.
+	 */
+	private static function is_safe_identifier( string $identifier ): bool {
+		return 1 === preg_match( '/^[A-Za-z0-9_]+$/', $identifier );
 	}
 
 	private static function table_exists( string $table ): bool {
@@ -190,12 +207,16 @@ final class RebrandMigrator {
 	private static function migrate_post_meta(): void {
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- bulk key rename during a one-off migration.
+		// The slow_db_query sniff is aimed at meta_key in a WP_Query; here the two
+		// are column names in a single UPDATE that runs once, at activation, so it
+		// is disabled across the whole call rather than one line.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 		$wpdb->update(
 			$wpdb->postmeta,
 			array( 'meta_key' => NativeFormConnector::META_KEY ),
 			array( 'meta_key' => self::OLD_META_KEY )
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 	}
 
 	/**

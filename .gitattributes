@@ -1,0 +1,15 @@
+# core.autocrlf=true rewrites checkouts to CRLF, which trips
+# Generic.Files.LineEndings.InvalidEOLChar in the WordPress-Core ruleset and
+# makes phpcs fail on files nobody edited. Pin the working tree to LF instead.
+* text=auto eol=lf
+
+# Binaries must never be touched.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.mo   binary
+*.zip  binary
+*.woff  binary
+*.woff2 binary

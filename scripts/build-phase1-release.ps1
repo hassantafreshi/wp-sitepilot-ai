@@ -60,17 +60,58 @@ if ($LASTEXITCODE -gt 7) {
 }
 
 $zip = Join-Path $OutputDirectory "ai-site-assistant-autopilot-$version.zip"
-Compress-Archive -Path $packageRoot -DestinationPath $zip -Force
-
+# The ZIP spec requires '/' as the path separator. Both Compress-Archive and
+# ZipFile::CreateFromDirectory on Windows PowerShell 5.1 write '\' instead;
+# Windows unzip tools tolerate it, but on WordPress.org (Linux) each entry then
+# extracts as a single flat file with literal backslashes in its name and the
+# plugin will not install. So each entry name is set explicitly below.
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
+if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
+
+$archiveOut = [System.IO.Compression.ZipFile]::Open($zip, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+	$stageFull = (Resolve-Path -LiteralPath $stage).Path.TrimEnd([char]92) + [char]92
+	foreach ($file in Get-ChildItem -LiteralPath $stage -Recurse -File | Sort-Object FullName) {
+		$entryName = $file.FullName.Substring($stageFull.Length).Replace([char]92, '/')
+		[System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+			$archiveOut,
+			$file.FullName,
+			$entryName,
+			[System.IO.Compression.CompressionLevel]::Optimal
+		) | Out-Null
+	}
+}
+finally {
+	$archiveOut.Dispose()
+}
 $archive = [System.IO.Compression.ZipFile]::OpenRead($zip)
 try {
-	$entries = @($archive.Entries.FullName | ForEach-Object { $_ -replace '\\', '/' })
+	$rawEntries = @($archive.Entries.FullName)
+	$entries = @($rawEntries | ForEach-Object { $_ -replace '\\', '/' })
 	foreach ($required in @('ai-site-assistant-autopilot/ai-site-assistant-autopilot.php', 'ai-site-assistant-autopilot/readme.txt', 'ai-site-assistant-autopilot/includes/Core/Plugin.php')) {
 		if ($entries -notcontains $required) {
 			throw "Release archive is missing required file: $required"
 		}
 	}
+	# The ZIP spec requires '/'. Backslash entries install as one flat file with
+	# literal backslashes in the name on any non-Windows host.
+	$backslashed = $rawEntries | Where-Object { $_.Contains([char]92) }
+	if ($backslashed) {
+		throw "Release archive uses backslash path separators: $($backslashed[0])"
+	}
+	# The exclusion lists above are deny-lists, so a stray file dropped in the
+	# plugin root would ship silently. WordPress.org rejects unexpected developer
+	# scripts, so the root is an allow-list instead.
+	$allowedRoot = @('ai-site-assistant-autopilot.php', 'uninstall.php', 'readme.txt')
+	$unexpected = $entries | Where-Object {
+		$parts = $_.Split('/')
+		($parts.Count -eq 2) -and ($allowedRoot -notcontains $parts[1])
+	}
+	if ($unexpected) {
+		throw "Release archive has unexpected files in the plugin root: $($unexpected -join ', ')"
+	}
+
 	$forbidden = $entries | Where-Object { $_ -match '(^|/)(vendor|node_modules|tests|docs|scripts|\.git)(/|$)' }
 	if ($forbidden) {
 		throw "Release archive contains development files: $($forbidden -join ', ')"
