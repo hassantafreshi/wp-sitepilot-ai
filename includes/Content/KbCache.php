@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Content;
+namespace AISAAutoPilot\Content;
 
 /**
  * Lightweight answer cache for the chat engine.
@@ -15,8 +15,8 @@ namespace SitePilot\Content;
  */
 final class KbCache {
 
-	private const OPTION      = 'sitepilot_kb_answer_cache';
-	private const VERSION_OPT = 'sitepilot_kb_version';
+	private const OPTION      = 'aisaautopilot_kb_answer_cache';
+	private const VERSION_OPT = 'aisaautopilot_kb_version';
 	private const MAX_KEEP    = 300;
 
 	/**

@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Providers\OpenAiCompatibleProvider;
-use SitePilot\Providers\ProviderException;
+use AISAAutoPilot\Providers\OpenAiCompatibleProvider;
+use AISAAutoPilot\Providers\ProviderException;
 
 final class ProviderResponseParseTest extends TestCase {
 

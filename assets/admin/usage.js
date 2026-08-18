@@ -1,80 +1,81 @@
-/* global ajaxurl, SitePilotAI */
+/* global AISAAutoPilotAI */
 ( function () {
 	'use strict';
 
-	var $ = function ( id ) { return document.getElementById( id ); };
+	var T = ( function () {
+		try {
+			var node = document.getElementById( 'sp-usage-i18n' );
+			return node ? ( JSON.parse( node.textContent || '{}' ) || {} ) : {};
+		} catch ( e ) { return {}; }
+	}() );
+
+	function t( key, fallback ) { return T[ key ] || fallback || key; }
+
+	function $( id ) { return document.getElementById( id ); }
 
 	function api( path, body ) {
-		return fetch( window.SitePilotAI.restUrl + path, {
+		return fetch( window.AISAAutoPilotAI.restUrl + path, {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: {
 				'Content-Type': 'application/json',
-				'X-WP-Nonce': window.SitePilotAI.nonce,
+				'X-WP-Nonce': window.AISAAutoPilotAI.nonce,
 			},
 			body: JSON.stringify( body || {} ),
-		} ).then( function ( r ) { return r.json().then( function ( d ) { return d; } ); } );
+		} ).then( function ( r ) { return r.json(); } );
 	}
 
-	function setStatus( el, msg, kind ) {
-		el.textContent = msg;
-		el.className = 'sp-status-text';
-		if ( kind ) { el.classList.add( 'sp-status-text--' + kind ); }
-		if ( kind === 'loading' ) { el.textContent = '⏳ ' + msg; }
-		if ( kind === 'error' ) { el.style.color = '#dc2626'; }
+	function setStatus( node, message, kind ) {
+		if ( ! node ) { return; }
+		node.textContent = message;
+		node.className = 'sp-status-text' + ( kind ? ' is-' + kind : '' );
 	}
 
-	/* ── Save Budget ── */
+	/* ── Save budget ── */
 	var saveBtn = $( 'sp-save-budget' );
 	if ( saveBtn ) {
 		saveBtn.addEventListener( 'click', function () {
 			var budget = parseInt( $( 'sp-monthly-budget' ).value, 10 ) || 0;
 			var status = $( 'sp-budget-status' );
-			setStatus( status, 'Saving…', 'loading' );
+			setStatus( status, t( 'saving' ) );
 			saveBtn.disabled = true;
 
-			api( 'usage/budget', { budget: budget } )
-				.then( function ( r ) {
-					if ( r.ok ) {
-						setStatus( status, '✅ Budget saved!', '' );
-						setTimeout( function () { location.reload(); }, 1000 );
-					} else {
-						setStatus( status, '❌ ' + ( r.message || 'Error' ), 'error' );
-						saveBtn.disabled = false;
-					}
-				} )
-				.catch( function () {
-					setStatus( status, '❌ Network error', 'error' );
+			api( 'usage/budget', { budget: budget } ).then( function ( r ) {
+				if ( r.ok ) {
+					setStatus( status, t( 'saved' ), 'ok' );
+					window.setTimeout( function () { window.location.reload(); }, 900 );
+				} else {
+					setStatus( status, r.message || t( 'failed' ), 'err' );
 					saveBtn.disabled = false;
-				} );
+				}
+			} ).catch( function () {
+				setStatus( status, t( 'failed' ), 'err' );
+				saveBtn.disabled = false;
+			} );
 		} );
 	}
 
-	/* ── Reset Usage ── */
+	/* ── Reset usage ── */
 	var resetBtn = $( 'sp-reset-usage' );
 	if ( resetBtn ) {
 		resetBtn.addEventListener( 'click', function () {
-			if ( ! confirm( 'Are you sure? This will permanently delete all usage data.' ) ) {
-				return;
-			}
+			if ( ! window.confirm( t( 'confirmWipe' ) ) ) { return; }
 			var status = $( 'sp-budget-status' );
-			setStatus( status, 'Resetting…', 'loading' );
+			setStatus( status, t( 'resetting' ) );
 			resetBtn.disabled = true;
 
-			api( 'usage/reset', {} )
-				.then( function ( r ) {
-					if ( r.ok ) {
-						setStatus( status, '✅ Usage data reset!', '' );
-						setTimeout( function () { location.reload(); }, 1000 );
-					} else {
-						setStatus( status, '❌ ' + ( r.message || 'Error' ), 'error' );
-						resetBtn.disabled = false;
-					}
-				} )
-				.catch( function () {
-					setStatus( status, '❌ Network error', 'error' );
+			api( 'usage/reset', {} ).then( function ( r ) {
+				if ( r.ok ) {
+					setStatus( status, t( 'resetDone' ), 'ok' );
+					window.setTimeout( function () { window.location.reload(); }, 900 );
+				} else {
+					setStatus( status, r.message || t( 'failed' ), 'err' );
 					resetBtn.disabled = false;
-				} );
+				}
+			} ).catch( function () {
+				setStatus( status, t( 'failed' ), 'err' );
+				resetBtn.disabled = false;
+			} );
 		} );
 	}
 
@@ -83,9 +84,7 @@
 	if ( refreshBtn ) {
 		refreshBtn.addEventListener( 'click', function () {
 			refreshBtn.disabled = true;
-			var icon = refreshBtn.querySelector( '.dashicons' );
-			if ( icon ) { icon.classList.add( 'sp-spin' ); }
-			setTimeout( function () { location.reload(); }, 200 );
+			window.location.reload();
 		} );
 	}
-} )();
+}() );

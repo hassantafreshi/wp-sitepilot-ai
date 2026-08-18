@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Security;
+namespace AISAAutoPilot\Security;
 
 /**
  * Removes secrets from strings/arrays before they reach logs.

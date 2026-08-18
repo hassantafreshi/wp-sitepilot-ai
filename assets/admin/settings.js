@@ -1,131 +1,342 @@
-/* global SitePilotAI */
+/* global AISAAutoPilotAI */
+/**
+ * Setup & Settings: provider picking, the model dropdown (curated list plus a
+ * live refresh from the provider), the connection test, and the delivery test.
+ */
 ( function () {
 	'use strict';
 
-	var cfg = window.SitePilotAI || {};
-	var presets = cfg.presets || {};
+	var cfg = window.AISAAutoPilotAI || {};
+	var T = cfg.i18n || {};
+	var catalog = readCatalog();
+	var providers = catalog.providers || {};
+	var strings = catalog.i18n || {};
 
-	function $( id ) {
-		return document.getElementById( id );
+	function t( key, fallback ) { return T[ key ] || fallback || key; }
+
+	function $( id ) { return document.getElementById( id ); }
+
+	function readCatalog() {
+		var node = document.getElementById( 'sp-provider-catalog' );
+		if ( ! node ) { return {}; }
+		try {
+			return JSON.parse( node.textContent || '{}' );
+		} catch ( e ) {
+			return {};
+		}
 	}
 
-	function applyPreset( key, fillFields ) {
-		var preset = presets[ key ];
-		if ( ! preset ) {
+	function status( node, message, kind ) {
+		if ( ! node ) { return; }
+		node.className = 'sp-status-text' + ( kind ? ' is-' + kind : '' );
+		node.textContent = message;
+	}
+
+	function currentProvider() {
+		var select = $( 'sp-provider' );
+		return select ? select.value : '';
+	}
+
+	function preset( key ) {
+		return providers[ key ] || {};
+	}
+
+	/* ── Model dropdown ─────────────────────────────────────── */
+
+	/**
+	 * Rebuild the picker from a map of id → label, keeping whatever is currently
+	 * in the model field selectable even when the provider has never heard of it
+	 * (a saved custom model must not silently disappear from the list).
+	 */
+	function fillModels( models, extraLabel ) {
+		var select = $( 'sp-model-select' );
+		var input = $( 'sp-model' );
+		if ( ! select || ! input ) { return; }
+
+		var current = input.value.trim();
+		var seen = {};
+
+		select.textContent = '';
+
+		Object.keys( models || {} ).forEach( function ( id ) {
+			seen[ id ] = true;
+			select.appendChild( option( id, models[ id ] || id ) );
+		} );
+
+		if ( current && ! seen[ current ] ) {
+			select.insertBefore( option( current, current + ( extraLabel ? ' — ' + extraLabel : '' ) ), select.firstChild );
+		}
+
+		select.appendChild( option( '__custom', strings.other || 'Other — type a model name' ) );
+
+		// `current` is always present as an option by now, either from the map or
+		// from the insert above, so this never falls back silently.
+		select.value = current !== '' ? current : '__custom';
+	}
+
+	function hasOption( select, value ) {
+		return Array.prototype.some.call( select.options, function ( item ) { return item.value === value; } );
+	}
+
+	function option( value, label ) {
+		var node = document.createElement( 'option' );
+		node.value = value;
+		node.textContent = label;
+		return node;
+	}
+
+	function fillEmbeddings( key ) {
+		var list = $( 'sp-embedding-models' );
+		if ( ! list ) { return; }
+		list.textContent = '';
+		var models = preset( key ).embeddings || {};
+		Object.keys( models ).forEach( function ( id ) {
+			list.appendChild( option( id, models[ id ] || id ) );
+		} );
+	}
+
+	/** Show where to get a key, as a real link rather than a bare URL. */
+	function paintKeyLink( key ) {
+		var holder = $( 'sp-key-link' );
+		if ( ! holder ) { return; }
+		holder.textContent = '';
+
+		var url = preset( key ).keyUrl || '';
+		if ( ! url ) { return; }
+
+		var link = document.createElement( 'a' );
+		link.href = url;
+		if ( link.protocol !== 'https:' && link.protocol !== 'http:' ) { return; }
+		link.textContent = strings.keyLink || 'Get an API key';
+		link.target = '_blank';
+		link.rel = 'noopener noreferrer';
+		holder.appendChild( link );
+	}
+
+	/**
+	 * Apply a provider choice. `fillEndpoint` is false on first paint so a saved
+	 * custom base URL or model is never overwritten just by loading the page.
+	 */
+	function applyProvider( key, fillEndpoint ) {
+		var base = $( 'sp-base-url' );
+		var input = $( 'sp-model' );
+		var entry = preset( key );
+
+		if ( fillEndpoint ) {
+			if ( base && entry.baseUrl ) { base.value = entry.baseUrl; }
+			if ( input && entry.model ) { input.value = entry.model; }
+			if ( fillEndpoint && key === 'custom' ) {
+				if ( base ) { base.value = ''; }
+				if ( input ) { input.value = ''; }
+			}
+		}
+
+		var note = $( 'sp-provider-note' );
+		if ( note ) { note.textContent = entry.note || ''; }
+
+		var meta = $( 'sp-setup-testmeta' );
+		if ( meta ) { meta.textContent = ( entry.label || key ) + ' · ' + ( entry.api === 'anthropic' ? 'messages' : 'chat/completions' ); }
+
+		fillModels( entry.models || {}, strings.saved );
+		fillEmbeddings( key );
+		paintKeyLink( key );
+		syncChips( key );
+	}
+
+	function syncChips( key ) {
+		var wrap = document.querySelector( '[data-sp-provider-chips]' );
+		if ( ! wrap ) { return; }
+		Array.prototype.forEach.call( wrap.querySelectorAll( '[data-provider]' ), function ( chip ) {
+			chip.classList.toggle( 'is-on', chip.getAttribute( 'data-provider' ) === key );
+		} );
+		paintBrand( wrap, key );
+	}
+
+	/**
+	 * Show the chosen provider's mark next to the dropdown.
+	 *
+	 * The mark is cloned from the matching chip rather than rebuilt from a
+	 * string: the SVG is already on the page, and cloning a node keeps markup out
+	 * of innerHTML. A provider that has no chip simply leaves the box empty.
+	 */
+	function paintBrand( wrap, key ) {
+		var box = $( 'sp-provider-brand' );
+		if ( ! box ) { return; }
+
+		box.textContent = '';
+		var chip = wrap.querySelector( '[data-provider="' + key.replace( /[^a-z0-9_-]/gi, '' ) + '"]' );
+		var mark = chip ? chip.querySelector( 'svg' ) : null;
+		if ( ! mark ) { return; }
+
+		var copy = mark.cloneNode( true );
+		copy.setAttribute( 'width', '20' );
+		copy.setAttribute( 'height', '20' );
+		box.appendChild( copy );
+	}
+
+	/* ── REST ───────────────────────────────────────────────── */
+
+	function post( path, body ) {
+		return fetch( cfg.restUrl + path, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
+			body: JSON.stringify( body || {} ),
+		} ).then( function ( r ) { return r.json(); } );
+	}
+
+	/** What the user has typed, so a test runs against the pending values. */
+	function draft() {
+		var body = {
+			provider: currentProvider(),
+			base_url: $( 'sp-base-url' ) ? $( 'sp-base-url' ).value : '',
+			model: $( 'sp-model' ) ? $( 'sp-model' ).value : '',
+		};
+		var keyField = $( 'sp-api-key' );
+		if ( keyField && keyField.value ) { body.api_key = keyField.value; }
+		return body;
+	}
+
+	function onRefreshModels() {
+		var button = $( 'sp-refresh-models' );
+		var result = $( 'sp-models-status' );
+		status( result, strings.loading || 'Loading models…' );
+		if ( button ) { button.disabled = true; }
+
+		post( 'provider/models', draft() ).then( function ( data ) {
+			if ( button ) { button.disabled = false; }
+			if ( ! data.ok || ! data.models || ! data.models.length ) {
+				status( result, data.message || t( 'testFail', 'Could not load models.' ), 'err' );
+				return;
+			}
+
+			var map = {};
+			data.models.forEach( function ( id ) { map[ id ] = id; } );
+			fillModels( map, strings.saved );
+			status( result, data.message || '', 'ok' );
+		} ).catch( function () {
+			if ( button ) { button.disabled = false; }
+			status( result, t( 'networkError', 'Network error.' ), 'err' );
+		} );
+	}
+
+	/* ── Connection test ────────────────────────────────────── */
+
+	function paint( state, title, body ) {
+		var box = $( 'sp-setup-testbox' );
+		var mark = $( 'sp-setup-testmark' );
+		if ( ! box ) { return; }
+
+		box.className = 'sp-testbox' + ( state ? ' sp-testbox--' + state : '' );
+		$( 'sp-setup-testtitle' ).textContent = title;
+		$( 'sp-setup-testbody' ).textContent = body;
+
+		if ( ! mark ) { return; }
+		if ( state === 'busy' ) {
+			mark.className = 'sp-spinner';
+			mark.textContent = '';
 			return;
 		}
-		var base = $( 'sp-base-url' );
-		var model = $( 'sp-model' );
-		var help = $( 'sp-key-help' );
-
-		// Only overwrite the fields on an explicit provider change, never on load
-		// (so saved custom base/model values are preserved).
-		if ( fillFields && key !== 'custom' ) {
-			if ( base && preset.base_url ) {
-				base.value = preset.base_url;
-			}
-			if ( model && preset.model ) {
-				model.value = preset.model;
-			}
-		}
-		if ( help ) {
-			help.textContent = '';
-			if ( preset.key_url ) {
-				var a = document.createElement( 'a' );
-				a.href = preset.key_url;
-				a.target = '_blank';
-				a.rel = 'noopener';
-				a.textContent = 'Get your ' + preset.label + ' API key';
-				help.appendChild( a );
-			}
-		}
+		mark.className = 'sp-mark';
+		mark.textContent = state === 'ok' ? '✓' : ( state === 'err' ? '!' : '?' );
+		mark.style.background = state === 'ok' ? '#059669' : ( state === 'err' ? '#dc2626' : '#1d2327' );
 	}
 
 	function onTest() {
+		var button = $( 'sp-test' );
 		var result = $( 'sp-test-result' );
-		result.className = 'sitepilot-status';
-		result.textContent = '';
-		var spinner = document.createElement( 'span' );
-		spinner.className = 'sitepilot-spinner';
-		result.appendChild( spinner );
-		result.appendChild( document.createTextNode( 'Testing…' ) );
+		if ( button ) { button.disabled = true; }
+		status( result, '' );
+		paint( 'busy', t( 'testing', 'Testing…' ), t( 'testingBody', 'A short request was sent to the provider.' ) );
 
-		var body = {
-			base_url: $( 'sp-base-url' ).value,
-			model: $( 'sp-model' ).value,
-		};
-		var key = $( 'sp-api-key' ).value;
-		if ( key ) {
-			body.api_key = key;
-		}
-
-		fetch( cfg.restUrl + 'provider/test', {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
-			body: JSON.stringify( body ),
-		} )
-			.then( function ( r ) {
-				return r.json();
-			} )
-			.then( function ( data ) {
-				result.className = 'sitepilot-status ' + ( data.ok ? 'sitepilot-status--ok' : 'sitepilot-status--error' );
-				result.textContent = data.message || ( data.ok ? 'OK' : 'Failed' );
-			} )
-			.catch( function () {
-				result.className = 'sitepilot-status sitepilot-status--error';
-				result.textContent = 'Network error.';
-			} );
+		post( 'provider/test', draft() ).then( function ( data ) {
+			if ( button ) { button.disabled = false; }
+			if ( data.ok ) {
+				paint( 'ok', t( 'testOk', 'Connection works' ), data.message || t( 'testOkBody', 'Valid response received. You can continue.' ) );
+			} else {
+				paint( 'err', t( 'testFail', 'Key or endpoint was rejected' ), data.message || t( 'testFailBody', 'Replace the key or check the custom endpoint.' ) );
+			}
+		} ).catch( function () {
+			if ( button ) { button.disabled = false; }
+			paint( 'err', t( 'testFail', 'Key or endpoint was rejected' ), t( 'networkError', 'Network error.' ) );
+		} );
 	}
 
-	function onFormDeliveryTest() {
+	function onDeliveryTest() {
 		var result = $( 'sp-form-delivery-test-result' );
-		if ( ! result ) {
-			return;
-		}
-		result.className = 'sitepilot-status';
-		result.textContent = 'Sending test…';
+		status( result, t( 'sending', 'Sending test…' ) );
 
-		fetch( cfg.restUrl + 'forms/delivery/test', {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
-			body: JSON.stringify( {} ),
-		} )
-			.then( function ( response ) {
-				return response.json();
-			} )
-			.then( function ( data ) {
-				result.className = 'sitepilot-status ' + ( data.ok ? 'sitepilot-status--ok' : 'sitepilot-status--error' );
-				result.textContent = data.message || ( data.ok ? 'Test accepted.' : 'Test failed.' );
-			} )
-			.catch( function () {
-				result.className = 'sitepilot-status sitepilot-status--error';
-				result.textContent = 'Network error.';
+		post( 'forms/delivery/test', {} ).then( function ( data ) {
+			status( result, data.message || ( data.ok ? t( 'deliveryOk', 'Test accepted.' ) : t( 'deliveryFail', 'Test failed.' ) ), data.ok ? 'ok' : 'err' );
+		} ).catch( function () {
+			status( result, t( 'networkError', 'Network error.' ), 'err' );
+		} );
+	}
+
+	/** Keep the radio "card" highlight in sync with the checked input. */
+	function initRadioCards() {
+		var cards = document.querySelectorAll( '.sp-check--card' );
+		Array.prototype.forEach.call( cards, function ( card ) {
+			var input = card.querySelector( 'input[type="radio"]' );
+			if ( ! input ) { return; }
+			input.addEventListener( 'change', function () {
+				Array.prototype.forEach.call(
+					document.querySelectorAll( 'input[name="' + input.name + '"]' ),
+					function ( sibling ) {
+						var owner = sibling.closest( '.sp-check--card' );
+						if ( owner ) { owner.classList.toggle( 'is-on', sibling.checked ); }
+					}
+				);
 			} );
+		} );
 	}
 
 	function init() {
-		var provider = $( 'sp-provider' );
-		if ( provider ) {
-			provider.addEventListener( 'change', function () {
-				applyPreset( provider.value, true );
+		var select = $( 'sp-provider' );
+		var modelSelect = $( 'sp-model-select' );
+		var modelInput = $( 'sp-model' );
+
+		if ( select ) {
+			applyProvider( select.value, false );
+			select.addEventListener( 'change', function () { applyProvider( select.value, true ); } );
+		}
+
+		var chips = document.querySelector( '[data-sp-provider-chips]' );
+		if ( chips && select ) {
+			Array.prototype.forEach.call( chips.querySelectorAll( '[data-provider]' ), function ( chip ) {
+				chip.addEventListener( 'click', function () {
+					select.value = chip.getAttribute( 'data-provider' ) || '';
+					applyProvider( select.value, true );
+				} );
 			} );
-			applyPreset( provider.value, false );
 		}
+
+		// The text field is the value that gets saved; the picker only writes into
+		// it, so an unlisted model typed by hand always wins.
+		if ( modelSelect && modelInput ) {
+			modelSelect.addEventListener( 'change', function () {
+				if ( modelSelect.value === '__custom' ) {
+					modelInput.focus();
+					return;
+				}
+				modelInput.value = modelSelect.value;
+			} );
+			modelInput.addEventListener( 'input', function () {
+				modelSelect.value = hasOption( modelSelect, modelInput.value ) ? modelInput.value : '__custom';
+			} );
+		}
+
+		var refresh = $( 'sp-refresh-models' );
+		if ( refresh ) { refresh.addEventListener( 'click', onRefreshModels ); }
+
 		var test = $( 'sp-test' );
-		if ( test ) {
-			test.addEventListener( 'click', onTest );
-		}
-		var deliveryTest = $( 'sp-test-form-delivery' );
-		if ( deliveryTest ) {
-			deliveryTest.addEventListener( 'click', onFormDeliveryTest );
-		}
+		if ( test ) { test.addEventListener( 'click', onTest ); }
+
+		var delivery = $( 'sp-test-form-delivery' );
+		if ( delivery ) { delivery.addEventListener( 'click', onDeliveryTest ); }
+
+		initRadioCards();
 	}
 
-	if ( document.readyState === 'loading' ) {
-		document.addEventListener( 'DOMContentLoaded', init );
-	} else {
-		init();
-	}
-} )();
+	if ( document.readyState === 'loading' ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }
+}() );

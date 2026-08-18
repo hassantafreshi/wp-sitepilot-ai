@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Api;
-use SitePilot\Connectors\WooCommerceConnector;
+namespace AISAAutoPilot\Api;
+use AISAAutoPilot\Connectors\WooCommerceConnector;
 /**
- * Registers the plugin REST routes under sitepilot/v1.
+ * Registers the plugin REST routes under aisaautopilot/v1.
  */
 final class RestRoutes {
-	public const NAMESPACE = 'sitepilot/v1';
+	public const NAMESPACE = 'aisaautopilot/v1';
 
 	public function register(): void {
 		$copilot = new CopilotController();
@@ -47,6 +47,15 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $copilot, 'test' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/provider/models',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $copilot, 'models' ),
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);

@@ -1,21 +1,32 @@
-/* global SitePilotKB */
+/* global AISAAutoPilotKB */
 ( function () {
 	'use strict';
 
-	var cfg = window.SitePilotKB || {};
+	var cfg = window.AISAAutoPilotKB || {};
 	var indexing = false;
 	var currentOffset = 0;
 	var currentPage = 1;
 	var activeFilters = { post_types: [], categories: [] };
 
 	// Friendly labels for auto content-type slugs (embedded server-side).
-	var ctLabels = {};
-	try {
-		var labelNode = document.getElementById( 'sp-kb-ctype-labels' );
-		if ( labelNode ) { ctLabels = JSON.parse( labelNode.textContent || '{}' ); }
-	} catch ( e ) { ctLabels = {}; }
+	var ctLabels = readJson( 'sp-kb-ctype-labels' );
+	var T = readJson( 'sp-kb-i18n' );
+
+	function readJson( id ) {
+		try {
+			var node = document.getElementById( id );
+			return node ? ( JSON.parse( node.textContent || '{}' ) || {} ) : {};
+		} catch ( e ) { return {}; }
+	}
+
+	function t( key, fallback ) { return T[ key ] || fallback || key; }
 
 	function $( id ) { return document.getElementById( id ); }
+
+	function cols() {
+		var wrap = $( 'sp-kb-rows' );
+		return wrap ? ( wrap.getAttribute( 'data-cols' ) || '1fr' ) : '1fr';
+	}
 
 	function el( tag, attrs, children ) {
 		var node = document.createElement( tag );
@@ -57,43 +68,23 @@
 	}
 
 	/* ── AI-feeling messages ── */
-	var aiMessages = [
-		'🤖 Reading your content…',
-		'📖 Analyzing the text…',
-		'🧠 Building understanding…',
-		'✨ Summarizing key points…',
-		'🔍 Extracting keywords…',
-		'📝 Creating knowledge entry…',
-		'🗂️ Organizing information…',
-		'💡 Understanding context…',
-		'🔗 Connecting related topics…',
-		'📊 Structuring the data…',
-	];
-
-	var aiDoneMessages = [
-		'✅ All content indexed! SitePilot now understands your site.',
-		'🎉 Indexing complete! Your knowledge base is ready.',
-		'✨ Done! SitePilot can now answer questions about your content.',
-	];
-
 	function randomAiMsg() {
-		return aiMessages[ Math.floor( Math.random() * aiMessages.length ) ];
+		var pool = [ t( 'reading' ), t( 'analysing' ), t( 'summarising' ), t( 'keywords' ), t( 'organising' ) ];
+		return pool[ Math.floor( Math.random() * pool.length ) ];
 	}
 
-	function randomDoneMsg() {
-		return aiDoneMessages[ Math.floor( Math.random() * aiDoneMessages.length ) ];
-	}
+	function randomDoneMsg() { return t( 'done' ); }
 
 	/* ── Progress Log ── */
 	function addLogEntry( item ) {
 		var log = $( 'sp-kb-progress-log' );
 		if ( ! log ) { return; }
 
-		var icon = item.status === 'indexed' ? '✅' : ( item.status === 'skipped' ? '⏭️' : '❌' );
-		var entry = el( 'div', { class: 'sp-kb-log-entry sp-kb-log-entry--' + item.status }, [
-			el( 'span', { class: 'sp-kb-log-icon', text: icon } ),
-			el( 'span', { class: 'sp-kb-log-title', text: item.title } ),
-			el( 'span', { class: 'sp-kb-log-msg', text: item.message } ),
+		var icon = item.status === 'indexed' ? '✓' : ( item.status === 'skipped' ? '–' : '✕' );
+		var entry = el( 'div', { style: 'display:flex;gap:8px;align-items:baseline' }, [
+			el( 'span', { style: 'flex:0 0 auto;color:' + ( item.status === 'indexed' ? '#059669' : ( item.status === 'skipped' ? '#9ca3af' : '#dc2626' ) ), text: icon } ),
+			el( 'span', { style: 'font-weight:600;color:#1d2327', text: item.title } ),
+			el( 'span', { style: 'min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap', text: item.message } ),
 		] );
 
 		log.appendChild( entry );
@@ -145,7 +136,7 @@
 		chain
 			.then( function () { return processBatch(); } )
 			.catch( function ( err ) {
-				setProgress( 0, '❌ Error: ' + ( err.message || 'Unknown error' ) );
+				setProgress( 0, t( 'failed' ) + ' ' + ( err.message || '' ) );
 			} )
 			.finally( function () {
 				indexing = false;
@@ -164,7 +155,7 @@
 		} )
 			.then( function ( res ) {
 				if ( ! res.data.ok ) {
-					setProgress( 0, '❌ ' + ( res.data.message || 'Indexing failed.' ) );
+					setProgress( 0, res.data.message || t( 'failed' ) );
 					return;
 				}
 
@@ -198,9 +189,8 @@
 		apiGet( 'kb/stats' )
 			.then( function ( res ) {
 				if ( ! res.data.ok ) { return; }
-				var stats = res.data.stats;
-				var numbers = document.querySelectorAll( '.sitepilot-kb-stat__number' );
-				if ( numbers.length >= 1 ) { numbers[ 0 ].textContent = stats.total.toLocaleString(); }
+				var numbers = document.querySelectorAll( '.sp-metric__num' );
+				if ( numbers.length >= 1 ) { numbers[ 0 ].textContent = res.data.stats.total.toLocaleString(); }
 			} )
 			.catch( function () {} );
 	}
@@ -217,9 +207,10 @@
 		if ( typeFilter ) { params += '&post_type=' + encodeURIComponent( typeFilter ); }
 		if ( ctypeFilter ) { params += '&content_type=' + encodeURIComponent( ctypeFilter ); }
 
-		var tbody = $( 'sp-kb-table-body' );
-		if ( tbody ) {
-			tbody.innerHTML = '<tr><td colspan="6"><div class="sp-kb-empty"><div class="sp-kb-empty__icon">⏳</div><div class="sp-kb-empty__text">Loading…</div></div></td></tr>';
+		var wrap = $( 'sp-kb-rows' );
+		if ( wrap ) {
+			wrap.textContent = '';
+			wrap.appendChild( el( 'div', { class: 'sp-empty', text: t( 'loading' ) } ) );
 		}
 
 		apiGet( 'kb/list?' + params )
@@ -228,86 +219,52 @@
 				renderTable( res.data.items, res.data.page, res.data.pages );
 			} )
 			.catch( function () {
-				if ( tbody ) {
-					tbody.innerHTML = '<tr><td colspan="6"><div class="sp-kb-empty"><div class="sp-kb-empty__icon">❌</div><div class="sp-kb-empty__text">Failed to load data.</div></div></td></tr>';
+				if ( wrap ) {
+					wrap.textContent = '';
+					wrap.appendChild( el( 'div', { class: 'sp-empty', text: t( 'loadFailed' ) } ) );
 				}
 			} );
 	}
 
 	function renderTable( items, page, pages ) {
-		var tbody = $( 'sp-kb-table-body' );
-		if ( ! tbody ) { return; }
+		var wrap = $( 'sp-kb-rows' );
+		if ( ! wrap ) { return; }
 
-		tbody.textContent = '';
+		wrap.textContent = '';
 
 		if ( ! items || items.length === 0 ) {
-			tbody.appendChild(
-				el( 'tr', {}, [
-					el( 'td', { colspan: '6' }, [
-						el( 'div', { class: 'sp-kb-empty' }, [
-							el( 'div', { class: 'sp-kb-empty__icon', text: '📭' } ),
-							el( 'div', { class: 'sp-kb-empty__text', text: 'No indexed content yet.' } ),
-							el( 'div', { class: 'sp-kb-empty__hint', text: 'Click "Start Indexing" above to build your knowledge base.' } ),
-						] ),
-					] ),
-				] )
-			);
+			wrap.appendChild( el( 'div', { class: 'sp-empty' }, [
+				el( 'span', { class: 'sp-empty__icon', text: '📭' } ),
+				el( 'div', { text: t( 'empty' ) } ),
+				el( 'div', { class: 'sp-help', text: t( 'emptyHint' ) } ),
+			] ) );
+			renderPagination( 1, 1 );
 			return;
 		}
 
 		items.forEach( function ( item ) {
-			// Render keywords as tags.
-			var keywordsHtml = '';
-			if ( item.keywords ) {
-				item.keywords.split( ',' ).slice( 0, 5 ).forEach( function ( kw ) {
-					kw = kw.trim();
-					if ( kw ) {
-						keywordsHtml += '<span class="sp-kb-keyword-tag">' + escapeHtml( kw ) + '</span>';
-					}
-				} );
-			}
+			var typeLabel = item.content_type ? ( ctLabels[ item.content_type ] || item.content_type ) : item.post_type;
+			var remove = el( 'button', {
+				type: 'button',
+				class: 'sp-btn--icon-sm sp-kb-delete',
+				'data-post-id': item.post_id,
+				text: '✕',
+				title: t( 'remove' ),
+				'aria-label': t( 'remove' ),
+			} );
 
-			var typeClass = 'sp-kb-type-badge';
-			if ( item.post_type === 'post' ) { typeClass += ' sp-kb-type-badge--post'; }
-			else if ( item.post_type === 'page' ) { typeClass += ' sp-kb-type-badge--page'; }
-
-			var typeCell = [ el( 'span', { class: typeClass, text: item.post_type } ) ];
-			if ( item.content_type ) {
-				var ctLabel = ctLabels[ item.content_type ] || item.content_type;
-				typeCell.push( el( 'span', {
-					class: 'sp-kb-ctype-badge sp-kb-ctype-badge--' + item.content_type,
-					text: ctLabel,
-				} ) );
-			}
-
-			var row = el( 'tr', {}, [
-				el( 'td', { class: 'sp-kb-cell-title' }, [
-					el( 'span', { text: item.title || '—' } ),
-					el( 'span', { class: 'sp-kb-post-id', text: '#' + item.post_id } ),
+			wrap.appendChild( el( 'div', { class: 'sp-tr', style: '--sp-cols:' + cols() }, [
+				el( 'span', { class: 'sp-td sp-td--strong sp-td--clip', title: item.summary || '', text: item.title || '—' } ),
+				el( 'span', { class: 'sp-td sp-td--muted sp-td--clip', text: typeLabel } ),
+				el( 'span', { class: 'sp-td' }, [
+					el( 'span', { class: 'sp-pill sp-pill--ok sp-pill--sm', text: t( 'indexed' ) } ),
 				] ),
-				el( 'td', {}, typeCell ),
-				el( 'td', { class: 'sp-kb-cell-summary', text: item.summary ? item.summary.substring( 0, 120 ) + ( item.summary.length > 120 ? '…' : '' ) : '—' } ),
-				el( 'td', { class: 'sp-kb-cell-keywords', html: keywordsHtml || '—' } ),
-				el( 'td', { text: item.updated_at ? item.updated_at.substring( 0, 10 ) : '—' } ),
-				el( 'td', {}, [
-					el( 'button', {
-						class: 'button button-small sp-kb-delete',
-						'data-post-id': item.post_id,
-						text: '✕',
-						title: 'Remove from knowledge base',
-					} ),
-				] ),
-			] );
-			tbody.appendChild( row );
+				el( 'span', { class: 'sp-td sp-td--muted sp-td--nowrap', text: item.updated_at ? item.updated_at.substring( 0, 10 ) : '—' } ),
+				el( 'span', { class: 'sp-td' }, [ remove ] ),
+			] ) );
 		} );
 
 		renderPagination( page, pages );
-	}
-
-	function escapeHtml( str ) {
-		var div = document.createElement( 'div' );
-		div.textContent = str;
-		return div.innerHTML;
 	}
 
 	function renderPagination( page, pages ) {
@@ -318,15 +275,18 @@
 		if ( pages <= 1 ) { return; }
 
 		if ( page > 1 ) {
-			var prev = el( 'button', { class: 'button button-small', text: '←' } );
+			var prev = el( 'button', { type: 'button', class: 'sp-btn sp-btn--ghost sp-btn--xs', text: '←' } );
 			prev.addEventListener( 'click', function () { loadTable( page - 1 ); } );
 			wrap.appendChild( prev );
 		}
 
-		wrap.appendChild( el( 'span', { class: 'sp-kb-page-info', text: 'Page ' + page + ' of ' + pages } ) );
+		wrap.appendChild( el( 'span', {
+			class: 'sp-help',
+			text: String( t( 'page' ) ).replace( '%1$d', page ).replace( '%2$d', pages ),
+		} ) );
 
 		if ( page < pages ) {
-			var next = el( 'button', { class: 'button button-small', text: '→' } );
+			var next = el( 'button', { type: 'button', class: 'sp-btn sp-btn--ghost sp-btn--xs', text: '→' } );
 			next.addEventListener( 'click', function () { loadTable( page + 1 ); } );
 			wrap.appendChild( next );
 		}
@@ -340,7 +300,7 @@
 		var postId = parseInt( btn.getAttribute( 'data-post-id' ), 10 );
 		if ( ! postId ) { return; }
 
-		if ( ! confirm( 'Remove this item from the knowledge base?' ) ) { return; }
+		if ( ! window.confirm( t( 'confirmOne' ) ) ) { return; }
 
 		btn.disabled = true;
 		btn.textContent = '…';
@@ -353,7 +313,7 @@
 				} else {
 					btn.disabled = false;
 					btn.textContent = '✕';
-					alert( res.data.message || 'Failed to remove.' );
+					window.alert( res.data.message || t( 'failed' ) );
 				}
 			} )
 			.catch( function () {
@@ -365,12 +325,12 @@
 	/* ── Pre-index Picker Modal ── */
 	function openModal() {
 		var modal = $( 'sp-kb-modal' );
-		if ( modal ) { modal.hidden = false; document.body.classList.add( 'sp-kb-modal-open' ); }
+		if ( modal ) { modal.hidden = false; }
 	}
 
 	function closeModal() {
 		var modal = $( 'sp-kb-modal' );
-		if ( modal ) { modal.hidden = true; document.body.classList.remove( 'sp-kb-modal-open' ); }
+		if ( modal ) { modal.hidden = true; }
 	}
 
 	function collectFilters() {
@@ -410,12 +370,15 @@
 			} );
 		}
 
+		// The dialog's own backdrop is the modal element itself.
+		modal.addEventListener( 'click', function ( e ) { if ( e.target === modal ) { closeModal(); } } );
+
 		var startBtn = $( 'sp-kb-modal-start' );
 		if ( startBtn ) {
 			startBtn.addEventListener( 'click', function () {
 				var filters = collectFilters();
 				if ( ! filters.post_types.length ) {
-					alert( 'Please select at least one content type to index.' );
+					window.alert( t( 'pickOneType' ) );
 					return;
 				}
 				closeModal();
@@ -445,11 +408,12 @@
 		list.textContent = '';
 
 		items.forEach( function ( g ) {
-			var row = el( 'div', { class: 'sp-kb-gap' }, [
-				el( 'span', { class: 'sp-kb-gap__q', text: g.question } ),
-				el( 'span', { class: 'sp-kb-gap__count', text: '×' + ( g.count || 1 ) } ),
+			var row = el( 'div', { class: 'sp-notice sp-notice--warn' }, [
+				el( 'span', { class: 'sp-notice__dot' } ),
+				el( 'span', { class: 'sp-notice__body', text: g.question } ),
+				el( 'span', { class: 'sp-tag sp-tag--warn', text: '×' + ( g.count || 1 ) } ),
 			] );
-			var dismiss = el( 'button', { class: 'sp-kb-gap__dismiss', title: 'Dismiss', text: '✕' } );
+			var dismiss = el( 'button', { type: 'button', class: 'sp-btn--icon-sm', title: t( 'dismiss' ), 'aria-label': t( 'dismiss' ), text: '✕' } );
 			dismiss.addEventListener( 'click', function () {
 				row.style.opacity = '0.4';
 				api( 'kb/gaps/dismiss', { hash: g.hash } ).then( loadGaps );
@@ -466,7 +430,7 @@
 		var searchInput = $( 'sp-kb-search' );
 		var typeFilter = $( 'sp-kb-type-filter' );
 		var ctypeFilter = $( 'sp-kb-ctype-filter' );
-		var tbody = $( 'sp-kb-table-body' );
+		var rows = $( 'sp-kb-rows' );
 
 		initModal();
 
@@ -475,7 +439,7 @@
 		}
 		if ( reindexBtn ) {
 			reindexBtn.addEventListener( 'click', function () {
-				if ( confirm( 'This will clear all indexed data and re-index everything. Continue?' ) ) {
+				if ( window.confirm( t( 'confirmAll' ) ) ) {
 					startIndexing( true, { post_types: [], categories: [] } );
 				}
 			} );
@@ -497,14 +461,14 @@
 			ctypeFilter.addEventListener( 'change', function () { loadTable( 1 ); } );
 		}
 
-		if ( tbody ) {
-			tbody.addEventListener( 'click', onDelete );
+		if ( rows ) {
+			rows.addEventListener( 'click', onDelete );
 		}
 
 		var gapsClear = $( 'sp-kb-gaps-clear' );
 		if ( gapsClear ) {
 			gapsClear.addEventListener( 'click', function () {
-				if ( confirm( 'Clear all logged questions?' ) ) {
+				if ( window.confirm( t( 'confirmGaps' ) ) ) {
 					api( 'kb/gaps/dismiss', { hash: '' } ).then( loadGaps );
 				}
 			} );

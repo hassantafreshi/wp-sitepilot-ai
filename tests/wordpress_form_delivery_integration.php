@@ -10,8 +10,8 @@ declare(strict_types=1);
 
 require 'C:\\xampp\\htdocs\\wp\\wp-load.php';
 
-use SitePilot\Connectors\NativeFormConnector;
-use SitePilot\Frontend\FormShortcode;
+use AISAAutoPilot\Connectors\NativeFormConnector;
+use AISAAutoPilot\Frontend\FormShortcode;
 
 wp_set_current_user( 1 );
 
@@ -19,7 +19,7 @@ $recipient     = (string) get_option( 'admin_email' );
 $form_id       = 0;
 $mail          = array();
 $baseline_count = (int) ( wp_count_posts( NativeFormConnector::SUBMISSION_TYPE )->private ?? 0 );
-$original_logs = get_option( 'sitepilot_ai_logs', null );
+$original_logs = get_option( 'aisaautopilot_logs', null );
 
 register_shutdown_function(
 	static function () use ( &$mail, &$form_id, $recipient, $baseline_count, $original_logs ): void {
@@ -35,9 +35,9 @@ register_shutdown_function(
 			wp_delete_post( $form_id, true );
 		}
 		if ( null === $original_logs ) {
-			delete_option( 'sitepilot_ai_logs' );
+			delete_option( 'aisaautopilot_logs' );
 		} else {
-			update_option( 'sitepilot_ai_logs', $original_logs, false );
+			update_option( 'aisaautopilot_logs', $original_logs, false );
 		}
 
 		echo ( $passed ? 'PASS' : 'FAIL' ) . ' email-only public submission with no stored visitor values' . PHP_EOL;
@@ -75,9 +75,9 @@ if ( $form_id <= 0 ) {
 
 $_SERVER['HTTP_REFERER'] = home_url( '/phase1-mail-test/' );
 $_POST = array(
-	'action'          => 'sitepilot_form_submit',
+	'action'          => 'aisaautopilot_form_submit',
 	'form_id'         => (string) $form_id,
-	'sp_nonce'        => wp_create_nonce( 'sitepilot_form_submit_' . $form_id ),
+	'sp_nonce'        => wp_create_nonce( 'aisaautopilot_form_submit_' . $form_id ),
 	'sp_field_name'   => 'Ada',
 	'sp_field_email'  => 'ada@example.test',
 	'sp_field_topic'  => 'Support',

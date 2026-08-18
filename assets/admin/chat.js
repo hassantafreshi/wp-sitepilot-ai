@@ -1,8 +1,8 @@
-/* global SitePilotChat */
+/* global AISAAutoPilotChat */
 ( function () {
 	'use strict';
 
-	var cfg = window.SitePilotChat || {};
+	var cfg = window.AISAAutoPilotChat || {};
 	var currentConvId = null;
 	var waiting = false;
 
@@ -113,26 +113,34 @@
 		return html;
 	}
 
+	/** The gradient sparkle used as the assistant avatar in the wireframe. */
+	function assistantAvatar() {
+		var node = el( 'span', { class: 'sp-msg__avatar' } );
+		node.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="url(#sp-grad)" aria-hidden="true">' +
+			'<path d="M12 2.5l1.6 4.3a3 3 0 0 0 1.8 1.8L19.5 10l-4.1 1.4a3 3 0 0 0-1.8 1.8L12 17.5l-1.6-4.3a3 3 0 0 0-1.8-1.8L4.5 10l4.1-1.4a3 3 0 0 0 1.8-1.8L12 2.5z"/></svg>';
+		return node;
+	}
+
 	/* ── Messages ── */
 	function addMessage( role, content, sources, extra ) {
 		extra = extra || {};
 		var msgs = $( 'sp-chat-messages' );
 		// Hide welcome
-		var welcome = msgs.querySelector( '.sitepilot-chat-welcome' );
+		var welcome = msgs.querySelector( '.sp-chat__welcome' );
 		if ( welcome ) { welcome.hidden = true; }
 
-		var msg = el( 'div', { class: 'sitepilot-msg sitepilot-msg--' + role } );
-		var avatar = el( 'div', { class: 'sitepilot-msg__avatar', text: role === 'user' ? '👤' : '🤖' } );
-		msg.appendChild( avatar );
+		var mine = role === 'user';
+		var msg = el( 'div', { class: 'sp-msg' + ( mine ? ' sp-msg--me' : '' ) } );
+		msg.appendChild( mine ? el( 'span', { class: 'sp-msg__avatar', text: cfg.i18nYou || 'You' } ) : assistantAvatar() );
 
-		var body = el( 'div', { class: 'sitepilot-msg__body' } );
-		body.innerHTML = '<div class="sitepilot-msg__content">' + markdown( content ) + '</div>';
+		var body = el( 'div', { class: 'sp-msg__body' } );
+		body.innerHTML = '<div class="sp-msg__bubble">' + markdown( content ) + '</div>';
 
 		// Disambiguation chips ("which one did you mean?").
 		if ( extra.clarifyOptions && extra.clarifyOptions.length ) {
-			var clarify = el( 'div', { class: 'sitepilot-msg__clarify' } );
+			var clarify = el( 'div', { class: 'sp-chips', style: 'margin-top:10px' } );
 			extra.clarifyOptions.forEach( function ( opt ) {
-				var chip = el( 'button', { class: 'sitepilot-clarify-chip', type: 'button', text: opt } );
+				var chip = el( 'button', { class: 'sp-chip', type: 'button', text: opt } );
 				chip.addEventListener( 'click', function () {
 					var input = $( 'sp-chat-input' );
 					if ( input ) { input.value = opt; }
@@ -145,10 +153,10 @@
 
 		// Sources
 		if ( sources && sources.length > 0 ) {
-			var srcBox = el( 'div', { class: 'sitepilot-msg__sources' } );
-			srcBox.appendChild( el( 'span', { class: 'sitepilot-msg__sources-label', text: '📚 ' + ( cfg.i18nSources || 'Sources' ) } ) );
+			var srcBox = el( 'div', { class: 'sp-msg__sources' } );
+			srcBox.appendChild( el( 'span', { style: 'font-weight:600', text: cfg.i18nSources || 'Sources' } ) );
 			sources.forEach( function ( s ) {
-				srcBox.appendChild( el( 'a', { class: 'sitepilot-source-pill', href: s.url, target: '_blank', rel: 'noopener', text: s.title } ) );
+				srcBox.appendChild( el( 'a', { href: s.url, target: '_blank', rel: 'noopener', text: s.title } ) );
 			} );
 			body.appendChild( srcBox );
 		}
@@ -159,10 +167,12 @@
 		}
 
 		if ( role === 'assistant' && 'speechSynthesis' in window ) {
-			var audioButton = el( 'button', { class: 'sp-audio-btn', type: 'button', text: '🔊 Listen' } );
+			var audioButton = el( 'button', { class: 'sp-btn sp-btn--ghost sp-btn--xs', type: 'button', style: 'margin-top:10px', text: '🔊 ' + ( cfg.i18nListen || 'Listen' ) } );
 			audioButton.addEventListener( 'click', function () {
-				if ( ! window.SitePilotVoice ) { return; }
-				audioButton.textContent = window.SitePilotVoice.toggleSpeech( content ) ? '⏹ Stop audio' : '🔊 Listen';
+				if ( ! window.AISAAutoPilotVoice ) { return; }
+				audioButton.textContent = window.AISAAutoPilotVoice.toggleSpeech( content )
+					? '⏹ ' + ( cfg.i18nStopAudio || 'Stop audio' )
+					: '🔊 ' + ( cfg.i18nListen || 'Listen' );
 			} );
 			body.appendChild( audioButton );
 		}
@@ -174,17 +184,17 @@
 
 	function collectTranscript() {
 		var out = [];
-		Array.prototype.forEach.call( document.querySelectorAll( '#sp-chat-messages .sitepilot-msg' ), function ( m ) {
-			var role = m.classList.contains( 'sitepilot-msg--user' ) ? 'user' : 'assistant';
-			var c = m.querySelector( '.sitepilot-msg__content' );
+		Array.prototype.forEach.call( document.querySelectorAll( '#sp-chat-messages .sp-msg' ), function ( m ) {
+			var role = m.classList.contains( 'sp-msg--me' ) ? 'user' : 'assistant';
+			var c = m.querySelector( '.sp-msg__bubble' );
 			out.push( { role: role, content: c ? c.textContent : '' } );
 		} );
 		return out;
 	}
 
 	function buildHandoffOffer() {
-		var wrap = el( 'div', { class: 'sitepilot-msg__handoff' } );
-		var btn = el( 'button', { class: 'sitepilot-handoff-btn', type: 'button', text: '🙋 ' + ( cfg.i18nTalkHuman || 'Talk to a human' ) } );
+		var wrap = el( 'div', { style: 'margin-top:10px' } );
+		var btn = el( 'button', { class: 'sp-btn sp-btn--ghost sp-btn--xs', type: 'button', text: '🙋 ' + ( cfg.i18nTalkHuman || 'Talk to a human' ) } );
 		btn.addEventListener( 'click', function () {
 			btn.disabled = true;
 			btn.textContent = '…';
@@ -192,7 +202,7 @@
 				.then( function ( res ) {
 					wrap.textContent = '';
 					wrap.appendChild( el( 'span', {
-						class: 'sitepilot-handoff-status',
+						class: 'sp-help sp-help--12',
 						text: res.data && res.data.ok
 							? ( cfg.i18nHandoffSent || 'Your request was sent — a team member will follow up.' )
 							: ( ( res.data && res.data.message ) || 'Could not send the request.' ),
@@ -209,10 +219,10 @@
 
 	function addTypingIndicator() {
 		var msgs = $( 'sp-chat-messages' );
-		var ind = el( 'div', { id: 'sp-chat-typing', class: 'sitepilot-msg sitepilot-msg--assistant' } );
-		ind.appendChild( el( 'div', { class: 'sitepilot-msg__avatar', text: '🤖' } ) );
-		var body = el( 'div', { class: 'sitepilot-msg__body' } );
-		body.innerHTML = '<div class="sitepilot-msg__typing"><span></span><span></span><span></span></div>';
+		var ind = el( 'div', { id: 'sp-chat-typing', class: 'sp-msg' } );
+		ind.appendChild( assistantAvatar() );
+		var body = el( 'div', { class: 'sp-msg__body' } );
+		body.innerHTML = '<span class="sp-typing"><span></span><span></span><span></span></span>';
 		ind.appendChild( body );
 		msgs.appendChild( ind );
 		msgs.scrollTop = msgs.scrollHeight;
@@ -273,16 +283,17 @@
 			var list = $( 'sp-chat-list' );
 			list.textContent = '';
 			if ( ! res.data.ok || ! res.data.conversations || res.data.conversations.length === 0 ) {
-				list.appendChild( el( 'p', { class: 'description', text: 'No conversations yet.' } ) );
+				list.appendChild( el( 'p', { class: 'sp-help', style: 'padding:8px', text: cfg.i18nNoConversations || 'No conversations yet.' } ) );
 				return;
 			}
 			res.data.conversations.forEach( function ( c ) {
-				var item = el( 'div', {
-					class: 'sitepilot-chat-item' + ( c.id === currentConvId ? ' sitepilot-chat-item--active' : '' ),
+				var item = el( 'button', {
+					type: 'button',
+					class: 'sp-chat__thread' + ( c.id === currentConvId ? ' is-on' : '' ),
 					'data-id': c.id,
 				} );
-				item.appendChild( el( 'span', { class: 'sitepilot-chat-item__title', text: c.title.substring( 0, 40 ) } ) );
-				item.appendChild( el( 'span', { class: 'sitepilot-chat-item__meta', text: c.message_count + ' msgs' } ) );
+				item.appendChild( el( 'span', { class: 'sp-chat__thread-title', text: c.title.substring( 0, 48 ) } ) );
+				item.appendChild( el( 'span', { class: 'sp-chat__thread-time', text: c.message_count + ' · ' + ( cfg.i18nMessages || 'messages' ) } ) );
 				item.addEventListener( 'click', function () { loadConversation( c.id ); } );
 				list.appendChild( item );
 			} );
@@ -292,7 +303,7 @@
 	function loadConversation( convId ) {
 		currentConvId = convId;
 		var msgs = $( 'sp-chat-messages' );
-		msgs.textContent = '';
+		Array.prototype.forEach.call( msgs.querySelectorAll( '.sp-msg' ), function ( n ) { n.remove(); } );
 
 		apiGet( 'chat/get?id=' + convId ).then( function ( res ) {
 			if ( ! res.data.ok || ! res.data.conversation ) { return; }
@@ -305,8 +316,9 @@
 	}
 
 	function newConversation() {
-		$( 'sp-chat-messages' ).textContent = '';
-		var welcome = document.querySelector( '.sitepilot-chat-welcome' );
+		var msgs = $( 'sp-chat-messages' );
+		Array.prototype.forEach.call( msgs.querySelectorAll( '.sp-msg' ), function ( n ) { n.remove(); } );
+		var welcome = msgs.querySelector( '.sp-chat__welcome' );
 		if ( welcome ) { welcome.hidden = false; }
 		currentConvId = null;
 		$( 'sp-chat-input' ).value = '';
@@ -335,7 +347,7 @@
 		$( 'sp-chat-new' ).addEventListener( 'click', newConversation );
 
 		// Suggestion chips
-		Array.prototype.forEach.call( document.querySelectorAll( '.sitepilot-chip[data-question]' ), function ( chip ) {
+		Array.prototype.forEach.call( document.querySelectorAll( '.sp-chip[data-question]' ), function ( chip ) {
 			chip.addEventListener( 'click', function () {
 				input.value = chip.getAttribute( 'data-question' ) || '';
 				ask();

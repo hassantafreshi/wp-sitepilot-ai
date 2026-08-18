@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Support;
+namespace AISAAutoPilot\Support;
 
-use SitePilot\Core\Settings;
-use SitePilot\Logging\Logger;
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Logging\Logger;
 
 class HandoffService {
 	private PdfExporter $pdf;
@@ -77,7 +77,7 @@ class HandoffService {
 		$messages_html = $h->build_messages_html( $messages );
 		$contact_html  = '';
 		if ( '' !== $name || '' !== $email ) {
-			$contact_html = '<p><strong>' . esc_html__( 'Visitor', 'sitepilot-ai' ) . ':</strong> ' . esc_html( $name ?: __( 'Not provided', 'sitepilot-ai' ) ) . '<br><strong>' . esc_html__( 'Email', 'sitepilot-ai' ) . ':</strong> ' . esc_html( $email ?: __( 'Not provided', 'sitepilot-ai' ) ) . '</p>';
+			$contact_html = '<p><strong>' . esc_html__( 'Visitor', 'ai-site-assistant-autopilot' ) . ':</strong> ' . esc_html( $name ?: __( 'Not provided', 'ai-site-assistant-autopilot' ) ) . '<br><strong>' . esc_html__( 'Email', 'ai-site-assistant-autopilot' ) . ':</strong> ' . esc_html( $email ?: __( 'Not provided', 'ai-site-assistant-autopilot' ) ) . '</p>';
 		}
 		$full_html = $h->build_template( $contact_html . $messages_html, $blog );
 		return $h->send( $h->get_recipient(), "Support Request: {$blog}", $full_html );

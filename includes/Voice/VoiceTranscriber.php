@@ -1,12 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Voice;
+namespace AISAAutoPilot\Voice;
 
-use SitePilot\Core\Settings;
-use SitePilot\Core\WpConnectors;
-use SitePilot\Providers\ProviderException;
-use SitePilot\Usage\VoiceUsageTracker;
+/*
+ * Exception messages here are never echoed: they travel back through the REST
+ * layer as JSON, or are rendered by a caller with esc_html(). Escaping them at
+ * the throw site would put HTML entities into the JSON payload, so the sniff is
+ * disabled for this file rather than silenced line by line.
+ */
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Core\WpConnectors;
+use AISAAutoPilot\Providers\ProviderException;
+use AISAAutoPilot\Usage\VoiceUsageTracker;
 
 /** Short-lived, OpenAI/Whisper-compatible audio transcription. */
 final class VoiceTranscriber {
@@ -35,19 +43,19 @@ final class VoiceTranscriber {
 	public function transcribe( array $file, int $duration_ms, string $language, string $scope ): array {
 		$error = self::validate_file( $file, $duration_ms );
 		if ( null !== $error ) {
-			throw new ProviderException( $error, __( 'The audio recording is invalid, too large, or too long.', 'sitepilot-ai' ) );
+			throw new ProviderException( $error, __( 'The audio recording is invalid, too large, or too long.', 'ai-site-assistant-autopilot' ) );
 		}
 		$key  = WpConnectors::get_effective_api_key();
 		$base = rtrim( (string) Settings::get( 'base_url', '' ), '/' );
 		if ( '' === $key || '' === $base || ! $this->is_safe_endpoint( $base . '/audio/transcriptions' ) ) {
-			throw new ProviderException( 'provider_not_configured', __( 'Configure an AI provider before using voice input.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'provider_not_configured', __( 'Configure an AI provider before using voice input.', 'ai-site-assistant-autopilot' ) );
 		}
 
-		$boundary = '----sitepilot' . wp_generate_password( 18, false, false );
+		$boundary = '----aisaautopilot' . wp_generate_password( 18, false, false );
 		$filename = sanitize_file_name( (string) ( $file['name'] ?? 'voice.webm' ) );
 		$contents = file_get_contents( (string) $file['tmp_name'] ); // Temporary PHP upload only; never persisted.
 		if ( false === $contents ) {
-			throw new ProviderException( 'audio_read_failed', __( 'The recording could not be read.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'audio_read_failed', __( 'The recording could not be read.', 'ai-site-assistant-autopilot' ) );
 		}
 		$mime = sanitize_mime_type( (string) ( $file['type'] ?? 'audio/webm' ) );
 		if ( '' === $mime || ! str_starts_with( $mime, 'audio/' ) ) {
@@ -72,13 +80,13 @@ final class VoiceTranscriber {
 			)
 		);
 		if ( is_wp_error( $response ) ) {
-			throw new ProviderException( 'stt_unreachable', __( 'Could not reach the speech-to-text provider.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'stt_unreachable', __( 'Could not reach the speech-to-text provider.', 'ai-site-assistant-autopilot' ) );
 		}
 		$code = (int) wp_remote_retrieve_response_code( $response );
 		$data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 		$text = is_array( $data ) ? trim( (string) ( $data['text'] ?? '' ) ) : '';
 		if ( $code < 200 || $code >= 300 || '' === $text ) {
-			throw new ProviderException( 'stt_failed', __( 'The speech-to-text provider could not transcribe this recording. Check that your provider supports /audio/transcriptions.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'stt_failed', __( 'The speech-to-text provider could not transcribe this recording. Check that your provider supports /audio/transcriptions.', 'ai-site-assistant-autopilot' ) );
 		}
 		( new VoiceUsageTracker() )->record( $duration_ms / 1000, $scope, $model );
 		return array(
@@ -106,6 +114,6 @@ final class VoiceTranscriber {
 			return true;
 		}
 
-		return (bool) apply_filters( 'sitepilot_ai_allow_insecure_provider_url', false, $endpoint );
+		return (bool) apply_filters( 'aisaautopilot_allow_insecure_provider_url', false, $endpoint );
 	}
 }

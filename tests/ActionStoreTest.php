@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Execution\ActionStore;
+use AISAAutoPilot\Execution\ActionStore;
 
 final class ActionStoreTest extends TestCase {
 
 	protected function setUp(): void {
-		$GLOBALS['sitepilot_test_transients'] = array();
-		$GLOBALS['sitepilot_test_added_options'] = array();
-		$GLOBALS['sitepilot_test_user_id'] = 7;
+		$GLOBALS['aisaautopilot_test_transients'] = array();
+		$GLOBALS['aisaautopilot_test_added_options'] = array();
+		$GLOBALS['aisaautopilot_test_user_id'] = 7;
 	}
 
 	public function test_wrong_user_cannot_consume_another_users_proposal(): void {

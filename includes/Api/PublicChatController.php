@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Chat\ChatEngine;
-use SitePilot\Core\Settings;
-use SitePilot\Core\SiteLanguage;
-use SitePilot\Providers\ProviderException;
-use SitePilot\Security\RateLimiter;
-use SitePilot\Voice\VoiceTranscriber;
+use AISAAutoPilot\Chat\ChatEngine;
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Core\SiteLanguage;
+use AISAAutoPilot\Providers\ProviderException;
+use AISAAutoPilot\Security\RateLimiter;
+use AISAAutoPilot\Voice\VoiceTranscriber;
 
 /** Public, read-only assistant endpoints. They retain neither audio nor chats. */
 final class PublicChatController {
@@ -17,14 +17,14 @@ final class PublicChatController {
 
 	public function ask( \WP_REST_Request $request ): \WP_REST_Response {
 		if ( ! $this->is_enabled() ) {
-			return $this->error( 'assistant_disabled', __( 'The site assistant is not enabled.', 'sitepilot-ai' ), 403 );
+			return $this->error( 'assistant_disabled', __( 'The site assistant is not enabled.', 'ai-site-assistant-autopilot' ), 403 );
 		}
 		if ( ! $this->allow( 'text', self::TEXT_LIMIT ) ) {
-			return $this->error( 'rate_limited', __( 'Too many messages. Please try again later.', 'sitepilot-ai' ), 429 );
+			return $this->error( 'rate_limited', __( 'Too many messages. Please try again later.', 'ai-site-assistant-autopilot' ), 429 );
 		}
 		$question = trim( sanitize_textarea_field( (string) $request->get_param( 'question' ) ) );
 		if ( '' === $question || mb_strlen( $question ) > 1500 ) {
-			return $this->error( 'invalid_question', __( 'Please enter a question of up to 1,500 characters.', 'sitepilot-ai' ), 400 );
+			return $this->error( 'invalid_question', __( 'Please enter a question of up to 1,500 characters.', 'ai-site-assistant-autopilot' ), 400 );
 		}
 		$history = $this->clean_history( (array) $request->get_param( 'history' ) );
 		$context = $this->conversation_context( $history, $question );
@@ -32,16 +32,16 @@ final class PublicChatController {
 			$result = ( new ChatEngine() )->ask( $question, $context );
 			return new \WP_REST_Response( array( 'ok' => true ) + $result );
 		} catch ( \Throwable $e ) {
-			return $this->error( 'assistant_unavailable', __( 'The assistant is temporarily unavailable. Please try again later.', 'sitepilot-ai' ), 503 );
+			return $this->error( 'assistant_unavailable', __( 'The assistant is temporarily unavailable. Please try again later.', 'ai-site-assistant-autopilot' ), 503 );
 		}
 	}
 
 	public function transcribe( \WP_REST_Request $request ): \WP_REST_Response {
 		if ( ! $this->is_enabled() ) {
-			return $this->error( 'assistant_disabled', __( 'The site assistant is not enabled.', 'sitepilot-ai' ), 403 );
+			return $this->error( 'assistant_disabled', __( 'The site assistant is not enabled.', 'ai-site-assistant-autopilot' ), 403 );
 		}
 		if ( ! $this->allow( 'voice', self::VOICE_LIMIT ) ) {
-			return $this->error( 'rate_limited', __( 'Too many voice requests. Please try again later.', 'sitepilot-ai' ), 429 );
+			return $this->error( 'rate_limited', __( 'Too many voice requests. Please try again later.', 'ai-site-assistant-autopilot' ), 429 );
 		}
 		$file     = $request->get_file_params()['audio'] ?? array();
 		$duration = absint( $request->get_param( 'duration_ms' ) );
@@ -52,7 +52,7 @@ final class PublicChatController {
 		} catch ( ProviderException $e ) {
 			return $this->error( $e->error_code(), $e->user_message(), 400 );
 		} catch ( \Throwable $e ) {
-			return $this->error( 'voice_unavailable', __( 'Voice input is temporarily unavailable. Please try again later.', 'sitepilot-ai' ), 503 );
+			return $this->error( 'voice_unavailable', __( 'Voice input is temporarily unavailable. Please try again later.', 'ai-site-assistant-autopilot' ), 503 );
 		}
 	}
 

@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Connectors;
+namespace AISAAutoPilot\Connectors;
 
-use SitePilot\Execution\ActionStore;
-use SitePilot\Logging\Logger;
-use SitePilot\Providers\ProviderManager;
-use SitePilot\Skills\ProductPlanValidator;
+use AISAAutoPilot\Execution\ActionStore;
+use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Providers\ProviderManager;
+use AISAAutoPilot\Skills\ProductPlanValidator;
 
 /**
  * Phase 1 WooCommerce AI workflow.
@@ -28,12 +28,12 @@ final class WooCommerceProductSkill {
 	/** @return array<string,mixed> */
 	public function plan( string $prompt ): array {
 		if ( ! $this->ready() ) {
-			return $this->failure( 'connector_not_available', __( 'WooCommerce AI draft creation is not available for this account.', 'sitepilot-ai' ) );
+			return $this->failure( 'connector_not_available', __( 'WooCommerce AI draft creation is not available for this account.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$manager = new ProviderManager();
 		if ( ! $manager->is_configured() ) {
-			return $this->failure( 'provider_not_configured', __( 'AI provider not configured.', 'sitepilot-ai' ) );
+			return $this->failure( 'provider_not_configured', __( 'AI provider not configured.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$categories       = WooCommerceConnector::get_categories();
@@ -42,7 +42,7 @@ final class WooCommerceProductSkill {
 			$category_context[] = sprintf( '%d: %s', (int) $id, $name );
 		}
 
-		$system_prompt = "You are SitePilot AI. Create a proposal for exactly one WooCommerce simple product.\n"
+		$system_prompt = "You are AI Site Assistant AutoPilot. Create a proposal for exactly one WooCommerce simple product.\n"
 			. "Respond only with a JSON object matching this schema:\n"
 			. '{"name":"string","description":"string","short_description":"string","price":"29.99","regular_price":"29.99","sale_price":"","categories":[1],"sku":"string","weight":"","stock_status":"instock|outofstock|onbackorder","stock_quantity":0,"manage_stock":false,"status":"draft","type":"simple"}' . "\n"
 			. "Rules: status must be draft, type must be simple, omit fields you cannot infer, never propose an edit or a publish action.\n"
@@ -74,30 +74,30 @@ final class WooCommerceProductSkill {
 			);
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'woo.draft.plan_failed', $e->getMessage() );
-			return $this->failure( 'provider_error', __( 'The product proposal could not be created. Please try again.', 'sitepilot-ai' ) );
+			return $this->failure( 'provider_error', __( 'The product proposal could not be created. Please try again.', 'ai-site-assistant-autopilot' ) );
 		}
 	}
 
 	/** @return array<string,mixed> */
 	public function execute( string $action_id ): array {
 		if ( ! $this->ready() ) {
-			return $this->failure( 'connector_not_available', __( 'WooCommerce AI draft creation is not available for this account.', 'sitepilot-ai' ) );
+			return $this->failure( 'connector_not_available', __( 'WooCommerce AI draft creation is not available for this account.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$claim = $this->store->claim( $action_id, get_current_user_id() );
 		if ( 'missing' === $claim['status'] ) {
-			return $this->failure( 'action_expired', __( 'This product proposal has expired. Please create a new proposal.', 'sitepilot-ai' ) );
+			return $this->failure( 'action_expired', __( 'This product proposal has expired. Please create a new proposal.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( 'forbidden' === $claim['status'] ) {
-			return $this->failure( 'permission_denied', __( 'You are not allowed to approve this product proposal.', 'sitepilot-ai' ) );
+			return $this->failure( 'permission_denied', __( 'You are not allowed to approve this product proposal.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( 'already_claimed' === $claim['status'] ) {
-			return $this->failure( 'action_already_processed', __( 'This product proposal is already being processed or has already been used.', 'sitepilot-ai' ) );
+			return $this->failure( 'action_already_processed', __( 'This product proposal is already being processed or has already been used.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$record = (array) ( $claim['record'] ?? array() );
 		if ( 'woocommerce_product_draft' !== (string) ( $record['connector_id'] ?? '' ) ) {
-			return $this->failure( 'invalid_action', __( 'This approval is not a WooCommerce product draft.', 'sitepilot-ai' ) );
+			return $this->failure( 'invalid_action', __( 'This approval is not a WooCommerce product draft.', 'ai-site-assistant-autopilot' ) );
 		}
 		$plan       = (array) ( $record['plan'] ?? array() );
 		$validation = ( new ProductPlanValidator() )->validate( $plan );
@@ -113,7 +113,7 @@ final class WooCommerceProductSkill {
 			return $this->create_draft( $plan );
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'woo.draft.create_failed', $e->getMessage() );
-			return $this->failure( 'execution_failed', __( 'The product draft could not be created. Please try again.', 'sitepilot-ai' ) );
+			return $this->failure( 'execution_failed', __( 'The product draft could not be created. Please try again.', 'ai-site-assistant-autopilot' ) );
 		}
 	}
 
@@ -121,7 +121,7 @@ final class WooCommerceProductSkill {
 	private function create_draft( array $plan ): array {
 		$sku = (string) ( $plan['sku'] ?? '' );
 		if ( '' !== $sku && function_exists( 'wc_get_product_id_by_sku' ) && wc_get_product_id_by_sku( $sku ) ) {
-			return $this->failure( 'duplicate_sku', __( 'A product with this SKU already exists. Edit the proposal and use a unique SKU.', 'sitepilot-ai' ) );
+			return $this->failure( 'duplicate_sku', __( 'A product with this SKU already exists. Edit the proposal and use a unique SKU.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$product = new \WC_Product_Simple();
@@ -153,7 +153,7 @@ final class WooCommerceProductSkill {
 			'product_id'  => $product_id,
 			'edit_url'    => admin_url( 'post.php?post=' . $product_id . '&action=edit' ),
 			'product_url' => get_permalink( $product_id ),
-			'message'     => __( 'Product draft created. Review it in WooCommerce before publishing.', 'sitepilot-ai' ),
+			'message'     => __( 'Product draft created. Review it in WooCommerce before publishing.', 'ai-site-assistant-autopilot' ),
 		);
 	}
 

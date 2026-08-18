@@ -1,22 +1,22 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Connectors\ConnectorRegistry;
-use SitePilot\Core\Plugin;
-use SitePilot\Efb\EfbChatSkill;
-use SitePilot\Efb\EfbCustomizeSkill;
-use SitePilot\Efb\EfbFormConverter;
-use SitePilot\Efb\EfbLicense;
-use SitePilot\Efb\EfbFormModel;
-use SitePilot\Efb\EfbFormSkill;
-use SitePilot\Efb\EfbKnowledge;
-use SitePilot\Execution\ActionStore;
-use SitePilot\Logging\Logger;
-use SitePilot\Providers\ProviderException;
-use SitePilot\Providers\ProviderManager;
-use SitePilot\Skills\FormPlanValidator;
+use AISAAutoPilot\Connectors\ConnectorRegistry;
+use AISAAutoPilot\Core\Plugin;
+use AISAAutoPilot\Efb\EfbChatSkill;
+use AISAAutoPilot\Efb\EfbCustomizeSkill;
+use AISAAutoPilot\Efb\EfbFormConverter;
+use AISAAutoPilot\Efb\EfbLicense;
+use AISAAutoPilot\Efb\EfbFormModel;
+use AISAAutoPilot\Efb\EfbFormSkill;
+use AISAAutoPilot\Efb\EfbKnowledge;
+use AISAAutoPilot\Execution\ActionStore;
+use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Providers\ProviderException;
+use AISAAutoPilot\Providers\ProviderManager;
+use AISAAutoPilot\Skills\FormPlanValidator;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -40,14 +40,14 @@ final class EfbCopilotController {
 		$prompt = trim( (string) $request->get_param( 'prompt' ) );
 
 		if ( '' === $prompt ) {
-			return $this->respond( array( 'message' => __( 'Please describe the form you want.', 'sitepilot-ai' ) ), false, 400, 'empty_prompt' );
+			return $this->respond( array( 'message' => __( 'Please describe the form you want.', 'ai-site-assistant-autopilot' ) ), false, 400, 'empty_prompt' );
 		}
 		if ( mb_strlen( $prompt ) > 2000 ) {
-			return $this->respond( array( 'message' => __( 'Your request is too long.', 'sitepilot-ai' ) ), false, 400, 'prompt_too_long' );
+			return $this->respond( array( 'message' => __( 'Your request is too long.', 'ai-site-assistant-autopilot' ) ), false, 400, 'prompt_too_long' );
 		}
 		if ( ! $this->providers->is_configured() ) {
 			return $this->respond(
-				array( 'message' => __( 'Add your AI provider API key in SitePilot AI → Settings first.', 'sitepilot-ai' ) ),
+				array( 'message' => __( 'Add your AI provider API key in AI Site Assistant AutoPilot → Settings first.', 'ai-site-assistant-autopilot' ) ),
 				false,
 				400,
 				'provider_not_configured'
@@ -56,7 +56,7 @@ final class EfbCopilotController {
 
 		$connector = $this->registry()->get( 'easy_form_builder' );
 		if ( null === $connector || ! $connector->is_available() ) {
-			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'sitepilot-ai' ) ), false, 400, 'connector_not_available' );
+			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'ai-site-assistant-autopilot' ) ), false, 400, 'connector_not_available' );
 		}
 
 		try {
@@ -70,7 +70,7 @@ final class EfbCopilotController {
 		if ( ! $result->ok ) {
 			return $this->respond(
 				array(
-					'message' => __( 'The form plan was not safe or complete.', 'sitepilot-ai' ),
+					'message' => __( 'The form plan was not safe or complete.', 'ai-site-assistant-autopilot' ),
 					'errors'  => $result->errors,
 				),
 				false,
@@ -138,7 +138,7 @@ final class EfbCopilotController {
 					'I left out %s — that field needs Easy Form Builder Free Plus or Pro. Everything else is ready.',
 					'I left out %s — those fields need Easy Form Builder Free Plus or Pro. Everything else is ready.',
 					count( $names ),
-					'sitepilot-ai'
+					'ai-site-assistant-autopilot'
 				),
 				implode( '، ', $names )
 			),
@@ -167,23 +167,23 @@ final class EfbCopilotController {
 	public function create( WP_REST_Request $request ): WP_REST_Response {
 		$action_id = sanitize_text_field( (string) $request->get_param( 'action_id' ) );
 		if ( '' === $action_id ) {
-			return $this->respond( array( 'message' => __( 'Missing action reference.', 'sitepilot-ai' ) ), false, 400, 'invalid_payload' );
+			return $this->respond( array( 'message' => __( 'Missing action reference.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_payload' );
 		}
 
 		$claim = $this->store->claim( $action_id, get_current_user_id() );
 		if ( 'missing' === $claim['status'] ) {
-			return $this->respond( array( 'message' => __( 'This proposal has expired. Please generate the form again.', 'sitepilot-ai' ) ), false, 422, 'action_expired' );
+			return $this->respond( array( 'message' => __( 'This proposal has expired. Please generate the form again.', 'ai-site-assistant-autopilot' ) ), false, 422, 'action_expired' );
 		}
 		if ( 'forbidden' === $claim['status'] ) {
-			return $this->respond( array( 'message' => __( 'You are not allowed to approve this action.', 'sitepilot-ai' ) ), false, 403, 'permission_denied' );
+			return $this->respond( array( 'message' => __( 'You are not allowed to approve this action.', 'ai-site-assistant-autopilot' ) ), false, 403, 'permission_denied' );
 		}
 		if ( 'already_claimed' === $claim['status'] ) {
-			return $this->respond( array( 'message' => __( 'This proposal is already being processed or has already been used.', 'sitepilot-ai' ) ), false, 422, 'action_already_processed' );
+			return $this->respond( array( 'message' => __( 'This proposal is already being processed or has already been used.', 'ai-site-assistant-autopilot' ) ), false, 422, 'action_already_processed' );
 		}
 		$record    = (array) ( $claim['record'] ?? array() );
 		$connector = $this->registry()->get( 'easy_form_builder' );
 		if ( null === $connector || ! $connector->is_available() ) {
-			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'sitepilot-ai' ) ), false, 400, 'connector_not_available' );
+			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'ai-site-assistant-autopilot' ) ), false, 400, 'connector_not_available' );
 		}
 
 		$plan    = (array) $record['plan'];
@@ -200,7 +200,7 @@ final class EfbCopilotController {
 		if ( ( $result['status'] ?? '' ) !== 'success' ) {
 			$this->logger->error( 'efb.create.failed', (string) ( $result['message'] ?? 'failed' ), array( 'code' => $result['code'] ?? 'execution_failed' ) );
 
-			return $this->respond( array( 'message' => $result['message'] ?? __( 'Creation failed.', 'sitepilot-ai' ) ), false, 422, (string) ( $result['code'] ?? 'execution_failed' ) );
+			return $this->respond( array( 'message' => $result['message'] ?? __( 'Creation failed.', 'ai-site-assistant-autopilot' ) ), false, 422, (string) ( $result['code'] ?? 'execution_failed' ) );
 		}
 
 		$this->logger->info(
@@ -236,7 +236,7 @@ final class EfbCopilotController {
 			return $this->respond(
 				array(
 					'type'  => 'message',
-					'reply' => __( 'Tell me what form you need, ask me to change the open form, or ask how to do something.', 'sitepilot-ai' ),
+					'reply' => __( 'Tell me what form you need, ask me to change the open form, or ask how to do something.', 'ai-site-assistant-autopilot' ),
 				),
 				true
 			);
@@ -245,7 +245,7 @@ final class EfbCopilotController {
 			return $this->respond(
 				array(
 					'type'  => 'message',
-					'reply' => __( 'That message is a bit long — please shorten it.', 'sitepilot-ai' ),
+					'reply' => __( 'That message is a bit long — please shorten it.', 'ai-site-assistant-autopilot' ),
 				),
 				true
 			);
@@ -254,7 +254,7 @@ final class EfbCopilotController {
 			return $this->respond(
 				array(
 					'type'  => 'message',
-					'reply' => __( 'Add your AI provider API key in SitePilot AI → Settings first.', 'sitepilot-ai' ),
+					'reply' => __( 'Add your AI provider API key in AI Site Assistant AutoPilot → Settings first.', 'ai-site-assistant-autopilot' ),
 				),
 				false,
 				400,
@@ -338,7 +338,7 @@ final class EfbCopilotController {
 				return $this->respond(
 					array(
 						'type'        => 'help',
-						'reply'       => '' !== $reply ? $reply : __( 'Here are topics I can walk you through:', 'sitepilot-ai' ),
+						'reply'       => '' !== $reply ? $reply : __( 'Here are topics I can walk you through:', 'ai-site-assistant-autopilot' ),
 						'suggestions' => $result['suggestions'] ?? array(),
 					),
 					true
@@ -397,7 +397,7 @@ final class EfbCopilotController {
 				return $this->respond(
 					array(
 						'type'   => 'message',
-						'reply'  => '' !== $reply ? $reply : __( 'I could not turn that into a change. Try e.g. "add a mobile field" or "make Email required".', 'sitepilot-ai' ),
+						'reply'  => '' !== $reply ? $reply : __( 'I could not turn that into a change. Try e.g. "add a mobile field" or "make Email required".', 'ai-site-assistant-autopilot' ),
 						'errors' => $notes,
 					),
 					true
@@ -434,7 +434,7 @@ final class EfbCopilotController {
 			// A partly-applied batch must say so rather than answering a plain "Done".
 			$payload = array(
 				'type'       => 'ops',
-				'reply'      => '' !== $reply ? $reply : __( 'Done — applying your change.', 'sitepilot-ai' ),
+				'reply'      => '' !== $reply ? $reply : __( 'Done — applying your change.', 'ai-site-assistant-autopilot' ),
 				'operations' => $ops,
 			);
 			if ( array() !== $notes ) {
@@ -451,7 +451,7 @@ final class EfbCopilotController {
 				return $this->respond(
 					array(
 						'type'   => 'message',
-						'reply'  => '' !== $reply ? $reply : __( 'I could not build a safe form from that. Could you add a bit more detail?', 'sitepilot-ai' ),
+						'reply'  => '' !== $reply ? $reply : __( 'I could not build a safe form from that. Could you add a bit more detail?', 'ai-site-assistant-autopilot' ),
 						'errors' => $result->errors,
 					),
 					true
@@ -477,7 +477,7 @@ final class EfbCopilotController {
 
 			$payload = array(
 				'type'      => 'preview',
-				'reply'     => '' !== $reply ? $reply : __( 'Here is the form I designed — review it and approve to create it.', 'sitepilot-ai' ),
+				'reply'     => '' !== $reply ? $reply : __( 'Here is the form I designed — review it and approve to create it.', 'ai-site-assistant-autopilot' ),
 				'action_id' => $action_id,
 				'preview'   => $this->build_preview( $plan, $name ),
 			);
@@ -489,7 +489,7 @@ final class EfbCopilotController {
 		return $this->respond(
 			array(
 				'type'  => 'message',
-				'reply' => '' !== $reply ? $reply : __( 'How can I help with your form?', 'sitepilot-ai' ),
+				'reply' => '' !== $reply ? $reply : __( 'How can I help with your form?', 'ai-site-assistant-autopilot' ),
 			),
 			true
 		);
@@ -737,20 +737,20 @@ final class EfbCopilotController {
 			$reason = (string) ( $d['reason'] ?? '' );
 			if ( str_starts_with( $reason, 'unsupported_type:' ) || str_starts_with( $reason, 'forbidden_type:' ) ) {
 				/* translators: %s: field type. */
-				$notes[] = sprintf( __( 'Field type "%s" is not supported in Easy Form Builder.', 'sitepilot-ai' ), substr( $reason, strpos( $reason, ':' ) + 1 ) );
+				$notes[] = sprintf( __( 'Field type "%s" is not supported in Easy Form Builder.', 'ai-site-assistant-autopilot' ), substr( $reason, strpos( $reason, ':' ) + 1 ) );
 			} elseif ( str_starts_with( $reason, 'choice_needs_options:' ) ) {
-				$notes[] = __( 'A choice field needs at least one option — tell me the options.', 'sitepilot-ai' );
+				$notes[] = __( 'A choice field needs at least one option — tell me the options.', 'ai-site-assistant-autopilot' );
 			} elseif ( str_starts_with( $reason, 'recognized_but_not_creatable:' ) ) {
 				$type       = substr( $reason, strpos( $reason, ':' ) + 1 );
 				$definition = EfbFormModel::field_type( $type );
 				/* translators: %s: field name. */
-				$notes[] = sprintf( __( 'I can configure a "%s" field but not add one — drag it in from the Easy Form Builder palette, then ask me again.', 'sitepilot-ai' ), (string) ( $definition['label'] ?? $type ) );
+				$notes[] = sprintf( __( 'I can configure a "%s" field but not add one — drag it in from the Easy Form Builder palette, then ask me again.', 'ai-site-assistant-autopilot' ), (string) ( $definition['label'] ?? $type ) );
 			} elseif ( str_starts_with( $reason, 'operation_limit_reached:' ) ) {
 				$parts   = explode( ':', $reason );
 				$skipped = (int) ( $parts[2] ?? 0 );
 				$notes[] = sprintf(
 					/* translators: 1: number of applied operations, 2: number of skipped operations. */
-					__( 'That was too many changes at once: I applied the first %1$d and skipped %2$d. Ask again for the rest.', 'sitepilot-ai' ),
+					__( 'That was too many changes at once: I applied the first %1$d and skipped %2$d. Ask again for the rest.', 'ai-site-assistant-autopilot' ),
 					(int) ( $parts[1] ?? 0 ),
 					$skipped
 				);
@@ -770,11 +770,11 @@ final class EfbCopilotController {
 		$is_step_limit = (bool) array_filter( $blocked, static fn ( array $item ): bool => 'step_limit' === ( $item['kind'] ?? '' ) );
 		$is_setting    = ! $is_step_limit && (bool) array_filter( $blocked, static fn ( array $item ): bool => 'setting' === ( $item['kind'] ?? '' ) );
 		if ( $is_step_limit ) {
-			$default = __( 'Easy Form Builder Free supports up to two steps. Upgrade to add more steps.', 'sitepilot-ai' );
+			$default = __( 'Easy Form Builder Free supports up to two steps. Upgrade to add more steps.', 'ai-site-assistant-autopilot' );
 		} elseif ( $is_setting ) {
-			$default = __( 'The mobile layout settings are part of the Pro version of Easy Form Builder.', 'sitepilot-ai' );
+			$default = __( 'The mobile layout settings are part of the Pro version of Easy Form Builder.', 'ai-site-assistant-autopilot' );
 		} else {
-			$default = __( 'This field is available in the Pro version of Easy Form Builder.', 'sitepilot-ai' );
+			$default = __( 'This field is available in the Pro version of Easy Form Builder.', 'ai-site-assistant-autopilot' );
 		}
 
 		return $this->respond(
@@ -854,7 +854,7 @@ final class EfbCopilotController {
 	public function help( WP_REST_Request $request ): WP_REST_Response {
 		$question = trim( (string) $request->get_param( 'question' ) );
 		if ( '' === $question ) {
-			return $this->respond( array( 'message' => __( 'Ask a question, e.g. "how do I make a field required?"', 'sitepilot-ai' ) ), false, 400, 'empty_question' );
+			return $this->respond( array( 'message' => __( 'Ask a question, e.g. "how do I make a field required?"', 'ai-site-assistant-autopilot' ) ), false, 400, 'empty_question' );
 		}
 
 		$result = EfbKnowledge::answer( $question );
@@ -862,7 +862,7 @@ final class EfbCopilotController {
 		if ( empty( $result['ok'] ) ) {
 			return $this->respond(
 				array(
-					'message'     => __( 'I could not match that exactly. Try one of these topics:', 'sitepilot-ai' ),
+					'message'     => __( 'I could not match that exactly. Try one of these topics:', 'ai-site-assistant-autopilot' ),
 					'suggestions' => $result['suggestions'] ?? array(),
 				),
 				true,
@@ -887,10 +887,10 @@ final class EfbCopilotController {
 	public function customize( WP_REST_Request $request ): WP_REST_Response {
 		$command = trim( (string) $request->get_param( 'command' ) );
 		if ( '' === $command ) {
-			return $this->respond( array( 'message' => __( 'Type what you want to change.', 'sitepilot-ai' ) ), false, 400, 'empty_command' );
+			return $this->respond( array( 'message' => __( 'Type what you want to change.', 'ai-site-assistant-autopilot' ) ), false, 400, 'empty_command' );
 		}
 		if ( ! $this->providers->is_configured() ) {
-			return $this->respond( array( 'message' => __( 'Add your AI provider API key in SitePilot AI → Settings first.', 'sitepilot-ai' ) ), false, 400, 'provider_not_configured' );
+			return $this->respond( array( 'message' => __( 'Add your AI provider API key in AI Site Assistant AutoPilot → Settings first.', 'ai-site-assistant-autopilot' ) ), false, 400, 'provider_not_configured' );
 		}
 
 		$raw_fields = (array) $request->get_param( 'fields' );
@@ -912,7 +912,7 @@ final class EfbCopilotController {
 		}
 
 		if ( array() === $ops ) {
-			return $this->respond( array( 'message' => __( 'I could not turn that into a change. Try being more specific, e.g. "make Email required" or "rename the form to Contact us".', 'sitepilot-ai' ) ), true, 200, 'no_ops' );
+			return $this->respond( array( 'message' => __( 'I could not turn that into a change. Try being more specific, e.g. "make Email required" or "rename the form to Contact us".', 'ai-site-assistant-autopilot' ) ), true, 200, 'no_ops' );
 		}
 
 		$ops     = $this->bind_new_step_references( $ops );
@@ -929,7 +929,7 @@ final class EfbCopilotController {
 	}
 
 	/**
-	 * Explicit persistence endpoint for integration consumers. The SitePilot EFB
+	 * Explicit persistence endpoint for integration consumers. The AISAAutoPilot EFB
 	 * chat deliberately does not call this after applying an AI proposal: it
 	 * leaves the changed valj_efb state on the canvas for the administrator to
 	 * review and save through EFB's normal Save control.
@@ -939,13 +939,13 @@ final class EfbCopilotController {
 		$structure = $request->get_param( 'structure' );
 
 		if ( $form_id <= 0 || ! is_array( $structure ) || array() === $structure ) {
-			return $this->respond( array( 'message' => __( 'Invalid save request.', 'sitepilot-ai' ) ), false, 400, 'invalid_payload' );
+			return $this->respond( array( 'message' => __( 'Invalid save request.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_payload' );
 		}
 
 		// Reject anything that looks like injected script markup.
 		$flat = wp_json_encode( $structure );
 		if ( is_string( $flat ) && false !== stripos( $flat, '<script' ) ) {
-			return $this->respond( array( 'message' => __( 'Unsafe content rejected.', 'sitepilot-ai' ) ), false, 422, 'unsafe_content' );
+			return $this->respond( array( 'message' => __( 'Unsafe content rejected.', 'ai-site-assistant-autopilot' ) ), false, 422, 'unsafe_content' );
 		}
 
 		global $wpdb;
@@ -966,7 +966,7 @@ final class EfbCopilotController {
 		);
 
 		if ( false === $ok ) {
-			return $this->respond( array( 'message' => __( 'Could not save the form.', 'sitepilot-ai' ) ), false, 422, 'execution_failed' );
+			return $this->respond( array( 'message' => __( 'Could not save the form.', 'ai-site-assistant-autopilot' ) ), false, 422, 'execution_failed' );
 		}
 
 		$this->logger->info( 'efb.save', 'EFB form updated.', array( 'form_id' => $form_id ) );

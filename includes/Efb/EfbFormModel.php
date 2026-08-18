@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Efb;
+namespace AISAAutoPilot\Efb;
 
 /**
  * Loads the compact EFB form model (field capabilities + default templates).
@@ -136,7 +136,7 @@ final class EfbFormModel {
 	/**
 	 * Whether adding this type needs a licence with Pro features. Wider than
 	 * requires_pro_field(): a field EFB renders on every plan can still be one
-	 * SitePilot only creates for Free Plus and Pro installs. Editing an existing
+	 * AISAAutoPilot only creates for Free Plus and Pro installs. Editing an existing
 	 * field of that type is never gated.
 	 */
 	public static function requires_pro_to_create( string $type ): bool {

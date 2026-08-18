@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Content;
+namespace AISAAutoPilot\Content;
 
-use SitePilot\Logging\Logger;
+use AISAAutoPilot\Logging\Logger;
 
 /**
  * WordPress hooks that keep the Knowledge Base in sync with site content.
@@ -20,7 +20,7 @@ use SitePilot\Logging\Logger;
  */
 final class ContentHooks {
 
-	private const CRON_ACTION = 'sitepilot_ai_index_post';
+	private const CRON_ACTION = 'aisaautopilot_index_post';
 
 	private Logger $logger;
 

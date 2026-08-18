@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Forms;
+namespace AISAAutoPilot\Forms;
 
-use SitePilot\Skills\FormPlanSchema;
+use AISAAutoPilot\Skills\FormPlanSchema;
 
 /**
  * Validates a public submission against the immutable, approved form plan.
@@ -145,12 +145,12 @@ final class NativeFormSubmission {
 	}
 
 	private function text( string $value, int $max ): string {
-		$value = trim( preg_replace( '/\s+/', ' ', strip_tags( $value ) ) ?? '' );
+		$value = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $value ) ) ?? '' );
 		return $this->limit( $value, $max );
 	}
 
 	private function textarea( string $value, int $max ): string {
-		$value = trim( str_replace( array( "\r\n", "\r" ), "\n", strip_tags( $value ) ) );
+		$value = trim( str_replace( array( "\r\n", "\r" ), "\n", wp_strip_all_tags( $value ) ) );
 		$value = preg_replace( '/[^\S\n]+/', ' ', $value ) ?? '';
 		return $this->limit( $value, $max );
 	}

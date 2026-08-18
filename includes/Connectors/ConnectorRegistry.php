@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Connectors;
+namespace AISAAutoPilot\Connectors;
 
 /**
  * Holds connectors and resolves a capability to the native, safe default.

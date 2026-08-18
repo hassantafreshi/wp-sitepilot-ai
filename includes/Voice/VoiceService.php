@@ -1,9 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Voice;
+namespace AISAAutoPilot\Voice;
 
-use SitePilot\Core\Settings;
+/*
+ * Exception messages here are never echoed: they travel back through the REST
+ * layer as JSON, or are rendered by a caller with esc_html(). Escaping them at
+ * the throw site would put HTML entities into the JSON payload, so the sniff is
+ * disabled for this file rather than silenced line by line.
+ */
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
+use AISAAutoPilot\Core\Settings;
 
 /**
  * Voice Service — STT (Speech-to-Text) + TTS (Text-to-Speech).
@@ -33,12 +41,12 @@ final class VoiceService {
 	public function transcribe( string $audio_base64, string $format = 'webm' ): string {
 		$api_key = $this->resolve_stt_key();
 		if ( '' === $api_key ) {
-			throw new \RuntimeException( __( 'AI provider is not configured for speech recognition.', 'sitepilot-ai' ) );
+			throw new \RuntimeException( __( 'AI provider is not configured for speech recognition.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$audio_binary = base64_decode( $audio_base64, true );
 		if ( false === $audio_binary || strlen( $audio_binary ) > self::MAX_AUDIO_SIZE ) {
-			throw new \RuntimeException( __( 'Invalid or oversized audio data.', 'sitepilot-ai' ) );
+			throw new \RuntimeException( __( 'Invalid or oversized audio data.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$boundary = '----SP' . uniqid();
@@ -68,7 +76,7 @@ final class VoiceService {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			throw new \RuntimeException( __( 'Speech recognition service unreachable.', 'sitepilot-ai' ) );
+			throw new \RuntimeException( __( 'Speech recognition service unreachable.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$code = (int) wp_remote_retrieve_response_code( $response );
@@ -76,13 +84,13 @@ final class VoiceService {
 		$data = json_decode( $raw, true );
 
 		if ( 401 === $code ) {
-			throw new \RuntimeException( __( 'STT API key rejected. Check your provider key in Settings.', 'sitepilot-ai' ) );
+			throw new \RuntimeException( __( 'STT API key rejected. Check your provider key in Settings.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( $code < 200 || $code >= 300 || ! isset( $data['text'] ) ) {
 			throw new \RuntimeException(
 				sprintf(
 				/* translators: %d: HTTP response code. */
-					__( 'Speech recognition failed (HTTP %d).', 'sitepilot-ai' ),
+					__( 'Speech recognition failed (HTTP %d).', 'ai-site-assistant-autopilot' ),
 					$code
 				)
 			);

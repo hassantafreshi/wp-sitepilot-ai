@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Content;
+namespace AISAAutoPilot\Content;
 
 /**
  * Records questions the Knowledge Base could NOT answer, so the site owner
@@ -12,7 +12,7 @@ namespace SitePilot\Content;
  */
 final class KbGaps {
 
-	private const OPTION   = 'sitepilot_kb_gaps';
+	private const OPTION   = 'aisaautopilot_kb_gaps';
 	private const MAX_KEEP = 200;
 
 	/**

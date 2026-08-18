@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Content;
+namespace AISAAutoPilot\Content;
 
-use SitePilot\Logging\Logger;
-use SitePilot\Providers\ProviderManager;
+use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Providers\ProviderManager;
 
 /**
  * Semantic (embeddings) retrieval over the Knowledge Base.

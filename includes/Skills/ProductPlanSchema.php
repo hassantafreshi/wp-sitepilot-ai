@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Skills;
+namespace AISAAutoPilot\Skills;
 
 /**
  * Schema definition for AI-generated product plans.

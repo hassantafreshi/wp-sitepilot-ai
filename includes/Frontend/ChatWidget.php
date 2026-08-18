@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Frontend;
-use SitePilot\Core\Settings;
+namespace AISAAutoPilot\Frontend;
+use AISAAutoPilot\Core\Settings;
 
 final class ChatWidget {
 
@@ -12,75 +12,233 @@ final class ChatWidget {
 	private const ICON_SEND      = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
 	private const ICON_MIC       = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
 	private const ICON_SUPPORT   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>';
+	private const ICON_EXPAND    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6"/><path d="M21 3l-7 7M3 21l7-7"/></svg>';
+	private const ICON_SHRINK    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v6H3M15 21v-6h6"/><path d="M3 9l6-6M21 15l-6 6"/></svg>';
+	private const ICON_STOP      = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>';
+	private const ICON_DOWN      = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>';
 
 	public function render(): string {
-		$s = Settings::all();
-		$w = $s['widget'] ?? Settings::widget_defaults();
+		$w = array_merge( Settings::widget_defaults(), (array) Settings::get( 'widget', array() ) );
 		if ( empty( $w['enabled'] ) ) {
 			return ''; }
 
-		$theme    = ( ( $w['theme'] ?? 'light' ) === 'dark' ) ? 'dark' : 'light';
-		$allowed  = array( 'bottom-right', 'bottom-left', 'top-right', 'top-left' );
-		$pos      = in_array( $w['position'] ?? '', $allowed, true ) ? $w['position'] : 'bottom-right';
-		$color    = sanitize_hex_color( $w['color'] ?? '' ) ?: '#4f46e5';
-		$bg       = sanitize_hex_color( $w['bg'] ?? '' ) ?: ( 'dark' === $theme ? '#1f2937' : '#ffffff' );
-		$title    = $w['title'] ?? 'SitePilot AI';
-		$greet    = $w['greeting'] ?? __( 'Hi! How can I help?', 'sitepilot-ai' );
-		$subtitle = __( 'AI Assistant', 'sitepilot-ai' );
-		$voice    = ! empty( $w['voice_enabled'] );
-		$handoff  = ! empty( $w['handoff_enabled'] );
+		$theme   = ( ( $w['theme'] ?? 'light' ) === 'dark' ) ? 'dark' : 'light';
+		$allowed = array( 'bottom-right', 'bottom-left', 'top-right', 'top-left' );
+		$pos     = in_array( $w['position'] ?? '', $allowed, true ) ? $w['position'] : 'bottom-right';
+		$color   = sanitize_hex_color( $w['color'] ?? '' ) ?: '#4f46e5';
+
+		// The customiser's per-part palette, falling back to the brand-derived one.
+		$derived = Settings::widget_derived_colors( $color, $theme );
+		$colors  = ! empty( $w['custom_colors'] )
+			? array_merge( $derived, array_filter( (array) ( $w['colors'] ?? array() ) ) )
+			: $derived;
+
+		$icons        = (array) ( $w['icons'] ?? array() );
+		$title        = (string) ( $w['title'] ?? 'AI Site Assistant AutoPilot' );
+		$greet        = (string) ( $w['greeting'] ?? __( 'Hi! How can I help?', 'ai-site-assistant-autopilot' ) );
+		$subtitle     = (string) ( $w['subtitle'] ?? __( 'AI Assistant', 'ai-site-assistant-autopilot' ) );
+		$handoff_text = (string) ( $w['handoff_text'] ?? __( 'Talk to a human', 'ai-site-assistant-autopilot' ) );
+		$handoff_hook = (string) ( $w['handoff_hook'] ?? '' );
+		$voice        = ! empty( $w['voice_enabled'] );
+		$handoff      = ! empty( $w['handoff_enabled'] );
+		$suggestions  = $this->suggestions( $w );
+
+		$style = $this->style_vars( $colors, $w, $theme );
 
 		ob_start();
 		?>
+		<?php
+		/*
+		 * The widget carries its own direction rather than inheriting it. Themes
+		 * are inconsistent about setting dir on <html>, and the panel is a
+		 * self-contained surface: its text has to read correctly even inside a
+		 * theme that never declares one. Placement stays physical (see
+		 * widget.css) — "bottom right" means the bottom right corner on an RTL
+		 * site too.
+		 */
+		?>
 		<div class="spw-root spw--<?php echo esc_attr( $theme ); ?> spw--<?php echo esc_attr( $pos ); ?>"
-			style="--spw-primary: <?php echo esc_attr( $color ); ?>; --spw-bg: <?php echo esc_attr( $bg ); ?>;">
+			dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>"
+			style="<?php echo esc_attr( $style ); ?>">
 
-			<button type="button" id="spw-toggle" class="spw-toggle" aria-label="<?php esc_attr_e( 'Open chat', 'sitepilot-ai' ); ?>">
-				<span class="spw-toggle__ico spw-toggle__ico--open"><?php echo self::ICON_CHAT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?></span>
+			<button type="button" id="spw-toggle" class="spw-toggle" aria-label="<?php esc_attr_e( 'Open chat', 'ai-site-assistant-autopilot' ); ?>">
+				<span class="spw-toggle__ico spw-toggle__ico--open"><?php echo $this->icon_or( $icons, 'float', self::ICON_CHAT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in icon_or(). ?></span>
 				<span class="spw-toggle__ico spw-toggle__ico--close"><?php echo self::ICON_CLOSE; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?></span>
 			</button>
 
-			<div id="spw-panel" class="spw-panel" role="dialog" aria-label="<?php esc_attr_e( 'Chat', 'sitepilot-ai' ); ?>">
+			<div id="spw-panel" class="spw-panel" role="dialog" aria-modal="false"
+				aria-labelledby="spw-title" tabindex="-1">
+
 				<div class="spw-header">
-					<span class="spw-avatar"><?php echo self::ICON_ASSISTANT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?></span>
+					<span class="spw-avatar"><?php echo $this->icon_or( $icons, 'avatar', self::ICON_ASSISTANT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in icon_or(). ?></span>
 					<div class="spw-header__meta">
-						<div class="spw-header__title"><?php echo esc_html( $title ); ?></div>
+						<div class="spw-header__title" id="spw-title"><?php echo esc_html( $title ); ?></div>
 						<div class="spw-header__sub"><span class="spw-status-dot"></span><?php echo esc_html( $subtitle ); ?></div>
 					</div>
-					<button type="button" id="spw-close" class="spw-close" aria-label="<?php esc_attr_e( 'Close', 'sitepilot-ai' ); ?>">
+					<button type="button" id="spw-expand" class="spw-hbtn spw-hbtn--expand"
+						aria-label="<?php esc_attr_e( 'Full screen', 'ai-site-assistant-autopilot' ); ?>"
+						title="<?php esc_attr_e( 'Full screen', 'ai-site-assistant-autopilot' ); ?>">
+						<span class="spw-hbtn__on"><?php echo self::ICON_EXPAND; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?></span>
+						<span class="spw-hbtn__off"><?php echo self::ICON_SHRINK; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?></span>
+					</button>
+					<button type="button" id="spw-close" class="spw-hbtn" aria-label="<?php esc_attr_e( 'Close', 'ai-site-assistant-autopilot' ); ?>" title="<?php esc_attr_e( 'Close', 'ai-site-assistant-autopilot' ); ?>">
 						<?php echo self::ICON_CLOSE; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?>
 					</button>
 				</div>
 
-				<div id="spw-msgs" class="spw-messages" role="log" aria-live="polite">
-					<div class="spw-msg spw-msg--ai spw-msg--greeting"><?php echo esc_html( $greet ); ?></div>
+				<div class="spw-body">
+					<?php /* aria-atomic=false so assistive tech announces only new turns, not the whole log. */ ?>
+					<div id="spw-msgs" class="spw-messages" role="log" aria-live="polite" aria-atomic="false"
+						aria-label="<?php esc_attr_e( 'Conversation', 'ai-site-assistant-autopilot' ); ?>">
+
+						<div id="spw-welcome" class="spw-welcome">
+							<span class="spw-welcome__icon"><?php echo $this->icon_or( $icons, 'avatar', self::ICON_ASSISTANT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in icon_or(). ?></span>
+							<h3 class="spw-welcome__title"><?php echo esc_html( $greet ); ?></h3>
+							<?php if ( array() !== $suggestions ) : ?>
+								<p class="spw-welcome__hint"><?php esc_html_e( 'Pick a question, or type your own.', 'ai-site-assistant-autopilot' ); ?></p>
+								<div class="spw-suggest" role="list">
+									<?php foreach ( $suggestions as $suggestion ) : ?>
+										<button type="button" class="spw-suggest__chip" role="listitem" data-spw-ask="<?php echo esc_attr( $suggestion ); ?>"><?php echo esc_html( $suggestion ); ?></button>
+									<?php endforeach; ?>
+								</div>
+							<?php endif; ?>
+						</div>
+					</div>
+
+					<button type="button" id="spw-jump" class="spw-jump" hidden
+						aria-label="<?php esc_attr_e( 'Scroll to latest message', 'ai-site-assistant-autopilot' ); ?>">
+						<?php echo self::ICON_DOWN; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?>
+					</button>
 				</div>
 
 				<?php if ( $handoff ) : ?>
 					<div class="spw-handoff">
+						<?php if ( '' !== $handoff_hook ) : ?>
+							<p><?php echo esc_html( $handoff_hook ); ?></p>
+						<?php endif; ?>
 						<button type="button" id="spw-handoff-btn" class="spw-handoff-btn">
-							<?php echo self::ICON_SUPPORT; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?>
-							<span><?php esc_html_e( 'Talk to a human', 'sitepilot-ai' ); ?></span>
+							<?php echo $this->icon_or( $icons, 'handoff', self::ICON_SUPPORT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in icon_or(). ?>
+							<span><?php echo esc_html( $handoff_text ); ?></span>
 						</button>
 					</div>
 				<?php endif; ?>
 
-				<div class="spw-input-wrap">
-					<?php if ( $voice ) : ?>
-						<button type="button" id="spw-mic" class="spw-mic" aria-label="<?php esc_attr_e( 'Voice input', 'sitepilot-ai' ); ?>">
-							<?php echo self::ICON_MIC; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?>
+				<div class="spw-composer">
+					<div class="spw-composer__row">
+						<?php if ( $voice ) : ?>
+							<button type="button" id="spw-mic" class="spw-mic" aria-label="<?php esc_attr_e( 'Voice input', 'ai-site-assistant-autopilot' ); ?>" title="<?php esc_attr_e( 'Voice input', 'ai-site-assistant-autopilot' ); ?>">
+								<?php echo $this->icon_or( $icons, 'voice', self::ICON_MIC ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in icon_or(). ?>
+							</button>
+						<?php endif; ?>
+						<textarea class="spw-input" rows="1"
+							placeholder="<?php esc_attr_e( 'Type your message…', 'ai-site-assistant-autopilot' ); ?>"
+							aria-label="<?php esc_attr_e( 'Type your message', 'ai-site-assistant-autopilot' ); ?>"></textarea>
+						<button type="button" id="spw-send" class="spw-send" aria-label="<?php esc_attr_e( 'Send', 'ai-site-assistant-autopilot' ); ?>" title="<?php esc_attr_e( 'Send', 'ai-site-assistant-autopilot' ); ?>">
+							<span class="spw-send__ico"><?php echo self::ICON_SEND; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?></span>
+							<span class="spw-send__stop"><?php echo self::ICON_STOP; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?></span>
 						</button>
-					<?php endif; ?>
-					<textarea class="spw-input" rows="1" placeholder="<?php esc_attr_e( 'Type your message…', 'sitepilot-ai' ); ?>" aria-label="<?php esc_attr_e( 'Type your message', 'sitepilot-ai' ); ?>"></textarea>
-					<button type="button" id="spw-send" class="spw-send" aria-label="<?php esc_attr_e( 'Send', 'sitepilot-ai' ); ?>">
-						<?php echo self::ICON_SEND; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static trusted SVG. ?>
-					</button>
+					</div>
+					<p class="spw-disclaimer"><?php esc_html_e( 'AI answers can be wrong. Check anything important.', 'ai-site-assistant-autopilot' ); ?></p>
 				</div>
 			</div>
 		</div>
 		<?php
 		return (string) ob_get_clean();
 	}
+
+	/**
+	 * Build the inline custom-property block the stylesheet reads.
+	 *
+	 * @param array<string, string> $colors
+	 * @param array<string, mixed>  $w
+	 */
+	private function style_vars( array $colors, array $w, string $theme ): string {
+		$map = array(
+			'--spw-primary'   => $colors['head_from'] ?? '#4f46e5',
+			'--spw-head-from' => $colors['head_from'] ?? '#4f46e5',
+			'--spw-head-to'   => $colors['head_to'] ?? '#7c3aed',
+			'--spw-user'      => $colors['user'] ?? '#4f46e5',
+			'--spw-ai-bg'     => $colors['ai_bg'] ?? '#ffffff',
+			'--spw-ai-text'   => $colors['ai_text'] ?? '#1f2937',
+			'--spw-bg'        => $colors['panel'] ?? '#ffffff',
+			'--spw-msgs'      => $colors['msgs'] ?? '#f9fafb',
+			'--spw-border'    => $colors['border'] ?? '#e5e7eb',
+			'--spw-input-bg'  => $colors['input'] ?? '#f9fafb',
+			'--spw-send'      => $colors['send'] ?? '#4f46e5',
+			'--spw-handoff'   => $colors['handoff'] ?? '#4f46e5',
+			'--spw-float'     => $colors['bubble'] ?? '#4f46e5',
+			'--spw-text'      => 'dark' === $theme ? '#f3f4f6' : '#1f2937',
+
+			'--spw-radius'        => (int) ( $w['panel_radius'] ?? 16 ) . 'px',
+			'--spw-msg-radius'    => (int) ( $w['msg_radius'] ?? 14 ) . 'px',
+			'--spw-float-radius'  => (int) ( $w['bubble_radius'] ?? 30 ) . 'px',
+
+			// Panel size was configurable but never reached the stylesheet.
+			'--spw-w'             => max( 320, min( 560, (int) ( $w['window_width'] ?? 400 ) ) ) . 'px',
+			'--spw-h'             => max( 380, min( 820, (int) ( $w['window_height'] ?? 620 ) ) ) . 'px',
+		);
+
+		$out = '';
+		foreach ( $map as $property => $value ) {
+			$value = (string) $value;
+			// Only hex colours and "<n>px" ever reach the attribute.
+			if ( ! preg_match( '/^(#[0-9a-fA-F]{3,8}|\d{1,3}px)$/', $value ) ) {
+				continue;
+			}
+			$out .= $property . ':' . $value . ';';
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Opening suggestions for the empty state.
+	 *
+	 * Offering a few concrete questions before the free-text field is the
+	 * pattern that converts best: it tells the visitor what the assistant can
+	 * actually answer instead of leaving them to guess.
+	 *
+	 * @param array<string, mixed> $w
+	 * @return array<int, string>
+	 */
+	private function suggestions( array $w ): array {
+		$raw = $w['suggestions'] ?? null;
+
+		if ( ! is_array( $raw ) ) {
+			$raw = array_filter( array_map( 'trim', explode( "\n", (string) $raw ) ) );
+		}
+
+		$out = array();
+		foreach ( $raw as $line ) {
+			$line = trim( wp_strip_all_tags( (string) $line ) );
+			if ( '' !== $line ) {
+				$out[] = mb_substr( $line, 0, 90 );
+			}
+		}
+
+		return array_slice( $out, 0, 4 );
+	}
+
+	/**
+	 * A saved icon upload, or the bundled SVG when none is set.
+	 *
+	 * @param array<string, mixed> $icons
+	 */
+	private function icon_or( array $icons, string $key, string $fallback ): string {
+		$src = trim( (string) ( $icons[ $key ] ?? '' ) );
+		if ( '' === $src ) {
+			return $fallback;
+		}
+
+		// Data URIs are stored already validated; anything else must be a URL.
+		$safe = 0 === strpos( $src, 'data:image/' ) ? $src : esc_url( $src );
+		if ( '' === $safe ) {
+			return $fallback;
+		}
+
+		return '<img src="' . esc_attr( $safe ) . '" alt="" />';
+	}
+
 	public function should_render_widget(): bool {
 		$s = Settings::all();
 		$w = $s['widget'] ?? Settings::widget_defaults();

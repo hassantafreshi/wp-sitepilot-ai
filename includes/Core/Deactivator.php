@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Core;
+namespace AISAAutoPilot\Core;
 
 /**
  * Runs on plugin deactivation. Keeps user data; only clears scheduled/transient state.

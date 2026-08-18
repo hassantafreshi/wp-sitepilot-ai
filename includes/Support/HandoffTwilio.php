@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Support;
-use SitePilot\Core\Settings;
-use SitePilot\Logging\Logger;
+namespace AISAAutoPilot\Support;
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Logging\Logger;
 
 class HandoffTwilio {
 	public const API_BASE   = 'https://api.twilio.com/2010-04-01/Accounts';

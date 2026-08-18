@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Efb;
+namespace AISAAutoPilot\Efb;
 
-use SitePilot\Providers\ProviderInterface;
-use SitePilot\Skills\FormPlanValidator;
-use SitePilot\Skills\ValidationResult;
+use AISAAutoPilot\Providers\ProviderInterface;
+use AISAAutoPilot\Skills\FormPlanValidator;
+use AISAAutoPilot\Skills\ValidationResult;
 
 /**
  * Turns a plain-language request into a validated form plan for Easy Form Builder.
@@ -40,7 +40,7 @@ final class EfbFormSkill {
 	}
 
 	/**
-	 * @throws \SitePilot\Providers\ProviderException
+	 * @throws \AISAAutoPilot\Providers\ProviderException
 	 */
 	public function plan( string $user_request ): ValidationResult {
 		$raw = $this->provider->generate_structured_output(
@@ -55,7 +55,7 @@ final class EfbFormSkill {
 		$caps = EfbFormModel::capabilities_for_prompt( $this->has_pro_features );
 
 		return <<<PROMPT
-You are SitePilot, an expert form designer for the WordPress plugin "Easy Form Builder".
+You are AISAAutoPilot, an expert form designer for the WordPress plugin "Easy Form Builder".
 Design ONE complete, user-friendly form as a single JSON object.
 
 STRICT RULES:

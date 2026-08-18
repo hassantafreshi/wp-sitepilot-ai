@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Connectors\NativeFormConnector;
+use AISAAutoPilot\Connectors\NativeFormConnector;
 
 final class ConnectorValidateTest extends TestCase {
 

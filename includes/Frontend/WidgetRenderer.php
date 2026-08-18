@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Frontend;
+namespace AISAAutoPilot\Frontend;
 
-use SitePilot\Api\RestRoutes;
-use SitePilot\Core\Settings;
-use SitePilot\Core\SiteLanguage;
+use AISAAutoPilot\Api\RestRoutes;
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Core\SiteLanguage;
 
 /** Renders the opt-in, read-only public assistant. */
 final class WidgetRenderer {
@@ -19,39 +19,39 @@ final class WidgetRenderer {
 			return;
 		}
 		wp_enqueue_style( 'dashicons' );
-		wp_enqueue_style( 'sitepilot-public-chat', SITEPILOT_AI_URL . 'assets/frontend/chat-widget.css', array(), SITEPILOT_AI_VERSION );
-		wp_enqueue_script( 'sitepilot-public-chat', SITEPILOT_AI_URL . 'assets/frontend/chat-widget.js', array(), SITEPILOT_AI_VERSION, true );
+		wp_enqueue_style( 'aisaautopilot-public-chat', AISAAUTOPILOT_URL . 'assets/frontend/chat-widget.css', array(), AISAAUTOPILOT_VERSION );
+		wp_enqueue_script( 'aisaautopilot-public-chat', AISAAUTOPILOT_URL . 'assets/frontend/chat-widget.js', array(), AISAAUTOPILOT_VERSION, true );
 		wp_localize_script(
-			'sitepilot-public-chat',
-			'SitePilotPublicChat',
+			'aisaautopilot-public-chat',
+			'AISAAutoPilotPublicChat',
 			array(
 				'restUrl'        => esc_url_raw( rest_url( RestRoutes::NAMESPACE . '/' ) ),
 				'language'       => SiteLanguage::primary( SiteLanguage::site() ),
 				'voiceResponses' => (bool) Settings::get( 'voice_responses_enabled', false ),
 				'isRTL'          => is_rtl(),
 				'labels'         => array(
-					'open'                => __( 'Ask SitePilot AI', 'sitepilot-ai' ),
-					'title'               => __( 'SitePilot AI', 'sitepilot-ai' ),
-					'newChat'             => __( 'New chat', 'sitepilot-ai' ),
-					'close'               => __( 'Close', 'sitepilot-ai' ),
-					'greeting'            => __( 'Hi! I can answer questions about this website.', 'sitepilot-ai' ),
+					'open'                => __( 'Ask AI Site Assistant AutoPilot', 'ai-site-assistant-autopilot' ),
+					'title'               => __( 'AI Site Assistant AutoPilot', 'ai-site-assistant-autopilot' ),
+					'newChat'             => __( 'New chat', 'ai-site-assistant-autopilot' ),
+					'close'               => __( 'Close', 'ai-site-assistant-autopilot' ),
+					'greeting'            => __( 'Hi! I can answer questions about this website.', 'ai-site-assistant-autopilot' ),
 					'suggestions'         => array(
-						__( 'What is this website about?', 'sitepilot-ai' ),
-						__( 'How can I contact you?', 'sitepilot-ai' ),
-						__( 'What services do you offer?', 'sitepilot-ai' ),
+						__( 'What is this website about?', 'ai-site-assistant-autopilot' ),
+						__( 'How can I contact you?', 'ai-site-assistant-autopilot' ),
+						__( 'What services do you offer?', 'ai-site-assistant-autopilot' ),
 					),
-					'answerError'         => __( 'Sorry, I could not answer that.', 'sitepilot-ai' ),
-					'networkError'        => __( 'Network error. Please try again.', 'sitepilot-ai' ),
-					'voiceUnsupported'    => __( 'Voice recording is not supported by this browser.', 'sitepilot-ai' ),
-					'recordingInvalid'    => __( 'The recording is empty or too large. Please try a shorter message.', 'sitepilot-ai' ),
-					'transcriptionFailed' => __( 'Voice transcription failed. Please try again.', 'sitepilot-ai' ),
-					'microphoneDenied'    => __( 'Microphone permission was denied. You can type your question instead.', 'sitepilot-ai' ),
-					'placeholder'         => __( 'Write a message…', 'sitepilot-ai' ),
-					'send'                => __( 'Send', 'sitepilot-ai' ),
-					'mic'                 => __( 'Speak your question', 'sitepilot-ai' ),
-					'stop'                => __( 'Stop recording', 'sitepilot-ai' ),
-					'listening'           => __( 'Listening…', 'sitepilot-ai' ),
-					'voiceReady'          => __( 'Your transcript is ready. Review it, then send.', 'sitepilot-ai' ),
+					'answerError'         => __( 'Sorry, I could not answer that.', 'ai-site-assistant-autopilot' ),
+					'networkError'        => __( 'Network error. Please try again.', 'ai-site-assistant-autopilot' ),
+					'voiceUnsupported'    => __( 'Voice recording is not supported by this browser.', 'ai-site-assistant-autopilot' ),
+					'recordingInvalid'    => __( 'The recording is empty or too large. Please try a shorter message.', 'ai-site-assistant-autopilot' ),
+					'transcriptionFailed' => __( 'Voice transcription failed. Please try again.', 'ai-site-assistant-autopilot' ),
+					'microphoneDenied'    => __( 'Microphone permission was denied. You can type your question instead.', 'ai-site-assistant-autopilot' ),
+					'placeholder'         => __( 'Write a message…', 'ai-site-assistant-autopilot' ),
+					'send'                => __( 'Send', 'ai-site-assistant-autopilot' ),
+					'mic'                 => __( 'Speak your question', 'ai-site-assistant-autopilot' ),
+					'stop'                => __( 'Stop recording', 'ai-site-assistant-autopilot' ),
+					'listening'           => __( 'Listening…', 'ai-site-assistant-autopilot' ),
+					'voiceReady'          => __( 'Your transcript is ready. Review it, then send.', 'ai-site-assistant-autopilot' ),
 				),
 			)
 		);
@@ -62,7 +62,7 @@ final class WidgetRenderer {
 			return;
 		}
 		?>
-		<div id="sitepilot-public-chat" class="sitepilot-public-chat" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>"></div>
+		<div id="aisaautopilot-public-chat" class="aisaautopilot-public-chat" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>"></div>
 		<?php
 	}
 

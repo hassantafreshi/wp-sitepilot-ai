@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Efb\EfbFormConverter;
+use AISAAutoPilot\Efb\EfbFormConverter;
 
 final class EfbFormConverterTest extends TestCase {
 

@@ -1,151 +1,145 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Admin;
 
-use SitePilot\Connectors\WooCommerceConnector;
+namespace AISAAutoPilot\Admin;
+
+use AISAAutoPilot\Connectors\WooCommerceConnector;
 
 /**
- * WooCommerce Dashboard Page.
- *
- * Displays a comprehensive dashboard with:
- * - Sales overview (revenue, orders, avg order)
- * - Top selling products
- * - Low stock alerts
- * - Recent orders
- * - Quick actions
+ * WooCommerce dashboard — sales, stock, orders and the AISAAutoPilot store tools.
+ * Numbers are filled in by dashboard.js from the analytics REST routes.
  */
-class WooCommerceDashboardPage {
+final class WooCommerceDashboardPage {
 
 	public function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to view this page.', 'sitepilot-ai' ) );
+			wp_die( esc_html__( 'You do not have permission to view this page.', 'ai-site-assistant-autopilot' ) );
 		}
 
-		$wc_active = WooCommerceConnector::is_active();
+		$active = WooCommerceConnector::is_active();
+		$wc_ai  = admin_url( 'admin.php?page=' . WooCommerceSettings::SLUG );
+
+		Ui::grad_defs();
 		?>
-		<div class="wrap sitepilot-wrap sitepilot-screen sitepilot-screen--woo-dashboard sitepilot-dashboard">
-			<nav class="sitepilot-screen__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sitepilot-ai' ); ?>">
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HOME ) ); ?>"><?php esc_html_e( 'Home', 'sitepilot-ai' ); ?></a>
-				<span aria-hidden="true">/</span>
-				<span><?php esc_html_e( 'WooCommerce Dashboard', 'sitepilot-ai' ); ?></span>
-			</nav>
-			<header class="sitepilot-screen__header">
-				<div>
-					<p class="sitepilot-eyebrow"><?php esc_html_e( 'Store overview', 'sitepilot-ai' ); ?></p>
-					<h1 class="sitepilot-title"><span class="dashicons dashicons-store" aria-hidden="true"></span><?php esc_html_e( 'WooCommerce Dashboard', 'sitepilot-ai' ); ?> <span class="sp-ai-badge">AI</span></h1>
-					<p class="sitepilot-subtitle"><?php esc_html_e( 'Review sales, stock, recent orders, and the SitePilot tools available for this store.', 'sitepilot-ai' ); ?></p>
-				</div>
-				<div class="sitepilot-screen__actions">
-					<span class="sitepilot-screen__badge <?php echo $wc_active ? 'sitepilot-screen__badge--ready' : 'sitepilot-screen__badge--attention'; ?>"><?php echo esc_html( $wc_active ? __( 'WooCommerce active', 'sitepilot-ai' ) : __( 'WooCommerce inactive', 'sitepilot-ai' ) ); ?></span>
-					<a class="button button-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . WooCommerceSettings::SLUG ) ); ?>"><?php esc_html_e( 'Woo AI settings', 'sitepilot-ai' ); ?></a>
-				</div>
-			</header>
-			<?php if ( ! $wc_active ) : ?>
-				<div class="sitepilot-banner sitepilot-banner--warn">
-					<span class="dashicons dashicons-warning"></span>
-					<span>
-						<?php esc_html_e( 'WooCommerce is not active. Please install and activate WooCommerce to use this dashboard.', 'sitepilot-ai' ); ?>
-					</span>
-				</div>
-			<?php endif; ?>
+		<div class="wrap sp-app" data-sp-wc-dashboard>
+			<section class="sp-screen">
+				<?php Ui::title( __( 'WooCommerce Dashboard', 'ai-site-assistant-autopilot' ), 'cart', true ); ?>
+				<p class="sp-lead" style="margin-bottom:16px !important"><?php esc_html_e( 'AI-powered product management: create, edit, search, and bulk-update products using natural language.', 'ai-site-assistant-autopilot' ); ?></p>
 
-			<!-- Stats Cards -->
-			<div class="sp-dashboard-stats">
-				<div class="sp-stat-card sp-stat-card--revenue">
-					<div class="sp-stat-icon">💰</div>
-					<div class="sp-stat-content">
-						<div class="sp-stat-value" id="sp-stat-revenue">—</div>
-						<div class="sp-stat-label"><?php esc_html_e( 'Total Revenue', 'sitepilot-ai' ); ?></div>
-					</div>
-				</div>
-				<div class="sp-stat-card sp-stat-card--orders">
-					<div class="sp-stat-icon">📦</div>
-					<div class="sp-stat-content">
-						<div class="sp-stat-value" id="sp-stat-orders">—</div>
-						<div class="sp-stat-label"><?php esc_html_e( 'Total Orders', 'sitepilot-ai' ); ?></div>
-					</div>
-				</div>
-				<div class="sp-stat-card sp-stat-card--avg">
-					<div class="sp-stat-icon">📊</div>
-					<div class="sp-stat-content">
-						<div class="sp-stat-value" id="sp-stat-avg">—</div>
-						<div class="sp-stat-label"><?php esc_html_e( 'Avg Order Value', 'sitepilot-ai' ); ?></div>
-					</div>
-				</div>
-				<div class="sp-stat-card sp-stat-card--products">
-					<div class="sp-stat-icon">🏷️</div>
-					<div class="sp-stat-content">
-						<div class="sp-stat-value" id="sp-stat-products">—</div>
-						<div class="sp-stat-label"><?php esc_html_e( 'Products', 'sitepilot-ai' ); ?></div>
-					</div>
-				</div>
-			</div>
+				<?php if ( ! $active ) : ?>
+					<?php Ui::alert( 'warn', 'warning', esc_html__( 'WooCommerce is not active. Please install and activate WooCommerce to use this dashboard.', 'ai-site-assistant-autopilot' ) ); ?>
+				<?php endif; ?>
 
-			<!-- Charts Row -->
-			<div class="sp-dashboard-row">
-				<!-- Sales Chart -->
-				<div class="sp-dashboard-card sp-dashboard-card--chart">
-					<h2><?php esc_html_e( 'Sales (Last 7 Days)', 'sitepilot-ai' ); ?></h2>
-					<div class="sp-chart-container" id="sp-sales-chart">
-						<div class="sp-chart-loading"><?php esc_html_e( 'Loading...', 'sitepilot-ai' ); ?></div>
+				<div class="sp-tiles" style="margin-bottom:24px">
+					<div class="sp-stat">
+						<span class="sp-stat__icon sp-stat__icon--ok"><?php echo Ui::icon( 'money', 24, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+						<span class="sp-stat__body">
+							<span class="sp-stat__num" id="sp-stat-revenue">—</span>
+							<span class="sp-stat__label"><?php esc_html_e( 'Total Revenue', 'ai-site-assistant-autopilot' ); ?></span>
+						</span>
+					</div>
+					<div class="sp-stat">
+						<span class="sp-stat__icon"><?php echo Ui::icon( 'bag', 24, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+						<span class="sp-stat__body">
+							<span class="sp-stat__num" id="sp-stat-orders">—</span>
+							<span class="sp-stat__label"><?php esc_html_e( 'Total Orders', 'ai-site-assistant-autopilot' ); ?></span>
+						</span>
+					</div>
+					<div class="sp-stat">
+						<span class="sp-stat__icon sp-stat__icon--violet"><?php echo Ui::icon( 'chart', 24, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+						<span class="sp-stat__body">
+							<span class="sp-stat__num" id="sp-stat-avg">—</span>
+							<span class="sp-stat__label"><?php esc_html_e( 'Avg Order Value', 'ai-site-assistant-autopilot' ); ?></span>
+						</span>
+					</div>
+					<div class="sp-stat">
+						<span class="sp-stat__icon sp-stat__icon--err"><?php echo Ui::icon( 'box', 24, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+						<span class="sp-stat__body">
+							<span class="sp-stat__num" id="sp-stat-products">—</span>
+							<span class="sp-stat__label"><?php esc_html_e( 'Products', 'ai-site-assistant-autopilot' ); ?></span>
+						</span>
 					</div>
 				</div>
 
-				<!-- Top Products -->
-				<div class="sp-dashboard-card sp-dashboard-card--list">
-					<h2><?php esc_html_e( 'Top Products', 'sitepilot-ai' ); ?></h2>
-					<div class="sp-list-container" id="sp-top-products">
-						<div class="sp-list-loading"><?php esc_html_e( 'Loading...', 'sitepilot-ai' ); ?></div>
+				<div class="sp-cols sp-cols--16" style="margin-bottom:16px">
+					<div class="sp-card sp-card--24" style="flex:1 1 min(100%,420px);min-width:0">
+						<h2 class="sp-h2 sp-h2--md" style="margin-bottom:16px !important"><?php esc_html_e( 'Sales (Last 7 Days)', 'ai-site-assistant-autopilot' ); ?></h2>
+						<div class="sp-chart" id="sp-sales-chart"></div>
+						<div class="sp-chart__labels" id="sp-sales-labels"></div>
 					</div>
-				</div>
-			</div>
-
-			<!-- Second Row -->
-			<div class="sp-dashboard-row">
-				<!-- Low Stock -->
-				<div class="sp-dashboard-card sp-dashboard-card--list">
-					<h2>
-						<?php esc_html_e( 'Low Stock Alerts', 'sitepilot-ai' ); ?>
-						<span class="sp-badge sp-badge--warning" id="sp-low-stock-count">0</span>
-					</h2>
-					<div class="sp-list-container" id="sp-low-stock">
-						<div class="sp-list-loading"><?php esc_html_e( 'Loading...', 'sitepilot-ai' ); ?></div>
+					<div class="sp-card sp-card--24" style="flex:1 1 min(100%,280px);min-width:0">
+						<h2 class="sp-h2 sp-h2--md" style="margin-bottom:14px !important"><?php esc_html_e( 'Top Products', 'ai-site-assistant-autopilot' ); ?></h2>
+						<div class="sp-kv" id="sp-top-products">
+							<p class="sp-empty"><?php esc_html_e( 'Loading…', 'ai-site-assistant-autopilot' ); ?></p>
+						</div>
 					</div>
 				</div>
 
-				<!-- Recent Orders -->
-				<div class="sp-dashboard-card sp-dashboard-card--list">
-					<h2><?php esc_html_e( 'Recent Orders', 'sitepilot-ai' ); ?></h2>
-					<div class="sp-list-container" id="sp-recent-orders">
-						<div class="sp-list-loading"><?php esc_html_e( 'Loading...', 'sitepilot-ai' ); ?></div>
+				<div class="sp-cols sp-cols--16" style="margin-bottom:16px">
+					<div class="sp-card sp-card--24" style="flex:1 1 min(100%,300px);min-width:0">
+						<h2 class="sp-h2 sp-h2--md" style="display:flex;align-items:center;gap:9px;margin-bottom:14px !important">
+							<?php echo Ui::icon( 'warning', 18, '#d97706', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span><?php esc_html_e( 'Low Stock Alerts', 'ai-site-assistant-autopilot' ); ?></span>
+							<span class="sp-pill sp-pill--warn sp-pill--xs" id="sp-low-stock-count">0</span>
+						</h2>
+						<div class="sp-stack" id="sp-low-stock">
+							<p class="sp-empty"><?php esc_html_e( 'Loading…', 'ai-site-assistant-autopilot' ); ?></p>
+						</div>
+					</div>
+					<div class="sp-card sp-card--24" style="flex:1 1 min(100%,300px);min-width:0">
+						<h2 class="sp-h2 sp-h2--md" style="margin-bottom:14px !important"><?php esc_html_e( 'Recent Orders', 'ai-site-assistant-autopilot' ); ?></h2>
+						<div class="sp-stack sp-stack--md" id="sp-recent-orders">
+							<p class="sp-empty"><?php esc_html_e( 'Loading…', 'ai-site-assistant-autopilot' ); ?></p>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<!-- Quick Actions -->
-			<div class="sp-dashboard-card sp-dashboard-card--actions">
-				<h2><?php esc_html_e( 'Quick Actions', 'sitepilot-ai' ); ?></h2>
-				<div class="sp-actions-grid">
-					<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=product' ) ); ?>" class="sp-action-btn">
-						<span class="sp-action-icon">🛍️</span>
-						<span class="sp-action-label"><?php esc_html_e( 'Products', 'sitepilot-ai' ); ?></span>
-					</a>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-orders' ) ); ?>" class="sp-action-btn">
-						<span class="sp-action-icon">📋</span>
-						<span class="sp-action-label"><?php esc_html_e( 'Orders', 'sitepilot-ai' ); ?></span>
-					</a>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-admin&path=/analytics/overview' ) ); ?>" class="sp-action-btn">
-						<span class="sp-action-icon">📊</span>
-						<span class="sp-action-label"><?php esc_html_e( 'Analytics', 'sitepilot-ai' ); ?></span>
-					</a>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . \SitePilot\Admin\WooCommerceSettings::SLUG ) ); ?>" class="sp-action-btn">
-						<span class="sp-action-icon">✍️</span>
-						<span class="sp-action-label"><?php esc_html_e( 'Content AI', 'sitepilot-ai' ); ?></span>
-					</a>
+				<div class="sp-card sp-card--24">
+					<h2 class="sp-h2 sp-h2--md" style="margin-bottom:14px !important"><?php esc_html_e( 'Quick Actions', 'ai-site-assistant-autopilot' ); ?></h2>
+					<div class="sp-tiles sp-tiles--160">
+						<a class="sp-quick" href="<?php echo esc_url( admin_url( 'edit.php?post_type=product' ) ); ?>">
+							<?php echo Ui::icon( 'box', 22, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span><?php esc_html_e( 'Products', 'ai-site-assistant-autopilot' ); ?></span>
+						</a>
+						<a class="sp-quick" href="<?php echo esc_url( admin_url( 'admin.php?page=wc-orders' ) ); ?>">
+							<?php echo Ui::icon( 'bag', 22, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span><?php esc_html_e( 'Orders', 'ai-site-assistant-autopilot' ); ?></span>
+						</a>
+						<a class="sp-quick" href="<?php echo esc_url( admin_url( 'admin.php?page=wc-admin&path=/analytics/overview' ) ); ?>">
+							<?php echo Ui::icon( 'chart', 22, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span><?php esc_html_e( 'Analytics', 'ai-site-assistant-autopilot' ); ?></span>
+						</a>
+						<a class="sp-quick" href="<?php echo esc_url( $wc_ai ); ?>">
+							<?php echo Ui::icon( 'spark', 22, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span><?php esc_html_e( 'Content AI', 'ai-site-assistant-autopilot' ); ?></span>
+						</a>
+					</div>
 				</div>
-			</div>
+			</section>
+			<?php Ui::overlays(); ?>
 		</div>
-
 		<?php
+		Ui::json_script(
+			'sp-wc-i18n',
+			array(
+				'empty'      => __( 'No data yet.', 'ai-site-assistant-autopilot' ),
+				/* translators: %s: number of units sold. */
+				'sold'       => __( '%s sold', 'ai-site-assistant-autopilot' ),
+				/* translators: %s: number of units still in stock. */
+				'left'       => __( '%s left', 'ai-site-assistant-autopilot' ),
+				'completed'  => __( 'Completed', 'ai-site-assistant-autopilot' ),
+				'processing' => __( 'Processing', 'ai-site-assistant-autopilot' ),
+				'onHold'     => __( 'On hold', 'ai-site-assistant-autopilot' ),
+				'days'       => array(
+					__( 'Mon', 'ai-site-assistant-autopilot' ),
+					__( 'Tue', 'ai-site-assistant-autopilot' ),
+					__( 'Wed', 'ai-site-assistant-autopilot' ),
+					__( 'Thu', 'ai-site-assistant-autopilot' ),
+					__( 'Fri', 'ai-site-assistant-autopilot' ),
+					__( 'Sat', 'ai-site-assistant-autopilot' ),
+					__( 'Sun', 'ai-site-assistant-autopilot' ),
+				),
+			)
+		);
 	}
 }

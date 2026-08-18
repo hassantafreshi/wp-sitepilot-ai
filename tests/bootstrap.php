@@ -8,16 +8,16 @@
 declare(strict_types=1);
 
 // Define constants that the plugin expects.
-define( 'SITEPILOT_AI_VERSION', '0.6.0' );
-define( 'SITEPILOT_AI_FILE', dirname( __DIR__ ) . '/sitepilot-ai.php' );
-define( 'SITEPILOT_AI_DIR', dirname( __DIR__ ) . '/' );
-define( 'SITEPILOT_AI_URL', 'http://example.com/wp-content/plugins/sitepilot-ai/' );
-define( 'SITEPILOT_AI_BASENAME', 'sitepilot-ai/sitepilot-ai.php' );
+define( 'AISAAUTOPILOT_VERSION', '0.6.0' );
+define( 'AISAAUTOPILOT_FILE', dirname( __DIR__ ) . '/ai-site-assistant-autopilot.php' );
+define( 'AISAAUTOPILOT_DIR', dirname( __DIR__ ) . '/' );
+define( 'AISAAUTOPILOT_URL', 'http://example.com/wp-content/plugins/ai-site-assistant-autopilot/' );
+define( 'AISAAUTOPILOT_BASENAME', 'ai-site-assistant-autopilot/ai-site-assistant-autopilot.php' );
 
 // Autoload plugin classes.
 spl_autoload_register( function ( string $class ): void {
-	$prefix   = 'SitePilot\\';
-	$base_dir = SITEPILOT_AI_DIR . 'includes/';
+	$prefix   = 'AISAAutoPilot\\';
+	$base_dir = AISAAUTOPILOT_DIR . 'includes/';
 
 	if ( strncmp( $prefix, $class, strlen( $prefix ) ) !== 0 ) {
 		return;
@@ -70,7 +70,17 @@ if ( ! function_exists( 'wp_parse_url' ) ) {
 
 if ( ! function_exists( 'wp_salt' ) ) {
 	function wp_salt( string $scheme = 'auth' ): string {
-		return 'sitepilot-test-salt-' . $scheme;
+		return 'aisaautopilot-test-salt-' . $scheme;
+	}
+}
+
+if ( ! function_exists( 'wp_unslash' ) ) {
+	/**
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	function wp_unslash( $value ) {
+		return is_string( $value ) ? stripslashes( $value ) : $value;
 	}
 }
 
@@ -140,36 +150,36 @@ if ( ! function_exists( 'get_option' ) ) {
 
 if ( ! function_exists( 'get_current_user_id' ) ) {
 	function get_current_user_id(): int {
-		return (int) ( $GLOBALS['sitepilot_test_user_id'] ?? 1 );
+		return (int) ( $GLOBALS['aisaautopilot_test_user_id'] ?? 1 );
 	}
 }
 
 if ( ! function_exists( 'set_transient' ) ) {
 	function set_transient( string $key, $value, int $expiration = 0 ): bool {
-		$GLOBALS['sitepilot_test_transients'][ $key ] = $value;
+		$GLOBALS['aisaautopilot_test_transients'][ $key ] = $value;
 		return true;
 	}
 }
 
 if ( ! function_exists( 'get_transient' ) ) {
 	function get_transient( string $key ) {
-		return $GLOBALS['sitepilot_test_transients'][ $key ] ?? false;
+		return $GLOBALS['aisaautopilot_test_transients'][ $key ] ?? false;
 	}
 }
 
 if ( ! function_exists( 'delete_transient' ) ) {
 	function delete_transient( string $key ): bool {
-		unset( $GLOBALS['sitepilot_test_transients'][ $key ] );
+		unset( $GLOBALS['aisaautopilot_test_transients'][ $key ] );
 		return true;
 	}
 }
 
 if ( ! function_exists( 'add_option' ) ) {
 	function add_option( string $option, $value = '', string $deprecated = '', $autoload = true ): bool {
-		if ( isset( $GLOBALS['sitepilot_test_added_options'][ $option ] ) ) {
+		if ( isset( $GLOBALS['aisaautopilot_test_added_options'][ $option ] ) ) {
 			return false;
 		}
-		$GLOBALS['sitepilot_test_added_options'][ $option ] = $value;
+		$GLOBALS['aisaautopilot_test_added_options'][ $option ] = $value;
 		return true;
 	}
 }

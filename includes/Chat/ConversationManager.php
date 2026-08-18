@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Chat;
+namespace AISAAutoPilot\Chat;
 
 /**
- * Manages chat conversations in a custom DB table (wp_sitepilot_chats).
+ * Manages chat conversations in a custom DB table (wp_aisaautopilot_chats).
  *
  * Each conversation has:
  * - id, title, messages (JSON), created_at, updated_at, user_id
@@ -15,7 +15,7 @@ final class ConversationManager {
 
 	private \wpdb $db;
 
-	public const TABLE = 'sitepilot_chats';
+	public const TABLE = 'aisaautopilot_chats';
 
 	public function __construct( ?\wpdb $db = null ) {
 		$this->db = $db ?? $GLOBALS['wpdb'];
@@ -67,7 +67,7 @@ final class ConversationManager {
 			$this->table(),
 			array(
 				'user_id'       => get_current_user_id(),
-				'title'         => $title ?: __( 'New conversation', 'sitepilot-ai' ),
+				'title'         => $title ?: __( 'New conversation', 'ai-site-assistant-autopilot' ),
 				'messages'      => '[]',
 				'message_count' => 0,
 				'created_at'    => $now,

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Content;
+namespace AISAAutoPilot\Content;
 
-use SitePilot\Providers\ProviderInterface;
-use SitePilot\Providers\ProviderException;
+use AISAAutoPilot\Providers\ProviderInterface;
+use AISAAutoPilot\Providers\ProviderException;
 
 /**
  * Sends raw post content to the AI provider and receives a structured

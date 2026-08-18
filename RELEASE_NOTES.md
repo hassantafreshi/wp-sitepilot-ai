@@ -1,4 +1,4 @@
-# SitePilot AI 1.0.2 - Phase 1 release candidate
+# AI Site Assistant AutoPilot 1.0.2 - Phase 1 release candidate
 
 ## Release status
 
@@ -16,19 +16,19 @@ ready. The precise production acceptance steps are tracked in
   cannot be approved by a different user, and use an atomic claim lock to
   prevent replay.
 - Redacted action and delivery audit events; no form values are logged.
-- Native SitePilot Forms data contract: 20-field maximum and only text, email,
+- Native AISAAutoPilot Forms data contract: 20-field maximum and only text, email,
   tel, textarea, select, radio, and checkbox fields. `phone` normalizes to
   `tel`; uploads and high-risk field types are rejected.
 - **Create with AI** accepts text and a protected, maximum-45-second voice
   command, then displays the exact preview and masked delivery recipient.
 - Public submission delivery uses `wp_mail()` with server-side validation,
   nonce, honeypot, hashed per-form/IP transient rate limit, and safe Reply-To.
-  Visitor values are not stored by SitePilot.
+  Visitor values are not stored by AISAAutoPilot.
 - Easy Form Builder is visibly separated as the advanced-form route.
 - WooCommerce can create only a separately approved **simple product draft**;
   publish, order, refund, cart, checkout, discount, and price writes remain
   unavailable.
-- Every SitePilot admin route uses the shared UI shell. The form builder uses
+- Every AISAAutoPilot admin route uses the shared UI shell. The form builder uses
   one exclusive compose/review/result state at a time.
 
 ## Verification performed
@@ -39,9 +39,9 @@ ready. The precise production acceptance steps are tracked in
 - Local WordPress Phase 1 integration: 34/34 checks passed.
 - Native form smoke test: 8/8 checks passed.
 - WooCommerce draft smoke test: 3/3 checks passed.
-- Browser E2E: all 14 SitePilot admin pages, the single form-builder flow,
+- Browser E2E: all 14 AISAAutoPilot admin pages, the single form-builder flow,
   390px mobile layout, RTL layout, widget launcher, TTS, and the safe public
-  microphone endpoint passed with no SitePilot JavaScript console errors.
+  microphone endpoint passed with no AISAAutoPilot JavaScript console errors.
 - The delivery test uses `pre_wp_mail` and verifies recipient, body,
   Reply-To, rate limiting, and that visitor values are never stored.
 

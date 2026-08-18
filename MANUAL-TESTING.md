@@ -1,10 +1,10 @@
-# SitePilot AI — Manual Testing Checklist
+# AI Site Assistant AutoPilot — Manual Testing Checklist
 
 راهنمای تست دستی مرحله‌به‌مرحله. هر گام یک **Action** (کاری که انجام می‌دهید) و یک **Expected**
 (نتیجه‌ی مورد انتظار) دارد. کنار هر گام تیک بزنید. اگر گامی شکست خورد، شماره‌اش را یادداشت کنید.
 
-- Plugin path (source): `apps/wordpress-plugin/sitepilot-ai`
-- Deployed to: `C:\xampp\htdocs\wp\wp-content\plugins\sitepilot-ai`
+- Plugin path (source): `apps/wordpress-plugin/ai-site-assistant-autopilot`
+- Deployed to: `C:\xampp\htdocs\wp\wp-content\plugins\ai-site-assistant-autopilot`
 - نیازمندی: یک کلید API از یک سرویس سازگار با OpenAI (پیش‌فرض: **DeepSeek** → https://platform.deepseek.com/api_keys). cloud.ai / OpenAI / OpenRouter / Groq هم کار می‌کنند.
 
 > اگر کلید API ندارید، همه‌ی گام‌ها به‌جز «تولید فرم واقعی» را می‌توانید تست کنید (Parts 0,1-partial,5b,6).
@@ -15,10 +15,10 @@
 
 - [ ] **0.1** Start XAMPP → Apache + MySQL running. Open your site admin: `http://localhost/wp/wp-admin`.
   **Expected:** WordPress dashboard loads.
-- [ ] **0.2** Go to **Plugins → Installed Plugins**. Find **SitePilot AI**.
+- [ ] **0.2** Go to **Plugins → Installed Plugins**. Find **AI Site Assistant AutoPilot**.
   **Expected:** It appears in the list (deployed by the sync script).
 - [ ] **0.3** Click **Activate**.
-  **Expected:** Activates with no error. A **SitePilot AI** menu (superhero icon) appears in the left admin sidebar.
+  **Expected:** Activates with no error. A **AI Site Assistant AutoPilot** menu (superhero icon) appears in the left admin sidebar.
 - [ ] **0.4** (PHP < 8.1 only) If activation is blocked, you should see a clear message “requires PHP 8.1 or higher”.
   **Expected:** Graceful message, not a fatal white screen.
 
@@ -26,7 +26,7 @@
 
 ## Part 1 — Settings & provider connection
 
-- [ ] **1.1** Open **SitePilot AI → Settings**.
+- [ ] **1.1** Open **AI Site Assistant AutoPilot → Settings**.
   **Expected:** Settings page loads with a blue info banner about standalone mode.
 - [ ] **1.2** In **AI Provider**, pick **DeepSeek**.
   **Expected:** Base URL auto-fills to `https://api.deepseek.com/v1`, Model to `deepseek-chat`, and a “Get your DeepSeek API key” link appears under the API Key field.
@@ -37,13 +37,13 @@
 - [ ] **1.5** Click **Test connection**.
   **Expected:** A spinner, then a green **“Connection successful.”** (If the key is wrong you get a red “rejected your API key”; if base URL is wrong, “could not reach the provider”.)
 - [ ] **1.6** Scroll to **Form connectors** table.
-  **Expected:** “SitePilot Built-in Forms” = **Available**. “Easy Form Builder” = **Not active** (expected, until an EFB integration is registered).
+  **Expected:** “AISAAutoPilot Built-in Forms” = **Available**. “Easy Form Builder” = **Not active** (expected, until an EFB integration is registered).
 
 ---
 
 ## Part 2 — Generate a form (happy path)
 
-- [ ] **2.1** Open **SitePilot AI → Copilot**.
+- [ ] **2.1** Open **AI Site Assistant AutoPilot → Copilot**.
   **Expected:** Composer card with a textarea and example chips. No warning banner (because a key is configured).
 - [ ] **2.2** Click the example chip **“Create a contact form with name, email, phone, and message.”**
   **Expected:** The text drops into the textarea.
@@ -59,17 +59,17 @@
 - [ ] **3.1** In the Preview card, click **Cancel**.
   **Expected:** Preview hides. Nothing was created.
 - [ ] **3.2** Generate the preview again (repeat 2.2–2.3), then click **Approve & create form**.
-  **Expected:** Spinner + “Creating the form…”, then a **Result** card: “Form created as a draft”, a shortcode box `[sitepilot_form id="N"]` with a **Copy shortcode** button, and an **Open the form** button.
+  **Expected:** Spinner + “Creating the form…”, then a **Result** card: “Form created as a draft”, a shortcode box `[aisaautopilot_form id="N"]` with a **Copy shortcode** button, and an **Open the form** button.
 - [ ] **3.3** Click **Copy shortcode**.
   **Expected:** Button briefly says “Copied!”. (Clipboard now holds the shortcode.)
-- [ ] **3.4** Confirm the form exists: click **Open the form** (or check the DB) — it opens the SitePilot Forms edit screen for the new post.
-  **Expected:** A `sitepilot_form` post exists with your title, saved as **Draft**.
+- [ ] **3.4** Confirm the form exists: click **Open the form** (or check the DB) — it opens the AISAAutoPilot Forms edit screen for the new post.
+  **Expected:** A `aisaautopilot_form` post exists with your title, saved as **Draft**.
 
 ---
 
 ## Part 4 — Show the form on the site & submit it
 
-- [ ] **4.1** Create a page: **Pages → Add New**. Title “Contact test”. In the content, paste the shortcode `[sitepilot_form id="N"]` (use your N). **Publish**.
+- [ ] **4.1** Create a page: **Pages → Add New**. Title “Contact test”. In the content, paste the shortcode `[aisaautopilot_form id="N"]` (use your N). **Publish**.
   **Expected:** Page publishes.
 - [ ] **4.2** Click **View page**.
   **Expected:** The form renders with styled fields (name/email/phone/message), required fields marked with a red `*`, and a submit button.
@@ -77,7 +77,7 @@
   **Expected:** Browser blocks submission on required fields (HTML5 validation).
 - [ ] **4.4** Fill valid values and submit.
   **Expected:** Page reloads and shows the green confirmation message (“Thank you…”).
-- [ ] **4.5** In admin, check the submission was stored: the `sitepilot_submission` post type holds a “Submission: …” entry with the values.
+- [ ] **4.5** In admin, check the submission was stored: the `aisaautopilot_submission` post type holds a “Submission: …” entry with the values.
   **Expected:** One private submission record with your field values.
 
 ---
@@ -99,7 +99,7 @@
 
 ## Part 6 — Activity log
 
-- [ ] **6.1** Open **SitePilot AI → Logs**.
+- [ ] **6.1** Open **AI Site Assistant AutoPilot → Logs**.
   **Expected:** A table of recent events: `plan.created`, `action.executed`, plus any `*.error` rows. Times in UTC, level pills.
 - [ ] **6.2** Inspect messages.
   **Expected:** **No API key** or secret appears anywhere in the log (redaction works).
@@ -111,7 +111,7 @@
 ## Part 7 — Draft vs Published setting
 
 - [ ] **7.1** In Settings, choose **create as Published**, Save. Create a new form via Copilot and approve.
-  **Expected:** Result says “Form created” (not “as a draft”); the `sitepilot_form` post status is **Published**. The preview pill should have shown “Will be published”.
+  **Expected:** Result says “Form created” (not “as a draft”); the `aisaautopilot_form` post status is **Published**. The preview pill should have shown “Will be published”.
 - [ ] **7.2** Switch back to **Draft** for safety.
 
 ---
@@ -119,8 +119,8 @@
 ## Part 8 — Easy Form Builder fallback (design check)
 
 - [ ] **8.1** With no EFB integration registered, generate + approve a form.
-  **Expected:** The connector used (shown in the preview pill and result) is **SitePilot Built-in Forms** — the built-in fallback works even without EFB.
-- [ ] **8.2** (Optional, for developers) Register the two filters from `README.md` (`sitepilot_ai_efb_available`, `sitepilot_ai_efb_create_form`) with Easy Form Builder active.
+  **Expected:** The connector used (shown in the preview pill and result) is **AISAAutoPilot Built-in Forms** — the built-in fallback works even without EFB.
+- [ ] **8.2** (Optional, for developers) Register the two filters from `README.md` (`aisaautopilot_efb_available`, `aisaautopilot_efb_create_form`) with Easy Form Builder active.
   **Expected:** The preview/result now show **Easy Form Builder** as the connector, and the form is created via EFB.
 
 ---
@@ -130,7 +130,7 @@
 - [ ] **9.1** Deactivate the plugin.
   **Expected:** No error. Your created forms/pages remain.
 - [ ] **9.2** Delete the plugin.
-  **Expected:** Plugin settings, the encrypted key, and logs are removed; your `sitepilot_form` / `sitepilot_submission` posts are intentionally left in place.
+  **Expected:** Plugin settings, the encrypted key, and logs are removed; your `aisaautopilot_form` / `aisaautopilot_submission` posts are intentionally left in place.
 
 ---
 
@@ -160,13 +160,13 @@
 - [ ] **10.8** Click **Open Easy Form Builder forms** (or reload `page=Emsfb`).
   **Expected:** The new form appears in EFB’s own forms list with your title.
 - [ ] **10.9** Open the new form in EFB’s builder.
-  **Expected:** It opens with the fields SitePilot generated — you can edit/style/save it with EFB’s
+  **Expected:** It opens with the fields AISAAutoPilot generated — you can edit/style/save it with EFB’s
   own tools (name, email, phone/tel, the dropdown with its options, message textarea).
 - [ ] **10.10** Put the shortcode `[EMS_Form_Builder id=N]` on a page and view it on the front end.
   **Expected:** EFB renders the form; it submits and stores a response in EFB (its own responses view).
 - [ ] **10.11 (safety)** Ask for *“a payment form with credit card and CVV”* → Generate.
   **Expected:** Card/CVV fields are omitted or rejected (forbidden types never reach EFB).
-- [ ] **10.12 (routing)** In **SitePilot AI → Settings → Form connectors**, confirm **Easy Form Builder**
+- [ ] **10.12 (routing)** In **AI Site Assistant AutoPilot → Settings → Form connectors**, confirm **Easy Form Builder**
   shows **Available / Detected**. In the main **Copilot** page, approving a form now also routes to EFB
   (built-in forms are only the fallback when EFB is off).
 
@@ -184,9 +184,9 @@
 
 ## Part 11 — Voice and public live assistant
 
-- [ ] **11.1** In **SitePilot AI → Settings**, set a provider with an OpenAI/Groq-compatible
+- [ ] **11.1** In **AI Site Assistant AutoPilot → Settings**, set a provider with an OpenAI/Groq-compatible
   `/audio/transcriptions` endpoint and save its STT model (for example `whisper-1`).
-- [ ] **11.2** Open an Easy Form Builder page, open SitePilot, and use the microphone button.
+- [ ] **11.2** Open an Easy Form Builder page, open AISAAutoPilot, and use the microphone button.
   **Expected:** supported browsers show interim words in the message box while speaking; recording
   visibly stops after 45 seconds at most; its transcript is put in the
   message box and is not sent until the administrator explicitly presses Send.

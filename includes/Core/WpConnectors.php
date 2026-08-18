@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Core;
+namespace AISAAutoPilot\Core;
 
 /**
  * WordPress 7.0+ Connectors API integration.
  *
  * When WordPress 7's Connectors API is available, the user can choose to
  * manage their AI provider API key through the native Settings → Connectors
- * screen instead of (or alongside) SitePilot's own encrypted KeyVault.
+ * screen instead of (or alongside) AISAAutoPilot's own encrypted KeyVault.
  *
  * The integration is fully backward-compatible: on WordPress < 7.0 the
  * Connectors API functions don't exist, so we fall back to KeyVault silently.
@@ -18,10 +18,10 @@ namespace SitePilot\Core;
 final class WpConnectors {
 
 	/** The connector slug registered with WordPress. */
-	public const CONNECTOR_ID = 'sitepilot-ai';
+	public const CONNECTOR_ID = 'ai-site-assistant-autopilot';
 
 	/** The wp_options key where WP Connectors stores the API key. */
-	public const WP_OPTION_KEY = 'sitepilot_ai_wp_connector_key';
+	public const WP_OPTION_KEY = 'aisaautopilot_wp_connector_key';
 
 	/**
 	 * Check whether the WordPress Connectors API is available (WP 7.0+).
@@ -32,7 +32,7 @@ final class WpConnectors {
 	}
 
 	/**
-	 * Register SitePilot AI as a connector in WordPress 7's Connectors API.
+	 * Register AI Site Assistant AutoPilot as a connector in WordPress 7's Connectors API.
 	 * Called on `init` — safe to call on WP < 7 (no-ops gracefully).
 	 */
 	public static function register(): void {
@@ -41,16 +41,16 @@ final class WpConnectors {
 		}
 
 		$args = array(
-			'label'       => __( 'SitePilot AI', 'sitepilot-ai' ),
-			'description' => __( 'AI copilot for WordPress — form creation, content intelligence, and site assistance.', 'sitepilot-ai' ),
+			'label'       => __( 'AI Site Assistant AutoPilot', 'ai-site-assistant-autopilot' ),
+			'description' => __( 'AI copilot for WordPress — form creation, content intelligence, and site assistance.', 'ai-site-assistant-autopilot' ),
 			'icon'        => 'dashicons-superhero',
 			'auth'        => array(
 				'type'          => 'api_key',
 				'setting_name'  => self::WP_OPTION_KEY,
-				'env_var_name'  => 'SITEPILOT_AI_API_KEY',
-				'constant_name' => 'SITEPILOT_AI_API_KEY',
-				'label'         => __( 'API Key', 'sitepilot-ai' ),
-				'description'   => __( 'Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Clusy.io, or any OpenAI-compatible provider).', 'sitepilot-ai' ),
+				'env_var_name'  => 'AISAAUTOPILOT_API_KEY',
+				'constant_name' => 'AISAAUTOPILOT_API_KEY',
+				'label'         => __( 'API Key', 'ai-site-assistant-autopilot' ),
+				'description'   => __( 'Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Clusy.io, or any OpenAI-compatible provider).', 'ai-site-assistant-autopilot' ),
 				'key_url'       => 'https://platform.deepseek.com/api_keys',
 			),
 		);
@@ -67,22 +67,22 @@ final class WpConnectors {
 	 * Get the API key from the WordPress Connectors system.
 	 *
 	 * Resolution order (matches WP Connectors convention):
-	 * 1. Environment variable (SITEPILOT_AI_API_KEY)
-	 * 2. PHP constant (SITEPILOT_AI_API_KEY)
+	 * 1. Environment variable (AISAAUTOPILOT_API_KEY)
+	 * 2. PHP constant (AISAAUTOPILOT_API_KEY)
 	 * 3. wp_options (set via Settings → Connectors UI)
 	 *
 	 * @return string The API key, or empty string if not set.
 	 */
 	public static function get_api_key(): string {
 		// 1. Environment variable.
-		$env = getenv( 'SITEPILOT_AI_API_KEY' );
+		$env = getenv( 'AISAAUTOPILOT_API_KEY' );
 		if ( is_string( $env ) && '' !== trim( $env ) ) {
 			return trim( $env );
 		}
 
 		// 2. PHP constant.
-		if ( defined( 'SITEPILOT_AI_API_KEY' ) && '' !== trim( (string) constant( 'SITEPILOT_AI_API_KEY' ) ) ) {
-			return trim( (string) constant( 'SITEPILOT_AI_API_KEY' ) );
+		if ( defined( 'AISAAUTOPILOT_API_KEY' ) && '' !== trim( (string) constant( 'AISAAUTOPILOT_API_KEY' ) ) ) {
+			return trim( (string) constant( 'AISAAUTOPILOT_API_KEY' ) );
 		}
 
 		// 3. wp_options (set via WP Connectors UI or our fallback).
@@ -126,7 +126,7 @@ final class WpConnectors {
 	 *
 	 * Priority:
 	 * 1. If user chose "wp_connectors" and it's available → use WP Connectors key
-	 * 2. Otherwise → use SitePilot KeyVault (encrypted)
+	 * 2. Otherwise → use AISAAutoPilot KeyVault (encrypted)
 	 * 3. Fallback → check WP Connectors anyway (in case key was set there)
 	 */
 	public static function get_effective_api_key(): string {
@@ -153,9 +153,9 @@ final class WpConnectors {
 		$mode = self::get_active_mode();
 
 		return match ( $mode ) {
-			'wp_connectors' => __( 'WordPress Connectors (Settings → Connectors)', 'sitepilot-ai' ),
-			'keyvault'      => __( 'SitePilot Encrypted Vault', 'sitepilot-ai' ),
-			default         => __( 'No API key configured', 'sitepilot-ai' ),
+			'wp_connectors' => __( 'WordPress Connectors (Settings → Connectors)', 'ai-site-assistant-autopilot' ),
+			'keyvault'      => __( 'AISAAutoPilot Encrypted Vault', 'ai-site-assistant-autopilot' ),
+			default         => __( 'No API key configured', 'ai-site-assistant-autopilot' ),
 		};
 	}
 }

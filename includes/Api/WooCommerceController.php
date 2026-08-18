@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Connectors\WooCommerceConnector;
-use SitePilot\Connectors\WooCommerceProductSkill;
+use AISAAutoPilot\Connectors\WooCommerceConnector;
+use AISAAutoPilot\Connectors\WooCommerceProductSkill;
 
 /**
  * REST controller for WooCommerce AI operations.
@@ -33,7 +33,7 @@ final class WooCommerceController {
 				array(
 					'ok'     => false,
 					'code'   => 'empty',
-					'errors' => array( __( 'Please describe the product draft you want to create.', 'sitepilot-ai' ) ),
+					'errors' => array( __( 'Please describe the product draft you want to create.', 'ai-site-assistant-autopilot' ) ),
 				),
 				400
 			);
@@ -43,7 +43,7 @@ final class WooCommerceController {
 				array(
 					'ok'     => false,
 					'code'   => 'prompt_too_long',
-					'errors' => array( __( 'Your product request is too long.', 'sitepilot-ai' ) ),
+					'errors' => array( __( 'Your product request is too long.', 'ai-site-assistant-autopilot' ) ),
 				),
 				400
 			);

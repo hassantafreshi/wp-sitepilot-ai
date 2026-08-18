@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Usage;
+namespace AISAAutoPilot\Usage;
 
 /** Records STT duration separately; audio and transcripts are never stored. */
 final class VoiceUsageTracker {
-	private const OPTION  = 'sitepilot_ai_voice_usage_log';
+	private const OPTION  = 'aisaautopilot_voice_usage_log';
 	private const MAX_LOG = 500;
 
 	public function record( float $seconds, string $scope, string $model ): void {

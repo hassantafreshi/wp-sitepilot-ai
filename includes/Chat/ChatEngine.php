@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Chat;
+namespace AISAAutoPilot\Chat;
 
-use SitePilot\Content\KbCache;
-use SitePilot\Content\KbGaps;
-use SitePilot\Content\KnowledgeBase;
-use SitePilot\Content\VectorSearch;
-use SitePilot\Core\Settings;
-use SitePilot\Logging\Logger;
-use SitePilot\Providers\ProviderManager;
+use AISAAutoPilot\Content\KbCache;
+use AISAAutoPilot\Content\KbGaps;
+use AISAAutoPilot\Content\KnowledgeBase;
+use AISAAutoPilot\Content\VectorSearch;
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Providers\ProviderManager;
 
 /**
  * RAG (Retrieval-Augmented Generation) engine.
@@ -61,7 +61,7 @@ final class ChatEngine {
 		$manager = new ProviderManager();
 		if ( ! $manager->is_configured() ) {
 			return $this->result(
-				__( 'AI provider is not configured. Please add your API key in Settings.', 'sitepilot-ai' ),
+				__( 'AI provider is not configured. Please add your API key in Settings.', 'ai-site-assistant-autopilot' ),
 				array(),
 				'not_configured'
 			);
@@ -119,7 +119,7 @@ final class ChatEngine {
 			$this->logger->error( 'chat_rag', $e->getMessage() );
 
 			return $this->result(
-				__( 'An error occurred while processing your question. Please try again.', 'sitepilot-ai' ),
+				__( 'An error occurred while processing your question. Please try again.', 'ai-site-assistant-autopilot' ),
 				array(),
 				'error'
 			);
@@ -174,7 +174,7 @@ final class ChatEngine {
 			$options = array_slice( array_values( array_unique( $options ) ), 0, 5 );
 
 			if ( '' === $answer ) {
-				$answer = __( 'I found a few different things that could match. Which one did you mean?', 'sitepilot-ai' );
+				$answer = __( 'I found a few different things that could match. Which one did you mean?', 'ai-site-assistant-autopilot' );
 			}
 
 			return $this->result( $answer, $this->map_sources( $decision, $map ), 'clarify', $options );
@@ -314,7 +314,7 @@ final class ChatEngine {
 	}
 
 	private function build_system_prompt( string $context ): string {
-		return 'You are SitePilot, a warm, knowledgeable support specialist for this website. '
+		return 'You are AISAAutoPilot, a warm, knowledgeable support specialist for this website. '
 			. "You speak like a helpful human expert — friendly, clear and genuinely useful — never robotic.\n\n"
 			. "You are given numbered KNOWLEDGE entries drawn from the site's own content. "
 			. "Decide how to respond and reply with a JSON object using EXACTLY these keys:\n"
@@ -340,7 +340,7 @@ final class ChatEngine {
 	 * Plain-text prompt used only if the provider fails JSON mode.
 	 */
 	private function build_plain_prompt( string $context ): string {
-		return "You are SitePilot, a warm, knowledgeable human-like support specialist for this website.\n"
+		return "You are AISAAutoPilot, a warm, knowledgeable human-like support specialist for this website.\n"
 			. "Answer using ONLY the numbered KNOWLEDGE below, in the SAME language as the user.\n"
 			. "Be friendly and clear; for how-to questions give concrete numbered steps. Use light Markdown.\n"
 			. "If nothing is relevant, say so honestly. Never write \"I used post X\".\n"
@@ -374,16 +374,16 @@ final class ChatEngine {
 	}
 
 	private function not_found_message( bool $handoff ): string {
-		$base = __( "I looked through the site's content but couldn't find a clear answer to that yet.", 'sitepilot-ai' );
+		$base = __( "I looked through the site's content but couldn't find a clear answer to that yet.", 'ai-site-assistant-autopilot' );
 		if ( $handoff ) {
 			return $base . "\n\n" . $this->handoff_line();
 		}
 
-		return $base . ' ' . __( 'Could you try rephrasing, or asking about something else?', 'sitepilot-ai' );
+		return $base . ' ' . __( 'Could you try rephrasing, or asking about something else?', 'ai-site-assistant-autopilot' );
 	}
 
 	private function handoff_line(): string {
-		return __( 'Would you like me to connect you with a member of our team?', 'sitepilot-ai' );
+		return __( 'Would you like me to connect you with a member of our team?', 'ai-site-assistant-autopilot' );
 	}
 
 	/**

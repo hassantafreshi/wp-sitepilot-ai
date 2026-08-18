@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Connectors;
+namespace AISAAutoPilot\Connectors;
 
-use SitePilot\Efb\EfbFormConverter;
-use SitePilot\Efb\EfbFormModel;
+use AISAAutoPilot\Efb\EfbFormConverter;
+use AISAAutoPilot\Efb\EfbFormModel;
 
 /**
  * Easy Form Builder connector.
@@ -14,11 +14,11 @@ use SitePilot\Efb\EfbFormModel;
  * (json_encode + escape every " to \"). The form then appears in the EFB forms
  * list and is fully editable with EFB's builder.
  *
- * A `sitepilot_ai_efb_create_form` filter can override the persistence entirely.
+ * A `aisaautopilot_efb_create_form` filter can override the persistence entirely.
  */
 final class EasyFormBuilderConnector implements ConnectorInterface {
 
-	/** The first EFB release verified against SitePilot's storage converter. */
+	/** The first EFB release verified against AISAAutoPilot's storage converter. */
 	private const MIN_SUPPORTED_VERSION = '4.1.0';
 
 	/** @var string[] */
@@ -39,7 +39,7 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 	}
 
 	public function get_name(): string {
-		return __( 'Easy Form Builder', 'sitepilot-ai' );
+		return __( 'Easy Form Builder', 'ai-site-assistant-autopilot' );
 	}
 
 	public function is_available(): bool {
@@ -52,7 +52,7 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 		 *
 		 * @param bool $available
 		 */
-		return (bool) apply_filters( 'sitepilot_ai_efb_available', $detected );
+		return (bool) apply_filters( 'aisaautopilot_efb_available', $detected );
 	}
 
 	public function get_capabilities(): array {
@@ -64,17 +64,17 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 		$allowed = EfbFormModel::allowed_types();
 
 		if ( ! $this->is_available() ) {
-			return array( __( 'Easy Form Builder is not active or does not match the supported 4.1+ storage contract.', 'sitepilot-ai' ) );
+			return array( __( 'Easy Form Builder is not active or does not match the supported 4.1+ storage contract.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		if ( '' === trim( (string) ( $plan['title'] ?? '' ) ) ) {
-			$errors[] = __( 'The form has no title.', 'sitepilot-ai' );
+			$errors[] = __( 'The form has no title.', 'ai-site-assistant-autopilot' );
 		}
 
 		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
 			$type = is_array( $field ) ? (string) ( $field['type'] ?? '' ) : '';
 			if ( ! in_array( $type, $allowed, true ) ) {
-				$errors[] = sprintf( /* translators: %s: field type. */ __( 'Unsupported Easy Form Builder field type "%s".', 'sitepilot-ai' ), $type );
+				$errors[] = sprintf( /* translators: %s: field type. */ __( 'Unsupported Easy Form Builder field type "%s".', 'ai-site-assistant-autopilot' ), $type );
 			}
 		}
 
@@ -92,8 +92,8 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 		}
 
 		// Allow a custom integration to fully override persistence.
-		if ( has_filter( 'sitepilot_ai_efb_create_form' ) ) {
-			$override = apply_filters( 'sitepilot_ai_efb_create_form', null, $plan, $context );
+		if ( has_filter( 'aisaautopilot_efb_create_form' ) ) {
+			$override = apply_filters( 'aisaautopilot_efb_create_form', null, $plan, $context );
 			if ( is_array( $override ) ) {
 				return $override;
 			}
@@ -126,7 +126,7 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 			return array(
 				'status'  => 'failed',
 				'code'    => 'execution_failed',
-				'message' => __( 'The form could not be saved into Easy Form Builder.', 'sitepilot-ai' ),
+				'message' => __( 'The form could not be saved into Easy Form Builder.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -151,13 +151,14 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 		$supported = $this->version_is_supported();
 		$schema_ok = $this->has_required_schema();
 		$available = $this->is_available();
-		$notes     = __( 'Easy Form Builder is not active.', 'sitepilot-ai' );
+		$notes     = __( 'Easy Form Builder is not active.', 'ai-site-assistant-autopilot' );
 		if ( $active && ! $supported ) {
-			$notes = sprintf( __( 'Easy Form Builder %1$s is detected, but SitePilot currently supports version %2$s or newer.', 'sitepilot-ai' ), $version ?: '—', self::MIN_SUPPORTED_VERSION );
+			/* translators: 1: detected Easy Form Builder version, 2: minimum supported version. */
+			$notes = sprintf( __( 'Easy Form Builder %1$s is detected, but AISAAutoPilot currently supports version %2$s or newer.', 'ai-site-assistant-autopilot' ), $version ?: '—', self::MIN_SUPPORTED_VERSION );
 		} elseif ( $active && ! $schema_ok ) {
-			$notes = __( 'Easy Form Builder is active, but its form storage table is incomplete. Run its update/repair process before creating forms.', 'sitepilot-ai' );
+			$notes = __( 'Easy Form Builder is active, but its form storage table is incomplete. Run its update/repair process before creating forms.', 'ai-site-assistant-autopilot' );
 		} elseif ( $available ) {
-			$notes = __( 'Compatible. New forms are created in Easy Form Builder and open in its editor.', 'sitepilot-ai' );
+			$notes = __( 'Compatible. New forms are created in Easy Form Builder and open in its editor.', 'ai-site-assistant-autopilot' );
 		}
 
 		return array(

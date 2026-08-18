@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Efb;
+namespace AISAAutoPilot\Efb;
 
-use SitePilot\Core\SiteLanguage;
-use SitePilot\Providers\ProviderInterface;
+use AISAAutoPilot\Core\SiteLanguage;
+use AISAAutoPilot\Providers\ProviderInterface;
 
 /**
  * Unified conversational orchestrator for the Easy Form Builder chat.
@@ -23,7 +23,7 @@ final class EfbChatSkill {
 	 * @param array<int,array{id:string,label:string}>             $steps
 	 * @param array<string,mixed>                                  $license
 	 * @return array<string,mixed>
-	 * @throws \SitePilot\Providers\ProviderException
+	 * @throws \AISAAutoPilot\Providers\ProviderException
 	 */
 	public function respond( string $message, array $history, bool $has_form, array $fields, array $steps = array(), array $license = array() ): array {
 		return $this->provider->generate_structured_output(
@@ -39,7 +39,7 @@ final class EfbChatSkill {
 		$language_rule              = $this->language_rule();
 
 		return <<<PROMPT
-You are SitePilot, a friendly assistant embedded in the WordPress plugin Easy Form Builder.
+You are AISAAutoPilot, a friendly assistant embedded in the WordPress plugin Easy Form Builder.
 You help an administrator design a new form, customize the open form, or answer a how-to question.
 {$language_rule}
 Always reply in the language used by the latest user message. Respond with ONLY one JSON object; no prose or Markdown.

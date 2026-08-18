@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Skills;
+namespace AISAAutoPilot\Skills;
 
 /**
  * The contract for a form plan (MVP Form Copilot Spec §7-§8).
@@ -10,9 +10,9 @@ namespace SitePilot\Skills;
 final class FormPlanSchema {
 
 	/**
-	 * Field types offered by the independent SitePilot Forms product.
+	 * Field types offered by the independent AISAAutoPilot Forms product.
 	 *
-	 * This is intentionally smaller than Easy Form Builder. SitePilot Forms is
+	 * This is intentionally smaller than Easy Form Builder. AISAAutoPilot Forms is
 	 * a single-step, email-only form flow; uploads, payments, passwords and
 	 * account fields belong in an advanced form product instead.
 	 */

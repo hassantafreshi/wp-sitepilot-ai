@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests\Unit;
+namespace AISAAutoPilot\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Connectors\WooCommerceContentSkill;
+use AISAAutoPilot\Connectors\WooCommerceContentSkill;
 
 /**
  * Unit tests for WooCommerceContentSkill.

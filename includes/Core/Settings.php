@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Core;
-use SitePilot\Security\KeyVault;
+namespace AISAAutoPilot\Core;
+use AISAAutoPilot\Security\KeyVault;
 
 final class Settings {
-	public const OPTION           = 'sitepilot_ai_settings';
-	public const KEY_OPTION       = 'sitepilot_ai_provider_key';
-	public const EMBED_KEY_OPTION = 'sitepilot_ai_embedding_key';
-	public const HANDOFF_SECRET_OPTION = 'sitepilot_ai_handoff_secrets';
+	public const OPTION           = 'aisaautopilot_settings';
+	public const KEY_OPTION       = 'aisaautopilot_provider_key';
+	public const EMBED_KEY_OPTION = 'aisaautopilot_embedding_key';
+	public const HANDOFF_SECRET_OPTION = 'aisaautopilot_handoff_secrets';
 
 	/** @var string[] */
 	private const HANDOFF_SECRET_KEYS = array(
@@ -16,51 +16,304 @@ final class Settings {
 		'handoff_twilio_token',
 	);
 
+	/**
+	 * Every field a preset may carry, with the value assumed when it is omitted.
+	 *
+	 * `api` picks the wire format (`openai` = Chat Completions, `anthropic` =
+	 * Messages), `auth` picks the header the key travels in, `models` is the
+	 * starting dropdown, and `embeddings` lists the models the same endpoint can
+	 * vectorise with — empty means the provider has no /embeddings route.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private const PRESET_DEFAULTS = array(
+		'label'      => '',
+		'base_url'   => '',
+		'model'      => '',
+		'key_url'    => '',
+		'api'        => 'openai',
+		'auth'       => 'bearer',
+		'group'      => 'direct',
+		'models'     => array(),
+		'embeddings' => array(),
+		'note'       => '',
+	);
+
+	/**
+	 * The provider catalogue.
+	 *
+	 * Model lists are a starting point, not a hard-coded truth: every provider
+	 * here also answers `GET {base_url}/models`, and the Settings screen refreshes
+	 * the dropdown from that live list on request. Anything not listed can still
+	 * be typed in by hand.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
 	public static function presets(): array {
-		return array(
+		$presets = array(
+			'openai'     => array(
+				'label'      => 'OpenAI',
+				'base_url'   => 'https://api.openai.com/v1',
+				'model'      => 'gpt-5.6-luna',
+				'key_url'    => 'https://platform.openai.com/api-keys',
+				'models'     => array(
+					'gpt-5.6-sol'         => 'GPT-5.6 Sol (flagship)',
+					'gpt-5.6-terra'       => 'GPT-5.6 Terra (balanced)',
+					'gpt-5.6-luna'        => 'GPT-5.6 Luna (cost-optimised)',
+					'gpt-5.5'             => 'GPT-5.5',
+					'gpt-5.5-pro'         => 'GPT-5.5 Pro',
+					'gpt-5.4'             => 'GPT-5.4',
+					'gpt-5.4-mini'        => 'GPT-5.4 mini',
+					'gpt-5.4-nano'        => 'GPT-5.4 nano',
+					'gpt-5.3-chat-latest' => 'GPT-5.3 Chat (latest)',
+					'gpt-5.2'             => 'GPT-5.2',
+					'gpt-5.1'             => 'GPT-5.1',
+					'gpt-4.1'             => 'GPT-4.1',
+					'gpt-4.1-mini'        => 'GPT-4.1 mini',
+					'gpt-4.1-nano'        => 'GPT-4.1 nano',
+				),
+				'embeddings' => array(
+					'text-embedding-3-small' => 'text-embedding-3-small',
+					'text-embedding-3-large' => 'text-embedding-3-large',
+				),
+			),
+			'anthropic'  => array(
+				'label'      => 'Anthropic (Claude)',
+				'base_url'   => 'https://api.anthropic.com/v1',
+				'model'      => 'claude-opus-5',
+				'key_url'    => 'https://console.anthropic.com/settings/keys',
+				'api'        => 'anthropic',
+				'auth'       => 'x-api-key',
+				'models'     => array(
+					'claude-opus-5'     => 'Claude Opus 5',
+					'claude-opus-4-8'   => 'Claude Opus 4.8',
+					'claude-opus-4-7'   => 'Claude Opus 4.7',
+					'claude-opus-4-6'   => 'Claude Opus 4.6',
+					'claude-sonnet-5'   => 'Claude Sonnet 5',
+					'claude-sonnet-4-6' => 'Claude Sonnet 4.6',
+					'claude-haiku-4-5'  => 'Claude Haiku 4.5',
+					'claude-fable-5'    => 'Claude Fable 5',
+				),
+				'note'       => __( 'Anthropic speaks its own Messages API, which AISAAutoPilot handles natively. It has no embeddings endpoint, so semantic search needs a separate embedding provider below.', 'ai-site-assistant-autopilot' ),
+			),
+			'gemini'     => array(
+				'label'      => 'Google Gemini',
+				'base_url'   => 'https://generativelanguage.googleapis.com/v1beta/openai',
+				'model'      => 'gemini-3.6-flash',
+				'key_url'    => 'https://aistudio.google.com/apikey',
+				'models'     => array(
+					'gemini-3.7-flash'      => 'Gemini 3.7 Flash',
+					'gemini-3.6-flash'      => 'Gemini 3.6 Flash',
+					'gemini-3.5-flash'      => 'Gemini 3.5 Flash',
+					'gemini-3.5-flash-lite' => 'Gemini 3.5 Flash-Lite',
+					'gemini-3.1-flash-lite' => 'Gemini 3.1 Flash-Lite',
+					'gemini-3.1-pro-preview' => 'Gemini 3.1 Pro (preview)',
+					'gemini-2.5-pro'        => 'Gemini 2.5 Pro',
+					'gemini-2.5-flash'      => 'Gemini 2.5 Flash',
+					'gemini-2.5-flash-lite' => 'Gemini 2.5 Flash-Lite',
+				),
+				'embeddings' => array(
+					'gemini-embedding-001' => 'gemini-embedding-001',
+				),
+				'note'       => __( 'Uses Google’s OpenAI-compatible endpoint, so the same key works for chat and embeddings.', 'ai-site-assistant-autopilot' ),
+			),
 			'deepseek'   => array(
 				'label'    => 'DeepSeek',
 				'base_url' => 'https://api.deepseek.com/v1',
-				'model'    => 'deepseek-chat',
+				'model'    => 'deepseek-v4-flash',
 				'key_url'  => 'https://platform.deepseek.com/api_keys',
-			),
-			'openai'     => array(
-				'label'    => 'OpenAI',
-				'base_url' => 'https://api.openai.com/v1',
-				'model'    => 'gpt-4o-mini',
-				'key_url'  => 'https://platform.openai.com/api-keys',
+				'models'   => array(
+					'deepseek-v4-flash' => 'DeepSeek V4 Flash',
+					'deepseek-v4-pro'   => 'DeepSeek V4 Pro',
+					'deepseek-chat'     => 'deepseek-chat (alias)',
+					'deepseek-reasoner' => 'deepseek-reasoner (alias)',
+				),
 			),
 			'qwen'       => array(
-				'label'    => 'Qwen (Alibaba)',
-				'base_url' => 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-				'model'    => 'qwen-plus',
-				'key_url'  => 'https://dashscope.console.aliyun.com/apiKey',
+				'label'      => 'Qwen (Alibaba Model Studio)',
+				'base_url'   => 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+				'model'      => 'qwen-plus',
+				'key_url'    => 'https://bailian.console.alibabacloud.com/?tab=model#/api-key',
+				'models'     => array(
+					'qwen3-max'  => 'Qwen3-Max',
+					'qwen-max'   => 'Qwen-Max',
+					'qwen-plus'  => 'Qwen-Plus',
+					'qwen-turbo' => 'Qwen-Turbo',
+					'qwen-flash' => 'Qwen-Flash',
+				),
+				'embeddings' => array(
+					'text-embedding-v4' => 'text-embedding-v4',
+					'text-embedding-v3' => 'text-embedding-v3',
+				),
+				'note'       => __( 'Mainland-China accounts use https://dashscope.aliyuncs.com/compatible-mode/v1 instead.', 'ai-site-assistant-autopilot' ),
 			),
-			'clusy'      => array(
-				'label'    => 'Clusy.io',
-				'base_url' => 'https://api.clusy.io/v1',
-				'model'    => 'clusy-chat',
-				'key_url'  => 'https://clusy.io/dashboard/api-keys',
-			),
-			'openrouter' => array(
-				'label'    => 'OpenRouter',
-				'base_url' => 'https://openrouter.ai/api/v1',
-				'model'    => 'deepseek/deepseek-chat',
-				'key_url'  => 'https://openrouter.ai/keys',
+			'mistral'    => array(
+				'label'      => 'Mistral AI',
+				'base_url'   => 'https://api.mistral.ai/v1',
+				'model'      => 'mistral-medium-3-5-26-04',
+				'key_url'    => 'https://console.mistral.ai/api-keys',
+				'models'     => array(
+					'mistral-large-3-25-12'   => 'Mistral Large 3',
+					'mistral-medium-3-5-26-04' => 'Mistral Medium 3.5',
+					'mistral-small-4-0-26-03' => 'Mistral Small 4',
+					'ministral-3-14b-25-12'   => 'Ministral 3 14B',
+					'ministral-3-8b-25-12'    => 'Ministral 3 8B',
+					'ministral-3-3b-25-12'    => 'Ministral 3 3B',
+					'codestral-25-08'         => 'Codestral',
+				),
+				'embeddings' => array(
+					'mistral-embed-23-12' => 'Mistral Embed',
+					'codestral-embed-25-05' => 'Codestral Embed',
+				),
 			),
 			'groq'       => array(
 				'label'    => 'Groq',
 				'base_url' => 'https://api.groq.com/openai/v1',
 				'model'    => 'llama-3.3-70b-versatile',
 				'key_url'  => 'https://console.groq.com/keys',
+				'models'   => array(
+					'llama-3.3-70b-versatile' => 'Llama 3.3 70B Versatile',
+					'llama-3.1-8b-instant'    => 'Llama 3.1 8B Instant',
+					'openai/gpt-oss-120b'     => 'GPT-OSS 120B',
+					'openai/gpt-oss-20b'      => 'GPT-OSS 20B',
+					'groq/compound'           => 'Groq Compound',
+					'groq/compound-mini'      => 'Groq Compound Mini',
+				),
+				'note'     => __( 'Groq is very fast but has no embeddings endpoint — pick a separate embedding provider for semantic search.', 'ai-site-assistant-autopilot' ),
+			),
+			'perplexity' => array(
+				'label'    => 'Perplexity',
+				'base_url' => 'https://api.perplexity.ai',
+				'model'    => 'sonar-pro',
+				'key_url'  => 'https://www.perplexity.ai/account/api/keys',
+				'models'   => array(
+					'sonar'               => 'Sonar',
+					'sonar-pro'           => 'Sonar Pro',
+					'sonar-reasoning-pro' => 'Sonar Reasoning Pro',
+					'sonar-deep-research' => 'Sonar Deep Research',
+				),
+				'note'     => __( 'Perplexity answers from live web search. Its OpenAI-compatible Sonar endpoint is scheduled to retire on 27 September 2026 in favour of the Agent API, so treat this provider as short-term.', 'ai-site-assistant-autopilot' ),
+			),
+			'azure'      => array(
+				'label'    => 'Azure OpenAI',
+				'base_url' => 'https://YOUR-RESOURCE.openai.azure.com/openai/v1',
+				'model'    => '',
+				'key_url'  => 'https://portal.azure.com/',
+				'auth'     => 'api-key',
+				'note'     => __( 'Replace YOUR-RESOURCE with your Azure resource name. The model is your deployment name, so pick it from your Azure portal rather than a fixed list.', 'ai-site-assistant-autopilot' ),
+			),
+			'openrouter' => array(
+				'label'    => 'OpenRouter',
+				'base_url' => 'https://openrouter.ai/api/v1',
+				'model'    => 'openai/gpt-5.6-luna',
+				'key_url'  => 'https://openrouter.ai/keys',
+				'group'    => 'gateway',
+				'models'   => array(
+					'openai/gpt-5.6-luna'      => 'OpenAI GPT-5.6 Luna',
+					'openai/gpt-5.6-sol'       => 'OpenAI GPT-5.6 Sol',
+					'anthropic/claude-opus-5'  => 'Anthropic Claude Opus 5',
+					'anthropic/claude-sonnet-5' => 'Anthropic Claude Sonnet 5',
+					'google/gemini-3.6-flash'  => 'Google Gemini 3.6 Flash',
+					'deepseek/deepseek-v4-flash' => 'DeepSeek V4 Flash',
+					'mistralai/mistral-large-3' => 'Mistral Large 3',
+				),
+				'note'     => __( 'One key for many vendors. Use “Refresh from provider” to pull OpenRouter’s current catalogue.', 'ai-site-assistant-autopilot' ),
+			),
+			'aimlapi'    => array(
+				'label'    => 'AI/ML API',
+				'base_url' => 'https://api.aimlapi.com/v1',
+				'model'    => '',
+				'key_url'  => 'https://aimlapi.com/app/keys',
+				'group'    => 'gateway',
+				'note'     => __( 'Aggregator with 1000+ models behind one key. Use “Refresh from provider” to load the current list.', 'ai-site-assistant-autopilot' ),
+			),
+			'novita'     => array(
+				'label'    => 'Novita AI',
+				'base_url' => 'https://api.novita.ai/openai/v1',
+				'model'    => '',
+				'key_url'  => 'https://novita.ai/settings/key-management',
+				'group'    => 'gateway',
+				'note'     => __( 'Open-model inference cloud. Use “Refresh from provider” to load the current list.', 'ai-site-assistant-autopilot' ),
+			),
+			'edenai'     => array(
+				'label'    => 'Eden AI',
+				'base_url' => 'https://api.edenai.run/v3',
+				'model'    => '',
+				'key_url'  => 'https://app.edenai.run/admin/iam/api-keys',
+				'group'    => 'gateway',
+				'note'     => __( 'Multi-provider gateway. Model names are vendor-prefixed — use “Refresh from provider” to load them.', 'ai-site-assistant-autopilot' ),
+			),
+			'clusy'      => array(
+				'label'    => 'Clusy.io',
+				'base_url' => 'https://api.clusy.io/v1',
+				'model'    => 'clusy-chat',
+				'key_url'  => 'https://clusy.io/dashboard/api-keys',
+				'group'    => 'gateway',
+				'models'   => array( 'clusy-chat' => 'clusy-chat' ),
 			),
 			'custom'     => array(
-				'label'    => 'Custom (OpenAI-compatible)',
-				'base_url' => '',
-				'model'    => '',
-				'key_url'  => '',
+				'label' => __( 'Custom (OpenAI-compatible)', 'ai-site-assistant-autopilot' ),
+				'group' => 'custom',
+				'note'  => __( 'Any endpoint that implements POST /chat/completions. Paste the base URL up to but not including /chat/completions.', 'ai-site-assistant-autopilot' ),
 			),
 		);
+
+		foreach ( $presets as $key => $preset ) {
+			$presets[ $key ] = array_merge( self::PRESET_DEFAULTS, $preset );
+		}
+
+		/**
+		 * Filter the AI provider catalogue.
+		 *
+		 * Lets a site add a private endpoint without editing the plugin. Each
+		 * entry accepts the keys listed in PRESET_DEFAULTS.
+		 *
+		 * @param array<string, array<string, mixed>> $presets
+		 */
+		$filtered = apply_filters( 'aisaautopilot_provider_presets', $presets );
+
+		return is_array( $filtered ) && array() !== $filtered ? $filtered : $presets;
+	}
+
+	/**
+	 * One preset with every key present, so callers never have to null-check.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function preset( string $key ): array {
+		$presets = self::presets();
+		$preset  = isset( $presets[ $key ] ) && is_array( $presets[ $key ] ) ? $presets[ $key ] : array();
+
+		return array_merge( self::PRESET_DEFAULTS, $preset );
+	}
+
+	/**
+	 * The preset headings shown in the provider dropdown.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function preset_groups(): array {
+		return array(
+			'direct'  => __( 'Direct providers', 'ai-site-assistant-autopilot' ),
+			'gateway' => __( 'Gateways & aggregators', 'ai-site-assistant-autopilot' ),
+			'custom'  => __( 'Custom endpoint', 'ai-site-assistant-autopilot' ),
+		);
+	}
+
+	/**
+	 * The saved provider's wire format: `openai` or `anthropic`.
+	 */
+	public static function provider_api(): string {
+		return 'anthropic' === self::preset( (string) self::get( 'provider', '' ) )['api'] ? 'anthropic' : 'openai';
+	}
+
+	/**
+	 * The header the saved provider's key travels in.
+	 */
+	public static function provider_auth(): string {
+		$auth = (string) self::preset( (string) self::get( 'provider', '' ) )['auth'];
+
+		return in_array( $auth, array( 'bearer', 'x-api-key', 'api-key' ), true ) ? $auth : 'bearer';
 	}
 
 	public static function defaults(): array {
@@ -95,6 +348,55 @@ final class Settings {
 		);
 	}
 
+	/**
+	 * The per-part colours the widget customiser can override.
+	 *
+	 * @var string[]
+	 */
+	public const WIDGET_COLOR_KEYS = array(
+		'head_from',
+		'head_to',
+		'user',
+		'ai_bg',
+		'ai_text',
+		'panel',
+		'msgs',
+		'border',
+		'input',
+		'send',
+		'handoff',
+		'bubble',
+	);
+
+	/** The four icon slots offered by the widget customiser. */
+	public const WIDGET_ICON_KEYS = array( 'avatar', 'voice', 'handoff', 'float' );
+
+	/**
+	 * Colours derived from the brand colour and theme. These are the starting
+	 * point the customiser opens with, and the values used when the customiser
+	 * is off.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function widget_derived_colors( string $brand, string $theme ): array {
+		$dark = 'dark' === $theme;
+
+		return array(
+			'head_from' => $brand,
+			'head_to'   => '#7c3aed',
+			'user'      => $brand,
+			'send'      => $brand,
+			'bubble'    => $brand,
+			'handoff'   => $brand,
+			'panel'     => $dark ? '#1f2937' : '#ffffff',
+			'msgs'      => $dark ? '#111827' : '#f9fafb',
+			'ai_bg'     => $dark ? '#1f2937' : '#ffffff',
+			'ai_text'   => $dark ? '#f3f4f6' : '#1f2937',
+			'input'     => $dark ? '#111827' : '#f9fafb',
+			'border'    => $dark ? '#374151' : '#e5e7eb',
+		);
+	}
+
 	public static function widget_defaults(): array {
 		return array(
 			'enabled'                => true,
@@ -102,8 +404,16 @@ final class Settings {
 			'theme'                  => 'light',
 			'color'                  => '#4f46e5',
 			'bg'                     => '#ffffff',
-			'title'                  => 'SitePilot AI',
+			'title'                  => 'AI Site Assistant AutoPilot',
+			'subtitle'               => 'AI Assistant',
 			'greeting'               => 'Hi! How can I help you?',
+			'suggestions'            => array(),
+			'panel_radius'           => 16,
+			'msg_radius'             => 14,
+			'bubble_radius'          => 30,
+			'custom_colors'          => false,
+			'colors'                 => array(),
+			'icons'                  => array(),
 			'auto_open'              => 5,
 			'voice_enabled'          => true,
 			'voice_auto'             => true,
@@ -343,7 +653,7 @@ final class Settings {
 	}
 
 	/**
-	 * The one approved recipient for new independent SitePilot Forms.
+	 * The one approved recipient for new independent AISAAutoPilot Forms.
 	 *
 	 * Form instructions cannot set or override this value. A form stores the
 	 * resolved address at approval time so later settings changes do not reroute

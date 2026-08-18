@@ -6,14 +6,14 @@ require_once ABSPATH.'wp-load.php';
 wp_set_current_user(1);
 $pass=0;$fail=0;$results=[];
 function t($s,$n,$c,$d=''){global$pass,$fail,$results;if($c){$pass++;}else{$fail++;$results[]=[$s,$n,$d];echo" X $s/$n: $d\n";}}
-echo "=== SitePilot AI 110-Scenario Test ===\n\n";$start=microtime(true);
+echo "=== AI Site Assistant AutoPilot 110-Scenario Test ===\n\n";$start=microtime(true);
 
-$kb=new \SitePilot\Content\KnowledgeBase();$kb->create_table();$kb->truncate();
-$cm=new \SitePilot\Chat\ConversationManager();$cm->create_table();$cm->truncate();
-$us=new \SitePilot\Usage\UsageTracker();$us->reset();$us->set_budget(100000);
+$kb=new \AISAAutoPilot\Content\KnowledgeBase();$kb->create_table();$kb->truncate();
+$cm=new \AISAAutoPilot\Chat\ConversationManager();$cm->create_table();$cm->truncate();
+$us=new \AISAAutoPilot\Usage\UsageTracker();$us->reset();$us->set_budget(100000);
 $docs=[['post','Company','AI cloud 50 expert 2000 client 2019'],['post','AI','ML DL NLP Python TensorFlow'],['post','Cloud','AWS Azure GCP Docker Kubernetes'],['post','Security','Penetration SOC2 247'],['post','Pricing','Starter 29 Pro 99 Enterprise custom'],['post','Contact','sales@techcorp.com 800'],['post','GDPR','Right access DPO erasure'],['post','API','REST Bearer token 1000 webhook'],['post','Remote','10AM 3PM VPN Slack Zoom'],['post','Roadmap','Q1 chatbot Q2 dashboard Q3 audit Q4 SSO']];
 foreach($docs as $i=>$d){$kb->upsert(['post_id'=>$i+1,'post_type'=>$d[0],'title'=>$d[1],'summary'=>$d[2],'keywords'=>$d[1],'category'=>'general','content_hash'=>sha1($d[2]),'token_count'=>str_word_count($d[2])]);}
-$ce=new \SitePilot\Chat\ChatEngine($kb);
+$ce=new \AISAAutoPilot\Chat\ChatEngine($kb);
 
 // 1. SETUP (5)
 echo "== SETUP ==\n";

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Core;
+namespace AISAAutoPilot\Core;
 
 /**
  * Keeps the initial assistant language aligned with the WordPress site while

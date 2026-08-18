@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Connectors;
+namespace AISAAutoPilot\Connectors;
 
-use SitePilot\Logging\Logger;
+use AISAAutoPilot\Logging\Logger;
 
 /**
  * WooCommerce Analytics Skill.
@@ -40,7 +40,7 @@ class WooCommerceAnalyticsSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -50,22 +50,22 @@ class WooCommerceAnalyticsSkill {
 				'day'   => array(
 					'from'  => wp_date( 'Y-m-d', $now ),
 					'to'    => wp_date( 'Y-m-d', $now ),
-					'label' => __( 'Today', 'sitepilot-ai' ),
+					'label' => __( 'Today', 'ai-site-assistant-autopilot' ),
 				),
 				'week'  => array(
 					'from'  => wp_date( 'Y-m-d', strtotime( '-7 days', $now ) ),
 					'to'    => wp_date( 'Y-m-d', $now ),
-					'label' => __( 'Last 7 days', 'sitepilot-ai' ),
+					'label' => __( 'Last 7 days', 'ai-site-assistant-autopilot' ),
 				),
 				'month' => array(
 					'from'  => wp_date( 'Y-m-01', $now ),
 					'to'    => wp_date( 'Y-m-d', $now ),
-					'label' => __( 'This month', 'sitepilot-ai' ),
+					'label' => __( 'This month', 'ai-site-assistant-autopilot' ),
 				),
 				'year'  => array(
 					'from'  => wp_date( 'Y-01-01', $now ),
 					'to'    => wp_date( 'Y-m-d', $now ),
-					'label' => __( 'This year', 'sitepilot-ai' ),
+					'label' => __( 'This year', 'ai-site-assistant-autopilot' ),
 				),
 			);
 
@@ -141,7 +141,7 @@ class WooCommerceAnalyticsSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -227,7 +227,7 @@ class WooCommerceAnalyticsSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -290,7 +290,7 @@ class WooCommerceAnalyticsSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -299,7 +299,7 @@ class WooCommerceAnalyticsSkill {
 			if ( ! $customer->get_id() ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Customer not found.', 'sitepilot-ai' ),
+					'error' => __( 'Customer not found.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -359,7 +359,7 @@ class WooCommerceAnalyticsSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -395,7 +395,7 @@ class WooCommerceAnalyticsSkill {
 					}
 
 					$terms    = get_the_terms( $product->get_id(), 'product_cat' );
-					$cat_name = __( 'Uncategorized', 'sitepilot-ai' );
+					$cat_name = __( 'Uncategorized', 'ai-site-assistant-autopilot' );
 					if ( $terms && ! is_wp_error( $terms ) ) {
 						$cat_name = $terms[0]->name;
 					}
@@ -447,7 +447,7 @@ class WooCommerceAnalyticsSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 

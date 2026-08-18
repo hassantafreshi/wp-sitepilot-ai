@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Connectors;
+namespace AISAAutoPilot\Connectors;
 
-use SitePilot\Logging\Logger;
-use SitePilot\Providers\ProviderManager;
+use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Providers\ProviderManager;
 
 /**
  * WooCommerce Order Intelligence Skill.
@@ -41,7 +41,7 @@ class WooCommerceOrderSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -128,7 +128,7 @@ class WooCommerceOrderSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -137,7 +137,7 @@ class WooCommerceOrderSkill {
 			if ( ! $order ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Order not found.', 'sitepilot-ai' ),
+					'error' => __( 'Order not found.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -198,7 +198,7 @@ class WooCommerceOrderSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -207,7 +207,7 @@ class WooCommerceOrderSkill {
 			if ( ! $order ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Order not found.', 'sitepilot-ai' ),
+					'error' => __( 'Order not found.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -216,13 +216,13 @@ class WooCommerceOrderSkill {
 			if ( ! isset( $valid_statuses[ $status_key ] ) ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Invalid status.', 'sitepilot-ai' ),
+					'error' => __( 'Invalid status.', 'ai-site-assistant-autopilot' ),
 					'valid' => array_keys( $valid_statuses ),
 				);
 			}
 
 			$old_status = $order->get_status();
-			$order->update_status( $new_status, $note ? $note : __( 'Status updated via SitePilot AI.', 'sitepilot-ai' ) );
+			$order->update_status( $new_status, $note ? $note : __( 'Status updated via AI Site Assistant AutoPilot.', 'ai-site-assistant-autopilot' ) );
 
 			$this->logger->info( 'wc_order_status', "Order #{$order_id}: {$old_status} → {$new_status}" );
 
@@ -249,7 +249,7 @@ class WooCommerceOrderSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -258,7 +258,7 @@ class WooCommerceOrderSkill {
 			if ( ! $order ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Order not found.', 'sitepilot-ai' ),
+					'error' => __( 'Order not found.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -266,7 +266,7 @@ class WooCommerceOrderSkill {
 			if ( $amount > $max_refund ) {
 				return array(
 					'ok'         => false,
-					'error'      => __( 'Refund amount exceeds maximum.', 'sitepilot-ai' ),
+					'error'      => __( 'Refund amount exceeds maximum.', 'ai-site-assistant-autopilot' ),
 					'max_refund' => $max_refund,
 				);
 			}
@@ -274,7 +274,7 @@ class WooCommerceOrderSkill {
 			if ( $amount <= 0 ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Refund amount must be positive.', 'sitepilot-ai' ),
+					'error' => __( 'Refund amount must be positive.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -282,7 +282,7 @@ class WooCommerceOrderSkill {
 				array(
 					'order_id' => $order_id,
 					'amount'   => $amount,
-					'reason'   => $reason ? $reason : __( 'Refund via SitePilot AI.', 'sitepilot-ai' ),
+					'reason'   => $reason ? $reason : __( 'Refund via AI Site Assistant AutoPilot.', 'ai-site-assistant-autopilot' ),
 				)
 			);
 
@@ -319,7 +319,7 @@ class WooCommerceOrderSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -393,7 +393,7 @@ class WooCommerceOrderSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -402,7 +402,7 @@ class WooCommerceOrderSkill {
 			if ( ! $order ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Order not found.', 'sitepilot-ai' ),
+					'error' => __( 'Order not found.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 

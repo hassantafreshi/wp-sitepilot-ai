@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Efb;
+namespace AISAAutoPilot\Efb;
 
 /**
  * Converts a validated, clean form plan into a real EFB `form_structer` array.

@@ -1,9 +1,9 @@
-/* global SitePilotPublicChat */
+/* global AISAAutoPilotPublicChat */
 ( function () {
 	'use strict';
 
-	var cfg = window.SitePilotPublicChat || {};
-	var root = document.getElementById( 'sitepilot-public-chat' );
+	var cfg = window.AISAAutoPilotPublicChat || {};
+	var root = document.getElementById( 'aisaautopilot-public-chat' );
 	if ( ! root || ! cfg.restUrl ) {
 		return;
 	}
@@ -73,50 +73,50 @@
 
 	var launch = el( 'button', {
 		type: 'button',
-		class: 'sitepilot-public-chat__launch',
+		class: 'aisaautopilot-public-chat__launch',
 		'aria-expanded': 'false',
-		'aria-controls': 'sitepilot-public-chat-panel',
+		'aria-controls': 'aisaautopilot-public-chat-panel',
 	}, [
 		icon( 'superhero' ),
-		el( 'span', { class: 'sitepilot-public-chat__launch-label', text: text( 'open', 'Ask SitePilot AI' ) } ),
+		el( 'span', { class: 'aisaautopilot-public-chat__launch-label', text: text( 'open', 'Ask AI Site Assistant AutoPilot' ) } ),
 	] );
 
 	var panel = el( 'section', {
-		id: 'sitepilot-public-chat-panel',
-		class: 'sitepilot-public-chat__panel',
+		id: 'aisaautopilot-public-chat-panel',
+		class: 'aisaautopilot-public-chat__panel',
 		role: 'dialog',
-		'aria-label': text( 'title', 'SitePilot AI' ),
+		'aria-label': text( 'title', 'AI Site Assistant AutoPilot' ),
 		'aria-hidden': 'true',
 	} );
 	panel.hidden = true;
 
-	var title = el( 'div', { class: 'sitepilot-public-chat__title' }, [
+	var title = el( 'div', { class: 'aisaautopilot-public-chat__title' }, [
 		icon( 'superhero' ),
-		el( 'span', { text: text( 'title', 'SitePilot AI' ) } ),
+		el( 'span', { text: text( 'title', 'AI Site Assistant AutoPilot' ) } ),
 	] );
 	var reset = el( 'button', {
 		type: 'button',
-		class: 'sitepilot-public-chat__icon',
+		class: 'aisaautopilot-public-chat__icon',
 		title: text( 'newChat', 'New chat' ),
 		'aria-label': text( 'newChat', 'New chat' ),
 	}, [ icon( 'update' ) ] );
 	var close = el( 'button', {
 		type: 'button',
-		class: 'sitepilot-public-chat__icon',
+		class: 'aisaautopilot-public-chat__icon',
 		title: text( 'close', 'Close' ),
 		'aria-label': text( 'close', 'Close' ),
 	}, [ icon( 'minus' ) ] );
-	var head = el( 'div', { class: 'sitepilot-public-chat__head' }, [
+	var head = el( 'div', { class: 'aisaautopilot-public-chat__head' }, [
 		title,
-		el( 'div', { class: 'sitepilot-public-chat__head-actions' }, [ reset, close ] ),
+		el( 'div', { class: 'aisaautopilot-public-chat__head-actions' }, [ reset, close ] ),
 	] );
 
 	var messages = el( 'div', {
-		class: 'sitepilot-public-chat__messages',
+		class: 'aisaautopilot-public-chat__messages',
 		'aria-live': 'polite',
 	} );
 	var input = el( 'textarea', {
-		class: 'sitepilot-public-chat__input',
+		class: 'aisaautopilot-public-chat__input',
 		rows: '1',
 		placeholder: text( 'placeholder', 'Write a message...' ),
 	} );
@@ -124,17 +124,17 @@
 
 	var mic = el( 'button', {
 		type: 'button',
-		class: 'sitepilot-public-chat__voice',
+		class: 'aisaautopilot-public-chat__voice',
 		'aria-label': text( 'mic', 'Speak your question' ),
 	}, [ icon( 'microphone' ) ] );
 	var send = el( 'button', {
 		type: 'submit',
-		class: 'sitepilot-public-chat__send',
+		class: 'aisaautopilot-public-chat__send',
 		'aria-label': text( 'send', 'Send' ),
 	}, [ icon( 'arrow-up-alt' ) ] );
-	var composer = el( 'form', { class: 'sitepilot-public-chat__composer' }, [ input, mic, send ] );
+	var composer = el( 'form', { class: 'aisaautopilot-public-chat__composer' }, [ input, mic, send ] );
 	var voiceStatus = el( 'div', {
-		class: 'sitepilot-public-chat__voice-status',
+		class: 'aisaautopilot-public-chat__voice-status',
 		role: 'status',
 		'aria-live': 'polite',
 	} );
@@ -176,16 +176,16 @@
 	}
 
 	function add( role, value, chips ) {
-		var row = el( 'div', { class: 'sitepilot-public-chat__message sitepilot-public-chat__message--' + role } );
-		var bubble = el( 'div', { class: 'sitepilot-public-chat__bubble' } );
+		var row = el( 'div', { class: 'aisaautopilot-public-chat__message aisaautopilot-public-chat__message--' + role } );
+		var bubble = el( 'div', { class: 'aisaautopilot-public-chat__bubble' } );
 		bubble.innerHTML = markdown( value );
 
 		if ( chips && chips.length ) {
-			var chipList = el( 'div', { class: 'sitepilot-public-chat__chips' } );
+			var chipList = el( 'div', { class: 'aisaautopilot-public-chat__chips' } );
 			chips.forEach( function ( label ) {
 				var chip = el( 'button', {
 					type: 'button',
-					class: 'sitepilot-public-chat__chip',
+					class: 'aisaautopilot-public-chat__chip',
 					text: label,
 				} );
 				chip.addEventListener( 'click', function () {
@@ -205,11 +205,11 @@
 
 	function addTyping() {
 		var row = el( 'div', {
-			id: 'sitepilot-public-chat-typing',
-			class: 'sitepilot-public-chat__message sitepilot-public-chat__message--assistant',
+			id: 'aisaautopilot-public-chat-typing',
+			class: 'aisaautopilot-public-chat__message aisaautopilot-public-chat__message--assistant',
 		} );
-		row.appendChild( el( 'div', { class: 'sitepilot-public-chat__bubble' }, [
-			el( 'span', { class: 'sitepilot-public-chat__typing' }, [
+		row.appendChild( el( 'div', { class: 'aisaautopilot-public-chat__bubble' }, [
+			el( 'span', { class: 'aisaautopilot-public-chat__typing' }, [
 				el( 'span' ),
 				el( 'span' ),
 				el( 'span' ),
@@ -220,7 +220,7 @@
 	}
 
 	function removeTyping() {
-		var typing = document.getElementById( 'sitepilot-public-chat-typing' );
+		var typing = document.getElementById( 'aisaautopilot-public-chat-typing' );
 		if ( typing ) {
 			typing.remove();
 		}
@@ -387,7 +387,7 @@
 
 	function upload( blob, duration ) {
 		var data = new FormData();
-		data.append( 'audio', blob, 'sitepilot-voice.webm' );
+		data.append( 'audio', blob, 'aisaautopilot-voice.webm' );
 		data.append( 'duration_ms', String( duration ) );
 		data.append( 'language', cfg.language || 'en' );
 		return fetch( cfg.restUrl + 'public/voice', { method: 'POST', body: data } ).then( function ( response ) {

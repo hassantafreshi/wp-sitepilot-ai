@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Logging;
+namespace AISAAutoPilot\Logging;
 
-use SitePilot\Security\Redactor;
+use AISAAutoPilot\Security\Redactor;
 
 /**
  * Lightweight, redacted, append-style local log kept as a bounded ring buffer
@@ -11,7 +11,7 @@ use SitePilot\Security\Redactor;
  */
 final class Logger {
 
-	private const OPTION = 'sitepilot_ai_logs';
+	private const OPTION = 'aisaautopilot_logs';
 	private const MAX    = 200;
 
 	/**

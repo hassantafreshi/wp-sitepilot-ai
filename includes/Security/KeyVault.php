@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Security;
+namespace AISAAutoPilot\Security;
 
 /**
  * Encrypts/decrypts the local BYOK provider key at rest.
@@ -14,6 +14,18 @@ final class KeyVault {
 
 	private const MAGIC_SODIUM  = 'sp1';
 	private const MAGIC_OPENSSL = 'sp2';
+
+	/**
+	 * Domain separator mixed into the key derivation.
+	 *
+	 * This is the plugin's former slug and it must never change. It is an input
+	 * to the derived encryption key, not a label: every provider key already
+	 * stored on an existing site was encrypted under a key derived from this
+	 * exact string. Rebranding it would change the derived key and make those
+	 * ciphertexts permanently undecryptable, silently locking users out of
+	 * their own saved credentials.
+	 */
+	private const KEY_DERIVATION_SALT = 'sitepilot-ai|';
 
 	/** @var string 32 raw bytes. */
 	private string $key;
@@ -37,7 +49,7 @@ final class KeyVault {
 			$material = defined( 'AUTH_KEY' ) ? (string) AUTH_KEY : __DIR__;
 		}
 
-		$key = hash( 'sha256', 'sitepilot-ai|' . $material, true );
+		$key = hash( 'sha256', self::KEY_DERIVATION_SALT . $material, true );
 
 		return new self( $key );
 	}

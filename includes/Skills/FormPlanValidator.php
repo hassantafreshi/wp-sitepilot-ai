@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Skills;
+namespace AISAAutoPilot\Skills;
 
 /**
  * Validates and normalizes an AI-produced form plan.
@@ -161,7 +161,7 @@ final class FormPlanValidator {
 	}
 
 	private function clean_text( string $value, int $max ): string {
-		$value = trim( preg_replace( '/\s+/', ' ', strip_tags( $value ) ) ?? '' );
+		$value = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $value ) ) ?? '' );
 
 		return function_exists( 'mb_substr' ) ? mb_substr( $value, 0, $max ) : substr( $value, 0, $max );
 	}

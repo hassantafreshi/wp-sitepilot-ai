@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Security;
+namespace AISAAutoPilot\Security;
 
 /**
  * Small, privacy-preserving fixed-window limiter for unauthenticated and
@@ -10,7 +10,7 @@ namespace SitePilot\Security;
  */
 final class RateLimiter {
 
-	private const PREFIX = 'sitepilot_rate_';
+	private const PREFIX = 'aisaautopilot_rate_';
 
 	public static function allow( string $scope, int $limit, int $window_seconds ): bool {
 
@@ -46,7 +46,7 @@ final class RateLimiter {
 			 * configured and validated trusted proxies. REMOTE_ADDR is the safe
 			 * default for a WordPress plugin.
 			 */
-			$ip       = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : 'unknown';
+			$ip       = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) : 'unknown'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- reduced to hex, colon and dot on the next line, then HMAC'd.
 			$identity = 'ip:' . substr( preg_replace( '/[^0-9a-fA-F:.]/', '', $ip ) ?? '', 0, 64 );
 		}
 

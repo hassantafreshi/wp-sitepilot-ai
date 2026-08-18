@@ -1,8 +1,8 @@
-/* global SitePilotAI, SitePilotChat */
+/* global AISAAutoPilotAI, AISAAutoPilotChat */
 ( function () {
 	'use strict';
 
-	var cfg = window.SitePilotChat || window.SitePilotAI || {};
+	var cfg = window.AISAAutoPilotChat || window.AISAAutoPilotAI || {};
 	var recorder = null;
 	var stream = null;
 	var chunks = [];
@@ -16,7 +16,7 @@
 		var status = document.getElementById( 'sp-chat-status' );
 		if ( ! status ) { return; }
 		status.textContent = message;
-		status.className = 'sitepilot-status' + ( state ? ' sitepilot-status--' + state : '' );
+		status.className = 'aisaautopilot-status' + ( state ? ' aisaautopilot-status--' + state : '' );
 	}
 
 	function updateMicButton() {
@@ -61,7 +61,7 @@
 		}
 		setStatus( 'Transcribing voice input…', 'loading' );
 		var form = new FormData();
-		form.append( 'audio', blob, 'sitepilot-chat-command.webm' );
+		form.append( 'audio', blob, 'aisaautopilot-chat-command.webm' );
 		form.append( 'duration_ms', String( Math.min( maxDurationMs, Math.max( 0, durationMs ) ) ) );
 		form.append( 'language', document.documentElement.lang || '' );
 
@@ -77,7 +77,7 @@
 			} );
 		} ).then( function ( data ) {
 			if ( data.ok && data.transcript ) {
-				setStatus( 'Voice command recognized. Sending it to SitePilot…', 'ok' );
+				setStatus( 'Voice command recognized. Sending it to AISAAutoPilot…', 'ok' );
 				submitText( data.transcript );
 				return;
 			}
@@ -153,7 +153,7 @@
 		var button = document.getElementById( 'sp-mic-btn' );
 		if ( button ) { button.addEventListener( 'click', toggleRecording ); }
 		if ( synth ) { synth.getVoices(); }
-		window.SitePilotVoice = {
+		window.AISAAutoPilotVoice = {
 			startRecording: startRecording,
 			stopRecording: stopRecording,
 			toggleRecording: toggleRecording,

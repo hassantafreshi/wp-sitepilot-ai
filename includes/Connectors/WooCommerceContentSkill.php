@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Connectors;
+namespace AISAAutoPilot\Connectors;
 
-use SitePilot\Logging\Logger;
-use SitePilot\Providers\ProviderManager;
+use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Providers\ProviderManager;
 
 /**
  * WooCommerce Content + SEO Skill.
@@ -42,7 +42,7 @@ class WooCommerceContentSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -51,7 +51,7 @@ class WooCommerceContentSkill {
 			if ( ! $product ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Product not found.', 'sitepilot-ai' ),
+					'error' => __( 'Product not found.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -59,7 +59,7 @@ class WooCommerceContentSkill {
 			if ( ! $manager->is_configured() ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'AI provider is not configured.', 'sitepilot-ai' ),
+					'error' => __( 'AI provider is not configured.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -82,10 +82,10 @@ class WooCommerceContentSkill {
 			}
 
 			$tone_map = array(
-				'professional' => __( 'Professional and informative', 'sitepilot-ai' ),
-				'friendly'     => __( 'Friendly and approachable', 'sitepilot-ai' ),
-				'luxury'       => __( 'Luxurious and premium', 'sitepilot-ai' ),
-				'technical'    => __( 'Technical and detailed', 'sitepilot-ai' ),
+				'professional' => __( 'Professional and informative', 'ai-site-assistant-autopilot' ),
+				'friendly'     => __( 'Friendly and approachable', 'ai-site-assistant-autopilot' ),
+				'luxury'       => __( 'Luxurious and premium', 'ai-site-assistant-autopilot' ),
+				'technical'    => __( 'Technical and detailed', 'ai-site-assistant-autopilot' ),
 			);
 
 			$tone_desc = $tone_map[ $tone ] ?? $tone_map['professional'];
@@ -140,7 +140,7 @@ class WooCommerceContentSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -149,7 +149,7 @@ class WooCommerceContentSkill {
 			if ( ! $product ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Product not found.', 'sitepilot-ai' ),
+					'error' => __( 'Product not found.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -157,7 +157,7 @@ class WooCommerceContentSkill {
 			if ( ! $manager->is_configured() ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'AI provider is not configured.', 'sitepilot-ai' ),
+					'error' => __( 'AI provider is not configured.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -214,7 +214,7 @@ class WooCommerceContentSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -223,7 +223,7 @@ class WooCommerceContentSkill {
 			if ( ! $product ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Product not found.', 'sitepilot-ai' ),
+					'error' => __( 'Product not found.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -231,7 +231,7 @@ class WooCommerceContentSkill {
 			if ( ! $manager->is_configured() ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'AI provider is not configured.', 'sitepilot-ai' ),
+					'error' => __( 'AI provider is not configured.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -240,9 +240,9 @@ class WooCommerceContentSkill {
 			$sale_price = $product->get_sale_price();
 
 			$type_map = array(
-				'short'  => __( 'Short social media post (max 280 characters). Include emojis and hashtags.', 'sitepilot-ai' ),
-				'medium' => __( 'Medium email newsletter paragraph (100-150 words). Engaging and persuasive.', 'sitepilot-ai' ),
-				'long'   => __( 'Long blog-style promotional article (300-400 words). Storytelling approach.', 'sitepilot-ai' ),
+				'short'  => __( 'Short social media post (max 280 characters). Include emojis and hashtags.', 'ai-site-assistant-autopilot' ),
+				'medium' => __( 'Medium email newsletter paragraph (100-150 words). Engaging and persuasive.', 'ai-site-assistant-autopilot' ),
+				'long'   => __( 'Long blog-style promotional article (300-400 words). Storytelling approach.', 'ai-site-assistant-autopilot' ),
 			);
 
 			$type_desc = $type_map[ $type ] ?? $type_map['short'];
@@ -290,7 +290,7 @@ class WooCommerceContentSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -309,7 +309,8 @@ class WooCommerceContentSkill {
 				++$success;
 				$results[] = array(
 					'product_id'  => $pid,
-					'product'     => $r['product'] ?? sprintf( __( 'Product #%d', 'sitepilot-ai' ), $pid ),
+					/* translators: %d: WooCommerce product ID. */
+					'product'     => $r['product'] ?? sprintf( __( 'Product #%d', 'ai-site-assistant-autopilot' ), $pid ),
 					'description' => $r['description'],
 					'status'      => 'generated',
 				);
@@ -345,7 +346,7 @@ class WooCommerceContentSkill {
 		if ( ! $this->is_available() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -354,7 +355,7 @@ class WooCommerceContentSkill {
 			if ( ! $product ) {
 				return array(
 					'ok'    => false,
-					'error' => __( 'Product not found.', 'sitepilot-ai' ),
+					'error' => __( 'Product not found.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -401,27 +402,27 @@ class WooCommerceContentSkill {
 			'templates' => array(
 				array(
 					'id'    => 'description',
-					'name'  => __( 'Product Description', 'sitepilot-ai' ),
+					'name'  => __( 'Product Description', 'ai-site-assistant-autopilot' ),
 					'tones' => array( 'professional', 'friendly', 'luxury', 'technical' ),
 				),
 				array(
 					'id'    => 'seo',
-					'name'  => __( 'SEO Title + Meta', 'sitepilot-ai' ),
+					'name'  => __( 'SEO Title + Meta', 'ai-site-assistant-autopilot' ),
 					'tones' => array(),
 				),
 				array(
 					'id'    => 'promo_short',
-					'name'  => __( 'Social Media Post', 'sitepilot-ai' ),
+					'name'  => __( 'Social Media Post', 'ai-site-assistant-autopilot' ),
 					'tones' => array(),
 				),
 				array(
 					'id'    => 'promo_medium',
-					'name'  => __( 'Email Newsletter', 'sitepilot-ai' ),
+					'name'  => __( 'Email Newsletter', 'ai-site-assistant-autopilot' ),
 					'tones' => array(),
 				),
 				array(
 					'id'    => 'promo_long',
-					'name'  => __( 'Blog Article', 'sitepilot-ai' ),
+					'name'  => __( 'Blog Article', 'ai-site-assistant-autopilot' ),
 					'tones' => array(),
 				),
 			),

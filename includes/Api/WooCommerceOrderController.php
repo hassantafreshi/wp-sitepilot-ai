@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Connectors\WooCommerceOrderSkill;
-use SitePilot\Connectors\WooCommerceConnector;
+use AISAAutoPilot\Connectors\WooCommerceOrderSkill;
+use AISAAutoPilot\Connectors\WooCommerceConnector;
 /**
  * REST controller for WooCommerce Order Intelligence.
  *
@@ -65,7 +65,7 @@ class WooCommerceOrderController {
 				array(
 					'ok'    => false,
 					'code'  => 'invalid_id',
-					'error' => __( 'Invalid order ID.', 'sitepilot-ai' ),
+					'error' => __( 'Invalid order ID.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -88,7 +88,7 @@ class WooCommerceOrderController {
 				array(
 					'ok'    => false,
 					'code'  => 'invalid',
-					'error' => __( 'order_id and status are required.', 'sitepilot-ai' ),
+					'error' => __( 'order_id and status are required.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -112,7 +112,7 @@ class WooCommerceOrderController {
 				array(
 					'ok'    => false,
 					'code'  => 'invalid',
-					'error' => __( 'order_id and positive amount are required.', 'sitepilot-ai' ),
+					'error' => __( 'order_id and positive amount are required.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -142,7 +142,7 @@ class WooCommerceOrderController {
 				array(
 					'ok'    => false,
 					'code'  => 'wc_inactive',
-					'error' => __( 'WooCommerce is not active.', 'sitepilot-ai' ),
+					'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);

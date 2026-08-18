@@ -1,9 +1,17 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Support;
+namespace AISAAutoPilot\Support;
 
-use SitePilot\Core\Settings;
-use SitePilot\Logging\Logger;
+/*
+ * Exception messages here are never echoed: they travel back through the REST
+ * layer as JSON, or are rendered by a caller with esc_html(). Escaping them at
+ * the throw site would put HTML entities into the JSON payload, so the sniff is
+ * disabled for this file rather than silenced line by line.
+ */
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Logging\Logger;
 
 /**
  * Telegram Bot API handler for human handoff.
@@ -66,7 +74,7 @@ class HandoffTelegram {
 		if ( ! $this->is_configured() ) {
 			return array(
 				'ok'    => false,
-				'error' => __( 'Telegram not configured.', 'sitepilot-ai' ),
+				'error' => __( 'Telegram not configured.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -82,7 +90,7 @@ class HandoffTelegram {
 			$this->logger->error( 'handoff_telegram', 'Invalid bot token format.' );
 			return array(
 				'ok'    => false,
-				'error' => __( 'Invalid Telegram bot token format.', 'sitepilot-ai' ),
+				'error' => __( 'Invalid Telegram bot token format.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -124,7 +132,7 @@ class HandoffTelegram {
 					$this->logger->error( 'handoff_telegram', 'Invalid bot token (401).' );
 					return array(
 						'ok'    => false,
-						'error' => __( 'Telegram: invalid bot token.', 'sitepilot-ai' ),
+						'error' => __( 'Telegram: invalid bot token.', 'ai-site-assistant-autopilot' ),
 					);
 				}
 
@@ -132,7 +140,7 @@ class HandoffTelegram {
 					$this->logger->error( 'handoff_telegram', 'Bot blocked by user (403).' );
 					return array(
 						'ok'    => false,
-						'error' => __( 'Telegram: bot was blocked by the user.', 'sitepilot-ai' ),
+						'error' => __( 'Telegram: bot was blocked by the user.', 'ai-site-assistant-autopilot' ),
 					);
 				}
 
@@ -140,7 +148,7 @@ class HandoffTelegram {
 					$this->logger->error( 'handoff_telegram', 'Chat not found (404).' );
 					return array(
 						'ok'    => false,
-						'error' => __( 'Telegram: chat not found. Check Chat ID.', 'sitepilot-ai' ),
+						'error' => __( 'Telegram: chat not found. Check Chat ID.', 'ai-site-assistant-autopilot' ),
 					);
 				}
 
@@ -149,7 +157,7 @@ class HandoffTelegram {
 					$this->logger->info( 'handoff_telegram', 'Telegram rate limited the handoff request.' );
 					return array(
 						'ok'    => false,
-						'error' => __( 'Telegram is temporarily rate-limiting delivery.', 'sitepilot-ai' ),
+						'error' => __( 'Telegram is temporarily rate-limiting delivery.', 'ai-site-assistant-autopilot' ),
 					);
 				}
 
@@ -189,29 +197,46 @@ class HandoffTelegram {
 	 * Send a file (PDF) to Telegram.
 	 */
 	private function send_document( string $token, string $chat, string $file_path ): void {
-		$url  = self::API_BASE . $token . '/sendDocument';
-		$file = new \CURLFile( $file_path, 'application/pdf', basename( $file_path ) );
+		$url = self::API_BASE . $token . '/sendDocument';
 
-		$ch = curl_init();
-		curl_setopt_array(
-			$ch,
+		$contents = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a PDF this plugin just wrote to a local temp path, not a remote request.
+		if ( false === $contents ) {
+			throw new \RuntimeException( 'Could not read the generated PDF.' );
+		}
+
+		// WordPress ships no multipart helper, so the body is assembled by hand
+		// rather than reaching for cURL directly: wp_remote_post() respects the
+		// site's HTTP configuration — proxies, timeouts, SSL policy, filters —
+		// and keeps this plugin free of a direct ext-curl dependency.
+		$boundary = 'aisaautopilot' . wp_generate_password( 24, false );
+		$filename = str_replace( array( '"', "\r", "\n" ), '', basename( $file_path ) );
+		$eol      = "\r\n";
+
+		$body = '--' . $boundary . $eol
+			. 'Content-Disposition: form-data; name="chat_id"' . $eol . $eol
+			. $chat . $eol
+			. '--' . $boundary . $eol
+			. 'Content-Disposition: form-data; name="document"; filename="' . $filename . '"' . $eol
+			. 'Content-Type: application/pdf' . $eol . $eol
+			. $contents . $eol
+			. '--' . $boundary . '--' . $eol;
+
+		$response = wp_remote_post(
+			$url,
 			array(
-				CURLOPT_URL            => $url,
-				CURLOPT_POST           => true,
-				CURLOPT_POSTFIELDS     => array(
-					'chat_id'  => $chat,
-					'document' => $file,
-				),
-				CURLOPT_TIMEOUT        => self::TIMEOUT,
-				CURLOPT_RETURNTRANSFER => true,
+				'timeout' => self::TIMEOUT,
+				'headers' => array( 'Content-Type' => 'multipart/form-data; boundary=' . $boundary ),
+				'body'    => $body,
 			)
 		);
-		$response = curl_exec( $ch );
-		$error    = curl_error( $ch );
-		curl_close( $ch );
 
-		if ( $error ) {
-			throw new \RuntimeException( "CURL error: {$error}" );
+		if ( is_wp_error( $response ) ) {
+			throw new \RuntimeException( 'Telegram upload failed: ' . $response->get_error_message() );
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		if ( $code < 200 || $code >= 300 ) {
+			throw new \RuntimeException( "HTTP {$code}: " . substr( (string) wp_remote_retrieve_body( $response ), 0, 200 ) );
 		}
 
 		$this->logger->info( 'handoff_telegram', 'PDF sent via Telegram.' );
@@ -276,7 +301,7 @@ class HandoffTelegram {
 		if ( '' === $token ) {
 			return array(
 				'ok'      => false,
-				'message' => __( 'No bot token configured.', 'sitepilot-ai' ),
+				'message' => __( 'No bot token configured.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -292,7 +317,7 @@ class HandoffTelegram {
 			if ( is_wp_error( $response ) ) {
 				return array(
 					'ok'      => false,
-					'message' => __( 'Network error: ', 'sitepilot-ai' ) . $response->get_error_message(),
+					'message' => __( 'Network error: ', 'ai-site-assistant-autopilot' ) . $response->get_error_message(),
 				);
 			}
 
@@ -305,7 +330,7 @@ class HandoffTelegram {
 					'ok'      => true,
 					'message' => sprintf(
 						/* translators: %s: bot username */
-						__( 'Connected as @%s', 'sitepilot-ai' ),
+						__( 'Connected as @%s', 'ai-site-assistant-autopilot' ),
 						$bot['username'] ?? 'unknown'
 					),
 				);
@@ -314,13 +339,13 @@ class HandoffTelegram {
 			if ( 401 === $code ) {
 				return array(
 					'ok'      => false,
-					'message' => __( 'Invalid bot token.', 'sitepilot-ai' ),
+					'message' => __( 'Invalid bot token.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
 			return array(
 				'ok'      => false,
-				'message' => __( 'Unexpected response (HTTP ', 'sitepilot-ai' ) . $code . ')',
+				'message' => __( 'Unexpected response (HTTP ', 'ai-site-assistant-autopilot' ) . $code . ')',
 			);
 
 		} catch ( \Throwable $e ) {

@@ -2,7 +2,8 @@
 /** Definitions available from the plugin entry point during static analysis. */
 declare(strict_types=1);
 
-defined( 'SITEPILOT_AI_VERSION' ) || define( 'SITEPILOT_AI_VERSION', '1.0.3' );
-defined( 'SITEPILOT_AI_FILE' ) || define( 'SITEPILOT_AI_FILE', __DIR__ . '/../sitepilot-ai.php' );
-defined( 'SITEPILOT_AI_URL' ) || define( 'SITEPILOT_AI_URL', 'https://example.test/wp-content/plugins/sitepilot-ai/' );
-defined( 'SITEPILOT_AI_BASENAME' ) || define( 'SITEPILOT_AI_BASENAME', 'sitepilot-ai/sitepilot-ai.php' );
+defined( 'AISAAUTOPILOT_VERSION' ) || define( 'AISAAUTOPILOT_VERSION', '1.0.4' );
+defined( 'AISAAUTOPILOT_FILE' ) || define( 'AISAAUTOPILOT_FILE', __DIR__ . '/../ai-site-assistant-autopilot.php' );
+defined( 'AISAAUTOPILOT_DIR' ) || define( 'AISAAUTOPILOT_DIR', __DIR__ . '/../' );
+defined( 'AISAAUTOPILOT_URL' ) || define( 'AISAAUTOPILOT_URL', 'https://example.test/wp-content/plugins/ai-site-assistant-autopilot/' );
+defined( 'AISAAUTOPILOT_BASENAME' ) || define( 'AISAAUTOPILOT_BASENAME', 'ai-site-assistant-autopilot/ai-site-assistant-autopilot.php' );

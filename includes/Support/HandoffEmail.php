@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Support;
+namespace AISAAutoPilot\Support;
 
-use SitePilot\Core\Settings;
-use SitePilot\Logging\Logger;
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Logging\Logger;
 
 class HandoffEmail {
 	private Logger $logger;
@@ -33,7 +33,7 @@ class HandoffEmail {
         </style></head><body>
         <div class="hdr"><h1>Support Request</h1><p>Blog: ' . esc_html( $blog_name ) . ' - ' . esc_html( gmdate( 'Y-m-d H:i T' ) ) . '</p></div>
         <div class="body"><h2 style="margin:0 0 16px;font-size:16px;">Conversation:</h2>' . $messages_html . '</div>
-        <div class="ftr">Sent by SitePilot AI - ' . esc_html( get_site_url() ) . '</div></body></html>';
+        <div class="ftr">Sent by AI Site Assistant AutoPilot - ' . esc_html( get_site_url() ) . '</div></body></html>';
 		return $headers;
 	}
 

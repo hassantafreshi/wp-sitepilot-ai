@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Content;
+namespace AISAAutoPilot\Content;
 
 /**
  * Knowledge Base storage layer.
@@ -11,7 +11,7 @@ namespace SitePilot\Content;
  */
 final class KnowledgeBase {
 
-	public const TABLE_SUFFIX = 'sitepilot_kb';
+	public const TABLE_SUFFIX = 'aisaautopilot_kb';
 
 	private \wpdb $db;
 
@@ -159,7 +159,7 @@ final class KnowledgeBase {
 
 		if ( false !== $result ) {
 			// New/updated content invalidates cached chat answers.
-			\SitePilot\Content\KbCache::bump_version();
+			\AISAAutoPilot\Content\KbCache::bump_version();
 		}
 
 		return false !== $result;
@@ -186,7 +186,7 @@ final class KnowledgeBase {
 		$result = $this->db->delete( $table, array( 'post_id' => $post_id ), array( '%d' ) );
 
 		if ( false !== $result ) {
-			\SitePilot\Content\KbCache::bump_version();
+			\AISAAutoPilot\Content\KbCache::bump_version();
 		}
 
 		return false !== $result;
@@ -537,7 +537,7 @@ final class KnowledgeBase {
 	public function truncate(): void {
 		$table = $this->table();
 		$this->db->query( "TRUNCATE TABLE {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		\SitePilot\Content\KbCache::bump_version();
+		\AISAAutoPilot\Content\KbCache::bump_version();
 	}
 
 	/**

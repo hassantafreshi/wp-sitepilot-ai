@@ -141,7 +141,7 @@
       "scope": "global",
       "title": "Embed the form on a page (shortcode)",
       "aliases": ["shortcode", "embed", "add to page", "publish form", "insert form", "شورت کد", "قرار دادن در صفحه", "انتشار"],
-      "answer": "Use the shortcode [EMS_Form_Builder id=FORM_ID] on any page or post (or the Easy Form Builder block/widget). SitePilot shows the exact shortcode right after it creates a form."
+      "answer": "Use the shortcode [EMS_Form_Builder id=FORM_ID] on any page or post (or the Easy Form Builder block/widget). AISAAutoPilot shows the exact shortcode right after it creates a form."
     },
     {
       "id": "form_background",

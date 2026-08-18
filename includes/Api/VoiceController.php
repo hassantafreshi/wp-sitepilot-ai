@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Core\SiteLanguage;
-use SitePilot\Providers\ProviderException;
-use SitePilot\Security\RateLimiter;
-use SitePilot\Voice\VoiceTranscriber;
+use AISAAutoPilot\Core\SiteLanguage;
+use AISAAutoPilot\Providers\ProviderException;
+use AISAAutoPilot\Security\RateLimiter;
+use AISAAutoPilot\Voice\VoiceTranscriber;
 
 /**
  * Authenticated voice endpoints for WordPress administration screens.
@@ -20,7 +20,7 @@ final class VoiceController {
 		return $this->transcribe_admin_upload( $request, 'admin_voice_transcription' );
 	}
 
-	/** Transcribe a protected recording for the independent SitePilot form builder. */
+	/** Transcribe a protected recording for the independent AISAAutoPilot form builder. */
 	public function transcribe_form_builder( \WP_REST_Request $request ): \WP_REST_Response {
 
 		return $this->transcribe_admin_upload( $request, 'form_builder_voice_transcription' );
@@ -38,7 +38,7 @@ final class VoiceController {
 				array(
 					'ok'      => false,
 					'code'    => 'rate_limited',
-					'message' => __( 'Too many voice requests. Please try again shortly.', 'sitepilot-ai' ),
+					'message' => __( 'Too many voice requests. Please try again shortly.', 'ai-site-assistant-autopilot' ),
 				),
 				429
 			);
@@ -70,7 +70,7 @@ final class VoiceController {
 				array(
 					'ok'      => false,
 					'code'    => 'voice_unavailable',
-					'message' => __( 'Voice input is temporarily unavailable. Please try again later.', 'sitepilot-ai' ),
+					'message' => __( 'Voice input is temporarily unavailable. Please try again later.', 'ai-site-assistant-autopilot' ),
 				),
 				503
 			);

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Providers;
+namespace AISAAutoPilot\Providers;
 
 /**
  * Common contract for AI providers. In standalone mode the plugin calls the

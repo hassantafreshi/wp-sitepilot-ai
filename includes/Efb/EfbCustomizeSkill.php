@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Efb;
+namespace AISAAutoPilot\Efb;
 
-use SitePilot\Efb\EfbFormModel;
-use SitePilot\Providers\ProviderInterface;
+use AISAAutoPilot\Efb\EfbFormModel;
+use AISAAutoPilot\Providers\ProviderInterface;
 
 /**
  * Translates a plain-language customization command ("make phone required",
@@ -31,7 +31,7 @@ final class EfbCustomizeSkill {
 	/**
 	 * @param array<int, array{id:string,label:string,type:string}> $fields
 	 * @return array<int, array<string, mixed>> Validated operations.
-	 * @throws \SitePilot\Providers\ProviderException
+	 * @throws \AISAAutoPilot\Providers\ProviderException
 	 */
 	public function plan( string $command, array $fields ): array {
 		$raw = $this->provider->generate_structured_output(
@@ -403,7 +403,7 @@ PROMPT;
 	}
 
 	private static function clean( string $v, int $max ): string {
-		$v = trim( (string) preg_replace( '/\s+/', ' ', strip_tags( $v ) ) );
+		$v = trim( (string) preg_replace( '/\s+/', ' ', wp_strip_all_tags( $v ) ) );
 
 		return function_exists( 'mb_substr' ) ? mb_substr( $v, 0, $max ) : substr( $v, 0, $max );
 	}

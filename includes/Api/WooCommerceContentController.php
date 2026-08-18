@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Connectors\WooCommerceContentSkill;
+use AISAAutoPilot\Connectors\WooCommerceContentSkill;
 
 /**
  * REST controller for WooCommerce Content + SEO.
@@ -36,7 +36,7 @@ class WooCommerceContentController {
 				array(
 					'ok'    => false,
 					'code'  => 'invalid',
-					'error' => __( 'product_id is required.', 'sitepilot-ai' ),
+					'error' => __( 'product_id is required.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -58,7 +58,7 @@ class WooCommerceContentController {
 				array(
 					'ok'    => false,
 					'code'  => 'invalid',
-					'error' => __( 'product_id is required.', 'sitepilot-ai' ),
+					'error' => __( 'product_id is required.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -81,7 +81,7 @@ class WooCommerceContentController {
 				array(
 					'ok'    => false,
 					'code'  => 'invalid',
-					'error' => __( 'product_id is required.', 'sitepilot-ai' ),
+					'error' => __( 'product_id is required.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -104,7 +104,7 @@ class WooCommerceContentController {
 				array(
 					'ok'    => false,
 					'code'  => 'invalid',
-					'error' => __( 'product_ids array is required.', 'sitepilot-ai' ),
+					'error' => __( 'product_ids array is required.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -129,7 +129,7 @@ class WooCommerceContentController {
 				array(
 					'ok'    => false,
 					'code'  => 'invalid',
-					'error' => __( 'product_id and description are required.', 'sitepilot-ai' ),
+					'error' => __( 'product_id and description are required.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);

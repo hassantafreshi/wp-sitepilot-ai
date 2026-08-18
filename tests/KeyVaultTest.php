@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Security\KeyVault;
+use AISAAutoPilot\Security\KeyVault;
 
 final class KeyVaultTest extends TestCase {
 

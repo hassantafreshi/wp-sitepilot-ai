@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Chat\ChatEngine;
-use SitePilot\Content\KnowledgeBase;
-use SitePilot\Core\Settings;
-use SitePilot\Security\RateLimiter;
-use SitePilot\Support\HandoffService;
+use AISAAutoPilot\Chat\ChatEngine;
+use AISAAutoPilot\Content\KnowledgeBase;
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Security\RateLimiter;
+use AISAAutoPilot\Support\HandoffService;
 
 /** Public, deliberately limited API for the site assistant widget. */
 final class ChatWidgetController {
@@ -48,7 +48,7 @@ final class ChatWidgetController {
 				array(
 					'ok'      => false,
 					'code'    => 'widget_disabled',
-					'message' => __( 'The assistant widget is disabled.', 'sitepilot-ai' ),
+					'message' => __( 'The assistant widget is disabled.', 'ai-site-assistant-autopilot' ),
 				),
 				403
 			);
@@ -60,7 +60,7 @@ final class ChatWidgetController {
 				array(
 					'ok'     => false,
 					'code'   => 'empty',
-					'answer' => __( 'Please enter a question.', 'sitepilot-ai' ),
+					'answer' => __( 'Please enter a question.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -70,7 +70,7 @@ final class ChatWidgetController {
 				array(
 					'ok'      => false,
 					'code'    => 'question_too_long',
-					'message' => __( 'Please shorten your message and try again.', 'sitepilot-ai' ),
+					'message' => __( 'Please shorten your message and try again.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -80,7 +80,7 @@ final class ChatWidgetController {
 				array(
 					'ok'      => false,
 					'code'    => 'rate_limited',
-					'message' => __( 'Please wait before sending another message.', 'sitepilot-ai' ),
+					'message' => __( 'Please wait before sending another message.', 'ai-site-assistant-autopilot' ),
 				),
 				429
 			);
@@ -94,7 +94,7 @@ final class ChatWidgetController {
 				array(
 					'ok'      => false,
 					'code'    => 'assistant_unavailable',
-					'message' => __( 'The assistant is temporarily unavailable. Please try again later.', 'sitepilot-ai' ),
+					'message' => __( 'The assistant is temporarily unavailable. Please try again later.', 'ai-site-assistant-autopilot' ),
 				),
 				503
 			);
@@ -118,7 +118,7 @@ final class ChatWidgetController {
 				array(
 					'ok'      => false,
 					'code'    => 'widget_disabled',
-					'message' => __( 'The assistant widget is disabled.', 'sitepilot-ai' ),
+					'message' => __( 'The assistant widget is disabled.', 'ai-site-assistant-autopilot' ),
 				),
 				403
 			);
@@ -128,7 +128,7 @@ final class ChatWidgetController {
 				array(
 					'ok'      => false,
 					'code'    => 'handoff_disabled',
-					'message' => __( 'Human handoff is not enabled.', 'sitepilot-ai' ),
+					'message' => __( 'Human handoff is not enabled.', 'ai-site-assistant-autopilot' ),
 				),
 				403
 			);
@@ -138,7 +138,7 @@ final class ChatWidgetController {
 				array(
 					'ok'      => false,
 					'code'    => 'rate_limited',
-					'message' => __( 'Please wait before requesting another handoff.', 'sitepilot-ai' ),
+					'message' => __( 'Please wait before requesting another handoff.', 'ai-site-assistant-autopilot' ),
 				),
 				429
 			);
@@ -152,7 +152,7 @@ final class ChatWidgetController {
 				array(
 					'ok'      => false,
 					'code'    => 'invalid_email',
-					'message' => __( 'Please provide a valid email address.', 'sitepilot-ai' ),
+					'message' => __( 'Please provide a valid email address.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -162,7 +162,7 @@ final class ChatWidgetController {
 				array(
 					'ok'      => false,
 					'code'    => 'no_messages',
-					'message' => __( 'No messages to send.', 'sitepilot-ai' ),
+					'message' => __( 'No messages to send.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -174,8 +174,8 @@ final class ChatWidgetController {
 				'ok'      => (bool) $result['ok'],
 				'code'    => ! empty( $result['ok'] ) ? 'sent' : 'handoff_failed',
 				'message' => ! empty( $result['ok'] )
-					? __( 'Your request has been sent to the support team.', 'sitepilot-ai' )
-					: __( 'We could not send the request. Please try again later.', 'sitepilot-ai' ),
+					? __( 'Your request has been sent to the support team.', 'ai-site-assistant-autopilot' )
+					: __( 'We could not send the request. Please try again later.', 'ai-site-assistant-autopilot' ),
 			)
 		);
 	}
@@ -191,12 +191,12 @@ final class ChatWidgetController {
 	}
 
 	public function test_telegram(): \WP_REST_Response {
-		$result = ( new \SitePilot\Support\HandoffTelegram() )->test_connection();
+		$result = ( new \AISAAutoPilot\Support\HandoffTelegram() )->test_connection();
 		return new \WP_REST_Response( array_merge( array( 'ok' => $result['ok'] ), $result ) );
 	}
 
 	public function test_twilio(): \WP_REST_Response {
-		$result = ( new \SitePilot\Support\HandoffTwilio() )->test_connection();
+		$result = ( new \AISAAutoPilot\Support\HandoffTwilio() )->test_connection();
 		return new \WP_REST_Response( array_merge( array( 'ok' => $result['ok'] ), $result ) );
 	}
 

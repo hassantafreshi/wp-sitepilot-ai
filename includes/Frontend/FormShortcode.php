@@ -1,33 +1,33 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Frontend;
+namespace AISAAutoPilot\Frontend;
 
-use SitePilot\Connectors\NativeFormConnector;
-use SitePilot\Forms\NativeFormSubmission;
-use SitePilot\Logging\Logger;
+use AISAAutoPilot\Connectors\NativeFormConnector;
+use AISAAutoPilot\Forms\NativeFormSubmission;
+use AISAAutoPilot\Logging\Logger;
 
 /**
- * Renders [sitepilot_form id="123"] and delivers submissions by email only.
+ * Renders [aisaautopilot_form id="123"] and delivers submissions by email only.
  *
  * Submission values are validated in memory, sent with wp_mail(), then
- * discarded. SitePilot never creates a submission post, post meta, log entry,
+ * discarded. AISAAutoPilot never creates a submission post, post meta, log entry,
  * or option containing visitor-supplied values.
  */
 final class FormShortcode {
 
-	private const ACTION      = 'sitepilot_form_submit';
+	private const ACTION      = 'aisaautopilot_form_submit';
 	private const RATE_LIMIT  = 5;
 	private const RATE_WINDOW = 600;
 
 	public function register(): void {
-		add_shortcode( 'sitepilot_form', array( $this, 'render' ) );
+		add_shortcode( 'aisaautopilot_form', array( $this, 'render' ) );
 		add_action( 'admin_post_nopriv_' . self::ACTION, array( $this, 'handle_submit' ) );
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'handle_submit' ) );
 		add_action(
 			'wp_enqueue_scripts',
 			static function (): void {
-				wp_register_style( 'sitepilot-form', SITEPILOT_AI_URL . 'assets/frontend/form.css', array(), SITEPILOT_AI_VERSION );
+				wp_register_style( 'aisaautopilot-form', AISAAUTOPILOT_URL . 'assets/frontend/form.css', array(), AISAAUTOPILOT_VERSION );
 			}
 		);
 	}
@@ -36,7 +36,7 @@ final class FormShortcode {
 	 * @param array<string, mixed>|string $atts
 	 */
 	public function render( $atts ): string {
-		$atts = shortcode_atts( array( 'id' => 0 ), (array) $atts, 'sitepilot_form' );
+		$atts = shortcode_atts( array( 'id' => 0 ), (array) $atts, 'aisaautopilot_form' );
 		$id   = (int) $atts['id'];
 
 		$post = $id > 0 ? get_post( $id ) : null;
@@ -55,33 +55,34 @@ final class FormShortcode {
 		$submitted = isset( $_GET['sp_form_sent'] ) && (int) $_GET['sp_form_sent'] === $id; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only redirect state.
 		$error     = isset( $_GET['sp_form_error'] ) ? sanitize_key( (string) wp_unslash( $_GET['sp_form_error'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only redirect state.
 
-		wp_enqueue_style( 'sitepilot-form' );
+		wp_enqueue_style( 'aisaautopilot-form' );
 
 		ob_start();
 		?>
-		<div class="sitepilot-form">
+		<?php // Declared here so labels and inputs read correctly even in a theme that never sets dir on <html>. ?>
+		<div class="aisaautopilot-form" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>">
 			<?php if ( $submitted ) : ?>
-				<div class="sitepilot-form__confirmation" role="status">
-					<?php echo esc_html( (string) ( $plan['confirmation_message'] ?? __( 'Thank you.', 'sitepilot-ai' ) ) ); ?>
+				<div class="aisaautopilot-form__confirmation" role="status">
+					<?php echo esc_html( (string) ( $plan['confirmation_message'] ?? __( 'Thank you.', 'ai-site-assistant-autopilot' ) ) ); ?>
 				</div>
 			<?php else : ?>
 				<?php if ( '' !== $error ) : ?>
-					<div class="sitepilot-form__error" role="alert"><?php echo esc_html( $this->error_message( $error ) ); ?></div>
+					<div class="aisaautopilot-form__error" role="alert"><?php echo esc_html( $this->error_message( $error ) ); ?></div>
 				<?php endif; ?>
 				<?php if ( ! empty( $plan['description'] ) ) : ?>
-					<p class="sitepilot-form__desc"><?php echo esc_html( (string) $plan['description'] ); ?></p>
+					<p class="aisaautopilot-form__desc"><?php echo esc_html( (string) $plan['description'] ); ?></p>
 				<?php endif; ?>
-				<form class="sitepilot-form__form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<form class="aisaautopilot-form__form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 					<input type="hidden" name="action" value="<?php echo esc_attr( self::ACTION ); ?>" />
 					<input type="hidden" name="form_id" value="<?php echo esc_attr( (string) $id ); ?>" />
 					<?php wp_nonce_field( self::ACTION . '_' . $id, 'sp_nonce' ); ?>
-					<div class="sitepilot-form__honeypot" aria-hidden="true">
-						<label for="sp-website-<?php echo esc_attr( (string) $id ); ?>"><?php esc_html_e( 'Website', 'sitepilot-ai' ); ?></label>
+					<div class="aisaautopilot-form__honeypot" aria-hidden="true">
+						<label for="sp-website-<?php echo esc_attr( (string) $id ); ?>"><?php esc_html_e( 'Website', 'ai-site-assistant-autopilot' ); ?></label>
 						<input id="sp-website-<?php echo esc_attr( (string) $id ); ?>" type="text" name="sp_website" tabindex="-1" autocomplete="off" />
 					</div>
 					<?php echo $this->render_fields( (array) $plan['fields'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every dynamic field value is escaped below. ?>
-					<button type="submit" class="sitepilot-form__submit">
-						<?php echo esc_html( (string) ( $plan['submit_button'] ?? __( 'Submit', 'sitepilot-ai' ) ) ); ?>
+					<button type="submit" class="aisaautopilot-form__submit">
+						<?php echo esc_html( (string) ( $plan['submit_button'] ?? __( 'Submit', 'ai-site-assistant-autopilot' ) ) ); ?>
 					</button>
 				</form>
 			<?php endif; ?>
@@ -104,13 +105,13 @@ final class FormShortcode {
 			$name     = 'sp_field_' . $key;
 			$id_attr  = 'sp-' . $key;
 			$req_attr = $required ? ' required' : '';
-			$req_mark = $required ? ' <span class="sitepilot-form__req" aria-hidden="true">*</span>' : '';
+			$req_mark = $required ? ' <span class="aisaautopilot-form__req" aria-hidden="true">*</span>' : '';
 
 			if ( '' === $key || '' === $label ) {
 				continue;
 			}
 
-			$html .= '<div class="sitepilot-form__row">';
+			$html .= '<div class="aisaautopilot-form__row">';
 			switch ( $type ) {
 				case 'textarea':
 					$html .= '<label for="' . esc_attr( $id_attr ) . '">' . $label . $req_mark . '</label>';
@@ -119,7 +120,7 @@ final class FormShortcode {
 				case 'select':
 					$html .= '<label for="' . esc_attr( $id_attr ) . '">' . $label . $req_mark . '</label>';
 					$html .= '<select id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '"' . $req_attr . '>';
-					$html .= '<option value="">' . esc_html__( '— Select —', 'sitepilot-ai' ) . '</option>';
+					$html .= '<option value="">' . esc_html__( '— Select —', 'ai-site-assistant-autopilot' ) . '</option>';
 					foreach ( (array) ( $field['options'] ?? array() ) as $opt ) {
 						$html .= '<option value="' . esc_attr( (string) $opt ) . '">' . esc_html( (string) $opt ) . '</option>';
 					}
@@ -147,10 +148,10 @@ final class FormShortcode {
 	private function render_choice_field( array $field, string $name, string $id_attr, string $label, bool $required, string $req_mark ): string {
 		$type    = (string) $field['type'];
 		$options = (array) ( $field['options'] ?? array() );
-		$html    = '<fieldset class="sitepilot-form__choices"><legend>' . $label . $req_mark . '</legend>';
+		$html    = '<fieldset class="aisaautopilot-form__choices"><legend>' . $label . $req_mark . '</legend>';
 
 		if ( 'checkbox' === $type && array() === $options ) {
-			$html .= '<label class="sitepilot-form__check" for="' . esc_attr( $id_attr ) . '">';
+			$html .= '<label class="aisaautopilot-form__check" for="' . esc_attr( $id_attr ) . '">';
 			$html .= '<input type="checkbox" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" value="1"' . ( $required ? ' required' : '' ) . ' /> ';
 			$html .= $label . '</label>';
 			return $html . '</fieldset>';
@@ -159,7 +160,7 @@ final class FormShortcode {
 		$field_name = 'checkbox' === $type ? $name . '[]' : $name;
 		foreach ( $options as $index => $option ) {
 			$choice_id = $id_attr . '-' . (int) $index;
-			$html     .= '<label class="sitepilot-form__check" for="' . esc_attr( $choice_id ) . '">';
+			$html     .= '<label class="aisaautopilot-form__check" for="' . esc_attr( $choice_id ) . '">';
 			$html     .= '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $choice_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( (string) $option ) . '" /> ';
 			$html     .= esc_html( (string) $option ) . '</label>';
 		}
@@ -173,17 +174,17 @@ final class FormShortcode {
 		$nonce   = isset( $_POST['sp_nonce'] ) ? sanitize_text_field( (string) wp_unslash( $_POST['sp_nonce'] ) ) : '';
 
 		if ( $form_id <= 0 || ! wp_verify_nonce( $nonce, self::ACTION . '_' . $form_id ) ) {
-			wp_die( esc_html__( 'Invalid form submission.', 'sitepilot-ai' ), '', array( 'response' => 400 ) );
+			wp_die( esc_html__( 'Invalid form submission.', 'ai-site-assistant-autopilot' ), '', array( 'response' => 400 ) );
 		}
 
 		$post = get_post( $form_id );
 		if ( ! $post || NativeFormConnector::POST_TYPE !== $post->post_type || 'publish' !== $post->post_status ) {
-			wp_die( esc_html__( 'Form not found.', 'sitepilot-ai' ), '', array( 'response' => 404 ) );
+			wp_die( esc_html__( 'Form not found.', 'ai-site-assistant-autopilot' ), '', array( 'response' => 404 ) );
 		}
 
 		$plan = get_post_meta( $form_id, NativeFormConnector::META_KEY, true );
 		if ( ! is_array( $plan ) || empty( $plan['fields'] ) ) {
-			wp_die( esc_html__( 'Form not found.', 'sitepilot-ai' ), '', array( 'response' => 404 ) );
+			wp_die( esc_html__( 'Form not found.', 'ai-site-assistant-autopilot' ), '', array( 'response' => 404 ) );
 		}
 
 		// A completed honeypot receives a harmless success redirect. No mail,
@@ -219,15 +220,16 @@ final class FormShortcode {
 	/** @param array<string,mixed> $plan */
 	private function email_subject( array $plan ): string {
 		$site  = str_replace( array( "\r", "\n" ), '', wp_strip_all_tags( (string) get_bloginfo( 'name' ) ) );
-		$title = str_replace( array( "\r", "\n" ), '', wp_strip_all_tags( (string) ( $plan['title'] ?? __( 'Form', 'sitepilot-ai' ) ) ) );
+		$title = str_replace( array( "\r", "\n" ), '', wp_strip_all_tags( (string) ( $plan['title'] ?? __( 'Form', 'ai-site-assistant-autopilot' ) ) ) );
 		return sprintf( '[%s] %s', $site, $title );
 	}
 
 	/** @param array<string,mixed> $plan @param array<string,string> $values */
 	private function email_body( array $plan, array $values ): string {
 		$lines = array(
-			__( 'New SitePilot Form submission', 'sitepilot-ai' ),
-			sprintf( __( 'Form: %s', 'sitepilot-ai' ), wp_strip_all_tags( (string) ( $plan['title'] ?? '' ) ) ),
+			__( 'New AISAAutoPilot Form submission', 'ai-site-assistant-autopilot' ),
+			/* translators: %s: the title of the submitted form. */
+			sprintf( __( 'Form: %s', 'ai-site-assistant-autopilot' ), wp_strip_all_tags( (string) ( $plan['title'] ?? '' ) ) ),
 			'',
 		);
 		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
@@ -239,7 +241,7 @@ final class FormShortcode {
 			$lines[] = $label . ': ' . $values[ $key ];
 		}
 		if ( 3 === count( $lines ) ) {
-			$lines[] = __( '(No optional fields were completed.)', 'sitepilot-ai' );
+			$lines[] = __( '(No optional fields were completed.)', 'ai-site-assistant-autopilot' );
 		}
 
 		return implode( "\n", $lines );
@@ -273,11 +275,11 @@ final class FormShortcode {
 	}
 
 	private function rate_limit_key( int $form_id ): string {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : 'unknown';
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) : 'unknown'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated as an IP on the next line, then HMAC'd into a transient key.
 		if ( false === filter_var( $ip, FILTER_VALIDATE_IP ) ) {
 			$ip = 'unknown';
 		}
-		return 'sitepilot_form_rate_' . $form_id . '_' . substr( hash_hmac( 'sha256', $form_id . '|' . $ip, wp_salt( 'nonce' ) ), 0, 20 );
+		return 'aisaautopilot_form_rate_' . $form_id . '_' . substr( hash_hmac( 'sha256', $form_id . '|' . $ip, wp_salt( 'nonce' ) ), 0, 20 );
 	}
 
 	private function redirect( int $form_id, string $state ): void {
@@ -293,14 +295,14 @@ final class FormShortcode {
 
 	private function error_message( string $error ): string {
 		$messages = array(
-			'invalid'      => __( 'Please check the required fields and try again.', 'sitepilot-ai' ),
-			'rate_limited' => __( 'Too many submissions. Please wait a few minutes and try again.', 'sitepilot-ai' ),
-			'delivery'     => __( 'We could not send your submission. Please try again later.', 'sitepilot-ai' ),
+			'invalid'      => __( 'Please check the required fields and try again.', 'ai-site-assistant-autopilot' ),
+			'rate_limited' => __( 'Too many submissions. Please wait a few minutes and try again.', 'ai-site-assistant-autopilot' ),
+			'delivery'     => __( 'We could not send your submission. Please try again later.', 'ai-site-assistant-autopilot' ),
 		);
-		return $messages[ $error ] ?? __( 'We could not process your submission. Please try again.', 'sitepilot-ai' );
+		return $messages[ $error ] ?? __( 'We could not process your submission. Please try again.', 'ai-site-assistant-autopilot' );
 	}
 
 	private function audit_delivery( string $event, int $form_id ): void {
-		( new Logger() )->info( $event, 'SitePilot Form delivery outcome.', array( 'form_id' => $form_id ) );
+		( new Logger() )->info( $event, 'AISAAutoPilot Form delivery outcome.', array( 'form_id' => $form_id ) );
 	}
 }

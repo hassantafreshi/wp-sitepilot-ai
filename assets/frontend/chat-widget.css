@@ -1,6 +1,6 @@
-/* SitePilot AI public chat widget. Mirrors the Easy Form Builder chat UI. */
+/* AI Site Assistant AutoPilot public chat widget. Mirrors the Easy Form Builder chat UI. */
 
-.sitepilot-public-chat {
+.aisaautopilot-public-chat {
 	position: fixed;
 	inset-inline-end: 24px;
 	bottom: 24px;
@@ -13,12 +13,12 @@
 	text-align: start;
 }
 
-.sitepilot-public-chat,
-.sitepilot-public-chat * {
+.aisaautopilot-public-chat,
+.aisaautopilot-public-chat * {
 	box-sizing: border-box;
 }
 
-.sitepilot-public-chat__launch {
+.aisaautopilot-public-chat__launch {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
@@ -35,19 +35,19 @@
 	transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.sitepilot-public-chat__launch:hover {
+.aisaautopilot-public-chat__launch:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 12px 30px rgba(79, 70, 229, 0.5);
 	color: #fff;
 }
 
-.sitepilot-public-chat__launch .dashicons {
+.aisaautopilot-public-chat__launch .dashicons {
 	width: 20px;
 	height: 20px;
 	font-size: 20px;
 }
 
-.sitepilot-public-chat__panel {
+.aisaautopilot-public-chat__panel {
 	width: min(420px, calc(100vw - 40px));
 	height: min(660px, 82vh);
 	display: flex;
@@ -58,14 +58,14 @@
 	border: 1px solid #e5e7eb;
 	border-radius: 16px;
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
-	animation: sitepilot-public-chat-pop 0.16s ease-out;
+	animation: aisaautopilot-public-chat-pop 0.16s ease-out;
 }
 
-.sitepilot-public-chat__panel[hidden] {
+.aisaautopilot-public-chat__panel[hidden] {
 	display: none;
 }
 
-@keyframes sitepilot-public-chat-pop {
+@keyframes aisaautopilot-public-chat-pop {
 	from {
 		transform: translateY(10px);
 		opacity: 0;
@@ -77,7 +77,7 @@
 	}
 }
 
-.sitepilot-public-chat__head {
+.aisaautopilot-public-chat__head {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -87,7 +87,7 @@
 	color: #fff;
 }
 
-.sitepilot-public-chat__title {
+.aisaautopilot-public-chat__title {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -95,18 +95,18 @@
 	font-weight: 700;
 }
 
-.sitepilot-public-chat__title .dashicons {
+.aisaautopilot-public-chat__title .dashicons {
 	width: 20px;
 	height: 20px;
 	font-size: 20px;
 }
 
-.sitepilot-public-chat__head-actions {
+.aisaautopilot-public-chat__head-actions {
 	display: flex;
 	gap: 4px;
 }
 
-.sitepilot-public-chat__icon {
+.aisaautopilot-public-chat__icon {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -120,18 +120,18 @@
 	cursor: pointer;
 }
 
-.sitepilot-public-chat__icon:hover {
+.aisaautopilot-public-chat__icon:hover {
 	background: rgba(255, 255, 255, 0.28);
 	color: #fff;
 }
 
-.sitepilot-public-chat__icon .dashicons {
+.aisaautopilot-public-chat__icon .dashicons {
 	width: 18px;
 	height: 18px;
 	font-size: 18px;
 }
 
-.sitepilot-public-chat__messages {
+.aisaautopilot-public-chat__messages {
 	display: flex;
 	flex: 1 1 auto;
 	flex-direction: column;
@@ -142,16 +142,16 @@
 	scroll-behavior: smooth;
 }
 
-.sitepilot-public-chat__message {
+.aisaautopilot-public-chat__message {
 	display: flex;
 	max-width: 100%;
 }
 
-.sitepilot-public-chat__message--user {
+.aisaautopilot-public-chat__message--user {
 	justify-content: flex-end;
 }
 
-.sitepilot-public-chat__bubble {
+.aisaautopilot-public-chat__bubble {
 	max-width: 85%;
 	padding: 10px 13px;
 	border: 1px solid #e5e7eb;
@@ -162,54 +162,54 @@
 	white-space: pre-wrap;
 }
 
-.sitepilot-public-chat__message--user .sitepilot-public-chat__bubble {
+.aisaautopilot-public-chat__message--user .aisaautopilot-public-chat__bubble {
 	border-color: #4f46e5;
 	border-bottom-right-radius: 4px;
 	background: #4f46e5;
 	color: #fff;
 }
 
-.sitepilot-public-chat[dir="rtl"] .sitepilot-public-chat__message--user .sitepilot-public-chat__bubble {
+.aisaautopilot-public-chat[dir="rtl"] .aisaautopilot-public-chat__message--user .aisaautopilot-public-chat__bubble {
 	border-radius: 14px;
 	border-bottom-left-radius: 4px;
 }
 
-.sitepilot-public-chat__message--assistant .sitepilot-public-chat__bubble {
+.aisaautopilot-public-chat__message--assistant .aisaautopilot-public-chat__bubble {
 	border-bottom-left-radius: 4px;
 }
 
-.sitepilot-public-chat[dir="rtl"] .sitepilot-public-chat__message--assistant .sitepilot-public-chat__bubble {
+.aisaautopilot-public-chat[dir="rtl"] .aisaautopilot-public-chat__message--assistant .aisaautopilot-public-chat__bubble {
 	border-radius: 14px;
 	border-bottom-right-radius: 4px;
 }
 
-.sitepilot-public-chat__bubble a {
+.aisaautopilot-public-chat__bubble a {
 	color: #4338ca;
 	text-decoration: underline;
 }
 
-.sitepilot-public-chat__message--user .sitepilot-public-chat__bubble a {
+.aisaautopilot-public-chat__message--user .aisaautopilot-public-chat__bubble a {
 	color: #fff;
 }
 
-.sitepilot-public-chat__bubble code {
+.aisaautopilot-public-chat__bubble code {
 	padding: 1px 4px;
 	border-radius: 4px;
 	background: #f3f4f6;
 	font-size: 0.9em;
 }
 
-.sitepilot-public-chat__message--user .sitepilot-public-chat__bubble code {
+.aisaautopilot-public-chat__message--user .aisaautopilot-public-chat__bubble code {
 	background: rgba(255, 255, 255, 0.2);
 }
 
-.sitepilot-public-chat__sources {
+.aisaautopilot-public-chat__sources {
 	margin: 7px 0 0;
 	padding-inline-start: 18px;
 	font-size: 12px;
 }
 
-.sitepilot-public-chat__composer {
+.aisaautopilot-public-chat__composer {
 	display: flex;
 	align-items: flex-end;
 	flex: 0 0 auto;
@@ -219,7 +219,7 @@
 	background: #fff;
 }
 
-.sitepilot-public-chat__input {
+.aisaautopilot-public-chat__input {
 	flex: 1 1 auto;
 	min-width: 0;
 	max-height: 140px;
@@ -233,19 +233,19 @@
 	line-height: 1.4;
 }
 
-.sitepilot-public-chat__input:focus {
+.aisaautopilot-public-chat__input:focus {
 	border-color: #4f46e5;
 	outline: none;
 	box-shadow: 0 0 0 1px #4f46e5;
 }
 
-.sitepilot-public-chat__input:disabled {
+.aisaautopilot-public-chat__input:disabled {
 	background: #f9fafb;
 	cursor: not-allowed;
 }
 
-.sitepilot-public-chat__send,
-.sitepilot-public-chat__voice {
+.aisaautopilot-public-chat__send,
+.aisaautopilot-public-chat__voice {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -257,77 +257,77 @@
 	cursor: pointer;
 }
 
-.sitepilot-public-chat__send {
+.aisaautopilot-public-chat__send {
 	border: 0;
 	background: #4f46e5;
 	color: #fff;
 }
 
-.sitepilot-public-chat__send:hover {
+.aisaautopilot-public-chat__send:hover {
 	background: #4338ca;
 	color: #fff;
 }
 
-.sitepilot-public-chat__voice {
+.aisaautopilot-public-chat__voice {
 	border: 1px solid #d1d5db;
 	background: #fff;
 	color: #4f46e5;
 }
 
-.sitepilot-public-chat__voice:hover {
+.aisaautopilot-public-chat__voice:hover {
 	background: #eef2ff;
 	color: #4f46e5;
 }
 
-.sitepilot-public-chat__send:disabled,
-.sitepilot-public-chat__voice:disabled {
+.aisaautopilot-public-chat__send:disabled,
+.aisaautopilot-public-chat__voice:disabled {
 	opacity: 0.5;
 	cursor: default;
 }
 
-.sitepilot-public-chat__voice.is-recording {
+.aisaautopilot-public-chat__voice.is-recording {
 	border-color: #dc2626;
 	background: #dc2626;
 	color: #fff;
-	animation: sitepilot-public-chat-pulse 1s infinite;
+	animation: aisaautopilot-public-chat-pulse 1s infinite;
 }
 
-.sitepilot-public-chat__send .dashicons,
-.sitepilot-public-chat__voice .dashicons {
+.aisaautopilot-public-chat__send .dashicons,
+.aisaautopilot-public-chat__voice .dashicons {
 	width: 20px;
 	height: 20px;
 	font-size: 20px;
 }
 
-@keyframes sitepilot-public-chat-pulse {
+@keyframes aisaautopilot-public-chat-pulse {
 	50% {
 		opacity: 0.65;
 	}
 }
 
-.sitepilot-public-chat__typing {
+.aisaautopilot-public-chat__typing {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
 }
 
-.sitepilot-public-chat__typing span {
+.aisaautopilot-public-chat__typing span {
 	width: 7px;
 	height: 7px;
 	border-radius: 50%;
 	background: #b4b7bd;
-	animation: sitepilot-public-chat-blink 1.2s infinite both;
+	animation: aisaautopilot-public-chat-blink 1.2s infinite both;
 }
 
-.sitepilot-public-chat__typing span:nth-child(2) {
+.aisaautopilot-public-chat__typing span:nth-child(2) {
 	animation-delay: 0.2s;
 }
 
-.sitepilot-public-chat__typing span:nth-child(3) {
+.aisaautopilot-public-chat__typing span:nth-child(3) {
 	animation-delay: 0.4s;
 }
 
-@keyframes sitepilot-public-chat-blink {
+@keyframes aisaautopilot-public-chat-blink {
 	0%,
 	80%,
 	100% {
@@ -339,14 +339,14 @@
 	}
 }
 
-.sitepilot-public-chat__chips {
+.aisaautopilot-public-chat__chips {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
 	margin-top: 8px;
 }
 
-.sitepilot-public-chat__chip {
+.aisaautopilot-public-chat__chip {
 	padding: 5px 11px;
 	border: 1px solid #dbe0ff;
 	border-radius: 999px;
@@ -357,12 +357,12 @@
 	cursor: pointer;
 }
 
-.sitepilot-public-chat__chip:hover {
+.aisaautopilot-public-chat__chip:hover {
 	background: #e0e7ff;
 	color: #3730a3;
 }
 
-.sitepilot-public-chat__voice-status {
+.aisaautopilot-public-chat__voice-status {
 	flex: 0 0 auto;
 	padding: 0 12px 10px;
 	background: #fff;
@@ -370,39 +370,39 @@
 	font-size: 12px;
 }
 
-.sitepilot-public-chat__voice-status[hidden] {
+.aisaautopilot-public-chat__voice-status[hidden] {
 	display: none;
 }
 
 @media (max-width: 520px) {
-	.sitepilot-public-chat {
+	.aisaautopilot-public-chat {
 		inset-inline-end: 12px;
 		bottom: 12px;
 	}
 
-	.sitepilot-public-chat.is-open {
+	.aisaautopilot-public-chat.is-open {
 		inset: 0;
 		inset-inline-end: 0;
 		bottom: 0;
 		align-items: stretch;
 	}
 
-	.sitepilot-public-chat.is-open .sitepilot-public-chat__panel {
+	.aisaautopilot-public-chat.is-open .aisaautopilot-public-chat__panel {
 		width: 100%;
 		height: 100%;
 		margin-bottom: 0;
 		border-radius: 0;
 	}
 
-	.sitepilot-public-chat.is-open .sitepilot-public-chat__launch {
+	.aisaautopilot-public-chat.is-open .aisaautopilot-public-chat__launch {
 		display: none;
 	}
 
-	.sitepilot-public-chat:not(.is-open) .sitepilot-public-chat__launch {
+	.aisaautopilot-public-chat:not(.is-open) .aisaautopilot-public-chat__launch {
 		padding: 12px;
 	}
 
-	.sitepilot-public-chat__launch-label {
+	.aisaautopilot-public-chat__launch-label {
 		display: none;
 	}
 }

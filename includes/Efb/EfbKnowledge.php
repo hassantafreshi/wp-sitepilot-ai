@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Efb;
+namespace AISAAutoPilot\Efb;
 
 /**
  * Answers "how do I …?" questions about the Easy Form Builder editor from a

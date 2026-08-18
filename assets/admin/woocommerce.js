@@ -1,15 +1,15 @@
-/* global SitePilotAI */
+/* global AISAAutoPilotAI */
 ( function () {
 	'use strict';
 
-	var cfg = window.SitePilotAI || {};
+	var cfg = window.AISAAutoPilotAI || {};
 	var actionId = '';
 
 	function byId( id ) { return document.getElementById( id ); }
 	function status( message, type ) {
 		var node = byId( 'sp-woo-plan-status' );
 		if ( ! node ) { return; }
-		node.className = 'sitepilot-status' + ( type ? ' sitepilot-status--' + type : '' );
+		node.className = 'sp-status-text' + ( type === 'ok' ? ' is-ok' : ( type === 'error' ? ' is-err' : '' ) );
 		node.textContent = message;
 	}
 	function request( endpoint, payload ) {
@@ -24,12 +24,17 @@
 	function text( value ) { return String( value || '' ); }
 	function field( target, label, value ) {
 		if ( ! value && value !== 0 ) { return; }
-		var dt = document.createElement( 'dt' );
-		var dd = document.createElement( 'dd' );
-		dt.textContent = label;
-		dd.textContent = Array.isArray( value ) ? value.join( ', ' ) : text( value );
-		target.appendChild( dt );
-		target.appendChild( dd );
+		var row = document.createElement( 'div' );
+		row.className = 'sp-kv__row sp-kv__row--ruled';
+		var key = document.createElement( 'span' );
+		key.className = 'sp-kv__k';
+		key.textContent = label;
+		var val = document.createElement( 'span' );
+		val.className = 'sp-kv__v';
+		val.textContent = Array.isArray( value ) ? value.join( ', ' ) : text( value );
+		row.appendChild( key );
+		row.appendChild( val );
+		target.appendChild( row );
 	}
 	function showReview( plan ) {
 		var fields = byId( 'sp-woo-review-fields' );
@@ -64,12 +69,13 @@
 		var result = byId( 'sp-woo-result' );
 		if ( ! result ) { return; }
 		result.replaceChildren();
-		var message = document.createElement( 'p' );
+		result.className = 'sp-alert sp-alert--ok';
+		var message = document.createElement( 'span' );
 		message.textContent = data.message || 'Product draft created.';
 		result.appendChild( message );
 		if ( data.edit_url ) {
 			var link = document.createElement( 'a' );
-			link.className = 'button button-primary';
+			link.className = 'sp-btn sp-btn--xs';
 			link.href = data.edit_url;
 			link.textContent = 'Review product draft';
 			result.appendChild( link );

@@ -7,15 +7,15 @@
  */
 declare(strict_types=1);
 
-$wp_root = getenv( 'SITEPILOT_WP_ROOT' ) ?: 'C:\xampp\htdocs\wp';
+$wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\xampp\htdocs\wp';
 require $wp_root . '/wp-load.php';
 
-use SitePilot\Api\CopilotController;
-use SitePilot\Providers\ProviderManager;
+use AISAAutoPilot\Api\CopilotController;
+use AISAAutoPilot\Providers\ProviderManager;
 
 wp_set_current_user( 1 );
 
-$original_logs = get_option( 'sitepilot_ai_logs', null );
+$original_logs = get_option( 'aisaautopilot_logs', null );
 $action_id     = '';
 
 try {
@@ -43,11 +43,11 @@ try {
 	}
 } finally {
 	if ( '' !== $action_id ) {
-		delete_transient( 'sitepilot_action_' . $action_id );
+		delete_transient( 'aisaautopilot_action_' . $action_id );
 	}
 	if ( null === $original_logs ) {
-		delete_option( 'sitepilot_ai_logs' );
+		delete_option( 'aisaautopilot_logs' );
 	} else {
-		update_option( 'sitepilot_ai_logs', $original_logs, false );
+		update_option( 'aisaautopilot_logs', $original_logs, false );
 	}
 }

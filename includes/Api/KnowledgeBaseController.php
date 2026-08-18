@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Content\ContentIndexer;
-use SitePilot\Content\KnowledgeBase;
-use SitePilot\Content\KbGaps;
-use SitePilot\Providers\ProviderManager;
-use SitePilot\Usage\UsageTracker;
+use AISAAutoPilot\Content\ContentIndexer;
+use AISAAutoPilot\Content\KnowledgeBase;
+use AISAAutoPilot\Content\KbGaps;
+use AISAAutoPilot\Providers\ProviderManager;
+use AISAAutoPilot\Usage\UsageTracker;
 
 /**
  * REST controller for Knowledge Base and Usage endpoints.
@@ -44,7 +44,7 @@ final class KnowledgeBaseController {
 		$kb = new KnowledgeBase();
 		$kb->truncate();
 
-		return $this->respond( array( 'message' => __( 'Knowledge base cleared.', 'sitepilot-ai' ) ), true );
+		return $this->respond( array( 'message' => __( 'Knowledge base cleared.', 'ai-site-assistant-autopilot' ) ), true );
 	}
 
 	/**
@@ -88,14 +88,14 @@ final class KnowledgeBaseController {
 	public function delete_entry( \WP_REST_Request $request ): \WP_REST_Response {
 		$post_id = absint( $request->get_param( 'post_id' ) );
 		if ( $post_id <= 0 ) {
-			return $this->respond( array( 'message' => __( 'Invalid post ID.', 'sitepilot-ai' ) ), false, 400, 'invalid_id' );
+			return $this->respond( array( 'message' => __( 'Invalid post ID.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_id' );
 		}
 
 		$kb     = new KnowledgeBase();
 		$result = $kb->delete_by_post_id( $post_id );
 
 		return $this->respond(
-			array( 'message' => $result ? __( 'Entry removed.', 'sitepilot-ai' ) : __( 'Entry not found.', 'sitepilot-ai' ) ),
+			array( 'message' => $result ? __( 'Entry removed.', 'ai-site-assistant-autopilot' ) : __( 'Entry not found.', 'ai-site-assistant-autopilot' ) ),
 			$result
 		);
 	}
@@ -106,12 +106,12 @@ final class KnowledgeBaseController {
 	public function chat( \WP_REST_Request $request ): \WP_REST_Response {
 		$question = sanitize_text_field( (string) $request->get_param( 'question' ) );
 		if ( '' === trim( $question ) ) {
-			return $this->respond( array( 'message' => __( 'Please enter a question.', 'sitepilot-ai' ) ), false, 400, 'empty_question' );
+			return $this->respond( array( 'message' => __( 'Please enter a question.', 'ai-site-assistant-autopilot' ) ), false, 400, 'empty_question' );
 		}
 
 		$provider_manager = new ProviderManager();
 		if ( ! $provider_manager->is_configured() ) {
-			return $this->respond( array( 'message' => __( 'AI provider is not configured.', 'sitepilot-ai' ) ), false, 400, 'not_configured' );
+			return $this->respond( array( 'message' => __( 'AI provider is not configured.', 'ai-site-assistant-autopilot' ) ), false, 400, 'not_configured' );
 		}
 
 		$kb      = new KnowledgeBase();
@@ -120,7 +120,7 @@ final class KnowledgeBaseController {
 		if ( '' === $context ) {
 			return $this->respond(
 				array(
-					'message' => __( 'The knowledge base is empty. Please index your content first.', 'sitepilot-ai' ),
+					'message' => __( 'The knowledge base is empty. Please index your content first.', 'ai-site-assistant-autopilot' ),
 				),
 				false,
 				400,
@@ -128,7 +128,7 @@ final class KnowledgeBaseController {
 			);
 		}
 
-		$system_prompt = "You are SitePilot AI, a helpful assistant for a WordPress website.\n"
+		$system_prompt = "You are AI Site Assistant AutoPilot, a helpful assistant for a WordPress website.\n"
 			. "Answer the user's question based ONLY on the website content provided below.\n"
 			. "If the answer is not in the content, say so honestly.\n"
 			. "Respond in the same language as the user's question.\n"
@@ -180,7 +180,7 @@ final class KnowledgeBaseController {
 			$gaps->dismiss( $hash );
 		}
 
-		return $this->respond( array( 'message' => __( 'Updated.', 'sitepilot-ai' ) ), true );
+		return $this->respond( array( 'message' => __( 'Updated.', 'ai-site-assistant-autopilot' ) ), true );
 	}
 
 	/**
@@ -203,7 +203,7 @@ final class KnowledgeBaseController {
 
 		return $this->respond(
 			array(
-				'message' => __( 'Budget updated.', 'sitepilot-ai' ),
+				'message' => __( 'Budget updated.', 'ai-site-assistant-autopilot' ),
 				'budget'  => $budget,
 			),
 			true
@@ -217,7 +217,7 @@ final class KnowledgeBaseController {
 		$tracker = new UsageTracker();
 		$tracker->reset();
 
-		return $this->respond( array( 'message' => __( 'Usage data reset.', 'sitepilot-ai' ) ), true );
+		return $this->respond( array( 'message' => __( 'Usage data reset.', 'ai-site-assistant-autopilot' ) ), true );
 	}
 
 	/**

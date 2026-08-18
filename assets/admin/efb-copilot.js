@@ -1,8 +1,8 @@
-/* global SitePilotEFB, valj_efb, editFormEfb */
+/* global AISAAutoPilotEFB, valj_efb, editFormEfb */
 ( function () {
 	'use strict';
 
-	var cfg = window.SitePilotEFB || {};
+	var cfg = window.AISAAutoPilotEFB || {};
 	var WIDTH = { full: '100', half: '50', third: '33', quarter: '25' };
 	var FIELD_PROPERTIES = cfg.fieldProperties || {};
 	var FORM_PROPERTIES = cfg.formProperties || {};
@@ -51,7 +51,7 @@
 	}
 	function uploadAudio( blob, duration ) {
 		var data = new FormData();
-		data.append( 'audio', blob, 'sitepilot-voice.webm' );
+		data.append( 'audio', blob, 'aisaautopilot-voice.webm' );
 		data.append( 'duration_ms', String( duration ) );
 		data.append( 'language', cfg.language || 'en' );
 		return fetch( cfg.restUrl + 'efb/voice/transcribe', { method: 'POST', credentials: 'same-origin', headers: { 'X-WP-Nonce': cfg.nonce }, body: data } ).then( function ( r ) {
@@ -68,33 +68,33 @@
 	}
 
 	/* ---------- message rendering ---------- */
-	function messages() { return $( 'sitepilot-efb-messages' ); }
+	function messages() { return $( 'aisaautopilot-efb-messages' ); }
 	function scrollDown() { var m = messages(); if ( m ) { m.scrollTop = m.scrollHeight; } }
 	function addUser( text ) {
-		messages().appendChild( el( 'div', { class: 'sitepilot-efb-msg sitepilot-efb-msg--user' }, [ el( 'div', { class: 'sitepilot-efb-bubble', text: text } ) ] ) );
+		messages().appendChild( el( 'div', { class: 'aisaautopilot-efb-msg aisaautopilot-efb-msg--user' }, [ el( 'div', { class: 'aisaautopilot-efb-bubble', text: text } ) ] ) );
 		scrollDown();
 	}
 	function addAi( content, wide ) {
-		var bubble = el( 'div', { class: 'sitepilot-efb-bubble' } );
+		var bubble = el( 'div', { class: 'aisaautopilot-efb-bubble' } );
 		if ( typeof content === 'string' ) { bubble.textContent = content; } else { bubble.appendChild( content ); }
-		var row = el( 'div', { class: 'sitepilot-efb-msg sitepilot-efb-msg--ai' + ( wide ? ' sitepilot-efb-msg--wide' : '' ) }, [ bubble ] );
+		var row = el( 'div', { class: 'aisaautopilot-efb-msg aisaautopilot-efb-msg--ai' + ( wide ? ' aisaautopilot-efb-msg--wide' : '' ) }, [ bubble ] );
 		messages().appendChild( row );
 		scrollDown();
 		return bubble;
 	}
 	function addTyping() {
-		var t = el( 'div', { class: 'sitepilot-efb-msg sitepilot-efb-msg--ai', id: 'sitepilot-efb-typing' }, [
-			el( 'div', { class: 'sitepilot-efb-bubble' }, [ el( 'span', { class: 'sitepilot-efb-typing' }, [ el( 'span' ), el( 'span' ), el( 'span' ) ] ) ] )
+		var t = el( 'div', { class: 'aisaautopilot-efb-msg aisaautopilot-efb-msg--ai', id: 'aisaautopilot-efb-typing' }, [
+			el( 'div', { class: 'aisaautopilot-efb-bubble' }, [ el( 'span', { class: 'aisaautopilot-efb-typing' }, [ el( 'span' ), el( 'span' ), el( 'span' ) ] ) ] )
 		] );
 		messages().appendChild( t );
 		scrollDown();
 	}
-	function removeTyping() { var t = $( 'sitepilot-efb-typing' ); if ( t ) { t.remove(); } }
+	function removeTyping() { var t = $( 'aisaautopilot-efb-typing' ); if ( t ) { t.remove(); } }
 	function chips( items, onPick ) {
-		var box = el( 'div', { class: 'sitepilot-efb-chips' } );
+		var box = el( 'div', { class: 'aisaautopilot-efb-chips' } );
 		items.forEach( function ( it ) {
 			var label = typeof it === 'string' ? it : it.title;
-			var c = el( 'button', { type: 'button', class: 'sitepilot-efb-chip', text: label } );
+			var c = el( 'button', { type: 'button', class: 'aisaautopilot-efb-chip', text: label } );
 			c.addEventListener( 'click', function () { onPick( it ); } );
 			box.appendChild( c );
 		} );
@@ -294,16 +294,16 @@
 	function renderMessage( data ) {
 		var bubble = el( 'div', {} );
 		bubble.appendChild( el( 'div', { text: data.reply || '' } ) );
-		if ( data.errors && data.errors.length ) { bubble.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
+		if ( data.errors && data.errors.length ) { bubble.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
 		if ( data.upgrade_required ) {
-			var upgrade = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', text: 'Upgrade Easy Form Builder' } );
+			var upgrade = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--primary', text: 'Upgrade Easy Form Builder' } );
 			upgrade.addEventListener( 'click', function () {
 				// Reuse EFB's own dialog, translated message, and official purchase flow.
 				if ( typeof window.pro_show_efb === 'function' ) { window.pro_show_efb( data.upgrade_reason === 'step_limit' ? 2 : 1 ); return; }
 				window.open( data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', '_blank', 'noopener' );
 			} );
-			var pricing = el( 'a', { class: 'sitepilot-efb-btn sitepilot-efb-btn--ghost', href: data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', target: '_blank', rel: 'noopener noreferrer', text: 'View pricing' } );
-			bubble.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ upgrade, pricing ] ) );
+			var pricing = el( 'a', { class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', href: data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', target: '_blank', rel: 'noopener noreferrer', text: 'View pricing' } );
+			bubble.appendChild( el( 'div', { class: 'aisaautopilot-efb-actions' }, [ upgrade, pricing ] ) );
 		}
 		addAi( bubble );
 		history.push( { role: 'assistant', text: data.reply || '' } );
@@ -312,13 +312,13 @@
 		var box = el( 'div', {} );
 		if ( data.reply ) { box.appendChild( el( 'div', { text: data.reply } ) ); }
 		var p = data.preview;
-		var card = el( 'div', { class: 'sitepilot-efb-card' } );
+		var card = el( 'div', { class: 'aisaautopilot-efb-card' } );
 		card.appendChild( el( 'h3', { text: p.title } ) );
-		card.appendChild( el( 'div', { class: 'sitepilot-efb-meta' }, [
-			el( 'span', { class: 'sitepilot-efb-pill', text: p.connector } ),
-			el( 'span', { class: 'sitepilot-efb-pill sitepilot-efb-pill--muted', text: p.field_count + ' fields' } )
+		card.appendChild( el( 'div', { class: 'aisaautopilot-efb-meta' }, [
+			el( 'span', { class: 'aisaautopilot-efb-pill', text: p.connector } ),
+			el( 'span', { class: 'aisaautopilot-efb-pill aisaautopilot-efb-pill--muted', text: p.field_count + ' fields' } )
 		] ) );
-		var table = el( 'table', { class: 'sitepilot-efb-fields' } );
+		var table = el( 'table', { class: 'aisaautopilot-efb-fields' } );
 		table.appendChild( el( 'thead', {}, [ el( 'tr', {}, [ el( 'th', { text: 'Label' } ), el( 'th', { text: 'Type' } ), el( 'th', { text: 'Req.' } ), el( 'th', { text: 'W' } ) ] ) ] ) );
 		var tb = el( 'tbody' );
 		p.fields.forEach( function ( f ) {
@@ -326,9 +326,9 @@
 		} );
 		table.appendChild( tb );
 		card.appendChild( table );
-		var approve = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', text: 'Approve & create' } );
-		var discard = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--ghost', text: 'Discard' } );
-		var note = el( 'span', { class: 'sitepilot-efb-inline-note' } );
+		var approve = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--primary', text: 'Approve & create' } );
+		var discard = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', text: 'Discard' } );
+		var note = el( 'span', { class: 'aisaautopilot-efb-inline-note' } );
 		approve.addEventListener( 'click', function () {
 			approve.disabled = true; note.textContent = 'Creating…';
 			api( 'efb/create', { action_id: data.action_id } ).then( function ( res ) {
@@ -338,19 +338,19 @@
 			} ).catch( function () { note.textContent = 'Network error.'; approve.disabled = false; } );
 		} );
 		discard.addEventListener( 'click', function () { card.remove(); } );
-		card.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ approve, discard, note ] ) );
+		card.appendChild( el( 'div', { class: 'aisaautopilot-efb-actions' }, [ approve, discard, note ] ) );
 		// Fields the licence cannot render were left out of the plan; name them
 		// and offer the upgrade instead of quietly shipping a lesser form.
 		if ( data.errors && data.errors.length ) {
-			card.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: data.errors.join( ' ' ) } ) );
+			card.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: data.errors.join( ' ' ) } ) );
 		}
 		if ( data.upgrade_required ) {
-			var proBtn = el( 'button', { type: 'button', class: 'sitepilot-efb-btn sitepilot-efb-btn--primary', text: 'Upgrade Easy Form Builder' } );
+			var proBtn = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--primary', text: 'Upgrade Easy Form Builder' } );
 			proBtn.addEventListener( 'click', function () {
 				if ( typeof window.pro_show_efb === 'function' ) { window.pro_show_efb( 1 ); return; }
 				window.open( data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', '_blank', 'noopener' );
 			} );
-			card.appendChild( el( 'div', { class: 'sitepilot-efb-actions' }, [ proBtn ] ) );
+			card.appendChild( el( 'div', { class: 'aisaautopilot-efb-actions' }, [ proBtn ] ) );
 		}
 		box.appendChild( card );
 		addAi( box, true );
@@ -368,10 +368,10 @@
 		box.appendChild( el( 'div', { text: data.reply || 'Done.' } ) );
 		// Server-side notes (e.g. a batch truncated at the op limit) must show here
 		// too, otherwise a partly-applied change still reads as a clean success.
-		if ( data.errors && data.errors.length ) { box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
+		if ( data.errors && data.errors.length ) { box.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
 		if ( ! report.applied.length ) {
 			var reason = report.failed.length ? report.failed[ 0 ].reason.replace( /_/g, ' ' ) : 'no operation was applied';
-			box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'No change was applied: ' + reason + '.' } ) );
+			box.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: 'No change was applied: ' + reason + '.' } ) );
 			clientLog( traceId, 'apply_failed', 'No requested operation was applied.', { operation_count: ( data.operations || [] ).length, failed: report.failed } );
 			addAi( box ); history.push( { role: 'assistant', text: 'No operation applied: ' + reason } ); return;
 		}
@@ -379,11 +379,11 @@
 		if ( ! refreshed.ok ) { report.failed.push( { operation: 'render', reason: refreshed.reason || 'renderer_refresh_failed' } ); }
 		clientLog( traceId, refreshed.ok ? 'apply_completed' : 'apply_render_failed', refreshed.ok ? 'Operations applied in the live EFB canvas.' : 'Operations changed the structure but the EFB renderer failed.', { operation_count: ( data.operations || [] ).length, applied: report.applied, failed: report.failed, renderer: refreshed } );
 		var ul = el( 'div', {} );
-		report.applied.forEach( function ( a ) { ul.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: '✓ ' + a } ) ); } );
-		report.failed.forEach( function ( f ) { ul.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'Not applied: ' + f.reason.replace( /_/g, ' ' ) } ) ); } );
+		report.applied.forEach( function ( a ) { ul.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: '✓ ' + a } ) ); } );
+		report.failed.forEach( function ( f ) { ul.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: 'Not applied: ' + f.reason.replace( /_/g, ' ' ) } ) ); } );
 		box.appendChild( ul );
-		if ( ! refreshed.ok ) { box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'The EFB canvas could not refresh. Reload the editor and check SitePilot AI → Logs with trace ' + traceId + '.' } ) ); }
-		else { box.appendChild( el( 'div', { class: 'sitepilot-efb-inline-note', text: 'Applied to the canvas. Review it, then click Easy Form Builder’s green Save button to persist the changes.' } ) ); }
+		if ( ! refreshed.ok ) { box.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: 'The EFB canvas could not refresh. Reload the editor and check AI Site Assistant AutoPilot → Logs with trace ' + traceId + '.' } ) ); }
+		else { box.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: 'Applied to the canvas. Review it, then click Easy Form Builder’s green Save button to persist the changes.' } ) ); }
 		addAi( box );
 		history.push( { role: 'assistant', text: 'Applied: ' + report.applied.join( '; ' ) } );
 		if ( ! refreshed.ok ) { setTimeout( function () { window.location.reload(); }, 800 ); }
@@ -395,7 +395,7 @@
 			box.appendChild( chips( data.suggestions, function ( s ) { submit( s.title ); } ) );
 			addAi( box ); history.push( { role: 'assistant', text: data.reply || 'Suggested topics.' } ); return;
 		}
-		var card = el( 'div', { class: 'sitepilot-efb-card' } );
+		var card = el( 'div', { class: 'aisaautopilot-efb-card' } );
 		if ( data.title ) { card.appendChild( el( 'h3', { text: data.title } ) ); }
 		( data.answer || '' ).split( '\n\n' ).forEach( function ( para ) { if ( para.trim() ) { card.appendChild( el( 'p', { text: para.trim() } ) ); } } );
 		box.appendChild( card );
@@ -417,9 +417,9 @@
 		addUser( text );
 		var prior = history.slice();
 		history.push( { role: 'user', text: text } );
-		var input = $( 'sitepilot-efb-input' );
+		var input = $( 'aisaautopilot-efb-input' );
 		input.value = ''; autoGrow();
-		busy = true; $( 'sitepilot-efb-send' ).disabled = true;
+		busy = true; $( 'aisaautopilot-efb-send' ).disabled = true;
 		addTyping();
 		var traceId = makeTraceId();
 		var fields = liveFields();
@@ -427,18 +427,18 @@
 		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, step_count: steps.length, field_ids: fields.map( function ( field ) { return field.id; } ) } );
 		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps } )
 			.then( function ( res ) {
-				removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false;
+				removeTyping(); busy = false; $( 'aisaautopilot-efb-send' ).disabled = false;
 				var data = res.data || { type: 'message', reply: 'Sorry, something went wrong.' };
 				if ( data.ok === false && ! data.reply ) { data.type = 'message'; data.reply = data.message || 'The request could not be completed.'; }
 				var context = { status: res.status, response_type: data.type || 'message', code: data.code || '', operation_count: Array.isArray( data.operations ) ? data.operations.length : 0 };
 				clientLog( traceId, data.ok === false ? 'chat_response_error' : 'chat_response', data.ok === false ? ( data.message || 'Chat endpoint returned an error.' ) : 'Chat response received.', context );
 				renderResponse( data, traceId );
 			} )
-			.catch( function ( error ) { removeTyping(); busy = false; $( 'sitepilot-efb-send' ).disabled = false; clientLog( traceId, 'chat_network_error', 'The browser could not reach the chat endpoint.', { failed: [ { reason: String( error && error.message ? error.message : 'network_error' ).slice( 0, 160 ) } ] } ); addAi( 'Network error. Please try again.' ); continueLiveVoice(); } );
+			.catch( function ( error ) { removeTyping(); busy = false; $( 'aisaautopilot-efb-send' ).disabled = false; clientLog( traceId, 'chat_network_error', 'The browser could not reach the chat endpoint.', { failed: [ { reason: String( error && error.message ? error.message : 'network_error' ).slice( 0, 160 ) } ] } ); addAi( 'Network error. Please try again.' ); continueLiveVoice(); } );
 	}
 
 	/* Hands-free admin conversation. Standard microphone recording remains transcript-first. */
-	function setLiveVoiceButton() { var button = $( 'sitepilot-efb-live-voice' ); if ( button ) { button.classList.toggle( 'is-live', liveVoiceEnabled ); button.setAttribute( 'aria-pressed', liveVoiceEnabled ? 'true' : 'false' ); button.title = liveVoiceEnabled ? 'Stop live voice conversation' : 'Start live voice conversation'; } }
+	function setLiveVoiceButton() { var button = $( 'aisaautopilot-efb-live-voice' ); if ( button ) { button.classList.toggle( 'is-live', liveVoiceEnabled ); button.setAttribute( 'aria-pressed', liveVoiceEnabled ? 'true' : 'false' ); button.title = liveVoiceEnabled ? 'Stop live voice conversation' : 'Start live voice conversation'; } }
 	function stopRealtimeVoice() { if ( liveVoiceRestartTimer ) { clearTimeout( liveVoiceRestartTimer ); liveVoiceRestartTimer = null; } if ( liveVoiceRecognition ) { var activeRecognition = liveVoiceRecognition; liveVoiceRecognition = null; try { activeRecognition.stop(); } catch ( e ) {} } }
 	function continueLiveVoice() { if ( ! liveVoiceEnabled ) { return; } liveVoiceSending = false; if ( liveVoiceRestartTimer ) { clearTimeout( liveVoiceRestartTimer ); } liveVoiceRestartTimer = setTimeout( startRealtimeVoice, 350 ); }
 	function startRealtimeVoice() {
@@ -449,7 +449,7 @@
 		activeRecognition.onresult = function ( event ) {
 			interim = '';
 			for ( var i = event.resultIndex; i < event.results.length; i++ ) { var words = event.results[ i ][ 0 ].transcript; if ( event.results[ i ].isFinal ) { finalText += words + ' '; } else { interim += words; } }
-			var input = $( 'sitepilot-efb-input' ); input.value = ( finalText + interim ).trim(); autoGrow();
+			var input = $( 'aisaautopilot-efb-input' ); input.value = ( finalText + interim ).trim(); autoGrow();
 			if ( finalText.trim() && ! liveVoiceSending ) { liveVoiceSending = true; var message = finalText.trim(); try { activeRecognition.stop(); } catch ( e ) {} setTimeout( function () { submit( message ); }, 450 ); }
 		};
 		activeRecognition.onerror = function () { if ( liveVoiceRecognition === activeRecognition ) { liveVoiceRecognition = null; } if ( liveVoiceEnabled && ! liveVoiceSending ) { continueLiveVoice(); } };
@@ -459,15 +459,15 @@
 	function toggleRealtimeVoice() { var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; if ( liveVoiceEnabled ) { liveVoiceEnabled = false; stopRealtimeVoice(); if ( window.speechSynthesis ) { window.speechSynthesis.cancel(); } voiceStatus( 'Live voice conversation stopped.' ); setLiveVoiceButton(); return; } if ( ! SpeechRecognition ) { addAi( 'Live voice conversation is not supported by this browser. Use Chrome or Edge, or use the recording microphone.' ); return; } if ( recorder && recorder.state === 'recording' ) { stopVoice(); } liveVoiceEnabled = true; setLiveVoiceButton(); startRealtimeVoice(); }
 
 	/* Voice never sends a command by itself: the transcript is placed in the composer for review. */
-	function voiceStatus( message ) { var status = $( 'sitepilot-efb-voice-status' ); if ( status ) { status.textContent = message; } }
-	function setVoiceButton( recording ) { var button = $( 'sitepilot-efb-voice' ); if ( button ) { button.classList.toggle( 'is-recording', recording ); button.setAttribute( 'aria-pressed', recording ? 'true' : 'false' ); } }
+	function voiceStatus( message ) { var status = $( 'aisaautopilot-efb-voice-status' ); if ( status ) { status.textContent = message; } }
+	function setVoiceButton( recording ) { var button = $( 'aisaautopilot-efb-voice' ); if ( button ) { button.classList.toggle( 'is-recording', recording ); button.setAttribute( 'aria-pressed', recording ? 'true' : 'false' ); } }
 	function stopLiveRecognition() { if ( recognition ) { try { recognition.stop(); } catch ( e ) {} } }
 	function startLiveRecognition() {
 		var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 		if ( ! SpeechRecognition ) { return; }
 		voiceFinalText = '';
 		recognition = new SpeechRecognition(); recognition.lang = cfg.language || document.documentElement.lang || 'en'; recognition.continuous = true; recognition.interimResults = true;
-		recognition.onresult = function ( event ) { var interim = ''; for ( var i = event.resultIndex; i < event.results.length; i++ ) { var words = event.results[ i ][ 0 ].transcript; if ( event.results[ i ].isFinal ) { voiceFinalText += words + ' '; } else { interim += words; } } var input = $( 'sitepilot-efb-input' ); input.value = voiceInputPrefix + ( voiceFinalText + interim ).trim(); autoGrow(); };
+		recognition.onresult = function ( event ) { var interim = ''; for ( var i = event.resultIndex; i < event.results.length; i++ ) { var words = event.results[ i ][ 0 ].transcript; if ( event.results[ i ].isFinal ) { voiceFinalText += words + ' '; } else { interim += words; } } var input = $( 'aisaautopilot-efb-input' ); input.value = voiceInputPrefix + ( voiceFinalText + interim ).trim(); autoGrow(); };
 		recognition.onerror = function () {}; try { recognition.start(); } catch ( e ) { recognition = null; }
 	}
 	function stopVoice() { stopLiveRecognition(); if ( recorder && recorder.state !== 'inactive' ) { recorder.stop(); } }
@@ -476,7 +476,7 @@
 		if ( recorder && recorder.state === 'recording' ) { stopVoice(); return; }
 		if ( ! navigator.mediaDevices || ! navigator.mediaDevices.getUserMedia || ! window.MediaRecorder ) { addAi( 'Voice recording is not supported by this browser. Please type your message.' ); return; }
 		navigator.mediaDevices.getUserMedia( { audio: true } ).then( function ( stream ) {
-			voiceInputPrefix = $( 'sitepilot-efb-input' ).value.trim(); if ( voiceInputPrefix ) { voiceInputPrefix += ' '; }
+			voiceInputPrefix = $( 'aisaautopilot-efb-input' ).value.trim(); if ( voiceInputPrefix ) { voiceInputPrefix += ' '; }
 			recorderStream = stream; recorderChunks = []; recorderStartedAt = Date.now(); recorder = new MediaRecorder( stream );
 			recorder.ondataavailable = function ( event ) { if ( event.data && event.data.size ) { recorderChunks.push( event.data ); } };
 			recorder.onstop = function () {
@@ -491,7 +491,7 @@
 				voiceStatus( 'Transcribing…' );
 				uploadAudio( blob, duration ).then( function ( result ) {
 					if ( ! result.ok ) { addAi( result.message || 'Voice transcription failed.' ); return; }
-					var input = $( 'sitepilot-efb-input' ); input.value = voiceInputPrefix + ( result.transcript || voiceFinalText ).trim(); autoGrow(); input.focus(); voiceStatus( 'Transcript ready. Review it, then send.' );
+					var input = $( 'aisaautopilot-efb-input' ); input.value = voiceInputPrefix + ( result.transcript || voiceFinalText ).trim(); autoGrow(); input.focus(); voiceStatus( 'Transcript ready. Review it, then send.' );
 				} ).catch( function () { addAi( 'Voice transcription failed. Please try again.' ); } );
 			};
 			recorder.start(); startLiveRecognition(); setVoiceButton( true ); voiceStatus( 'Recording. Words appear in the message box as you speak; it stops automatically after 45 seconds.' ); recorderTimer = setTimeout( stopVoice, 45000 );
@@ -514,21 +514,21 @@
 	}
 
 	/* ---------- window controls ---------- */
-	function open() { var c = $( 'sitepilot-efb-chat' ); if ( ! c ) { return; } c.hidden = false; c.setAttribute( 'aria-hidden', 'false' ); greet(); setTimeout( function () { $( 'sitepilot-efb-input' ).focus(); }, 50 ); }
-	function close() { var c = $( 'sitepilot-efb-chat' ); if ( ! c ) { return; } liveVoiceEnabled = false; stopRealtimeVoice(); setLiveVoiceButton(); c.hidden = true; c.setAttribute( 'aria-hidden', 'true' ); }
-	function toggle() { var c = $( 'sitepilot-efb-chat' ); if ( c && c.hidden ) { open(); } else { close(); } }
+	function open() { var c = $( 'aisaautopilot-efb-chat' ); if ( ! c ) { return; } c.hidden = false; c.setAttribute( 'aria-hidden', 'false' ); greet(); setTimeout( function () { $( 'aisaautopilot-efb-input' ).focus(); }, 50 ); }
+	function close() { var c = $( 'aisaautopilot-efb-chat' ); if ( ! c ) { return; } liveVoiceEnabled = false; stopRealtimeVoice(); setLiveVoiceButton(); c.hidden = true; c.setAttribute( 'aria-hidden', 'true' ); }
+	function toggle() { var c = $( 'aisaautopilot-efb-chat' ); if ( c && c.hidden ) { open(); } else { close(); } }
 	function reset() { history = []; greeted = false; messages().textContent = ''; greet(); }
 
-	function autoGrow() { var t = $( 'sitepilot-efb-input' ); if ( ! t ) { return; } t.style.height = 'auto'; t.style.height = Math.min( t.scrollHeight, 140 ) + 'px'; }
+	function autoGrow() { var t = $( 'aisaautopilot-efb-input' ); if ( ! t ) { return; } t.style.height = 'auto'; t.style.height = Math.min( t.scrollHeight, 140 ) + 'px'; }
 
 	function init() {
-		var launch = $( 'sitepilot-efb-launch' ); if ( launch ) { launch.addEventListener( 'click', toggle ); }
-		var min = $( 'sitepilot-efb-min' ); if ( min ) { min.addEventListener( 'click', close ); }
-		var rst = $( 'sitepilot-efb-reset' ); if ( rst ) { rst.addEventListener( 'click', reset ); }
-		var form = $( 'sitepilot-efb-form' ); if ( form ) { form.addEventListener( 'submit', function ( e ) { e.preventDefault(); submit( $( 'sitepilot-efb-input' ).value ); } ); }
-		var voice = $( 'sitepilot-efb-voice' ); if ( voice ) { voice.addEventListener( 'click', startVoice ); }
-		var liveVoice = $( 'sitepilot-efb-live-voice' ); if ( liveVoice ) { liveVoice.addEventListener( 'click', toggleRealtimeVoice ); }
-		var input = $( 'sitepilot-efb-input' );
+		var launch = $( 'aisaautopilot-efb-launch' ); if ( launch ) { launch.addEventListener( 'click', toggle ); }
+		var min = $( 'aisaautopilot-efb-min' ); if ( min ) { min.addEventListener( 'click', close ); }
+		var rst = $( 'aisaautopilot-efb-reset' ); if ( rst ) { rst.addEventListener( 'click', reset ); }
+		var form = $( 'aisaautopilot-efb-form' ); if ( form ) { form.addEventListener( 'submit', function ( e ) { e.preventDefault(); submit( $( 'aisaautopilot-efb-input' ).value ); } ); }
+		var voice = $( 'aisaautopilot-efb-voice' ); if ( voice ) { voice.addEventListener( 'click', startVoice ); }
+		var liveVoice = $( 'aisaautopilot-efb-live-voice' ); if ( liveVoice ) { liveVoice.addEventListener( 'click', toggleRealtimeVoice ); }
+		var input = $( 'aisaautopilot-efb-input' );
 		if ( input ) {
 			input.addEventListener( 'input', autoGrow );
 			input.addEventListener( 'keydown', function ( e ) { if ( e.key === 'Enter' && ! e.shiftKey ) { e.preventDefault(); submit( input.value ); } } );

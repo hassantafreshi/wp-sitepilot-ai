@@ -1,15 +1,15 @@
-/* global SitePilotAI */
+/* global AISAAutoPilotAI */
 ( function () {
 	'use strict';
 
 	var t = function ( s ) {
 		if ( window.wp && window.wp.i18n && window.wp.i18n.__ ) {
-			return window.wp.i18n.__( s, 'sitepilot-ai' );
+			return window.wp.i18n.__( s, 'ai-site-assistant-autopilot' );
 		}
 		return s;
 	};
 
-	var cfg = window.SitePilotAI || {};
+	var cfg = window.AISAAutoPilotAI || {};
 	var currentActionId = null;
 
 	function $( id ) {
@@ -39,14 +39,14 @@
 	}
 
 	function setStatus( msg, kind ) {
-		var s = $( 'sitepilot-status' );
+		var s = $( 'aisaautopilot-status' );
 		if ( ! s ) {
 			return;
 		}
-		s.className = 'sitepilot-status' + ( kind ? ' sitepilot-status--' + kind : '' );
+		s.className = 'aisaautopilot-status' + ( kind ? ' aisaautopilot-status--' + kind : '' );
 		s.textContent = '';
 		if ( kind === 'loading' ) {
-			s.appendChild( el( 'span', { class: 'sitepilot-spinner' } ) );
+			s.appendChild( el( 'span', { class: 'aisaautopilot-spinner' } ) );
 		}
 		s.appendChild( document.createTextNode( msg ) );
 	}
@@ -75,12 +75,12 @@
 		}
 
 		var w = usage.warning;
-		var wrap = $( 'sitepilot-credit-warning' );
+		var wrap = $( 'aisaautopilot-credit-warning' );
 		if ( ! wrap ) {
 			// Create the warning container after the subtitle.
-			var subtitle = document.querySelector( '.sitepilot-subtitle' );
+			var subtitle = document.querySelector( '.aisaautopilot-subtitle' );
 			if ( ! subtitle ) { return; }
-			wrap = el( 'div', { id: 'sitepilot-credit-warning', class: 'sitepilot-banner sitepilot-banner--' + w.level } );
+			wrap = el( 'div', { id: 'aisaautopilot-credit-warning', class: 'aisaautopilot-banner aisaautopilot-banner--' + w.level } );
 			subtitle.parentNode.insertBefore( wrap, subtitle.nextSibling );
 		}
 
@@ -89,8 +89,8 @@
 		wrap.appendChild( el( 'span', { text: ' ' + w.message } ) );
 
 		// Add a progress bar showing usage.
-		var barWrap = el( 'div', { class: 'sitepilot-credit-bar-wrap' } );
-		var bar = el( 'div', { class: 'sitepilot-credit-bar sitepilot-credit-bar--' + w.level } );
+		var barWrap = el( 'div', { class: 'aisaautopilot-credit-bar-wrap' } );
+		var bar = el( 'div', { class: 'aisaautopilot-credit-bar aisaautopilot-credit-bar--' + w.level } );
 		bar.style.width = Math.min( 100, w.percent ) + '%';
 		barWrap.appendChild( bar );
 		wrap.appendChild( barWrap );
@@ -99,16 +99,16 @@
 	function riskPill( risk ) {
 		var map = { low: 'ok', medium: 'warn', high: 'err' };
 		return el( 'span', {
-			class: 'sitepilot-pill sitepilot-pill--' + ( map[ risk ] || 'muted' ),
+			class: 'aisaautopilot-pill aisaautopilot-pill--' + ( map[ risk ] || 'muted' ),
 			text: t( 'Risk' ) + ': ' + risk,
 		} );
 	}
 
 	function renderPreview( preview ) {
-		var wrap = $( 'sitepilot-preview' );
+		var wrap = $( 'aisaautopilot-preview' );
 		wrap.textContent = '';
 
-		var head = el( 'div', { class: 'sitepilot-preview__head' }, [
+		var head = el( 'div', { class: 'aisaautopilot-preview__head' }, [
 			el( 'div', {}, [
 				el( 'h2', { text: preview.title } ),
 				preview.description ? el( 'p', { text: preview.description } ) : null,
@@ -116,21 +116,21 @@
 		] );
 		wrap.appendChild( head );
 
-		var meta = el( 'div', { class: 'sitepilot-meta' }, [
-			el( 'span', { class: 'sitepilot-pill sitepilot-pill--info', text: preview.connector } ),
+		var meta = el( 'div', { class: 'aisaautopilot-meta' }, [
+			el( 'span', { class: 'aisaautopilot-pill aisaautopilot-pill--info', text: preview.connector } ),
 			el( 'span', {
-				class: 'sitepilot-pill sitepilot-pill--muted',
+				class: 'aisaautopilot-pill aisaautopilot-pill--muted',
 				text: preview.field_count + ' ' + t( 'fields' ),
 			} ),
 			riskPill( preview.risk_level ),
 			el( 'span', {
-				class: 'sitepilot-pill sitepilot-pill--muted',
+				class: 'aisaautopilot-pill aisaautopilot-pill--muted',
 				text: preview.default_status === 'publish' ? t( 'Will be published' ) : t( 'Saved as draft' ),
 			} ),
 		] );
 		wrap.appendChild( meta );
 
-		var table = el( 'table', { class: 'sitepilot-fields' } );
+		var table = el( 'table', { class: 'aisaautopilot-fields' } );
 		table.appendChild(
 			el( 'thead', {}, [
 				el( 'tr', {}, [
@@ -158,33 +158,33 @@
 
 		if ( preview.notes && preview.notes.length ) {
 			wrap.appendChild(
-				el( 'div', { class: 'sitepilot-notes' }, [
+				el( 'div', { class: 'aisaautopilot-notes' }, [
 					el( 'strong', { text: t( 'Notes' ) + ': ' } ),
 					el( 'span', { text: preview.notes.join( ' ' ) } ),
 				] )
 			);
 		}
 
-		var actions = el( 'div', { class: 'sitepilot-preview__actions' }, [
+		var actions = el( 'div', { class: 'aisaautopilot-preview__actions' }, [
 			el( 'button', {
-				id: 'sitepilot-approve',
+				id: 'aisaautopilot-approve',
 				class: 'button button-primary button-hero',
 				text: '✓ ' + t( 'Approve & Create' ),
 			} ),
 			el( 'button', {
-				id: 'sitepilot-cancel',
+				id: 'aisaautopilot-cancel',
 				class: 'button button-secondary',
 				text: t( 'Cancel' ),
 			} ),
-			el( 'span', { id: 'sitepilot-approve-status', class: 'sitepilot-status', role: 'status' } ),
+			el( 'span', { id: 'aisaautopilot-approve-status', class: 'aisaautopilot-status', role: 'status' } ),
 		] );
 		wrap.appendChild( actions );
 
 		wrap.hidden = false;
-		$( 'sitepilot-result' ).hidden = true;
+		$( 'aisaautopilot-result' ).hidden = true;
 
-		$( 'sitepilot-approve' ).addEventListener( 'click', onApprove );
-		$( 'sitepilot-cancel' ).addEventListener( 'click', function () {
+		$( 'aisaautopilot-approve' ).addEventListener( 'click', onApprove );
+		$( 'aisaautopilot-cancel' ).addEventListener( 'click', function () {
 			wrap.hidden = true;
 			currentActionId = null;
 			setStatus( t( 'Cancelled. You can try a different description.' ), '' );
@@ -192,11 +192,11 @@
 	}
 
 	function renderResult( result ) {
-		var wrap = $( 'sitepilot-result' );
+		var wrap = $( 'aisaautopilot-result' );
 		wrap.textContent = '';
 		wrap.appendChild(
-			el( 'div', { class: 'sitepilot-result__head' }, [
-				el( 'span', { class: 'dashicons dashicons-yes-alt sitepilot-result__icon' } ),
+			el( 'div', { class: 'aisaautopilot-result__head' }, [
+				el( 'span', { class: 'dashicons dashicons-yes-alt aisaautopilot-result__icon' } ),
 				el( 'h2', { text: t( 'Form created successfully!' ) } ),
 			] )
 		);
@@ -216,7 +216,7 @@
 			wrap.appendChild(
 				el( 'div', {}, [
 					el( 'p', { text: t( 'Paste this shortcode into any page or post to show the form:' ) } ),
-					el( 'div', { class: 'sitepilot-shortcode' }, [ code, copy ] ),
+					el( 'div', { class: 'aisaautopilot-shortcode' }, [ code, copy ] ),
 				] )
 			);
 		}
@@ -228,17 +228,17 @@
 		}
 
 		wrap.hidden = false;
-		$( 'sitepilot-preview' ).hidden = true;
+		$( 'aisaautopilot-preview' ).hidden = true;
 	}
 
 	function onGenerate() {
-		var prompt = ( $( 'sitepilot-prompt' ).value || '' ).trim();
+		var prompt = ( $( 'aisaautopilot-prompt' ).value || '' ).trim();
 		if ( ! prompt ) {
 			setStatus( t( 'Please describe the form first.' ), 'error' );
 			return;
 		}
 
-		var btn = $( 'sitepilot-generate' );
+		var btn = $( 'aisaautopilot-generate' );
 		btn.disabled = true;
 		setStatus( t( 'Thinking… drafting your form.' ), 'loading' );
 
@@ -267,18 +267,18 @@
 		if ( ! currentActionId ) {
 			return;
 		}
-		var approve = $( 'sitepilot-approve' );
-		var st = $( 'sitepilot-approve-status' );
+		var approve = $( 'aisaautopilot-approve' );
+		var st = $( 'aisaautopilot-approve-status' );
 		approve.disabled = true;
-		st.className = 'sitepilot-status';
+		st.className = 'aisaautopilot-status';
 		st.textContent = '';
-		st.appendChild( el( 'span', { class: 'sitepilot-spinner' } ) );
+		st.appendChild( el( 'span', { class: 'aisaautopilot-spinner' } ) );
 		st.appendChild( document.createTextNode( t( 'Creating the form…' ) ) );
 
 		api( 'forms/execute', { action_id: currentActionId } )
 			.then( function ( res ) {
 				if ( ! res.data.ok ) {
-					st.className = 'sitepilot-status sitepilot-status--error';
+					st.className = 'aisaautopilot-status aisaautopilot-status--error';
 					st.textContent = res.data.message || t( 'Creation failed.' );
 					approve.disabled = false;
 					return;
@@ -287,21 +287,21 @@
 				renderResult( res.data.result );
 			} )
 			.catch( function () {
-				st.className = 'sitepilot-status sitepilot-status--error';
+				st.className = 'aisaautopilot-status aisaautopilot-status--error';
 				st.textContent = t( 'Network error. Please try again.' );
 				approve.disabled = false;
 			} );
 	}
 
 	function init() {
-		var gen = $( 'sitepilot-generate' );
+		var gen = $( 'aisaautopilot-generate' );
 		if ( gen ) {
 			gen.addEventListener( 'click', onGenerate );
 		}
-		Array.prototype.forEach.call( document.querySelectorAll( '.sitepilot-chip' ), function ( chip ) {
+		Array.prototype.forEach.call( document.querySelectorAll( '.aisaautopilot-chip' ), function ( chip ) {
 			chip.addEventListener( 'click', function () {
-				$( 'sitepilot-prompt' ).value = chip.getAttribute( 'data-example' ) || '';
-				$( 'sitepilot-prompt' ).focus();
+				$( 'aisaautopilot-prompt' ).value = chip.getAttribute( 'data-example' ) || '';
+				$( 'aisaautopilot-prompt' ).focus();
 			} );
 		} );
 

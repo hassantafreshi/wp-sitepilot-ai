@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Connectors;
-use SitePilot\Core\Settings;
+namespace AISAAutoPilot\Connectors;
+use AISAAutoPilot\Core\Settings;
 /**
  * WooCommerce Connector — detects WooCommerce, checks capabilities,
  * and provides the foundation for WooCommerce AI operations.
@@ -36,7 +36,7 @@ final class WooCommerceConnector {
 		return current_user_can( 'manage_woocommerce' ) || current_user_can( 'manage_options' );
 	}
 
-	/** Whether SitePilot's deliberately small Phase 1 Woo workflow is enabled. */
+	/** Whether AISAAutoPilot's deliberately small Phase 1 Woo workflow is enabled. */
 	public static function is_ai_enabled(): bool {
 
 		$settings = Settings::get( 'woocommerce', array() );

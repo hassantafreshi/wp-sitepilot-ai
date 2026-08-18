@@ -6,20 +6,20 @@
 
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );
-const { chromium } = require( process.env.SITEPILOT_PLAYWRIGHT_CORE );
+const { chromium } = require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE );
 
-const baseUrl = ( process.env.SITEPILOT_BASE_URL || 'http://127.0.0.1/wp' ).replace( /\/$/, '' );
-const username = process.env.SITEPILOT_BROWSER_USER || '';
-const password = process.env.SITEPILOT_BROWSER_PASSWORD || '';
-const screenshotDir = process.env.SITEPILOT_SCREENSHOT_DIR || process.env.TEMP;
-const chromePath = process.env.SITEPILOT_CHROME || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+const baseUrl = ( process.env.AISAAUTOPILOT_BASE_URL || 'http://127.0.0.1/wp' ).replace( /\/$/, '' );
+const username = process.env.AISAAUTOPILOT_BROWSER_USER || '';
+const password = process.env.AISAAUTOPILOT_BROWSER_PASSWORD || '';
+const screenshotDir = process.env.AISAAUTOPILOT_SCREENSHOT_DIR || process.env.TEMP;
+const chromePath = process.env.AISAAUTOPILOT_CHROME || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const failures = [];
 const checkedPages = [
-	'sitepilot-ai-setup', 'sitepilot-ai', 'sitepilot-ai-form-builder',
-	'sitepilot-ai-forms', 'sitepilot-ai-efb', 'sitepilot-ai-chat',
-	'sitepilot-ai-kb', 'sitepilot-ai-usage', 'sitepilot-ai-widget',
-	'sitepilot-ai-wc-dashboard', 'sitepilot-ai-woocommerce',
-	'sitepilot-ai-connections', 'sitepilot-ai-settings', 'sitepilot-ai-logs',
+	'aisaautopilot-setup', 'aisaautopilot-home', 'aisaautopilot-form-builder',
+	'aisaautopilot-forms', 'aisaautopilot-efb', 'aisaautopilot-chat',
+	'aisaautopilot-kb', 'aisaautopilot-usage', 'aisaautopilot-widget',
+	'aisaautopilot-wc-dashboard', 'aisaautopilot-woocommerce',
+	'aisaautopilot-connections', 'aisaautopilot-settings', 'aisaautopilot-logs',
 ];
 
 function check( condition, message ) {
@@ -51,15 +51,15 @@ async function pageHealthy( page, slug ) {
 		throw lastError;
 	}
 	check( !!response && response.status() === 200, slug + ' loads with HTTP 200' );
-	await page.locator( '.sitepilot-wrap' ).first().waitFor( { state: 'attached', timeout: 10000 } ).catch( () => {} );
+	await page.locator( '.aisaautopilot-wrap' ).first().waitFor( { state: 'attached', timeout: 10000 } ).catch( () => {} );
 	const hasCritical = await page.locator( 'body' ).innerText().then( ( text ) => text.includes( 'There has been a critical error' ) );
 	check( !hasCritical, slug + ' has no WordPress fatal-error screen' );
-	check( await page.locator( '.sitepilot-wrap' ).count() >= 1, slug + ' renders the shared SitePilot UI shell' );
+	check( await page.locator( '.aisaautopilot-wrap' ).count() >= 1, slug + ' renders the shared AISAAutoPilot UI shell' );
 }
 
 ( async () => {
 	if ( !username || !password ) {
-		throw new Error( 'SITEPILOT_BROWSER_USER and SITEPILOT_BROWSER_PASSWORD are required.' );
+		throw new Error( 'AISAAUTOPILOT_BROWSER_USER and AISAAUTOPILOT_BROWSER_PASSWORD are required.' );
 	}
 	fs.mkdirSync( screenshotDir, { recursive: true } );
 	let browser;
@@ -71,10 +71,10 @@ async function pageHealthy( page, slug ) {
 		} );
 		const context = await browser.newContext( { viewport: { width: 1440, height: 960 }, permissions: [ 'microphone' ] } );
 		const page = await context.newPage();
-		const sitepilotConsoleErrors = [];
+		const aisaautopilotConsoleErrors = [];
 		page.on( 'console', ( msg ) => {
-			if ( msg.type() === 'error' && msg.location().url.includes( '/sitepilot-ai' ) ) {
-				sitepilotConsoleErrors.push( msg.text() );
+			if ( msg.type() === 'error' && msg.location().url.includes( '/ai-site-assistant-autopilot' ) ) {
+				aisaautopilotConsoleErrors.push( msg.text() );
 			}
 		} );
 
@@ -108,21 +108,21 @@ async function pageHealthy( page, slug ) {
 			await pageHealthy( page, slug );
 		}
 
-		await page.goto( baseUrl + '/wp-admin/admin.php?page=sitepilot-ai-form-builder', { waitUntil: 'domcontentloaded', timeout: 20000 } );
-		await page.locator( '#sitepilot-compose-screen' ).waitFor( { state: 'attached', timeout: 10000 } );
-		check( await page.locator( '#sitepilot-compose-screen' ).count() === 1, 'form builder has one compose screen' );
-		check( await page.locator( '#sitepilot-review-screen' ).count() === 1, 'form builder has one review screen' );
-		check( await page.locator( '#sitepilot-result-screen' ).count() === 1, 'form builder has one result screen' );
-		check( await page.locator( '#sitepilot-compose-screen' ).isVisible(), 'form builder starts on the compose screen only' );
-		check( !( await page.locator( '#sitepilot-review-screen' ).isVisible() ), 'form builder review is not duplicated or initially visible' );
-		await page.screenshot( { path: path.join( screenshotDir, 'sitepilot-form-builder-desktop.png' ), fullPage: true } );
+		await page.goto( baseUrl + '/wp-admin/admin.php?page=aisaautopilot-form-builder', { waitUntil: 'domcontentloaded', timeout: 20000 } );
+		await page.locator( '#aisaautopilot-compose-screen' ).waitFor( { state: 'attached', timeout: 10000 } );
+		check( await page.locator( '#aisaautopilot-compose-screen' ).count() === 1, 'form builder has one compose screen' );
+		check( await page.locator( '#aisaautopilot-review-screen' ).count() === 1, 'form builder has one review screen' );
+		check( await page.locator( '#aisaautopilot-result-screen' ).count() === 1, 'form builder has one result screen' );
+		check( await page.locator( '#aisaautopilot-compose-screen' ).isVisible(), 'form builder starts on the compose screen only' );
+		check( !( await page.locator( '#aisaautopilot-review-screen' ).isVisible() ), 'form builder review is not duplicated or initially visible' );
+		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-builder-desktop.png' ), fullPage: true } );
 
 		await page.setViewportSize( { width: 390, height: 844 } );
-		await page.goto( baseUrl + '/wp-admin/admin.php?page=sitepilot-ai-form-builder', { waitUntil: 'domcontentloaded', timeout: 20000 } );
-		await page.locator( '#sitepilot-compose-screen' ).waitFor( { state: 'attached', timeout: 10000 } );
+		await page.goto( baseUrl + '/wp-admin/admin.php?page=aisaautopilot-form-builder', { waitUntil: 'domcontentloaded', timeout: 20000 } );
+		await page.locator( '#aisaautopilot-compose-screen' ).waitFor( { state: 'attached', timeout: 10000 } );
 		const mobileOverflow = await page.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
 		check( !mobileOverflow, 'form builder has no horizontal overflow at 390px width' );
-		await page.screenshot( { path: path.join( screenshotDir, 'sitepilot-form-builder-mobile.png' ), fullPage: true } );
+		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-builder-mobile.png' ), fullPage: true } );
 
 		const publicPage = await context.newPage();
 		await publicPage.goto( baseUrl + '/', { waitUntil: 'domcontentloaded', timeout: 20000 } );
@@ -131,7 +131,7 @@ async function pageHealthy( page, slug ) {
 		check( await publicPage.evaluate( () => 'speechSynthesis' in window ), 'browser exposes text-to-speech capability for widget responses' );
 		let voiceRequest = false;
 		publicPage.on( 'request', ( request ) => {
-			if ( request.url().includes( '/sitepilot/v1/public/voice' ) && request.method() === 'POST' ) { voiceRequest = true; }
+			if ( request.url().includes( '/aisaautopilot/v1/public/voice' ) && request.method() === 'POST' ) { voiceRequest = true; }
 		} );
 		await publicPage.locator( '#spw-toggle' ).click();
 		await publicPage.locator( '#spw-mic' ).click();
@@ -142,7 +142,7 @@ async function pageHealthy( page, slug ) {
 		const publicOverflow = await publicPage.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
 		check( !publicOverflow, 'public widget has no desktop horizontal overflow' );
 
-		check( sitepilotConsoleErrors.length === 0, 'SitePilot pages produce no SitePilot JavaScript console errors' );
+		check( aisaautopilotConsoleErrors.length === 0, 'AISAAutoPilot pages produce no AISAAutoPilot JavaScript console errors' );
 	} finally {
 		if ( browser ) {
 			await browser.close();

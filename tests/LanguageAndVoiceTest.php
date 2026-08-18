@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Core\SiteLanguage;
-use SitePilot\Voice\VoiceTranscriber;
+use AISAAutoPilot\Core\SiteLanguage;
+use AISAAutoPilot\Voice\VoiceTranscriber;
 
 final class LanguageAndVoiceTest extends TestCase {
 	public function test_normalizes_wordpress_locales_to_bcp47(): void {

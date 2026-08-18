@@ -1,29 +1,38 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Connectors;
+namespace AISAAutoPilot\Connectors;
 
-use SitePilot\Skills\FormPlanSchema;
+use AISAAutoPilot\Skills\FormPlanSchema;
 
 /**
  * Built-in form connector — the safe fallback that always works.
  *
- * Stores the form as a `sitepilot_form` custom post type and renders it with the
- * [sitepilot_form] shortcode. This guarantees the full request→approve→create
+ * Stores the form as a `aisaautopilot_form` custom post type and renders it with the
+ * [aisaautopilot_form] shortcode. This guarantees the full request→approve→create
  * loop is demonstrable even when no third-party form plugin is installed.
  */
 final class NativeFormConnector implements ConnectorInterface {
 
-	public const POST_TYPE       = 'sitepilot_form';
-	public const SUBMISSION_TYPE = 'sitepilot_submission';
-	public const META_KEY        = '_sitepilot_form_plan';
+	public const POST_TYPE = 'aisaautopilot_form';
+
+	/**
+	 * Submission post type.
+	 *
+	 * `register_post_type()` rejects names longer than 20 characters, so this is
+	 * deliberately `_entry` rather than the longer `_submission`: the prefix
+	 * alone is 13 characters and `aisaautopilot_submission` would be 24.
+	 */
+	public const SUBMISSION_TYPE = 'aisaautopilot_entry';
+
+	public const META_KEY = '_aisaautopilot_form_plan';
 
 	public function get_id(): string {
 		return 'native_form';
 	}
 
 	public function get_name(): string {
-		return __( 'SitePilot Built-in Forms', 'sitepilot-ai' );
+		return __( 'AISAAutoPilot Built-in Forms', 'ai-site-assistant-autopilot' );
 	}
 
 	public function is_available(): bool {
@@ -38,40 +47,40 @@ final class NativeFormConnector implements ConnectorInterface {
 		$errors = array();
 
 		if ( '' === trim( (string) ( $plan['title'] ?? '' ) ) ) {
-			$errors[] = __( 'The form has no title.', 'sitepilot-ai' );
+			$errors[] = __( 'The form has no title.', 'ai-site-assistant-autopilot' );
 		}
 
 		$fields = $plan['fields'] ?? array();
 		if ( ! is_array( $fields ) || array() === $fields ) {
-			$errors[] = __( 'The form has no fields.', 'sitepilot-ai' );
+			$errors[] = __( 'The form has no fields.', 'ai-site-assistant-autopilot' );
 			$fields   = array();
 		}
 		if ( count( $fields ) > FormPlanSchema::MAX_FIELDS ) {
-			$errors[] = sprintf( /* translators: %d: maximum number of fields. */ __( 'A SitePilot Form can contain at most %d fields.', 'sitepilot-ai' ), FormPlanSchema::MAX_FIELDS );
+			$errors[] = sprintf( /* translators: %d: maximum number of fields. */ __( 'A AISAAutoPilot Form can contain at most %d fields.', 'ai-site-assistant-autopilot' ), FormPlanSchema::MAX_FIELDS );
 		}
 
 		foreach ( $fields as $field ) {
 			if ( ! is_array( $field ) ) {
-				$errors[] = __( 'The form contains an invalid field definition.', 'sitepilot-ai' );
+				$errors[] = __( 'The form contains an invalid field definition.', 'ai-site-assistant-autopilot' );
 				continue;
 			}
 			$type = (string) ( $field['type'] ?? '' );
 			if ( in_array( $type, FormPlanSchema::FORBIDDEN_FIELD_TYPES, true ) ) {
-				$errors[] = sprintf( /* translators: %s: field type. */ __( 'Field type "%s" is not allowed.', 'sitepilot-ai' ), $type );
+				$errors[] = sprintf( /* translators: %s: field type. */ __( 'Field type "%s" is not allowed.', 'ai-site-assistant-autopilot' ), $type );
 			} elseif ( ! in_array( $type, FormPlanSchema::ALLOWED_FIELD_TYPES, true ) ) {
-				$errors[] = sprintf( /* translators: %s: field type. */ __( 'Unsupported field type "%s".', 'sitepilot-ai' ), $type );
+				$errors[] = sprintf( /* translators: %s: field type. */ __( 'Unsupported field type "%s".', 'ai-site-assistant-autopilot' ), $type );
 			}
 			if ( '' === sanitize_key( (string) ( $field['key'] ?? '' ) ) || '' === trim( (string) ( $field['label'] ?? '' ) ) ) {
-				$errors[] = __( 'Every form field needs a stable key and a label.', 'sitepilot-ai' );
+				$errors[] = __( 'Every form field needs a stable key and a label.', 'ai-site-assistant-autopilot' );
 			}
 			if ( in_array( $type, array( 'select', 'radio' ), true ) && array() === (array) ( $field['options'] ?? array() ) ) {
-				$errors[] = __( 'Select and radio fields need at least one option.', 'sitepilot-ai' );
+				$errors[] = __( 'Select and radio fields need at least one option.', 'ai-site-assistant-autopilot' );
 			}
 		}
 
 		$recipient = sanitize_email( (string) ( $plan['notification_email'] ?? '' ) );
 		if ( '' === $recipient || ! is_email( $recipient ) ) {
-			$errors[] = __( 'The form needs a valid notification email address.', 'sitepilot-ai' );
+			$errors[] = __( 'The form needs a valid notification email address.', 'ai-site-assistant-autopilot' );
 		}
 
 		return $errors;
@@ -94,7 +103,7 @@ final class NativeFormConnector implements ConnectorInterface {
 			return array(
 				'status'  => 'failed',
 				'code'    => 'execution_failed',
-				'message' => __( 'The form could not be saved.', 'sitepilot-ai' ),
+				'message' => __( 'The form could not be saved.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -105,7 +114,7 @@ final class NativeFormConnector implements ConnectorInterface {
 			'connector' => $this->get_name(),
 			'form_id'   => (int) $post_id,
 			'edit_url'  => (string) get_edit_post_link( $post_id, 'raw' ),
-			'shortcode' => sprintf( '[sitepilot_form id="%d"]', (int) $post_id ),
+			'shortcode' => sprintf( '[aisaautopilot_form id="%d"]', (int) $post_id ),
 			'is_draft'  => 'draft' === $status,
 			'warnings'  => array(),
 		);
@@ -114,8 +123,8 @@ final class NativeFormConnector implements ConnectorInterface {
 	public function get_health(): array {
 		return array(
 			'available' => true,
-			'version'   => SITEPILOT_AI_VERSION,
-			'notes'     => __( 'Always available.', 'sitepilot-ai' ),
+			'version'   => AISAAUTOPILOT_VERSION,
+			'notes'     => __( 'Always available.', 'ai-site-assistant-autopilot' ),
 		);
 	}
 
@@ -127,7 +136,7 @@ final class NativeFormConnector implements ConnectorInterface {
 			register_post_type(
 				self::POST_TYPE,
 				array(
-					'label'           => __( 'SitePilot Forms', 'sitepilot-ai' ),
+					'label'           => __( 'AISAAutoPilot Forms', 'ai-site-assistant-autopilot' ),
 					'public'          => false,
 					'show_ui'         => true,
 					'show_in_menu'    => false,
@@ -143,7 +152,7 @@ final class NativeFormConnector implements ConnectorInterface {
 			register_post_type(
 				self::SUBMISSION_TYPE,
 				array(
-					'label'        => __( 'Form Submissions', 'sitepilot-ai' ),
+					'label'        => __( 'Form Submissions', 'ai-site-assistant-autopilot' ),
 					'public'       => false,
 					'show_ui'      => true,
 					'show_in_menu' => false,

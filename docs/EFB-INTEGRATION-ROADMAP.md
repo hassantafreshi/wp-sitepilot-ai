@@ -1,6 +1,6 @@
-# SitePilot AI x Easy Form Builder - Integration Roadmap
+# AI Site Assistant AutoPilot x Easy Form Builder - Integration Roadmap
 
-> Reviewed against SitePilot AI and EFB 4.1.2 on 2026-07-22. This records verified
+> Reviewed against AI Site Assistant AutoPilot and EFB 4.1.2 on 2026-07-22. This records verified
 > implementation status separately from manual WordPress/XAMPP verification.
 > `calculation`, `quiz`, and `ticketing` are explicitly out of scope.
 
@@ -10,7 +10,7 @@
   `form_structer`, `form_email`, `form_type`, `form_created_by`,
   `form_access_by`, `form_create_date`, and `status`.
 - EFB persists `form_structer` as JSON with every double quote escaped as `\"`.
-  The SitePilot converter follows this exact representation.
+  The AISAAutoPilot converter follows this exact representation.
 - The native form structure is flat: `[formSettings, step, field, option, ...]`.
   Field options are individual `type: "option"` items pointing to their owner via
   `parent`; they are not nested inside the field.
@@ -71,7 +71,7 @@ animation, and loading color.
 
 ### Diagnostics
 
-Every EFB chat turn has a client-generated trace id. `SitePilot AI -> Logs` records
+Every EFB chat turn has a client-generated trace id. `AI Site Assistant AutoPilot -> Logs` records
 the submitted command, AI action/operation names, server validation drops, and the
 browser's actual apply/render result. A failed field lookup, missing insert template,
 unsupported target, or redraw error is displayed in the chat and stored with that

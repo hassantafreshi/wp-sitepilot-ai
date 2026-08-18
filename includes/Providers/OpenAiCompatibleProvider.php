@@ -1,15 +1,26 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Providers;
+namespace AISAAutoPilot\Providers;
 
-use SitePilot\Usage\UsageTracker;
+/*
+ * Exception messages here are never echoed: they travel back through the REST
+ * layer as JSON, or are rendered by a caller with esc_html(). Escaping them at
+ * the throw site would put HTML entities into the JSON payload, so the sniff is
+ * disabled for this file rather than silenced line by line.
+ */
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
+use AISAAutoPilot\Usage\UsageTracker;
 
 /**
  * Talks directly to any OpenAI-compatible Chat Completions API
- * (DeepSeek, OpenAI, OpenRouter, Groq, Qwen, clusy.io, custom base URL).
+ * (OpenAI, Gemini, DeepSeek, Qwen, Mistral, Groq, Perplexity, Azure OpenAI,
+ * OpenRouter and the aggregator gateways, or a custom base URL).
  */
-final class OpenAiCompatibleProvider implements ProviderInterface {
+final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogInterface {
+
+	use SafeHttp;
 
 	private string $base_url;
 	private string $model;
@@ -19,7 +30,12 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 	private string $embedding_base_url;
 	private string $embedding_model;
 	private string $embedding_api_key;
+	private string $auth;
 
+	/**
+	 * @param string $auth Which header carries the key: `bearer` (almost
+	 *                     everyone), `api-key` (Azure OpenAI), or `x-api-key`.
+	 */
 	public function __construct(
 		string $base_url,
 		string $model,
@@ -28,13 +44,15 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 		int $timeout = 45,
 		string $embedding_base_url = '',
 		string $embedding_model = '',
-		string $embedding_api_key = ''
+		string $embedding_api_key = '',
+		string $auth = 'bearer'
 	) {
 		$this->base_url    = rtrim( trim( $base_url ), '/' );
 		$this->model       = trim( $model );
 		$this->api_key     = trim( $api_key );
 		$this->temperature = $temperature;
 		$this->timeout     = $timeout;
+		$this->auth        = in_array( $auth, array( 'bearer', 'api-key', 'x-api-key' ), true ) ? $auth : 'bearer';
 
 		// Embeddings can point at a different endpoint/model/key; default to the chat provider's.
 		$this->embedding_base_url = '' !== trim( $embedding_base_url ) ? rtrim( trim( $embedding_base_url ), '/' ) : $this->base_url;
@@ -95,16 +113,13 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 	public function generate_embedding( string $text ): array {
 		$text = trim( $text );
 		if ( '' === $text ) {
-			throw new ProviderException( 'empty_input', __( 'Cannot embed empty text.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'empty_input', __( 'Cannot embed empty text.', 'ai-site-assistant-autopilot' ) );
 		}
 
-		$endpoint = $this->embedding_base_url . '/embeddings';
+		$endpoint = self::join_endpoint( $this->embedding_base_url, '/embeddings' );
 		$response = $this->post_json(
 			$endpoint,
-			array(
-				'Authorization' => 'Bearer ' . $this->embedding_api_key,
-				'Content-Type'  => 'application/json',
-			),
+			$this->auth_headers( $this->embedding_api_key ),
 			array(
 				'model' => $this->embedding_model,
 				'input' => $text,
@@ -112,25 +127,25 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the embedding endpoint. Check the base URL and your connection.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the embedding endpoint. Check the base URL and your connection.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 401 === $code || 403 === $code ) {
-			throw new ProviderException( 'provider_unauthorized', __( 'The embedding provider rejected your API key.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'provider_unauthorized', __( 'The embedding provider rejected your API key.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( 404 === $code ) {
-			throw new ProviderException( 'embeddings_unsupported', __( 'This provider does not offer an embeddings endpoint. Set an embedding provider that does (e.g. OpenAI).', 'sitepilot-ai' ) );
+			throw new ProviderException( 'embeddings_unsupported', __( 'This provider does not offer an embeddings endpoint. Set an embedding provider that does (e.g. OpenAI).', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( $code < 200 || $code >= 300 ) {
-			throw new ProviderException( 'provider_error', sprintf( /* translators: %d: HTTP status code. */ __( 'The embedding provider returned an error (HTTP %d).', 'sitepilot-ai' ), $code ) );
+			throw new ProviderException( 'provider_error', sprintf( /* translators: %d: HTTP status code. */ __( 'The embedding provider returned an error (HTTP %d).', 'ai-site-assistant-autopilot' ), $code ) );
 		}
 
 		$decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 		$vector  = $decoded['data'][0]['embedding'] ?? null;
 
 		if ( ! is_array( $vector ) || empty( $vector ) ) {
-			throw new ProviderException( 'provider_empty_response', __( 'The embedding provider returned no vector.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'provider_empty_response', __( 'The embedding provider returned no vector.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$vector = array_map( 'floatval', $vector );
@@ -167,13 +182,13 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 		if ( '' === $this->api_key ) {
 			return array(
 				'ok'      => false,
-				'message' => __( 'No API key is set.', 'sitepilot-ai' ),
+				'message' => __( 'No API key is set.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 		if ( '' === $this->base_url || '' === $this->model ) {
 			return array(
 				'ok'      => false,
-				'message' => __( 'Base URL and model are required.', 'sitepilot-ai' ),
+				'message' => __( 'Base URL and model are required.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -192,7 +207,7 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 
 			return array(
 				'ok'      => true,
-				'message' => __( 'Connection successful.', 'sitepilot-ai' ),
+				'message' => __( 'Connection successful.', 'ai-site-assistant-autopilot' ),
 			);
 		} catch ( ProviderException $e ) {
 			return array(
@@ -203,6 +218,90 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 	}
 
 	/**
+	 * Ask the provider which models the key can actually use.
+	 *
+	 * Every OpenAI-compatible endpoint answers `GET {base}/models`, so the
+	 * Settings screen can refresh its dropdown instead of relying on a list that
+	 * was accurate the day the plugin shipped.
+	 *
+	 * @return string[] Model identifiers, sorted.
+	 * @throws ProviderException
+	 */
+	public function list_models(): array {
+		$response = $this->get_json( self::join_endpoint( $this->base_url, '/models' ) );
+
+		if ( is_wp_error( $response ) ) {
+			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the AI provider. Check the base URL and your connection.', 'ai-site-assistant-autopilot' ) );
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 401 === $code || 403 === $code ) {
+			throw new ProviderException( 'provider_unauthorized', __( 'The AI provider rejected your API key.', 'ai-site-assistant-autopilot' ) );
+		}
+		if ( 404 === $code ) {
+			throw new ProviderException( 'models_unsupported', __( 'This provider does not publish a model list. Type the model name instead.', 'ai-site-assistant-autopilot' ) );
+		}
+		if ( $code < 200 || $code >= 300 ) {
+			throw new ProviderException( 'provider_error', sprintf( /* translators: %d: HTTP status code. */ __( 'The AI provider returned an error (HTTP %d).', 'ai-site-assistant-autopilot' ), $code ) );
+		}
+
+		$decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+		$rows    = is_array( $decoded ) && isset( $decoded['data'] ) && is_array( $decoded['data'] ) ? $decoded['data'] : array();
+
+		return self::model_ids( $rows );
+	}
+
+	/**
+	 * Pull usable identifiers out of a /models payload.
+	 *
+	 * Providers disagree on the field name (`id` everywhere, `name` on Google's
+	 * compatibility layer) and some prefix the value with `models/`.
+	 *
+	 * @param array<int, mixed> $rows
+	 * @return string[]
+	 */
+	public static function model_ids( array $rows ): array {
+		$ids = array();
+
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$id = (string) ( $row['id'] ?? $row['name'] ?? '' );
+			$id = trim( preg_replace( '#^models/#', '', $id ) ?? '' );
+			if ( '' === $id || strlen( $id ) > 128 ) {
+				continue;
+			}
+			$ids[ $id ] = true;
+		}
+
+		$ids = array_keys( $ids );
+		sort( $ids, SORT_NATURAL | SORT_FLAG_CASE );
+
+		return $ids;
+	}
+
+	/**
+	 * The key header for this provider. Azure OpenAI expects `api-key`; a Bearer
+	 * header there means an Entra ID token, not an API key.
+	 *
+	 * @return array<string, string>
+	 */
+	private function auth_headers( string $key ): array {
+		$headers = array( 'Content-Type' => 'application/json' );
+
+		if ( 'api-key' === $this->auth ) {
+			$headers['api-key'] = $key;
+		} elseif ( 'x-api-key' === $this->auth ) {
+			$headers['x-api-key'] = $key;
+		} else {
+			$headers['Authorization'] = 'Bearer ' . $key;
+		}
+
+		return $headers;
+	}
+
+	/**
 	 * Perform the HTTP call and return content + usage.
 	 *
 	 * @param array<string, mixed> $body
@@ -210,39 +309,36 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 	 * @throws ProviderException
 	 */
 	private function request_chat( array $body ): array {
-		$endpoint = $this->base_url . '/chat/completions';
+		$endpoint = self::join_endpoint( $this->base_url, '/chat/completions' );
 
 		$response = $this->post_json(
 			$endpoint,
-			array(
-				'Authorization' => 'Bearer ' . $this->api_key,
-				'Content-Type'  => 'application/json',
-			),
+			$this->auth_headers( $this->api_key ),
 			$body
 		);
 
 		if ( is_wp_error( $response ) ) {
-			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the AI provider. Check the base URL and your connection.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the AI provider. Check the base URL and your connection.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$code = (int) wp_remote_retrieve_response_code( $response );
 		$raw  = (string) wp_remote_retrieve_body( $response );
 
 		if ( 401 === $code || 403 === $code ) {
-			throw new ProviderException( 'provider_unauthorized', __( 'The AI provider rejected your API key.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'provider_unauthorized', __( 'The AI provider rejected your API key.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( 429 === $code ) {
-			throw new ProviderException( 'provider_rate_limited', __( 'The AI provider is rate-limiting requests. Please try again shortly.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'provider_rate_limited', __( 'The AI provider is rate-limiting requests. Please try again shortly.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( $code < 200 || $code >= 300 ) {
-			throw new ProviderException( 'provider_error', sprintf( /* translators: %d: HTTP status code. */ __( 'The AI provider returned an error (HTTP %d).', 'sitepilot-ai' ), $code ) );
+			throw new ProviderException( 'provider_error', sprintf( /* translators: %d: HTTP status code. */ __( 'The AI provider returned an error (HTTP %d).', 'ai-site-assistant-autopilot' ), $code ) );
 		}
 
 		$decoded = json_decode( $raw, true );
 		$content = $decoded['choices'][0]['message']['content'] ?? null;
 
 		if ( ! is_string( $content ) || '' === trim( $content ) ) {
-			throw new ProviderException( 'provider_empty_response', __( 'The AI provider returned an empty response.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'provider_empty_response', __( 'The AI provider returned an empty response.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		// Extract usage from the API response.
@@ -285,42 +381,21 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 	}
 
 	/**
-	 * Provider URLs are administrator-configured, but must still not turn the
-	 * plugin into an SSRF primitive when a saved setting is compromised.
-	 *
 	 * @param array<string,string> $headers
 	 * @param array<string,mixed> $body
 	 * @return array|\WP_Error
 	 */
 	private function post_json( string $endpoint, array $headers, array $body ) {
-		if ( ! $this->is_safe_endpoint( $endpoint ) ) {
-			return new \WP_Error( 'sitepilot_unsafe_endpoint', __( 'The provider URL is not allowed.', 'sitepilot-ai' ) );
-		}
-
-		return wp_remote_post(
-			$endpoint,
-			array(
-				'timeout'            => $this->timeout,
-				'headers'            => $headers,
-				'body'               => wp_json_encode( $body ),
-				'redirection'        => 0,
-				'reject_unsafe_urls' => true,
-			)
-		);
+		return $this->remote_json( 'POST', $endpoint, $headers, $body, $this->timeout );
 	}
 
-	private function is_safe_endpoint( string $endpoint ): bool {
-		$parts = wp_parse_url( $endpoint );
-		if ( ! is_array( $parts ) || empty( $parts['host'] ) || ! empty( $parts['user'] ) || ! empty( $parts['pass'] ) ) {
-			return false;
-		}
-
-		$scheme = strtolower( (string) ( $parts['scheme'] ?? '' ) );
-		if ( 'https' === $scheme ) {
-			return true;
-		}
-
-		return (bool) apply_filters( 'sitepilot_ai_allow_insecure_provider_url', false, $endpoint );
+	/**
+	 * Read-only /models call.
+	 *
+	 * @return array|\WP_Error
+	 */
+	private function get_json( string $endpoint ) {
+		return $this->remote_json( 'GET', $endpoint, $this->auth_headers( $this->api_key ), null, min( 20, $this->timeout ) );
 	}
 
 	/**
@@ -352,7 +427,7 @@ final class OpenAiCompatibleProvider implements ProviderInterface {
 		}
 
 		if ( ! is_array( $decoded ) ) {
-			throw new ProviderException( 'invalid_ai_output', __( 'The AI did not return a valid structured result. Please simplify your request and try again.', 'sitepilot-ai' ) );
+			throw new ProviderException( 'invalid_ai_output', __( 'The AI did not return a valid structured result. Please simplify your request and try again.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		return $decoded;

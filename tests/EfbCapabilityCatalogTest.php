@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Efb\EfbCustomizeSkill;
-use SitePilot\Efb\EfbFormModel;
+use AISAAutoPilot\Efb\EfbCustomizeSkill;
+use AISAAutoPilot\Efb\EfbFormModel;
 
 final class EfbCapabilityCatalogTest extends TestCase {
 
@@ -88,7 +88,7 @@ final class EfbCapabilityCatalogTest extends TestCase {
 		$this->assertCount( 1, $ops['ops'] );
 		$this->assertSame( 'range', $ops['ops'][0]['field']['type'] );
 
-		// EFB renders a slider on every plan, so its plan stays free; SitePilot
+		// EFB renders a slider on every plan, so its plan stays free; AISAAutoPilot
 		// only creates one for Free Plus and Pro installs.
 		$this->assertFalse( EfbFormModel::requires_pro_field( 'range' ) );
 		$this->assertTrue( EfbFormModel::requires_pro_to_create( 'range' ) );

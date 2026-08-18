@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Providers\OpenAiCompatibleProvider;
-use SitePilot\Security\RateLimiter;
-use SitePilot\Security\Redactor;
+use AISAAutoPilot\Providers\OpenAiCompatibleProvider;
+use AISAAutoPilot\Security\RateLimiter;
+use AISAAutoPilot\Security\Redactor;
 
 final class SecurityHardeningTest extends TestCase {
 
 	protected function setUp(): void {
-		$GLOBALS['sitepilot_test_transients'] = array();
-		$GLOBALS['sitepilot_test_user_id']    = 0;
+		$GLOBALS['aisaautopilot_test_transients'] = array();
+		$GLOBALS['aisaautopilot_test_user_id']    = 0;
 		$_SERVER['REMOTE_ADDR']                = '203.0.113.20';
 	}
 
@@ -30,9 +30,9 @@ final class SecurityHardeningTest extends TestCase {
 	}
 
 	public function test_public_limit_does_not_change_when_the_visitor_is_logged_in(): void {
-		$GLOBALS['sitepilot_test_user_id'] = 0;
+		$GLOBALS['aisaautopilot_test_user_id'] = 0;
 		self::assertTrue( RateLimiter::allow( 'public_widget', 1, 60 ) );
-		$GLOBALS['sitepilot_test_user_id'] = 99;
+		$GLOBALS['aisaautopilot_test_user_id'] = 99;
 		self::assertFalse( RateLimiter::allow( 'public_widget', 1, 60 ) );
 	}
 

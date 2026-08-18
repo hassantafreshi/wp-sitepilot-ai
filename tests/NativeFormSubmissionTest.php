@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Forms\NativeFormSubmission;
+use AISAAutoPilot\Forms\NativeFormSubmission;
 
 final class NativeFormSubmissionTest extends TestCase {
 

@@ -1,10 +1,10 @@
-# SitePilot AI Translation Template
-# Copyright (C) 2026 SitePilot AI
+# AI Site Assistant AutoPilot Translation Template
+# Copyright (C) 2026 AI Site Assistant AutoPilot
 # This file is distributed under the GPL-2.0-or-later license.
 msgid ""
 msgstr ""
-"Project-Id-Version: SitePilot AI 0.6.0\n"
-"Report-Msgid-Bugs-To: https://sitepilot.ai\n"
+"Project-Id-Version: AI Site Assistant AutoPilot 0.6.0\n"
+"Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
 "POT-Creation-Date: 2026-07-23 12:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
@@ -86,10 +86,10 @@ msgstr ""
 msgid "Add order note"
 msgstr ""
 
-msgid "Status updated via SitePilot AI."
+msgid "Status updated via AI Site Assistant AutoPilot."
 msgstr ""
 
-msgid "Refund via SitePilot AI."
+msgid "Refund via AI Site Assistant AutoPilot."
 msgstr ""
 
 # WooCommerce - Analytics
@@ -167,7 +167,7 @@ msgstr ""
 msgid "Hi! How can I help you?"
 msgstr ""
 
-msgid "SitePilot AI"
+msgid "AI Site Assistant AutoPilot"
 msgstr ""
 
 msgid "Connecting to AI..."

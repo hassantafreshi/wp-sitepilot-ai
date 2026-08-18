@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Tests;
+namespace AISAAutoPilot\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SitePilot\Efb\EfbFormModel;
-use SitePilot\Skills\FormPlanValidator;
+use AISAAutoPilot\Efb\EfbFormModel;
+use AISAAutoPilot\Skills\FormPlanValidator;
 
 /**
  * The EFB-configured validator accepts EFB field types, resolves aliases, and

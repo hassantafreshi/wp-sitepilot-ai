@@ -1,76 +1,73 @@
 /**
- * SitePilot AI — Activity Log
- * Client-side filtering (search + level) and copy-to-clipboard for trace IDs.
- * No network calls; operates purely on the rendered table.
+ * Client-side filtering for the Activity Log and Action History tables.
+ * Both screens render `[data-row]` elements carrying `data-search` plus one
+ * classifying attribute, so a single filter routine serves them.
  */
 ( function () {
 	'use strict';
 
-	function ready( fn ) {
-		if ( document.readyState !== 'loading' ) {
-			fn();
-		} else {
-			document.addEventListener( 'DOMContentLoaded', fn );
-		}
-	}
+	function wire( options ) {
+		var rows = document.getElementById( options.rows );
+		if ( ! rows ) { return; }
 
-	ready( function () {
-		var tbody = document.getElementById( 'sp-logs-tbody' );
-		if ( ! tbody ) {
-			return;
-		}
+		var search = document.getElementById( options.search );
+		var selects = ( options.selects || [] )
+			.map( function ( pair ) {
+				var node = document.getElementById( pair.id );
+				return node ? { node: node, attr: pair.attr } : null;
+			} )
+			.filter( Boolean );
 
-		var search = document.getElementById( 'sp-logs-search' );
-		var level = document.getElementById( 'sp-logs-level' );
-		var rows = Array.prototype.slice.call( tbody.querySelectorAll( '.sp-logs-row' ) );
-		var noMatch = tbody.querySelector( '.sp-logs-no-match' );
+		var empty = document.getElementById( options.empty );
+		var all = rows.querySelectorAll( '[data-row]' );
 
-		function applyFilter() {
-			var q = ( search && search.value || '' ).toLowerCase().trim();
-			var lv = ( level && level.value ) || '';
+		function apply() {
+			var term = search ? search.value.trim().toLowerCase() : '';
 			var visible = 0;
 
-			rows.forEach( function ( row ) {
-				var okLevel = ! lv || row.getAttribute( 'data-level' ) === lv;
-				var okText = ! q || row.textContent.toLowerCase().indexOf( q ) !== -1;
-				var show = okLevel && okText;
+			Array.prototype.forEach.call( all, function ( row ) {
+				var show = ! term || ( row.getAttribute( 'data-search' ) || '' ).indexOf( term ) !== -1;
+
+				selects.forEach( function ( filter ) {
+					if ( ! show || ! filter.node.value ) { return; }
+					show = row.getAttribute( filter.attr ) === filter.node.value;
+				} );
+
 				row.hidden = ! show;
-				if ( show ) {
-					visible++;
-				}
+				if ( show ) { visible++; }
 			} );
 
-			if ( noMatch ) {
-				noMatch.hidden = visible !== 0 || rows.length === 0;
-			}
+			if ( empty ) { empty.hidden = visible !== 0 || all.length === 0; }
 		}
 
+		var timer = null;
 		if ( search ) {
-			search.addEventListener( 'input', applyFilter );
+			search.addEventListener( 'input', function () {
+				window.clearTimeout( timer );
+				timer = window.setTimeout( apply, 180 );
+			} );
 		}
-		if ( level ) {
-			level.addEventListener( 'change', applyFilter );
-		}
+		selects.forEach( function ( filter ) { filter.node.addEventListener( 'change', apply ); } );
+	}
 
-		// Copy trace ID on click.
-		tbody.addEventListener( 'click', function ( e ) {
-			var btn = e.target.closest ? e.target.closest( '.sp-logs-trace' ) : null;
-			if ( ! btn ) {
-				return;
-			}
-			var trace = btn.getAttribute( 'data-trace' ) || '';
-			if ( ! trace ) {
-				return;
-			}
-			var done = function () {
-				btn.classList.add( 'sp-logs-trace--copied' );
-				setTimeout( function () {
-					btn.classList.remove( 'sp-logs-trace--copied' );
-				}, 1200 );
-			};
-			if ( navigator.clipboard && navigator.clipboard.writeText ) {
-				navigator.clipboard.writeText( trace ).then( done ).catch( function () {} );
-			}
+	function init() {
+		wire( {
+			rows: 'sp-logs-rows',
+			search: 'sp-logs-search',
+			empty: 'sp-logs-nomatch',
+			selects: [ { id: 'sp-logs-level', attr: 'data-level' } ],
 		} );
-	} );
-} )();
+
+		wire( {
+			rows: 'sp-history-rows',
+			search: 'sp-history-search',
+			empty: 'sp-history-nomatch',
+			selects: [
+				{ id: 'sp-history-status', attr: 'data-status' },
+				{ id: 'sp-history-connector', attr: 'data-connector' },
+			],
+		} );
+	}
+
+	if ( document.readyState === 'loading' ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }
+}() );

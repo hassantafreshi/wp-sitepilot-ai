@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Chat\ChatEngine;
-use SitePilot\Chat\ConversationManager;
+use AISAAutoPilot\Chat\ChatEngine;
+use AISAAutoPilot\Chat\ConversationManager;
 
 /**
  * REST controller for chat conversations.
@@ -17,7 +17,7 @@ final class ChatController {
 	public function ask( \WP_REST_Request $request ): \WP_REST_Response {
 		$question = trim( sanitize_textarea_field( (string) $request->get_param( 'question' ) ) );
 		if ( '' === $question || mb_strlen( $question ) > 2000 ) {
-			return $this->respond( array( 'message' => __( 'Please enter a question of up to 2,000 characters.', 'sitepilot-ai' ) ), false, 400 );
+			return $this->respond( array( 'message' => __( 'Please enter a question of up to 2,000 characters.', 'ai-site-assistant-autopilot' ) ), false, 400 );
 		}
 
 		$conv_id = absint( $request->get_param( 'conversation_id' ) );
@@ -27,7 +27,7 @@ final class ChatController {
 		if ( $conv_id <= 0 ) {
 			$conv_id = $manager->create();
 		} elseif ( ! $manager->get( $conv_id ) ) {
-			return $this->respond( array( 'message' => __( 'Conversation not found.', 'sitepilot-ai' ) ), false, 404 );
+			return $this->respond( array( 'message' => __( 'Conversation not found.', 'ai-site-assistant-autopilot' ) ), false, 404 );
 		}
 
 		// Get conversation context.
@@ -90,7 +90,7 @@ final class ChatController {
 		$conv    = $manager->get( $conv_id );
 
 		if ( ! $conv ) {
-			return $this->respond( array( 'message' => __( 'Conversation not found.', 'sitepilot-ai' ) ), false, 404 );
+			return $this->respond( array( 'message' => __( 'Conversation not found.', 'ai-site-assistant-autopilot' ) ), false, 404 );
 		}
 
 		// Decode messages for the client.
@@ -107,7 +107,7 @@ final class ChatController {
 		$manager = new ConversationManager();
 		$manager->delete( $conv_id );
 
-		return $this->respond( array( 'message' => __( 'Conversation deleted.', 'sitepilot-ai' ) ), true );
+		return $this->respond( array( 'message' => __( 'Conversation deleted.', 'ai-site-assistant-autopilot' ) ), true );
 	}
 
 	/**

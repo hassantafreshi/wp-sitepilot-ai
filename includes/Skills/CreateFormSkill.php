@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Skills;
+namespace AISAAutoPilot\Skills;
 
-use SitePilot\Providers\ProviderInterface;
+use AISAAutoPilot\Providers\ProviderInterface;
 
 /**
  * The `create_form` skill: turn a plain-language request into a validated,
@@ -20,7 +20,7 @@ final class CreateFormSkill {
 	}
 
 	/**
-	 * @throws \SitePilot\Providers\ProviderException When the provider call fails.
+	 * @throws \AISAAutoPilot\Providers\ProviderException When the provider call fails.
 	 */
 	public function plan( string $user_request ): ValidationResult {
 		$raw = $this->provider->generate_structured_output(
@@ -36,13 +36,13 @@ final class CreateFormSkill {
 		$shape   = FormPlanSchema::json_shape_hint();
 
 		return <<<PROMPT
-You are SitePilot, a form-building assistant for a WordPress admin.
+You are AISAAutoPilot, a form-building assistant for a WordPress admin.
 Your job is to convert the admin's request into a single JSON object describing a web form.
 
 STRICT RULES:
 - Respond with ONLY the JSON object. No prose, no Markdown, no code fences.
 - Allowed field types are exactly: {$allowed}.
-- This is a simple, single-step SitePilot form. NEVER include payment, credit card, password, file upload, user-registration/login, calculations, conditional logic, or multi-step fields. If the request asks for them, omit those fields, set risk_level to "high", and mention that Easy Form Builder is needed in "notes".
+- This is a simple, single-step AISAAutoPilot form. NEVER include payment, credit card, password, file upload, user-registration/login, calculations, conditional logic, or multi-step fields. If the request asks for them, omit those fields, set risk_level to "high", and mention that Easy Form Builder is needed in "notes".
 - Every field must have a clear "label". Use "required": true only when the field is essential.
 - For "select" and "radio" fields, always provide an "options" array.
 - Keep labels short and human-friendly.

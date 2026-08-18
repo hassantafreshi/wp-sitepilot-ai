@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Execution;
+namespace AISAAutoPilot\Execution;
 
-use SitePilot\Connectors\ConnectorRegistry;
-use SitePilot\Core\Settings;
-use SitePilot\Logging\Logger;
+use AISAAutoPilot\Connectors\ConnectorRegistry;
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Logging\Logger;
 
 /**
  * Executes an approved action: re-validates, runs the connector, and logs.
@@ -28,22 +28,22 @@ final class ActionExecutor {
 	 */
 	public function approve_and_execute( string $action_id ): array {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return $this->failure( 'permission_denied', __( 'You are not allowed to approve this action.', 'sitepilot-ai' ) );
+			return $this->failure( 'permission_denied', __( 'You are not allowed to approve this action.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$claim = $this->store->claim( $action_id, get_current_user_id() );
 		if ( 'missing' === $claim['status'] ) {
 			$this->logger->error( 'action.expired', 'Approval failed: action not found or expired.', array( 'action_id' => $action_id ) );
 
-			return $this->failure( 'action_expired', __( 'This proposal has expired. Please generate the form again.', 'sitepilot-ai' ) );
+			return $this->failure( 'action_expired', __( 'This proposal has expired. Please generate the form again.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( 'forbidden' === $claim['status'] ) {
 			$this->logger->error( 'action.forbidden', 'Approval rejected: different user.', array( 'action_id' => $action_id ) );
 
-			return $this->failure( 'permission_denied', __( 'You are not allowed to approve this action.', 'sitepilot-ai' ) );
+			return $this->failure( 'permission_denied', __( 'You are not allowed to approve this action.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( 'already_claimed' === $claim['status'] ) {
-			return $this->failure( 'action_already_processed', __( 'This proposal is already being processed or has already been used.', 'sitepilot-ai' ) );
+			return $this->failure( 'action_already_processed', __( 'This proposal is already being processed or has already been used.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$record = $claim['record'] ?? array();
@@ -61,7 +61,7 @@ final class ActionExecutor {
 					'connector_id' => $connector_id,
 				)
 			);
-			return $this->failure( 'connector_not_available', __( 'The connector selected for this proposal is no longer available. Generate a new proposal.', 'sitepilot-ai' ) );
+			return $this->failure( 'connector_not_available', __( 'The connector selected for this proposal is no longer available. Generate a new proposal.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$this->logger->info(
@@ -98,7 +98,7 @@ final class ActionExecutor {
 
 			return $this->failure(
 				(string) ( $result['code'] ?? 'execution_failed' ),
-				(string) ( $result['message'] ?? __( 'The form could not be created.', 'sitepilot-ai' ) )
+				(string) ( $result['message'] ?? __( 'The form could not be created.', 'ai-site-assistant-autopilot' ) )
 			);
 		}
 

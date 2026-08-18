@@ -7,40 +7,40 @@
  */
 declare(strict_types=1);
 
-$wp_root = getenv( 'SITEPILOT_WP_ROOT' ) ?: 'C:\\xampp\\htdocs\\wp';
+$wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\\xampp\\htdocs\\wp';
 require $wp_root . '/wp-load.php';
 
-use SitePilot\Admin\AdminMenu;
-use SitePilot\Admin\ChatPage;
-use SitePilot\Admin\CopilotPage;
-use SitePilot\Admin\ConnectionsPage;
-use SitePilot\Admin\EasyFormBuilderPage;
-use SitePilot\Admin\HomePage;
-use SitePilot\Admin\KnowledgeBasePage;
-use SitePilot\Admin\LogsPage;
-use SitePilot\Admin\NativeFormsPage;
-use SitePilot\Admin\SetupPage;
-use SitePilot\Admin\SettingsPage;
-use SitePilot\Admin\UsagePage;
-use SitePilot\Admin\WooCommerceDashboardPage;
-use SitePilot\Admin\WooCommerceSettings;
-use SitePilot\Api\FormDeliveryController;
-use SitePilot\Api\ChatWidgetController;
-use SitePilot\Api\PublicChatController;
-use SitePilot\Api\RestRoutes;
-use SitePilot\Api\VoiceController;
-use SitePilot\Chat\ConversationManager;
-use SitePilot\Connectors\EasyFormBuilderConnector;
-use SitePilot\Connectors\NativeFormConnector;
-use SitePilot\Connectors\WooCommerceConnector;
-use SitePilot\Connectors\WooCommerceProductSkill;
-use SitePilot\Core\Settings;
-use SitePilot\Core\Plugin;
-use SitePilot\Execution\ActionStore;
-use SitePilot\Frontend\ChatWidgetSettings;
-use SitePilot\Security\RateLimiter;
-use SitePilot\Support\HandoffTelegram;
-use SitePilot\Voice\VoiceTranscriber;
+use AISAAutoPilot\Admin\AdminMenu;
+use AISAAutoPilot\Admin\ChatPage;
+use AISAAutoPilot\Admin\CopilotPage;
+use AISAAutoPilot\Admin\ConnectionsPage;
+use AISAAutoPilot\Admin\EasyFormBuilderPage;
+use AISAAutoPilot\Admin\HistoryPage;
+use AISAAutoPilot\Admin\HomePage;
+use AISAAutoPilot\Admin\KnowledgeBasePage;
+use AISAAutoPilot\Admin\LogsPage;
+use AISAAutoPilot\Admin\NativeFormsPage;
+use AISAAutoPilot\Admin\SettingsPage;
+use AISAAutoPilot\Admin\UsagePage;
+use AISAAutoPilot\Admin\WooCommerceDashboardPage;
+use AISAAutoPilot\Admin\WooCommerceSettings;
+use AISAAutoPilot\Api\FormDeliveryController;
+use AISAAutoPilot\Api\ChatWidgetController;
+use AISAAutoPilot\Api\PublicChatController;
+use AISAAutoPilot\Api\RestRoutes;
+use AISAAutoPilot\Api\VoiceController;
+use AISAAutoPilot\Chat\ConversationManager;
+use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
+use AISAAutoPilot\Connectors\NativeFormConnector;
+use AISAAutoPilot\Connectors\WooCommerceConnector;
+use AISAAutoPilot\Connectors\WooCommerceProductSkill;
+use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Core\Plugin;
+use AISAAutoPilot\Execution\ActionStore;
+use AISAAutoPilot\Frontend\ChatWidgetSettings;
+use AISAAutoPilot\Security\RateLimiter;
+use AISAAutoPilot\Support\HandoffTelegram;
+use AISAAutoPilot\Voice\VoiceTranscriber;
 
 wp_set_current_user( 1 );
 $checks = array();
@@ -76,32 +76,36 @@ try {
 		return (string) ob_get_clean();
 	};
 	$page = $render( new CopilotPage() );
-	$check( false !== strpos( $page, 'sitepilot-voice-toggle' ) && false !== strpos( $page, 'sitepilot-compose-screen' ) && false !== strpos( $page, 'sitepilot-review-screen' ), 'exclusive Build with AI voice/text UI renders' );
-	$check( false !== strpos( $render( new SetupPage() ), 'sitepilot-setup-grid' ), 'wireframe setup screen renders' );
-	$check( false !== strpos( $render( new HomePage() ), 'sitepilot-health-chip' ), 'wireframe home health state renders' );
+	$check( false !== strpos( $page, 'aisaautopilot-voice-toggle' ) && false !== strpos( $page, 'aisaautopilot-compose-screen' ) && false !== strpos( $page, 'aisaautopilot-review-screen' ), 'exclusive Build with AI voice/text UI renders' );
+	$home = $render( new HomePage() );
+	$check( false !== strpos( $home, 'sp-page-head' ) && false !== strpos( $home, 'page=' . AdminMenu::SLUG_SETUP ), 'home renders and points at the merged Setup & Settings screen' );
 	$check( false !== strpos( $render( new ConnectionsPage() ), 'Connections &amp; health' ), 'connections health screen renders' );
-	$check( false !== strpos( $render( new NativeFormsPage() ), 'SitePilot Forms' ), 'simple forms management screen renders' );
+	$check( false !== strpos( $render( new NativeFormsPage() ), 'AISAAutoPilot Forms' ), 'simple forms management screen renders' );
 	$check( false !== strpos( $render( new EasyFormBuilderPage() ), 'Easy Form Builder' ), 'advanced form connector screen renders' );
-	$check( false !== strpos( $render( new LogsPage() ), 'Action history' ), 'action history screen renders' );
+	$check( false !== strpos( $render( new LogsPage() ), 'Activity Log' ), 'activity log screen renders' );
+	$history = $render( new HistoryPage() );
+	$check( false !== strpos( $history, 'Action history' ) && false !== strpos( $history, 'sp-history-search' ), 'action history screen renders with its filters' );
 	$chat = $render( new ChatPage() );
-	$check( false !== strpos( $chat, 'sitepilot-screen--chat' ) && false !== strpos( $chat, 'sp-chat-input' ) && false !== strpos( $chat, 'sp-mic-btn' ), 'redesigned AI chat keeps text and voice composer contracts' );
+	$check( false !== strpos( $chat, 'data-sp-chat' ) && false !== strpos( $chat, 'sp-chat-input' ) && false !== strpos( $chat, 'sp-mic-btn' ), 'redesigned AI chat keeps text and voice composer contracts' );
 	$kb_page = $render( new KnowledgeBasePage() );
-	$check( false !== strpos( $kb_page, 'sitepilot-screen--kb' ) && false !== strpos( $kb_page, 'sp-kb-start-index' ), 'redesigned knowledge base keeps indexing contract' );
+	$check( false !== strpos( $kb_page, 'data-sp-kb' ) && false !== strpos( $kb_page, 'sp-kb-start-index' ), 'redesigned knowledge base keeps indexing contract' );
 	$usage_page = $render( new UsagePage() );
-	$check( false !== strpos( $usage_page, 'sitepilot-screen--usage' ) && false !== strpos( $usage_page, 'sp-usage-refresh' ) && false !== strpos( $usage_page, 'sp-save-budget' ), 'redesigned usage keeps dashboard controls' );
+	$check( false !== strpos( $usage_page, 'data-sp-usage' ) && false !== strpos( $usage_page, 'sp-usage-refresh' ) && false !== strpos( $usage_page, 'sp-save-budget' ), 'redesigned usage keeps dashboard controls' );
 	$settings_page = $render( new SettingsPage() );
-	$check( false !== strpos( $settings_page, 'sitepilot-screen--settings' ) && false !== strpos( $settings_page, 'sp-test' ) && false !== strpos( $settings_page, 'sp-form-notification-email' ) && false !== strpos( $settings_page, 'sp-test-form-delivery' ), 'redesigned settings keeps provider and delivery controls' );
+	$check( false !== strpos( $settings_page, 'sp-test' ) && false !== strpos( $settings_page, 'sp-form-notification-email' ) && false !== strpos( $settings_page, 'sp-test-form-delivery' ), 'merged settings keeps provider and delivery controls' );
+	$check( false !== strpos( $settings_page, 'sp-setup-testbox' ) && false !== strpos( $settings_page, 'data-sp-provider-chips' ), 'merged settings absorbs the setup wizard connect-and-test steps' );
+	$check( false !== strpos( $settings_page, 'sp-model-select' ) && false !== strpos( $settings_page, 'sp-refresh-models' ) && false !== strpos( $settings_page, 'sp-provider-catalog' ), 'model picker offers a list and a live refresh instead of free text only' );
 	$widget_page = $render( new ChatWidgetSettings() );
-	$check( false !== strpos( $widget_page, 'sitepilot-screen--widget' ) && false !== strpos( $widget_page, 'sp-w-title' ) && false !== strpos( $widget_page, 'sp-wp-stage' ), 'redesigned widget keeps settings and live preview' );
+	$check( false !== strpos( $widget_page, 'data-sp-widget' ) && false !== strpos( $widget_page, 'widget[title]' ) && false !== strpos( $widget_page, 'sp-w-stage' ), 'redesigned widget keeps settings and live preview' );
 	$woo_dashboard = $render( new WooCommerceDashboardPage() );
-	$check( false !== strpos( $woo_dashboard, 'sitepilot-screen--woo-dashboard' ) && false !== strpos( $woo_dashboard, 'sp-stat-revenue' ), 'redesigned WooCommerce dashboard keeps live data targets' );
+	$check( false !== strpos( $woo_dashboard, 'data-sp-wc-dashboard' ) && false !== strpos( $woo_dashboard, 'sp-stat-revenue' ), 'redesigned WooCommerce dashboard keeps live data targets' );
 	$woo_settings = $render( new WooCommerceSettings() );
-	$check( false !== strpos( $woo_settings, 'sitepilot-screen--woo-settings' ) && false !== strpos( $woo_settings, 'woocommerce[enabled]' ) && false !== strpos( $woo_settings, 'sp_woo_nonce' ) && false !== strpos( $woo_settings, 'sp-woo-plan' ), 'redesigned WooCommerce AI keeps settings and draft review contract' );
+	$check( false !== strpos( $woo_settings, 'data-sp-wc' ) && false !== strpos( $woo_settings, 'woocommerce[enabled]' ) && false !== strpos( $woo_settings, 'sp_woo_nonce' ) && false !== strpos( $woo_settings, 'sp-woo-plan' ), 'redesigned WooCommerce AI keeps settings and draft review contract' );
 	$efb_health = ( new EasyFormBuilderConnector() )->get_health();
 	$check( ! empty( $efb_health['compatible'] ) && version_compare( (string) $efb_health['version'], '4.1.0', '>=' ), 'Easy Form Builder passes the active version and schema contract' );
 	$efb_result = ( new EasyFormBuilderConnector() )->execute_action(
 		array(
-			'title' => 'SitePilot EFB integration test',
+			'title' => 'AISAAutoPilot EFB integration test',
 			'fields' => array(
 				array( 'type' => 'text', 'label' => 'Name', 'required' => true ),
 				array( 'type' => 'select', 'label' => 'Topic', 'required' => false, 'options' => array( 'Sales', 'Support' ) ),
@@ -111,16 +115,17 @@ try {
 	$efb_form_id = (int) ( $efb_result['form_id'] ?? 0 );
 	global $wpdb;
 	$efb_row = $efb_form_id > 0 ? $wpdb->get_row( $wpdb->prepare( "SELECT form_name, form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $efb_form_id ), ARRAY_A ) : null; // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-	$check( 'success' === ( $efb_result['status'] ?? '' ) && is_array( $efb_row ) && 'SitePilot EFB integration test' === ( $efb_row['form_name'] ?? '' ) && false !== strpos( (string) ( $efb_row['form_structer'] ?? '' ), 'Name' ), 'Easy Form Builder creates an editable native form using its verified storage contract' );
+	$check( 'success' === ( $efb_result['status'] ?? '' ) && is_array( $efb_row ) && 'AISAAutoPilot EFB integration test' === ( $efb_row['form_name'] ?? '' ) && false !== strpos( (string) ( $efb_row['form_structer'] ?? '' ), 'Name' ), 'Easy Form Builder creates an editable native form using its verified storage contract' );
 
 	do_action( 'rest_api_init' );
 	$routes = rest_get_server()->get_routes();
-	$check( isset( $routes['/sitepilot/v1/forms/delivery/test'] ) && isset( $routes['/sitepilot/v1/woocommerce/plan'] ) && isset( $routes['/sitepilot/v1/woocommerce/analytics/dashboard'] ), 'Phase 1 delivery and WooCommerce routes are registered' );
-	$check( isset( $routes['/sitepilot/v1/chat/voice/transcribe'] ) && isset( $routes['/sitepilot/v1/public/voice'] ) && ! isset( $routes['/sitepilot/v1/voice/transcribe'] ), 'voice routes use protected admin upload and rate-limited public upload contracts' );
+	$check( isset( $routes['/aisaautopilot/v1/forms/delivery/test'] ) && isset( $routes['/aisaautopilot/v1/woocommerce/plan'] ) && isset( $routes['/aisaautopilot/v1/woocommerce/analytics/dashboard'] ), 'Phase 1 delivery and WooCommerce routes are registered' );
+	$check( isset( $routes['/aisaautopilot/v1/provider/test'] ) && isset( $routes['/aisaautopilot/v1/provider/models'] ), 'provider test and live model-list routes are registered' );
+	$check( isset( $routes['/aisaautopilot/v1/chat/voice/transcribe'] ) && isset( $routes['/aisaautopilot/v1/public/voice'] ) && ! isset( $routes['/aisaautopilot/v1/voice/transcribe'] ), 'voice routes use protected admin upload and rate-limited public upload contracts' );
 	$voice_response = ( new VoiceController() )->transcribe_chat( new \WP_REST_Request( 'POST' ) );
 	$voice_data = $voice_response->get_data();
 	$check( 400 === $voice_response->get_status() && 'invalid_audio' === ( $voice_data['code'] ?? '' ), 'admin voice endpoint rejects missing audio before contacting an AI provider' );
-	$voice_tmp = wp_tempnam( 'sitepilot-voice-contract' );
+	$voice_tmp = wp_tempnam( 'aisaautopilot-voice-contract' );
 	file_put_contents( $voice_tmp, 'a' );
 	$check( 'audio_too_long' === VoiceTranscriber::validate_file( array( 'tmp_name' => $voice_tmp, 'size' => 1, 'type' => 'audio/webm' ), 45001 ), 'voice contract caps recordings at 45 seconds' );
 	$temporary_settings = Settings::all();
@@ -135,7 +140,7 @@ try {
 	$check( 400 === $public_voice_response->get_status() && 'invalid_audio' === ( $public_voice_data['code'] ?? '' ), 'public widget voice accepts only the safe upload contract' );
 	$rate_ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : 'unknown';
 	$rate_ip  = substr( preg_replace( '/[^0-9a-fA-F:.]/', '', $rate_ip ) ?? '', 0, 64 );
-	$rate_key = 'sitepilot_rate_public_text_' . hash_hmac( 'sha256', 'ip:' . $rate_ip, wp_salt( 'auth' ) );
+	$rate_key = 'aisaautopilot_rate_public_text_' . hash_hmac( 'sha256', 'ip:' . $rate_ip, wp_salt( 'auth' ) );
 	delete_transient( $rate_key );
 	$check( RateLimiter::allow( 'public_text', 1, MINUTE_IN_SECONDS ) && ! RateLimiter::allow( 'public_text', 1, MINUTE_IN_SECONDS ), 'central security rate limiter denies excess requests' );
 	$handoff_request = new \WP_REST_Request( 'POST' );
@@ -150,9 +155,9 @@ try {
 	$security_conversation_id = $manager->create( 'Temporary ownership test' );
 	$security_user_id = wp_insert_user(
 		array(
-			'user_login' => 'sitepilot-security-' . wp_generate_password( 12, false, false ),
+			'user_login' => 'aisaautopilot-security-' . wp_generate_password( 12, false, false ),
 			'user_pass'  => wp_generate_password( 32, true, true ),
-			'user_email' => 'sitepilot-security-' . wp_generate_password( 10, false, false ) . '@example.test',
+			'user_email' => 'aisaautopilot-security-' . wp_generate_password( 10, false, false ) . '@example.test',
 			'role'       => 'administrator',
 		)
 	);
@@ -187,10 +192,10 @@ try {
 	$form_id = (int) ( $result['form_id'] ?? 0 );
 	$check( 'success' === ( $result['status'] ?? '' ) && $form_id > 0, 'native connector creates draft form' );
 	$check( $plan === get_post_meta( $form_id, NativeFormConnector::META_KEY, true ), 'only form definition is stored' );
-	$markup = do_shortcode( sprintf( '[sitepilot_form id="%d"]', $form_id ) );
-	$check( false !== strpos( $markup, 'sitepilot-form__honeypot' ) && false === strpos( $markup, 'multipart/form-data' ), 'front-end form has honeypot and no upload surface' );
+	$markup = do_shortcode( sprintf( '[aisaautopilot_form id="%d"]', $form_id ) );
+	$check( false !== strpos( $markup, 'aisaautopilot-form__honeypot' ) && false === strpos( $markup, 'multipart/form-data' ), 'front-end form has honeypot and no upload surface' );
 
-	delete_transient( 'sitepilot_form_delivery_test_' . get_current_user_id() );
+	delete_transient( 'aisaautopilot_form_delivery_test_' . get_current_user_id() );
 	add_filter(
 		'pre_wp_mail',
 		static function ( $pre, array $args ) use ( &$delivery_mail ) {
@@ -205,7 +210,7 @@ try {
 	$check( ! empty( $delivery_data['ok'] ) && (string) get_option( 'admin_email' ) === (string) ( $delivery_mail['to'] ?? '' ) && false !== strpos( (string) ( $delivery_mail['message'] ?? '' ), 'No visitor data' ), 'delivery test sends a data-free message to the configured recipient' );
 	$rate_limited = ( new FormDeliveryController() )->test();
 	$check( 429 === $rate_limited->get_status(), 'delivery test is rate-limited per administrator' );
-	delete_transient( 'sitepilot_form_delivery_test_' . get_current_user_id() );
+	delete_transient( 'aisaautopilot_form_delivery_test_' . get_current_user_id() );
 
 	if ( WooCommerceConnector::is_active() ) {
 		$settings = Settings::all();
@@ -214,7 +219,7 @@ try {
 		$store = new ActionStore();
 		$draft_action = $store->create(
 			array(
-				'name' => 'SitePilot P1 test draft', 'description' => 'Temporary product created by the integration test.', 'short_description' => '',
+				'name' => 'AISAAutoPilot P1 test draft', 'description' => 'Temporary product created by the integration test.', 'short_description' => '',
 				'price' => '19.99', 'regular_price' => '19.99', 'sale_price' => '', 'categories' => array(), 'sku' => '', 'weight' => '',
 				'stock_status' => 'instock', 'stock_quantity' => 0, 'manage_stock' => false, 'status' => 'draft', 'type' => 'simple',
 			),

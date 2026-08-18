@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Skills;
+namespace AISAAutoPilot\Skills;
 
 /**
  * Result of validating an AI-produced form plan.

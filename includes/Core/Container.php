@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Core;
+namespace AISAAutoPilot\Core;
 
 /**
  * Tiny lazy service container. Not a full DI framework — just enough to share

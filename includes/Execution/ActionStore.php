@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Execution;
+namespace AISAAutoPilot\Execution;
 
 /**
  * Stores a proposed action (a validated form plan awaiting approval) with a
@@ -22,11 +22,11 @@ final class ActionStore {
 	}
 
 	private function transient_key( string $action_id ): string {
-		return 'sitepilot_action_' . $action_id;
+		return 'aisaautopilot_action_' . $action_id;
 	}
 
 	private function claim_key( string $action_id ): string {
-		return 'sitepilot_action_claim_' . str_replace( '-', '', $action_id );
+		return 'aisaautopilot_action_claim_' . str_replace( '-', '', $action_id );
 	}
 
 	/**
@@ -92,7 +92,7 @@ final class ActionStore {
 	}
 
 	/**
-	 * Removes only SitePilot's expired, non-autoloaded replay locks. This keeps
+	 * Removes only AISAAutoPilot's expired, non-autoloaded replay locks. This keeps
 	 * the one-time-action guarantee without accumulating options indefinitely.
 	 */
 	private function purge_stale_claims(): void {
@@ -101,13 +101,15 @@ final class ActionStore {
 			return;
 		}
 
-		$like = $wpdb->esc_like( 'sitepilot_action_claim_' ) . '%';
+		$like = $wpdb->esc_like( 'aisaautopilot_action_claim_' ) . '%';
 		$sql  = $wpdb->prepare(
 			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s AND CAST(option_value AS UNSIGNED) < %d",
 			$like,
 			time() - self::CLAIM_RETENTION
 		);
-		$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared immediately above.
+		// Garbage collection of expired single-use claims: a targeted DELETE on
+		// wp_options that no WordPress API expresses, and nothing worth caching.
+		$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- prepared immediately above.
 	}
 
 	private function uuid(): string {

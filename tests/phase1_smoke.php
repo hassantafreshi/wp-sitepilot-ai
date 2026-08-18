@@ -9,13 +9,13 @@ declare(strict_types=1);
 
 require __DIR__ . '/bootstrap.php';
 
-use SitePilot\Connectors\ConnectorInterface;
-use SitePilot\Connectors\ConnectorRegistry;
-use SitePilot\Connectors\NativeFormConnector;
-use SitePilot\Execution\ActionExecutor;
-use SitePilot\Execution\ActionStore;
-use SitePilot\Forms\NativeFormSubmission;
-use SitePilot\Skills\FormPlanValidator;
+use AISAAutoPilot\Connectors\ConnectorInterface;
+use AISAAutoPilot\Connectors\ConnectorRegistry;
+use AISAAutoPilot\Connectors\NativeFormConnector;
+use AISAAutoPilot\Execution\ActionExecutor;
+use AISAAutoPilot\Execution\ActionStore;
+use AISAAutoPilot\Forms\NativeFormSubmission;
+use AISAAutoPilot\Skills\FormPlanValidator;
 
 $passed = 0;
 $failed = 0;
@@ -58,9 +58,9 @@ $tampered_submission = $submission->validate( $fields, array( 'sp_field_name' =>
 $check( ! $tampered_submission['ok'] && in_array( 'invalid_topic', $tampered_submission['errors'], true ), 'submission rejects values outside approved options' );
 
 // P1-0 release contract: another administrator cannot consume the proposal.
-$GLOBALS['sitepilot_test_transients'] = array();
-$GLOBALS['sitepilot_test_added_options'] = array();
-$GLOBALS['sitepilot_test_user_id'] = 7;
+$GLOBALS['aisaautopilot_test_transients'] = array();
+$GLOBALS['aisaautopilot_test_added_options'] = array();
+$GLOBALS['aisaautopilot_test_user_id'] = 7;
 $store = new ActionStore();
 $check( 900 === ActionStore::ttl(), 'action proposal expiry is exposed for the review UI' );
 $id = $store->create( array( 'title' => 'Contact' ), 'pinned' );

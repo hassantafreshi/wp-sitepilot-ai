@@ -34,7 +34,7 @@ jobs:
     - name: PHP Syntax Check
       run: |
         find includes -name "*.php" -exec php -l {} \;
-        php -l sitepilot-ai.php
+        php -l ai-site-assistant-autopilot.php
         php -l uninstall.php
 
   quality:

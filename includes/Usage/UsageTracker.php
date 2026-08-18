@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Usage;
+namespace AISAAutoPilot\Usage;
 
 /**
  * Tracks AI token usage locally and provides credit-threshold reporting.
@@ -14,9 +14,9 @@ namespace SitePilot\Usage;
  */
 final class UsageTracker {
 
-	private const OPTION_LOG    = 'sitepilot_ai_usage_log';
-	private const OPTION_TOTALS = 'sitepilot_ai_usage_totals';
-	private const OPTION_BUDGET = 'sitepilot_ai_monthly_budget';
+	private const OPTION_LOG    = 'aisaautopilot_usage_log';
+	private const OPTION_TOTALS = 'aisaautopilot_usage_totals';
+	private const OPTION_BUDGET = 'aisaautopilot_monthly_budget';
 	private const MAX_LOG       = 500;
 
 	/** Threshold percentages that trigger warnings. */
@@ -169,7 +169,7 @@ final class UsageTracker {
 			'remaining' => $remaining,
 			'message'   => sprintf(
 				/* translators: 1: remaining percentage, 2: remaining tokens. */
-				__( 'AI credit alert: Only %1$d%% remaining (%2$s tokens left).', 'sitepilot-ai' ),
+				__( 'AI credit alert: Only %1$d%% remaining (%2$s tokens left).', 'ai-site-assistant-autopilot' ),
 				(int) round( $remaining_percent ),
 				number_format_i18n( $remaining )
 			),

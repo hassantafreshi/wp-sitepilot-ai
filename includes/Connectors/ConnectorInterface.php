@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Connectors;
+namespace AISAAutoPilot\Connectors;
 
 /**
  * A connector adapts the `form.create` capability to a real WordPress

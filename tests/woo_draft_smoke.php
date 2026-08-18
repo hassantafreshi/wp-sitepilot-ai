@@ -3,7 +3,7 @@
  * Isolated Phase 1 WooCommerce draft workflow check.
  *
  * The local XAMPP install keeps WooCommerce inactive, so this test supplies a
- * tiny WooCommerce CRUD double. It verifies SitePilot's contract without
+ * tiny WooCommerce CRUD double. It verifies AISAAutoPilot's contract without
  * modifying a store: only a simple draft is created and the proposal cannot
  * be replayed.
  */
@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/bootstrap.php';
 
-use SitePilot\Connectors\WooCommerceProductSkill;
-use SitePilot\Execution\ActionStore;
-use SitePilot\Skills\ProductPlanValidator;
+use AISAAutoPilot\Connectors\WooCommerceProductSkill;
+use AISAAutoPilot\Execution\ActionStore;
+use AISAAutoPilot\Skills\ProductPlanValidator;
 
 if ( ! class_exists( 'WooCommerce' ) ) {
 	final class WooCommerce {}
@@ -52,9 +52,9 @@ $check = static function ( bool $ok, string $name ) use ( &$passed, &$failed ): 
 	$ok ? ++$passed : ++$failed;
 };
 
-$GLOBALS['sitepilot_test_transients'] = array();
-$GLOBALS['sitepilot_test_added_options'] = array();
-$GLOBALS['sitepilot_test_user_id'] = 7;
+$GLOBALS['aisaautopilot_test_transients'] = array();
+$GLOBALS['aisaautopilot_test_added_options'] = array();
+$GLOBALS['aisaautopilot_test_user_id'] = 7;
 
 $plan = array(
 	'name' => 'P1 Coffee', 'description' => 'Temporary draft description.', 'short_description' => 'Coffee.',

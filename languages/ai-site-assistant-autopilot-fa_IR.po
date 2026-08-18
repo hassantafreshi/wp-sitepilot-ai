@@ -1,0 +1,3486 @@
+msgid ""
+msgstr "Project-Id-Version: AI Site Assistant AutoPilot 0.6.0\nReport-Msgid-Bugs-To: https://wordpress.org/support/plugin/ai-site-assistant-autopilot\nPOT-Creation-Date: 2026-08-13T19:12:46+02:00\nPO-Revision-Date: 2026-07-23 12:00+0330\nLast-Translator: AI Site Assistant AutoPilot <info@aisaautopilot.ai>\nLanguage-Team: Persian <fa@li.org>\nLanguage: fa_IR\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Generator: AI Site Assistant AutoPilot 0.6.0\n"
+
+msgid "AI Site Assistant AutoPilot"
+msgstr "AI Site Assistant AutoPilot"
+
+msgid "https://aisaautopilot.ai"
+msgstr ""
+
+msgid "AI copilot for WordPress — form builder, content intelligence, RAG chat, voice assistant, frontend widget."
+msgstr ""
+
+msgid "You do not have permission to view this page."
+msgstr "شما اجازه مشاهده این صفحه را ندارید."
+
+msgid "Breadcrumb"
+msgstr "مسیر راهنما"
+
+msgid "Home"
+msgstr "خانه"
+
+msgid "AI Chat"
+msgstr "گفت‌وگوی AI"
+
+msgid "Knowledge-grounded answers"
+msgstr ""
+
+msgid "AI Site Assistant AutoPilot Chat"
+msgstr "AI Site Assistant AutoPilot"
+
+msgid "Ask questions about your website content. Answers are grounded in the knowledge base available on this site."
+msgstr ""
+
+msgid "Chat readiness"
+msgstr ""
+
+msgid "Provider ready"
+msgstr ""
+
+msgid "Provider needs setup"
+msgstr ""
+
+msgid "Knowledge ready"
+msgstr ""
+
+msgid "Knowledge base empty"
+msgstr ""
+
+msgid "Conversations"
+msgstr "گفت‌وگوها"
+
+msgid "New conversation"
+msgstr "گفت‌وگوی تازه"
+
+msgid "Loading…"
+msgstr "در حال بارگذاری…"
+
+msgid "Conversation"
+msgstr "گفت‌وگو"
+
+msgid "Private admin workspace"
+msgstr ""
+
+msgid "Sources shown in replies"
+msgstr ""
+
+msgid "No AI provider is connected."
+msgstr "هیچ سرویس‌دهندهٔ هوش مصنوعی متصل نیست."
+
+msgid "Add your API key in Settings"
+msgstr "کلید API خود را در تنظیمات وارد کنید"
+
+msgid "Your knowledge base is empty."
+msgstr "دانش‌نامهٔ شما خالی است."
+
+msgid "Index your content first"
+msgstr "ابتدا محتوای خود را ایندکس کنید"
+
+msgid "Hello! Ask me anything about your website."
+msgstr "سلام! هر چیزی دربارهٔ وب‌سایتتان بپرسید."
+
+msgid "For example:"
+msgstr "برای مثال:"
+
+msgid "What is this website about?"
+msgstr "این وب‌سایت درباره چیست؟"
+
+msgid "Summarize my latest posts"
+msgstr "آخرین نوشته‌هایم را خلاصه کن"
+
+msgid "How many pages do I have?"
+msgstr "چند برگه دارم؟"
+
+msgid "Ask anything about your site…"
+msgstr "هر چیزی دربارهٔ سایتتان بپرسید…"
+
+msgid "Start voice input"
+msgstr "شروع ورودی صوتی"
+
+msgid "Send message"
+msgstr "ارسال پیام"
+
+msgid "Connections & health"
+msgstr "اتصال‌ها و سلامت"
+
+msgid "Check every dependency AISAAutoPilot relies on before you start a task."
+msgstr ""
+
+msgid "AI provider"
+msgstr "ارائه‌دهندهٔ AI"
+
+msgid "An encrypted provider key is configured."
+msgstr "کلید سرویس‌دهنده به‌صورت رمزنگاری‌شده ذخیره شده است."
+
+msgid "Connect a provider before using AI generation."
+msgstr ""
+
+msgid "Open settings"
+msgstr ""
+
+msgid "Connect provider"
+msgstr ""
+
+msgid "AISAAutoPilot Forms"
+msgstr "AI Site Assistant AutoPilot"
+
+msgid "The built-in simple-form connector is always available."
+msgstr ""
+
+msgid "Manage forms"
+msgstr ""
+
+msgid "Easy Form Builder"
+msgstr "Easy Form Builder"
+
+msgid "Installed. Use it for advanced form capabilities."
+msgstr ""
+
+msgid "Not active. Install it for multi-step, files, payments, and conditional logic."
+msgstr ""
+
+msgid "Open Easy Form Builder"
+msgstr ""
+
+msgid "Install Easy Form Builder"
+msgstr "نصب Easy Form Builder"
+
+msgid "WooCommerce"
+msgstr ""
+
+msgid "WooCommerce %s is active."
+msgstr "ووکامرس %s فعال است."
+
+msgid "Not active. Store tools stay disabled until it is installed."
+msgstr ""
+
+msgid "Open dashboard"
+msgstr ""
+
+msgid "Install WooCommerce"
+msgstr "نصب ووکامرس"
+
+msgid "Active"
+msgstr "فعال"
+
+msgid "Inactive"
+msgstr "غیرفعال"
+
+msgid "Create a contact form with name, email, phone, and message."
+msgstr "یک فرم تماس با نام، ایمیل، تلفن و پیام بسازید."
+
+msgid "Build a job application form with full name, email, phone, and a cover letter."
+msgstr "فرم استخدام با نام کامل، ایمیل، شمارهٔ تماس و متن انگیزه‌نامه بساز."
+
+msgid "Make a newsletter signup with first name and email."
+msgstr "یک فرم عضویت خبرنامه با نام و ایمیل بسازید."
+
+msgid "Support request form with name, email, priority (low, medium, high) and details."
+msgstr "فرم درخواست پشتیبانی با نام، ایمیل، اولویت (کم، متوسط، زیاد) و جزئیات."
+
+msgid "Create with AI"
+msgstr "ساخت با هوش مصنوعی"
+
+msgid "Copilot"
+msgstr "دستیار هوشمند"
+
+msgid "Describe the form you need. Nothing is created until you review and explicitly approve the plan."
+msgstr "فرم موردنیاز خود را توضیح دهید. تا زمانی که طرح را بررسی و صریحاً تأیید نکنید، چیزی ساخته نمی‌شود."
+
+msgid "Create a form request"
+msgstr "درخواست ساخت فرم"
+
+msgid "AI task type"
+msgstr "نوع کار هوش مصنوعی"
+
+msgid "Create a form"
+msgstr "ساخت فرم"
+
+msgid "WooCommerce is required for product drafts."
+msgstr "برای پیش‌نویس محصول، ووکامرس لازم است."
+
+msgid "Product draft — needs WooCommerce"
+msgstr "پیش‌نویس محصول — نیازمند ووکامرس"
+
+msgid "Describe the form you want to create"
+msgstr "فرمی را که می‌خواهید بسازید توضیح دهید"
+
+msgid "For example: Create a contact form with name, email, phone and message."
+msgstr "برای نمونه: یک فرم تماس با نام، ایمیل، تلفن و پیام بسازید."
+
+msgid "Start voice command"
+msgstr "شروع فرمان صوتی"
+
+msgid "Speak"
+msgstr "صحبت کنید"
+
+msgid "Type or speak your request."
+msgstr "درخواست خود را بنویسید یا بگویید."
+
+msgid "Generate preview"
+msgstr "ساخت پیش‌نمایش"
+
+msgid "This action needs setup"
+msgstr "این کار به تنظیمات نیاز دارد"
+
+msgid "Connect an AI provider and set the form notification email before generating a plan."
+msgstr "پیش از ساخت طرح، یک ارائه‌دهندهٔ AI متصل و ایمیل اعلان فرم را تعیین کنید."
+
+msgid "Connect an AI provider before generating a plan."
+msgstr "پیش از ساخت طرح، یک ارائه‌دهندهٔ AI متصل کنید."
+
+msgid "Set the notification email before generating a plan."
+msgstr "پیش از ساخت طرح، ایمیل اعلان را تعیین کنید."
+
+msgid "Preparing a reviewable plan"
+msgstr "در حال آماده‌سازی طرح قابل بررسی"
+
+msgid "Analyze request"
+msgstr "تحلیل درخواست"
+
+msgid "Run safety checks"
+msgstr "اجرای بررسی‌های ایمنی"
+
+msgid "Build preview"
+msgstr "ساخت پیش‌نمایش"
+
+msgid "Try an example:"
+msgstr "یک نمونه را امتحان کنید:"
+
+msgid "Context of this request"
+msgstr "زمینهٔ این درخواست"
+
+msgid "Connector"
+msgstr "اتصال‌دهنده"
+
+msgid "Result state"
+msgstr "وضعیت نتیجه"
+
+msgid "Draft"
+msgstr "پیش‌نویس"
+
+msgid "Site language"
+msgstr "زبان سایت"
+
+msgid "Knowledge base"
+msgstr "پایگاه دانش"
+
+msgid "Not used"
+msgstr "استفاده نشده"
+
+msgid "Estimated usage"
+msgstr "مصرف تخمینی"
+
+msgid "Shown before approval"
+msgstr "پیش از تأیید نشان داده می‌شود"
+
+msgid "Nothing runs automatically. The final form is created only after your approval."
+msgstr "هیچ کاری خودکار اجرا نمی‌شود. فرم نهایی فقط پس از تأیید شما ساخته می‌شود."
+
+msgid "Voice input is transcribed into editable text before any AI request is sent."
+msgstr "ورودی صوتی پیش از ارسال هر درخواست AI به متن قابل ویرایش تبدیل می‌شود."
+
+msgid "View all AISAAutoPilot Forms"
+msgstr "مشاهدهٔ همهٔ فرم‌های AISAAutoPilot"
+
+msgid "Advanced forms"
+msgstr ""
+
+msgid "Use Easy Form Builder for multi-step forms, uploads, calculations, conditional logic, payment, and its own advanced settings."
+msgstr ""
+
+msgid "Easy Form Builder is not active"
+msgstr "Easy Form Builder فعال نیست"
+
+msgid "The built-in AISAAutoPilot Forms connector remains available for simple, single-step forms sent by email."
+msgstr ""
+
+msgid "Connector status"
+msgstr "وضعیت رابط"
+
+msgid "Detected version"
+msgstr "نسخهٔ شناسایی‌شده"
+
+msgid "AISAAutoPilot action"
+msgstr "AI Site Assistant AutoPilot"
+
+msgid "Create an EFB form from an approved plan"
+msgstr ""
+
+msgid "Continue in Easy Form Builder"
+msgstr ""
+
+msgid "AISAAutoPilot does not replace EFB’s editor. Open EFB to create, edit, save, and configure advanced form features."
+msgstr ""
+
+msgid "Create in EFB"
+msgstr "ساخت در Easy Form Builder"
+
+msgid "Open EFB forms"
+msgstr "باز کردن فرم‌های EFB"
+
+msgid "Welcome back, %s"
+msgstr ""
+
+msgid "Welcome back"
+msgstr ""
+
+msgid "Start a safe AI task, review the plan, and keep every site change under your control."
+msgstr ""
+
+msgid "System ready"
+msgstr ""
+
+msgid "Setup needs attention"
+msgstr "راه‌اندازی نیازمند توجه است"
+
+msgid "New AI task"
+msgstr "کار جدید با AI"
+
+msgid "Connect an AI provider before generating a form or product plan."
+msgstr ""
+
+msgid "%d form is available."
+msgstr ""
+
+msgid "Installed and ready for advanced forms."
+msgstr ""
+
+msgid "Install it for advanced fields, logic, files, and multi-step forms."
+msgstr ""
+
+msgid "Open connector"
+msgstr ""
+
+msgid "View setup"
+msgstr ""
+
+msgid "Store tools are available."
+msgstr ""
+
+msgid "Install and activate WooCommerce to use store tools."
+msgstr ""
+
+msgid "Start with a safe, reviewable action"
+msgstr ""
+
+msgid "AISAAutoPilot prepares a plan first. Nothing is created until an administrator reviews and approves it."
+msgstr ""
+
+msgid "Approval required"
+msgstr ""
+
+msgid "Build a simple form"
+msgstr ""
+
+msgid "Single step, email delivery"
+msgstr ""
+
+msgid "Use an advanced connector"
+msgstr ""
+
+msgid "Easy Form Builder and WooCommerce"
+msgstr ""
+
+msgid "Recent activity"
+msgstr "آخرین فعالیت‌ها"
+
+msgid "Only operational events are shown here; sensitive form submissions are never displayed."
+msgstr ""
+
+msgid "View all"
+msgstr ""
+
+msgid "No activity has been recorded yet."
+msgstr "هنوز هیچ فعالیتی ثبت نشده است."
+
+msgid "Ready"
+msgstr ""
+
+msgid "Needs setup"
+msgstr "نیازمند تنظیم"
+
+msgid "Knowledge Base"
+msgstr "دانش‌نامه"
+
+msgid "Site knowledge"
+msgstr ""
+
+msgid "Index the content AISAAutoPilot may use for accurate, source-aware answers. New and changed content can be indexed automatically."
+msgstr ""
+
+msgid "Semantic search on"
+msgstr ""
+
+msgid "Keyword search"
+msgstr ""
+
+msgid "AISAAutoPilot reads and understands your site content so it can answer questions accurately. Index your content once — new content is indexed automatically."
+msgstr "AISAAutoPilot محتوای سایت شما را می‌خواند و می‌فهمد تا بتواند دقیق پاسخ دهد. یک‌بار محتوا را ایندکس کنید؛ محتوای تازه به‌طور خودکار ایندکس می‌شود."
+
+msgid "Indexed Items"
+msgstr "موارد ایندکس‌شده"
+
+msgid "Total Posts & Pages"
+msgstr "مجموع نوشته‌ها و برگه‌ها"
+
+msgid "Last Updated"
+msgstr "آخرین به‌روزرسانی"
+
+msgid "Content Indexing"
+msgstr "ایندکس محتوا"
+
+msgid "Click the button below to scan and index all your published posts and pages. AI Site Assistant AutoPilot will summarize each one into structured knowledge. You only need to do this once — new content is indexed automatically when you publish or edit."
+msgstr "با دکمهٔ زیر همهٔ نوشته‌ها و برگه‌های منتشرشدهٔ خود را پویش و ایندکس کنید. AI Site Assistant AutoPilot هرکدام را به دانشِ ساختاریافته خلاصه می‌کند. این کار فقط یک‌بار لازم است؛ محتوای تازه هنگام انتشار یا ویرایش خودکار ایندکس می‌شود."
+
+msgid "Semantic search is ON."
+msgstr "جست‌وجوی معنایی روشن است."
+
+msgid "%1$d of %2$d indexed items have an embedding. Run indexing to build any missing vectors."
+msgstr "%1$d مورد از %2$d مورد ایندکس‌شده embedding دارند. برای ساخت بردارهای جامانده، ایندکس را اجرا کنید."
+
+msgid "Start Indexing"
+msgstr "شروع ایندکس"
+
+msgid "Full Re-index"
+msgstr "ایندکس کامل دوباره"
+
+msgid "Preparing…"
+msgstr ""
+
+msgid "Questions Without Answers"
+msgstr "پرسش‌های بی‌پاسخ"
+
+msgid "Clear all"
+msgstr "پاک کردن همه"
+
+msgid "These are questions visitors asked that your content does not answer yet. Write or index a page covering them to improve future answers."
+msgstr "این‌ها پرسش‌هایی است که بازدیدکنندگان پرسیده‌اند و محتوای شما هنوز پاسخشان را ندارد. برای بهبود پاسخ‌های بعدی، برگه‌ای دربارهٔ آن‌ها بنویسید یا ایندکس کنید."
+
+msgid "Indexed Content"
+msgstr ""
+
+msgid "Search indexed content…"
+msgstr ""
+
+msgid "All Types"
+msgstr ""
+
+msgid "All Categories"
+msgstr "همهٔ دسته‌بندی‌ها"
+
+msgid "Title"
+msgstr "عنوان"
+
+msgid "Type"
+msgstr "نوع"
+
+msgid "Summary"
+msgstr ""
+
+msgid "Keywords"
+msgstr ""
+
+msgid "Updated"
+msgstr ""
+
+msgid "Actions"
+msgstr "اقدام‌ها"
+
+msgid "What should AISAAutoPilot index?"
+msgstr "AISAAutoPilot چه چیزی را ایندکس کند؟"
+
+msgid "Close"
+msgstr "بستن"
+
+msgid "Choose which content to read and learn from. You can re-run this any time."
+msgstr "انتخاب کنید از کدام محتوا بخواند و بیاموزد. هر زمان می‌توانید دوباره اجرا کنید."
+
+msgid "Content types"
+msgstr "قالب‌های محتوا"
+
+msgid "Post categories"
+msgstr "دسته‌بندی‌های نوشته"
+
+msgid "(applies to Posts)"
+msgstr ""
+
+msgid "All categories"
+msgstr "همهٔ دسته‌بندی‌ها"
+
+msgid "Cancel"
+msgstr "انصراف"
+
+msgid "Tutorial / Guide"
+msgstr "آموزش / راهنما"
+
+msgid "Product"
+msgstr "ویرایش محصول"
+
+msgid "Service"
+msgstr "خدمت"
+
+msgid "Article"
+msgstr "مقاله"
+
+msgid "Page"
+msgstr "برگه"
+
+msgid "FAQ"
+msgstr "پرسش‌های متداول"
+
+msgid "News"
+msgstr "خبر"
+
+msgid "Other"
+msgstr "سایر"
+
+msgid "Logs cleared."
+msgstr "لاگ‌ها پاک شدند."
+
+msgid "Action history"
+msgstr "تاریخچهٔ اقدام‌ها"
+
+msgid "Review recent Copilot actions and operational events. Secrets and visitor submissions are never stored here."
+msgstr ""
+
+msgid "Search messages, events, traces…"
+msgstr "جست‌وجوی پیام، رویداد، trace…"
+
+msgid "Search activity log"
+msgstr "جست‌وجوی لاگ فعالیت"
+
+msgid "Filter by level"
+msgstr "فیلتر بر اساس سطح"
+
+msgid "All levels"
+msgstr "همهٔ سطح‌ها"
+
+msgid "Clear log"
+msgstr "پاک‌سازی لاگ"
+
+msgid "Time (UTC)"
+msgstr "زمان (UTC)"
+
+msgid "Level"
+msgstr "سطح"
+
+msgid "Event"
+msgstr "رویداد"
+
+msgid "Trace"
+msgstr "trace"
+
+msgid "Message"
+msgstr "پیام"
+
+msgid "Details"
+msgstr ""
+
+msgid "No activity yet."
+msgstr "هنوز فعالیتی نبوده است."
+
+msgid "Copy trace ID"
+msgstr ""
+
+msgid "View"
+msgstr ""
+
+msgid "No entries match your filter."
+msgstr "موردی با این فیلتر پیدا نشد."
+
+msgid "Simple email forms"
+msgstr ""
+
+msgid "Manage the simple, single-step forms created by AISAAutoPilot. Visitor submissions are sent by email and are not stored here."
+msgstr "فرم‌های سادهٔ تک‌مرحله‌ای ساخته‌شده توسط AISAAutoPilot را مدیریت کنید. ارسال‌های بازدیدکنندگان با ایمیل فرستاده می‌شوند و اینجا ذخیره نمی‌گردند."
+
+msgid "No AISAAutoPilot forms have been created yet."
+msgstr "هنوز هیچ فرم AISAAutoPilot ساخته نشده است."
+
+msgid "Form"
+msgstr "فرم"
+
+msgid "Status"
+msgstr "وضعیت"
+
+msgid "Shortcode"
+msgstr "shortcode"
+
+msgid "Last updated"
+msgstr "آخرین به‌روزرسانی"
+
+msgid "Open"
+msgstr "باز کردن"
+
+msgid "Custom provider"
+msgstr ""
+
+msgid "Settings"
+msgstr "تنظیمات"
+
+msgid "Provider, safety and delivery"
+msgstr ""
+
+msgid "Configure the provider and privacy controls used by AISAAutoPilot. Sensitive keys remain in your selected secure key store."
+msgstr ""
+
+msgid "Settings saved."
+msgstr "تنظیمات ذخیره شد."
+
+msgid "API key security: %s. Your key is never sent anywhere except your chosen AI provider."
+msgstr ""
+
+msgid "AISAAutoPilot settings"
+msgstr "AI Site Assistant AutoPilot"
+
+msgid "Provider connection"
+msgstr "اتصال ارائه‌دهنده"
+
+msgid "Choose where credentials are held, then configure the AI endpoint used for planning and chat."
+msgstr ""
+
+msgid "API Key Management"
+msgstr "مدیریت کلید API"
+
+msgid "AISAAutoPilot Encrypted Vault"
+msgstr "مخزن رمزنگاری‌شدهٔ AISAAutoPilot"
+
+msgid "API key encrypted with XSalsa20-Poly1305 / AES-256-GCM and stored on this site."
+msgstr "کلید API با XSalsa20-Poly1305 / AES-256-GCM رمزنگاری و روی همین سایت ذخیره می‌شود."
+
+msgid "WordPress Connectors"
+msgstr ""
+
+msgid "Use the native WordPress 7 key manager."
+msgstr ""
+
+msgid "Settings → Connectors"
+msgstr "تنظیمات ← Connectors"
+
+msgid "Available in WordPress 7.0+. Update WordPress to enable this option."
+msgstr "در وردپرس ۷٫۰ به بالا در دسترس است. برای فعال‌شدن، وردپرس را به‌روزرسانی کنید."
+
+msgid "AI Provider"
+msgstr "ارائه‌دهندهٔ AI"
+
+msgid "Choose a provider preset. Fields below auto-fill; you can override them for a custom endpoint."
+msgstr "یک پیش‌تنظیم ارائه‌دهنده انتخاب کنید. فیلدهای زیر خودکار پر می‌شوند و برای endpoint سفارشی قابل تغییرند."
+
+msgid "API Base URL"
+msgstr "آدرس پایهٔ API"
+
+msgid "Model"
+msgstr "مدل"
+
+msgid "API Key"
+msgstr "کلید API"
+
+msgid "•••••••• (a key is saved — leave blank to keep it)"
+msgstr "•••••••• (کلیدی ذخیره شده — خالی بگذارید تا حفظ شود)"
+
+msgid "Paste your API key here"
+msgstr "کلید API خود را اینجا بچسبانید"
+
+msgid "Get your key from %s"
+msgstr ""
+
+msgid "Remove saved API key"
+msgstr "حذف کلید API ذخیره‌شده"
+
+msgid "API key is managed by WordPress Connectors."
+msgstr ""
+
+msgid "Manage key in Settings → Connectors"
+msgstr ""
+
+msgid "Temperature"
+msgstr "دما (Temperature)"
+
+msgid "Lower = more deterministic. Recommended: 0.2"
+msgstr "هرچه کمتر، خروجی قطعی‌تر. پیشنهاد: ۰٫۲"
+
+msgid "Semantic Search (Embeddings)"
+msgstr "جست‌وجوی معنایی (Embeddings)"
+
+msgid "When enabled, AISAAutoPilot ranks knowledge by meaning instead of keywords — so a question in one language finds the right page even if it was written in another. Requires a provider with an /embeddings endpoint (e.g. OpenAI or Qwen). DeepSeek and Groq do not offer embeddings."
+msgstr ""
+
+msgid "Enable semantic search"
+msgstr "فعال‌سازی جست‌وجوی معنایی"
+
+msgid "%d indexed items currently have an embedding. After enabling, run indexing on the Knowledge Base page to build the missing vectors."
+msgstr "در حال حاضر %d مورد ایندکس‌شده embedding دارند. پس از فعال‌سازی، در صفحهٔ دانش‌نامه ایندکس را اجرا کنید تا بردارهای جامانده ساخته شوند."
+
+msgid "Embedding Model"
+msgstr "مدل embedding"
+
+msgid "e.g. text-embedding-3-small (OpenAI) or text-embedding-v3 (Qwen). Changing the model requires re-indexing."
+msgstr ""
+
+msgid "Embedding Base URL (optional)"
+msgstr "آدرس پایهٔ embedding (اختیاری)"
+
+msgid "Leave blank to use the same endpoint as your chat provider above."
+msgstr ""
+
+msgid "Embedding API Key (optional)"
+msgstr "کلید API مربوط به embedding (اختیاری)"
+
+msgid "•••••••• (saved — leave blank to keep it)"
+msgstr "•••••••• (ذخیره شده — خالی بگذارید تا حفظ شود)"
+
+msgid "Leave blank to reuse your provider API key"
+msgstr "خالی بگذارید تا از کلید API ارائه‌دهنده استفاده شود"
+
+msgid "Remove saved embedding key"
+msgstr "حذف کلید embedding ذخیره‌شده"
+
+msgid "Speech-to-text model"
+msgstr "مدل تبدیل گفتار به متن"
+
+msgid "Requires an OpenAI/Groq-compatible /audio/transcriptions endpoint. Audio is sent only for transcription and is not stored by AISAAutoPilot."
+msgstr ""
+
+msgid "Read AI replies aloud"
+msgstr "خواندن پاسخ‌های AI با صدای بلند"
+
+msgid "Uses the browser’s speech engine and follows the language of the AI reply."
+msgstr ""
+
+msgid "Default form status"
+msgstr "به‌روزرسانی وضعیت سفارش"
+
+msgid "Draft (recommended)"
+msgstr "پیش‌نویس (پیشنهادی)"
+
+msgid "Publish immediately"
+msgstr "انتشار فوری"
+
+msgid "AISAAutoPilot Forms delivery"
+msgstr "تحویل AISAAutoPilot Forms"
+
+msgid "Notification email"
+msgstr "ایمیل اطلاع‌رسانی"
+
+msgid "Every submission from a AISAAutoPilot Form is delivered only to this address and is not saved in WordPress. Leave it blank to use the site Administration Email Address."
+msgstr ""
+
+msgid "Send delivery test"
+msgstr "ارسال آزمون تحویل"
+
+msgid "Save changes first if you edited the address. A successful test means WordPress accepted the email; check the inbox and spam folder to confirm delivery."
+msgstr ""
+
+msgid "Enable the public site assistant (text and optional voice input)"
+msgstr "فعال‌سازی دستیار عمومی سایت (متن و در صورت نیاز ورودی صوتی)"
+
+msgid "The visitor assistant is read-only and rate-limited. It never edits site content."
+msgstr "دستیار بازدیدکننده فقط‌خواندنی و دارای محدودیت نرخ است و هرگز محتوای سایت را ویرایش نمی‌کند."
+
+msgid "Save settings"
+msgstr "ذخیرهٔ تنظیمات"
+
+msgid "Test connection"
+msgstr "آزمون اتصال"
+
+msgid "Form connectors"
+msgstr "connectorهای فرم"
+
+msgid "Notes"
+msgstr "یادداشت"
+
+msgid "Available"
+msgstr "در دسترس"
+
+msgid "Not active"
+msgstr "فعال نیست"
+
+msgid "Setup"
+msgstr "راه‌اندازی"
+
+msgid "Getting started"
+msgstr "شروع به کار"
+
+msgid "Set up AI Site Assistant AutoPilot"
+msgstr "راه‌اندازی AI Site Assistant AutoPilot"
+
+msgid "Complete the essentials once, then every AI action remains explicit, reviewable, and under your control."
+msgstr ""
+
+msgid "%1$d of %2$d ready"
+msgstr ""
+
+msgid "Setup checklist"
+msgstr ""
+
+msgid "Connect an AI provider"
+msgstr ""
+
+msgid "Store an encrypted provider key and select the model used for planning."
+msgstr ""
+
+msgid "Review provider"
+msgstr ""
+
+msgid "Set form delivery"
+msgstr ""
+
+msgid "Choose the email address that receives every submission from AISAAutoPilot Forms."
+msgstr ""
+
+msgid "Review delivery"
+msgstr ""
+
+msgid "Set email address"
+msgstr ""
+
+msgid "Choose your form connector"
+msgstr ""
+
+msgid "AISAAutoPilot Forms is ready for basic single-step email forms. Easy Form Builder is also ready for advanced forms."
+msgstr ""
+
+msgid "AISAAutoPilot Forms is ready for basic single-step email forms. Install Easy Form Builder when you need advanced forms."
+msgstr ""
+
+msgid "View connectors"
+msgstr ""
+
+msgid "Prepare optional knowledge"
+msgstr ""
+
+msgid "Add knowledge-base content when you want answers to use your own site context."
+msgstr ""
+
+msgid "Open knowledge base"
+msgstr ""
+
+msgid "Optional"
+msgstr ""
+
+msgid "Every create action produces a plan first. You can inspect it, approve it, or go back to edit it; AISAAutoPilot never creates content automatically."
+msgstr ""
+
+msgid "Open Create with AI"
+msgstr ""
+
+msgid "You do not have permission."
+msgstr "شما اجازه مشاهده این صفحه را ندارید."
+
+msgid "Usage"
+msgstr "مصرف"
+
+msgid "Local usage insights"
+msgstr ""
+
+msgid "Usage Dashboard"
+msgstr "داشبورد مصرف"
+
+msgid "Monitor your AI token consumption, credit balance, and usage patterns across all providers and features."
+msgstr "مصرف توکن، مانده اعتبار و الگوی مصرف را در همهٔ ارائه‌دهنده‌ها و قابلیت‌ها پایش کنید."
+
+msgid "Budget attention"
+msgstr ""
+
+msgid "Usage healthy"
+msgstr ""
+
+msgid "Refresh"
+msgstr "تازه‌سازی"
+
+msgid "Total Tokens"
+msgstr "مجموع توکن‌ها"
+
+msgid "Total Requests"
+msgstr "مجموع درخواست‌ها"
+
+msgid "Monthly Budget"
+msgstr "سقف ماهانه"
+
+msgid "Remaining Tokens"
+msgstr "توکن باقی‌مانده"
+
+msgid "Credit Health"
+msgstr "سلامت اعتبار"
+
+msgid "used"
+msgstr ""
+
+msgid "By Model"
+msgstr "بر اساس مدل"
+
+msgid "No usage data yet."
+msgstr "هنوز داده‌ای از مصرف نیست."
+
+msgid "By Feature"
+msgstr "بر اساس قابلیت"
+
+msgid "Recent Activity"
+msgstr ""
+
+msgid "No recent activity."
+msgstr ""
+
+msgid "Time"
+msgstr "زمان"
+
+msgid "Feature"
+msgstr ""
+
+msgid "Input"
+msgstr ""
+
+msgid "Output"
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Budget Settings"
+msgstr "تنظیمات سقف مصرف"
+
+msgid "Monthly Token Budget"
+msgstr "سقف ماهانهٔ توکن"
+
+msgid "Set to 0 for unlimited usage."
+msgstr "برای مصرف نامحدود، صفر بگذارید."
+
+msgid "Save Budget"
+msgstr "ذخیرهٔ سقف"
+
+msgid "Reset All Usage"
+msgstr "بازنشانی همهٔ مصرف"
+
+msgid "Usage data is stored locally on this site. No data is sent to external servers."
+msgstr "داده‌های مصرف به‌صورت محلی روی همین سایت ذخیره می‌شود. هیچ داده‌ای به سرور بیرونی فرستاده نمی‌شود."
+
+msgid "Last AI request:"
+msgstr "آخرین درخواست AI:"
+
+msgid "WooCommerce Dashboard"
+msgstr "داشبورد ووکامرس"
+
+msgid "Store overview"
+msgstr ""
+
+msgid "Review sales, stock, recent orders, and the AISAAutoPilot tools available for this store."
+msgstr ""
+
+msgid "WooCommerce active"
+msgstr "ووکامرس فعال"
+
+msgid "WooCommerce inactive"
+msgstr "ووکامرس غیرفعال"
+
+msgid "Woo AI settings"
+msgstr ""
+
+msgid "WooCommerce is not active. Please install and activate WooCommerce to use this dashboard."
+msgstr "ووکامرس فعال نیست. برای استفاده از این داشبورد، ووکامرس را نصب و فعال کنید."
+
+msgid "Total Revenue"
+msgstr "درآمد کل"
+
+msgid "Total Orders"
+msgstr "تعداد سفارش"
+
+msgid "Avg Order Value"
+msgstr "میانگین ارزش سفارش"
+
+msgid "Products"
+msgstr "محصولات"
+
+msgid "Sales (Last 7 Days)"
+msgstr "فروش (۷ روز گذشته)"
+
+msgid "Loading..."
+msgstr "در حال بارگذاری…"
+
+msgid "Top Products"
+msgstr "پرفروش‌ترین محصولات"
+
+msgid "Low Stock Alerts"
+msgstr "هشدارهای موجودی کم"
+
+msgid "Recent Orders"
+msgstr "سفارش‌های اخیر"
+
+msgid "Quick Actions"
+msgstr "میان‌برها"
+
+msgid "Orders"
+msgstr "سفارش‌ها"
+
+msgid "Analytics"
+msgstr "آنالیتیکس"
+
+msgid "Content AI"
+msgstr "محتوا با AI"
+
+msgid "WooCommerce AI"
+msgstr "هوش مصنوعی ووکامرس"
+
+msgid "Safe store automation"
+msgstr ""
+
+msgid "Create one reviewed simple-product draft at a time. Store changes are never published automatically."
+msgstr ""
+
+msgid "AI connector enabled"
+msgstr ""
+
+msgid "AI connector off"
+msgstr ""
+
+msgid "WooCommerce is not installed or active."
+msgstr "ووکامرس نصب یا فعال نیست."
+
+msgid "AI capabilities"
+msgstr ""
+
+msgid "Enable WooCommerce AI Connector"
+msgstr "فعال‌سازی connector ووکامرس AI"
+
+msgid "Allow AISAAutoPilot to prepare a single product draft from a natural-language request."
+msgstr ""
+
+msgid "Phase 1 creates only simple product drafts after explicit review. Publishing, edits, bulk operations, and order changes are reserved for Phase 2."
+msgstr ""
+
+msgid "WooCommerce status"
+msgstr "وضعیت ووکامرس"
+
+msgid "Yes"
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+msgid "Version"
+msgstr "نسخه"
+
+msgid "Access"
+msgstr "دسترسی"
+
+msgid "Granted"
+msgstr ""
+
+msgid "Unavailable"
+msgstr "در دسترس نیست"
+
+msgid "Categories"
+msgstr "دسته‌بندی‌ها"
+
+msgid "Product drafts"
+msgstr "پیش‌نویس محصولات"
+
+msgid "Create a product draft with AI"
+msgstr "ساخت پیش‌نویس محصول با هوش مصنوعی"
+
+msgid "Describe one product. Review every generated detail, then create a WooCommerce draft for manual publishing."
+msgstr "یک محصول را توضیح دهید. همهٔ جزئیات تولیدشده را بررسی کنید، سپس یک پیش‌نویس ووکامرس برای انتشار دستی بسازید."
+
+msgid "Draft only"
+msgstr "فقط پیش‌نویس"
+
+msgid "What product should be drafted?"
+msgstr "چه محصولی پیش‌نویس شود؟"
+
+msgid "For example: Create a simple draft for a 500g organic Arabic coffee product, with an introductory price and a short product description."
+msgstr "برای مثال: یک پیش‌نویس ساده برای قهوهٔ عربیکای ارگانیک ۵۰۰ گرمی با قیمت معرفی و توضیح کوتاه بساز."
+
+msgid "Generate draft proposal"
+msgstr "تولید متن تبلیغاتی"
+
+msgid "Review the proposal"
+msgstr "بررسی پیشنهاد"
+
+msgid "Approving creates a single WooCommerce product in draft status. The proposal expires after 15 minutes and cannot be used twice."
+msgstr "با تأیید، یک محصول ووکامرس در وضعیت پیش‌نویس ساخته می‌شود. این پیشنهاد پس از ۱۵ دقیقه منقضی می‌شود و دوبار قابل استفاده نیست."
+
+msgid "Create product draft"
+msgstr "ساخت پیش‌نویس محصول"
+
+msgid "Start over"
+msgstr "شروع دوباره"
+
+msgid "Please enter a question."
+msgstr "لطفاً یک سوال وارد کنید."
+
+msgid "Conversation not found."
+msgstr "گفت‌وگو یافت نشد."
+
+msgid "Conversation deleted."
+msgstr "گفت‌وگو حذف شد."
+
+msgid "The assistant widget is disabled."
+msgstr "ویجت دستیار غیرفعال است."
+
+msgid "Please shorten your message and try again."
+msgstr "لطفاً پیامتان را کوتاه‌تر کنید و دوباره تلاش کنید."
+
+msgid "Please wait before sending another message."
+msgstr "لطفاً پیش از ارسال پیام بعدی کمی صبر کنید."
+
+msgid "Please wait before requesting another handoff."
+msgstr "لطفاً پیش از درخواست انتقال بعدی کمی صبر کنید."
+
+msgid "No messages to send."
+msgstr "ارسال ناموفق بود."
+
+msgid "Please describe the form you want."
+msgstr "لطفاً فرمی را که می‌خواهید توضیح دهید."
+
+msgid "Your request is too long."
+msgstr "درخواست پشتیبانی ارسال شد."
+
+msgid "Add your AI provider API key in AI Site Assistant AutoPilot → Settings first."
+msgstr "ابتدا کلید API ارائه‌دهندهٔ AI را در AI Site Assistant AutoPilot ← تنظیمات وارد کنید."
+
+msgid "The form plan was not safe or complete."
+msgstr "طرح فرم امن یا کامل نبود."
+
+msgid "AISAAutoPilot Forms is not available on this site."
+msgstr "AISAAutoPilot Forms روی این سایت در دسترس نیست."
+
+msgid "Set a valid AISAAutoPilot Forms notification email in Settings before creating a form."
+msgstr "پیش از ساخت فرم، در تنظیمات یک ایمیل اطلاع‌رسانی معتبر برای AISAAutoPilot Forms تعیین کنید."
+
+msgid "Missing action reference."
+msgstr "ارجاع اقدام موجود نیست."
+
+msgid "Execution failed."
+msgstr "اجرا ناموفق بود."
+
+msgid "Easy Form Builder is not active."
+msgstr "Easy Form Builder فعال نیست."
+
+msgid "I left out %s — that field needs Easy Form Builder Free Plus or Pro. Everything else is ready."
+msgstr "%s را کنار گذاشتم — آن فیلد به Easy Form Builder Free Plus یا Pro نیاز دارد. بقیه آماده است."
+
+msgid "This proposal has expired. Please generate the form again."
+msgstr "این پیشنهاد منقضی شده است. لطفاً فرم را دوباره بسازید."
+
+msgid "You are not allowed to approve this action."
+msgstr "شما اجازهٔ تأیید این اقدام را ندارید."
+
+msgid "This proposal is already being processed or has already been used."
+msgstr "این پیشنهاد در حال پردازش است یا قبلاً استفاده شده است."
+
+msgid "Creation failed."
+msgstr "ساخت ناموفق بود."
+
+msgid "Tell me what form you need, ask me to change the open form, or ask how to do something."
+msgstr "بگویید چه فرمی می‌خواهید، از من بخواهید فرم باز را تغییر دهم، یا بپرسید چطور کاری را انجام دهید."
+
+msgid "That message is a bit long — please shorten it."
+msgstr "این پیام کمی طولانی است — لطفاً کوتاهش کنید."
+
+msgid "Here are topics I can walk you through:"
+msgstr "این موضوع‌ها را می‌توانم قدم‌به‌قدم راهنمایی کنم:"
+
+msgid "I could not turn that into a change. Try e.g. \"add a mobile field\" or \"make Email required\"."
+msgstr ""
+
+msgid "Done — applying your change."
+msgstr "انجام شد — در حال اعمال تغییر شما."
+
+msgid "I could not build a safe form from that. Could you add a bit more detail?"
+msgstr "نتوانستم از آن یک فرم امن بسازم. می‌توانید کمی جزئیات بیشتر بدهید؟"
+
+msgid "Here is the form I designed — review it and approve to create it."
+msgstr "این فرمی است که طراحی کردم — بررسی کنید و برای ساخت، تأیید بزنید."
+
+msgid "How can I help with your form?"
+msgstr "چطور می‌توانم در ساخت فرم کمکتان کنم؟"
+
+msgid "Field type \"%s\" is not supported in Easy Form Builder."
+msgstr ""
+
+msgid "A choice field needs at least one option — tell me the options."
+msgstr "فیلد انتخابی حداقل به یک گزینه نیاز دارد — گزینه‌ها را بگویید."
+
+msgid "I can configure a \"%s\" field but not add one — drag it in from the Easy Form Builder palette, then ask me again."
+msgstr ""
+
+msgid "That was too many changes at once: I applied the first %1$d and skipped %2$d. Ask again for the rest."
+msgstr "تغییرها یک‌باره زیاد بود: %1$d مورد اول را اعمال کردم و %2$d مورد را رد کردم. برای بقیه دوباره درخواست دهید."
+
+msgid "Easy Form Builder Free supports up to two steps. Upgrade to add more steps."
+msgstr "نسخهٔ رایگان Easy Form Builder حداکثر دو مرحله را پشتیبانی می‌کند. برای مراحل بیشتر ارتقا دهید."
+
+msgid "The mobile layout settings are part of the Pro version of Easy Form Builder."
+msgstr "تنظیمات چیدمان موبایل بخشی از نسخهٔ Pro در Easy Form Builder است."
+
+msgid "This field is available in the Pro version of Easy Form Builder."
+msgstr "این فیلد در نسخهٔ Pro از Easy Form Builder در دسترس است."
+
+msgid "Ask a question, e.g. \"how do I make a field required?\""
+msgstr ""
+
+msgid "I could not match that exactly. Try one of these topics:"
+msgstr "دقیقاً موردی مطابق پیدا نکردم. یکی از این موضوع‌ها را امتحان کنید:"
+
+msgid "Type what you want to change."
+msgstr "بنویسید چه چیزی را می‌خواهید تغییر دهید."
+
+msgid "I could not turn that into a change. Try being more specific, e.g. \"make Email required\" or \"rename the form to Contact us\"."
+msgstr ""
+
+msgid "Invalid save request."
+msgstr "درخواست ذخیره نامعتبر است."
+
+msgid "Unsafe content rejected."
+msgstr "محتوای ناامن رد شد."
+
+msgid "Could not save the form."
+msgstr "فرم ذخیره نشد."
+
+msgid "Save a valid AISAAutoPilot Forms notification email before sending a test."
+msgstr "پیش از ارسال آزمون، یک ایمیل اطلاع‌رسانی معتبر برای AISAAutoPilot Forms ذخیره کنید."
+
+msgid "A delivery test was sent recently. Please wait five minutes before trying again."
+msgstr "به‌تازگی یک آزمون تحویل فرستاده شده است. لطفاً پنج دقیقه صبر کنید."
+
+msgid "[%s] AISAAutoPilot Forms delivery test"
+msgstr "[%s] آزمون تحویل AISAAutoPilot Forms"
+
+msgid "This is a AISAAutoPilot Forms delivery test.\n\nNo visitor data is included in this message."
+msgstr "این یک آزمون تحویل AISAAutoPilot Forms است.\n\nهیچ داده‌ای از بازدیدکنندگان در این پیام نیست."
+
+msgid "WordPress could not send the test message. Check your site mail configuration and try again."
+msgstr "وردپرس نتوانست پیام آزمایشی را بفرستد. تنظیمات ایمیل سایت را بررسی و دوباره تلاش کنید."
+
+msgid "WordPress accepted the test email. Check the inbox (and spam folder) for the configured address."
+msgstr "وردپرس ایمیل آزمایشی را پذیرفت. صندوق ورودی (و پوشهٔ اسپم) آدرس تنظیم‌شده را بررسی کنید."
+
+msgid "Knowledge base cleared."
+msgstr "دانش‌نامه پاک شد."
+
+msgid "Invalid post ID."
+msgstr "شناسهٔ نوشته نامعتبر است."
+
+msgid "Entry removed."
+msgstr "مورد حذف شد."
+
+msgid "Entry not found."
+msgstr "رکورد یافت نشد."
+
+msgid "AI provider is not configured."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+msgid "The knowledge base is empty. Please index your content first."
+msgstr "دانش‌نامه خالی است. لطفاً ابتدا محتوای خود را ایندکس کنید."
+
+msgid "Updated."
+msgstr "به‌روزرسانی شد."
+
+msgid "Budget updated."
+msgstr "سقف مصرف به‌روزرسانی شد."
+
+msgid "Usage data reset."
+msgstr "پیام %d/%d ارسال شد."
+
+msgid "The site assistant is not enabled."
+msgstr "دستیار سایت فعال نیست."
+
+msgid "Too many messages. Please try again later."
+msgstr "تعداد پیام‌ها بیش از حد مجاز است. لطفاً بعداً دوباره تلاش کنید."
+
+msgid "Please enter a question of up to 1,500 characters."
+msgstr "لطفاً سؤالی تا ۱۵۰۰ نویسه وارد کنید."
+
+msgid "Too many voice requests. Please try again later."
+msgstr "درخواست‌های صوتی بیش از حد. لطفاً بعداً تلاش کنید."
+
+msgid "Invalid customer ID."
+msgstr "شناسه مشتری نامعتبر است."
+
+msgid "product_id is required."
+msgstr "product_id الزامی است."
+
+msgid "product_ids array is required."
+msgstr "آرایهٔ product_ids الزامی است."
+
+msgid "product_id and description are required."
+msgstr "product_id و توضیح الزامی هستند."
+
+msgid "Please describe the product draft you want to create."
+msgstr "لطفاً پیش‌نویس محصولی را که می‌خواهید توضیح دهید."
+
+msgid "Your product request is too long."
+msgstr "درخواست محصول شما بیش از حد طولانی است."
+
+msgid "Invalid order ID."
+msgstr "شناسه سفارش نامعتبر است."
+
+msgid "order_id and status are required."
+msgstr "order_id و وضعیت الزامی هستند."
+
+msgid "order_id and positive amount are required."
+msgstr "order_id و مبلغ مثبت الزامی هستند."
+
+msgid "WooCommerce is not active."
+msgstr "ووکامرس فعال نیست."
+
+msgid "AI provider is not configured. Please add your API key in Settings."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+msgid "An error occurred while processing your question. Please try again."
+msgstr "هنگام پردازش سوال شما خطایی رخ داد. لطفاً دوباره تلاش کنید."
+
+msgid "I found a few different things that could match. Which one did you mean?"
+msgstr "چند مورد پیدا کردم که ممکن است منظورتان باشد. کدام‌یک؟"
+
+msgid "I looked through the site's content but couldn't find a clear answer to that yet."
+msgstr ""
+
+msgid "Could you try rephrasing, or asking about something else?"
+msgstr "می‌توانید سؤال را طور دیگری بپرسید یا موضوع دیگری را مطرح کنید؟"
+
+msgid "Would you like me to connect you with a member of our team?"
+msgstr "مایل هستید شما را به یکی از همکاران ما وصل کنم؟"
+
+msgid "Easy Form Builder is not active or does not match the supported 4.1+ storage contract."
+msgstr "Easy Form Builder فعال نیست یا با قرارداد ذخیره‌سازی پشتیبانی‌شدهٔ ۴٫۱+ سازگار نیست."
+
+msgid "The form has no title."
+msgstr "فرم عنوان ندارد."
+
+msgid "Unsupported Easy Form Builder field type \"%s\"."
+msgstr ""
+
+msgid "The form could not be saved into Easy Form Builder."
+msgstr "فرم در Easy Form Builder ذخیره نشد."
+
+msgid "Easy Form Builder %1$s is detected, but AISAAutoPilot currently supports version %2$s or newer."
+msgstr "نسخهٔ %1$s از Easy Form Builder شناسایی شد، اما AISAAutoPilot در حال حاضر از نسخهٔ %2$s یا بالاتر پشتیبانی می‌کند."
+
+msgid "Easy Form Builder is active, but its form storage table is incomplete. Run its update/repair process before creating forms."
+msgstr "Easy Form Builder فعال است، اما جدول ذخیره‌سازی فرم آن ناقص است. پیش از ساخت فرم، فرایند به‌روزرسانی/ترمیم آن را اجرا کنید."
+
+msgid "Compatible. New forms are created in Easy Form Builder and open in its editor."
+msgstr "سازگار. فرم‌های تازه در Easy Form Builder ساخته می‌شوند و در ویرایشگر آن باز می‌شوند."
+
+msgid "AISAAutoPilot Built-in Forms"
+msgstr "فرم‌های داخلی AISAAutoPilot"
+
+msgid "The form has no fields."
+msgstr "فرم هیچ فیلدی ندارد."
+
+msgid "A AISAAutoPilot Form can contain at most %d fields."
+msgstr "یک فرم AISAAutoPilot حداکثر می‌تواند %d فیلد داشته باشد."
+
+msgid "The form contains an invalid field definition."
+msgstr "فرم شامل تعریف فیلد نامعتبر است."
+
+msgid "Field type \"%s\" is not allowed."
+msgstr ""
+
+msgid "Unsupported field type \"%s\"."
+msgstr ""
+
+msgid "Every form field needs a stable key and a label."
+msgstr "هر فیلد فرم به یک کلید پایدار و یک برچسب نیاز دارد."
+
+msgid "Select and radio fields need at least one option."
+msgstr "فیلدهای select و radio حداقل به یک گزینه نیاز دارند."
+
+msgid "The form needs a valid notification email address."
+msgstr "فرم به یک آدرس ایمیل اطلاع‌رسانی معتبر نیاز دارد."
+
+msgid "The form could not be saved."
+msgstr "فرم ذخیره نشد."
+
+msgid "Always available."
+msgstr "همیشه در دسترس."
+
+msgid "Form Submissions"
+msgstr "ارسال‌های فرم"
+
+msgid "Today"
+msgstr "امروز"
+
+msgid "Last 7 days"
+msgstr "۷ روز گذشته"
+
+msgid "This month"
+msgstr "این ماه"
+
+msgid "This year"
+msgstr "امسال"
+
+msgid "Customer not found."
+msgstr "مشتری یافت نشد."
+
+msgid "Uncategorized"
+msgstr "دسته‌بندی‌نشده"
+
+msgid "Product not found."
+msgstr "محصول یافت نشد."
+
+msgid "Professional and informative"
+msgstr "حرفه‌ای و اطلاع‌رسان"
+
+msgid "Friendly and approachable"
+msgstr "دوستانه و صمیمی"
+
+msgid "Luxurious and premium"
+msgstr "لوکس و ممتاز"
+
+msgid "Technical and detailed"
+msgstr "فنی و دقیق"
+
+msgid "Short social media post (max 280 characters). Include emojis and hashtags."
+msgstr "پست کوتاه شبکهٔ اجتماعی (حداکثر ۲۸۰ کاراکتر). همراه با ایموجی و هشتگ."
+
+msgid "Medium email newsletter paragraph (100-150 words). Engaging and persuasive."
+msgstr "پاراگراف خبرنامهٔ ایمیلی متوسط (۱۰۰ تا ۱۵۰ کلمه). جذاب و ترغیب‌کننده."
+
+msgid "Long blog-style promotional article (300-400 words). Storytelling approach."
+msgstr "مقالهٔ تبلیغاتی بلند به سبک بلاگ (۳۰۰ تا ۴۰۰ کلمه). با رویکرد داستان‌گویی."
+
+msgid "Product #%d"
+msgstr "محصول #%d"
+
+msgid "Product Description"
+msgstr "توضیحات محصول"
+
+msgid "SEO Title + Meta"
+msgstr "عنوان سئو + متا"
+
+msgid "Social Media Post"
+msgstr "پست شبکهٔ اجتماعی"
+
+msgid "Email Newsletter"
+msgstr "خبرنامهٔ ایمیلی"
+
+msgid "Blog Article"
+msgstr "مقالهٔ بلاگ"
+
+msgid "Order not found."
+msgstr "سفارش یافت نشد."
+
+msgid "Invalid status."
+msgstr "وضعیت نامعتبر است."
+
+msgid "Status updated via AI Site Assistant AutoPilot."
+msgstr "وضعیت توسط AI Site Assistant AutoPilot به‌روزرسانی شد."
+
+msgid "Refund amount exceeds maximum."
+msgstr "مبلغ بازپرداخت از حداکثر مجاز بیشتر است."
+
+msgid "Refund amount must be positive."
+msgstr "مبلغ بازپرداخت باید مثبت باشد."
+
+msgid "Refund via AI Site Assistant AutoPilot."
+msgstr "بازپرداخت توسط AI Site Assistant AutoPilot."
+
+msgid "WooCommerce AI draft creation is not available for this account."
+msgstr "ساخت پیش‌نویس با AI ووکامرس برای این حساب در دسترس نیست."
+
+msgid "AI provider not configured."
+msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
+
+msgid "The product proposal could not be created. Please try again."
+msgstr "پیشنهاد محصول ساخته نشد. لطفاً دوباره تلاش کنید."
+
+msgid "This product proposal has expired. Please create a new proposal."
+msgstr "این پیشنهاد محصول منقضی شده است. لطفاً پیشنهاد تازه‌ای بسازید."
+
+msgid "You are not allowed to approve this product proposal."
+msgstr "شما اجازهٔ تأیید این پیشنهاد محصول را ندارید."
+
+msgid "This product proposal is already being processed or has already been used."
+msgstr "این پیشنهاد محصول در حال پردازش است یا قبلاً استفاده شده است."
+
+msgid "This approval is not a WooCommerce product draft."
+msgstr "این تأیید مربوط به پیش‌نویس محصول ووکامرس نیست."
+
+msgid "The product draft could not be created. Please try again."
+msgstr "پیش‌نویس محصول ساخته نشد. لطفاً دوباره تلاش کنید."
+
+msgid "A product with this SKU already exists. Edit the proposal and use a unique SKU."
+msgstr "محصولی با این SKU وجود دارد. پیشنهاد را ویرایش کنید و یک SKU یکتا بگذارید."
+
+msgid "Product draft created. Review it in WooCommerce before publishing."
+msgstr "پیش‌نویس محصول ساخته شد. پیش از انتشار، آن را در ووکامرس بررسی کنید."
+
+msgid "Added semantic embedding."
+msgstr "embedding معنایی افزوده شد."
+
+msgid "Unchanged — skipped."
+msgstr "بدون تغییر — رد شد."
+
+msgid "Indexed \"%s\" successfully."
+msgstr "محصول با موفقیت ایجاد شد."
+
+msgid "Failed to index \"%1$s\": %2$s"
+msgstr ""
+
+msgid "Unexpected error during indexing."
+msgstr "خطای غیرمنتظره هنگام ایندکس."
+
+msgid "Post not found or not published."
+msgstr "نوشته پیدا نشد یا منتشر نشده است."
+
+msgid "Post type is not indexable."
+msgstr "این نوع محتوا قابل ایندکس نیست."
+
+msgid "Content unchanged."
+msgstr "محتوا تغییری نکرده است."
+
+msgid "Content indexed successfully."
+msgstr "محتوا با موفقیت نمایه شد."
+
+msgid "AI Site Assistant AutoPilot requires PHP 8.1 or higher."
+msgstr "AI Site Assistant AutoPilot به PHP نسخهٔ ۸٫۱ یا بالاتر نیاز دارد."
+
+msgid "Plugin activation error"
+msgstr "خطای فعال‌سازی افزونه"
+
+msgid "AI copilot for WordPress — form creation, content intelligence, and site assistance."
+msgstr "کوپایلوت AI برای وردپرس — ساخت فرم، هوش محتوایی و دستیار سایت."
+
+msgid "Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Clusy.io, or any OpenAI-compatible provider)."
+msgstr "کلید API ارائه‌دهندهٔ AI خود را وارد کنید (DeepSeek، OpenAI، Qwen، Clusy.io یا هر ارائه‌دهندهٔ سازگار با OpenAI)."
+
+msgid "WordPress Connectors (Settings → Connectors)"
+msgstr "WordPress Connectors (تنظیمات ← Connectors)"
+
+msgid "No API key configured"
+msgstr "کلید API پیکربندی نشده است"
+
+msgid "Chat with AI Site Assistant AutoPilot"
+msgstr "AI Site Assistant AutoPilot"
+
+msgid "Ask AI Site Assistant AutoPilot"
+msgstr "AI Site Assistant AutoPilot"
+
+msgid "AI Site Assistant AutoPilot chat"
+msgstr "AI Site Assistant AutoPilot"
+
+msgid "Start live voice conversation"
+msgstr "شروع گفت‌وگوی صوتی زنده"
+
+msgid "New chat"
+msgstr "گفت‌وگوی تازه"
+
+msgid "Message AISAAutoPilot… (e.g. build a booking form)"
+msgstr "به AISAAutoPilot بنویسید… (مثلاً: یک فرم رزرو بساز)"
+
+msgid "Speak a message"
+msgstr "پیام را بگویید"
+
+msgid "Send"
+msgstr "ارسال"
+
+msgid "The connector selected for this proposal is no longer available. Generate a new proposal."
+msgstr "connector انتخاب‌شده برای این پیشنهاد دیگر در دسترس نیست. پیشنهاد تازه‌ای بسازید."
+
+msgid "The form could not be created."
+msgstr "فرم ساخته نشد."
+
+msgid "Hi! How can I help?"
+msgstr "سلام! چطور می‌تونم کمکتون کنم؟"
+
+msgid "AI Assistant"
+msgstr "دستیار AI"
+
+msgid "Open chat"
+msgstr "باز کردن گفت‌وگو"
+
+msgid "Chat"
+msgstr "گفت‌وگو"
+
+msgid "Talk to a human"
+msgstr "صحبت با انسان"
+
+msgid "Voice input"
+msgstr "ورودی صوتی"
+
+msgid "Type your message…"
+msgstr "پیامتان را بنویسید…"
+
+msgid "Type your message"
+msgstr "پیامتان را بنویسید"
+
+msgid "Bottom Right"
+msgstr "پایین راست"
+
+msgid "Bottom Left"
+msgstr "پایین چپ"
+
+msgid "Top Right"
+msgstr "بالا راست"
+
+msgid "Top Left"
+msgstr "بالا چپ"
+
+msgid "Widget"
+msgstr "ویجت"
+
+msgid "Front-end assistant"
+msgstr ""
+
+msgid "Chat Widget"
+msgstr "ویجت گفت‌وگو"
+
+msgid "Customize the visitor-facing assistant, including appearance, voice, location, and human handoff channels."
+msgstr ""
+
+msgid "Widget enabled"
+msgstr ""
+
+msgid "Widget disabled"
+msgstr ""
+
+msgid "Handoff enabled"
+msgstr "انتقال به انسان فعال"
+
+msgid "Handoff off"
+msgstr "انتقال به انسان غیرفعال"
+
+msgid "Customize the front-end chat widget: appearance, voice, and human handoff channels."
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Enable the widget on the site"
+msgstr ""
+
+msgid "Greeting"
+msgstr "پیام خوش‌آمدگویی"
+
+msgid "Position"
+msgstr "موقعیت"
+
+msgid "Auto-open delay (seconds)"
+msgstr "تأخیر باز شدن خودکار (ثانیه)"
+
+msgid "Set to 0 to disable auto-open."
+msgstr ""
+
+msgid "Theme"
+msgstr "تم"
+
+msgid "Color scheme"
+msgstr ""
+
+msgid "Light"
+msgstr "روشن"
+
+msgid "Dark"
+msgstr "تیره"
+
+msgid "Colors"
+msgstr ""
+
+msgid "Brand"
+msgstr ""
+
+msgid "Background"
+msgstr ""
+
+msgid "Voice"
+msgstr "صدا"
+
+msgid "Enable voice input & playback"
+msgstr "فعال‌سازی ورودی و پخش صدا"
+
+msgid "Auto-play responses"
+msgstr "پخش خودکار پاسخ"
+
+msgid "Human Handoff"
+msgstr "انتقال به انسان"
+
+msgid "Enable handoff to a human"
+msgstr "فعال‌سازی انتقال به انسان"
+
+msgid "Button text"
+msgstr "متن دکمه"
+
+msgid "Hook message"
+msgstr ""
+
+msgid "Email"
+msgstr "ایمیل"
+
+msgid "Enable email notifications"
+msgstr ""
+
+msgid "Support email"
+msgstr "درخواست پشتیبانی"
+
+msgid "Telegram"
+msgstr "تلگرام"
+
+msgid "Enable Telegram notifications"
+msgstr ""
+
+msgid "Bot token"
+msgstr "توکن ربات"
+
+msgid "Chat ID"
+msgstr "شناسهٔ چت"
+
+msgid "Twilio WhatsApp"
+msgstr "واتساپ Twilio"
+
+msgid "Enable Twilio WhatsApp notifications"
+msgstr ""
+
+msgid "Account SID"
+msgstr "Account SID"
+
+msgid "Auth token"
+msgstr "Auth token"
+
+msgid "From (WhatsApp)"
+msgstr "فرستنده (واتساپ)"
+
+msgid "To (your number)"
+msgstr ""
+
+msgid "Custom Webhook"
+msgstr "وب‌هوک سفارشی"
+
+msgid "Enable custom webhook"
+msgstr ""
+
+msgid "Webhook URL"
+msgstr "نشانی وب‌هوک"
+
+msgid "Live preview"
+msgstr "پیش‌نمایش زنده"
+
+msgid "Type a message…"
+msgstr ""
+
+msgid "Thank you."
+msgstr "سپاسگزاریم."
+
+msgid "Website"
+msgstr "وب‌سایت"
+
+msgid "Submit"
+msgstr "ارسال"
+
+msgid "— Select —"
+msgstr "— انتخاب کنید —"
+
+msgid "Invalid form submission."
+msgstr "ارسال فرم نامعتبر است."
+
+msgid "Form not found."
+msgstr "فرم یافت نشد."
+
+msgid "New AISAAutoPilot Form submission"
+msgstr "ارسال تازه از فرم AISAAutoPilot"
+
+msgid "Form: %s"
+msgstr "فرم: %s"
+
+msgid "(No optional fields were completed.)"
+msgstr "(هیچ فیلد اختیاری‌ای پر نشده است.)"
+
+msgid "Please check the required fields and try again."
+msgstr "لطفاً فیلدهای الزامی را بررسی و دوباره تلاش کنید."
+
+msgid "Too many submissions. Please wait a few minutes and try again."
+msgstr "ارسال‌های زیاد. لطفاً چند دقیقه صبر کنید و دوباره تلاش کنید."
+
+msgid "We could not send your submission. Please try again later."
+msgstr "ارسال فرم شما ممکن نشد. لطفاً بعداً دوباره تلاش کنید."
+
+msgid "We could not process your submission. Please try again."
+msgstr "پردازش ارسال شما ممکن نشد. لطفاً دوباره تلاش کنید."
+
+msgid "Hi! I can answer questions about this website."
+msgstr "سلام! می‌توانم به پرسش‌های شما دربارهٔ این وب‌سایت پاسخ دهم."
+
+msgid "How can I contact you?"
+msgstr "چطور می‌توانیم با شما تماس بگیریم؟"
+
+msgid "What services do you offer?"
+msgstr "چه خدماتی ارائه می‌دهید؟"
+
+msgid "Sorry, I could not answer that."
+msgstr "متأسفم، نتوانستم به آن پاسخ دهم."
+
+msgid "Network error. Please try again."
+msgstr "خطای شبکه. لطفاً دوباره تلاش کنید."
+
+msgid "Voice recording is not supported by this browser."
+msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند."
+
+msgid "The recording is empty or too large. Please try a shorter message."
+msgstr "ضبط خالی یا بیش از حد بزرگ است. لطفاً پیام کوتاه‌تری بگویید."
+
+msgid "Voice transcription failed. Please try again."
+msgstr "تبدیل گفتار به متن ناموفق بود. لطفاً دوباره تلاش کنید."
+
+msgid "Microphone permission was denied. You can type your question instead."
+msgstr "اجازهٔ دسترسی به میکروفون داده نشد. می‌توانید پرسشتان را تایپ کنید."
+
+msgid "Write a message…"
+msgstr "پیامی بنویسید…"
+
+msgid "Speak your question"
+msgstr "سؤال خود را بگویید"
+
+msgid "Stop recording"
+msgstr "توقف ضبط"
+
+msgid "Listening…"
+msgstr "در حال گوش دادن..."
+
+msgid "Your transcript is ready. Review it, then send."
+msgstr "متن پیاده‌شده آماده است. بررسی کنید و سپس بفرستید."
+
+msgid "Cannot embed empty text."
+msgstr "متن خالی قابل embedding نیست."
+
+msgid "Could not reach the embedding endpoint. Check the base URL and your connection."
+msgstr "دسترسی به endpoint مربوط به embedding ممکن نشد. آدرس پایه و اتصال خود را بررسی کنید."
+
+msgid "The embedding provider rejected your API key."
+msgstr "ارائه‌دهندهٔ embedding کلید API شما را نپذیرفت."
+
+msgid "This provider does not offer an embeddings endpoint. Set an embedding provider that does (e.g. OpenAI)."
+msgstr "این ارائه‌دهنده endpoint مربوط به embeddings ندارد. ارائه‌دهنده‌ای انتخاب کنید که داشته باشد (مثل OpenAI)."
+
+msgid "The embedding provider returned an error (HTTP %d)."
+msgstr "ارائه‌دهندهٔ embedding خطا برگرداند (HTTP %d)."
+
+msgid "The embedding provider returned no vector."
+msgstr "ارائه‌دهندهٔ embedding هیچ برداری برنگرداند."
+
+msgid "No API key is set."
+msgstr "کلید API پیکربندی نشده است."
+
+msgid "Base URL and model are required."
+msgstr "آدرس پایه و مدل الزامی هستند."
+
+msgid "Connection successful."
+msgstr "اتصال موفقیت‌آمیز بود."
+
+msgid "Could not reach the AI provider. Check the base URL and your connection."
+msgstr "دسترسی به ارائه‌دهندهٔ AI ممکن نشد. آدرس پایه و اتصال خود را بررسی کنید."
+
+msgid "The AI provider rejected your API key."
+msgstr "ارائه‌دهندهٔ AI کلید API شما را نپذیرفت."
+
+msgid "The AI provider is rate-limiting requests. Please try again shortly."
+msgstr "ارائه‌دهندهٔ AI درخواست‌ها را محدود کرده است. لطفاً کمی بعد دوباره تلاش کنید."
+
+msgid "The AI provider returned an error (HTTP %d)."
+msgstr "ارائه‌دهندهٔ AI خطا برگرداند (HTTP %d)."
+
+msgid "The AI provider returned an empty response."
+msgstr "ارائه‌دهندهٔ AI پاسخ خالی برگرداند."
+
+msgid "The AI did not return a valid structured result. Please simplify your request and try again."
+msgstr "AI نتیجهٔ ساختاریافتهٔ معتبری برنگرداند. لطفاً درخواست را ساده‌تر کنید و دوباره تلاش کنید."
+
+msgid "The AI provider rejected the API key. Check the selected key in AI Site Assistant AutoPilot → Settings, save it, then test the connection."
+msgstr "ارائه‌دهندهٔ AI کلید API را نپذیرفت. کلید انتخاب‌شده را در AI Site Assistant AutoPilot ← تنظیمات بررسی و ذخیره کنید، سپس اتصال را آزمایش کنید."
+
+msgid "The AI provider is temporarily rate-limiting requests. Please wait a moment and try again."
+msgstr "ارائه‌دهندهٔ AI موقتاً درخواست‌ها را محدود کرده است. لحظه‌ای صبر کنید و دوباره تلاش کنید."
+
+msgid "AISAAutoPilot could not reach the AI provider. Check the API base URL, server internet access, and the provider status, then test the connection in Settings."
+msgstr "AISAAutoPilot نتوانست به ارائه‌دهندهٔ AI دسترسی پیدا کند. آدرس پایهٔ API، دسترسی اینترنت سرور و وضعیت ارائه‌دهنده را بررسی کنید، سپس اتصال را در تنظیمات آزمایش کنید."
+
+msgid "No usable AI provider is configured. Add an API key, base URL, and model in AI Site Assistant AutoPilot → Settings, then test the connection."
+msgstr "هیچ ارائه‌دهندهٔ AI قابل استفاده‌ای تنظیم نشده است. در AI Site Assistant AutoPilot ← تنظیمات کلید API، آدرس پایه و مدل را وارد کنید، سپس اتصال را آزمایش کنید."
+
+msgid "The AI provider could not complete this request. Check that the configured base URL and model are supported by your provider, then test the connection in AI Site Assistant AutoPilot → Settings. No changes were made."
+msgstr "ارائه‌دهندهٔ AI نتوانست این درخواست را کامل کند. بررسی کنید آدرس پایه و مدل تنظیم‌شده توسط ارائه‌دهندهٔ شما پشتیبانی می‌شوند، سپس اتصال را در AI Site Assistant AutoPilot ← تنظیمات آزمایش کنید. هیچ تغییری اعمال نشد."
+
+msgid "Product name is required."
+msgstr "نام محصول الزامی است."
+
+msgid "Product name is too long (max 255 chars)."
+msgstr "نام محصول خیلی طولانی است (حداکثر ۲۵۵ کاراکتر)."
+
+msgid "Product type \"%s\" is not available in the Phase 1 draft workflow. Only simple products can be created."
+msgstr ""
+
+msgid "Price must be a valid number (e.g. 29.99)."
+msgstr "قیمت باید یک عدد معتبر باشد (مثلاً ۲۹٫۹۹)."
+
+msgid "Regular price must be a valid number."
+msgstr "قیمت عادی باید یک عدد معتبر باشد."
+
+msgid "Sale price must be a valid number."
+msgstr "قیمت فروش ویژه باید یک عدد معتبر باشد."
+
+msgid "Product status \"%s\" is not available in the Phase 1 workflow. New products are always drafts."
+msgstr ""
+
+msgid "Invalid stock status \"%s\". Allowed: instock, outofstock, onbackorder."
+msgstr ""
+
+msgid "Stock quantity must be a non-negative integer."
+msgstr "موجودی باید یک عدد صحیح نامنفی باشد."
+
+msgid "Categories must be an array of IDs."
+msgstr "دسته‌بندی‌ها باید آرایه‌ای از شناسه‌ها باشند."
+
+msgid "Visitor"
+msgstr "بازدیدکننده"
+
+msgid "Not provided"
+msgstr "وارد نشده"
+
+msgid "Telegram not configured."
+msgstr "تلگرام پیکربندی نشده است."
+
+msgid "Invalid Telegram bot token format."
+msgstr "فرمت توکن ربات نامعتبر است."
+
+msgid "Telegram: invalid bot token."
+msgstr "تلگرام: توکن ربات نامعتبر است."
+
+msgid "Telegram: bot was blocked by the user."
+msgstr "تلگرام: ربات توسط کاربر مسدود شده است."
+
+msgid "Telegram: chat not found. Check Chat ID."
+msgstr "تلگرام: چت یافت نشد. شناسه چت را بررسی کنید."
+
+msgid "No bot token configured."
+msgstr "توکن ربات پیکربندی نشده است."
+
+msgid "Network error: "
+msgstr "خطای شبکه: "
+
+msgid "Connected as @%s"
+msgstr "متصل به عنوان @%s"
+
+msgid "Invalid bot token."
+msgstr "توکن ربات نامعتبر است."
+
+msgid "Unexpected response (HTTP "
+msgstr "پاسخ غیرمنتظره (HTTP "
+
+msgid "AI credit alert: Only %1$d%% remaining (%2$s tokens left)."
+msgstr "هشدار اعتبار AI: تنها %1$d%% باقی مانده (%2$s توکن)."
+
+msgid "AI provider is not configured for speech recognition."
+msgstr "سرویس‌دهندهٔ هوش مصنوعی برای تشخیص گفتار پیکربندی نشده است."
+
+msgid "Invalid or oversized audio data."
+msgstr "دادهٔ صوتی نامعتبر یا بیش از حد بزرگ است."
+
+msgid "Speech recognition service unreachable."
+msgstr "سرویس تشخیص گفتار در دسترس نیست."
+
+msgid "STT API key rejected. Check your provider key in Settings."
+msgstr "کلید API تبدیل گفتار به متن پذیرفته نشد. کلید ارائه‌دهنده را در تنظیمات بررسی کنید."
+
+msgid "Speech recognition failed (HTTP %d)."
+msgstr "تشخیص گفتار ناموفق بود (HTTP %d)."
+
+msgid "The audio recording is invalid, too large, or too long."
+msgstr "فایل صوتی نامعتبر، بیش از حد بزرگ یا بیش از حد طولانی است."
+
+msgid "Configure an AI provider before using voice input."
+msgstr "پیش از استفاده از ورودی صوتی، یک ارائه‌دهندهٔ AI تنظیم کنید."
+
+msgid "The recording could not be read."
+msgstr "فایل ضبط‌شده خوانده نشد."
+
+msgid "Could not reach the speech-to-text provider."
+msgstr "دسترسی به ارائه‌دهندهٔ تبدیل گفتار به متن ممکن نشد."
+
+msgid "The speech-to-text provider could not transcribe this recording. Check that your provider supports /audio/transcriptions."
+msgstr "ارائه‌دهندهٔ تبدیل گفتار به متن نتوانست این ضبط را پیاده کند. بررسی کنید ارائه‌دهندهٔ شما از /audio/transcriptions پشتیبانی می‌کند."
+
+msgid "Four steps to your first safe action. AI proposes, you approve, WordPress executes only what you approved."
+msgstr "چهار گام تا نخستین کار امن. AI پیشنهاد می‌دهد، شما تأیید می‌کنید و وردپرس فقط عملِ تأییدشده را اجرا می‌کند."
+
+msgid "Connect AI"
+msgstr "اتصال AI"
+
+msgid "Choose connector"
+msgstr "انتخاب connector"
+
+msgid "Prepare knowledge base"
+msgstr "آماده‌سازی دانش‌نامه"
+
+msgid "1. Connect an AI provider"
+msgstr "۱. اتصال به ارائه‌دهندهٔ AI"
+
+msgid "Pick an OpenAI-compatible provider. The key is stored encrypted and is never shown again."
+msgstr "یک ارائه‌دهندهٔ سازگار با OpenAI انتخاب کنید. کلید به‌صورت رمزنگاری‌شده ذخیره می‌شود و دیگر هرگز نمایش داده نمی‌شود."
+
+msgid "Custom endpoint"
+msgstr "endpoint سفارشی"
+
+msgid "API key"
+msgstr "کلید API"
+
+msgid "Saved & hidden"
+msgstr "ذخیره‌شده و پنهان"
+
+msgid "For your security the key is never displayed or copyable again — you can only replace it."
+msgstr "به دلیل امنیت، کلید دیگر نمایش داده یا کپی نمی‌شود؛ فقط می‌توانید آن را جایگزین کنید."
+
+msgid "Where should the key live?"
+msgstr "کلید کجا نگه‌داری شود؟"
+
+msgid "AISAAutoPilot encrypted vault"
+msgstr "مخزن رمزنگاری‌شدهٔ AISAAutoPilot"
+
+msgid "Stored locally on this site, encrypted at rest."
+msgstr "به‌صورت محلی روی همین سایت و رمزنگاری‌شده ذخیره می‌شود."
+
+msgid "Only when your WordPress version supports it."
+msgstr "فقط اگر نسخهٔ وردپرس شما از آن پشتیبانی کند."
+
+msgid "Save & continue"
+msgstr "ذخیره و ادامه"
+
+msgid "2. Test the connection"
+msgstr "۲. آزمون اتصال"
+
+msgid "We send one short request to confirm the key and endpoint work."
+msgstr "یک درخواست کوتاه می‌فرستیم تا مطمئن شویم کلید و endpoint کار می‌کنند."
+
+msgid "Not tested yet"
+msgstr "هنوز آزمایش نشده"
+
+msgid "Run a short test to confirm the key and endpoint."
+msgstr "برای اطمینان از درستی کلید و endpoint، یک آزمون کوتاه اجرا کنید."
+
+msgid "Testing…"
+msgstr "در حال آزمایش…"
+
+msgid "A short request was sent to the provider."
+msgstr "یک درخواست کوتاه به ارائه‌دهنده فرستاده شد."
+
+msgid "Connection works"
+msgstr "اتصال برقرار است"
+
+msgid "Valid response received. You can continue."
+msgstr "پاسخ معتبر دریافت شد. می‌توانید ادامه دهید."
+
+msgid "Key or endpoint was rejected"
+msgstr "کلید یا endpoint پذیرفته نشد"
+
+msgid "Replace the key or check the custom endpoint."
+msgstr "کلید را جایگزین کنید یا endpoint سفارشی را بررسی کنید."
+
+msgid "Edit connection"
+msgstr "ویرایش اتصال"
+
+msgid "3. Choose a form connector"
+msgstr "۳. انتخاب connector فرم"
+
+msgid "The connector is what actually creates the form in WordPress."
+msgstr "connector همان چیزی است که فرم را واقعاً در وردپرس می‌سازد."
+
+msgid "Built in. Always available, no extra plugin."
+msgstr "داخلی. همیشه در دسترس است و افزونهٔ دیگری لازم ندارد."
+
+msgid "create form"
+msgstr "ساخت فرم"
+
+msgid "draft"
+msgstr "پیش‌نویس"
+
+msgid "edit in EFB"
+msgstr "ویرایش در EFB"
+
+msgid "Save as draft by default"
+msgstr "به‌صورت پیش‌نویس ذخیره کن (پیش‌فرض)"
+
+msgid "Recommended. Publishing is a higher-risk action and always asks again."
+msgstr "پیشنهاد می‌شود. انتشار، اقدام پرریسک‌تری است و همیشه دوباره پرسیده می‌شود."
+
+msgid "Continue"
+msgstr "ادامه"
+
+msgid "4. Prepare the knowledge base"
+msgstr "۴. آماده‌سازی دانش‌نامه"
+
+msgid "Only published, public content is indexed. You can start now or later."
+msgstr "فقط محتوای منتشرشده و عمومی ایندکس می‌شود. می‌توانید اکنون یا بعداً شروع کنید."
+
+msgid "Index now"
+msgstr "اکنون ایندکس کن"
+
+msgid "About 3 minutes for %s public items."
+msgstr "حدود ۳ دقیقه برای %s مورد عمومی."
+
+msgid "I’ll do it later"
+msgstr "بعداً انجام می‌دهم"
+
+msgid "Building forms does not need the knowledge base."
+msgstr "ساخت فرم به دانش‌نامه نیاز ندارد."
+
+msgid "Finish setup"
+msgstr "پایان راه‌اندازی"
+
+msgid "AISAAutoPilot is ready"
+msgstr "AISAAutoPilot آمادهٔ کار است"
+
+msgid "Provider connected, connector active, safe defaults on. Nothing changes on your site until you approve it."
+msgstr "ارائه‌دهنده متصل است، connector فعال است و پیش‌فرض‌های امن روشن‌اند. تا وقتی تأیید نکنید، چیزی در سایت تغییر نمی‌کند."
+
+msgid "Build your first form with AI"
+msgstr "اولین فرم را با AI بساز"
+
+msgid "What this plugin does"
+msgstr "این افزونه چه کاری انجام می‌دهد؟"
+
+msgid "You describe a task in plain language. AISAAutoPilot turns it into a reviewable plan. Nothing is created until you press approve."
+msgstr "شما کار موردنظر را به زبان ساده توضیح می‌دهید. AISAAutoPilot آن را به یک طرح قابل بررسی تبدیل می‌کند. تا وقتی دکمهٔ تأیید را نزنید چیزی ساخته نمی‌شود."
+
+msgid "The API key is never shown again"
+msgstr "کلید API هرگز دوباره نمایش داده نمی‌شود"
+
+msgid "A pending action is valid for 15 minutes, single use"
+msgstr "اقدام منتظر تأیید ۱۵ دقیقه و یک‌بار مصرف است"
+
+msgid "Payment, password and user-registration forms are not allowed"
+msgstr "فرم پرداخت، گذرواژه و ثبت‌نام کاربر مجاز نیست"
+
+msgid "You can leave and come back"
+msgstr "می‌توانید بعداً ادامه دهید"
+
+msgid "Setup progress is saved. The remaining step will be waiting for you on Home."
+msgstr "پیشرفت راه‌اندازی ذخیره می‌شود. گام باقی‌مانده در صفحهٔ خانه منتظر شماست."
+
+msgid "Provider connected"
+msgstr "ارائه‌دهنده متصل است"
+
+msgid "Connection saved. Now test it."
+msgstr "اتصال ذخیره شد. حالا آن را آزمایش کنید."
+
+msgid "Connector preference saved."
+msgstr "ترجیح connector ذخیره شد."
+
+msgid "Setup complete."
+msgstr "راه‌اندازی کامل شد."
+
+msgid "Not installed"
+msgstr "نصب نشده"
+
+msgid "Install Easy Form Builder for advanced fields, logic, files and multi-step forms."
+msgstr "برای فیلدهای پیشرفته، منطق شرطی، فایل و فرم چندمرحله‌ای، Easy Form Builder را نصب کنید."
+
+msgid "Installed and compatible. Generated forms are editable directly in EFB."
+msgstr "نصب و سازگار. فرم‌های ساخته‌شده مستقیم در EFB قابل ویرایش‌اند."
+
+msgid "All systems healthy"
+msgstr "همه‌چیز سالم است"
+
+msgid "Start a task with AI"
+msgstr "یک کار با AI شروع کنید"
+
+msgid "Describe what you need. We build a reviewable plan first — nothing changes until you approve."
+msgstr "نیازتان را توضیح دهید. ابتدا یک طرح قابل بررسی می‌سازیم؛ تا تأیید نکنید چیزی تغییر نمی‌کند."
+
+msgid "e.g. Build a contact form with name, email and message"
+msgstr "مثلاً: یک فرم تماس با نام، ایمیل و پیام بساز"
+
+msgid "Start"
+msgstr "شروع"
+
+msgid "Connector: %s · saves as draft"
+msgstr "connector: %s · ذخیره به‌صورت پیش‌نویس"
+
+msgid "Needs your attention"
+msgstr "نیازمند توجه"
+
+msgid "AI provider is not connected"
+msgstr "ارائه‌دهندهٔ AI متصل نیست"
+
+msgid "Add an API key before any plan can be generated."
+msgstr "پیش از ساخت هر طرحی، یک کلید API اضافه کنید."
+
+msgid "Fix it"
+msgstr "رفع مشکل"
+
+msgid "No form notification email"
+msgstr "ایمیل اطلاع‌رسانی فرم تنظیم نشده"
+
+msgid "AISAAutoPilot Forms need one address to deliver submissions to."
+msgstr "AISAAutoPilot Forms برای تحویل ارسال‌ها به یک آدرس نیاز دارد."
+
+msgid "Set address"
+msgstr "تنظیم آدرس"
+
+msgid "Knowledge base is empty"
+msgstr "دانش‌نامه خالی است"
+
+msgid "For accurate answers, index your public content first."
+msgstr "برای پاسخ‌های دقیق، ابتدا محتوای عمومی سایت را ایندکس کنید."
+
+msgid "Easy Form Builder is not available"
+msgstr "Easy Form Builder در دسترس نیست"
+
+msgid "Advanced forms fall back to the built-in AISAAutoPilot Forms connector."
+msgstr "فرم‌های پیشرفته به connector داخلی AISAAutoPilot Forms برمی‌گردند."
+
+msgid "Review"
+msgstr "بررسی"
+
+msgid "Waiting for your approval"
+msgstr "منتظر بررسی و تأیید شما"
+
+msgid "Review actions"
+msgstr "بررسی اقدام‌ها"
+
+msgid "No proposal is waiting"
+msgstr "پیشنهادی در انتظار نیست"
+
+msgid "Describe a form to create the next reviewable plan."
+msgstr "برای ساخت طرح قابل بررسی بعدی، یک فرم را توضیح دهید."
+
+msgid "No activity yet"
+msgstr "هنوز فعالیتی نبوده"
+
+msgid "Last activity %s"
+msgstr "آخرین فعالیت: %s"
+
+msgid "%s ago"
+msgstr "%s پیش"
+
+msgid "Usage this period"
+msgstr "مصرف این دوره"
+
+msgid "of the %s monthly token budget"
+msgstr "از سقف ماهانهٔ %s توکن"
+
+msgid "tokens used · no budget set"
+msgstr "توکن مصرف‌شده · سقفی تنظیم نشده"
+
+msgid "Resets at the start of next month."
+msgstr "بازنشانی در اول ماه آینده."
+
+msgid "Usage details"
+msgstr "جزئیات مصرف"
+
+msgid "Quick actions"
+msgstr "میان‌برها"
+
+msgid "Build a form"
+msgstr "ساخت فرم"
+
+msgid "Ask your site"
+msgstr "پرسش از سایت"
+
+msgid "Index content"
+msgstr "ایندکس محتوا"
+
+msgid "Set up the chat widget"
+msgstr "تنظیم ویجت چت"
+
+msgid "Describe the form you need. AISAAutoPilot drafts it, you review and approve, then it is created. Nothing is created without your approval."
+msgstr "فرم موردنیازتان را توضیح دهید. AISAAutoPilot آن را پیش‌نویس می‌کند، شما بررسی و تأیید می‌کنید و سپس ساخته می‌شود. بدون تأیید شما چیزی ساخته نمی‌شود."
+
+msgid "What form do you want to create?"
+msgstr "چه فرمی می‌خواهید بسازید؟"
+
+msgid "Describe the form you need — fields, purpose and where it will be used."
+msgstr "فرم موردنیازتان را توضیح دهید — فیلدها، هدف و اینکه کجا استفاده می‌شود."
+
+msgid "Ctrl + Enter to submit"
+msgstr "Ctrl + Enter برای ارسال"
+
+msgid "Building a reviewable plan"
+msgstr "در حال ساخت طرح قابل بررسی"
+
+msgid "Building a reviewable plan…"
+msgstr "در حال ساخت طرح قابل بررسی…"
+
+msgid "Analysing your request"
+msgstr "در حال تحلیل درخواست"
+
+msgid "Running safety checks"
+msgstr "در حال بررسی ایمنی"
+
+msgid "Building the preview"
+msgstr "در حال ساخت پیش‌نمایش"
+
+msgid "You can keep working; we’ll show the plan here when it’s ready."
+msgstr "می‌توانید کار دیگری انجام دهید؛ طرح آماده که شد همین‌جا نمایش داده می‌شود."
+
+msgid "Try:"
+msgstr "نمونه:"
+
+msgid "Not used for forms"
+msgstr "برای فرم استفاده نمی‌شود"
+
+msgid "~1,200 tokens"
+msgstr "~۱٬۲۰۰ توکن"
+
+msgid "Nothing runs automatically"
+msgstr "هیچ‌چیز خودکار اجرا نمی‌شود"
+
+msgid "We only build a plan. You see every field and the destination before anything is created."
+msgstr "ما فقط یک طرح می‌سازیم. قبل از ساخته‌شدن هر چیزی، همهٔ فیلدها و مقصد را می‌بینید."
+
+msgid "Recording becomes an editable transcript first. You always send it yourself."
+msgstr "ضبط صدا ابتدا به متن قابل ویرایش تبدیل می‌شود. ارسال همیشه با خود شماست."
+
+msgid "AI provider unavailable"
+msgstr "ارائه‌دهندهٔ AI در دسترس نیست"
+
+msgid "Connect an AI provider before a preview can be built."
+msgstr "پیش از ساخت پیش‌نمایش، به یک ارائه‌دهندهٔ AI متصل شوید."
+
+msgid "Form delivery is not configured"
+msgstr "تحویل فرم تنظیم نشده است"
+
+msgid "Set the notification email before a plan can be built."
+msgstr "پیش از ساخت طرح، ایمیل اطلاع‌رسانی را تنظیم کنید."
+
+msgid "Check connection"
+msgstr "بررسی اتصال"
+
+msgid "Product draft"
+msgstr "پیش‌نویس محصول"
+
+msgid "Type or speak a description of the form first."
+msgstr "ابتدا توضیح فرم را بنویسید یا بگویید."
+
+msgid "Could not generate a safe form."
+msgstr "ساخت یک فرم امن ممکن نشد."
+
+msgid "Recording — the transcript will land in the box, editable."
+msgstr "در حال ضبط — متن پیاده‌شده در همین کادر و قابل ویرایش قرار می‌گیرد."
+
+msgid "Transcribing your voice command…"
+msgstr "در حال تبدیل صدای شما به متن…"
+
+msgid "Voice command added. Review the text, then generate the preview."
+msgstr "فرمان صوتی افزوده شد. متن را بررسی و سپس پیش‌نمایش را بسازید."
+
+msgid "Voice transcription failed. You can type the command instead."
+msgstr "تبدیل صدا به متن ناموفق بود. می‌توانید فرمان را تایپ کنید."
+
+msgid "This browser does not support voice recording. Please type the command."
+msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند. لطفاً فرمان را تایپ کنید."
+
+msgid "Microphone access was not granted. Please type the command."
+msgstr "دسترسی به میکروفون داده نشد. لطفاً فرمان را تایپ کنید."
+
+msgid "Stop"
+msgstr "توقف"
+
+msgid "Review action"
+msgstr "بررسی اقدام"
+
+msgid "Created just now"
+msgstr "ایجاد: هم‌اکنون"
+
+msgid "Valid for %s more"
+msgstr "تا %s دیگر معتبر است"
+
+msgid "This proposal has expired"
+msgstr "این پیشنهاد منقضی شده است"
+
+msgid "Request"
+msgstr "درخواست"
+
+msgid "AI plan"
+msgstr "برنامهٔ AI"
+
+msgid "Safety check"
+msgstr "اعتبارسنجی"
+
+msgid "Your approval"
+msgstr "تأیید شما"
+
+msgid "Execution"
+msgstr "اجرا"
+
+msgid "Nothing changes on your site until you approve."
+msgstr "تا زمان تأیید شما هیچ تغییری در سایت انجام نمی‌شود."
+
+msgid "This action expired and can no longer be approved. Rebuild the request to continue."
+msgstr "این اقدام منقضی شده و دیگر قابل تأیید نیست. برای ادامه، درخواست را دوباره بسازید."
+
+msgid "Preview"
+msgstr "پیش‌نمایش"
+
+msgid "Structure details"
+msgstr "جزئیات ساختار"
+
+msgid "Desktop"
+msgstr "دسکتاپ"
+
+msgid "Mobile"
+msgstr "موبایل"
+
+msgid "required"
+msgstr "الزامی"
+
+msgid "optional"
+msgstr "اختیاری"
+
+msgid "type"
+msgstr "type"
+
+msgid "%d options"
+msgstr "%d گزینه"
+
+msgid "What will not be created"
+msgstr "چه چیزهایی ایجاد نمی‌شوند"
+
+msgid "These were removed from the plan by policy and cannot be approved."
+msgstr "این موارد بر اساس سیاست از طرح حذف شده‌اند و قابل تأیید نیستند."
+
+msgid "Payment field — not allowed"
+msgstr "فیلد پرداخت — مجاز نیست"
+
+msgid "Password field — not allowed"
+msgstr "فیلد گذرواژه — مجاز نیست"
+
+msgid "User registration — not allowed"
+msgstr "ثبت‌نام کاربر — مجاز نیست"
+
+msgid "What happens when you approve"
+msgstr "با تأیید شما چه اتفاقی می‌افتد"
+
+msgid "Destination"
+msgstr "مقصد"
+
+msgid "State"
+msgstr "وضعیت"
+
+msgid "Draft — not public"
+msgstr "پیش‌نویس — عمومی نمی‌شود"
+
+msgid "Published immediately"
+msgstr "بلافاصله منتشر می‌شود"
+
+msgid "Risk level"
+msgstr "سطح ریسک"
+
+msgid "Low"
+msgstr "کم"
+
+msgid "Medium"
+msgstr "متوسط"
+
+msgid "High"
+msgstr "زیاد"
+
+msgid "Notifications"
+msgstr "اعلان‌ها"
+
+msgid "Email to site admin"
+msgstr "ایمیل به مدیر سایت"
+
+msgid "Approve & save as draft"
+msgstr "تأیید و ذخیره به‌صورت پیش‌نویس"
+
+msgid "Approve & publish"
+msgstr "تأیید و انتشار"
+
+msgid "Back and edit"
+msgstr "بازگشت و ویرایش"
+
+msgid "Back"
+msgstr "قبلی"
+
+msgid "Reject this proposal"
+msgstr "رد کردن پیشنهاد"
+
+msgid "Single use · reversible by deleting the draft"
+msgstr "یک‌بار مصرف · قابل بازگشت از طریق حذف پیش‌نویس"
+
+msgid "Rebuild the request to continue."
+msgstr "برای ادامه، درخواست را دوباره بسازید."
+
+msgid "Proposal rejected. Nothing was created."
+msgstr "پیشنهاد رد شد. چیزی ساخته نشد."
+
+msgid "Publish this form immediately?"
+msgstr "این فرم بلافاصله منتشر شود؟"
+
+msgid "The form becomes visible to site visitors as soon as you confirm. You can unpublish it later."
+msgstr "فرم بلافاصله پس از تأیید برای بازدیدکنندگان سایت قابل مشاهده می‌شود. بعداً می‌توانید آن را از انتشار خارج کنید."
+
+msgid "I understand this creates a publicly visible form on %s"
+msgstr "می‌دانم که این کار یک فرم قابل مشاهدهٔ عمومی روی %s می‌سازد"
+
+msgid "Creating the form in WordPress"
+msgstr "در حال ساخت فرم در وردپرس"
+
+msgid "Working…"
+msgstr "در حال انجام…"
+
+msgid "Result"
+msgstr "نتیجه"
+
+msgid "The form was created as a draft."
+msgstr "فرم با موفقیت به‌صورت پیش‌نویس ساخته شد."
+
+msgid "The form was created and published."
+msgstr "فرم ساخته و منتشر شد."
+
+msgid "The form was not created"
+msgstr "فرم ساخته نشد"
+
+msgid "“%s” was created. Place the shortcode on a page to show it to visitors."
+msgstr "«%s» ساخته شد. با قرار دادن shortcode در یک برگه، آن را به بازدیدکنندگان نشان دهید."
+
+msgid "Copy"
+msgstr "کپی"
+
+msgid "Copied to clipboard"
+msgstr "در کلیپ‌بورد کپی شد"
+
+msgid "Open the form"
+msgstr "باز کردن فرم"
+
+msgid "Edit in Easy Form Builder"
+msgstr "ویرایش در Easy Form Builder"
+
+msgid "Try again"
+msgstr "تلاش دوباره"
+
+msgid "Action ID"
+msgstr "شناسهٔ اقدام"
+
+msgid "Recorded usage"
+msgstr "مصرف ثبت‌شده"
+
+msgid "Not recorded"
+msgstr "ثبت نشد"
+
+msgid "Next step"
+msgstr "گام بعدی"
+
+msgid "Place this form on a page"
+msgstr "این فرم را در یک برگه قرار دهید"
+
+msgid "Build another form"
+msgstr "یک فرم دیگر بسازید"
+
+msgid "View in activity"
+msgstr "مشاهده در فعالیت"
+
+msgid "Every proposal, approval and result in one place."
+msgstr "همهٔ پیشنهادها، تأییدها و نتیجه‌ها در یک جا."
+
+msgid "Search actions"
+msgstr "جست‌وجوی اقدام‌ها"
+
+msgid "All statuses"
+msgstr "همهٔ وضعیت‌ها"
+
+msgid "Pending approval"
+msgstr "در انتظار تأیید"
+
+msgid "Executed"
+msgstr "اجراشده"
+
+msgid "Rejected"
+msgstr "ردشده"
+
+msgid "Expired"
+msgstr "منقضی‌شده"
+
+msgid "Failed"
+msgstr "ناموفق"
+
+msgid "Pending"
+msgstr "در انتظار"
+
+msgid "All connectors"
+msgstr "همهٔ connectorها"
+
+msgid "Action"
+msgstr "اقدام"
+
+msgid "Create form — %s"
+msgstr "ایجاد فرم — %s"
+
+msgid "No actions have been proposed yet."
+msgstr "هنوز اقدامی پیشنهاد نشده است."
+
+msgid "No actions match your filter."
+msgstr "اقدامی با این فیلتر پیدا نشد."
+
+msgid "Filter by status"
+msgstr "فیلتر بر اساس وضعیت"
+
+msgid "Filter by connector"
+msgstr "فیلتر بر اساس connector"
+
+msgid "Activity Log"
+msgstr "لاگ فعالیت"
+
+msgid "Logs"
+msgstr "لاگ‌ها"
+
+msgid "Recent Copilot activity. Secrets are never stored here."
+msgstr "فعالیت اخیر کوپایلوت. هیچ اطلاعات محرمانه‌ای اینجا ذخیره نمی‌شود."
+
+msgid "Ask questions about your website content. AISAAutoPilot searches your knowledge base and provides accurate answers."
+msgstr "دربارهٔ محتوای وب‌سایت خود سؤال بپرسید. AISAAutoPilot دانش‌نامهٔ شما را جست‌وجو می‌کند و پاسخ دقیق می‌دهد."
+
+msgid "Your question"
+msgstr "پرسش شما"
+
+msgid "Index new items"
+msgstr "ایندکس موارد تازه"
+
+msgid "Indexing…"
+msgstr "در حال ایندکس…"
+
+msgid "Indexed"
+msgstr "ایندکس"
+
+msgid "Search indexed content"
+msgstr "جست‌وجوی محتوای ایندکس‌شده"
+
+msgid "All types"
+msgstr "همهٔ انواع"
+
+msgid "Filter by type"
+msgstr "فیلتر بر اساس نوع"
+
+msgid "Filter by category"
+msgstr "فیلتر بر اساس دسته"
+
+msgid "No indexed content yet."
+msgstr "هنوز محتوایی ایندکس نشده است."
+
+msgid "Use “Start Indexing” above to build your knowledge base."
+msgstr "برای ساخت دانش‌نامه، از «شروع ایندکس» بالا استفاده کنید."
+
+msgid "Failed to load data."
+msgstr "بارگذاری داده‌ها ناموفق بود."
+
+msgid "Remove from knowledge base"
+msgstr "حذف از دانش‌نامه"
+
+msgid "Remove this item from the knowledge base?"
+msgstr "این مورد از دانش‌نامه حذف شود؟"
+
+msgid "This will clear all indexed data and re-index everything. Continue?"
+msgstr "این کار همهٔ داده‌های ایندکس‌شده را پاک و همه‌چیز را دوباره ایندکس می‌کند. ادامه می‌دهید؟"
+
+msgid "Clear all logged questions?"
+msgstr "همهٔ پرسش‌های ثبت‌شده پاک شوند؟"
+
+msgid "Please select at least one content type to index."
+msgstr "لطفاً حداقل یک نوع محتوا را برای ایندکس انتخاب کنید."
+
+msgid "Page %1$d of %2$d"
+msgstr "صفحهٔ %1$d از %2$d"
+
+msgid "Reading your content…"
+msgstr "در حال خواندن محتوای شما…"
+
+msgid "Analysing the text…"
+msgstr "در حال تحلیل متن…"
+
+msgid "Summarising key points…"
+msgstr "در حال خلاصه‌کردن نکات کلیدی…"
+
+msgid "Extracting keywords…"
+msgstr "در حال استخراج کلیدواژه‌ها…"
+
+msgid "Organising information…"
+msgstr "در حال سازماندهی اطلاعات…"
+
+msgid "Indexing complete. Your knowledge base is ready."
+msgstr "ایندکس کامل شد. دانش‌نامهٔ شما آماده است."
+
+msgid "Indexing failed."
+msgstr "ایندکس ناموفق بود."
+
+msgid "Dismiss"
+msgstr "نادیده بگیر"
+
+msgid "%s used"
+msgstr "%s مصرف‌شده"
+
+msgid "No monthly budget is set — usage is unlimited."
+msgstr "سقف ماهانه تنظیم نشده — مصرف نامحدود است."
+
+msgid "Budget saved."
+msgstr "سقف ذخیره شد."
+
+msgid "Could not save."
+msgstr "ذخیره نشد."
+
+msgid "Reset all recorded usage? This cannot be undone."
+msgstr "همهٔ مصرف ثبت‌شده بازنشانی شود؟ این کار قابل بازگشت نیست."
+
+msgid "Resetting…"
+msgstr "در حال بازنشانی…"
+
+msgid "Usage reset."
+msgstr "مصرف بازنشانی شد."
+
+msgid "Saving…"
+msgstr "در حال ذخیره…"
+
+msgid "Your key is never sent anywhere except your chosen AI provider."
+msgstr "کلید شما هرگز جایی جز ارائه‌دهندهٔ AI انتخابی خودتان فرستاده نمی‌شود."
+
+msgid "API key security: %s."
+msgstr "امنیت کلید API: %s."
+
+msgid "Use the native WordPress key manager."
+msgstr "از مدیر کلید بومی وردپرس استفاده کنید."
+
+msgid "When enabled, AISAAutoPilot ranks knowledge by meaning instead of keywords. Requires a provider with an /embeddings endpoint (e.g. OpenAI or Qwen). DeepSeek and Groq do not offer embeddings."
+msgstr "با فعال‌شدن، AISAAutoPilot دانش را بر اساس معنا رتبه‌بندی می‌کند نه کلیدواژه. نیازمند ارائه‌دهنده‌ای با endpoint مربوط به embeddings است (مثل OpenAI یا Qwen). DeepSeek و Groq embedding ندارند."
+
+msgid "Leave blank to use the same endpoint as your chat provider."
+msgstr "خالی بگذارید تا از همان endpoint ارائه‌دهندهٔ گفت‌وگو استفاده شود."
+
+msgid "Audio is sent only for transcription and is never stored by AISAAutoPilot."
+msgstr "صدا فقط برای تبدیل به متن ارسال می‌شود و هرگز توسط AISAAutoPilot ذخیره نمی‌شود."
+
+msgid "Every submission is delivered only to this address and is not saved in WordPress. Leave blank to use the site Administration Email Address."
+msgstr "هر ارسال فقط به همین آدرس تحویل داده می‌شود و در وردپرس ذخیره نمی‌گردد. برای استفاده از ایمیل مدیریت سایت، خالی بگذارید."
+
+msgid "Prefer Easy Form Builder when available"
+msgstr "در صورت در دسترس بودن، Easy Form Builder ترجیح داده شود"
+
+msgid "Test accepted."
+msgstr "آزمون پذیرفته شد."
+
+msgid "Test failed."
+msgstr "آزمون ناموفق بود."
+
+msgid "Sending test…"
+msgstr "در حال ارسال آزمون…"
+
+msgid "Widget basics"
+msgstr "اصل ویجت"
+
+msgid "Enable Widget"
+msgstr "فعال‌سازی ویجت"
+
+msgid "Appearance"
+msgstr "ظاهر"
+
+msgid "Brand color"
+msgstr "رنگ برند"
+
+msgid "Customize"
+msgstr "سفارشی‌سازی"
+
+msgid "Set each part separately; the brand colour is the starting point."
+msgstr "رنگ هر بخش را جداگانه تنظیم کنید؛ رنگ برند نقطهٔ شروع است."
+
+msgid "Open Customize for header text, icons, corner rounding and per-part colours."
+msgstr "برای تغییر متن هدر، آیکون‌ها، گردی گوشه‌ها و رنگ هر بخش، سفارشی‌سازی را باز کنید."
+
+msgid "Header text"
+msgstr "متن هدر"
+
+msgid "Head"
+msgstr "عنوان"
+
+msgid "Sub head"
+msgstr "زیرعنوان"
+
+msgid "Icons (drop a PNG)"
+msgstr "آیکون‌ها (یک PNG رها کنید)"
+
+msgid "Header icon"
+msgstr "آیکون هدر"
+
+msgid "Beside the header title"
+msgstr "کنار عنوان در هدر"
+
+msgid "Voice icon"
+msgstr "آیکون صدا"
+
+msgid "The mic button"
+msgstr "دکمهٔ میکروفون"
+
+msgid "Handoff icon"
+msgstr "آیکون انتقال"
+
+msgid "The talk-to-human button"
+msgstr "دکمهٔ صحبت با انسان"
+
+msgid "Corner rounding"
+msgstr "گردی گوشه‌ها"
+
+msgid "Panel"
+msgstr "پنل"
+
+msgid "Bubbles"
+msgstr "حباب‌ها"
+
+msgid "Floating button"
+msgstr "دکمهٔ شناور"
+
+msgid "Corners"
+msgstr "گوشه‌ها"
+
+msgid "Colour"
+msgstr "رنگ"
+
+msgid "Icon"
+msgstr "آیکون"
+
+msgid "Drop a PNG"
+msgstr "یک PNG رها کنید"
+
+msgid "Colors of each part"
+msgstr "رنگ هر بخش"
+
+msgid "Header from"
+msgstr "هدر — از"
+
+msgid "Header to"
+msgstr "هدر — تا"
+
+msgid "User bubble"
+msgstr "حباب کاربر"
+
+msgid "Assistant bubble"
+msgstr "حباب دستیار"
+
+msgid "Assistant text"
+msgstr "متن دستیار"
+
+msgid "Panel background"
+msgstr "پس‌زمینهٔ پنل"
+
+msgid "Messages background"
+msgstr "پس‌زمینهٔ گفت‌وگو"
+
+msgid "Border"
+msgstr "کادر و خطوط"
+
+msgid "Input background"
+msgstr "پس‌زمینهٔ ورودی"
+
+msgid "Send button"
+msgstr "دکمهٔ ارسال"
+
+msgid "Handoff button"
+msgstr "دکمهٔ انتقال"
+
+msgid "Reset to brand colour"
+msgstr "بازگشت به رنگ برند"
+
+msgid "Enable voice input"
+msgstr "فعال‌سازی ورودی صدا"
+
+msgid "Auto-play response"
+msgstr "پخش خودکار پاسخ"
+
+msgid "Handoff"
+msgstr "انتقال به انسان"
+
+msgid "Enable human handoff"
+msgstr "فعال‌سازی انتقال به انسان"
+
+msgid "Hook text"
+msgstr "متن قلاب"
+
+msgid "Channels"
+msgstr "کانال‌ها"
+
+msgid "No channel is enabled, so the handoff button stays hidden from visitors."
+msgstr "هیچ کانالی فعال نیست، پس دکمهٔ انتقال برای بازدیدکننده نمایش داده نمی‌شود."
+
+msgid "%s channel enabled. The handoff message goes to every enabled channel."
+msgstr "%s کانال فعال است. پیام انتقال به همهٔ کانال‌های فعال فرستاده می‌شود."
+
+msgid "%s channels enabled. The handoff message goes to every enabled channel."
+msgstr "%s کانال فعال است. پیام انتقال به همهٔ کانال‌های فعال فرستاده می‌شود."
+
+msgid "Where the handoff message is sent"
+msgstr "گیرندهٔ پیام انتقال"
+
+msgid "Recipient address"
+msgstr "آدرس گیرنده"
+
+msgid "Sends into one chat or group"
+msgstr "ارسال به یک چت یا گروه"
+
+msgid "Bot token and chat ID"
+msgstr "توکن ربات و شناسهٔ چت"
+
+msgid "Twilio (SMS)"
+msgstr "Twilio (پیامک)"
+
+msgid "Text message to your support number"
+msgstr "پیامک به شمارهٔ پشتیبانی"
+
+msgid "Account SID, auth token and numbers"
+msgstr "SID، توکن احراز و شماره‌ها"
+
+msgid "From number"
+msgstr "شمارهٔ فرستنده"
+
+msgid "To number"
+msgstr "شمارهٔ گیرنده"
+
+msgid "Enable"
+msgstr "فعال‌سازی"
+
+msgid "Enabled"
+msgstr "فعال"
+
+msgid "Off"
+msgstr "خاموش"
+
+msgid "Configured"
+msgstr "تنظیم‌شده"
+
+msgid "Not configured"
+msgstr "تنظیم نشده"
+
+msgid "Talk to human"
+msgstr "صحبت با انسان"
+
+msgid "Do you ship to Shiraz?"
+msgstr "به شیراز ارسال دارید؟"
+
+msgid "Saved securely — enter a new token to replace it"
+msgstr "به‌صورت امن ذخیره شده — برای جایگزینی، توکن تازه وارد کنید"
+
+msgid "Saved securely — enter a new SID to replace it"
+msgstr "به‌صورت امن ذخیره شده — برای جایگزینی، SID تازه وارد کنید"
+
+msgid "Remove saved token"
+msgstr "حذف توکن ذخیره‌شده"
+
+msgid "Remove saved SID"
+msgstr "حذف SID ذخیره‌شده"
+
+msgid "Remove image"
+msgstr "حذف تصویر"
+
+msgid "That image is too large. Please use a PNG under 200 KB."
+msgstr "این تصویر خیلی بزرگ است. لطفاً یک PNG کمتر از ۲۰۰ کیلوبایت انتخاب کنید."
+
+msgid "Every dependency AISAAutoPilot relies on, and whether it is working right now."
+msgstr "هر چیزی که AISAAutoPilot به آن وابسته است و اینکه همین حالا کار می‌کند یا نه."
+
+msgid "Run diagnostics"
+msgstr "اجرای تشخیص"
+
+msgid "Checking…"
+msgstr "در حال بررسی…"
+
+msgid "Checking ten dependencies…"
+msgstr "در حال بررسی ده وابستگی…"
+
+msgid "The AI provider answered. Reloading the report…"
+msgstr "ارائه‌دهندهٔ AI پاسخ داد. در حال بارگذاری دوبارهٔ گزارش…"
+
+msgid "The AI provider did not answer."
+msgstr "ارائه‌دهندهٔ AI پاسخ نداد."
+
+msgid "One critical problem: the AI provider is not reachable, so no request can be built."
+msgstr "یک مشکل بحرانی: ارائه‌دهندهٔ AI پاسخ نمی‌دهد، پس هیچ درخواستی ساخته نمی‌شود."
+
+msgid "%d optional dependency is not configured. The core flow still works."
+msgstr "%d وابستگی اختیاری تنظیم نشده است. جریان اصلی همچنان کار می‌کند."
+
+msgid "%d optional dependencies are not configured. The core flow still works."
+msgstr "%d وابستگی اختیاری تنظیم نشده‌اند. جریان اصلی همچنان کار می‌کند."
+
+msgid "Every required dependency is healthy."
+msgstr "همهٔ وابستگی‌های ضروری سالم‌اند."
+
+msgid "Healthy"
+msgstr "سالم"
+
+msgid "Not connected"
+msgstr "متصل نیست"
+
+msgid "Add an API key, base URL and model in Settings."
+msgstr "در تنظیمات، کلید API، آدرس پایه و مدل را وارد کنید."
+
+msgid "Key vault"
+msgstr "مخزن کلید"
+
+msgid "Encrypted"
+msgstr "رمزنگاری‌شده"
+
+msgid "Empty"
+msgstr "خالی"
+
+msgid "No API key has been stored yet."
+msgstr "هنوز هیچ کلید API ذخیره نشده است."
+
+msgid "Semantic search"
+msgstr "جست‌وجوی معنایی"
+
+msgid "Keyword ranking is used. Enable it in Settings for meaning-based search."
+msgstr "رتبه‌بندی بر اساس کلیدواژه است. برای جست‌وجوی معنایی، آن را در تنظیمات فعال کنید."
+
+msgid "Incomplete"
+msgstr "جامانده"
+
+msgid "%1$s of %2$s vectors built — run indexing to finish"
+msgstr "%1$s از %2$s بردار ساخته شده — برای تکمیل، ایندکس را اجرا کنید"
+
+msgid "Knowledge is ranked by meaning"
+msgstr "دانش بر اساس معنا رتبه‌بندی می‌شود"
+
+msgid "Connectors"
+msgstr "connectorها"
+
+msgid "Built in, always active"
+msgstr "داخلی، همیشه فعال"
+
+msgid "Not available"
+msgstr "در دسترس نیست"
+
+msgid "Not installed, or the version does not match the supported 4.1+ storage contract."
+msgstr "نصب نشده، یا نسخهٔ آن با قرارداد ذخیره‌سازی پشتیبانی‌شدهٔ ۴٫۱+ سازگار نیست."
+
+msgid "Version %1$s · %2$s products"
+msgstr "نسخهٔ %1$s · %2$s محصول"
+
+msgid "WooCommerce is not installed or active"
+msgstr "ووکامرس نصب یا فعال نیست"
+
+msgid "%s public items indexed"
+msgstr "%s مورد عمومی ایندکس شده"
+
+msgid "Nothing indexed yet; chat answers will not be accurate"
+msgstr "هنوز چیزی ایندکس نشده؛ پاسخ‌های چت دقیق نخواهند بود"
+
+msgid "Handoff channels"
+msgstr "کانال‌های انتقال به انسان"
+
+msgid "Enable it on the Widget page"
+msgstr "در صفحهٔ ویجت فعال کنید"
+
+msgid "Waiting for: %s"
+msgstr "در انتظار: %s"
+
+msgid "At least one channel must be configured, otherwise the handoff button is hidden from visitors."
+msgstr "حداقل یک کانال باید تنظیم شود، وگرنه دکمهٔ انتقال برای بازدیدکننده نمایش داده نمی‌شود."
+
+msgid "Open widget settings"
+msgstr "باز کردن تنظیمات ویجت"
+
+msgid "Visitor assistant limits"
+msgstr "محدودیت دستیار بازدیدکننده"
+
+msgid "Messages per visitor / hour"
+msgstr "پیام برای هر بازدیدکننده در ساعت"
+
+msgid "Voice requests / hour"
+msgstr "درخواست صوتی در ساعت"
+
+msgid "Public assistant"
+msgstr "دستیار عمومی"
+
+msgid "Nothing here reaches outside"
+msgstr "هیچ‌چیز از این‌جا بیرون نمی‌رود"
+
+msgid "Diagnostics run on this site only. The single outbound call is one short request to your own AI provider."
+msgstr "تشخیص فقط روی همین سایت اجرا می‌شود. تنها تماس بیرونی، یک درخواست کوتاه به ارائه‌دهندهٔ AI خودتان است."
+
+msgid "Last checked"
+msgstr "آخرین بررسی"
+
+msgid "Not run yet"
+msgstr "هنوز اجرا نشده"
+
+msgid "Open activity log"
+msgstr "باز کردن لاگ فعالیت"
+
+msgid "AI-powered product management: create, edit, search, and bulk-update products using natural language."
+msgstr "مدیریت محصول با AI: ساخت، ویرایش، جست‌وجو و به‌روزرسانی دسته‌جمعی محصولات با زبان طبیعی."
+
+msgid "WC Dashboard"
+msgstr "داشبورد ووکامرس"
+
+msgid "WooCommerce Status"
+msgstr "وضعیت ووکامرس"
+
+msgid "Total Products"
+msgstr "مجموع محصولات"
+
+msgid "When enabled, users can create, edit, and search products using natural language through the AI Site Assistant AutoPilot chat."
+msgstr "با فعال‌شدن، کاربران می‌توانند از طریق گفت‌وگوی AI Site Assistant AutoPilot محصولات را با زبان طبیعی بسازند، ویرایش و جست‌وجو کنند."
+
+msgid "Create products as draft by default"
+msgstr "محصولات به‌صورت پیش‌فرض پیش‌نویس ساخته شوند"
+
+msgid "Products are saved as draft and require manual publishing. This is fixed in Phase 1."
+msgstr "محصولات به‌صورت پیش‌نویس ذخیره می‌شوند و انتشارشان دستی است. در فاز ۱ این مورد ثابت است."
+
+msgid "Enable smart product search"
+msgstr "فعال‌سازی جست‌وجوی هوشمند محصول"
+
+msgid "Enable product editing via AI — Phase 2"
+msgstr "فعال‌سازی ویرایش محصول توسط AI — فاز ۲"
+
+msgid "Phase 1 creates only simple product drafts after explicit review. Publishing, edits, bulk operations and order changes are reserved for Phase 2."
+msgstr "فاز ۱ فقط پیش‌نویس محصول ساده و پس از بررسی صریح می‌سازد. انتشار، ویرایش، عملیات دسته‌جمعی و تغییر سفارش‌ها برای فاز ۲ است."
+
+msgid "Completed"
+msgstr "تکمیل‌شده"
+
+msgid "Processing"
+msgstr "در حال پردازش"
+
+msgid "On hold"
+msgstr "در انتظار"
+
+msgid "No data yet."
+msgstr "هنوز داده‌ای نیست."
+
+msgid "%s sold"
+msgstr "%s فروش"
+
+msgid "%s left"
+msgstr "%s عدد مانده"
+
+msgid "Mon"
+msgstr "د"
+
+msgid "Tue"
+msgstr "س"
+
+msgid "Wed"
+msgstr "چ"
+
+msgid "Thu"
+msgstr "پ"
+
+msgid "Fri"
+msgstr "ج"
+
+msgid "Sat"
+msgstr "ش"
+
+msgid "Sun"
+msgstr "ی"
+
+msgid "Proposed changes"
+msgstr "تغییرات پیشنهادی"
+
+msgid "Changes to the open form"
+msgstr "تغییرات فرم باز در ویرایشگر"
+
+msgid "Easy Form Builder editor"
+msgstr "ویرایشگر Easy Form Builder"
+
+msgid "Waiting to apply"
+msgstr "در انتظار اعمال"
+
+msgid "Connector unavailable"
+msgstr "connector در دسترس نیست"
+
+msgid "Nothing has changed in the editor yet. A snapshot of the current state is taken before anything is applied, and nothing is written to the database until you press Save in Easy Form Builder."
+msgstr "هنوز چیزی در ویرایشگر تغییر نکرده است. پیش از اعمال، یک snapshot از وضعیت فعلی گرفته می‌شود و تا زدن دکمهٔ ذخیره در Easy Form Builder چیزی در پایگاه داده نوشته نمی‌شود."
+
+msgid "Easy Form Builder is not active, or its version does not match the supported 4.1+ storage contract. AISAAutoPilot Forms remains available for simple forms."
+msgstr "Easy Form Builder فعال نیست، یا نسخهٔ آن با قرارداد ذخیره‌سازی پشتیبانی‌شدهٔ ۴٫۱+ سازگار نیست. AISAAutoPilot Forms برای فرم‌های ساده در دسترس می‌ماند."
+
+msgid "Form in the editor"
+msgstr "فرم باز در ویرایشگر"
+
+msgid "Add a field of any allowed type"
+msgstr "افزودن فیلد از هر نوع مجاز"
+
+msgid "Add a choice to a select, radio or checkbox"
+msgstr "افزودن گزینه به select، radio یا checkbox"
+
+msgid "Change a field property marked ai_writable"
+msgstr "تغییر ویژگی فیلدی که ai_writable است"
+
+msgid "Remove a field and its stored settings"
+msgstr "حذف فیلد و تنظیمات ذخیره‌شده‌اش"
+
+msgid "Payment, authentication and SMTP recipients"
+msgstr "پرداخت، احراز هویت و گیرنده‌های SMTP"
+
+msgid "allowed"
+msgstr "مجاز"
+
+msgid "validated"
+msgstr "اعتبارسنجی‌شده"
+
+msgid "never"
+msgstr "هرگز"
+
+msgid "No editor session is available while the connector is inactive."
+msgstr "تا وقتی connector غیرفعال است، جلسهٔ ویرایشگری در دسترس نیست."
+
+msgid "Operations"
+msgstr "عملیات"
+
+msgid "Exactly what the AI may ask for, after server validation."
+msgstr "دقیقاً همان چیزی که AI درخواست کرده، پس از اعتبارسنجی سرور."
+
+msgid "Insert a new field"
+msgstr "درج فیلد جدید"
+
+msgid "Type must be in the allowed list; the position is validated against the current structure."
+msgstr "نوع باید در فهرست مجاز باشد؛ موقعیت با ساختار فعلی اعتبارسنجی می‌شود."
+
+msgid "Change one property"
+msgstr "تغییر یک ویژگی"
+
+msgid "Rejected before apply"
+msgstr "پیش از اعمال رد شد"
+
+msgid "Anything not marked ai_writable in the capability catalog is refused by the server. Change those in the Easy Form Builder UI."
+msgstr "هر چیزی که در کاتالوگ قابلیت‌ها ai_writable نباشد توسط سرور رد می‌شود. آن‌ها را در خود Easy Form Builder تغییر دهید."
+
+msgid "Writable capabilities"
+msgstr "قابلیت‌های قابل نوشتن"
+
+msgid "%s ai_writable"
+msgstr "%s قابلیت ai_writable"
+
+msgid "Applies to"
+msgstr "اعمال روی"
+
+msgid "Editor state only"
+msgstr "فقط وضعیت ویرایشگر"
+
+msgid "Open the EFB editor"
+msgstr "باز کردن ویرایشگر EFB"
+
+msgid "Nothing is saved until you press Save in Easy Form Builder."
+msgstr "تا زمانی که در Easy Form Builder دکمهٔ ذخیره را نزنید، چیزی ذخیره نمی‌شود."
+
+msgid "What the AI may change"
+msgstr "AI اجازهٔ تغییر چه چیزهایی را دارد"
+
+msgid "Only entries marked ai_writable in the capability catalog. Payment, authentication, conditional logic, SMTP recipients and raw HTML always need the Easy Form Builder UI."
+msgstr "فقط مواردی که در کاتالوگ قابلیت‌ها ai_writable هستند. پرداخت، احراز هویت، منطق شرطی، گیرنده‌های SMTP و HTML خام همیشه از خود Easy Form Builder انجام می‌شوند."
+
+msgid "Last apply"
+msgstr "آخرین اعمال"
+
+msgid "Not applied yet"
+msgstr "هنوز اعمال نشده"
+
+msgid "Proposals are made from inside the EFB editor"
+msgstr "پیشنهادها از داخل ویرایشگر EFB ساخته می‌شوند"
+
+msgid "Published"
+msgstr "منتشرشده"
+
+msgid "Your request has been sent to the support team."
+msgstr "درخواست شما برای تیم پشتیبانی ارسال شد."
+
+msgid "I left out %s — those fields need Easy Form Builder Free Plus or Pro. Everything else is ready."
+msgstr "%s را کنار گذاشتم — آن فیلدها به Easy Form Builder Free Plus یا Pro نیاز دارند. بقیه آماده است."
+
+msgid "The provider URL is not allowed."
+msgstr "آدرس ارائه‌دهنده مجاز نیست."
+
+msgid "Too many voice requests. Please try again shortly."
+msgstr "درخواست‌های صوتی بیش از حد. لطفاً کمی بعد تلاش کنید."
+
+msgid "Voice input is temporarily unavailable. Please try again later."
+msgstr "ورودی صوتی موقتاً در دسترس نیست. لطفاً بعداً تلاش کنید."
+
+msgid "The assistant is temporarily unavailable. Please try again later."
+msgstr "دستیار موقتاً در دسترس نیست. لطفاً بعداً تلاش کنید."
+
+msgid "Please enter a question of up to 2,000 characters."
+msgstr "لطفاً پرسشی حداکثر ۲٬۰۰۰ کاراکتری وارد کنید."
+
+msgid "Please provide a valid email address."
+msgstr "لطفاً یک آدرس ایمیل معتبر وارد کنید."
+
+msgid "Human handoff is not enabled."
+msgstr "انتقال به انسان فعال نیست."
+
+msgid "We could not send the request. Please try again later."
+msgstr "نتوانستیم درخواست را بفرستیم. لطفاً بعداً تلاش کنید."
+
+msgid "Telegram is temporarily rate-limiting delivery."
+msgstr "تلگرام موقتاً تحویل پیام را محدود کرده است."
+
+msgid "Pick a question, or type your own."
+msgstr "یک پرسش را انتخاب کنید، یا خودتان بنویسید."
+
+msgid "AI answers can be wrong. Check anything important."
+msgstr "پاسخ‌های AI ممکن است اشتباه باشند. موارد مهم را بررسی کنید."
+
+msgid "Scroll to latest message"
+msgstr "رفتن به آخرین پیام"
+
+msgid "Full screen"
+msgstr "تمام‌صفحه"
+
+msgid "Exit full screen"
+msgstr "خروج از تمام‌صفحه"
+
+msgid "Sending…"
+msgstr "در حال ارسال…"
+
+msgid "Sent — we will be in touch."
+msgstr "ارسال شد — با شما تماس می‌گیریم."
+
+msgid "Could not send. Please try again."
+msgstr "ارسال نشد. لطفاً دوباره تلاش کنید."
+
+msgid "Connection problem. Please try again."
+msgstr "مشکل در اتصال. لطفاً دوباره تلاش کنید."
+
+msgid "Voice recording is not supported in this browser."
+msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند."
+
+msgid "Microphone access was denied."
+msgstr "دسترسی به میکروفون داده نشد."
+
+msgid "Could not transcribe that. Please try again."
+msgstr "تبدیل صدا به متن ممکن نشد. لطفاً دوباره تلاش کنید."
+
+msgid "No audio was captured. Please try again."
+msgstr "صدایی ضبط نشد. لطفاً دوباره تلاش کنید."
+
+msgid "Sources"
+msgstr "منابع"
+
+msgid "Suggested questions"
+msgstr "پرسش‌های پیشنهادی"
+
+msgid "One per line, up to four. Shown as one-tap buttons before the visitor types — the fastest way to a useful first answer."
+msgstr "هر خط یک مورد، حداکثر چهار تا. پیش از آنکه بازدیدکننده تایپ کند به‌صورت دکمه‌های یک‌ضربه‌ای نمایش داده می‌شوند — سریع‌ترین راه به نخستین پاسخ مفید."
+
+msgid "Do you ship to my city?\nWhat are your opening hours?\nHow do I return an item?"
+msgstr "به شهر من ارسال دارید؟\nساعت کاری شما چیست؟\nچطور کالا را مرجوع کنم؟"
+
+msgid "Setup & Settings"
+msgstr "راه‌اندازی و تنظیمات"
+
+msgid "Connect an AI provider, choose a model, and set the safe defaults. Your key is never sent anywhere except the provider you choose."
+msgstr "یک سرویس‌دهنده هوش مصنوعی متصل کنید، مدل را انتخاب کنید و پیش‌فرض‌های ایمن را تنظیم کنید. کلید شما جز به سرویس‌دهنده‌ای که انتخاب می‌کنید به هیچ‌جا فرستاده نمی‌شود."
+
+msgid "Steps remaining: %s. You can leave and come back — nothing here is lost."
+msgstr "گام‌های باقی‌مانده: %s. می‌توانید بعداً برگردید — چیزی از دست نمی‌رود."
+
+msgid "3. Semantic search (embeddings)"
+msgstr "۳. جست‌وجوی معنایی (Embeddings)"
+
+msgid "4. Forms: connector and delivery"
+msgstr "۴. فرم‌ها: رابط و ارسال"
+
+msgid "5. Site assistant"
+msgstr "۵. دستیار سایت"
+
+msgid "6. Prepare the knowledge base"
+msgstr "۶. آماده‌سازی پایگاه دانش"
+
+msgid "Form delivery"
+msgstr "ارسال فرم"
+
+msgid "Pick a provider and the endpoint fills itself in. Everything here except Anthropic speaks the OpenAI Chat Completions format; Claude uses its own Messages API, which AISAAutoPilot handles for you."
+msgstr "یک سرویس‌دهنده انتخاب کنید تا نقطهٔ پایانی خودکار پر شود. همهٔ گزینه‌ها به‌جز Anthropic با قالب OpenAI Chat Completions کار می‌کنند؛ Claude از Messages API خودش استفاده می‌کند که AISAAutoPilot آن را برای شما مدیریت می‌کند."
+
+msgid "Pick from the provider’s models, or choose “Other” to type an exact model name."
+msgstr "از میان مدل‌های سرویس‌دهنده انتخاب کنید، یا «دیگر» را برگزینید تا نام دقیق مدل را بنویسید."
+
+msgid "Model ID sent to the provider"
+msgstr "شناسهٔ مدلی که به سرویس‌دهنده فرستاده می‌شود"
+
+msgid "Refresh from provider"
+msgstr "تازه‌سازی از سرویس‌دهنده"
+
+msgid "Other — type a model name"
+msgstr "دیگر — نام مدل را بنویسید"
+
+msgid "Saved model"
+msgstr "مدل ذخیره‌شده"
+
+msgid "Loading models…"
+msgstr "در حال بارگذاری مدل‌ها…"
+
+msgid "Get an API key"
+msgstr "دریافت کلید API"
+
+msgid "Direct providers"
+msgstr "سرویس‌دهنده‌های مستقیم"
+
+msgid "Gateways & aggregators"
+msgstr "درگاه‌ها و تجمیع‌کننده‌ها"
+
+msgid "Custom (OpenAI-compatible)"
+msgstr "سفارشی (سازگار با OpenAI)"
+
+msgid "Lower = more deterministic. Recommended: 0.2. Ignored by models that no longer accept a sampling temperature."
+msgstr "کمتر = نتیجهٔ قطعی‌تر. پیشنهاد: ۰٫۲. مدل‌هایی که دیگر پارامتر temperature را نمی‌پذیرند آن را نادیده می‌گیرند."
+
+msgid "One short request confirms the key, endpoint and model work together. Unsaved values in the fields above are used, so you can verify before saving."
+msgstr "یک درخواست کوتاه تأیید می‌کند که کلید، نقطهٔ پایانی و مدل با هم کار می‌کنند. مقادیر ذخیره‌نشدهٔ فیلدهای بالا استفاده می‌شود تا بتوانید پیش از ذخیره بررسی کنید."
+
+msgid "Only published, public content is indexed. %1$s of about %2$s public items are indexed so far. Building forms does not need the knowledge base."
+msgstr "فقط محتوای منتشرشده و عمومی نمایه می‌شود. تاکنون %1$s مورد از حدود %2$s مورد عمومی نمایه شده است. ساخت فرم نیازی به پایگاه دانش ندارد."
+
+msgid "Open the Knowledge Base"
+msgstr "باز کردن پایگاه دانش"
+
+msgid "Publishing is a higher-risk action and always asks again."
+msgstr "انتشار اقدامی پرریسک‌تر است و همیشه دوباره تأیید می‌خواهد."
+
+msgid "When enabled, AISAAutoPilot ranks knowledge by meaning instead of keywords. It needs a provider with an /embeddings endpoint — OpenAI, Gemini, Qwen and Mistral have one; Anthropic, DeepSeek, Groq and Perplexity do not, so point the fields below at a provider that does."
+msgstr "با فعال‌سازی، AISAAutoPilot دانش را بر پایهٔ معنا رتبه‌بندی می‌کند نه کلیدواژه. به سرویس‌دهنده‌ای با نقطهٔ پایانی ‎/embeddings‎ نیاز دارد — OpenAI، Gemini، Qwen و Mistral آن را دارند؛ Anthropic، DeepSeek، Groq و Perplexity ندارند، پس فیلدهای پایین را به سرویس‌دهنده‌ای که دارد اشاره دهید."
+
+msgid "Anthropic speaks its own Messages API, which AISAAutoPilot handles natively. It has no embeddings endpoint, so semantic search needs a separate embedding provider below."
+msgstr "Anthropic از Messages API اختصاصی خود استفاده می‌کند و AISAAutoPilot به‌صورت بومی آن را پشتیبانی می‌کند. این سرویس نقطهٔ پایانی Embeddings ندارد، بنابراین جست‌وجوی معنایی به یک سرویس‌دهندهٔ Embedding جداگانه در پایین نیاز دارد."
+
+msgid "Uses Google’s OpenAI-compatible endpoint, so the same key works for chat and embeddings."
+msgstr "از نقطهٔ پایانی سازگار با OpenAI گوگل استفاده می‌کند، بنابراین یک کلید هم برای گفت‌وگو و هم برای Embeddings کار می‌کند."
+
+msgid "Mainland-China accounts use https://dashscope.aliyuncs.com/compatible-mode/v1 instead."
+msgstr "حساب‌های چین به‌جای آن از https://dashscope.aliyuncs.com/compatible-mode/v1 استفاده می‌کنند."
+
+msgid "Groq is very fast but has no embeddings endpoint — pick a separate embedding provider for semantic search."
+msgstr "Groq بسیار سریع است اما نقطهٔ پایانی Embeddings ندارد — برای جست‌وجوی معنایی یک سرویس‌دهندهٔ Embedding جداگانه انتخاب کنید."
+
+msgid "Perplexity answers from live web search. Its OpenAI-compatible Sonar endpoint is scheduled to retire on 27 September 2026 in favour of the Agent API, so treat this provider as short-term."
+msgstr "Perplexity بر پایهٔ جست‌وجوی زندهٔ وب پاسخ می‌دهد. نقطهٔ پایانی سازگار با OpenAI آن (Sonar) قرار است در ۲۷ سپتامبر ۲۰۲۶ به‌نفع Agent API بازنشسته شود، پس این سرویس‌دهنده را کوتاه‌مدت در نظر بگیرید."
+
+msgid "Replace YOUR-RESOURCE with your Azure resource name. The model is your deployment name, so pick it from your Azure portal rather than a fixed list."
+msgstr "به‌جای YOUR-RESOURCE نام منبع Azure خود را بگذارید. مدل همان نام Deployment شماست، پس آن را از پورتال Azure بردارید نه از یک فهرست ثابت."
+
+msgid "One key for many vendors. Use “Refresh from provider” to pull OpenRouter’s current catalogue."
+msgstr "یک کلید برای سازندگان متعدد. برای دریافت فهرست فعلی OpenRouter از «تازه‌سازی از سرویس‌دهنده» استفاده کنید."
+
+msgid "Aggregator with 1000+ models behind one key. Use “Refresh from provider” to load the current list."
+msgstr "تجمیع‌کننده با بیش از ۱۰۰۰ مدل پشت یک کلید. برای بارگذاری فهرست فعلی از «تازه‌سازی از سرویس‌دهنده» استفاده کنید."
+
+msgid "Open-model inference cloud. Use “Refresh from provider” to load the current list."
+msgstr "ابر اجرای مدل‌های متن‌باز. برای بارگذاری فهرست فعلی از «تازه‌سازی از سرویس‌دهنده» استفاده کنید."
+
+msgid "Multi-provider gateway. Model names are vendor-prefixed — use “Refresh from provider” to load them."
+msgstr "درگاه چندسرویسی. نام مدل‌ها پیشوند سازنده دارد — برای بارگذاری آن‌ها از «تازه‌سازی از سرویس‌دهنده» استفاده کنید."
+
+msgid "Any endpoint that implements POST /chat/completions. Paste the base URL up to but not including /chat/completions."
+msgstr "هر نقطهٔ پایانی که POST /chat/completions را پیاده‌سازی کند. نشانی پایه را تا پیش از /chat/completions وارد کنید."
+
+msgid "%s models loaded from the provider."
+msgstr "%s مدل از سرویس‌دهنده بارگذاری شد."
+
+msgid "This provider does not publish a model list."
+msgstr "این سرویس‌دهنده فهرست مدل‌ها را منتشر نمی‌کند."
+
+msgid "This provider does not publish a model list. Type the model name instead."
+msgstr "این سرویس‌دهنده فهرست مدل‌ها را منتشر نمی‌کند. نام مدل را دستی وارد کنید."
+
+msgid "Anthropic declined this request. Please rephrase it and try again."
+msgstr "Anthropic این درخواست را نپذیرفت. لطفاً آن را بازنویسی کنید و دوباره تلاش کنید."
+
+msgid "Anthropic does not provide embeddings. Set an embedding base URL, model and key (for example OpenAI) in Settings to use semantic search."
+msgstr "Anthropic سرویس Embeddings ندارد. برای استفاده از جست‌وجوی معنایی، در تنظیمات یک نشانی پایه، مدل و کلید Embedding (برای نمونه OpenAI) تعیین کنید."
+

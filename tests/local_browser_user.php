@@ -11,10 +11,10 @@ if ( ! in_array( $mode, array( 'create', 'delete' ), true ) ) {
 	exit( 64 );
 }
 
-$wp_root = getenv( 'SITEPILOT_WP_ROOT' ) ?: 'C:\xampp\htdocs\wp';
+$wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\xampp\htdocs\wp';
 require $wp_root . '/wp-load.php';
 
-const OPTION = 'sitepilot_local_browser_user';
+const OPTION = 'aisaautopilot_local_browser_user';
 
 if ( 'delete' === $mode ) {
 	$record = get_option( OPTION, array() );
@@ -34,7 +34,7 @@ if ( is_array( $existing ) && ! empty( $existing['user_id'] ) && get_userdata( (
 	exit( 0 );
 }
 
-$username = 'sitepilot_release_qa_' . strtolower( wp_generate_password( 8, false, false ) );
+$username = 'aisaautopilot_release_qa_' . strtolower( wp_generate_password( 8, false, false ) );
 $password = wp_generate_password( 28, true, true );
 $email    = $username . '@example.test';
 $user_id  = wp_create_user( $username, $password, $email );

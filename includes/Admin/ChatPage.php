@@ -1,133 +1,111 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Admin;
+namespace AISAAutoPilot\Admin;
 
-use SitePilot\Providers\ProviderManager;
+use AISAAutoPilot\Content\KnowledgeBase;
+use AISAAutoPilot\Providers\ProviderManager;
 
 /**
- * The RAG Chat page — ask questions about the site content.
+ * AI Chat — ask questions about the site content, grounded in the knowledge base.
  */
 final class ChatPage {
 
-	public const SLUG = 'sitepilot-ai-chat';
+	public const SLUG = 'aisaautopilot-chat';
 
 	public function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to view this page.', 'sitepilot-ai' ) );
+			wp_die( esc_html__( 'You do not have permission to view this page.', 'ai-site-assistant-autopilot' ) );
 		}
 
-		$configured  = ( new ProviderManager() )->is_configured();
-		$kb_exists   = ( new \SitePilot\Content\KnowledgeBase() )->table_exists();
-		$kb_stats    = $kb_exists ? ( new \SitePilot\Content\KnowledgeBase() )->get_stats() : array( 'total' => 0 );
-		$has_content = $kb_stats['total'] > 0;
+		$configured = ( new ProviderManager() )->is_configured();
+		$kb         = new KnowledgeBase();
+		$kb_total   = $kb->table_exists() ? (int) ( $kb->get_stats()['total'] ?? 0 ) : 0;
+		$has_kb     = $kb_total > 0;
+		$ready      = $configured && $has_kb;
+
+		$kb_url       = admin_url( 'admin.php?page=' . AdminMenu::SLUG_KB );
+		$settings_url = admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP );
+
+		$samples = array(
+			__( 'What is this website about?', 'ai-site-assistant-autopilot' ),
+			__( 'Summarize my latest posts', 'ai-site-assistant-autopilot' ),
+			__( 'How many pages do I have?', 'ai-site-assistant-autopilot' ),
+		);
+
+		Ui::grad_defs();
 		?>
-		<div class="wrap sitepilot-wrap sitepilot-screen sitepilot-screen--wide sitepilot-screen--chat sitepilot-chat-wrap">
-			<nav class="sitepilot-screen__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sitepilot-ai' ); ?>">
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HOME ) ); ?>"><?php esc_html_e( 'Home', 'sitepilot-ai' ); ?></a>
-				<span aria-hidden="true">/</span>
-				<span><?php esc_html_e( 'AI Chat', 'sitepilot-ai' ); ?></span>
-			</nav>
-			<header class="sitepilot-screen__header">
-				<div>
-					<p class="sitepilot-eyebrow"><?php esc_html_e( 'Knowledge-grounded answers', 'sitepilot-ai' ); ?></p>
-					<h1 class="sitepilot-title"><?php esc_html_e( 'SitePilot AI Chat', 'sitepilot-ai' ); ?> <span class="sp-ai-badge">AI</span></h1>
-					<p class="sitepilot-subtitle"><?php esc_html_e( 'Ask questions about your website content. Answers are grounded in the knowledge base available on this site.', 'sitepilot-ai' ); ?></p>
-				</div>
-				<div class="sitepilot-screen__status" aria-label="<?php esc_attr_e( 'Chat readiness', 'sitepilot-ai' ); ?>">
-					<span class="sitepilot-screen__badge <?php echo $configured ? 'sitepilot-screen__badge--ready' : 'sitepilot-screen__badge--attention'; ?>"><?php echo esc_html( $configured ? __( 'Provider ready', 'sitepilot-ai' ) : __( 'Provider needs setup', 'sitepilot-ai' ) ); ?></span>
-					<span class="sitepilot-screen__badge <?php echo $has_content ? 'sitepilot-screen__badge--ready' : 'sitepilot-screen__badge--info'; ?>"><?php echo esc_html( $has_content ? __( 'Knowledge ready', 'sitepilot-ai' ) : __( 'Knowledge base empty', 'sitepilot-ai' ) ); ?></span>
-				</div>
-			</header>
-			<div class="sitepilot-chat-layout">
-				<!-- Sidebar: Conversations -->
-				<aside class="sitepilot-chat-sidebar" id="sp-chat-sidebar">
-					<div class="sitepilot-chat-sidebar__header">
-						<h3 class="sitepilot-chat-sidebar__title">
-							<span class="dashicons dashicons-format-chat"></span>
-							<?php esc_html_e( 'Conversations', 'sitepilot-ai' ); ?>
-						</h3>
-						<button type="button" id="sp-chat-new" class="button button-small" title="<?php esc_attr_e( 'New conversation', 'sitepilot-ai' ); ?>" aria-label="<?php esc_attr_e( 'New conversation', 'sitepilot-ai' ); ?>">
-							<span class="dashicons dashicons-plus" aria-hidden="true"></span>
-						</button>
-					</div>
-					<div id="sp-chat-list" class="sitepilot-chat-list">
-						<p class="description"><?php esc_html_e( 'Loading…', 'sitepilot-ai' ); ?></p>
-					</div>
-				</aside>
+		<div class="wrap sp-app" data-sp-chat>
+			<section class="sp-screen">
+				<h1 class="sp-h1">
+					<span><?php esc_html_e( 'AI Site Assistant AutoPilot Chat', 'ai-site-assistant-autopilot' ); ?></span>
+					<span class="sp-ai-badge">AI</span>
+				</h1>
+				<p class="sp-lead sp-mb0"><?php esc_html_e( 'Ask questions about your website content. AISAAutoPilot searches your knowledge base and provides accurate answers.', 'ai-site-assistant-autopilot' ); ?></p>
 
-				<!-- Main: Chat Area -->
-				<main class="sitepilot-chat-main">
-					<div class="sitepilot-chat-header">
-						<div>
-							<strong><?php esc_html_e( 'Conversation', 'sitepilot-ai' ); ?></strong>
-							<span><?php esc_html_e( 'Private admin workspace', 'sitepilot-ai' ); ?></span>
+				<div class="sp-chat">
+					<aside class="sp-chat__aside">
+						<div class="sp-chat__aside-head">
+							<h3 class="sp-chat__aside-title">
+								<?php echo Ui::icon( 'chat', 17, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								<span><?php esc_html_e( 'Conversations', 'ai-site-assistant-autopilot' ); ?></span>
+							</h3>
+							<button type="button" id="sp-chat-new" class="sp-btn--icon-sm" title="<?php esc_attr_e( 'New conversation', 'ai-site-assistant-autopilot' ); ?>" aria-label="<?php esc_attr_e( 'New conversation', 'ai-site-assistant-autopilot' ); ?>">
+								<?php echo Ui::icon( 'plus', 16, '#1d2327', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							</button>
 						</div>
-						<span class="sitepilot-screen__badge sitepilot-screen__badge--info"><?php esc_html_e( 'Sources shown in replies', 'sitepilot-ai' ); ?></span>
-					</div>
-					<?php if ( ! $configured ) : ?>
-						<div class="sitepilot-banner sitepilot-banner--warn">
-							<span class="dashicons dashicons-warning"></span>
-							<span>
-								<?php esc_html_e( 'No AI provider is connected.', 'sitepilot-ai' ); ?>
-								<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETTINGS ) ); ?>">
-									<?php esc_html_e( 'Add your API key in Settings', 'sitepilot-ai' ); ?>
-								</a>.
-							</span>
+						<div id="sp-chat-list" class="sp-chat__list">
+							<p class="sp-help" style="padding:8px"><?php esc_html_e( 'Loading…', 'ai-site-assistant-autopilot' ); ?></p>
 						</div>
-					<?php endif; ?>
+					</aside>
 
-					<?php if ( ! $has_content ) : ?>
-						<div class="sitepilot-banner sitepilot-banner--info">
-							<span class="dashicons dashicons-info"></span>
-							<span>
-								<?php esc_html_e( 'Your knowledge base is empty.', 'sitepilot-ai' ); ?>
-								<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . KnowledgeBasePage::SLUG ) ); ?>">
-									<?php esc_html_e( 'Index your content first', 'sitepilot-ai' ); ?>
-								</a>.
-							</span>
-						</div>
-					<?php endif; ?>
+					<main class="sp-chat__main">
+						<?php if ( ! $configured ) : ?>
+							<div class="sp-alert sp-alert--warn" style="margin:14px 20px 0">
+								<?php echo Ui::icon( 'warning', 20, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								<span>
+									<?php esc_html_e( 'No AI provider is connected.', 'ai-site-assistant-autopilot' ); ?>
+									<a href="<?php echo esc_url( $settings_url ); ?>"><?php esc_html_e( 'Add your API key in Settings', 'ai-site-assistant-autopilot' ); ?></a>.
+								</span>
+							</div>
+						<?php elseif ( ! $has_kb ) : ?>
+							<div class="sp-alert sp-alert--info" style="margin:14px 20px 0">
+								<?php echo Ui::icon( 'info', 20, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								<span>
+									<?php esc_html_e( 'Your knowledge base is empty.', 'ai-site-assistant-autopilot' ); ?>
+									<a href="<?php echo esc_url( $kb_url ); ?>"><?php esc_html_e( 'Index your content first', 'ai-site-assistant-autopilot' ); ?></a>.
+								</span>
+							</div>
+						<?php endif; ?>
 
-					<!-- Messages -->
-					<div id="sp-chat-messages" class="sitepilot-chat-messages">
-						<div class="sitepilot-chat-welcome">
-							<div class="sitepilot-chat-welcome__icon">🤖</div>
-							<h2><?php esc_html_e( 'Hello! Ask me anything about your website.', 'sitepilot-ai' ); ?></h2>
-							<p><?php esc_html_e( 'For example:', 'sitepilot-ai' ); ?></p>
-							<div class="sitepilot-chat-suggestions">
-								<button class="sitepilot-chip" data-question="What is this website about?">
-									📄 <?php esc_html_e( 'What is this website about?', 'sitepilot-ai' ); ?>
-								</button>
-								<button class="sitepilot-chip" data-question="Summarize my latest posts">
-									📝 <?php esc_html_e( 'Summarize my latest posts', 'sitepilot-ai' ); ?>
-								</button>
-								<button class="sitepilot-chip" data-question="How many pages do I have?">
-									📊 <?php esc_html_e( 'How many pages do I have?', 'sitepilot-ai' ); ?>
-								</button>
+						<div id="sp-chat-messages" class="sp-chat__msgs">
+							<div class="sp-chat__welcome">
+								<span class="sp-chat__welcome-icon"><?php echo Ui::solid( 'sparkle', 26, 'grad' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+								<h2><?php esc_html_e( 'Hello! Ask me anything about your website.', 'ai-site-assistant-autopilot' ); ?></h2>
+								<p><?php esc_html_e( 'For example:', 'ai-site-assistant-autopilot' ); ?></p>
+								<div class="sp-chat__welcome-chips">
+									<?php foreach ( $samples as $sample ) : ?>
+										<button type="button" class="sp-chip" data-question="<?php echo esc_attr( $sample ); ?>"><?php echo esc_html( $sample ); ?></button>
+									<?php endforeach; ?>
+								</div>
 							</div>
 						</div>
-					</div>
 
-					<!-- Input -->
-					<div class="sitepilot-chat-input-wrap">
-						<textarea id="sp-chat-input" class="sitepilot-chat-input" rows="2"
-							placeholder="<?php esc_attr_e( 'Ask anything about your site…', 'sitepilot-ai' ); ?>"
-							<?php disabled( ! $configured || ! $has_content ); ?>></textarea>
-						<div class="sitepilot-chat-input__actions">
-							<button type="button" id="sp-mic-btn" class="sp-mic-btn" aria-label="<?php esc_attr_e( 'Start voice input', 'sitepilot-ai' ); ?>" title="<?php esc_attr_e( 'Start voice input', 'sitepilot-ai' ); ?>" <?php disabled( ! $configured || ! $has_content ); ?>>
-								<span class="dashicons dashicons-microphone" aria-hidden="true"></span>
+						<div class="sp-chat__composer">
+							<label class="sp-sr" for="sp-chat-input"><?php esc_html_e( 'Your question', 'ai-site-assistant-autopilot' ); ?></label>
+							<textarea id="sp-chat-input" rows="2" placeholder="<?php esc_attr_e( 'Ask anything about your site…', 'ai-site-assistant-autopilot' ); ?>" <?php disabled( ! $ready ); ?>></textarea>
+							<button type="button" id="sp-mic-btn" class="sp-mic" aria-label="<?php esc_attr_e( 'Start voice input', 'ai-site-assistant-autopilot' ); ?>" title="<?php esc_attr_e( 'Start voice input', 'ai-site-assistant-autopilot' ); ?>" <?php disabled( ! $ready ); ?>>
+								<?php echo Ui::icon( 'mic', 18, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 							</button>
-							<button type="button" id="sp-chat-send" class="button button-primary"
-								aria-label="<?php esc_attr_e( 'Send message', 'sitepilot-ai' ); ?>"
-								<?php disabled( ! $configured || ! $has_content ); ?>>
-								<span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+							<button type="button" id="sp-chat-send" class="sp-send" aria-label="<?php esc_attr_e( 'Send message', 'ai-site-assistant-autopilot' ); ?>" <?php disabled( ! $ready ); ?>>
+								<?php echo Ui::icon( 'send', 18, '#fff', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 							</button>
-							<span id="sp-chat-status" class="sitepilot-status" role="status" aria-live="polite"></span>
+							<span id="sp-chat-status" class="sp-sr" role="status" aria-live="polite"></span>
 						</div>
-					</div>
-				</main>
-			</div>
+					</main>
+				</div>
+			</section>
+			<?php Ui::overlays(); ?>
 		</div>
 		<?php
 	}

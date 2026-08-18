@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SitePilot\Content;
+namespace AISAAutoPilot\Content;
 
-use SitePilot\Logging\Logger;
-use SitePilot\Providers\ProviderException;
-use SitePilot\Providers\ProviderManager;
+use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Providers\ProviderException;
+use AISAAutoPilot\Providers\ProviderManager;
 
 /**
  * Batch content indexer. Reads WordPress posts/pages/CPTs in small batches,
@@ -132,7 +132,7 @@ final class ContentIndexer {
 				'offset'    => $offset,
 				'items'     => array(),
 				'percent'   => 0,
-				'error'     => __( 'AI provider is not configured. Please add your API key in Settings.', 'sitepilot-ai' ),
+				'error'     => __( 'AI provider is not configured. Please add your API key in Settings.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -161,14 +161,14 @@ final class ContentIndexer {
 							'post_id' => $post_id,
 							'title'   => $title,
 							'status'  => 'indexed',
-							'message' => __( 'Added semantic embedding.', 'sitepilot-ai' ),
+							'message' => __( 'Added semantic embedding.', 'ai-site-assistant-autopilot' ),
 						);
 					} else {
 						$items[] = array(
 							'post_id' => $post_id,
 							'title'   => $title,
 							'status'  => 'skipped',
-							'message' => __( 'Unchanged — skipped.', 'sitepilot-ai' ),
+							'message' => __( 'Unchanged — skipped.', 'ai-site-assistant-autopilot' ),
 						);
 					}
 					++$processed;
@@ -204,7 +204,7 @@ final class ContentIndexer {
 					'status'  => 'indexed',
 					'message' => sprintf(
 						/* translators: %s: post title. */
-						__( 'Indexed "%s" successfully.', 'sitepilot-ai' ),
+						__( 'Indexed "%s" successfully.', 'ai-site-assistant-autopilot' ),
 						$title
 					),
 				);
@@ -218,7 +218,7 @@ final class ContentIndexer {
 					'status'  => 'error',
 					'message' => sprintf(
 						/* translators: 1: post title, 2: error message. */
-						__( 'Failed to index "%1$s": %2$s', 'sitepilot-ai' ),
+						__( 'Failed to index "%1$s": %2$s', 'ai-site-assistant-autopilot' ),
 						$title,
 						$e->getMessage()
 					),
@@ -231,7 +231,7 @@ final class ContentIndexer {
 					'post_id' => $post_id,
 					'title'   => $title,
 					'status'  => 'error',
-					'message' => __( 'Unexpected error during indexing.', 'sitepilot-ai' ),
+					'message' => __( 'Unexpected error during indexing.', 'ai-site-assistant-autopilot' ),
 				);
 
 				$this->logger->error( 'kb_index', sprintf( 'Unexpected error post %d: %s', $post_id, $e->getMessage() ) );
@@ -263,14 +263,14 @@ final class ContentIndexer {
 		if ( ! $post || 'publish' !== $post->post_status ) {
 			return array(
 				'status'  => 'skipped',
-				'message' => __( 'Post not found or not published.', 'sitepilot-ai' ),
+				'message' => __( 'Post not found or not published.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
 		if ( ! in_array( $post->post_type, $this->get_indexable_types(), true ) ) {
 			return array(
 				'status'  => 'skipped',
-				'message' => __( 'Post type is not indexable.', 'sitepilot-ai' ),
+				'message' => __( 'Post type is not indexable.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -278,7 +278,7 @@ final class ContentIndexer {
 		if ( ! $provider_manager->is_configured() ) {
 			return array(
 				'status'  => 'error',
-				'message' => __( 'AI provider not configured.', 'sitepilot-ai' ),
+				'message' => __( 'AI provider not configured.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -289,7 +289,7 @@ final class ContentIndexer {
 			if ( $existing && $existing['content_hash'] === $content_hash ) {
 				return array(
 					'status'  => 'skipped',
-					'message' => __( 'Content unchanged.', 'sitepilot-ai' ),
+					'message' => __( 'Content unchanged.', 'ai-site-assistant-autopilot' ),
 				);
 			}
 
@@ -320,7 +320,7 @@ final class ContentIndexer {
 
 			return array(
 				'status'  => 'indexed',
-				'message' => __( 'Content indexed successfully.', 'sitepilot-ai' ),
+				'message' => __( 'Content indexed successfully.', 'ai-site-assistant-autopilot' ),
 			);
 
 		} catch ( \Throwable $e ) {
@@ -345,7 +345,7 @@ final class ContentIndexer {
 	 * Generate and store a semantic embedding for one entry.
 	 * Best-effort: failures are logged and never abort indexing.
 	 */
-	private function embed_entry( \SitePilot\Providers\ProviderInterface $provider, string $model, int $post_id, string $title, string $summary, string $keywords ): bool {
+	private function embed_entry( \AISAAutoPilot\Providers\ProviderInterface $provider, string $model, int $post_id, string $title, string $summary, string $keywords ): bool {
 		$text = trim( $title . "\n" . $summary . "\n" . $keywords );
 		if ( '' === $text ) {
 			return false;
@@ -378,7 +378,7 @@ final class ContentIndexer {
 		$types = self::INDEXABLE_TYPES;
 
 		// Also include any public CPTs the user has enabled in settings.
-		$extra = \SitePilot\Core\Settings::get( 'kb_post_types', array() );
+		$extra = \AISAAutoPilot\Core\Settings::get( 'kb_post_types', array() );
 		if ( is_array( $extra ) ) {
 			$types = array_merge( $types, array_filter( $extra, 'is_string' ) );
 		}

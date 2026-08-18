@@ -1,14 +1,14 @@
 <?php
-/** Temporarily switches only the local XAMPP SitePilot plugin entry. */
+/** Temporarily switches only the local XAMPP AISAAutoPilot plugin entry. */
 declare(strict_types=1);
 
 $mode = $argv[1] ?? '';
 $modes = array(
-	'enable'    => 'sitepilot-ai-phase1-candidate/sitepilot-ai.php',
-	'restore'   => 'wp-sitepilot-ai/sitepilot-ai.php',
-	'candidate' => 'sitepilot-ai-phase1-candidate/sitepilot-ai.php',
-	'release'   => 'sitepilot-ai/sitepilot-ai.php',
-	'original'  => 'wp-sitepilot-ai/sitepilot-ai.php',
+	'enable'    => 'ai-site-assistant-autopilot-phase1-candidate/ai-site-assistant-autopilot.php',
+	'restore'   => 'wp-ai-site-assistant-autopilot/ai-site-assistant-autopilot.php',
+	'candidate' => 'ai-site-assistant-autopilot-phase1-candidate/ai-site-assistant-autopilot.php',
+	'release'   => 'ai-site-assistant-autopilot/ai-site-assistant-autopilot.php',
+	'original'  => 'wp-ai-site-assistant-autopilot/ai-site-assistant-autopilot.php',
 );
 if ( ! isset( $modes[ $mode ] ) ) {
 	fwrite( STDERR, "Usage: php switch_candidate_plugin.php candidate|release|original\n" );
@@ -24,4 +24,4 @@ $next      = array_values( array_diff( $plugins, $variants ) );
 $next[]     = $target;
 
 update_option( 'active_plugins', array_values( array_unique( $next ) ), false );
-echo 'SitePilot local plugin switch: ' . $mode . PHP_EOL;
+echo 'AISAAutoPilot local plugin switch: ' . $mode . PHP_EOL;

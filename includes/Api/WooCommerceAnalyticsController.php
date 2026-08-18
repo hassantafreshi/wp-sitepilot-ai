@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-namespace SitePilot\Api;
+namespace AISAAutoPilot\Api;
 
-use SitePilot\Connectors\WooCommerceAnalyticsSkill;
+use AISAAutoPilot\Connectors\WooCommerceAnalyticsSkill;
 
 /**
  * REST controller for WooCommerce Analytics.
@@ -65,7 +65,7 @@ class WooCommerceAnalyticsController {
 				array(
 					'ok'    => false,
 					'code'  => 'invalid_id',
-					'error' => __( 'Invalid customer ID.', 'sitepilot-ai' ),
+					'error' => __( 'Invalid customer ID.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
