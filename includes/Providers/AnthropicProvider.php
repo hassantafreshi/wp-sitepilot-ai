@@ -123,12 +123,14 @@ final class AnthropicProvider implements ProviderInterface, ModelCatalogInterfac
 		if ( '' === $this->api_key ) {
 			return array(
 				'ok'      => false,
+				'code'    => 'no_api_key',
 				'message' => __( 'No API key is set.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 		if ( '' === $this->base_url || '' === $this->model ) {
 			return array(
 				'ok'      => false,
+				'code'    => 'invalid_config',
 				'message' => __( 'Base URL and model are required.', 'ai-site-assistant-autopilot' ),
 			);
 		}
@@ -138,12 +140,26 @@ final class AnthropicProvider implements ProviderInterface, ModelCatalogInterfac
 
 			return array(
 				'ok'      => true,
+				'code'    => 'connected',
 				'message' => __( 'Connection successful.', 'ai-site-assistant-autopilot' ),
 			);
 		} catch ( ProviderException $e ) {
+			$message = $e->getMessage();
+			$code    = $e->error_code();
+
+			if ( 'provider_unreachable' === $code ) {
+				$message = sprintf(
+					/* translators: 1: original error message, 2: base URL */
+					__( 'Could not reach the AI provider (%1$s). Check the base URL (%2$s) and your network connection.', 'ai-site-assistant-autopilot' ),
+					$message,
+					$this->base_url
+				);
+			}
+
 			return array(
 				'ok'      => false,
-				'message' => $e->getMessage(),
+				'code'    => $code,
+				'message' => $message,
 			);
 		}
 	}
@@ -190,7 +206,8 @@ final class AnthropicProvider implements ProviderInterface, ModelCatalogInterfac
 			$body['temperature'] = $this->temperature;
 		}
 
-		$response = $this->remote_json( 'POST', self::join_endpoint( $this->base_url, '/messages' ), $this->headers(), $body, $this->timeout );
+		$endpoint = self::join_endpoint( $this->base_url, '/messages' );
+		$response = $this->remote_json( 'POST', $endpoint, $this->headers(), $body, $this->timeout );
 		$decoded  = $this->decode( $response );
 
 		// A safety classifier can decline a request with HTTP 200 and no content,
@@ -230,12 +247,30 @@ final class AnthropicProvider implements ProviderInterface, ModelCatalogInterfac
 	 */
 	private function decode( $response ): array {
 		if ( is_wp_error( $response ) ) {
-			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the AI provider. Check the base URL and your connection.', 'ai-site-assistant-autopilot' ) );
+			$error_msg = $response->get_error_message();
+			throw new ProviderException(
+				'provider_unreachable',
+				sprintf(
+				/* translators: 1: error details */
+					__( 'Could not reach the AI provider (%1$s). Check the base URL and your connection.', 'ai-site-assistant-autopilot' ),
+					$error_msg
+				)
+			);
 		}
 
-		$code = (int) wp_remote_retrieve_response_code( $response );
+		$code    = (int) wp_remote_retrieve_response_code( $response );
+		$decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $decoded ) ) {
+			$decoded = array();
+		}
 		if ( 401 === $code || 403 === $code ) {
 			throw new ProviderException( 'provider_unauthorized', __( 'The AI provider rejected your API key.', 'ai-site-assistant-autopilot' ) );
+		}
+		if ( 402 === $code ) {
+			throw new ProviderException( 'provider_payment_required', __( 'The AI provider requires an active billing account or available credit.', 'ai-site-assistant-autopilot' ) );
+		}
+		if ( 404 === $code ) {
+			throw new ProviderException( 'model_not_found', __( 'The selected endpoint or model was not found. Check the base URL and model name.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( 429 === $code ) {
 			throw new ProviderException( 'provider_rate_limited', __( 'The AI provider is rate-limiting requests. Please try again shortly.', 'ai-site-assistant-autopilot' ) );
@@ -244,9 +279,7 @@ final class AnthropicProvider implements ProviderInterface, ModelCatalogInterfac
 			throw new ProviderException( 'provider_error', sprintf( /* translators: %d: HTTP status code. */ __( 'The AI provider returned an error (HTTP %d).', 'ai-site-assistant-autopilot' ), $code ) );
 		}
 
-		$decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
-
-		return is_array( $decoded ) ? $decoded : array();
+		return $decoded;
 	}
 
 	/**

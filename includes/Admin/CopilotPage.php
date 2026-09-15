@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Admin;
 
 use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
+use AISAAutoPilot\Content\ContentStudioReadModel;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Providers\ProviderManager;
+use AISAAutoPilot\Usage\UsageTracker;
 
 /**
  * WP-02 / WP-03 / WP-04 — compose, review, result.
@@ -15,20 +17,42 @@ use AISAAutoPilot\Providers\ProviderManager;
  */
 final class CopilotPage {
 
+
 	public function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have permission to view this page.', 'ai-site-assistant-autopilot' ) );
 		}
+		$view = ContentStudioNavigation::current_view();
+		if ( ContentStudioNavigation::TAB_WRITE === $view ) {
+			$this->render_content_drafts();
+			return;
+		}
+		if ( ContentStudioNavigation::TAB_TEMPLATES === $view ) {
+			$this->render_templates();
+			return;
+		}
+		if ( ContentStudioNavigation::TAB_HISTORY === $view ) {
+			( new HistoryPage() )->render();
+			return;
+		}
 
-		$configured = ( new ProviderManager() )->is_configured();
-		$recipient  = Settings::form_notification_email();
-		$efb_ready  = ( new EasyFormBuilderConnector() )->is_available();
-		$woo_ready  = class_exists( 'WooCommerce' );
-		$ready      = $configured && '' !== $recipient;
+		$configured   = ( new ProviderManager() )->is_configured();
+		$recipient    = Settings::form_notification_email();
+		$efb_ready    = ( new EasyFormBuilderConnector() )->is_available();
+		$form_enabled = (bool) Settings::get( 'form_composer_enabled', true );
+		$ready        = $form_enabled && $configured && '' !== $recipient;
 
-		$settings_url = admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP );
-		$home_url     = admin_url( 'admin.php?page=' . AdminMenu::SLUG_HOME );
-		$conn_url     = admin_url( 'admin.php?page=' . AdminMenu::SLUG_CONNECTIONS );
+		$settings_url     = admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP );
+		$integrations_url = admin_url( 'admin.php?page=' . AdminMenu::SLUG_INTEGRATIONS );
+		$efb_url          = admin_url( 'admin.php?page=' . AdminMenu::SLUG_EFB );
+		$disabled_title   = ! $form_enabled
+			? __( 'Form Composer is turned off', 'ai-site-assistant-autopilot' )
+			: ( $configured ? __( 'Form delivery is not configured', 'ai-site-assistant-autopilot' ) : __( 'AI provider unavailable', 'ai-site-assistant-autopilot' ) );
+		$disabled_note    = ! $form_enabled
+			? __( 'Turn it on in Integrations before building a form plan.', 'ai-site-assistant-autopilot' )
+			: ( $configured ? __( 'Set the notification email before a plan can be built.', 'ai-site-assistant-autopilot' ) : __( 'Connect an AI provider before a preview can be built.', 'ai-site-assistant-autopilot' ) );
+		$disabled_url     = ! $form_enabled ? $integrations_url : $settings_url;
+		$disabled_action  = ! $form_enabled ? __( 'Open Integrations', 'ai-site-assistant-autopilot' ) : __( 'Check connection', 'ai-site-assistant-autopilot' );
 
 		// A prompt handed over from the Home quick-start box.
 		$seed = isset( $_GET['prompt'] ) ? sanitize_textarea_field( wp_unslash( $_GET['prompt'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only prefill of a textarea.
@@ -42,35 +66,61 @@ final class CopilotPage {
 
 		Ui::grad_defs();
 		?>
-		<div class="wrap sp-app" data-aisaautopilot-copilot>
+		<div class="wrap sp-app sp-form-composer" data-aisaautopilot-copilot>
+			<header class="sp-fc-header">
+				<span class="sp-fc-header__icon" aria-hidden="true"><?php echo Ui::icon( 'form', 18, '#fff', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
+				<div class="sp-fc-header__titles">
+					<h1><?php esc_html_e( 'Form Composer', 'ai-site-assistant-autopilot' ); ?></h1>
+					<p><?php esc_html_e( 'Describe a form, review every field, then create it. Simple fields, emailed to you.', 'ai-site-assistant-autopilot' ); ?></p>
+				</div>
+				<span class="sp-fc-header__badge"><?php esc_html_e( 'Native form · simple fields', 'ai-site-assistant-autopilot' ); ?></span>
+				<button type="button" class="sp-fc-header__new" data-sp-form-new><?php esc_html_e( 'New form', 'ai-site-assistant-autopilot' ); ?></button>
+			</header>
 
 			<!-- ── WP-02 compose ─────────────────────────────────── -->
 			<section id="aisaautopilot-compose-screen" class="sp-screen">
-				<?php
-				Ui::crumbs(
-					array(
-						array( __( 'Home', 'ai-site-assistant-autopilot' ), $home_url ),
-						array( __( 'Create with AI', 'ai-site-assistant-autopilot' ), null ),
-					)
-				);
-				?>
-				<h1 class="sp-h1">
-					<?php echo Ui::icon( 'spark-plus', 26, 'grad' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-					<span><?php esc_html_e( 'Copilot', 'ai-site-assistant-autopilot' ); ?></span>
-					<span class="sp-ai-badge">AI</span>
-				</h1>
-				<p class="sp-lead"><?php esc_html_e( 'Describe the form you need. AISAAutoPilot drafts it, you review and approve, then it is created. Nothing is created without your approval.', 'ai-site-assistant-autopilot' ); ?></p>
-
-				<div class="sp-cols">
-					<div class="sp-col">
-						<div class="sp-card">
-							<div class="sp-label sp-label--14"><?php esc_html_e( 'What form do you want to create?', 'ai-site-assistant-autopilot' ); ?></div>
-							<div class="sp-tabs sp-tabs--boxed" style="margin-bottom:16px" role="tablist">
-								<button type="button" class="sp-tabs__btn is-on" role="tab" aria-selected="true"><?php esc_html_e( 'Create a form', 'ai-site-assistant-autopilot' ); ?></button>
-								<button type="button" class="sp-tabs__btn" role="tab" aria-selected="false" disabled title="<?php esc_attr_e( 'WooCommerce is required for product drafts.', 'ai-site-assistant-autopilot' ); ?>">
-									<?php echo esc_html( $woo_ready ? __( 'Product draft', 'ai-site-assistant-autopilot' ) : __( 'Product draft — needs WooCommerce', 'ai-site-assistant-autopilot' ) ); ?>
-								</button>
+				<div class="sp-fc-layout">
+					<main class="sp-fc-canvas" data-sp-form-canvas aria-labelledby="sp-fc-canvas-title">
+						<div class="sp-fc-canvas__inner">
+							<?php if ( '' !== $recipient ) : ?>
+								<a class="sp-fc-delivery" data-sp-form-delivery href="<?php echo esc_url( $settings_url ); ?>">
+									<span class="sp-fc-delivery__icon" aria-hidden="true"><?php echo Ui::icon( 'mail', 17, '#202a8d', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
+									<span><strong><?php /* translators: %s: configured form notification email. */ printf( esc_html__( 'Submissions email to %s', 'ai-site-assistant-autopilot' ), esc_html( $recipient ) ); ?></strong><small><?php esc_html_e( 'The recipient is set by you and cannot be changed by the AI.', 'ai-site-assistant-autopilot' ); ?></small></span>
+									<b><?php esc_html_e( 'Change', 'ai-site-assistant-autopilot' ); ?></b>
+								</a>
+							<?php endif; ?>
+							<section class="sp-fc-empty" data-sp-form-empty>
+								<span class="sp-fc-empty__icon" aria-hidden="true"><?php echo Ui::icon( 'form', 27, '#202a8d', 1.7 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
+								<h2 id="sp-fc-canvas-title"><?php esc_html_e( 'Describe your form', 'ai-site-assistant-autopilot' ); ?></h2>
+								<p><?php esc_html_e( 'Say what you need in one line. The assistant drafts a plan here; you review every field before anything is created.', 'ai-site-assistant-autopilot' ); ?></p>
+								<div class="sp-fc-empty__examples" id="aisaautopilot-examples">
+									<?php foreach ( array_slice( $examples, 0, 3 ) as $example ) : ?>
+										<button type="button" class="sp-chip" data-example="<?php echo esc_attr( $example ); ?>"><?php echo esc_html( $example ); ?></button>
+									<?php endforeach; ?>
+								</div>
+							</section>
+							<div class="sp-fc-advanced">
+								<span class="sp-fc-advanced__icon" aria-hidden="true"><?php echo Ui::icon( 'database', 16, '#5b5e7d', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
+								<span><strong><?php esc_html_e( 'Need file uploads, payments, multi-step or logic?', 'ai-site-assistant-autopilot' ); ?></strong><small><?php esc_html_e( 'Those features belong in Easy Form Builder. Native forms stay simple and email-only.', 'ai-site-assistant-autopilot' ); ?></small></span>
+								<?php if ( $efb_ready ) : ?>
+									<a href="<?php echo esc_url( $efb_url ); ?>"><?php esc_html_e( 'Open EFB', 'ai-site-assistant-autopilot' ); ?></a>
+								<?php else : ?>
+									<span class="sp-fc-advanced__locked"><?php esc_html_e( 'EFB unavailable', 'ai-site-assistant-autopilot' ); ?></span>
+								<?php endif; ?>
 							</div>
+						</div>
+					</main>
+
+					<aside class="sp-fc-assistant" data-sp-form-assistant aria-labelledby="sp-fc-assistant-title">
+						<header class="sp-fc-assistant__head">
+							<span aria-hidden="true"><?php echo Ui::icon( 'shield', 19, '#fff', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
+							<span><strong id="sp-fc-assistant-title"><?php esc_html_e( 'Form Assistant', 'ai-site-assistant-autopilot' ); ?></strong><small><?php esc_html_e( 'New native form', 'ai-site-assistant-autopilot' ); ?></small></span>
+						</header>
+						<div class="sp-fc-assistant__thread">
+							<p><?php esc_html_e( 'Describe the form you need. I will build a reviewable plan and will not create anything until you approve it.', 'ai-site-assistant-autopilot' ); ?></p>
+						</div>
+						<div class="sp-fc-assistant__footer">
+						<div class="sp-fc-composer">
 
 							<div class="sp-composer">
 								<label class="sp-sr" for="aisaautopilot-prompt"><?php esc_html_e( 'Describe the form you want to create', 'ai-site-assistant-autopilot' ); ?></label>
@@ -81,24 +131,24 @@ final class CopilotPage {
 										<span class="sp-sr aisaautopilot-voice-button__label"><?php esc_html_e( 'Speak', 'ai-site-assistant-autopilot' ); ?></span>
 									</button>
 									<span id="aisaautopilot-status" class="sp-composer__hint" role="status" aria-live="polite"><?php esc_html_e( 'Ctrl + Enter to submit', 'ai-site-assistant-autopilot' ); ?></span>
-									<button type="button" id="aisaautopilot-generate" class="sp-btn" style="padding:10px 20px" <?php disabled( ! $ready ); ?>><?php esc_html_e( 'Generate preview', 'ai-site-assistant-autopilot' ); ?></button>
+					<button type="button" id="aisaautopilot-generate" class="sp-fc-send" <?php disabled( ! $ready ); ?>><?php echo Ui::icon( 'send', 17, '#fff', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?><span class="sp-sr"><?php esc_html_e( 'Generate preview', 'ai-site-assistant-autopilot' ); ?></span></button>
 								</div>
 							</div>
 
-							<?php if ( ! $ready ) : ?>
+		<?php if ( ! $ready ) : ?>
 								<div class="sp-notice sp-notice--err" style="margin-top:11px">
-									<?php echo Ui::icon( 'alert-circle', 16, '#dc2626', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+			<?php echo Ui::icon( 'alert-circle', 16, '#dc2626', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 									<div class="sp-notice__body">
 										<div class="sp-notice__title" style="color:#b91c1c">
-											<?php echo esc_html( $configured ? __( 'Form delivery is not configured', 'ai-site-assistant-autopilot' ) : __( 'AI provider unavailable', 'ai-site-assistant-autopilot' ) ); ?>
+			<?php echo esc_html( $disabled_title ); ?>
 										</div>
 										<div class="sp-notice__text">
-											<?php echo esc_html( $configured ? __( 'Set the notification email before a plan can be built.', 'ai-site-assistant-autopilot' ) : __( 'Connect an AI provider before a preview can be built.', 'ai-site-assistant-autopilot' ) ); ?>
+			<?php echo esc_html( $disabled_note ); ?>
 										</div>
 									</div>
-									<a class="sp-btn sp-btn--danger sp-btn--xs" href="<?php echo esc_url( $settings_url ); ?>"><?php esc_html_e( 'Check connection', 'ai-site-assistant-autopilot' ); ?></a>
+									<a class="sp-btn sp-btn--danger sp-btn--xs" href="<?php echo esc_url( $disabled_url ); ?>"><?php echo esc_html( $disabled_action ); ?></a>
 								</div>
-							<?php endif; ?>
+		<?php endif; ?>
 						</div>
 
 						<div id="aisaautopilot-generation-progress" class="sp-gen" hidden aria-live="polite">
@@ -114,38 +164,7 @@ final class CopilotPage {
 							<p class="sp-help sp-help--12" style="margin-top:14px"><?php esc_html_e( 'You can keep working; we’ll show the plan here when it’s ready.', 'ai-site-assistant-autopilot' ); ?></p>
 						</div>
 
-						<div class="sp-chips" id="aisaautopilot-examples">
-							<span class="sp-chips__label"><?php esc_html_e( 'Try:', 'ai-site-assistant-autopilot' ); ?></span>
-							<?php foreach ( $examples as $example ) : ?>
-								<button type="button" class="sp-chip" data-example="<?php echo esc_attr( $example ); ?>"><?php echo esc_html( $example ); ?></button>
-							<?php endforeach; ?>
-						</div>
-					</div>
-
-					<aside class="sp-side">
-						<div class="sp-card sp-card--16 sp-card--flat">
-							<div class="sp-h3" style="margin-bottom:12px"><?php esc_html_e( 'Context of this request', 'ai-site-assistant-autopilot' ); ?></div>
-							<div class="sp-kv">
-								<?php
-								Ui::kv( __( 'Connector', 'ai-site-assistant-autopilot' ), 'AISAAutoPilot Forms' );
-								Ui::kv( __( 'Result state', 'ai-site-assistant-autopilot' ), 'publish' === Settings::get( 'default_form_status', 'draft' ) ? __( 'Published', 'ai-site-assistant-autopilot' ) : __( 'Draft', 'ai-site-assistant-autopilot' ) );
-								Ui::kv( __( 'Site language', 'ai-site-assistant-autopilot' ), get_locale() . ( is_rtl() ? ' (RTL)' : '' ) );
-								Ui::kv( __( 'Knowledge base', 'ai-site-assistant-autopilot' ), __( 'Not used for forms', 'ai-site-assistant-autopilot' ) );
-								?>
-								<div class="sp-hr"></div>
-								<?php Ui::kv( __( 'Estimated usage', 'ai-site-assistant-autopilot' ), __( '~1,200 tokens', 'ai-site-assistant-autopilot' ) ); ?>
-							</div>
-						</div>
-						<div class="sp-card sp-card--accent">
-							<div class="sp-row-wrap sp-row-wrap--sm" style="margin-bottom:6px">
-								<?php echo Ui::icon( 'shield', 16, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-								<span style="font-size:13.5px;font-weight:700"><?php esc_html_e( 'Nothing runs automatically', 'ai-site-assistant-autopilot' ); ?></span>
-							</div>
-							<p class="sp-help sp-help--12"><?php esc_html_e( 'We only build a plan. You see every field and the destination before anything is created.', 'ai-site-assistant-autopilot' ); ?></p>
-						</div>
-						<div class="sp-card sp-card--dashed" style="background:#fff">
-							<div class="sp-h3" style="font-size:13px"><?php esc_html_e( 'Voice input', 'ai-site-assistant-autopilot' ); ?></div>
-							<p class="sp-help sp-help--12"><?php esc_html_e( 'Recording becomes an editable transcript first. You always send it yourself.', 'ai-site-assistant-autopilot' ); ?></p>
+						<p class="sp-fc-assistant__safety"><?php esc_html_e( 'Drafts a plan you approve. Nothing is created on its own.', 'ai-site-assistant-autopilot' ); ?></p>
 						</div>
 					</aside>
 				</div>
@@ -169,13 +188,13 @@ final class CopilotPage {
 					<label class="sp-modal__ack">
 						<input type="checkbox" id="sp-confirm-ack" />
 						<span>
-							<?php
-							printf(
-								/* translators: %s: site host name. */
-								esc_html__( 'I understand this creates a publicly visible form on %s', 'ai-site-assistant-autopilot' ),
-								esc_html( (string) wp_parse_url( home_url(), PHP_URL_HOST ) )
-							);
-							?>
+			<?php
+			printf(
+			/* translators: %s: site host name. */
+				esc_html__( 'I understand this creates a publicly visible form on %s', 'ai-site-assistant-autopilot' ),
+				esc_html( (string) wp_parse_url( home_url(), PHP_URL_HOST ) )
+			);
+			?>
 						</span>
 					</label>
 					<div class="sp-modal__foot">
@@ -185,22 +204,188 @@ final class CopilotPage {
 				</div>
 			</div>
 
-			<?php Ui::overlays(); ?>
+		<?php Ui::overlays(); ?>
 		</div>
 		<?php
 		Ui::json_script(
 			'sp-copilot-boot',
 			array(
-				'homeUrl'      => $home_url,
-				'historyUrl'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_HISTORY ),
-				'connUrl'      => $conn_url,
-				'formsUrl'     => admin_url( 'admin.php?page=' . AdminMenu::SLUG_FORMS ),
-				'efbReady'     => $efb_ready,
-				'defaultDraft' => 'publish' !== Settings::get( 'default_form_status', 'draft' ),
-				'host'         => (string) wp_parse_url( home_url(), PHP_URL_HOST ),
-				'i18n'         => self::strings(),
+				'historyUrl' => admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ),
+				'efbUrl'     => $efb_url,
+				'efbReady'   => $efb_ready,
+				'i18n'       => self::strings(),
 			)
 		);
+	}
+
+	/**
+	 * Content Studio’s safe post/page-draft flow, separate from native forms.
+	 */
+	private function render_content_drafts(): void {
+		$content_enabled  = (bool) Settings::get( 'content_studio_enabled', true );
+		$cap_reached      = ( new UsageTracker() )->is_exhausted();
+		$ready            = $content_enabled && ! $cap_reached && ( new ProviderManager() )->is_configured();
+		$drafts           = ( new ContentStudioReadModel() )->recent_drafts( 3 );
+		$has_drafts       = array() !== $drafts;
+		$brief            = ContentStudioNavigation::write_brief();
+		$integrations_url = admin_url( 'admin.php?page=' . AdminMenu::SLUG_INTEGRATIONS );
+		$usage_url        = admin_url( 'admin.php?page=' . AdminMenu::SLUG_USAGE );
+		$disabled_title   = ! $content_enabled
+			? __( 'Content Studio is turned off', 'ai-site-assistant-autopilot' )
+			: ( $cap_reached ? __( 'AI usage cap reached', 'ai-site-assistant-autopilot' ) : __( 'AI provider unavailable', 'ai-site-assistant-autopilot' ) );
+		$disabled_note    = ! $content_enabled
+			? __( 'Turn it on in Integrations before creating a reviewable draft.', 'ai-site-assistant-autopilot' )
+			: ( $cap_reached ? __( 'Increase or reset the usage budget before building a draft.', 'ai-site-assistant-autopilot' ) : __( 'Connect an AI provider before a draft can be built.', 'ai-site-assistant-autopilot' ) );
+		$disabled_url     = ! $content_enabled ? $integrations_url : ( $cap_reached ? $usage_url : admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP ) );
+		$disabled_action  = ! $content_enabled
+			? __( 'Open Integrations', 'ai-site-assistant-autopilot' )
+			: ( $cap_reached ? __( 'Open Usage', 'ai-site-assistant-autopilot' ) : __( 'Check connection', 'ai-site-assistant-autopilot' ) );
+		Ui::grad_defs();
+		?>
+		<div class="wrap sp-app sp-app--narrow" data-sp-content-studio data-sp-content-tab="write" data-aisaautopilot-content data-content-has-drafts="<?php echo $has_drafts ? 'true' : 'false'; ?>">
+			<section class="sp-screen">
+		<?php
+		Ui::page_header(
+			__( 'Content Studio', 'ai-site-assistant-autopilot' ),
+			__( 'Drafts written in the voice it learned from your site.', 'ai-site-assistant-autopilot' ),
+			array(
+				'chip'    => ConnectionChip::derive(),
+				'action'  => array(
+					'label' => __( 'New draft', 'ai-site-assistant-autopilot' ),
+					'url'   => ContentStudioNavigation::url( ContentStudioNavigation::TAB_WRITE ),
+				),
+				'subtabs' => ContentStudioNavigation::subtabs( ContentStudioNavigation::TAB_WRITE ),
+			)
+		);
+		?>
+		<div class="sp-pagebody sp-content-write">
+				<div class="sp-content-empty" data-content-empty<?php echo $has_drafts ? ' hidden="hidden"' : ''; ?>>
+					<div class="sp-content-empty__icon" aria-hidden="true">
+						<?php echo Ui::icon( 'doc', 21, '#5c5f80', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+					</div>
+					<h2 class="sp-content-empty__title"><?php esc_html_e( 'Nothing written yet', 'ai-site-assistant-autopilot' ); ?></h2>
+					<p class="sp-content-empty__copy"><?php esc_html_e( 'Describe what you need in the box below and Content Studio writes a first draft in the voice it learned from your site. Drafts are never published on their own.', 'ai-site-assistant-autopilot' ); ?></p>
+				</div>
+
+				<div class="sp-card sp-content-compose" data-content-compose>
+					<label class="sp-content-compose__label" for="aisaautopilot-content-prompt"><?php esc_html_e( 'What should it write?', 'ai-site-assistant-autopilot' ); ?></label>
+					<textarea id="aisaautopilot-content-prompt" class="sp-textarea sp-content-compose__prompt" rows="4" maxlength="6000" placeholder="<?php esc_attr_e( 'A post about why multi-step forms convert better, for shop owners, around 900 words…', 'ai-site-assistant-autopilot' ); ?>" <?php disabled( ! $ready ); ?>><?php echo esc_textarea( $brief ); ?></textarea>
+					<div class="sp-content-compose__footer">
+						<div class="sp-content-voice" aria-label="<?php esc_attr_e( 'Voice', 'ai-site-assistant-autopilot' ); ?>">
+							<span class="sp-content-voice__label"><?php esc_html_e( 'Voice', 'ai-site-assistant-autopilot' ); ?></span>
+							<span class="sp-content-voice__chip sp-content-voice__chip--active"><?php esc_html_e( 'Learned from your site', 'ai-site-assistant-autopilot' ); ?></span>
+							<span class="sp-content-voice__chip sp-content-voice__chip--locked"><?php esc_html_e( 'Formal', 'ai-site-assistant-autopilot' ); ?></span>
+							<span class="sp-content-voice__chip sp-content-voice__chip--locked"><?php esc_html_e( 'Plain', 'ai-site-assistant-autopilot' ); ?></span>
+						</div>
+						<button type="button" class="sp-btn" id="aisaautopilot-content-plan" <?php disabled( ! $ready ); ?>><?php esc_html_e( 'Write a draft', 'ai-site-assistant-autopilot' ); ?></button>
+					</div>
+					<span class="sp-help sp-help--12 sp-content-compose__status" id="aisaautopilot-content-status" role="status" aria-live="polite"></span>
+					<?php if ( ! $ready ) : ?>
+						<div class="sp-notice sp-notice--err sp-content-compose__notice">
+							<?php echo Ui::icon( 'alert-circle', 16, '#dc2626', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<div class="sp-notice__body">
+								<div class="sp-notice__title" style="color:#b91c1c"><?php echo esc_html( $disabled_title ); ?></div>
+								<div class="sp-notice__text"><?php echo esc_html( $disabled_note ); ?></div>
+							</div>
+							<a class="sp-btn sp-btn--danger sp-btn--xs" href="<?php echo esc_url( $disabled_url ); ?>"><?php echo esc_html( $disabled_action ); ?></a>
+						</div>
+					<?php endif; ?>
+				</div>
+
+				<div class="sp-card sp-content-review" data-content-preview hidden>
+					<div class="sp-card__split">
+						<h2 class="sp-h2 sp-mb0"><?php esc_html_e( 'Review the draft before saving', 'ai-site-assistant-autopilot' ); ?></h2>
+						<?php echo Ui::pill( __( 'Draft only', 'ai-site-assistant-autopilot' ), 'warn' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by Ui. ?>
+					</div>
+					<div class="sp-stack sp-stack--md">
+						<div><span class="sp-label"><?php esc_html_e( 'Title', 'ai-site-assistant-autopilot' ); ?></span><p data-content-title></p></div>
+						<div><span class="sp-label"><?php esc_html_e( 'URL slug', 'ai-site-assistant-autopilot' ); ?></span><p class="sp-mono" data-content-slug></p></div>
+						<div><span class="sp-label"><?php esc_html_e( 'Meta description', 'ai-site-assistant-autopilot' ); ?></span><p data-content-meta></p></div>
+						<div><span class="sp-label"><?php esc_html_e( 'Body', 'ai-site-assistant-autopilot' ); ?></span><div class="sp-content-preview" data-content-body></div></div>
+					</div>
+					<div class="sp-btn-group sp-content-review__actions"><button type="button" class="sp-btn" data-content-approve><?php esc_html_e( 'Approve & create draft', 'ai-site-assistant-autopilot' ); ?></button><button type="button" class="sp-btn sp-btn--ghost" data-content-restart><?php esc_html_e( 'Start over', 'ai-site-assistant-autopilot' ); ?></button></div>
+				</div>
+
+				<div class="sp-card sp-card--ok sp-content-result" data-content-result hidden></div>
+
+				<section class="sp-content-recent" data-content-recent aria-labelledby="aisaautopilot-content-recent-heading">
+					<h2 class="sp-content-recent__heading" id="aisaautopilot-content-recent-heading"><?php esc_html_e( 'Recent drafts', 'ai-site-assistant-autopilot' ); ?></h2>
+					<div data-content-recent-list>
+					<?php foreach ( $drafts as $draft ) : ?>
+						<div class="sp-content-recent__row" data-content-recent-row>
+							<div class="sp-content-recent__main">
+								<div class="sp-content-recent__title"><?php echo esc_html( $draft['title'] ); ?></div>
+								<div class="sp-content-recent__meta"><?php echo esc_html( $draft['kind'] . ' · ' . $draft['when'] ); ?></div>
+							</div>
+							<span class="sp-content-recent__state sp-content-recent__state--<?php echo esc_attr( $draft['tone'] ); ?>"><?php echo esc_html( $draft['state'] ); ?></span>
+						</div>
+					<?php endforeach; ?>
+					</div>
+				</section>
+		</div>
+			</section>
+		</div>
+		<?php
+	}
+
+	private function render_templates(): void {
+		$templates = array(
+			array(
+				'name'  => __( 'Product description', 'ai-site-assistant-autopilot' ),
+				'body'  => __( 'Write 60–90 words for {product}. Lead with the material, then the use. No superlatives.', 'ai-site-assistant-autopilot' ),
+				'brief' => __( 'Write 60–90 words for {product}. Lead with the material, then the use. No superlatives.', 'ai-site-assistant-autopilot' ),
+			),
+			array(
+				'name'  => __( 'Blog post outline', 'ai-site-assistant-autopilot' ),
+				'body'  => __( 'Outline a post on {topic} for {audience}. Six headings, one sentence each.', 'ai-site-assistant-autopilot' ),
+				'brief' => __( 'Outline a post on {topic} for {audience}. Six headings, one sentence each.', 'ai-site-assistant-autopilot' ),
+			),
+			array(
+				'name'  => __( 'Meta description', 'ai-site-assistant-autopilot' ),
+				'body'  => __( 'Summarise {page} in under 155 characters. Say what the reader gets.', 'ai-site-assistant-autopilot' ),
+				'brief' => __( 'Summarise {page} in under 155 characters. Say what the reader gets.', 'ai-site-assistant-autopilot' ),
+			),
+			array(
+				'name'  => __( 'Support answer', 'ai-site-assistant-autopilot' ),
+				'body'  => __( 'Answer {question} using only {sources}. If the answer is not there, say so.', 'ai-site-assistant-autopilot' ),
+				'brief' => __( 'Answer {question} using only {sources}. If the answer is not there, say so.', 'ai-site-assistant-autopilot' ),
+			),
+		);
+		Ui::grad_defs();
+		?>
+		<div class="wrap sp-app sp-app--narrow" data-sp-content-studio data-sp-content-tab="templates">
+			<section class="sp-screen">
+		<?php
+		Ui::page_header(
+			__( 'Content Studio', 'ai-site-assistant-autopilot' ),
+			__( 'Reusable writing starting points.', 'ai-site-assistant-autopilot' ),
+			array(
+				'chip'    => ConnectionChip::derive(),
+				'action'  => array(
+					'label' => __( 'New draft', 'ai-site-assistant-autopilot' ),
+					'url'   => ContentStudioNavigation::url( ContentStudioNavigation::TAB_WRITE ),
+				),
+				'subtabs' => ContentStudioNavigation::subtabs( ContentStudioNavigation::TAB_TEMPLATES ),
+			)
+		);
+		?>
+		<div class="sp-pagebody sp-content-templates">
+				<div class="sp-content-template-grid">
+		<?php foreach ( $templates as $template ) : ?>
+						<article class="sp-card sp-content-template" data-content-template>
+							<div class="sp-content-template__head">
+								<h2 class="sp-content-template__title"><?php echo esc_html( $template['name'] ); ?></h2>
+								<span class="sp-content-template__source"><?php esc_html_e( 'Built-in', 'ai-site-assistant-autopilot' ); ?></span>
+							</div>
+							<div class="sp-content-template__body sp-mono" dir="auto"><?php echo esc_html( $template['body'] ); ?></div>
+							<a class="sp-btn sp-btn--plain sp-content-template__cta" href="<?php echo esc_url( ContentStudioNavigation::write_url( $template['brief'] ) ); ?>"><?php esc_html_e( 'Use template', 'ai-site-assistant-autopilot' ); ?></a>
+						</article>
+		<?php endforeach; ?>
+				</div>
+		</div>
+			</section>
+		</div>
+		<?php
 	}
 
 	/**
@@ -210,22 +395,16 @@ final class CopilotPage {
 	 */
 	private static function strings(): array {
 		return array(
-			'home'            => __( 'Home', 'ai-site-assistant-autopilot' ),
+			'formAssistant'   => __( 'Form Assistant', 'ai-site-assistant-autopilot' ),
+			'reviewReady'     => __( 'Your form plan is ready. Review every field and the final status below; nothing is created until you approve.', 'ai-site-assistant-autopilot' ),
+			/* translators: %d: number of fields in the proposed form. */
+			'fieldCount'      => __( '%d fields ready to review', 'ai-site-assistant-autopilot' ),
 			'createWithAi'    => __( 'Create with AI', 'ai-site-assistant-autopilot' ),
-			'reviewAction'    => __( 'Review action', 'ai-site-assistant-autopilot' ),
-			'actionHistory'   => __( 'Action history', 'ai-site-assistant-autopilot' ),
-			'result'          => __( 'Result', 'ai-site-assistant-autopilot' ),
 			'waiting'         => __( 'Waiting for your approval', 'ai-site-assistant-autopilot' ),
 			'expired'         => __( 'Expired', 'ai-site-assistant-autopilot' ),
-			'createdNow'      => __( 'Created just now', 'ai-site-assistant-autopilot' ),
 			/* translators: %s: human-readable time remaining, e.g. "14 minutes". */
 			'validFor'        => __( 'Valid for %s more', 'ai-site-assistant-autopilot' ),
 			'proposalExpired' => __( 'This proposal has expired', 'ai-site-assistant-autopilot' ),
-			'tlRequest'       => __( 'Request', 'ai-site-assistant-autopilot' ),
-			'tlPlan'          => __( 'AI plan', 'ai-site-assistant-autopilot' ),
-			'tlSafety'        => __( 'Safety check', 'ai-site-assistant-autopilot' ),
-			'tlApproval'      => __( 'Your approval', 'ai-site-assistant-autopilot' ),
-			'tlExecution'     => __( 'Execution', 'ai-site-assistant-autopilot' ),
 			'safeText'        => __( 'Nothing changes on your site until you approve.', 'ai-site-assistant-autopilot' ),
 			'expiredText'     => __( 'This action expired and can no longer be approved. Rebuild the request to continue.', 'ai-site-assistant-autopilot' ),
 			'preview'         => __( 'Preview', 'ai-site-assistant-autopilot' ),
@@ -247,35 +426,37 @@ final class CopilotPage {
 			'publishedState'  => __( 'Published immediately', 'ai-site-assistant-autopilot' ),
 			'riskLevel'       => __( 'Risk level', 'ai-site-assistant-autopilot' ),
 			'notifications'   => __( 'Notifications', 'ai-site-assistant-autopilot' ),
-			'estimatedUsage'  => __( 'Estimated usage', 'ai-site-assistant-autopilot' ),
-			'estimate'        => __( '~1,200 tokens', 'ai-site-assistant-autopilot' ),
 			'approveDraft'    => __( 'Approve & save as draft', 'ai-site-assistant-autopilot' ),
 			'approvePublish'  => __( 'Approve & publish', 'ai-site-assistant-autopilot' ),
 			'cannotApprove'   => __( 'Expired', 'ai-site-assistant-autopilot' ),
 			'backAndEdit'     => __( 'Back and edit', 'ai-site-assistant-autopilot' ),
 			'rejectProposal'  => __( 'Reject this proposal', 'ai-site-assistant-autopilot' ),
-			'approveNote'     => __( 'Single use · reversible by deleting the draft', 'ai-site-assistant-autopilot' ),
+			'approveNote'     => __( 'Single use · creates exactly the reviewed status', 'ai-site-assistant-autopilot' ),
 			'expiredNote'     => __( 'Rebuild the request to continue.', 'ai-site-assistant-autopilot' ),
 			'rejected'        => __( 'Proposal rejected. Nothing was created.', 'ai-site-assistant-autopilot' ),
 			'creating'        => __( 'Creating the form in WordPress', 'ai-site-assistant-autopilot' ),
 			'okTitle'         => __( 'The form was created as a draft.', 'ai-site-assistant-autopilot' ),
 			'okTitlePub'      => __( 'The form was created and published.', 'ai-site-assistant-autopilot' ),
 			/* translators: %s: the title of the form that was created. */
-			'okBody'          => __( '“%s” was created. Place the shortcode on a page to show it to visitors.', 'ai-site-assistant-autopilot' ),
+			/* translators: %s: title of the form that was created. */
+			'okBodyDraft'     => __( '“%s” was saved as a draft. Open and publish it before its shortcode can show the form to visitors.', 'ai-site-assistant-autopilot' ),
+			/* translators: %s: title of the form that was created. */
+			'okBodyPublished' => __( '“%s” was published. Place the shortcode on a page to show it to visitors.', 'ai-site-assistant-autopilot' ),
 			'failTitle'       => __( 'The form was not created', 'ai-site-assistant-autopilot' ),
+			'formCreated'     => __( 'Form created', 'ai-site-assistant-autopilot' ),
+			'creationFailed'  => __( 'Creation failed', 'ai-site-assistant-autopilot' ),
+			'createdInWp'     => __( 'Created in WordPress', 'ai-site-assistant-autopilot' ),
+			'entriesEmailTo'  => __( 'Entries email to', 'ai-site-assistant-autopilot' ),
+			'resultDraft'     => __( 'Done. The form was saved as a draft. Open and publish it before its shortcode can display it to visitors.', 'ai-site-assistant-autopilot' ),
+			'resultPublished' => __( 'Done. The reviewed form was published and its shortcode is ready to place.', 'ai-site-assistant-autopilot' ),
+			'resultFailed'    => __( 'The approved action could not be completed. Nothing new was created.', 'ai-site-assistant-autopilot' ),
 			'shortcode'       => __( 'Shortcode', 'ai-site-assistant-autopilot' ),
 			'copy'            => __( 'Copy', 'ai-site-assistant-autopilot' ),
 			'copied'          => __( 'Copied to clipboard', 'ai-site-assistant-autopilot' ),
+			'openDraft'       => __( 'Open the draft', 'ai-site-assistant-autopilot' ),
 			'openForm'        => __( 'Open the form', 'ai-site-assistant-autopilot' ),
 			'editInEfb'       => __( 'Edit in Easy Form Builder', 'ai-site-assistant-autopilot' ),
-			'allForms'        => __( 'View all AISAAutoPilot Forms', 'ai-site-assistant-autopilot' ),
 			'tryAgain'        => __( 'Try again', 'ai-site-assistant-autopilot' ),
-			'time'            => __( 'Time', 'ai-site-assistant-autopilot' ),
-			'actionId'        => __( 'Action ID', 'ai-site-assistant-autopilot' ),
-			'recordedUsage'   => __( 'Recorded usage', 'ai-site-assistant-autopilot' ),
-			'notRecorded'     => __( 'Not recorded', 'ai-site-assistant-autopilot' ),
-			'nextStep'        => __( 'Next step', 'ai-site-assistant-autopilot' ),
-			'placeOnPage'     => __( 'Place this form on a page', 'ai-site-assistant-autopilot' ),
 			'buildAnother'    => __( 'Build another form', 'ai-site-assistant-autopilot' ),
 			'viewInActivity'  => __( 'View in activity', 'ai-site-assistant-autopilot' ),
 			'low'             => __( 'Low', 'ai-site-assistant-autopilot' ),

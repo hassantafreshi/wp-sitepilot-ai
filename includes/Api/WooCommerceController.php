@@ -51,7 +51,9 @@ final class WooCommerceController {
 		$skill = new WooCommerceProductSkill();
 		$r     = $skill->plan( $prompt );
 
-		return new \WP_REST_Response( $r, $r['ok'] ? 200 : 400 );
+		$status = ! empty( $r['ok'] ) ? 200 : ( 'usage_cap_reached' === (string) ( $r['code'] ?? '' ) ? 429 : 400 );
+
+		return new \WP_REST_Response( $r, $status );
 	}
 
 	/**
@@ -77,9 +79,20 @@ final class WooCommerceController {
 	}
 
 	/**
-	 * POST /woocommerce/smart-search — AI-powered product search.
+	 * POST /woocommerce/smart-search - protected, read-only product search.
 	 */
 	public function smart_search( \WP_REST_Request $req ): \WP_REST_Response {
+		if ( ! WooCommerceConnector::is_smart_search_enabled() ) {
+			return new \WP_REST_Response(
+				array(
+					'ok'     => false,
+					'code'   => 'feature_disabled',
+					'errors' => array( __( 'Smart product search is disabled in Store Copilot settings.', 'ai-site-assistant-autopilot' ) ),
+				),
+				403
+			);
+		}
+
 		$query = sanitize_text_field( $req->get_param( 'query' ) ?? '' );
 		if ( '' === trim( $query ) ) {
 			return new \WP_REST_Response(
@@ -92,11 +105,8 @@ final class WooCommerceController {
 			);
 		}
 
-		// First try an AI search if provider is configured.
-		$skill   = new WooCommerceProductSkill();
-		$ai_plan = $skill->plan( "search for: {$query}" );
-
-		// Then fall back to direct WordPress search.
+		// The route is intentionally read-only and does not call a provider. It
+		// remains available only when its explicit Store setting is enabled.
 		$posts = get_posts(
 			array(
 				'post_type'   => 'product',

@@ -17,12 +17,13 @@
 	var recognition = null;
 	var voiceInputPrefix = '';
 	var voiceFinalText = '';
-	var liveVoiceEnabled = false;
-	var liveVoiceRecognition = null;
-	var liveVoiceRestartTimer = null;
-	var liveVoiceSending = false;
+	var selectedField = null;
+	function t( key, fallback, replacement ) {
+		var value = cfg.i18n && cfg.i18n[ key ] ? cfg.i18n[ key ] : fallback;
+		return replacement === undefined ? value : value.replace( '%s', String( replacement ) );
+	}
 	function responseLanguage( text ) { if ( /[\u0600-\u06ff]/.test( text ) ) { return /[\u067e\u0686\u0698\u06af]/.test( text ) ? 'fa' : 'ar'; } if ( /[\u0400-\u04ff]/.test( text ) ) { return 'ru'; } return cfg.language || 'en'; }
-	function speakReply( text, onDone ) { if ( ! cfg.voiceResponses || ! text || ! window.speechSynthesis || ! window.SpeechSynthesisUtterance ) { if ( onDone ) { onDone(); } return; } window.speechSynthesis.cancel(); var utterance = new SpeechSynthesisUtterance( text ); utterance.lang = responseLanguage( text ); utterance.rate = 1; utterance.onend = function () { if ( onDone ) { onDone(); } }; utterance.onerror = function () { if ( onDone ) { onDone(); } }; window.speechSynthesis.speak( utterance ); }
+	function speakReply( text ) { if ( ! cfg.voiceResponses || ! text || ! window.speechSynthesis || ! window.SpeechSynthesisUtterance ) { return; } window.speechSynthesis.cancel(); var utterance = new SpeechSynthesisUtterance( text ); utterance.lang = responseLanguage( text ); utterance.rate = 1; window.speechSynthesis.speak( utterance ); }
 
 	function el( tag, attrs, children ) {
 		var n = document.createElement( tag );
@@ -119,6 +120,44 @@
 		var t = ( target || '' ).toString().toLowerCase();
 		return valj_efb.find( function ( it ) { return isFieldItem( it ) && ( String( it.id_ ).toLowerCase() === t || String( it.name || '' ).toLowerCase() === t ); } ) || null;
 	}
+	function selectedLiveField() {
+		return selectedField ? findField( selectedField.id ) : null;
+	}
+	function markSelectedField() {
+		document.querySelectorAll( '.aisaautopilot-efb-field-selected' ).forEach( function ( node ) { node.classList.remove( 'aisaautopilot-efb-field-selected' ); } );
+		var selected = selectedLiveField();
+		if ( ! selected ) { return; }
+		document.querySelectorAll( '.efbField[data-id]' ).forEach( function ( node ) {
+			if ( node.getAttribute( 'data-id' ) === String( selected.id_ ) + '-id' ) { node.classList.add( 'aisaautopilot-efb-field-selected' ); }
+		} );
+	}
+	function updateSelection() {
+		var selected = selectedLiveField();
+		if ( selectedField && ! selected ) { selectedField = null; }
+		if ( selected ) { selectedField = { id: String( selected.id_ ), label: String( selected.name || selected.value || selected.id_ ), type: String( selected.type ) }; }
+		var banner = $( 'aisaautopilot-efb-selection' );
+		var label = $( 'aisaautopilot-efb-selection-label' );
+		var context = $( 'aisaautopilot-efb-context' );
+		if ( banner ) { banner.hidden = ! selectedField; }
+		if ( label ) { label.textContent = selectedField ? t( 'workingOn', 'Working on %s', selectedField.label ) : ''; }
+		if ( context ) { context.textContent = hasLiveForm() ? t( 'editingForm', 'Editing the current form' ) : t( 'designingForm', 'Designing a new form' ); }
+		markSelectedField();
+	}
+	function selectFieldFromTarget( target ) {
+		if ( ! target || ! target.closest || target.closest( '#aisaautopilot-efb-chat, #aisaautopilot-efb-launch' ) ) { return; }
+		var fieldNode = target.closest( '.efbField[data-id]' );
+		if ( ! fieldNode ) { return; }
+		var dataId = String( fieldNode.getAttribute( 'data-id' ) || '' );
+		if ( dataId.slice( -3 ) !== '-id' ) { return; }
+		var field = findField( dataId.slice( 0, -3 ) );
+		if ( ! field ) { return; }
+		var changed = ! selectedField || selectedField.id !== String( field.id_ );
+		selectedField = { id: String( field.id_ ), label: String( field.name || field.value || field.id_ ), type: String( field.type ) };
+		updateSelection();
+		open( false );
+		if ( changed && greeted ) { addAi( t( 'fieldIntro', 'You selected “%s”. Tell me what to change — make it required, rename it, or add help text.', selectedField.label ) ); }
+	}
+	function clearSelection() { selectedField = null; updateSelection(); }
 	function maxAmount() { var m = 0; valj_efb.forEach( function ( it ) { var a = Number( it.amount ); if ( a > m ) { m = a; } } ); return m; }
 	function propertyApplies( definition, field ) {
 		var types = definition && definition.applies_to;
@@ -296,13 +335,13 @@
 		bubble.appendChild( el( 'div', { text: data.reply || '' } ) );
 		if ( data.errors && data.errors.length ) { bubble.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
 		if ( data.upgrade_required ) {
-			var upgrade = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--primary', text: 'Upgrade Easy Form Builder' } );
+			var upgrade = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--pro', text: t( 'upgrade', 'Upgrade to EFB Pro' ) } );
 			upgrade.addEventListener( 'click', function () {
 				// Reuse EFB's own dialog, translated message, and official purchase flow.
 				if ( typeof window.pro_show_efb === 'function' ) { window.pro_show_efb( data.upgrade_reason === 'step_limit' ? 2 : 1 ); return; }
 				window.open( data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', '_blank', 'noopener' );
 			} );
-			var pricing = el( 'a', { class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', href: data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', target: '_blank', rel: 'noopener noreferrer', text: 'View pricing' } );
+			var pricing = el( 'a', { class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', href: data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', target: '_blank', rel: 'noopener noreferrer', text: t( 'pricing', 'View pricing' ) } );
 			bubble.appendChild( el( 'div', { class: 'aisaautopilot-efb-actions' }, [ upgrade, pricing ] ) );
 		}
 		addAi( bubble );
@@ -316,26 +355,26 @@
 		card.appendChild( el( 'h3', { text: p.title } ) );
 		card.appendChild( el( 'div', { class: 'aisaautopilot-efb-meta' }, [
 			el( 'span', { class: 'aisaautopilot-efb-pill', text: p.connector } ),
-			el( 'span', { class: 'aisaautopilot-efb-pill aisaautopilot-efb-pill--muted', text: p.field_count + ' fields' } )
+			el( 'span', { class: 'aisaautopilot-efb-pill aisaautopilot-efb-pill--muted', text: t( 'fieldsCount', '%s fields', p.field_count ) } )
 		] ) );
 		var table = el( 'table', { class: 'aisaautopilot-efb-fields' } );
-		table.appendChild( el( 'thead', {}, [ el( 'tr', {}, [ el( 'th', { text: 'Label' } ), el( 'th', { text: 'Type' } ), el( 'th', { text: 'Req.' } ), el( 'th', { text: 'W' } ) ] ) ] ) );
+		table.appendChild( el( 'thead', {}, [ el( 'tr', {}, [ el( 'th', { text: t( 'label', 'Label' ) } ), el( 'th', { text: t( 'type', 'Type' ) } ), el( 'th', { text: t( 'requiredShort', 'Req.' ) } ), el( 'th', { text: t( 'widthShort', 'W' ) } ) ] ) ] ) );
 		var tb = el( 'tbody' );
 		p.fields.forEach( function ( f ) {
 			tb.appendChild( el( 'tr', {}, [ el( 'td', { text: f.label } ), el( 'td', {}, [ el( 'code', { text: f.type } ) ] ), el( 'td', { text: f.required ? '✓' : '' } ), el( 'td', { text: ( f.width || 'full' ).charAt( 0 ) } ) ] ) );
 		} );
 		table.appendChild( tb );
 		card.appendChild( table );
-		var approve = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--primary', text: 'Approve & create' } );
-		var discard = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', text: 'Discard' } );
+		var approve = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--primary', text: t( 'approveCreate', 'Approve & create' ) } );
+		var discard = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', text: t( 'discard', 'Discard' ) } );
 		var note = el( 'span', { class: 'aisaautopilot-efb-inline-note' } );
 		approve.addEventListener( 'click', function () {
-			approve.disabled = true; note.textContent = 'Creating…';
+			approve.disabled = true; note.textContent = t( 'creating', 'Creating…' );
 			api( 'efb/create', { action_id: data.action_id } ).then( function ( res ) {
 				if ( ! res.data.ok ) { note.textContent = res.data.message || 'Failed.'; approve.disabled = false; return; }
-				note.textContent = 'Created! Opening the editor…';
+				note.textContent = t( 'createdOpening', 'Created! Opening the editor…' );
 				if ( res.data.result && res.data.result.edit_url ) { setTimeout( function () { window.location.href = res.data.result.edit_url; }, 600 ); }
-			} ).catch( function () { note.textContent = 'Network error.'; approve.disabled = false; } );
+			} ).catch( function () { note.textContent = t( 'networkError', 'Network error. Please try again.' ); approve.disabled = false; } );
 		} );
 		discard.addEventListener( 'click', function () { card.remove(); } );
 		card.appendChild( el( 'div', { class: 'aisaautopilot-efb-actions' }, [ approve, discard, note ] ) );
@@ -345,7 +384,7 @@
 			card.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: data.errors.join( ' ' ) } ) );
 		}
 		if ( data.upgrade_required ) {
-			var proBtn = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--primary', text: 'Upgrade Easy Form Builder' } );
+			var proBtn = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--pro', text: t( 'upgrade', 'Upgrade to EFB Pro' ) } );
 			proBtn.addEventListener( 'click', function () {
 				if ( typeof window.pro_show_efb === 'function' ) { window.pro_show_efb( 1 ); return; }
 				window.open( data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price', '_blank', 'noopener' );
@@ -376,6 +415,7 @@
 			addAi( box ); history.push( { role: 'assistant', text: 'No operation applied: ' + reason } ); return;
 		}
 		var refreshed = refreshDropzone();
+		updateSelection();
 		if ( ! refreshed.ok ) { report.failed.push( { operation: 'render', reason: refreshed.reason || 'renderer_refresh_failed' } ); }
 		clientLog( traceId, refreshed.ok ? 'apply_completed' : 'apply_render_failed', refreshed.ok ? 'Operations applied in the live EFB canvas.' : 'Operations changed the structure but the EFB renderer failed.', { operation_count: ( data.operations || [] ).length, applied: report.applied, failed: report.failed, renderer: refreshed } );
 		var ul = el( 'div', {} );
@@ -403,7 +443,7 @@
 		history.push( { role: 'assistant', text: ( data.title || 'How-to' ) + ' answered.' } );
 	}
 	function renderResponse( data, traceId ) {
-		if ( data.reply ) { speakReply( data.reply, continueLiveVoice ); } else { continueLiveVoice(); }
+		if ( data.reply ) { speakReply( data.reply ); }
 		if ( data.type === 'preview' ) { return renderPreview( data ); }
 		if ( data.type === 'ops' ) { return renderOps( data, traceId ); }
 		if ( data.type === 'help' ) { return renderHelp( data ); }
@@ -424,8 +464,10 @@
 		var traceId = makeTraceId();
 		var fields = liveFields();
 		var steps = liveSteps();
-		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, step_count: steps.length, field_ids: fields.map( function ( field ) { return field.id; } ) } );
-		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps } )
+		var selected = selectedLiveField();
+		var selectedId = selected ? String( selected.id_ ) : '';
+		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, step_count: steps.length, selected_field: selectedId, field_ids: fields.map( function ( field ) { return field.id; } ) } );
+		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps, selected_field: selectedId } )
 			.then( function ( res ) {
 				removeTyping(); busy = false; $( 'aisaautopilot-efb-send' ).disabled = false;
 				var data = res.data || { type: 'message', reply: 'Sorry, something went wrong.' };
@@ -434,33 +476,12 @@
 				clientLog( traceId, data.ok === false ? 'chat_response_error' : 'chat_response', data.ok === false ? ( data.message || 'Chat endpoint returned an error.' ) : 'Chat response received.', context );
 				renderResponse( data, traceId );
 			} )
-			.catch( function ( error ) { removeTyping(); busy = false; $( 'aisaautopilot-efb-send' ).disabled = false; clientLog( traceId, 'chat_network_error', 'The browser could not reach the chat endpoint.', { failed: [ { reason: String( error && error.message ? error.message : 'network_error' ).slice( 0, 160 ) } ] } ); addAi( 'Network error. Please try again.' ); continueLiveVoice(); } );
+			.catch( function ( error ) { removeTyping(); busy = false; $( 'aisaautopilot-efb-send' ).disabled = false; clientLog( traceId, 'chat_network_error', 'The browser could not reach the chat endpoint.', { failed: [ { reason: String( error && error.message ? error.message : 'network_error' ).slice( 0, 160 ) } ] } ); addAi( t( 'networkError', 'Network error. Please try again.' ) ); } );
 	}
-
-	/* Hands-free admin conversation. Standard microphone recording remains transcript-first. */
-	function setLiveVoiceButton() { var button = $( 'aisaautopilot-efb-live-voice' ); if ( button ) { button.classList.toggle( 'is-live', liveVoiceEnabled ); button.setAttribute( 'aria-pressed', liveVoiceEnabled ? 'true' : 'false' ); button.title = liveVoiceEnabled ? 'Stop live voice conversation' : 'Start live voice conversation'; } }
-	function stopRealtimeVoice() { if ( liveVoiceRestartTimer ) { clearTimeout( liveVoiceRestartTimer ); liveVoiceRestartTimer = null; } if ( liveVoiceRecognition ) { var activeRecognition = liveVoiceRecognition; liveVoiceRecognition = null; try { activeRecognition.stop(); } catch ( e ) {} } }
-	function continueLiveVoice() { if ( ! liveVoiceEnabled ) { return; } liveVoiceSending = false; if ( liveVoiceRestartTimer ) { clearTimeout( liveVoiceRestartTimer ); } liveVoiceRestartTimer = setTimeout( startRealtimeVoice, 350 ); }
-	function startRealtimeVoice() {
-		var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-		if ( ! liveVoiceEnabled || busy || ! SpeechRecognition || liveVoiceRecognition ) { return; }
-		var interim = '', finalText = '';
-		var activeRecognition = new SpeechRecognition(); liveVoiceRecognition = activeRecognition; activeRecognition.lang = cfg.language || document.documentElement.lang || 'en'; activeRecognition.continuous = true; activeRecognition.interimResults = true;
-		activeRecognition.onresult = function ( event ) {
-			interim = '';
-			for ( var i = event.resultIndex; i < event.results.length; i++ ) { var words = event.results[ i ][ 0 ].transcript; if ( event.results[ i ].isFinal ) { finalText += words + ' '; } else { interim += words; } }
-			var input = $( 'aisaautopilot-efb-input' ); input.value = ( finalText + interim ).trim(); autoGrow();
-			if ( finalText.trim() && ! liveVoiceSending ) { liveVoiceSending = true; var message = finalText.trim(); try { activeRecognition.stop(); } catch ( e ) {} setTimeout( function () { submit( message ); }, 450 ); }
-		};
-		activeRecognition.onerror = function () { if ( liveVoiceRecognition === activeRecognition ) { liveVoiceRecognition = null; } if ( liveVoiceEnabled && ! liveVoiceSending ) { continueLiveVoice(); } };
-		activeRecognition.onend = function () { if ( liveVoiceRecognition === activeRecognition ) { liveVoiceRecognition = null; } if ( liveVoiceEnabled && ! liveVoiceSending && ! busy ) { continueLiveVoice(); } };
-		try { activeRecognition.start(); voiceStatus( 'Live voice conversation is listening. Speak naturally; your message sends after you pause.' ); } catch ( e ) { liveVoiceRecognition = null; addAi( 'Live voice could not start in this browser. Use the recording microphone instead.' ); liveVoiceEnabled = false; setLiveVoiceButton(); }
-	}
-	function toggleRealtimeVoice() { var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; if ( liveVoiceEnabled ) { liveVoiceEnabled = false; stopRealtimeVoice(); if ( window.speechSynthesis ) { window.speechSynthesis.cancel(); } voiceStatus( 'Live voice conversation stopped.' ); setLiveVoiceButton(); return; } if ( ! SpeechRecognition ) { addAi( 'Live voice conversation is not supported by this browser. Use Chrome or Edge, or use the recording microphone.' ); return; } if ( recorder && recorder.state === 'recording' ) { stopVoice(); } liveVoiceEnabled = true; setLiveVoiceButton(); startRealtimeVoice(); }
 
 	/* Voice never sends a command by itself: the transcript is placed in the composer for review. */
-	function voiceStatus( message ) { var status = $( 'aisaautopilot-efb-voice-status' ); if ( status ) { status.textContent = message; } }
-	function setVoiceButton( recording ) { var button = $( 'aisaautopilot-efb-voice' ); if ( button ) { button.classList.toggle( 'is-recording', recording ); button.setAttribute( 'aria-pressed', recording ? 'true' : 'false' ); } }
+	function voiceStatus( message ) { var status = $( 'aisaautopilot-efb-voice-status' ); if ( status ) { status.textContent = message; status.classList.toggle( 'is-visible', !! message ); } }
+	function setVoiceButton( recording ) { [ $( 'aisaautopilot-efb-voice' ), $( 'aisaautopilot-efb-live-voice' ) ].forEach( function ( button ) { if ( button ) { button.classList.toggle( 'is-recording', recording ); button.setAttribute( 'aria-pressed', recording ? 'true' : 'false' ); } } ); }
 	function stopLiveRecognition() { if ( recognition ) { try { recognition.stop(); } catch ( e ) {} } }
 	function startLiveRecognition() {
 		var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -474,7 +495,7 @@
 	function startVoice() {
 		if ( busy ) { return; }
 		if ( recorder && recorder.state === 'recording' ) { stopVoice(); return; }
-		if ( ! navigator.mediaDevices || ! navigator.mediaDevices.getUserMedia || ! window.MediaRecorder ) { addAi( 'Voice recording is not supported by this browser. Please type your message.' ); return; }
+		if ( ! navigator.mediaDevices || ! navigator.mediaDevices.getUserMedia || ! window.MediaRecorder ) { addAi( t( 'voiceUnsupported', 'Voice recording is not supported by this browser. Please type your message.' ) ); return; }
 		navigator.mediaDevices.getUserMedia( { audio: true } ).then( function ( stream ) {
 			voiceInputPrefix = $( 'aisaautopilot-efb-input' ).value.trim(); if ( voiceInputPrefix ) { voiceInputPrefix += ' '; }
 			recorderStream = stream; recorderChunks = []; recorderStartedAt = Date.now(); recorder = new MediaRecorder( stream );
@@ -486,36 +507,36 @@
 				setVoiceButton( false );
 				var duration = Date.now() - recorderStartedAt;
 				var blob = new Blob( recorderChunks, { type: recorder.mimeType || 'audio/webm' } );
-				if ( ! blob.size ) { voiceStatus( 'No audio was captured.' ); return; }
-				if ( blob.size > 5000000 ) { addAi( 'That recording is too large. Please record a shorter message.' ); return; }
-				voiceStatus( 'Transcribing…' );
+				if ( ! blob.size ) { voiceStatus( t( 'noAudio', 'No audio was captured.' ) ); return; }
+				if ( blob.size > 5000000 ) { addAi( t( 'audioLarge', 'That recording is too large. Please record a shorter message.' ) ); return; }
+				voiceStatus( t( 'transcribing', 'Transcribing…' ) );
 				uploadAudio( blob, duration ).then( function ( result ) {
 					if ( ! result.ok ) { addAi( result.message || 'Voice transcription failed.' ); return; }
-					var input = $( 'aisaautopilot-efb-input' ); input.value = voiceInputPrefix + ( result.transcript || voiceFinalText ).trim(); autoGrow(); input.focus(); voiceStatus( 'Transcript ready. Review it, then send.' );
-				} ).catch( function () { addAi( 'Voice transcription failed. Please try again.' ); } );
+					var input = $( 'aisaautopilot-efb-input' ); input.value = voiceInputPrefix + ( result.transcript || voiceFinalText ).trim(); autoGrow(); input.focus(); voiceStatus( t( 'transcriptReady', 'Transcript ready. Review it, then send.' ) );
+				} ).catch( function () { addAi( t( 'transcriptionFail', 'Voice transcription failed. Please try again.' ) ); } );
 			};
-			recorder.start(); startLiveRecognition(); setVoiceButton( true ); voiceStatus( 'Recording. Words appear in the message box as you speak; it stops automatically after 45 seconds.' ); recorderTimer = setTimeout( stopVoice, 45000 );
-		} ).catch( function () { voiceStatus( 'Microphone permission was denied.' ); addAi( 'Microphone permission was denied. You can type your message instead.' ); } );
+			recorder.start(); startLiveRecognition(); setVoiceButton( true ); voiceStatus( t( 'recording', 'Recording — words appear in the message box. Stops after 45 seconds.' ) ); recorderTimer = setTimeout( stopVoice, 45000 );
+		} ).catch( function () { var message = t( 'micDenied', 'Microphone permission was denied. You can type your message instead.' ); voiceStatus( message ); addAi( message ); } );
 	}
 
 	function greet() {
 		if ( greeted ) { return; }
 		greeted = true;
-		var intro = hasLiveForm()
-			? 'Hi! I can change this form for you (e.g. “make Email required”, “rename the form”), design a new one, or explain how to do anything in Easy Form Builder.'
-			: 'Hi! Tell me what form you need and I’ll design a complete one — or ask me how to do anything in Easy Form Builder. I’ll ask a question if I need details.';
+		var intro = selectedField
+			? t( 'fieldIntro', 'You selected “%s”. Tell me what to change — make it required, rename it, or add help text.', selectedField.label )
+			: ( hasLiveForm() ? t( 'formIntro', 'Hi! I can change this form, design a new one, or explain how to do something in Easy Form Builder.' ) : t( 'newFormIntro', 'Hi! Tell me what form you need and I will design a complete one, or ask me an Easy Form Builder question.' ) );
 		var box = el( 'div', {} );
 		box.appendChild( el( 'div', { text: intro } ) );
 		var starters = hasLiveForm()
-			? [ 'Make Email required', 'Rename the form to Contact us', 'How do I add options to a dropdown?' ]
-			: [ 'Build a contact form', 'A booking form for a dental clinic', 'Job application form', 'How do I turn on email notifications?' ];
+			? [ t( 'makeRequired', 'Make Email required' ), t( 'renameForm', 'Rename the form to Contact us' ), t( 'addOptionsHelp', 'How do I add options to a dropdown?' ) ]
+			: [ t( 'buildContact', 'Build a contact form' ), t( 'buildBooking', 'A booking form for a dental clinic' ), t( 'buildJob', 'Job application form' ), t( 'notificationHelp', 'How do I turn on email notifications?' ) ];
 		box.appendChild( chips( starters, function ( s ) { submit( s ); } ) );
 		addAi( box );
 	}
 
 	/* ---------- window controls ---------- */
-	function open() { var c = $( 'aisaautopilot-efb-chat' ); if ( ! c ) { return; } c.hidden = false; c.setAttribute( 'aria-hidden', 'false' ); greet(); setTimeout( function () { $( 'aisaautopilot-efb-input' ).focus(); }, 50 ); }
-	function close() { var c = $( 'aisaautopilot-efb-chat' ); if ( ! c ) { return; } liveVoiceEnabled = false; stopRealtimeVoice(); setLiveVoiceButton(); c.hidden = true; c.setAttribute( 'aria-hidden', 'true' ); }
+	function open( focusInput ) { var c = $( 'aisaautopilot-efb-chat' ); if ( ! c ) { return; } c.hidden = false; c.setAttribute( 'aria-hidden', 'false' ); $( 'aisaautopilot-efb-launch' ).setAttribute( 'aria-expanded', 'true' ); updateSelection(); greet(); if ( focusInput !== false ) { setTimeout( function () { $( 'aisaautopilot-efb-input' ).focus(); }, 50 ); } }
+	function close() { var c = $( 'aisaautopilot-efb-chat' ); if ( ! c || c.hidden ) { return; } if ( recorder && recorder.state === 'recording' ) { stopVoice(); } c.hidden = true; c.setAttribute( 'aria-hidden', 'true' ); var launch = $( 'aisaautopilot-efb-launch' ); launch.setAttribute( 'aria-expanded', 'false' ); launch.focus(); }
 	function toggle() { var c = $( 'aisaautopilot-efb-chat' ); if ( c && c.hidden ) { open(); } else { close(); } }
 	function reset() { history = []; greeted = false; messages().textContent = ''; greet(); }
 
@@ -527,13 +548,16 @@
 		var rst = $( 'aisaautopilot-efb-reset' ); if ( rst ) { rst.addEventListener( 'click', reset ); }
 		var form = $( 'aisaautopilot-efb-form' ); if ( form ) { form.addEventListener( 'submit', function ( e ) { e.preventDefault(); submit( $( 'aisaautopilot-efb-input' ).value ); } ); }
 		var voice = $( 'aisaautopilot-efb-voice' ); if ( voice ) { voice.addEventListener( 'click', startVoice ); }
-		var liveVoice = $( 'aisaautopilot-efb-live-voice' ); if ( liveVoice ) { liveVoice.addEventListener( 'click', toggleRealtimeVoice ); }
+		var liveVoice = $( 'aisaautopilot-efb-live-voice' ); if ( liveVoice ) { liveVoice.addEventListener( 'click', startVoice ); }
+		var clear = $( 'aisaautopilot-efb-selection-clear' ); if ( clear ) { clear.addEventListener( 'click', clearSelection ); }
 		var input = $( 'aisaautopilot-efb-input' );
 		if ( input ) {
 			input.addEventListener( 'input', autoGrow );
 			input.addEventListener( 'keydown', function ( e ) { if ( e.key === 'Enter' && ! e.shiftKey ) { e.preventDefault(); submit( input.value ); } } );
 		}
 		document.addEventListener( 'keydown', function ( e ) { if ( e.key === 'Escape' ) { close(); } } );
+		document.addEventListener( 'click', function ( e ) { selectFieldFromTarget( e.target ); } );
+		updateSelection();
 	}
 	if ( document.readyState === 'loading' ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }
 } )();

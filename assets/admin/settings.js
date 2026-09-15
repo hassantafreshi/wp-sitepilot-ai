@@ -182,7 +182,20 @@
 			credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
 			body: JSON.stringify( body || {} ),
-		} ).then( function ( r ) { return r.json(); } );
+		} ).then( function ( r ) {
+			return r.json().then( function ( data ) {
+				if ( ! r.ok ) {
+					var err = new Error( data && data.message ? data.message : 'HTTP ' + r.status );
+					err.status = r.status;
+					err.data = data;
+					throw err;
+				}
+				return data;
+			} ).catch( function ( e ) {
+				if ( e.status ) { throw e; }
+				throw new Error( 'Server returned HTTP ' + r.status );
+			} );
+		} );
 	}
 
 	/** What the user has typed, so a test runs against the pending values. */
@@ -205,8 +218,8 @@
 
 		post( 'provider/models', draft() ).then( function ( data ) {
 			if ( button ) { button.disabled = false; }
-			if ( ! data.ok || ! data.models || ! data.models.length ) {
-				status( result, data.message || t( 'testFail', 'Could not load models.' ), 'err' );
+			if ( ! data || ! data.ok || ! data.models || ! data.models.length ) {
+				status( result, ( data && data.message ) || t( 'testFail', 'Could not load models.' ), 'err' );
 				return;
 			}
 
@@ -214,9 +227,10 @@
 			data.models.forEach( function ( id ) { map[ id ] = id; } );
 			fillModels( map, strings.saved );
 			status( result, data.message || '', 'ok' );
-		} ).catch( function () {
+		} ).catch( function ( e ) {
 			if ( button ) { button.disabled = false; }
-			status( result, t( 'networkError', 'Network error.' ), 'err' );
+			var msg = ( e && e.data && e.data.message ) || ( e && e.message ) || t( 'networkError', 'Network error.' );
+			status( result, msg, 'err' );
 		} );
 	}
 
@@ -251,15 +265,35 @@
 
 		post( 'provider/test', draft() ).then( function ( data ) {
 			if ( button ) { button.disabled = false; }
-			if ( data.ok ) {
+			if ( data && data.ok ) {
 				paint( 'ok', t( 'testOk', 'Connection works' ), data.message || t( 'testOkBody', 'Valid response received. You can continue.' ) );
 			} else {
-				paint( 'err', t( 'testFail', 'Key or endpoint was rejected' ), data.message || t( 'testFailBody', 'Replace the key or check the custom endpoint.' ) );
+				paintProviderFailure( data || {} );
 			}
-		} ).catch( function () {
+		} ).catch( function ( e ) {
 			if ( button ) { button.disabled = false; }
-			paint( 'err', t( 'testFail', 'Key or endpoint was rejected' ), t( 'networkError', 'Network error.' ) );
+			paintProviderFailure( ( e && e.data ) || { message: ( e && e.message ) || t( 'networkError', 'Network error.' ) } );
 		} );
+	}
+
+	/** Turn stable server diagnostic codes into an immediately useful next step. */
+	function paintProviderFailure( data ) {
+		var code = data.diagnostic || data.code || '';
+		var map = {
+			no_api_key: [ 'Add an API key', 'Enter a valid key and test the connection again.' ],
+			provider_unauthorized: [ 'API key rejected', 'Check the key, its permissions, and the selected provider.' ],
+			provider_payment_required: [ 'Billing action required', 'Add credit or activate billing with this AI provider, then test again.' ],
+			provider_rate_limited: [ 'Provider is rate limiting', 'Wait a moment, then retry the connection test.' ],
+			provider_unreachable: [ 'Can’t reach provider', 'Check the base URL, firewall settings, and network connection.' ],
+			model_not_found: [ 'Endpoint or model not found', 'Check the base URL and model name, then test again.' ],
+			invalid_config: [ 'Connection details are incomplete', 'Enter both the base URL and the model name.' ]
+		};
+		var entry = map[ code ];
+		paint(
+			'err',
+			entry ? entry[ 0 ] : t( 'testFail', 'Connection test failed' ),
+			( data && data.message ) || ( entry ? entry[ 1 ] : t( 'testFailBody', 'Check the connection details and try again.' ) )
+		);
 	}
 
 	function onDeliveryTest() {
@@ -267,9 +301,11 @@
 		status( result, t( 'sending', 'Sending test…' ) );
 
 		post( 'forms/delivery/test', {} ).then( function ( data ) {
-			status( result, data.message || ( data.ok ? t( 'deliveryOk', 'Test accepted.' ) : t( 'deliveryFail', 'Test failed.' ) ), data.ok ? 'ok' : 'err' );
-		} ).catch( function () {
-			status( result, t( 'networkError', 'Network error.' ), 'err' );
+			var ok = data && data.ok;
+			status( result, ( data && data.message ) || ( ok ? t( 'deliveryOk', 'Test accepted.' ) : t( 'deliveryFail', 'Test failed.' ) ), ok ? 'ok' : 'err' );
+		} ).catch( function ( e ) {
+			var msg = ( e && e.data && e.data.message ) || ( e && e.message ) || t( 'networkError', 'Network error.' );
+			status( result, msg, 'err' );
 		} );
 	}
 

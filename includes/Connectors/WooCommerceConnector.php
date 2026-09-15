@@ -39,23 +39,56 @@ final class WooCommerceConnector {
 	/** Whether AISAAutoPilot's deliberately small Phase 1 Woo workflow is enabled. */
 	public static function is_ai_enabled(): bool {
 
-		$settings = Settings::get( 'woocommerce', array() );
-			return ! is_array( $settings ) || ! array_key_exists( 'enabled', $settings ) || ! empty( $settings['enabled'] );
+		$settings = self::get_settings();
+		return $settings['enabled'];
+	}
+
+	/**
+	 * Read the non-secret Store Copilot settings with Phase 1 invariants.
+	 *
+	 * `auto_draft` and `enable_edit` are deliberately fixed: a proposal can only
+	 * create one simple product draft, and it can never edit an existing product.
+	 *
+	 * @return array{enabled:bool,auto_draft:bool,enable_search:bool,enable_edit:bool}
+	 */
+	public static function get_settings(): array {
+
+		$stored = Settings::get( 'woocommerce', array() );
+		$stored = is_array( $stored ) ? $stored : array();
+
+		return array(
+			'enabled'       => ! array_key_exists( 'enabled', $stored ) || ! empty( $stored['enabled'] ),
+			'auto_draft'    => true,
+			'enable_search' => ! empty( $stored['enable_search'] ),
+			'enable_edit'   => false,
+		);
+	}
+
+	/**
+	 * The optional protected product-search endpoint is usable only while the
+	 * connector and its explicit search preference are both enabled.
+	 */
+	public static function is_smart_search_enabled(): bool {
+
+		$settings = self::get_settings();
+		return self::is_active() && $settings['enabled'] && $settings['enable_search'];
 	}
 	/**
 	 * Get a health/status array for the UI.
 	 *
-	 * @return array{active:bool, version:string, can_manage:bool, ai_enabled:bool, product_count:int, capabilities:array<string,array<string,bool>>}
+	 * @return array<string,mixed>
 	 */
 	public static function get_health(): array {
 
 		return array(
-			'active'        => self::is_active(),
-			'version'       => self::get_version(),
-			'can_manage'    => self::current_user_can_manage(),
-			'ai_enabled'    => self::is_ai_enabled(),
-			'product_count' => self::product_count(),
-			'capabilities'  => self::get_capabilities(),
+			'active'         => self::is_active(),
+			'version'        => self::get_version(),
+			'can_manage'     => self::current_user_can_manage(),
+			'ai_enabled'     => self::is_ai_enabled(),
+			'product_count'  => self::product_count(),
+			'category_count' => count( self::get_categories() ),
+			'tag_count'      => count( self::get_tags() ),
+			'capabilities'   => self::get_capabilities(),
 		);
 	}
 
@@ -70,7 +103,7 @@ final class WooCommerceConnector {
 	 */
 	public static function get_capabilities(): array {
 
-		$available = self::is_active() && self::is_ai_enabled();
+		$available = self::is_active() && self::is_ai_enabled() && self::current_user_can_manage();
 
 		return array(
 			'products'  => array(
@@ -95,13 +128,60 @@ final class WooCommerceConnector {
 		);
 	}
 
-	private static function product_count(): int {
+	public static function product_count(): int {
 
 		if ( ! self::is_active() || ! function_exists( 'wp_count_posts' ) ) {
 			return 0;
 		}
 		$counts = wp_count_posts( 'product' );
 		return $counts ? (int) $counts->publish + (int) $counts->draft + (int) $counts->pending + (int) $counts->private : 0;
+	}
+
+	/**
+	 * Read a compact, non-mutating product list for the Store Copilot mockup.
+	 * The rows intentionally have no edit action: Phase 1 can inspect products
+	 * but cannot mutate an existing one.
+	 *
+	 * @return array<int,array{id:int,name:string,category:string,origin:string,status:string,generated:bool}>
+	 */
+	public static function recent_products( int $limit = 8 ): array {
+
+		if ( ! self::is_active() ) {
+			return array();
+		}
+
+		$posts = get_posts(
+			array(
+				'post_type'        => 'product',
+				'post_status'      => array( 'publish', 'draft', 'pending', 'private' ),
+				'numberposts'      => min( max( 1, $limit ), 20 ),
+				'orderby'          => 'modified',
+				'order'            => 'DESC',
+				'no_found_rows'    => true,
+				'suppress_filters' => false,
+			)
+		);
+
+		$rows = array();
+		foreach ( $posts as $post ) {
+			$categories = wp_get_post_terms( (int) $post->ID, 'product_cat', array( 'fields' => 'names' ) );
+			if ( is_wp_error( $categories ) || ! is_array( $categories ) ) {
+				$categories = array();
+			}
+
+			$status_object = get_post_status_object( (string) $post->post_status );
+			$generated     = '1' === (string) get_post_meta( (int) $post->ID, '_aisaautopilot_generated', true );
+			$rows[]        = array(
+				'id'        => (int) $post->ID,
+				'name'      => (string) $post->post_title,
+				'category'  => $categories ? implode( ', ', $categories ) : __( 'Uncategorized', 'ai-site-assistant-autopilot' ),
+				'origin'    => $generated ? __( 'Created by AutoPilot', 'ai-site-assistant-autopilot' ) : __( 'Existing product', 'ai-site-assistant-autopilot' ),
+				'status'    => $status_object ? (string) $status_object->label : ucfirst( (string) $post->post_status ),
+				'generated' => $generated,
+			);
+		}
+
+		return $rows;
 	}
 	/**
 	 * Get product categories as id=>name pairs.

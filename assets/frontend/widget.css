@@ -10,7 +10,7 @@
    so every control on that screen changes the real widget. Each one falls back
    to a brand-derived default. */
 :root {
-	--spw-primary: #4f46e5;
+	--spw-primary: #202a8d;
 	--spw-primary-hover: #4338ca;
 	--spw-bg: #ffffff;
 	--spw-text: #1f2937;
@@ -33,7 +33,7 @@
 
 	/* Per-part colours, all defaulting to the brand colour. */
 	--spw-head-from: var(--spw-primary);
-	--spw-head-to: #7c3aed;
+	--spw-head-to: #181f66;
 	--spw-user: var(--spw-primary);
 	--spw-ai-bg: #ffffff;
 	--spw-ai-text: var(--spw-text);
@@ -136,7 +136,7 @@
 	align-items: center;
 	gap: 11px;
 	padding: 13px 14px;
-	background: linear-gradient(135deg, var(--spw-head-from), var(--spw-head-to));
+	background: var(--spw-head-from);
 	color: #fff;
 	flex-shrink: 0;
 }
@@ -254,6 +254,8 @@
 }
 
 .spw-welcome__hint { margin: 0 0 14px; font-size: 12.5px; color: var(--spw-text-secondary); }
+
+.spw-recording-notice { margin: 6px 2px 0; color: var(--spw-text-secondary); font-size: 10.5px; line-height: 1.45; text-align: center; }
 
 .spw-suggest { display: flex; flex-direction: column; gap: 8px; }
 
@@ -594,9 +596,9 @@
 .spw--dark .spw-input { background: #111827; color: #f3f4f6; border-color: #374151; }
 .spw--dark .spw-mic { background: #374151; color: #f3f4f6; }
 .spw--dark .spw-jump { background: #1f2937; color: #f3f4f6; }
-.spw--dark .spw-welcome__icon { background: rgba(79, 70, 229, .18); }
+.spw--dark .spw-welcome__icon { background: rgba(32, 42, 141, .18); }
 .spw--dark .spw-suggest__chip { background: #1f2937; color: #f3f4f6; border-color: #374151; }
-.spw--dark .spw-row__avatar { background: rgba(79, 70, 229, .2); }
+.spw--dark .spw-row__avatar { background: rgba(32, 42, 141, .2); }
 
 /* ── Launcher / panel positions ───────────────────────── */
 

@@ -70,7 +70,7 @@ final class VoiceTranscriber {
 			$base . '/audio/transcriptions',
 			array(
 				'timeout'            => 60,
-				'headers' => array(
+				'headers'            => array(
 					'Authorization' => 'Bearer ' . $key,
 					'Content-Type'  => 'multipart/form-data; boundary=' . $boundary,
 				),

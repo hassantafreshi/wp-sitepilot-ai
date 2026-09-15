@@ -22,13 +22,14 @@ final class EfbChatSkill {
 	 * @param array<int,array{id:string,label:string,type:string}> $fields
 	 * @param array<int,array{id:string,label:string}>             $steps
 	 * @param array<string,mixed>                                  $license
+	 * @param array{id:string,label:string,type:string}|null        $selected_field
 	 * @return array<string,mixed>
 	 * @throws \AISAAutoPilot\Providers\ProviderException
 	 */
-	public function respond( string $message, array $history, bool $has_form, array $fields, array $steps = array(), array $license = array() ): array {
+	public function respond( string $message, array $history, bool $has_form, array $fields, array $steps = array(), array $license = array(), ?array $selected_field = null ): array {
 		return $this->provider->generate_structured_output(
 			$this->system_prompt(),
-			$this->user_prompt( $message, $history, $has_form, $fields, $steps, $license )
+			$this->user_prompt( $message, $history, $has_form, $fields, $steps, $license, $selected_field )
 		);
 	}
 
@@ -124,10 +125,19 @@ final class EfbChatSkill {
 	 * @param array<int,array{id:string,label:string,type:string}> $fields
 	 * @param array<int,array{id:string,label:string}>             $steps
 	 * @param array<string,mixed>                                  $license
+	 * @param array{id:string,label:string,type:string}|null        $selected_field
 	 */
-	private function user_prompt( string $message, array $history, bool $has_form, array $fields, array $steps, array $license ): string {
+	private function user_prompt( string $message, array $history, bool $has_form, array $fields, array $steps, array $license, ?array $selected_field ): string {
 		$ctx  = 'FORM_OPEN=' . ( $has_form ? 'yes' : 'no' ) . "\n";
 		$ctx .= 'EFB_PLAN=' . (string) ( $license['tier'] ?? 'unknown' ) . "\n";
+		if ( $has_form && null !== $selected_field ) {
+			$ctx .= sprintf(
+				'SELECTED_FIELD: id="%s" label="%s" type=%s' . "\n",
+				$selected_field['id'],
+				$selected_field['label'],
+				$selected_field['type']
+			);
+		}
 
 		if ( $has_form && array() !== $fields ) {
 			$lines = array();

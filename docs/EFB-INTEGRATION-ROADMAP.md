@@ -84,6 +84,18 @@ not automatically change global EFB settings, add-on activation, external creden
 SMTP recipients, payment/pricing configuration, raw HTML, URLs, conditional-logic
 rules, or submission data. These require the native EFB UI and explicit user approval.
 
+**2026-09-15 update**: three of these — submission data (search/summarize/update/delete
+entries), payment/pricing configuration (read-only), and conditional-logic rules
+(read-only "explain" only, never write) — now have a concrete, planned path as
+agent-callable WordPress Abilities API tools, gated to EFB Free Plus/Pro. See
+`docs/EFB_AGENT_ABILITIES_S4_1_AUDIT_AND_PLAN_FA.md` (backlog item B-09 in
+`PRODUCT_COMPLETION_ROADMAP_FA.md`, decisions D-10 to D-12). This is a direct response
+to Gravity Forms bundling an equivalent agent-callable AI Form Builder into every
+license tier (announced 2026-08-26). Global settings, add-on activation, external
+credentials, SMTP recipients, raw HTML, URLs, and Mailchimp (which has no EFB-side
+integration to wrap at all) remain out of scope — see that plan's "قابلیت‌هایی که این
+بسته عمداً نمی‌سازد" section for why.
+
 ## Follow-ups
 
 - Add a user-visible preview/diff and undo snapshot before applying editor changes.
@@ -92,3 +104,6 @@ rules, or submission data. These require the native EFB UI and explicit user app
 - Add multi-step creation only after native step/amount ordering has browser coverage.
 - Do not start AI conditional-logic generation before the EFB execution plan's
   conditional-logic hardening prerequisite is complete.
+- EFB Agent Abilities (S4.1, backlog B-09): entries, payment-settings-read, and
+  logic-explain abilities exposed via WordPress Abilities API — see
+  `docs/EFB_AGENT_ABILITIES_S4_1_AUDIT_AND_PLAN_FA.md`.

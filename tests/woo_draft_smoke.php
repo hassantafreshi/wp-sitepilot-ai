@@ -37,6 +37,8 @@ if ( ! class_exists( 'WC_Product_Simple' ) ) {
 		public function set_weight( string $value ): void { self::$last['weight'] = $value; }
 		/** @param int[] $value */
 		public function set_category_ids( array $value ): void { self::$last['categories'] = $value; }
+		/** @param mixed $value */
+		public function update_meta_data( string $key, $value ): void { self::$last['meta'][ $key ] = $value; }
 		public function save(): int { return 9101; }
 	}
 }
@@ -64,7 +66,7 @@ $plan = array(
 $store = new ActionStore();
 $id = $store->create( $plan, 'woocommerce_product_draft' );
 $result = ( new WooCommerceProductSkill( $store ) )->execute( $id );
-$check( ! empty( $result['ok'] ) && 9101 === (int) ( $result['product_id'] ?? 0 ) && 'draft' === ( WC_Product_Simple::$last['status'] ?? '' ) && 'simple' === $plan['type'], 'approved proposal creates one simple WooCommerce draft' );
+$check( ! empty( $result['ok'] ) && 9101 === (int) ( $result['product_id'] ?? 0 ) && 'draft' === ( WC_Product_Simple::$last['status'] ?? '' ) && 'simple' === $plan['type'] && '1' === ( WC_Product_Simple::$last['meta']['_aisaautopilot_generated'] ?? '' ), 'approved proposal creates one simple WooCommerce draft with an AutoPilot source marker' );
 $replay = ( new WooCommerceProductSkill( $store ) )->execute( $id );
 $check( empty( $replay['ok'] ) && 'action_expired' === ( $replay['code'] ?? '' ), 'WooCommerce product draft proposal cannot be replayed' );
 $invalid = ( new ProductPlanValidator() )->validate( array_merge( $plan, array( 'status' => 'publish' ) ) );

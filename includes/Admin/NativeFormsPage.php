@@ -36,7 +36,7 @@ final class NativeFormsPage {
 						<?php Ui::title( __( 'AISAAutoPilot Forms', 'ai-site-assistant-autopilot' ), 'form' ); ?>
 						<p class="sp-lead sp-mb0"><?php esc_html_e( 'Manage the simple, single-step forms created by AISAAutoPilot. Visitor submissions are sent by email and are not stored here.', 'ai-site-assistant-autopilot' ); ?></p>
 					</div>
-					<a class="sp-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_FORM_BUILDER ) ); ?>">
+					<a class="sp-btn" href="<?php echo esc_url( ContentStudioNavigation::forms_url() ); ?>">
 						<?php echo Ui::icon( 'spark', 16, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 						<span><?php esc_html_e( 'Create a form', 'ai-site-assistant-autopilot' ); ?></span>
 					</a>

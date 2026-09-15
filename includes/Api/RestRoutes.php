@@ -2,7 +2,9 @@
 declare(strict_types=1);
 
 namespace AISAAutoPilot\Api;
+
 use AISAAutoPilot\Connectors\WooCommerceConnector;
+use AISAAutoPilot\Core\Settings;
 /**
  * Registers the plugin REST routes under aisaautopilot/v1.
  */
@@ -17,7 +19,7 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $copilot, 'plan' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_form_composer' ),
 				'args'                => array(
 					'prompt' => array(
 						'type'     => 'string',
@@ -32,7 +34,38 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $copilot, 'execute' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_form_composer' ),
+				'args'                => array(
+					'action_id' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+		$content = new ContentController();
+		register_rest_route(
+			self::NAMESPACE,
+			'/content/plan',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $content, 'plan' ),
+				'permission_callback' => array( $this, 'can_manage_content_studio' ),
+				'args'                => array(
+					'prompt' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/content/execute',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $content, 'execute' ),
+				'permission_callback' => array( $this, 'can_manage_content_studio' ),
 				'args'                => array(
 					'action_id' => array(
 						'type'     => 'string',
@@ -56,6 +89,84 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $copilot, 'models' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+		$health = new HealthController();
+		register_rest_route(
+			self::NAMESPACE,
+			'/health/diagnostics',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $health, 'diagnostics' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+		$activity = new ActivityController();
+		register_rest_route(
+			self::NAMESPACE,
+			'/activity',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $activity, 'list' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'limit'  => array( 'type' => 'integer' ),
+					'level'  => array( 'type' => 'string' ),
+					'search' => array( 'type' => 'string' ),
+				),
+			)
+		);
+		$inbox = new HandoffInboxController();
+		register_rest_route(
+			self::NAMESPACE,
+			'/handoffs',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $inbox, 'list' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/handoffs/(?P<id>\\d+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $inbox, 'get' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/handoffs/(?P<id>\\d+)/status',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $inbox, 'status' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'status' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+		$conversations = new VisitorConversationController();
+		register_rest_route(
+			self::NAMESPACE,
+			'/widget/conversations',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $conversations, 'list' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/widget/conversations/(?P<id>\\d+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $conversations, 'get' ),
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);
@@ -126,6 +237,21 @@ final class RestRoutes {
 		);
 		register_rest_route(
 			self::NAMESPACE,
+			'/woocommerce/smart-search',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $woo, 'smart_search' ),
+				'permission_callback' => array( $this, 'can_manage_woocommerce' ),
+				'args'                => array(
+					'query' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
 			'/woocommerce/analytics/dashboard',
 			array(
 				'methods'             => 'GET',
@@ -149,7 +275,7 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $efb, 'plan' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
 		register_rest_route(
@@ -158,7 +284,7 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $efb, 'create' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
 		register_rest_route(
@@ -167,7 +293,7 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $efb, 'chat' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
 		register_rest_route(
@@ -176,7 +302,7 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $efb, 'help' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
 		register_rest_route(
@@ -185,7 +311,7 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $efb, 'customize' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
 		register_rest_route(
@@ -193,8 +319,8 @@ final class RestRoutes {
 			'/efb/log',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $efb, 'log' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'callback'            => array( $efb, 'client_log' ),
+				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
 		register_rest_route(
@@ -203,7 +329,7 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $efb, 'save' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
 
@@ -214,7 +340,7 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $voice, 'transcribe_form_builder' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_form_composer' ),
 			)
 		);
 		register_rest_route(
@@ -223,7 +349,7 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $voice, 'transcribe_efb' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
 		register_rest_route(
@@ -423,6 +549,50 @@ final class RestRoutes {
 			)
 		);
 
+		$admin_widget = new AdminWidgetSettingsController();
+		register_rest_route(
+			self::NAMESPACE,
+			'/widget/admin-settings',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $admin_widget, 'update' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		$admin_handoff = new AdminHandoffSettingsController();
+		register_rest_route(
+			self::NAMESPACE,
+			'/handoff/admin-settings',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $admin_handoff, 'update' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		$admin_voice = new AdminVoiceSettingsController();
+		register_rest_route(
+			self::NAMESPACE,
+			'/voice/admin-settings',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $admin_voice, 'update' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		$admin_store = new AdminStoreSettingsController();
+		register_rest_route(
+			self::NAMESPACE,
+			'/woocommerce/admin-settings',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $admin_store, 'update' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
 		$widget = new ChatWidgetController();
 		register_rest_route(
 			self::NAMESPACE,
@@ -500,8 +670,26 @@ final class RestRoutes {
 		return current_user_can( 'manage_options' );
 	}
 
+	public function can_manage_form_composer(): bool {
+
+		return $this->can_manage() && Settings::get( 'form_composer_enabled', true );
+	}
+
+	public function can_manage_content_studio(): bool {
+
+		return $this->can_manage() && Settings::get( 'content_studio_enabled', true );
+	}
+
+	public function can_manage_efb_copilot(): bool {
+
+		return $this->can_manage() && Settings::get( 'efb_copilot_enabled', true );
+	}
+
 	public function can_manage_woocommerce(): bool {
 
-			return $this->can_manage() && WooCommerceConnector::is_active() && WooCommerceConnector::current_user_can_manage();
+		return $this->can_manage()
+			&& WooCommerceConnector::is_active()
+			&& WooCommerceConnector::is_ai_enabled()
+			&& WooCommerceConnector::current_user_can_manage();
 	}
 }

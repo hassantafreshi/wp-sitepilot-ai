@@ -605,7 +605,7 @@ msgid "Status"
 msgstr "وضعیت"
 
 msgid "Shortcode"
-msgstr "shortcode"
+msgstr "شورت‌کد"
 
 msgid "Last updated"
 msgstr "آخرین به‌روزرسانی"
@@ -3484,3 +3484,208 @@ msgstr "Anthropic این درخواست را نپذیرفت. لطفاً آن ر�
 msgid "Anthropic does not provide embeddings. Set an embedding base URL, model and key (for example OpenAI) in Settings to use semantic search."
 msgstr "Anthropic سرویس Embeddings ندارد. برای استفاده از جست‌وجوی معنایی، در تنظیمات یک نشانی پایه، مدل و کلید Embedding (برای نمونه OpenAI) تعیین کنید."
 
+# Form Composer specialist shell.
+msgid "%d fields ready to review"
+msgstr "%d فیلد آمادهٔ بازبینی است"
+
+msgid "Change"
+msgstr "تغییر"
+
+msgid "Created in WordPress"
+msgstr "در وردپرس ایجاد شد"
+
+msgid "Creation failed"
+msgstr "ایجاد فرم ناموفق بود"
+
+msgid "Describe a form, review every field, then create it. Simple fields, emailed to you."
+msgstr "فرم را توصیف کنید، همهٔ فیلدها را بازبینی کنید و سپس آن را بسازید. فیلدهای ساده، با ارسال به ایمیل شما."
+
+msgid "Describe the form you need. I will build a reviewable plan and will not create anything until you approve it."
+msgstr "فرم موردنیازتان را توصیف کنید. طرحی قابل بازبینی می‌سازم و تا زمان تأیید شما چیزی ایجاد نمی‌کنم."
+
+msgid "Describe your form"
+msgstr "فرم خود را توصیف کنید"
+
+msgid "Done. The form was saved as a draft. Open and publish it before its shortcode can display it to visitors."
+msgstr "انجام شد. فرم به‌صورت پیش‌نویس ذخیره شد. پیش از نمایش آن با شورت‌کد به بازدیدکنندگان، فرم را باز و منتشر کنید."
+
+msgid "“%s” was saved as a draft. Open and publish it before its shortcode can show the form to visitors."
+msgstr "«%s» به‌صورت پیش‌نویس ذخیره شد. پیش از نمایش فرم با شورت‌کد به بازدیدکنندگان، آن را باز و منتشر کنید."
+
+msgid "“%s” was published. Place the shortcode on a page to show it to visitors."
+msgstr "«%s» منتشر شد. برای نمایش آن به بازدیدکنندگان، شورت‌کد را در یک برگه قرار دهید."
+
+msgid "Done. The reviewed form was published and its shortcode is ready to place."
+msgstr "انجام شد. فرم بازبینی‌شده منتشر شد و شورت‌کد آن آمادهٔ استفاده است."
+
+msgid "Drafts a plan you approve. Nothing is created on its own."
+msgstr "طرحی برای تأیید شما می‌سازد. هیچ چیزی خودکار ایجاد نمی‌شود."
+
+msgid "EFB unavailable"
+msgstr "EFB در دسترس نیست"
+
+msgid "Entries email to"
+msgstr "ارسال پاسخ‌ها به"
+
+msgid "Form Assistant"
+msgstr "دستیار فرم"
+
+msgid "Form Composer"
+msgstr "فرم‌ساز"
+
+msgid "Form Composer is turned off"
+msgstr "فرم‌ساز خاموش است"
+
+msgid "Form created"
+msgstr "فرم ایجاد شد"
+
+msgid "Native form · simple fields"
+msgstr "فرم بومی · فیلدهای ساده"
+
+msgid "Need file uploads, payments, multi-step or logic?"
+msgstr "به بارگذاری فایل، پرداخت، فرم چندمرحله‌ای یا منطق شرطی نیاز دارید؟"
+
+msgid "New form"
+msgstr "فرم جدید"
+
+msgid "New native form"
+msgstr "فرم بومی جدید"
+
+msgid "Open EFB"
+msgstr "باز کردن EFB"
+
+msgid "Open the draft"
+msgstr "باز کردن پیش‌نویس"
+
+msgid "Open Integrations"
+msgstr "باز کردن یکپارچه‌سازی‌ها"
+
+msgid "Say what you need in one line. The assistant drafts a plan here; you review every field before anything is created."
+msgstr "نیازتان را در یک خط بنویسید. دستیار طرح را اینجا آماده می‌کند و پیش از ایجاد هر چیز، همهٔ فیلدها را بازبینی می‌کنید."
+
+msgid "Single use · creates exactly the reviewed status"
+msgstr "یک‌بار مصرف · دقیقاً با وضعیت بازبینی‌شده ایجاد می‌شود"
+
+msgid "Submissions email to %s"
+msgstr "ارسال پاسخ‌ها به %s"
+
+msgid "The approved action could not be completed. Nothing new was created."
+msgstr "عملیات تأییدشده کامل نشد. مورد جدیدی ایجاد نشد."
+
+msgid "The recipient is set by you and cannot be changed by the AI."
+msgstr "گیرنده را شما تعیین می‌کنید و هوش مصنوعی نمی‌تواند آن را تغییر دهد."
+
+msgid "Those features belong in Easy Form Builder. Native forms stay simple and email-only."
+msgstr "این قابلیت‌ها در Easy Form Builder ارائه می‌شوند. فرم‌های بومی ساده می‌مانند و پاسخ‌ها را فقط ایمیل می‌کنند."
+
+msgid "Turn it on in Integrations before building a form plan."
+msgstr "پیش از ساخت طرح فرم، آن را در یکپارچه‌سازی‌ها روشن کنید."
+
+msgid "Your form plan is ready. Review every field and the final status below; nothing is created until you approve."
+msgstr "طرح فرم آماده است. همهٔ فیلدها و وضعیت نهایی را بازبینی کنید؛ تا پیش از تأیید شما چیزی ایجاد نمی‌شود."
+
+# EFB Copilot specialist shell.
+msgid "Editing the current form"
+msgstr "در حال ویرایش فرم فعلی"
+
+msgid "Designing a new form"
+msgstr "در حال طراحی فرم جدید"
+
+msgid "Working on %s"
+msgstr "در حال کار روی %s"
+
+msgid "You selected “%s”. Tell me what to change — make it required, rename it, or add help text."
+msgstr "«%s» را انتخاب کرده‌اید. بگویید چه چیزی تغییر کند — اجباری شود، نامش تغییر کند یا متن راهنما بگیرد."
+
+msgid "Hi! I can change this form, design a new one, or explain how to do something in Easy Form Builder."
+msgstr "سلام! می‌توانم این فرم را تغییر دهم، فرم تازه‌ای طراحی کنم یا روش انجام کاری در Easy Form Builder را توضیح دهم."
+
+msgid "Hi! Tell me what form you need and I will design a complete one, or ask me an Easy Form Builder question."
+msgstr "سلام! بگویید چه فرمی نیاز دارید تا یک فرم کامل طراحی کنم، یا دربارهٔ Easy Form Builder سؤال بپرسید."
+
+msgid "Make Email required"
+msgstr "فیلد ایمیل را اجباری کن"
+
+msgid "Rename the form to Contact us"
+msgstr "نام فرم را به تماس با ما تغییر بده"
+
+msgid "How do I add options to a dropdown?"
+msgstr "چطور به فهرست کشویی گزینه اضافه کنم؟"
+
+msgid "Build a contact form"
+msgstr "یک فرم تماس بساز"
+
+msgid "A booking form for a dental clinic"
+msgstr "فرم رزرو برای کلینیک دندان‌پزشکی"
+
+msgid "Job application form"
+msgstr "فرم درخواست استخدام"
+
+msgid "How do I turn on email notifications?"
+msgstr "چطور اعلان‌های ایمیلی را فعال کنم؟"
+
+msgid "Upgrade to EFB Pro"
+msgstr "ارتقا به EFB Pro"
+
+msgid "View pricing"
+msgstr "مشاهده قیمت‌ها"
+
+msgid "Label"
+msgstr "برچسب"
+
+msgid "Req."
+msgstr "الزامی"
+
+msgid "W"
+msgstr "عرض"
+
+msgid "%s fields"
+msgstr "%s فیلد"
+
+msgid "Approve & create"
+msgstr "تأیید و ایجاد"
+
+msgid "Discard"
+msgstr "رد کردن"
+
+msgid "Creating…"
+msgstr "در حال ایجاد…"
+
+msgid "Created! Opening the editor…"
+msgstr "ایجاد شد! ویرایشگر در حال باز شدن است…"
+
+msgid "Voice recording is not supported by this browser. Please type your message."
+msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند. لطفاً پیام را تایپ کنید."
+
+msgid "No audio was captured."
+msgstr "صدایی ضبط نشد."
+
+msgid "That recording is too large. Please record a shorter message."
+msgstr "فایل ضبط‌شده بیش از حد بزرگ است. لطفاً پیام کوتاه‌تری ضبط کنید."
+
+msgid "Transcribing…"
+msgstr "در حال تبدیل گفتار به متن…"
+
+msgid "Transcript ready. Review it, then send."
+msgstr "متن پیاده‌شده آماده است. آن را بازبینی و سپس ارسال کنید."
+
+msgid "Recording — words appear in the message box. Stops after 45 seconds."
+msgstr "در حال ضبط — واژه‌ها در کادر پیام ظاهر می‌شوند. پس از ۴۵ ثانیه متوقف می‌شود."
+
+msgid "Microphone permission was denied. You can type your message instead."
+msgstr "اجازهٔ دسترسی به میکروفن داده نشد. می‌توانید پیام را تایپ کنید."
+
+msgid "Ask AI Site Assistant"
+msgstr "از دستیار هوشمند سایت بپرسید"
+
+msgid "AI Site Assistant"
+msgstr "دستیار هوشمند سایت"
+
+msgid "Message AI Site Assistant"
+msgstr "پیام به دستیار هوشمند سایت"
+
+msgid "Ask about this form…"
+msgstr "دربارهٔ این فرم بپرسید…"
+
+msgid "Clear"
+msgstr "پاک کردن"

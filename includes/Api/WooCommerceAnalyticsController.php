@@ -5,9 +5,11 @@ namespace AISAAutoPilot\Api;
 use AISAAutoPilot\Connectors\WooCommerceAnalyticsSkill;
 
 /**
- * REST controller for WooCommerce Analytics.
+ * Legacy WooCommerce analytics handlers retained for a later surface.
  *
- * Endpoints:
+ * Only the protected `/woocommerce/analytics/dashboard` read route is
+ * registered today. It deliberately has no dashboard UI because the Store
+ * mockup specifies a compact product/order surface:
  * - GET /woocommerce/analytics/sales         — Sales report
  * - GET /woocommerce/analytics/top-products  — Top selling products
  * - GET /woocommerce/analytics/low-stock     — Low stock alerts

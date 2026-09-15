@@ -5,9 +5,11 @@ namespace AISAAutoPilot\Api;
 use AISAAutoPilot\Connectors\WooCommerceOrderSkill;
 use AISAAutoPilot\Connectors\WooCommerceConnector;
 /**
- * REST controller for WooCommerce Order Intelligence.
+ * Legacy WooCommerce order handlers retained for future Phase 2 work.
  *
- * Endpoints:
+ * Only the protected manager-facing `/woocommerce/orders/recent` route is
+ * registered today. The following method inventory is otherwise dormant and
+ * must not be exposed as usable Store UI:
  * - GET  /woocommerce/orders/search   — Search orders
  * - GET  /woocommerce/orders/recent   — Recent orders
  * - GET  /woocommerce/orders/{id}     — Single order detail

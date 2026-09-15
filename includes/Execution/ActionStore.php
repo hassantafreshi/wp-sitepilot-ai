@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Execution;
 
+use AISAAutoPilot\Logging\Logger;
+
 /**
  * Stores a proposed action (a validated form plan awaiting approval) with a
  * short TTL, scoped to the user who created it. Approval consumes it, so a plan
@@ -31,21 +33,38 @@ final class ActionStore {
 
 	/**
 	 * @param array<string, mixed> $plan
+	 * @param array<string, mixed> $execution_context Values the administrator reviewed with this proposal.
 	 * @return string The action id.
 	 */
-	public function create( array $plan, string $connector_id ): string {
+	public function create( array $plan, string $connector_id, array $execution_context = array() ): string {
 		$this->purge_stale_claims();
 		$action_id = $this->uuid();
-		$record    = array(
-			'action_id'    => $action_id,
-			'plan'         => $plan,
-			'connector_id' => $connector_id,
-			'user_id'      => get_current_user_id(),
-			'created_at'   => time(),
-			'status'       => 'previewed',
+		// Only the explicit, bounded creation status belongs in the proposal. A
+		// later Settings change must not alter what the administrator approved.
+		$execution_context = array(
+			'status' => 'publish' === ( $execution_context['status'] ?? '' ) ? 'publish' : 'draft',
+		);
+		$record            = array(
+			'action_id'         => $action_id,
+			'plan'              => $plan,
+			'connector_id'      => $connector_id,
+			'execution_context' => $execution_context,
+			'user_id'           => get_current_user_id(),
+			'created_at'        => time(),
+			'status'            => 'previewed',
 		);
 
 		set_transient( $this->transient_key( $action_id ), $record, self::TTL );
+		// The transient deliberately disappears when an approval is consumed, but
+		// the redacted audit event remains available to the Activity timeline.
+		( new Logger() )->info(
+			'action.previewed',
+			'Approval-gated proposal created.',
+			array(
+				'action_id'    => $action_id,
+				'connector_id' => $connector_id,
+			)
+		);
 
 		return $action_id;
 	}
@@ -67,9 +86,11 @@ final class ActionStore {
 	 * remove that lock after execution; doing so would allow a second concurrent
 	 * request that already read the transient to replay the action.
 	 *
+	 * @param string|null $expected_connector Optional connector that is allowed
+	 *                                        to consume this proposal.
 	 * @return array{status:string,record?:array<string,mixed>}
 	 */
-	public function claim( string $action_id, int $user_id ): array {
+	public function claim( string $action_id, int $user_id, ?string $expected_connector = null ): array {
 		$record = $this->get( $action_id );
 		if ( null === $record ) {
 			return array( 'status' => 'missing' );
@@ -77,6 +98,13 @@ final class ActionStore {
 
 		if ( (int) ( $record['user_id'] ?? 0 ) !== $user_id ) {
 			return array( 'status' => 'forbidden' );
+		}
+
+		// Check the route's intended connector before adding the one-time lock or
+		// deleting the transient. A proposal opened in the wrong product surface
+		// must remain reviewable and executable from its original surface.
+		if ( null !== $expected_connector && (string) ( $record['connector_id'] ?? '' ) !== $expected_connector ) {
+			return array( 'status' => 'wrong_connector' );
 		}
 
 		if ( ! add_option( $this->claim_key( $action_id ), (string) time(), '', false ) ) {

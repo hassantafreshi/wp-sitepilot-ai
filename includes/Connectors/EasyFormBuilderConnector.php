@@ -145,6 +145,9 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 		);
 	}
 
+	/**
+	 * @return array{available:bool,active:bool,version:string,compatible:bool,notes:string}
+	 */
 	public function get_health(): array {
 		$active    = $this->plugin_is_active();
 		$version   = $this->version();

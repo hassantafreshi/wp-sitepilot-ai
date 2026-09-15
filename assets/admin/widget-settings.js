@@ -15,7 +15,7 @@
 		var dark = theme === 'dark';
 		return {
 			head_from: brand,
-			head_to: '#7c3aed',
+			head_to: '#181f66',
 			user: brand,
 			send: brand,
 			bubble: brand,
@@ -77,7 +77,7 @@
 
 	function currentBrand() {
 		var field = document.getElementById( 'sp-w-brand' );
-		return field ? field.value : '#4f46e5';
+		return field ? field.value : '#202a8d';
 	}
 
 	function customOn() {

@@ -46,7 +46,7 @@ final class VoiceController {
 
 		$file     = $request->get_file_params()['audio'] ?? array();
 		$duration = absint( $request->get_param( 'duration_ms' ) );
-		$language     = SiteLanguage::primary( (string) $request->get_param( 'language' ) ?: SiteLanguage::site() );
+		$language = SiteLanguage::primary( (string) $request->get_param( 'language' ) ?: SiteLanguage::site() );
 
 		try {
 			$result = ( new VoiceTranscriber() )->transcribe(

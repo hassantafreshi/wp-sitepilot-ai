@@ -6,6 +6,8 @@ namespace AISAAutoPilot\Core;
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Chat\ConversationManager;
+use AISAAutoPilot\Support\HandoffInbox;
+use AISAAutoPilot\Chat\VisitorConversationStore;
 
 /**
  * Runs on plugin activation.
@@ -44,5 +46,9 @@ final class Activator {
 		// Create the Conversations table.
 		$chat = new ConversationManager();
 		$chat->create_table();
+
+		// Create the private visitor-initiated handoff inbox table.
+		HandoffInbox::ensure_schema();
+		VisitorConversationStore::ensure_schema();
 	}
 }

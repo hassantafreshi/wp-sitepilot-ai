@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Execution;
 
 use AISAAutoPilot\Connectors\ConnectorRegistry;
-use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Logging\Logger;
 
 /**
@@ -26,12 +25,12 @@ final class ActionExecutor {
 	/**
 	 * @return array<string, mixed> Result payload for the UI.
 	 */
-	public function approve_and_execute( string $action_id ): array {
+	public function approve_and_execute( string $action_id, string $expected_connector ): array {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return $this->failure( 'permission_denied', __( 'You are not allowed to approve this action.', 'ai-site-assistant-autopilot' ) );
 		}
 
-		$claim = $this->store->claim( $action_id, get_current_user_id() );
+		$claim = $this->store->claim( $action_id, get_current_user_id(), $expected_connector );
 		if ( 'missing' === $claim['status'] ) {
 			$this->logger->error( 'action.expired', 'Approval failed: action not found or expired.', array( 'action_id' => $action_id ) );
 
@@ -44,6 +43,11 @@ final class ActionExecutor {
 		}
 		if ( 'already_claimed' === $claim['status'] ) {
 			return $this->failure( 'action_already_processed', __( 'This proposal is already being processed or has already been used.', 'ai-site-assistant-autopilot' ) );
+		}
+		if ( 'wrong_connector' === $claim['status'] ) {
+			$this->logger->error( 'action.wrong_connector', 'Approval was submitted to the wrong product surface.', array( 'action_id' => $action_id ) );
+
+			return $this->failure( 'invalid_action', __( 'This approval does not belong to this product surface.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$record = $claim['record'] ?? array();
@@ -80,8 +84,10 @@ final class ActionExecutor {
 			return $this->failure( 'invalid_payload', implode( ' ', $errors ) );
 		}
 
-		$context = array(
-			'status' => 'publish' === Settings::get( 'default_form_status', 'draft' ) ? 'publish' : 'draft',
+		$execution_context = is_array( $record['execution_context'] ?? null ) ? $record['execution_context'] : array();
+		$context           = array(
+			// Missing/legacy or malformed context fails closed to a draft.
+			'status' => 'publish' === ( $execution_context['status'] ?? '' ) ? 'publish' : 'draft',
 		);
 
 		$result = $connector->execute_action( $plan, $context );
@@ -106,6 +112,7 @@ final class ActionExecutor {
 			'action.executed',
 			'Form created.',
 			array(
+				'action_id' => $action_id,
 				'connector' => $connector->get_id(),
 				'form_id'   => $result['form_id'] ?? null,
 			)

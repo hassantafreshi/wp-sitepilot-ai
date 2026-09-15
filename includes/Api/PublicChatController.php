@@ -30,6 +30,9 @@ final class PublicChatController {
 		$context = $this->conversation_context( $history, $question );
 		try {
 			$result = ( new ChatEngine() )->ask( $question, $context );
+			if ( 'usage_cap_reached' === (string) ( $result['status'] ?? '' ) ) {
+				return $this->error( 'usage_cap_reached', (string) ( $result['answer'] ?? '' ), 429 );
+			}
 			return new \WP_REST_Response( array( 'ok' => true ) + $result );
 		} catch ( \Throwable $e ) {
 			return $this->error( 'assistant_unavailable', __( 'The assistant is temporarily unavailable. Please try again later.', 'ai-site-assistant-autopilot' ), 503 );
@@ -61,13 +64,7 @@ final class PublicChatController {
 	}
 
 	private function is_enabled(): bool {
-
-		if ( (bool) Settings::get( 'public_assistant_enabled', false ) ) {
-			return true;
-		}
-
-		$widget = Settings::get( 'widget', array() );
-		return is_array( $widget ) && ! empty( $widget['enabled'] );
+		return Settings::answer_desk_enabled();
 	}
 	/** @return array<int,array{role:string,text:string}> */
 	private function clean_history( array $history ): array {

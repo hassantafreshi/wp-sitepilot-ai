@@ -92,6 +92,51 @@ final class WpConnectors {
 	}
 
 	/**
+	 * Return the actual source of the WordPress-Connectors-compatible key.
+	 *
+	 * This is intentionally separate from the active management mode: a key
+	 * from an environment variable or PHP constant is not stored or encrypted
+	 * by this plugin and Health must not describe it as though it were.
+	 *
+	 * @return string 'environment'|'constant'|'wordpress_connectors'|'none'
+	 */
+	public static function get_api_key_source(): string {
+		$env = getenv( 'AISAAUTOPILOT_API_KEY' );
+		if ( is_string( $env ) && '' !== trim( $env ) ) {
+			return 'environment';
+		}
+
+		if ( defined( 'AISAAUTOPILOT_API_KEY' ) && '' !== trim( (string) constant( 'AISAAUTOPILOT_API_KEY' ) ) ) {
+			return 'constant';
+		}
+
+		$stored = get_option( self::WP_OPTION_KEY, '' );
+		if ( is_string( $stored ) && '' !== trim( $stored ) ) {
+			return 'wordpress_connectors';
+		}
+
+		return 'none';
+	}
+
+	/**
+	 * Return the source that actually supplied the effective provider key.
+	 *
+	 * A legacy or corrupt vault ciphertext can make get_effective_api_key()
+	 * fall back to a WordPress-Connectors-compatible key. In that situation
+	 * callers must describe the fallback source rather than falsely claiming
+	 * that the active credential was read from the encrypted vault.
+	 *
+	 * @return string 'keyvault'|'environment'|'constant'|'wordpress_connectors'|'none'
+	 */
+	public static function get_effective_api_key_source(): string {
+		if ( 'keyvault' === self::get_active_mode() && '' !== Settings::get_api_key() ) {
+			return 'keyvault';
+		}
+
+		return self::get_api_key_source();
+	}
+
+	/**
 	 * Check whether a key is available through the WP Connectors system.
 	 */
 	public static function has_api_key(): bool {

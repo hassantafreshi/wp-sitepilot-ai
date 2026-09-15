@@ -81,7 +81,7 @@ $pinned = new class implements ConnectorInterface {
 };
 $registry->register( $pinned );
 $action_id = $store->create( array( 'title' => 'Contact', 'fields' => array() ), 'pinned' );
-$execution = ( new ActionExecutor( $registry, $store ) )->approve_and_execute( $action_id );
+$execution = ( new ActionExecutor( $registry, $store ) )->approve_and_execute( $action_id, 'pinned' );
 $check( 'success' === $execution['status'] && 1 === $pinned->runs, 'approved action executes its pinned connector once' );
 
 $native = new NativeFormConnector();

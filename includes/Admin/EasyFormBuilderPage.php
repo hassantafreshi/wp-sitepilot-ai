@@ -180,7 +180,7 @@ final class EasyFormBuilderPage {
 
 						<div class="sp-card sp-card--accent">
 							<div class="sp-row-wrap sp-row-wrap--sm" style="margin-bottom:6px">
-								<?php echo Ui::icon( 'shield', 16, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								<?php echo Ui::icon( 'shield', 16, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 								<span style="font-size:13.5px;font-weight:700"><?php esc_html_e( 'What the AI may change', 'ai-site-assistant-autopilot' ); ?></span>
 							</div>
 							<p class="sp-help sp-help--12"><?php esc_html_e( 'Only entries marked ai_writable in the capability catalog. Payment, authentication, conditional logic, SMTP recipients and raw HTML always need the Easy Form Builder UI.', 'ai-site-assistant-autopilot' ); ?></p>

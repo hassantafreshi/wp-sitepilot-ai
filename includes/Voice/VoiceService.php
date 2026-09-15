@@ -65,7 +65,7 @@ final class VoiceService {
 			self::GROQ_WHISPER,
 			array(
 				'timeout'            => 30,
-				'headers' => array(
+				'headers'            => array(
 					'Authorization' => 'Bearer ' . $api_key,
 					'Content-Type'  => 'multipart/form-data; boundary=' . $boundary,
 				),
@@ -120,7 +120,7 @@ final class VoiceService {
 			self::OPENAI_TTS,
 			array(
 				'timeout'            => 30,
-				'headers' => array(
+				'headers'            => array(
 					'Authorization' => 'Bearer ' . $api_key,
 					'Content-Type'  => 'application/json',
 				),

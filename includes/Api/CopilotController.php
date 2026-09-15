@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Api;
 use AISAAutoPilot\Connectors\ConnectorRegistry;
 use AISAAutoPilot\Core\Plugin;
 use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Core\WpConnectors;
 use AISAAutoPilot\Execution\ActionExecutor;
 use AISAAutoPilot\Execution\ActionStore;
 use AISAAutoPilot\Logging\Logger;
@@ -35,6 +36,9 @@ final class CopilotController {
 	 * Generate a validated form plan and store it as a pending action.
 	 */
 	public function plan( WP_REST_Request $request ): WP_REST_Response {
+		if ( ! Settings::get( 'form_composer_enabled', true ) ) {
+			return $this->respond( array( 'message' => __( 'Form Composer is turned off in Integrations.', 'ai-site-assistant-autopilot' ) ), false, 403, 'integration_disabled' );
+		}
 		$prompt = trim( (string) $request->get_param( 'prompt' ) );
 
 		if ( '' === $prompt ) {
@@ -60,7 +64,7 @@ final class CopilotController {
 		} catch ( ProviderException $e ) {
 			$this->logger->error( 'plan.provider_error', $e->getMessage(), array( 'code' => $e->error_code() ) );
 
-			return $this->respond( array( 'message' => $e->user_message() ), false, 502, $e->error_code() );
+			return $this->respond( array( 'message' => $e->user_message() ), false, $e->status_code(), $e->error_code() );
 		}
 
 		if ( ! $result->ok ) {
@@ -98,7 +102,12 @@ final class CopilotController {
 		$plan                       = $result->plan;
 		$plan['notification_email'] = $notification_email;
 
-		$action_id = $this->store->create( $plan, $connector->get_id() );
+		$default_status = 'publish' === Settings::get( 'default_form_status', 'draft' ) ? 'publish' : 'draft';
+		$action_id      = $this->store->create(
+			$plan,
+			$connector->get_id(),
+			array( 'status' => $default_status )
+		);
 		$this->logger->info(
 			'plan.created',
 			'Form plan generated.',
@@ -111,7 +120,7 @@ final class CopilotController {
 			array(
 				'action_id'  => $action_id,
 				'expires_at' => time() + ActionStore::ttl(),
-				'preview'    => $this->build_preview( $plan, $connector->get_name() ),
+				'preview'    => $this->build_preview( $plan, $connector->get_name(), $default_status ),
 			),
 			true
 		);
@@ -121,13 +130,16 @@ final class CopilotController {
 	 * Approve + execute a stored plan.
 	 */
 	public function execute( WP_REST_Request $request ): WP_REST_Response {
+		if ( ! Settings::get( 'form_composer_enabled', true ) ) {
+			return $this->respond( array( 'message' => __( 'Form Composer is turned off in Integrations.', 'ai-site-assistant-autopilot' ) ), false, 403, 'integration_disabled' );
+		}
 		$action_id = sanitize_text_field( (string) $request->get_param( 'action_id' ) );
 		if ( '' === $action_id ) {
 			return $this->respond( array( 'message' => __( 'Missing action reference.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_payload' );
 		}
 
 		$executor = new ActionExecutor( $this->registry() );
-		$result   = $executor->approve_and_execute( $action_id );
+		$result   = $executor->approve_and_execute( $action_id, 'native_form' );
 
 		if ( ( $result['status'] ?? '' ) !== 'success' ) {
 			return $this->respond(
@@ -157,21 +169,25 @@ final class CopilotController {
 	 * the user can verify before saving. The key is used transiently only.
 	 */
 	public function test( WP_REST_Request $request ): WP_REST_Response {
-		$provider = ProviderManager::build( $this->requested_config( $request ) );
+		$config   = $this->requested_config( $request );
+		$provider = ProviderManager::build( $config );
 		$health   = $provider->health_check();
 
-		// The Connections screen shows when the dependency report was last refreshed.
-		\AISAAutoPilot\Admin\ConnectionsPage::stamp_diagnostics();
+		// A test may use a key that has not been saved yet. Bind a successful test
+		// to this administrator and promote it only when the same configuration is
+		// saved; an unsuccessful draft test must not unset a working live provider.
+		\AISAAutoPilot\Admin\SettingsPage::record_provider_test( $config, (bool) $health['ok'] );
 
-		// Settings ticks off "Test connection" only on a real success, and clears
-		// the mark again whenever the endpoint, model or key changes.
-		if ( $health['ok'] ) {
-			update_option( \AISAAutoPilot\Admin\SettingsPage::VERIFIED_OPTION, time(), false );
-		} else {
-			delete_option( \AISAAutoPilot\Admin\SettingsPage::VERIFIED_OPTION );
-		}
-
-		return $this->respond( array( 'message' => $health['message'] ), (bool) $health['ok'], $health['ok'] ? 200 : 400, $health['ok'] ? 'ok' : 'health_failed' );
+		$diagnostic = sanitize_key( (string) ( $health['code'] ?? ( $health['ok'] ? 'connected' : 'health_failed' ) ) );
+		return $this->respond(
+			array(
+				'message'    => $health['message'],
+				'diagnostic' => $diagnostic,
+			),
+			(bool) $health['ok'],
+			$health['ok'] ? 200 : 400,
+			$diagnostic
+		);
 	}
 
 	/**
@@ -219,15 +235,20 @@ final class CopilotController {
 			$provider = (string) Settings::get( 'provider', '' );
 		}
 
-		$key = (string) $request->get_param( 'api_key' );
-		if ( '' === trim( $key ) ) {
-			$key = Settings::get_api_key();
+		$key       = (string) $request->get_param( 'api_key' );
+		$key_mode  = sanitize_key( (string) $request->get_param( 'key_management' ) );
+		$clear_key = in_array( $request->get_param( 'clear_api_key' ), array( true, 1, '1' ), true );
+		if ( '' === trim( $key ) && ! $clear_key ) {
+			$key = 'wp_connectors' === $key_mode ? WpConnectors::get_api_key() : WpConnectors::get_effective_api_key();
 		}
 
 		return array(
 			'provider'    => $provider,
-			'base_url'    => esc_url_raw( (string) ( $request->get_param( 'base_url' ) ?: Settings::get( 'base_url' ) ) ),
-			'model'       => sanitize_text_field( (string) ( $request->get_param( 'model' ) ?: Settings::get( 'model' ) ) ),
+			// A missing parameter means "use the saved configuration". An explicit
+			// empty field must remain empty so a setup test reports invalid_config
+			// instead of silently testing the previous provider endpoint.
+			'base_url'    => esc_url_raw( (string) ( $request->has_param( 'base_url' ) ? $request->get_param( 'base_url' ) : Settings::get( 'base_url' ) ) ),
+			'model'       => sanitize_text_field( (string) ( $request->has_param( 'model' ) ? $request->get_param( 'model' ) : Settings::get( 'model' ) ) ),
 			'api_key'     => $key,
 			'temperature' => 0.0,
 			'timeout'     => 20,
@@ -245,7 +266,7 @@ final class CopilotController {
 	 * @param array<string, mixed> $plan
 	 * @return array<string, mixed>
 	 */
-	private function build_preview( array $plan, string $connector_name ): array {
+	private function build_preview( array $plan, string $connector_name, string $default_status ): array {
 		return array(
 			'title'                => $plan['title'],
 			'description'          => $plan['description'],
@@ -267,7 +288,7 @@ final class CopilotController {
 			'connector'            => $connector_name,
 			'notification_email'   => $this->mask_email( (string) ( $plan['notification_email'] ?? '' ) ),
 			'field_count'          => count( $plan['fields'] ),
-			'default_status'       => Settings::get( 'default_form_status', 'draft' ),
+			'default_status'       => 'publish' === $default_status ? 'publish' : 'draft',
 		);
 	}
 

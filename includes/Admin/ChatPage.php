@@ -47,7 +47,7 @@ final class ChatPage {
 					<aside class="sp-chat__aside">
 						<div class="sp-chat__aside-head">
 							<h3 class="sp-chat__aside-title">
-								<?php echo Ui::icon( 'chat', 17, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								<?php echo Ui::icon( 'chat', 17, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 								<span><?php esc_html_e( 'Conversations', 'ai-site-assistant-autopilot' ); ?></span>
 							</h3>
 							<button type="button" id="sp-chat-new" class="sp-btn--icon-sm" title="<?php esc_attr_e( 'New conversation', 'ai-site-assistant-autopilot' ); ?>" aria-label="<?php esc_attr_e( 'New conversation', 'ai-site-assistant-autopilot' ); ?>">

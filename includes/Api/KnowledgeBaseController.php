@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Api;
 use AISAAutoPilot\Content\ContentIndexer;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Content\KbGaps;
+use AISAAutoPilot\Providers\ProviderException;
 use AISAAutoPilot\Providers\ProviderManager;
 use AISAAutoPilot\Usage\UsageTracker;
 
@@ -30,8 +31,12 @@ final class KnowledgeBaseController {
 
 		$result = $indexer->process_batch( $offset, $filters );
 
+		if ( 'usage_cap_reached' === (string) ( $result['code'] ?? '' ) ) {
+			return $this->respond( $result, false, 429, 'usage_cap_reached' );
+		}
+
 		if ( isset( $result['error'] ) ) {
-			return $this->respond( array( 'message' => $result['error'] ), false, 400, 'not_configured' );
+			return $this->respond( array( 'message' => $result['error'] ), false, 400, (string) ( $result['code'] ?? 'not_configured' ) );
 		}
 
 		return $this->respond( $result, true );
@@ -41,6 +46,17 @@ final class KnowledgeBaseController {
 	 * POST /kb/truncate — Clear all KB entries (before full re-index).
 	 */
 	public function truncate( \WP_REST_Request $request ): \WP_REST_Response {
+		if ( ( new UsageTracker() )->is_exhausted() ) {
+			return $this->respond(
+				array(
+					'message' => __( 'The local AI usage cap has been reached. Raise or reset the token cap before starting a full re-index so existing knowledge is not cleared without a replacement pass.', 'ai-site-assistant-autopilot' ),
+				),
+				false,
+				429,
+				'usage_cap_reached'
+			);
+		}
+
 		$kb = new KnowledgeBase();
 		$kb->truncate();
 
@@ -147,8 +163,10 @@ final class KnowledgeBaseController {
 				true
 			);
 
+		} catch ( ProviderException $e ) {
+			return $this->respond( array( 'message' => $e->user_message() ), false, $e->status_code(), $e->error_code() );
 		} catch ( \Throwable $e ) {
-			return $this->respond( array( 'message' => $e->getMessage() ), false, 500, 'ai_error' );
+			return $this->respond( array( 'message' => __( 'The AI provider could not answer this question. Please try again.', 'ai-site-assistant-autopilot' ) ), false, 502, 'ai_error' );
 		}
 	}
 
@@ -197,7 +215,16 @@ final class KnowledgeBaseController {
 	 * POST /usage/budget — Set the monthly token budget.
 	 */
 	public function set_budget( \WP_REST_Request $request ): \WP_REST_Response {
-		$budget  = absint( $request->get_param( 'budget' ) );
+		$budget = $this->requested_budget( $request );
+		if ( null === $budget ) {
+			return $this->respond(
+				array( 'message' => __( 'Enter a whole-number token cap between 0 and 1,000,000,000.', 'ai-site-assistant-autopilot' ) ),
+				false,
+				400,
+				'invalid_budget'
+			);
+		}
+
 		$tracker = new UsageTracker();
 		$tracker->set_budget( $budget );
 
@@ -208,6 +235,36 @@ final class KnowledgeBaseController {
 			),
 			true
 		);
+	}
+
+	/**
+	 * Validate the mutable budget at the API boundary. A negative whole number
+	 * preserves the established compatibility behaviour of disabling the cap;
+	 * malformed, missing, fractional and compound values must never reset it.
+	 */
+	private function requested_budget( \WP_REST_Request $request ): ?int {
+		if ( ! $request->has_param( 'budget' ) ) {
+			return null;
+		}
+
+		$value = $request->get_param( 'budget' );
+		if ( is_int( $value ) ) {
+			$raw = (string) $value;
+		} elseif ( is_string( $value ) && 1 === preg_match( '/^-?\d+$/D', $value ) ) {
+			$raw = $value;
+		} else {
+			return null;
+		}
+
+		$negative = str_starts_with( $raw, '-' );
+		$digits   = ltrim( $negative ? substr( $raw, 1 ) : $raw, '0' );
+		$digits   = '' === $digits ? '0' : $digits;
+		$maximum  = (string) UsageTracker::MAX_BUDGET;
+		if ( strlen( $digits ) > strlen( $maximum ) || ( strlen( $digits ) === strlen( $maximum ) && $digits > $maximum ) ) {
+			return null;
+		}
+
+		return $negative ? 0 : (int) $digits;
 	}
 
 	/**

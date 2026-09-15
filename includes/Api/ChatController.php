@@ -36,6 +36,21 @@ final class ChatController {
 		// Run RAG engine.
 		$engine = new ChatEngine();
 		$result = $engine->ask( $question, $context );
+		if ( 'usage_cap_reached' === (string) ( $result['status'] ?? '' ) ) {
+			$result['conversation_id'] = $conv_id;
+
+			return new \WP_REST_Response(
+				array_merge(
+					array(
+						'ok'      => false,
+						'code'    => 'usage_cap_reached',
+						'message' => (string) ( $result['answer'] ?? '' ),
+					),
+					$result
+				),
+				429
+			);
+		}
 
 		// Save messages.
 		$manager->add_message(

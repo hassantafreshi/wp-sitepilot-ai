@@ -19,13 +19,13 @@ final class ChatWidget {
 
 	public function render(): string {
 		$w = array_merge( Settings::widget_defaults(), (array) Settings::get( 'widget', array() ) );
-		if ( empty( $w['enabled'] ) ) {
+		if ( ! $this->should_render_widget() ) {
 			return ''; }
 
 		$theme   = ( ( $w['theme'] ?? 'light' ) === 'dark' ) ? 'dark' : 'light';
 		$allowed = array( 'bottom-right', 'bottom-left', 'top-right', 'top-left' );
 		$pos     = in_array( $w['position'] ?? '', $allowed, true ) ? $w['position'] : 'bottom-right';
-		$color   = sanitize_hex_color( $w['color'] ?? '' ) ?: '#4f46e5';
+		$color   = sanitize_hex_color( $w['color'] ?? '' ) ?: '#202a8d';
 
 		// The customiser's per-part palette, falling back to the brand-derived one.
 		$derived = Settings::widget_derived_colors( $color, $theme );
@@ -40,7 +40,9 @@ final class ChatWidget {
 		$handoff_text = (string) ( $w['handoff_text'] ?? __( 'Talk to a human', 'ai-site-assistant-autopilot' ) );
 		$handoff_hook = (string) ( $w['handoff_hook'] ?? '' );
 		$voice        = ! empty( $w['voice_enabled'] );
-		$handoff      = ! empty( $w['handoff_enabled'] );
+		$handoff      = Settings::answer_desk_handoff_available();
+		$recording    = ! empty( $w['conversation_logging_enabled'] );
+		$notice       = sanitize_text_field( (string) ( $w['conversation_notice'] ?? '' ) );
 		$suggestions  = $this->suggestions( $w );
 
 		$style = $this->style_vars( $colors, $w, $theme );
@@ -139,6 +141,10 @@ final class ChatWidget {
 						</button>
 					</div>
 					<p class="spw-disclaimer"><?php esc_html_e( 'AI answers can be wrong. Check anything important.', 'ai-site-assistant-autopilot' ); ?></p>
+					<?php
+					if ( $recording && '' !== $notice ) :
+						?>
+						<p class="spw-recording-notice"><?php echo esc_html( $notice ); ?></p><?php endif; ?>
 				</div>
 			</div>
 		</div>
@@ -154,28 +160,28 @@ final class ChatWidget {
 	 */
 	private function style_vars( array $colors, array $w, string $theme ): string {
 		$map = array(
-			'--spw-primary'   => $colors['head_from'] ?? '#4f46e5',
-			'--spw-head-from' => $colors['head_from'] ?? '#4f46e5',
-			'--spw-head-to'   => $colors['head_to'] ?? '#7c3aed',
-			'--spw-user'      => $colors['user'] ?? '#4f46e5',
-			'--spw-ai-bg'     => $colors['ai_bg'] ?? '#ffffff',
-			'--spw-ai-text'   => $colors['ai_text'] ?? '#1f2937',
-			'--spw-bg'        => $colors['panel'] ?? '#ffffff',
-			'--spw-msgs'      => $colors['msgs'] ?? '#f9fafb',
-			'--spw-border'    => $colors['border'] ?? '#e5e7eb',
-			'--spw-input-bg'  => $colors['input'] ?? '#f9fafb',
-			'--spw-send'      => $colors['send'] ?? '#4f46e5',
-			'--spw-handoff'   => $colors['handoff'] ?? '#4f46e5',
-			'--spw-float'     => $colors['bubble'] ?? '#4f46e5',
-			'--spw-text'      => 'dark' === $theme ? '#f3f4f6' : '#1f2937',
+			'--spw-primary'      => $colors['head_from'] ?? '#202a8d',
+			'--spw-head-from'    => $colors['head_from'] ?? '#202a8d',
+			'--spw-head-to'      => $colors['head_to'] ?? '#181f66',
+			'--spw-user'         => $colors['user'] ?? '#202a8d',
+			'--spw-ai-bg'        => $colors['ai_bg'] ?? '#ffffff',
+			'--spw-ai-text'      => $colors['ai_text'] ?? '#1f2937',
+			'--spw-bg'           => $colors['panel'] ?? '#ffffff',
+			'--spw-msgs'         => $colors['msgs'] ?? '#f9fafb',
+			'--spw-border'       => $colors['border'] ?? '#e5e7eb',
+			'--spw-input-bg'     => $colors['input'] ?? '#f9fafb',
+			'--spw-send'         => $colors['send'] ?? '#202a8d',
+			'--spw-handoff'      => $colors['handoff'] ?? '#202a8d',
+			'--spw-float'        => $colors['bubble'] ?? '#202a8d',
+			'--spw-text'         => 'dark' === $theme ? '#f3f4f6' : '#1f2937',
 
-			'--spw-radius'        => (int) ( $w['panel_radius'] ?? 16 ) . 'px',
-			'--spw-msg-radius'    => (int) ( $w['msg_radius'] ?? 14 ) . 'px',
-			'--spw-float-radius'  => (int) ( $w['bubble_radius'] ?? 30 ) . 'px',
+			'--spw-radius'       => (int) ( $w['panel_radius'] ?? 16 ) . 'px',
+			'--spw-msg-radius'   => (int) ( $w['msg_radius'] ?? 14 ) . 'px',
+			'--spw-float-radius' => (int) ( $w['bubble_radius'] ?? 30 ) . 'px',
 
 			// Panel size was configurable but never reached the stylesheet.
-			'--spw-w'             => max( 320, min( 560, (int) ( $w['window_width'] ?? 400 ) ) ) . 'px',
-			'--spw-h'             => max( 380, min( 820, (int) ( $w['window_height'] ?? 620 ) ) ) . 'px',
+			'--spw-w'            => max( 320, min( 560, (int) ( $w['window_width'] ?? 400 ) ) ) . 'px',
+			'--spw-h'            => max( 380, min( 820, (int) ( $w['window_height'] ?? 620 ) ) ) . 'px',
 		);
 
 		$out = '';
@@ -242,7 +248,7 @@ final class ChatWidget {
 	public function should_render_widget(): bool {
 		$s = Settings::all();
 		$w = $s['widget'] ?? Settings::widget_defaults();
-		if ( empty( $w['enabled'] ) ) {
+		if ( ! Settings::answer_desk_enabled() || empty( $w['enabled'] ) ) {
 			return false; }
 		$visibility = $w['widget_visibility'] ?? 'all';
 		if ( 'all' === $visibility ) {

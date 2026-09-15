@@ -4,9 +4,9 @@ namespace AISAAutoPilot\Core;
 use AISAAutoPilot\Security\KeyVault;
 
 final class Settings {
-	public const OPTION           = 'aisaautopilot_settings';
-	public const KEY_OPTION       = 'aisaautopilot_provider_key';
-	public const EMBED_KEY_OPTION = 'aisaautopilot_embedding_key';
+	public const OPTION                = 'aisaautopilot_settings';
+	public const KEY_OPTION            = 'aisaautopilot_provider_key';
+	public const EMBED_KEY_OPTION      = 'aisaautopilot_embedding_key';
 	public const HANDOFF_SECRET_OPTION = 'aisaautopilot_handoff_secrets';
 
 	/** @var string[] */
@@ -78,13 +78,13 @@ final class Settings {
 				),
 			),
 			'anthropic'  => array(
-				'label'      => 'Anthropic (Claude)',
-				'base_url'   => 'https://api.anthropic.com/v1',
-				'model'      => 'claude-opus-5',
-				'key_url'    => 'https://console.anthropic.com/settings/keys',
-				'api'        => 'anthropic',
-				'auth'       => 'x-api-key',
-				'models'     => array(
+				'label'    => 'Anthropic (Claude)',
+				'base_url' => 'https://api.anthropic.com/v1',
+				'model'    => 'claude-opus-5',
+				'key_url'  => 'https://console.anthropic.com/settings/keys',
+				'api'      => 'anthropic',
+				'auth'     => 'x-api-key',
+				'models'   => array(
 					'claude-opus-5'     => 'Claude Opus 5',
 					'claude-opus-4-8'   => 'Claude Opus 4.8',
 					'claude-opus-4-7'   => 'Claude Opus 4.7',
@@ -94,7 +94,7 @@ final class Settings {
 					'claude-haiku-4-5'  => 'Claude Haiku 4.5',
 					'claude-fable-5'    => 'Claude Fable 5',
 				),
-				'note'       => __( 'Anthropic speaks its own Messages API, which AISAAutoPilot handles natively. It has no embeddings endpoint, so semantic search needs a separate embedding provider below.', 'ai-site-assistant-autopilot' ),
+				'note'     => __( 'Anthropic speaks its own Messages API, which AISAAutoPilot handles natively. It has no embeddings endpoint, so semantic search needs a separate embedding provider below.', 'ai-site-assistant-autopilot' ),
 			),
 			'gemini'     => array(
 				'label'      => 'Google Gemini',
@@ -102,15 +102,15 @@ final class Settings {
 				'model'      => 'gemini-3.6-flash',
 				'key_url'    => 'https://aistudio.google.com/apikey',
 				'models'     => array(
-					'gemini-3.7-flash'      => 'Gemini 3.7 Flash',
-					'gemini-3.6-flash'      => 'Gemini 3.6 Flash',
-					'gemini-3.5-flash'      => 'Gemini 3.5 Flash',
-					'gemini-3.5-flash-lite' => 'Gemini 3.5 Flash-Lite',
-					'gemini-3.1-flash-lite' => 'Gemini 3.1 Flash-Lite',
+					'gemini-3.7-flash'       => 'Gemini 3.7 Flash',
+					'gemini-3.6-flash'       => 'Gemini 3.6 Flash',
+					'gemini-3.5-flash'       => 'Gemini 3.5 Flash',
+					'gemini-3.5-flash-lite'  => 'Gemini 3.5 Flash-Lite',
+					'gemini-3.1-flash-lite'  => 'Gemini 3.1 Flash-Lite',
 					'gemini-3.1-pro-preview' => 'Gemini 3.1 Pro (preview)',
-					'gemini-2.5-pro'        => 'Gemini 2.5 Pro',
-					'gemini-2.5-flash'      => 'Gemini 2.5 Flash',
-					'gemini-2.5-flash-lite' => 'Gemini 2.5 Flash-Lite',
+					'gemini-2.5-pro'         => 'Gemini 2.5 Pro',
+					'gemini-2.5-flash'       => 'Gemini 2.5 Flash',
+					'gemini-2.5-flash-lite'  => 'Gemini 2.5 Flash-Lite',
 				),
 				'embeddings' => array(
 					'gemini-embedding-001' => 'gemini-embedding-001',
@@ -153,25 +153,27 @@ final class Settings {
 				'model'      => 'mistral-medium-3-5-26-04',
 				'key_url'    => 'https://console.mistral.ai/api-keys',
 				'models'     => array(
-					'mistral-large-3-25-12'   => 'Mistral Large 3',
+					'mistral-large-3-25-12'    => 'Mistral Large 3',
 					'mistral-medium-3-5-26-04' => 'Mistral Medium 3.5',
-					'mistral-small-4-0-26-03' => 'Mistral Small 4',
-					'ministral-3-14b-25-12'   => 'Ministral 3 14B',
-					'ministral-3-8b-25-12'    => 'Ministral 3 8B',
-					'ministral-3-3b-25-12'    => 'Ministral 3 3B',
-					'codestral-25-08'         => 'Codestral',
+					'mistral-small-4-0-26-03'  => 'Mistral Small 4',
+					'ministral-3-14b-25-12'    => 'Ministral 3 14B',
+					'ministral-3-8b-25-12'     => 'Ministral 3 8B',
+					'ministral-3-3b-25-12'     => 'Ministral 3 3B',
+					'codestral-25-08'          => 'Codestral',
 				),
 				'embeddings' => array(
-					'mistral-embed-23-12' => 'Mistral Embed',
+					'mistral-embed-23-12'   => 'Mistral Embed',
 					'codestral-embed-25-05' => 'Codestral Embed',
 				),
 			),
 			'groq'       => array(
 				'label'    => 'Groq',
 				'base_url' => 'https://api.groq.com/openai/v1',
-				'model'    => 'llama-3.3-70b-versatile',
+				'model'    => 'llama-3.1-8b-instant',
 				'key_url'  => 'https://console.groq.com/keys',
 				'models'   => array(
+					'meta-llama/llama-4-scout-17b-16e-instruct' => 'Llama 4 Scout 17B',
+					'meta-llama/llama-4-maverick-17b-128e-instruct' => 'Llama 4 Maverick 17B',
 					'llama-3.3-70b-versatile' => 'Llama 3.3 70B Versatile',
 					'llama-3.1-8b-instant'    => 'Llama 3.1 8B Instant',
 					'openai/gpt-oss-120b'     => 'GPT-OSS 120B',
@@ -209,13 +211,13 @@ final class Settings {
 				'key_url'  => 'https://openrouter.ai/keys',
 				'group'    => 'gateway',
 				'models'   => array(
-					'openai/gpt-5.6-luna'      => 'OpenAI GPT-5.6 Luna',
-					'openai/gpt-5.6-sol'       => 'OpenAI GPT-5.6 Sol',
-					'anthropic/claude-opus-5'  => 'Anthropic Claude Opus 5',
-					'anthropic/claude-sonnet-5' => 'Anthropic Claude Sonnet 5',
-					'google/gemini-3.6-flash'  => 'Google Gemini 3.6 Flash',
+					'openai/gpt-5.6-luna'        => 'OpenAI GPT-5.6 Luna',
+					'openai/gpt-5.6-sol'         => 'OpenAI GPT-5.6 Sol',
+					'anthropic/claude-opus-5'    => 'Anthropic Claude Opus 5',
+					'anthropic/claude-sonnet-5'  => 'Anthropic Claude Sonnet 5',
+					'google/gemini-3.6-flash'    => 'Google Gemini 3.6 Flash',
 					'deepseek/deepseek-v4-flash' => 'DeepSeek V4 Flash',
-					'mistralai/mistral-large-3' => 'Mistral Large 3',
+					'mistralai/mistral-large-3'  => 'Mistral Large 3',
 				),
 				'note'     => __( 'One key for many vendors. Use “Refresh from provider” to pull OpenRouter’s current catalogue.', 'ai-site-assistant-autopilot' ),
 			),
@@ -335,6 +337,9 @@ final class Settings {
 			'voice_model'              => 'whisper-1',
 			'voice_responses_enabled'  => false,
 			'public_assistant_enabled' => false,
+			'form_composer_enabled'    => true,
+			'efb_copilot_enabled'      => true,
+			'content_studio_enabled'   => true,
 			// Empty means the site's Administration Email Address is used. This
 			// recipient is server-owned and is never accepted from an AI prompt.
 			'form_notification_email'  => '',
@@ -383,7 +388,7 @@ final class Settings {
 
 		return array(
 			'head_from' => $brand,
-			'head_to'   => '#7c3aed',
+			'head_to'   => '#181f66',
 			'user'      => $brand,
 			'send'      => $brand,
 			'bubble'    => $brand,
@@ -399,52 +404,104 @@ final class Settings {
 
 	public static function widget_defaults(): array {
 		return array(
-			'enabled'                => true,
-			'position'               => 'bottom-right',
-			'theme'                  => 'light',
-			'color'                  => '#4f46e5',
-			'bg'                     => '#ffffff',
-			'title'                  => 'AI Site Assistant AutoPilot',
-			'subtitle'               => 'AI Assistant',
-			'greeting'               => 'Hi! How can I help you?',
-			'suggestions'            => array(),
-			'panel_radius'           => 16,
-			'msg_radius'             => 14,
-			'bubble_radius'          => 30,
-			'custom_colors'          => false,
-			'colors'                 => array(),
-			'icons'                  => array(),
-			'auto_open'              => 5,
-			'voice_enabled'          => true,
-			'voice_auto'             => true,
-			'handoff_enabled'        => false,
-			'handoff_email_enabled'  => true,
-			'handoff_telegram_enabled' => false,
-			'handoff_twilio_enabled' => false,
-			'handoff_email_to'       => '',
-			'handoff_telegram_chat'  => '',
-			'handoff_twilio_from'    => '',
-			'handoff_twilio_to'      => '',
-			'exclude_pages'          => array(),
-			'exclude_cats'           => array(),
-			'exclude_types'          => array(),
-			'exclude_ids'            => array(),
-			'btn_size'               => 56,
-			'btn_shape'              => 'circle',
-			'btn_color'              => '#4f46e5',
-			'btn_icon'               => 'bubble',
-			'btn_animation'          => 'pulse',
-			'btn_offset_x'           => 20,
-			'btn_offset_y'           => 20,
-			'window_width'           => 380,
-			'window_height'          => 550,
-			'window_border_radius'   => 12,
-			'window_accent_color'    => '#4f46e5',
-			'window_header_color'    => '#4f46e5',
-			'window_font_size'       => 'medium',
-			'window_shadow'          => 'medium',
-			'widget_visibility'      => 'all',
+			'enabled'                      => true,
+			'position'                     => 'bottom-right',
+			'theme'                        => 'light',
+			'color'                        => '#202a8d',
+			'bg'                           => '#ffffff',
+			'title'                        => 'AI Site Assistant AutoPilot',
+			'subtitle'                     => 'AI Assistant',
+			'greeting'                     => 'Hi! How can I help you?',
+			'suggestions'                  => array(),
+			'panel_radius'                 => 16,
+			'msg_radius'                   => 14,
+			'bubble_radius'                => 30,
+			'custom_colors'                => false,
+			'colors'                       => array(),
+			'icons'                        => array(),
+			'auto_open'                    => 5,
+			'voice_enabled'                => true,
+			'voice_auto'                   => true,
+			'conversation_logging_enabled' => false,
+			'conversation_notice'          => 'This conversation may be recorded to help our support team.',
+			'handoff_enabled'              => false,
+			'handoff_email_enabled'        => true,
+			'handoff_telegram_enabled'     => false,
+			'handoff_twilio_enabled'       => false,
+			'handoff_email_to'             => '',
+			'handoff_telegram_chat'        => '',
+			'handoff_twilio_from'          => '',
+			'handoff_twilio_to'            => '',
+			'exclude_pages'                => array(),
+			'exclude_cats'                 => array(),
+			'exclude_types'                => array(),
+			'exclude_ids'                  => array(),
+			'btn_size'                     => 56,
+			'btn_shape'                    => 'circle',
+			'btn_color'                    => '#202a8d',
+			'btn_icon'                     => 'bubble',
+			'btn_animation'                => 'pulse',
+			'btn_offset_x'                 => 20,
+			'btn_offset_y'                 => 20,
+			'window_width'                 => 380,
+			'window_height'                => 550,
+			'window_border_radius'         => 12,
+			'window_accent_color'          => '#202a8d',
+			'window_header_color'          => '#202a8d',
+			'window_font_size'             => 'medium',
+			'window_shadow'                => 'medium',
+			'widget_visibility'            => 'all',
 		);
+	}
+
+	/**
+	 * The Answer Desk has one public runtime contract.
+	 *
+	 * Its Integration switch deliberately controls whether the visitor-facing
+	 * assistant exists at all, while the Widget switch controls whether that
+	 * assistant is visible. Keeping the two checks together prevents the
+	 * Conversations and Handoff admin surfaces from referring to a different
+	 * renderer than the one visitors receive.
+	 */
+	public static function answer_desk_enabled(): bool {
+		$settings = self::all();
+		$widget   = isset( $settings['widget'] ) && is_array( $settings['widget'] )
+			? $settings['widget']
+			: array();
+
+		return ! empty( $settings['public_assistant_enabled'] ) && ! empty( $widget['enabled'] );
+	}
+
+	/**
+	 * A visitor may be offered handoff only when the Answer Desk is live and
+	 * at least one enabled delivery channel has the fields it needs.
+	 *
+	 * This is intentionally shared by the renderer, chat engine and public
+	 * endpoint. A checked-but-incomplete channel must never create a button
+	 * which then fails after a visitor has pressed it.
+	 */
+	public static function answer_desk_handoff_available(): bool {
+		if ( ! self::answer_desk_enabled() ) {
+			return false;
+		}
+
+		$widget = (array) self::get( 'widget', array() );
+		if ( empty( $widget['handoff_enabled'] ) ) {
+			return false;
+		}
+
+		$email        = sanitize_email( (string) ( $widget['handoff_email_to'] ?? get_option( 'admin_email', '' ) ) );
+		$has_email    = ! empty( $widget['handoff_email_enabled'] ) && '' !== $email && is_email( $email );
+		$has_telegram = ! empty( $widget['handoff_telegram_enabled'] )
+			&& self::has_handoff_secret( 'handoff_telegram_token' )
+			&& '' !== trim( (string) ( $widget['handoff_telegram_chat'] ?? '' ) );
+		$has_twilio   = ! empty( $widget['handoff_twilio_enabled'] )
+			&& self::has_handoff_secret( 'handoff_twilio_sid' )
+			&& self::has_handoff_secret( 'handoff_twilio_token' )
+			&& '' !== trim( (string) ( $widget['handoff_twilio_from'] ?? '' ) )
+			&& '' !== trim( (string) ( $widget['handoff_twilio_to'] ?? '' ) );
+
+		return $has_email || $has_telegram || $has_twilio;
 	}
 
 	public static function all(): array {
@@ -467,9 +524,9 @@ final class Settings {
 		return $settings;
 	}
 
-	public static function get( string $key, $default = null ) {
+	public static function get( string $key, $fallback = null ) {
 		$s = self::all();
-		return array_key_exists( $key, $s ) ? $s[ $key ] : $default;
+		return array_key_exists( $key, $s ) ? $s[ $key ] : $fallback;
 	}
 
 	public static function update( array $data ): void {
@@ -627,7 +684,7 @@ final class Settings {
 			$email = sanitize_email( (string) $settings['widget']['handoff_email'] );
 			if ( '' !== $email ) {
 				$settings['widget']['handoff_email_to'] = $email;
-				$changed = true;
+				$changed                                = true;
 			}
 		}
 		if ( array_key_exists( 'handoff_email', $settings['widget'] ) ) {

@@ -64,7 +64,7 @@ final class EfbCopilotController {
 		} catch ( ProviderException $e ) {
 			$this->logger->error( 'efb.plan.provider_error', $e->getMessage(), array( 'code' => $e->error_code() ) );
 
-			return $this->respond( array( 'message' => $e->user_message() ), false, 502, $e->error_code() );
+			return $this->respond( array( 'message' => $e->user_message() ), false, $e->status_code(), $e->error_code() );
 		}
 
 		if ( ! $result->ok ) {
@@ -170,7 +170,7 @@ final class EfbCopilotController {
 			return $this->respond( array( 'message' => __( 'Missing action reference.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_payload' );
 		}
 
-		$claim = $this->store->claim( $action_id, get_current_user_id() );
+		$claim = $this->store->claim( $action_id, get_current_user_id(), 'easy_form_builder' );
 		if ( 'missing' === $claim['status'] ) {
 			return $this->respond( array( 'message' => __( 'This proposal has expired. Please generate the form again.', 'ai-site-assistant-autopilot' ) ), false, 422, 'action_expired' );
 		}
@@ -179,6 +179,9 @@ final class EfbCopilotController {
 		}
 		if ( 'already_claimed' === $claim['status'] ) {
 			return $this->respond( array( 'message' => __( 'This proposal is already being processed or has already been used.', 'ai-site-assistant-autopilot' ) ), false, 422, 'action_already_processed' );
+		}
+		if ( 'wrong_connector' === $claim['status'] ) {
+			return $this->respond( array( 'message' => __( 'This approval does not belong to Easy Form Builder.', 'ai-site-assistant-autopilot' ) ), false, 422, 'invalid_action' );
 		}
 		$record    = (array) ( $claim['record'] ?? array() );
 		$connector = $this->registry()->get( 'easy_form_builder' );
@@ -266,6 +269,7 @@ final class EfbCopilotController {
 		$fields   = $this->clean_fields( (array) $request->get_param( 'fields' ) );
 		$steps    = $this->clean_steps( (array) $request->get_param( 'steps' ) );
 		$history  = $this->clean_history( (array) $request->get_param( 'history' ) );
+		$selected = $this->selected_field( $request->get_param( 'selected_field' ), $fields );
 		$license  = EfbLicense::status();
 		$this->logger->info(
 			'efb.chat.received',
@@ -278,11 +282,12 @@ final class EfbCopilotController {
 				'step_count'    => count( $steps ),
 				'plan_tier'     => $license['tier'],
 				'history_count' => count( $history ),
+				'selected_id'   => null !== $selected ? $selected['id'] : '',
 			)
 		);
 
 		try {
-			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond( $message, $history, $has_form, $fields, $steps, $license );
+			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond( $message, $history, $has_form, $fields, $steps, $license, $selected );
 		} catch ( ProviderException $e ) {
 			$this->logger->error(
 				'efb.chat.provider_error',
@@ -300,7 +305,7 @@ final class EfbCopilotController {
 					'reply' => $e->user_message(),
 				),
 				false,
-				502,
+				$e->status_code(),
 				$e->error_code()
 			);
 		}
@@ -810,6 +815,29 @@ final class EfbCopilotController {
 	}
 
 	/**
+	 * Resolve client selection against the current, sanitized field catalogue.
+	 * The client only supplies an ID; label and type always come from live fields.
+	 *
+	 * @param mixed                                                    $raw
+	 * @param array<int, array{id:string,label:string,type:string}>     $fields
+	 * @return array{id:string,label:string,type:string}|null
+	 */
+	private function selected_field( $raw, array $fields ): ?array {
+		$id = sanitize_text_field( is_scalar( $raw ) ? (string) $raw : '' );
+		if ( '' === $id ) {
+			return null;
+		}
+
+		foreach ( $fields as $field ) {
+			if ( hash_equals( $field['id'], $id ) ) {
+				return $field;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * @param array<mixed> $raw
 	 * @return array<int,array{id:string,label:string}>
 	 */
@@ -908,7 +936,7 @@ final class EfbCopilotController {
 		try {
 			$ops = ( new EfbCustomizeSkill( $this->providers->make() ) )->plan( $command, $fields );
 		} catch ( ProviderException $e ) {
-			return $this->respond( array( 'message' => $e->user_message() ), false, 502, $e->error_code() );
+			return $this->respond( array( 'message' => $e->user_message() ), false, $e->status_code(), $e->error_code() );
 		}
 
 		if ( array() === $ops ) {

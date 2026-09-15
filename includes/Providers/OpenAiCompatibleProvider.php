@@ -127,7 +127,15 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 		);
 
 		if ( is_wp_error( $response ) ) {
-			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the embedding endpoint. Check the base URL and your connection.', 'ai-site-assistant-autopilot' ) );
+			$error_msg = $response->get_error_message();
+			throw new ProviderException(
+				'provider_unreachable',
+				sprintf(
+				/* translators: 1: error details */
+					__( 'Could not reach the embedding endpoint (%1$s). Check the base URL and your connection.', 'ai-site-assistant-autopilot' ),
+					$error_msg
+				)
+			);
 		}
 
 		$code = (int) wp_remote_retrieve_response_code( $response );
@@ -182,12 +190,14 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 		if ( '' === $this->api_key ) {
 			return array(
 				'ok'      => false,
+				'code'    => 'no_api_key',
 				'message' => __( 'No API key is set.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 		if ( '' === $this->base_url || '' === $this->model ) {
 			return array(
 				'ok'      => false,
+				'code'    => 'invalid_config',
 				'message' => __( 'Base URL and model are required.', 'ai-site-assistant-autopilot' ),
 			);
 		}
@@ -207,12 +217,33 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 
 			return array(
 				'ok'      => true,
+				'code'    => 'connected',
 				'message' => __( 'Connection successful.', 'ai-site-assistant-autopilot' ),
 			);
 		} catch ( ProviderException $e ) {
+			$message = $e->getMessage();
+			$code    = $e->error_code();
+
+			if ( 'provider_unreachable' === $code ) {
+				$message = sprintf(
+					/* translators: 1: original error message, 2: base URL */
+					__( 'Could not reach the AI provider (%1$s). Check the base URL (%2$s) and your network connection.', 'ai-site-assistant-autopilot' ),
+					$message,
+					$this->base_url
+				);
+			} elseif ( 'model_not_found' === $code ) {
+				$message = sprintf(
+					/* translators: 1: provider error message, 2: model name */
+					__( 'The model "%2$s" was not found or is not available on this provider: %1$s', 'ai-site-assistant-autopilot' ),
+					$message,
+					$this->model
+				);
+			}
+
 			return array(
 				'ok'      => false,
-				'message' => $e->getMessage(),
+				'code'    => $code,
+				'message' => $message,
 			);
 		}
 	}
@@ -231,7 +262,15 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 		$response = $this->get_json( self::join_endpoint( $this->base_url, '/models' ) );
 
 		if ( is_wp_error( $response ) ) {
-			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the AI provider. Check the base URL and your connection.', 'ai-site-assistant-autopilot' ) );
+			$error_msg = $response->get_error_message();
+			throw new ProviderException(
+				'provider_unreachable',
+				sprintf(
+				/* translators: 1: error details */
+					__( 'Could not reach the AI provider (%1$s). Check the base URL and your connection.', 'ai-site-assistant-autopilot' ),
+					$error_msg
+				)
+			);
 		}
 
 		$code = (int) wp_remote_retrieve_response_code( $response );
@@ -318,23 +357,57 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 		);
 
 		if ( is_wp_error( $response ) ) {
-			throw new ProviderException( 'provider_unreachable', __( 'Could not reach the AI provider. Check the base URL and your connection.', 'ai-site-assistant-autopilot' ) );
+			$error_msg = $response->get_error_message();
+			throw new ProviderException(
+				'provider_unreachable',
+				sprintf(
+				/* translators: 1: error details */
+					__( 'Could not reach the AI provider (%1$s). Check the base URL and your connection.', 'ai-site-assistant-autopilot' ),
+					$error_msg
+				)
+			);
 		}
 
-		$code = (int) wp_remote_retrieve_response_code( $response );
-		$raw  = (string) wp_remote_retrieve_body( $response );
+		$code    = (int) wp_remote_retrieve_response_code( $response );
+		$raw     = (string) wp_remote_retrieve_body( $response );
+		$decoded = json_decode( $raw, true );
+		if ( ! is_array( $decoded ) ) {
+			$decoded = array();
+		}
 
 		if ( 401 === $code || 403 === $code ) {
 			throw new ProviderException( 'provider_unauthorized', __( 'The AI provider rejected your API key.', 'ai-site-assistant-autopilot' ) );
+		}
+		if ( 404 === $code ) {
+			$provider_msg = $decoded['error']['message'] ?? '';
+			$message      = '' !== $provider_msg
+				? sprintf(
+					/* translators: 1: provider error message */
+					__( 'Model not found: %1$s', 'ai-site-assistant-autopilot' ),
+					$provider_msg
+				)
+				: __( 'The selected model was not found. Check the model name or pick a different one.', 'ai-site-assistant-autopilot' );
+			throw new ProviderException( 'model_not_found', $message );
+		}
+		if ( 402 === $code ) {
+			throw new ProviderException( 'provider_payment_required', __( 'The AI provider requires an active billing account or available credit.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( 429 === $code ) {
 			throw new ProviderException( 'provider_rate_limited', __( 'The AI provider is rate-limiting requests. Please try again shortly.', 'ai-site-assistant-autopilot' ) );
 		}
 		if ( $code < 200 || $code >= 300 ) {
-			throw new ProviderException( 'provider_error', sprintf( /* translators: %d: HTTP status code. */ __( 'The AI provider returned an error (HTTP %d).', 'ai-site-assistant-autopilot' ), $code ) );
+			$provider_msg = $decoded['error']['message'] ?? '';
+			$message      = '' !== $provider_msg
+				? sprintf(
+					/* translators: 1: HTTP status code, 2: provider error message */
+					__( 'The AI provider returned an error (HTTP %1$d): %2$s', 'ai-site-assistant-autopilot' ),
+					$code,
+					$provider_msg
+				)
+				: sprintf( /* translators: %d: HTTP status code. */ __( 'The AI provider returned an error (HTTP %d).', 'ai-site-assistant-autopilot' ), $code );
+			throw new ProviderException( 'provider_error', $message );
 		}
 
-		$decoded = json_decode( $raw, true );
 		$content = $decoded['choices'][0]['message']['content'] ?? null;
 
 		if ( ! is_string( $content ) || '' === trim( $content ) ) {

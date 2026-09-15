@@ -32,16 +32,18 @@ final class ProviderManager {
 			? Settings::get_embedding_key()
 			: ( 'anthropic' === Settings::provider_api() ? '' : $this->resolve_api_key() );
 
-		return self::build(
-			array(
-				'provider'           => (string) Settings::get( 'provider', '' ),
-				'base_url'           => (string) Settings::get( 'base_url' ),
-				'model'              => (string) Settings::get( 'model' ),
-				'api_key'            => $this->resolve_api_key(),
-				'temperature'        => (float) Settings::get( 'temperature', 0.2 ),
-				'embedding_base_url' => (string) Settings::get( 'embedding_base_url', '' ),
-				'embedding_model'    => (string) Settings::get( 'embedding_model', '' ),
-				'embedding_api_key'  => $embedding_key,
+		return new UsageCappedProvider(
+			self::build(
+				array(
+					'provider'           => (string) Settings::get( 'provider', '' ),
+					'base_url'           => (string) Settings::get( 'base_url' ),
+					'model'              => (string) Settings::get( 'model' ),
+					'api_key'            => $this->resolve_api_key(),
+					'temperature'        => (float) Settings::get( 'temperature', 0.2 ),
+					'embedding_base_url' => (string) Settings::get( 'embedding_base_url', '' ),
+					'embedding_model'    => (string) Settings::get( 'embedding_model', '' ),
+					'embedding_api_key'  => $embedding_key,
+				)
 			)
 		);
 	}

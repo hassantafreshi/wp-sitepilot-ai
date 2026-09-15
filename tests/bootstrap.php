@@ -114,6 +114,13 @@ if ( ! function_exists( 'sanitize_key' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_title' ) ) {
+	function sanitize_title( string $title ): string {
+		$title = strtolower( trim( strip_tags( $title ) ) );
+		return trim( preg_replace( '/[^a-z0-9]+/', '-', $title ) ?? '', '-' );
+	}
+}
+
 if ( ! function_exists( 'is_email' ) ) {
 	function is_email( string $email ) {
 		return false !== filter_var( $email, FILTER_VALIDATE_EMAIL ) ? $email : false;
@@ -205,6 +212,12 @@ if ( ! function_exists( 'current_time' ) ) {
 if ( ! function_exists( 'get_bloginfo' ) ) {
 	function get_bloginfo( string $show = '' ): string {
 		return 'Test Site';
+	}
+}
+
+if ( ! function_exists( 'get_locale' ) ) {
+	function get_locale(): string {
+		return 'en_US';
 	}
 }
 

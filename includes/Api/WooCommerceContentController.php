@@ -5,9 +5,11 @@ namespace AISAAutoPilot\Api;
 use AISAAutoPilot\Connectors\WooCommerceContentSkill;
 
 /**
- * REST controller for WooCommerce Content + SEO.
+ * Dormant WooCommerce content handlers retained for a later Phase 2 surface.
  *
- * Endpoints:
+ * No `/woocommerce/content/*` route is registered in the current Store
+ * Copilot release. The following method inventory is unreachable through the
+ * plugin API and must not be exposed as usable Store UI:
  * - POST /woocommerce/content/description  — Generate description
  * - POST /woocommerce/content/seo          — Generate SEO
  * - POST /woocommerce/content/promo        — Generate promo text

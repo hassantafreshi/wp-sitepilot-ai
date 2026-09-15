@@ -3,18 +3,21 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Admin;
 
+use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
+use AISAAutoPilot\Connectors\WooCommerceConnector;
+use AISAAutoPilot\Content\KbGaps;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Core\Settings;
-use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Providers\ProviderManager;
 use AISAAutoPilot\Usage\UsageTracker;
 
 /**
- * WP-01 — Home.
+ * Overview — the mockup's home screen.
  *
- * A live version of the wireframe landing page: start a task, see what needs
- * attention, review pending approvals, and glance at usage.
+ * Four stat cards, a derived "Needs you" column and a live "Running now"
+ * integration list. Every number traces to a real data source; the first-day
+ * variant renders when the site has no indexed content and no activity yet.
  */
 final class HomePage {
 
@@ -23,164 +26,117 @@ final class HomePage {
 			wp_die( esc_html__( 'You do not have permission to view this page.', 'ai-site-assistant-autopilot' ) );
 		}
 
+		$settings       = Settings::all();
 		$provider_ready = ( new ProviderManager() )->is_configured();
-		$efb_ready      = ( new EasyFormBuilderConnector() )->is_available();
-		$recipient      = Settings::form_notification_email();
 		$knowledge      = new KnowledgeBase();
 		$kb_total       = $knowledge->table_exists() ? (int) ( $knowledge->get_stats()['total'] ?? 0 ) : 0;
-		$logs           = ( new Logger() )->recent( 4 );
-		$report         = ( new UsageTracker() )->get_report();
-		$healthy        = $provider_ready && '' !== $recipient;
+		$gaps           = ( new KbGaps() )->open_count();
+		$tracker        = new UsageTracker();
+		$report         = $tracker->get_report();
+		$budget         = (int) $report['budget'];
+		$used_percent   = (float) $report['used_percent'];
+		$tokens_used    = (int) ( $report['totals']['total_tokens'] ?? 0 );
 
-		$host         = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-		$compose_url  = admin_url( 'admin.php?page=' . AdminMenu::SLUG_FORM_BUILDER );
-		$history_url  = admin_url( 'admin.php?page=' . AdminMenu::SLUG_HISTORY );
-		$settings_url = admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP );
-		$kb_url      = admin_url( 'admin.php?page=' . AdminMenu::SLUG_KB );
-		$chat_url    = admin_url( 'admin.php?page=' . AdminMenu::SLUG_CHAT );
-		$widget_url  = admin_url( 'admin.php?page=' . AdminMenu::SLUG_WIDGET );
-		$usage_url   = admin_url( 'admin.php?page=' . AdminMenu::SLUG_USAGE );
-		$conn_url    = admin_url( 'admin.php?page=' . AdminMenu::SLUG_CONNECTIONS );
+		$questions_answered = $this->answered_question_count();
+		$drafts             = $this->count_generated_posts_by_status( 'draft' );
+		$published          = $this->count_generated_posts_by_status( 'publish' );
+		$waiting            = $drafts;
 
-		$budget    = (int) $report['budget'];
-		$used_pct  = (float) $report['used_percent'];
-		$attention = $this->attention_items( $provider_ready, $recipient, $efb_ready, $kb_total, $settings_url, $kb_url, $conn_url );
+		$first_day = 0 === $kb_total && 0 === $questions_answered && 0 === $tokens_used && 0 === $drafts && 0 === $published;
+
+		$stats   = $this->stats( $first_day, $questions_answered, $drafts, $published, $waiting, $tokens_used, $budget );
+		$efb     = ( new EasyFormBuilderConnector() )->get_health();
+		$needs   = $this->needs_you( $first_day, $provider_ready, $kb_total, $gaps, $waiting, $budget, $used_percent, (bool) $efb['active'], (bool) $efb['available'] );
+		$running = $this->running_now( $settings );
 
 		Ui::grad_defs();
 		?>
 		<div class="wrap sp-app">
-			<section class="sp-screen">
-				<div class="sp-page-head" style="margin-bottom:20px">
-					<div>
-						<?php Ui::title( __( 'Home', 'ai-site-assistant-autopilot' ) ); ?>
-						<div class="sp-meta-row">
-							<span class="sp-mono"><?php echo esc_html( $host ); ?></span>
-							<?php echo Ui::pill( $healthy ? __( 'All systems healthy', 'ai-site-assistant-autopilot' ) : __( 'Setup needs attention', 'ai-site-assistant-autopilot' ), $healthy ? 'ok' : 'warn' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
-							<span><?php echo esc_html( $this->last_activity_label( $logs ) ); ?></span>
-						</div>
+			<section class="sp-screen" data-sp-overview>
+				<?php
+				Ui::page_header(
+					__( 'Overview', 'ai-site-assistant-autopilot' ),
+					__( 'What AutoPilot did on your site, and what needs you.', 'ai-site-assistant-autopilot' ),
+					array( 'chip' => ConnectionChip::derive() )
+				);
+				?>
+				<div class="sp-pagebody">
+					<?php if ( ! $provider_ready ) : ?>
+						<?php
+						Ui::banner(
+							'home:noservice',
+							'bad',
+							__( 'No AI service is connected yet', 'ai-site-assistant-autopilot' ),
+							__( 'Nothing can be written or answered until a key is in place. Setup takes about a minute.', 'ai-site-assistant-autopilot' ),
+							__( 'Connect a service', 'ai-site-assistant-autopilot' ),
+							admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP )
+						);
+						?>
+					<?php elseif ( $budget > 0 && $used_percent >= 100.0 ) : ?>
+						<?php
+						Ui::banner(
+							'home:paused',
+							'warn',
+							__( 'Cap reached — AI generation is paused', 'ai-site-assistant-autopilot' ),
+							__( 'Nothing is broken. Raise the cap or wait for the next monthly period; text generation and embeddings resume automatically.', 'ai-site-assistant-autopilot' ),
+							__( 'Raise the cap', 'ai-site-assistant-autopilot' ),
+							admin_url( 'admin.php?page=' . AdminMenu::SLUG_USAGE )
+						);
+						?>
+					<?php endif; ?>
+
+					<div class="sp-weekstats" data-sp-overview-stats>
+						<?php foreach ( $stats as $stat ) : ?>
+							<div class="sp-weekstat" data-sp-overview-stat="<?php echo esc_attr( $stat['id'] ); ?>">
+								<div class="sp-weekstat__label"><?php echo esc_html( $stat['label'] ); ?></div>
+								<div class="sp-weekstat__value"><?php echo esc_html( $stat['value'] ); ?></div>
+								<div class="sp-weekstat__foot"><?php echo esc_html( $stat['foot'] ); ?></div>
+							</div>
+						<?php endforeach; ?>
 					</div>
-					<a class="sp-btn" href="<?php echo esc_url( $compose_url ); ?>">
-						<?php echo Ui::icon( 'spark', 16, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-						<span><?php esc_html_e( 'New AI task', 'ai-site-assistant-autopilot' ); ?></span>
-					</a>
-				</div>
 
-				<div class="sp-cols">
-					<div class="sp-col">
 
-						<div class="sp-card">
-							<h2 class="sp-h2"><?php esc_html_e( 'Start a task with AI', 'ai-site-assistant-autopilot' ); ?></h2>
-							<p class="sp-sub" style="margin-bottom:12px !important"><?php esc_html_e( 'Describe what you need. We build a reviewable plan first — nothing changes until you approve.', 'ai-site-assistant-autopilot' ); ?></p>
-							<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
-								<input type="hidden" name="page" value="<?php echo esc_attr( AdminMenu::SLUG_FORM_BUILDER ); ?>" />
-								<textarea name="prompt" class="sp-textarea" style="margin-bottom:12px" placeholder="<?php esc_attr_e( 'e.g. Build a contact form with name, email and message', 'ai-site-assistant-autopilot' ); ?>"></textarea>
-								<div class="sp-row-wrap">
-									<button type="submit" class="sp-btn" style="padding:10px 20px"><?php esc_html_e( 'Start', 'ai-site-assistant-autopilot' ); ?></button>
-									<span class="sp-help sp-help--12">
-										<?php
-										printf(
-											/* translators: %s: connector name. */
-											esc_html__( 'Connector: %s · saves as draft', 'ai-site-assistant-autopilot' ),
-											esc_html( $efb_ready ? 'Easy Form Builder' : 'AISAAutoPilot Forms' )
-										);
-										?>
-									</span>
-								</div>
-							</form>
-						</div>
-
-						<?php if ( array() !== $attention ) : ?>
-							<div class="sp-card sp-card--18">
-								<h2 class="sp-h2 sp-h2--sm" style="display:flex;align-items:center;gap:8px;margin-bottom:12px !important">
-									<?php echo Ui::icon( 'warning', 16, '#d97706', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-									<span><?php esc_html_e( 'Needs your attention', 'ai-site-assistant-autopilot' ); ?></span>
-								</h2>
-								<div class="sp-stack">
-									<?php foreach ( $attention as $item ) : ?>
-										<div class="sp-notice sp-notice--<?php echo esc_attr( $item['tone'] ); ?>">
-											<span class="sp-notice__dot"></span>
-											<div class="sp-notice__body">
-												<div class="sp-notice__title"><?php echo esc_html( $item['title'] ); ?></div>
-												<div class="sp-notice__text"><?php echo esc_html( $item['body'] ); ?></div>
+					<div class="sp-home-cols">
+						<div>
+							<div class="sp-home-colhead"><?php esc_html_e( 'Needs you', 'ai-site-assistant-autopilot' ); ?></div>
+							<div class="sp-home-stack">
+								<?php if ( array() === $needs ) : ?>
+									<div class="sp-home-card">
+										<div class="sp-home-card__body-wrap">
+											<div class="sp-home-card__title"><?php esc_html_e( 'Nothing needs you right now', 'ai-site-assistant-autopilot' ); ?></div>
+											<p class="sp-home-card__body"><?php esc_html_e( 'AutoPilot is running with the settings you chose. This list fills up when something needs a decision.', 'ai-site-assistant-autopilot' ); ?></p>
+										</div>
+									</div>
+								<?php else : ?>
+									<?php foreach ( $needs as $item ) : ?>
+										<div class="sp-home-card">
+											<span class="sp-home-card__icon" aria-hidden="true"><?php echo Ui::icon( $item['icon'], 16, '#5c5f80', 2.0 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+											<div class="sp-home-card__body-wrap">
+												<div class="sp-home-card__title"><?php echo esc_html( $item['title'] ); ?></div>
+												<p class="sp-home-card__body"><?php echo esc_html( $item['body'] ); ?></p>
 											</div>
-											<a class="sp-btn sp-btn--ghost sp-btn--xs" href="<?php echo esc_url( $item['url'] ); ?>"><?php echo esc_html( $item['cta'] ); ?></a>
+											<a class="sp-home-card__cta" href="<?php echo esc_url( $item['url'] ); ?>"><?php echo esc_html( $item['cta'] ); ?></a>
 										</div>
 									<?php endforeach; ?>
-								</div>
+								<?php endif; ?>
 							</div>
-						<?php endif; ?>
-
-						<div class="sp-card sp-card--18">
-							<div class="sp-card__split">
-								<h2 class="sp-h2 sp-h2--sm sp-mb0"><?php esc_html_e( 'Waiting for your approval', 'ai-site-assistant-autopilot' ); ?></h2>
-								<a class="sp-btn sp-btn--plain" href="<?php echo esc_url( $history_url ); ?>"><?php esc_html_e( 'Review actions', 'ai-site-assistant-autopilot' ); ?></a>
-							</div>
-							<a class="sp-pending" href="<?php echo esc_url( $compose_url ); ?>">
-								<span class="sp-pending__icon"><?php echo Ui::icon( 'form', 16, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-								<span class="sp-pending__body">
-									<span class="sp-pending__title"><?php esc_html_e( 'No proposal is waiting', 'ai-site-assistant-autopilot' ); ?></span>
-									<span class="sp-pending__meta"><?php esc_html_e( 'Describe a form to create the next reviewable plan.', 'ai-site-assistant-autopilot' ); ?></span>
-								</span>
-								<span class="sp-pill sp-pill--info"><?php esc_html_e( 'Start', 'ai-site-assistant-autopilot' ); ?></span>
-							</a>
 						</div>
-
-						<div class="sp-card sp-card--18">
-							<h2 class="sp-h2 sp-h2--sm" style="margin-bottom:12px !important"><?php esc_html_e( 'Recent activity', 'ai-site-assistant-autopilot' ); ?></h2>
-							<?php if ( array() === $logs ) : ?>
-								<p class="sp-empty"><?php esc_html_e( 'No activity has been recorded yet.', 'ai-site-assistant-autopilot' ); ?></p>
-							<?php else : ?>
-								<div class="sp-list">
-									<?php foreach ( $logs as $log ) : ?>
-										<?php $tone = $this->level_tone( (string) ( $log['level'] ?? 'info' ) ); ?>
-										<div class="sp-list__row">
-											<?php echo Ui::pill( (string) ( $log['event'] ?? 'event' ), $tone, false, 'sp-pill--sm' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
-											<span class="sp-list__title"><?php echo esc_html( (string) ( $log['message'] ?? '' ) ); ?></span>
-											<span class="sp-list__time"><?php echo esc_html( $this->ago( (string) ( $log['time'] ?? '' ) ) ); ?></span>
-										</div>
-									<?php endforeach; ?>
-								</div>
-							<?php endif; ?>
+						<div>
+							<div class="sp-home-colhead"><?php esc_html_e( 'Running now', 'ai-site-assistant-autopilot' ); ?></div>
+							<div class="sp-home-running">
+								<?php foreach ( $running as $row ) : ?>
+									<div class="sp-home-running__row" data-sp-overview-running="<?php echo esc_attr( $row['id'] ); ?>">
+										<span class="sp-home-running__icon" aria-hidden="true"><?php echo Ui::icon( $row['icon'], 16, $row['on'] ? '#202a8d' : '#9a9dbb', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+										<span class="sp-home-running__name"><?php echo esc_html( $row['name'] ); ?></span>
+										<span class="sp-home-running__state">
+											<span class="sp-home-running__dot" style="background:<?php echo esc_attr( $row['on'] ? '#198754' : '#d3d5e4' ); ?>"></span>
+											<span style="color:<?php echo esc_attr( $row['on'] ? '#166a45' : '#9a9dbb' ); ?>"><?php echo esc_html( $row['state'] ); ?></span>
+										</span>
+									</div>
+								<?php endforeach; ?>
+							</div>
 						</div>
 					</div>
-
-					<aside class="sp-side">
-						<div class="sp-card sp-card--16 sp-card--flat">
-							<div class="sp-card__split">
-								<span class="sp-h3 sp-mb0"><?php esc_html_e( 'Usage this period', 'ai-site-assistant-autopilot' ); ?></span>
-								<span class="sp-help">Local BYOK</span>
-							</div>
-							<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px">
-								<span style="font-size:24px;font-weight:800"><?php echo esc_html( $budget > 0 ? number_format_i18n( $used_pct, 0 ) . '%' : number_format_i18n( (int) $report['totals']['total_tokens'] ) ); ?></span>
-								<span style="font-size:13px;color:#646970">
-									<?php
-									echo $budget > 0
-										? esc_html( sprintf( /* translators: %s: monthly token budget. */ __( 'of the %s monthly token budget', 'ai-site-assistant-autopilot' ), number_format_i18n( $budget ) ) )
-										: esc_html__( 'tokens used · no budget set', 'ai-site-assistant-autopilot' );
-									?>
-								</span>
-							</div>
-							<?php Ui::bar( $budget > 0 ? $used_pct : 0.0, '', $used_pct >= 75 ? 'sp-bar__fill--warn' : '' ); ?>
-							<p class="sp-help sp-help--12" style="margin:9px 0 12px">
-								<?php
-								echo $report['warning']
-									? esc_html( (string) $report['warning']['message'] )
-									: esc_html__( 'Resets at the start of next month.', 'ai-site-assistant-autopilot' );
-								?>
-							</p>
-							<a class="sp-btn sp-btn--ghost sp-btn--block" style="padding:9px" href="<?php echo esc_url( $usage_url ); ?>"><?php esc_html_e( 'Usage details', 'ai-site-assistant-autopilot' ); ?></a>
-						</div>
-
-						<div class="sp-card sp-card--16 sp-card--flat">
-							<div class="sp-h3" style="margin-bottom:10px"><?php esc_html_e( 'Quick actions', 'ai-site-assistant-autopilot' ); ?></div>
-							<div class="sp-stack sp-stack--sm">
-								<a class="sp-shortcut" href="<?php echo esc_url( $compose_url ); ?>"><?php echo Ui::icon( 'form', 15, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php esc_html_e( 'Build a form', 'ai-site-assistant-autopilot' ); ?></span></a>
-								<a class="sp-shortcut" href="<?php echo esc_url( $chat_url ); ?>"><?php echo Ui::icon( 'chat', 15, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php esc_html_e( 'Ask your site', 'ai-site-assistant-autopilot' ); ?></span></a>
-								<a class="sp-shortcut" href="<?php echo esc_url( $kb_url ); ?>"><?php echo Ui::icon( 'book', 15, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php esc_html_e( 'Index content', 'ai-site-assistant-autopilot' ); ?></span></a>
-								<a class="sp-shortcut" href="<?php echo esc_url( $widget_url ); ?>"><?php echo Ui::icon( 'globe', 15, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php esc_html_e( 'Set up the chat widget', 'ai-site-assistant-autopilot' ); ?></span></a>
-							</div>
-						</div>
-					</aside>
 				</div>
 			</section>
 			<?php Ui::overlays(); ?>
@@ -189,94 +145,269 @@ final class HomePage {
 	}
 
 	/**
-	 * The "needs your attention" list, derived from real dependency state.
+	 * The four stat cards. Values come from the conversation store, the post
+	 * tables and UsageTracker — never mocked.
 	 *
-	 * @return array<int, array{tone:string,title:string,body:string,cta:string,url:string}>
+	 * @return array<int, array{id:string,label:string,value:string,foot:string}>
 	 */
-	private function attention_items( bool $provider_ready, string $recipient, bool $efb_ready, int $kb_total, string $settings_url, string $kb_url, string $conn_url ): array {
+	private function stats( bool $first_day, int $questions_answered, int $drafts, int $published, int $waiting, int $tokens_used, int $budget ): array {
+		$cap_foot = $budget > 0
+			? sprintf(
+				/* translators: %s: formatted token budget. */
+				__( 'of the %s token cap', 'ai-site-assistant-autopilot' ),
+				number_format_i18n( $budget )
+			)
+			: __( 'no cap set', 'ai-site-assistant-autopilot' );
+
+		if ( $first_day ) {
+			return array(
+				array(
+					'id'    => 'questions',
+					'label' => __( 'Questions answered', 'ai-site-assistant-autopilot' ),
+					'value' => '0',
+					'foot'  => __( 'Nothing asked yet', 'ai-site-assistant-autopilot' ),
+				),
+				array(
+					'id'    => 'drafts-written',
+					'label' => __( 'Drafts written', 'ai-site-assistant-autopilot' ),
+					'value' => '0',
+					'foot'  => __( 'Nothing written yet', 'ai-site-assistant-autopilot' ),
+				),
+				array(
+					'id'    => 'drafts-created',
+					'label' => __( 'Changes applied', 'ai-site-assistant-autopilot' ),
+					'value' => '0',
+					'foot'  => __( 'Nothing changed yet', 'ai-site-assistant-autopilot' ),
+				),
+				array(
+					'id'    => 'tokens',
+					'label' => __( 'Tokens used', 'ai-site-assistant-autopilot' ),
+					'value' => '0',
+					'foot'  => $cap_foot,
+				),
+			);
+		}
+
+		return array(
+			array(
+				'id'    => 'questions',
+				'label' => __( 'Questions answered', 'ai-site-assistant-autopilot' ),
+				'value' => number_format_i18n( $questions_answered ),
+				'foot'  => __( 'Recorded Answer Desk questions', 'ai-site-assistant-autopilot' ),
+			),
+			array(
+				'id'    => 'drafts-written',
+				'label' => __( 'Drafts written', 'ai-site-assistant-autopilot' ),
+				'value' => number_format_i18n( $drafts + $published ),
+				'foot'  => __( 'Content Studio and Store Copilot', 'ai-site-assistant-autopilot' ),
+			),
+			array(
+				'id'    => 'drafts-created',
+				'label' => __( 'Drafts created', 'ai-site-assistant-autopilot' ),
+				'value' => number_format_i18n( $waiting ),
+				'foot'  => $waiting > 0
+					? sprintf(
+						/* translators: %s: number of drafts waiting for review. */
+						__( '%s still waiting for you', 'ai-site-assistant-autopilot' ),
+						number_format_i18n( $waiting )
+					)
+					: __( 'Nothing is waiting', 'ai-site-assistant-autopilot' ),
+			),
+			array(
+				'id'    => 'tokens',
+				'label' => __( 'Tokens used', 'ai-site-assistant-autopilot' ),
+				'value' => number_format_i18n( $tokens_used ),
+				'foot'  => $cap_foot,
+			),
+		);
+	}
+
+
+	/**
+	 * Derived "Needs you" cards. Each card maps to a real condition and a real
+	 * destination; when the condition is fixed the card disappears on reload.
+	 *
+	 * @return array<int, array{title:string,body:string,cta:string,url:string,icon:string}>
+	 */
+	private function needs_you( bool $first_day, bool $provider_ready, int $kb_total, int $gaps, int $waiting, int $budget, float $used_percent, bool $efb_active, bool $efb_available ): array {
 		$items = array();
 
 		if ( ! $provider_ready ) {
 			$items[] = array(
-				'tone'  => 'err',
-				'title' => __( 'AI provider is not connected', 'ai-site-assistant-autopilot' ),
-				'body'  => __( 'Add an API key before any plan can be generated.', 'ai-site-assistant-autopilot' ),
-				'cta'   => __( 'Fix it', 'ai-site-assistant-autopilot' ),
-				'url'   => $settings_url,
+				'title' => __( 'Connect your AI service', 'ai-site-assistant-autopilot' ),
+				'body'  => __( 'Add an API key before any plan can be generated. Both key options keep the key on your own server.', 'ai-site-assistant-autopilot' ),
+				'cta'   => __( 'Open Setup', 'ai-site-assistant-autopilot' ),
+				'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP ),
+				'icon'  => 'plug',
 			);
 		}
 
-		if ( '' === $recipient ) {
+		if ( $provider_ready && 0 === $kb_total ) {
 			$items[] = array(
-				'tone'  => 'warn',
-				'title' => __( 'No form notification email', 'ai-site-assistant-autopilot' ),
-				'body'  => __( 'AISAAutoPilot Forms need one address to deliver submissions to.', 'ai-site-assistant-autopilot' ),
-				'cta'   => __( 'Set address', 'ai-site-assistant-autopilot' ),
-				'url'   => $settings_url,
+				'title' => __( 'Read your site first', 'ai-site-assistant-autopilot' ),
+				'body'  => __( 'Site Knowledge has not run a full pass yet. Until it does, answers come only from the page a visitor is on.', 'ai-site-assistant-autopilot' ),
+				'cta'   => __( 'Start the first pass', 'ai-site-assistant-autopilot' ),
+				'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_KB ),
+				'icon'  => 'book',
 			);
 		}
 
-		if ( 0 === $kb_total ) {
+		if ( $first_day && $provider_ready ) {
 			$items[] = array(
-				'tone'  => 'warn',
-				'title' => __( 'Knowledge base is empty', 'ai-site-assistant-autopilot' ),
-				'body'  => __( 'For accurate answers, index your public content first.', 'ai-site-assistant-autopilot' ),
-				'cta'   => __( 'Index now', 'ai-site-assistant-autopilot' ),
-				'url'   => $kb_url,
+				'title' => __( 'Try a question yourself', 'ai-site-assistant-autopilot' ),
+				'body'  => __( 'Ask Answer Desk something a customer would ask. You can inspect the answer and the source it used.', 'ai-site-assistant-autopilot' ),
+				'cta'   => __( 'Open Answer Desk', 'ai-site-assistant-autopilot' ),
+				'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_CONVERSATIONS ),
+				'icon'  => 'chat',
 			);
 		}
 
-		if ( ! $efb_ready ) {
+		if ( $waiting > 0 ) {
 			$items[] = array(
-				'tone'  => 'off',
-				'title' => __( 'Easy Form Builder is not available', 'ai-site-assistant-autopilot' ),
-				'body'  => __( 'Advanced forms fall back to the built-in AISAAutoPilot Forms connector.', 'ai-site-assistant-autopilot' ),
-				'cta'   => __( 'Review', 'ai-site-assistant-autopilot' ),
-				'url'   => $conn_url,
+				'title' => sprintf(
+					/* translators: %s: number of drafts waiting for review. */
+					_n( '%s draft is waiting for you', '%s drafts are waiting for you', $waiting, 'ai-site-assistant-autopilot' ),
+					number_format_i18n( $waiting )
+				),
+				'body'  => __( 'They stay drafts until you approve them. Nothing here is live on your site.', 'ai-site-assistant-autopilot' ),
+				'cta'   => __( 'Review them', 'ai-site-assistant-autopilot' ),
+				'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ),
+				'icon'  => 'doc',
+			);
+		}
+
+		if ( $gaps > 0 ) {
+			$items[] = array(
+				'title' => sprintf(
+					/* translators: %s: number of unanswered visitor questions. */
+					_n( 'Visitors asked %s thing your site does not answer', 'Visitors asked %s things your site does not answer', $gaps, 'ai-site-assistant-autopilot' ),
+					number_format_i18n( $gaps )
+				),
+				'body'  => __( 'Add the missing content and Answer Desk picks it up automatically.', 'ai-site-assistant-autopilot' ),
+				'cta'   => __( 'See the questions', 'ai-site-assistant-autopilot' ),
+				'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_KB ),
+				'icon'  => 'chat',
+			);
+		}
+
+		if ( $budget > 0 && $used_percent >= 75.0 && $used_percent < 100.0 ) {
+			$items[] = array(
+				'title' => __( 'You are close to your monthly cap', 'ai-site-assistant-autopilot' ),
+				'body'  => sprintf(
+					/* translators: %s: percent of the budget used. */
+					__( '%s%% of the token budget is used this month. At 100%% text generation and embeddings pause until the next monthly period.', 'ai-site-assistant-autopilot' ),
+					number_format_i18n( round( $used_percent ) )
+				),
+				'cta'   => __( 'Review the cap', 'ai-site-assistant-autopilot' ),
+				'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_USAGE ),
+				'icon'  => 'money',
+			);
+		}
+
+		if ( $efb_active && ! $efb_available ) {
+			$items[] = array(
+				'title' => __( 'Easy Form Builder Copilot is idle', 'ai-site-assistant-autopilot' ),
+				'body'  => __( 'The plugin is installed but not compatible right now, so the builder has no AI panel.', 'ai-site-assistant-autopilot' ),
+				'cta'   => __( 'Review it', 'ai-site-assistant-autopilot' ),
+				'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_INTEGRATIONS ),
+				'icon'  => 'form',
 			);
 		}
 
 		return $items;
 	}
 
-	/** Map a log level to a pill tone. */
-	private function level_tone( string $level ): string {
-		switch ( $level ) {
-			case 'error':
-				return 'err';
-			case 'warning':
-				return 'warn';
-			case 'debug':
-				return 'off';
-			default:
-				return 'info';
-		}
-	}
+	/**
+	 * Live integration states — the mockup's "Running now" column.
+	 *
+	 * @param array<string, mixed> $settings
+	 * @return array<int, array{id:string,name:string,state:string,on:bool,icon:string}>
+	 */
+	private function running_now( array $settings ): array {
+		$widget = (array) ( $settings['widget'] ?? array() );
+		$woo    = (array) ( $settings['woocommerce'] ?? array() );
+		$woo_on = WooCommerceConnector::is_active() && ! empty( $woo['enabled'] );
+		$efb_on = ( new EasyFormBuilderConnector() )->is_available();
 
-	/** @param array<int, array<string, mixed>> $logs */
-	private function last_activity_label( array $logs ): string {
-		if ( array() === $logs ) {
-			return __( 'No activity yet', 'ai-site-assistant-autopilot' );
-		}
-
-		return sprintf(
-			/* translators: %s: human-readable time difference, e.g. "4 mins". */
-			__( 'Last activity %s', 'ai-site-assistant-autopilot' ),
-			$this->ago( (string) ( $logs[0]['time'] ?? '' ) )
+		return array(
+			array(
+				'id'    => 'knowledge',
+				'name'  => __( 'Site Knowledge', 'ai-site-assistant-autopilot' ),
+				'state' => __( 'Always on', 'ai-site-assistant-autopilot' ),
+				'on'    => true,
+				'icon'  => 'book',
+			),
+			array(
+				'id'    => 'answer-desk',
+				'name'  => __( 'Answer Desk', 'ai-site-assistant-autopilot' ),
+				'state' => ! empty( $widget['enabled'] ) ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
+				'on'    => ! empty( $widget['enabled'] ),
+				'icon'  => 'chat',
+			),
+			array(
+				'id'    => 'store-copilot',
+				'name'  => __( 'Store Copilot', 'ai-site-assistant-autopilot' ),
+				'state' => $woo_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
+				'on'    => $woo_on,
+				'icon'  => 'cart',
+			),
+			array(
+				'id'    => 'form-composer',
+				'name'  => __( 'Form Composer', 'ai-site-assistant-autopilot' ),
+				'state' => __( 'Always on', 'ai-site-assistant-autopilot' ),
+				'on'    => true,
+				'icon'  => 'form',
+			),
+			array(
+				'id'    => 'easy-form-builder',
+				'name'  => __( 'Easy Form Builder Copilot', 'ai-site-assistant-autopilot' ),
+				'state' => $efb_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
+				'on'    => $efb_on,
+				'icon'  => 'form',
+			),
+			array(
+				'id'    => 'content-studio',
+				'name'  => __( 'Content Studio', 'ai-site-assistant-autopilot' ),
+				'state' => __( 'Always on', 'ai-site-assistant-autopilot' ),
+				'on'    => true,
+				'icon'  => 'spark',
+			),
 		);
 	}
 
-	/** Human "x ago" for a stored UTC timestamp. */
-	private function ago( string $stamp ): string {
-		$time = strtotime( $stamp );
-		if ( ! $time ) {
-			return '—';
+	/** Count logged visitor questions; zero when the opt-in table does not exist. */
+	private function answered_question_count(): int {
+		global $wpdb;
+		$store  = new VisitorConversationStore();
+		$table  = $store->table();
+		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- schema probe only.
+		if ( $table !== $exists ) {
+			return 0;
 		}
+		$count = $wpdb->get_var( "SELECT COALESCE(SUM(FLOOR(message_count / 2)), 0) FROM {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed internal table, read-only aggregate.
+		return (int) $count;
+	}
 
-		return sprintf(
-			/* translators: %s: human-readable time difference, e.g. "4 mins". */
-			__( '%s ago', 'ai-site-assistant-autopilot' ),
-			human_time_diff( $time, time() )
+	/** Count drafts and published items that the plugin itself marked as generated. */
+	private function count_generated_posts_by_status( string $status ): int {
+		$query = new \WP_Query(
+			array(
+				'post_type'              => 'any',
+				'post_status'            => $status,
+				'posts_per_page'         => 1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => false,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- bounded dashboard count over plugin-owned marker.
+					array(
+						'key'   => '_aisaautopilot_generated',
+						'value' => '1',
+					),
+				),
+			)
 		);
+
+		return max( 0, (int) $query->found_posts );
 	}
 }

@@ -77,8 +77,8 @@
   **Expected:** Browser blocks submission on required fields (HTML5 validation).
 - [ ] **4.4** Fill valid values and submit.
   **Expected:** Page reloads and shows the green confirmation message (“Thank you…”).
-- [ ] **4.5** In admin, check the submission was stored: the `aisaautopilot_submission` post type holds a “Submission: …” entry with the values.
-  **Expected:** One private submission record with your field values.
+- [ ] **4.5** Confirm that visitor values were **not** stored after delivery. Check that no new AISAAutoPilot entry/post meta/log/option contains the submitted name, email, or message.
+  **Expected:** The notification email is the only delivery channel for visitor values. The Activity Log may record a metadata-only delivery outcome, but never visitor field values.
 
 ---
 
@@ -130,7 +130,7 @@
 - [ ] **9.1** Deactivate the plugin.
   **Expected:** No error. Your created forms/pages remain.
 - [ ] **9.2** Delete the plugin.
-  **Expected:** Plugin settings, the encrypted key, and logs are removed; your `aisaautopilot_form` / `aisaautopilot_submission` posts are intentionally left in place.
+  **Expected:** Plugin settings, the encrypted key, and logs are removed; form definitions (`aisaautopilot_form`) and any legacy entry posts are intentionally left in place. New public submissions are never persisted by AISAAutoPilot.
 
 ---
 

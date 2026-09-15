@@ -68,7 +68,7 @@ final class Ui {
 
 	/** Solid (filled) marks used inside gradient avatars. */
 	private const SOLID = array(
-		'sparkle' => '<path d="M12 2.5l1.6 4.3a3 3 0 0 0 1.8 1.8L19.5 10l-4.1 1.4a3 3 0 0 0-1.8 1.8L12 17.5l-1.6-4.3a3 3 0 0 0-1.8-1.8L4.5 10l4.1-1.4a3 3 0 0 0 1.8-1.8L12 2.5z"/>',
+		'sparkle'  => '<path d="M12 2.5l1.6 4.3a3 3 0 0 0 1.8 1.8L19.5 10l-4.1 1.4a3 3 0 0 0-1.8 1.8L12 17.5l-1.6-4.3a3 3 0 0 0-1.8-1.8L4.5 10l4.1-1.4a3 3 0 0 0 1.8-1.8L12 2.5z"/>',
 		'sparkle2' => '<path d="M12 2.5l1.6 4.3a3 3 0 0 0 1.8 1.8L19.5 10l-4.1 1.4a3 3 0 0 0-1.8 1.8L12 17.5l-1.6-4.3a3 3 0 0 0-1.8-1.8L4.5 10l4.1-1.4a3 3 0 0 0 1.8-1.8L12 2.5z"/><path d="M18.5 14l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7.7-1.9z"/>',
 	);
 
@@ -116,9 +116,9 @@ final class Ui {
 		);
 	}
 
-	/** The gradient definition every gradient-stroked icon references. */
+	/** The stable SVG id remains for existing callers; the brand is now flat navy. */
 	public static function grad_defs(): void {
-		echo '<svg class="sp-grad-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><linearGradient id="sp-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f46e5"/><stop offset="0.5" stop-color="#7c3aed"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs></svg>';
+		echo '<svg class="sp-grad-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><linearGradient id="sp-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#202a8d"/><stop offset="1" stop-color="#202a8d"/></linearGradient></defs></svg>';
 	}
 
 	/**
@@ -291,6 +291,131 @@ final class Ui {
 		<div id="sp-busy" class="sp-busy" hidden>
 			<span class="sp-spinner sp-spinner--lg"></span>
 			<span id="sp-busy-label"><?php esc_html_e( 'Working…', 'ai-site-assistant-autopilot' ); ?></span>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Shared page header bar — the mockup's white app header.
+	 *
+	 * Title + subtitle on the left; connection chip, "Connection" shortcut and
+	 * an optional primary action on the right; optional sub-tab row inside the
+	 * same bar. Every screen renders this first so the IA matches the mockup.
+	 *
+	 * @param array{
+	 *     chip?: array{tone?:string,label?:string},
+	 *     action?: array{label?:string,url?:string,id?:string,attrs?:string,type?:string,class?:string},
+	 *     subtabs?: array<int, array{id?:string,label?:string,url?:string,active?:bool}>,
+	 *     connection_url?: string
+	 * } $args
+	 */
+	public static function page_header( string $title, string $sub, array $args = array() ): void {
+		$chip      = (array) ( $args['chip'] ?? array() );
+		$action    = (array) ( $args['action'] ?? array() );
+		$subtabs   = array_values( (array) ( $args['subtabs'] ?? array() ) );
+		$chip_tone = (string) ( $chip['tone'] ?? 'ok' );
+		if ( ! in_array( $chip_tone, array( 'ok', 'warn', 'err' ), true ) ) {
+			$chip_tone = 'ok';
+		}
+		$chip_label = (string) ( $chip['label'] ?? '' );
+		$conn_url   = (string) ( $args['connection_url'] ?? admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP ) );
+		?>
+		<div class="sp-pagebar">
+			<div class="sp-pagebar__row">
+				<div class="sp-pagebar__titles">
+					<h1 class="sp-pagebar__title" dir="auto"><?php echo esc_html( $title ); ?></h1>
+					<?php if ( '' !== $sub ) : ?>
+						<p class="sp-pagebar__sub" dir="auto"><?php echo esc_html( $sub ); ?></p>
+					<?php endif; ?>
+				</div>
+				<div class="sp-pagebar__side">
+					<?php if ( '' !== $chip_label ) : ?>
+						<div class="sp-pagebar__chip sp-pagebar__chip--<?php echo esc_attr( $chip_tone ); ?>">
+							<span class="sp-pagebar__dot" aria-hidden="true"></span>
+							<span><?php echo esc_html( $chip_label ); ?></span>
+						</div>
+					<?php endif; ?>
+					<a class="sp-pagebar__btn" href="<?php echo esc_url( $conn_url ); ?>"><?php esc_html_e( 'Connection', 'ai-site-assistant-autopilot' ); ?></a>
+					<?php if ( ! empty( $action['label'] ) ) : ?>
+						<?php if ( 'button' === (string) ( $action['type'] ?? 'link' ) ) : ?>
+							<button
+								type="button"
+								class="sp-pagebar__action<?php echo isset( $action['class'] ) ? ' ' . esc_attr( (string) $action['class'] ) : ''; ?>"
+								<?php echo isset( $action['id'] ) ? 'id="' . esc_attr( (string) $action['id'] ) . '"' : ''; ?>
+							><span><?php echo esc_html( (string) $action['label'] ); ?></span></button>
+						<?php else : ?>
+							<a
+								class="sp-pagebar__action<?php echo isset( $action['class'] ) ? ' ' . esc_attr( (string) $action['class'] ) : ''; ?>"
+								href="<?php echo esc_url( (string) ( $action['url'] ?? '#' ) ); ?>"
+								<?php echo isset( $action['id'] ) ? 'id="' . esc_attr( (string) $action['id'] ) . '"' : ''; ?>
+								<?php echo isset( $action['attrs'] ) ? esc_attr( (string) $action['attrs'] ) : ''; ?>
+							><?php echo esc_html( (string) $action['label'] ); ?></a>
+						<?php endif; ?>
+					<?php endif; ?>
+				</div>
+			</div>
+			<?php if ( array() !== $subtabs ) : ?>
+				<nav class="sp-subtabs" aria-label="<?php esc_attr_e( 'Page sections', 'ai-site-assistant-autopilot' ); ?>">
+					<?php foreach ( $subtabs as $tab ) : ?>
+						<?php $tab = (array) $tab; ?>
+						<a
+							class="sp-subtabs__tab<?php echo ! empty( $tab['active'] ) ? ' is-active' : ''; ?>"
+							href="<?php echo esc_url( (string) ( $tab['url'] ?? '#' ) ); ?>"
+							<?php echo isset( $tab['id'] ) ? 'data-sp-subtab="' . esc_attr( (string) $tab['id'] ) . '"' : ''; ?>
+							<?php echo ! empty( $tab['active'] ) ? 'aria-current="page"' : ''; ?>
+						><?php echo esc_html( (string) ( $tab['label'] ?? '' ) ); ?></a>
+					<?php endforeach; ?>
+				</nav>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Dismissible scenario banner (mockup `BANNERS`). Tone: bad | warn.
+	 *
+	 * Dismissal is client-side (sessionStorage, keyed by `$id`) — the banner is
+	 * derived server-side on every load, so dismissing only hides it for the
+	 * session; the underlying condition still renders it next session.
+	 */
+	public static function banner( string $id, string $tone, string $title, string $body, string $cta_label = '', string $cta_url = '', string $cta_id = '' ): void {
+		if ( ! in_array( $tone, array( 'bad', 'warn' ), true ) ) {
+			$tone = 'warn';
+		}
+		?>
+		<div class="sp-banner sp-banner--<?php echo esc_attr( $tone ); ?>" data-sp-banner="<?php echo esc_attr( $id ); ?>">
+			<span class="sp-banner__icon" aria-hidden="true"><?php echo self::icon( 'warning', 17, 'currentColor', 2.1 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+			<div class="sp-banner__body">
+				<div class="sp-banner__title"><?php echo esc_html( $title ); ?></div>
+				<p class="sp-banner__text"><?php echo esc_html( $body ); ?></p>
+			</div>
+			<?php if ( '' !== $cta_label ) : ?>
+				<a class="sp-banner__cta" href="<?php echo esc_url( $cta_url ); ?>" <?php echo '' !== $cta_id ? 'id="' . esc_attr( $cta_id ) . '"' : ''; ?>><?php echo esc_html( $cta_label ); ?></a>
+			<?php endif; ?>
+			<button type="button" class="sp-banner__dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'ai-site-assistant-autopilot' ); ?>">&times;</button>
+		</div>
+		<?php
+	}
+
+	/**
+	 * The running-job bar host. Hidden until `AISAAutoPilotShell.job.start()`.
+	 * Label, ETA and percent are filled by JS; pause/stop dispatch events the
+	 * running batch loop listens to.
+	 */
+	public static function jobbar(): void {
+		?>
+		<div class="sp-jobbar" id="sp-jobbar" hidden>
+			<span class="sp-jobbar__spin" aria-hidden="true"><?php echo self::icon( 'refresh', 19, '#202a8d', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+			<div class="sp-jobbar__body">
+				<div class="sp-jobbar__label" id="sp-jobbar-label"></div>
+				<div class="sp-jobbar__eta" id="sp-jobbar-eta"></div>
+				<span class="sp-jobbar__track" aria-hidden="true"><span class="sp-jobbar__fill" id="sp-jobbar-fill"></span></span>
+			</div>
+			<div class="sp-jobbar__btns">
+				<button type="button" class="sp-jobbar__btn" id="sp-jobbar-pause"><?php esc_html_e( 'Pause', 'ai-site-assistant-autopilot' ); ?></button>
+				<button type="button" class="sp-jobbar__btn" id="sp-jobbar-stop"><?php esc_html_e( 'Stop', 'ai-site-assistant-autopilot' ); ?></button>
+			</div>
+			<span class="sp-jobbar__pct" id="sp-jobbar-pct">0%</span>
 		</div>
 		<?php
 	}

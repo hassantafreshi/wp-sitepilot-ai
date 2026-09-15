@@ -17,27 +17,29 @@ final class ChatWidgetController {
 	public function settings(): \WP_REST_Response {
 		$settings = Settings::all();
 		$widget   = $settings['widget'] ?? Settings::widget_defaults();
-		$color    = sanitize_hex_color( (string) ( $widget['color'] ?? '' ) ) ?: '#4f46e5';
+		$color    = sanitize_hex_color( (string) ( $widget['color'] ?? '' ) ) ?: '#202a8d';
 		$bg       = sanitize_hex_color( (string) ( $widget['bg'] ?? '' ) ) ?: '#ffffff';
 
 		// Never expose delivery credentials or exclusion rules to a site visitor.
 		return new \WP_REST_Response(
 			array(
-				'ok'              => true,
-				'code'            => 'ok',
-				'enabled'         => ! empty( $widget['enabled'] ),
-				'position'        => sanitize_key( (string) ( $widget['position'] ?? 'bottom-right' ) ),
-				'theme'           => sanitize_key( (string) ( $widget['theme'] ?? 'light' ) ),
-				'color'           => $color,
-				'bg'              => $bg,
-				'title'           => sanitize_text_field( (string) ( $widget['title'] ?? '' ) ),
-				'greeting'        => sanitize_textarea_field( (string) ( $widget['greeting'] ?? '' ) ),
-				'auto_open'       => absint( $widget['auto_open'] ?? 0 ),
-				'voice_enabled'   => ! empty( $widget['voice_enabled'] ),
-				'voice_auto'      => ! empty( $widget['voice_auto'] ),
-				'voice_name'      => sanitize_text_field( (string) ( $widget['voice_name'] ?? '' ) ),
-				'handoff_enabled' => ! empty( $widget['handoff_enabled'] ),
-				'handoff_text'    => sanitize_text_field( (string) ( $widget['handoff_text'] ?? '' ) ),
+				'ok'                           => true,
+				'code'                         => 'ok',
+				'enabled'                      => Settings::answer_desk_enabled(),
+				'position'                     => sanitize_key( (string) ( $widget['position'] ?? 'bottom-right' ) ),
+				'theme'                        => sanitize_key( (string) ( $widget['theme'] ?? 'light' ) ),
+				'color'                        => $color,
+				'bg'                           => $bg,
+				'title'                        => sanitize_text_field( (string) ( $widget['title'] ?? '' ) ),
+				'greeting'                     => sanitize_textarea_field( (string) ( $widget['greeting'] ?? '' ) ),
+				'auto_open'                    => absint( $widget['auto_open'] ?? 0 ),
+				'voice_enabled'                => ! empty( $widget['voice_enabled'] ),
+				'voice_auto'                   => ! empty( $widget['voice_auto'] ),
+				'voice_name'                   => sanitize_text_field( (string) ( $widget['voice_name'] ?? '' ) ),
+				'handoff_enabled'              => Settings::answer_desk_handoff_available(),
+				'handoff_text'                 => sanitize_text_field( (string) ( $widget['handoff_text'] ?? '' ) ),
+				'conversation_logging_enabled' => ! empty( $widget['conversation_logging_enabled'] ),
+				'conversation_notice'          => sanitize_text_field( (string) ( $widget['conversation_notice'] ?? '' ) ),
 			)
 		);
 	}
@@ -88,6 +90,25 @@ final class ChatWidgetController {
 
 		try {
 			$result = ( new ChatEngine( new KnowledgeBase() ) )->ask( $question );
+			if ( 'usage_cap_reached' === (string) ( $result['status'] ?? '' ) ) {
+				return new \WP_REST_Response(
+					array(
+						'ok'      => false,
+						'code'    => 'usage_cap_reached',
+						'message' => (string) ( $result['answer'] ?? '' ),
+					),
+					429
+				);
+			}
+			if ( $this->conversation_logging_enabled() ) {
+				$stored                    = ( new \AISAAutoPilot\Chat\VisitorConversationStore() )->append_turn(
+					sanitize_text_field( (string) $request->get_param( 'conversation_id' ) ),
+					$question,
+					(string) ( $result['answer'] ?? '' ),
+					is_array( $result['sources'] ?? null ) ? $result['sources'] : array()
+				);
+				$result['conversation_id'] = $stored['token'];
+			}
 			return new \WP_REST_Response( array_merge( array( 'ok' => true ), $result ) );
 		} catch ( \Throwable $exception ) {
 			return new \WP_REST_Response(
@@ -169,13 +190,23 @@ final class ChatWidgetController {
 		}
 
 		$result = ( new HandoffService() )->handoff( $messages, $name, $email );
+		// A visitor deliberately pressed "Talk to human", so keeping this request
+		// in the protected inbox is appropriate. Ordinary chat messages remain
+		// client-side only.
+		$inbox_id = ( new \AISAAutoPilot\Support\HandoffInbox() )->record(
+			$messages,
+			$name,
+			$email,
+			! empty( $result['ok'] ) ? 'new' : 'failed'
+		);
 		return new \WP_REST_Response(
 			array(
-				'ok'      => (bool) $result['ok'],
-				'code'    => ! empty( $result['ok'] ) ? 'sent' : 'handoff_failed',
-				'message' => ! empty( $result['ok'] )
+				'ok'        => (bool) $result['ok'],
+				'code'      => ! empty( $result['ok'] ) ? 'sent' : 'handoff_failed',
+				'message'   => ! empty( $result['ok'] )
 					? __( 'Your request has been sent to the support team.', 'ai-site-assistant-autopilot' )
 					: __( 'We could not send the request. Please try again later.', 'ai-site-assistant-autopilot' ),
+				'reference' => $inbox_id,
 			)
 		);
 	}
@@ -201,28 +232,16 @@ final class ChatWidgetController {
 	}
 
 	private function is_enabled(): bool {
-		$widget = Settings::get( 'widget', array() );
-		return is_array( $widget ) && ! empty( $widget['enabled'] );
+		return Settings::answer_desk_enabled();
 	}
 
 	private function handoff_enabled(): bool {
+		return Settings::answer_desk_handoff_available();
+	}
+
+	private function conversation_logging_enabled(): bool {
 		$widget = Settings::get( 'widget', array() );
-		if ( ! is_array( $widget ) || empty( $widget['handoff_enabled'] ) ) {
-			return false;
-		}
-
-		$email = sanitize_email( (string) ( $widget['handoff_email_to'] ?? get_option( 'admin_email', '' ) ) );
-		$has_email = ! empty( $widget['handoff_email_enabled'] ) && '' !== $email && is_email( $email );
-		$has_telegram = ! empty( $widget['handoff_telegram_enabled'] )
-			&& Settings::has_handoff_secret( 'handoff_telegram_token' )
-			&& ! empty( $widget['handoff_telegram_chat'] );
-		$has_twilio = ! empty( $widget['handoff_twilio_enabled'] )
-			&& Settings::has_handoff_secret( 'handoff_twilio_sid' )
-			&& Settings::has_handoff_secret( 'handoff_twilio_token' )
-			&& ! empty( $widget['handoff_twilio_from'] )
-			&& ! empty( $widget['handoff_twilio_to'] );
-
-		return $has_email || $has_telegram || $has_twilio;
+		return is_array( $widget ) && ! empty( $widget['conversation_logging_enabled'] );
 	}
 
 	private function allow( string $kind, int $limit ): bool {

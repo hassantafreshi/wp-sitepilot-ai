@@ -112,7 +112,7 @@ class HandoffTelegram {
 					self::API_BASE . $token . '/sendMessage',
 					array(
 						'timeout'            => self::TIMEOUT,
-						'headers' => array( 'Content-Type' => 'application/json' ),
+						'headers'            => array( 'Content-Type' => 'application/json' ),
 						'body'               => wp_json_encode( $body ),
 						'redirection'        => 0,
 						'reject_unsafe_urls' => true,

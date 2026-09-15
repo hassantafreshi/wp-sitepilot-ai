@@ -7,6 +7,9 @@
 	var currentOffset = 0;
 	var currentPage = 1;
 	var activeFilters = { post_types: [], categories: [] };
+	var modalTrigger = null;
+	var pausedRun = null;
+	var latestPercent = 0;
 
 	// Friendly labels for auto content-type slugs (embedded server-side).
 	var ctLabels = readJson( 'sp-kb-ctype-labels' );
@@ -100,54 +103,137 @@
 		var bar = $( 'sp-kb-progress-bar' );
 		var pct = $( 'sp-kb-progress-percent' );
 		var txt = $( 'sp-kb-progress-text' );
+		var safePercent = Math.max( 0, Math.min( 100, Number( percent ) || 0 ) );
 
-		if ( bar ) { bar.style.width = percent + '%'; }
-		if ( pct ) { pct.textContent = percent + '%'; }
+		latestPercent = safePercent;
+		if ( bar ) { bar.style.width = safePercent + '%'; }
+		if ( pct ) { pct.textContent = safePercent + '%'; }
 		if ( txt ) { txt.textContent = text; }
 	}
 
+	function capError( data, fallback ) {
+		var err = new Error( data.message || fallback || t( 'failed' ) );
+		err.code = data.code || '';
+		err.offset = Number.isInteger( data.offset ) ? data.offset : currentOffset;
+		err.percent = Number.isFinite( Number( data.percent ) ) ? Number( data.percent ) : latestPercent;
+		return err;
+	}
+
+	function applyBatchResult( data, onItem ) {
+		if ( Number.isInteger( data.offset ) && data.offset >= 0 ) {
+			currentOffset = data.offset;
+		}
+
+		setProgress( data.percent, randomAiMsg() );
+		( data.items || [] ).forEach( function ( item ) {
+			if ( onItem ) { onItem( item ); }
+			addLogEntry( item );
+		} );
+	}
+
 	/* ── Indexing Flow ── */
-	function startIndexing( fullReindex, filters ) {
+	function startIndexing( fullReindex, filters, resume ) {
 		if ( indexing ) { return; }
+		var resuming = !! resume && !! pausedRun;
+		if ( resume && ! resuming ) { return; }
+
 		indexing = true;
-		currentOffset = 0;
-		activeFilters = filters || { post_types: [], categories: [] };
+		var completed = false;
+		var hasItemErrors = false;
 
 		var progress = $( 'sp-kb-progress' );
 		var startBtn = $( 'sp-kb-start-index' );
 		var reindexBtn = $( 'sp-kb-reindex' );
+		var headerReindex = $( 'sp-kb-header-reindex' );
 		var log = $( 'sp-kb-progress-log' );
+		var resumeBtn = $( 'sp-kb-resume' );
+
+		if ( resuming ) {
+			currentOffset = pausedRun.offset;
+			activeFilters = pausedRun.filters;
+			fullReindex = pausedRun.fullReindex;
+			pausedRun = null;
+		} else {
+			currentOffset = 0;
+			activeFilters = filters || { post_types: [], categories: [] };
+			latestPercent = 0;
+			pausedRun = null;
+			if ( log ) { log.textContent = ''; }
+		}
 
 		if ( progress ) { progress.hidden = false; }
-		if ( log ) { log.textContent = ''; }
 		if ( startBtn ) { startBtn.disabled = true; }
 		if ( reindexBtn ) { reindexBtn.disabled = true; }
+		if ( headerReindex ) { headerReindex.disabled = true; }
+		if ( resumeBtn ) {
+			resumeBtn.hidden = true;
+			resumeBtn.disabled = true;
+		}
 
-		setProgress( 0, randomAiMsg() );
+		setProgress( resuming ? latestPercent : 0, resuming ? t( 'resuming' ) : randomAiMsg() );
 
 		var chain = Promise.resolve();
 
 		if ( fullReindex ) {
 			chain = chain.then( function () {
-				return api( 'kb/truncate', {} );
+				return api( 'kb/truncate', {} ).then( function ( res ) {
+					if ( ! res.data.ok ) {
+						var err = capError( res.data, t( 'failed' ) );
+						err.fullReindex = 'usage_cap_reached' === err.code;
+						throw err;
+					}
+				} );
 			} );
 		}
 
 		chain
-			.then( function () { return processBatch(); } )
+			.then( function () {
+				return processBatch( function ( item ) {
+					if ( item.status === 'error' ) {
+						hasItemErrors = true;
+					}
+				} );
+			} )
+			.then( function () {
+				completed = true;
+				if ( hasItemErrors ) {
+					setProgress( 100, t( 'doneWithErrors' ) );
+				}
+			} )
 			.catch( function ( err ) {
-				setProgress( 0, t( 'failed' ) + ' ' + ( err.message || '' ) );
+				if ( err && 'usage_cap_reached' === err.code ) {
+					currentOffset = Number.isInteger( err.offset ) && err.offset >= 0 ? err.offset : currentOffset;
+					latestPercent = Number.isFinite( err.percent ) ? err.percent : latestPercent;
+					pausedRun = {
+						offset: currentOffset,
+						filters: activeFilters,
+						fullReindex: !! err.fullReindex,
+					};
+					setProgress( latestPercent, t( 'paused' ) + ' ' + ( err.message || '' ) );
+					if ( resumeBtn ) {
+						resumeBtn.hidden = false;
+						resumeBtn.disabled = false;
+					}
+					return;
+				}
+
+				setProgress( latestPercent, t( 'failed' ) + ' ' + ( err.message || '' ) );
 			} )
 			.finally( function () {
 				indexing = false;
 				if ( startBtn ) { startBtn.disabled = false; }
 				if ( reindexBtn ) { reindexBtn.disabled = false; }
-				loadTable( 1 );
-				loadStats();
+				if ( headerReindex ) { headerReindex.disabled = false; }
+				if ( $( 'sp-kb-rows' ) ) { loadTable( 1 ); }
+				if ( completed && ! hasItemErrors && document.querySelector( '[data-sp-kb-overview], [data-sp-kb-collections], [data-sp-kb-queue], [data-sp-kb-sync-sources]' ) ) {
+					window.setTimeout( function () { window.location.reload(); }, 650 );
+				} else {
+					loadStats();
+				}
 			} );
 	}
 
-	function processBatch() {
+	function processBatch( onItem ) {
 		return api( 'kb/index/batch', {
 			offset: currentOffset,
 			post_types: activeFilters.post_types || [],
@@ -155,20 +241,15 @@
 		} )
 			.then( function ( res ) {
 				if ( ! res.data.ok ) {
-					setProgress( 0, res.data.message || t( 'failed' ) );
-					return;
+					if ( 429 === res.status && 'usage_cap_reached' === res.data.code ) {
+						applyBatchResult( res.data, onItem );
+						throw capError( res.data, t( 'failed' ) );
+					}
+					throw new Error( res.data.message || t( 'failed' ) );
 				}
 
 				var data = res.data;
-				currentOffset = data.offset;
-
-				// Update progress bar.
-				setProgress( data.percent, randomAiMsg() );
-
-				// Log each item.
-				( data.items || [] ).forEach( function ( item ) {
-					addLogEntry( item );
-				} );
+				applyBatchResult( data, onItem );
 
 				if ( data.done ) {
 					setProgress( 100, randomDoneMsg() );
@@ -179,7 +260,7 @@
 				return new Promise( function ( resolve ) {
 					setTimeout( resolve, 300 );
 				} ).then( function () {
-					return processBatch();
+					return processBatch( onItem );
 				} );
 			} );
 	}
@@ -323,14 +404,31 @@
 	}
 
 	/* ── Pre-index Picker Modal ── */
-	function openModal() {
+	function openModal( selectedType, trigger ) {
 		var modal = $( 'sp-kb-modal' );
-		if ( modal ) { modal.hidden = false; }
+		if ( ! modal ) { return; }
+
+		selectedType = typeof selectedType === 'string' ? selectedType : '';
+		modalTrigger = trigger || document.activeElement;
+		Array.prototype.forEach.call( modal.querySelectorAll( '.sp-kb-type-opt' ), function ( input ) {
+			input.checked = ! selectedType || input.value === selectedType;
+		} );
+
+		modal.hidden = false;
+		window.setTimeout( function () {
+			var first = modal.querySelector( '.sp-kb-type-opt' );
+			if ( first ) { first.focus(); }
+		}, 0 );
 	}
 
 	function closeModal() {
 		var modal = $( 'sp-kb-modal' );
 		if ( modal ) { modal.hidden = true; }
+		var trigger = modalTrigger;
+		modalTrigger = null;
+		if ( trigger && typeof trigger.focus === 'function' ) {
+			trigger.focus();
+		}
 	}
 
 	function collectFilters() {
@@ -408,12 +506,11 @@
 		list.textContent = '';
 
 		items.forEach( function ( g ) {
-			var row = el( 'div', { class: 'sp-notice sp-notice--warn' }, [
-				el( 'span', { class: 'sp-notice__dot' } ),
-				el( 'span', { class: 'sp-notice__body', text: g.question } ),
-				el( 'span', { class: 'sp-tag sp-tag--warn', text: '×' + ( g.count || 1 ) } ),
+			var row = el( 'div', { class: 'sp-kb-gap' }, [
+				el( 'span', { class: 'sp-kb-gap__body', text: g.question } ),
+				el( 'span', { class: 'sp-kb-gap__count', text: '×' + ( g.count || 1 ) } ),
 			] );
-			var dismiss = el( 'button', { type: 'button', class: 'sp-btn--icon-sm', title: t( 'dismiss' ), 'aria-label': t( 'dismiss' ), text: '✕' } );
+			var dismiss = el( 'button', { type: 'button', class: 'sp-kb-gap__dismiss', text: t( 'dismiss' ), 'aria-label': t( 'dismiss' ) } );
 			dismiss.addEventListener( 'click', function () {
 				row.style.opacity = '0.4';
 				api( 'kb/gaps/dismiss', { hash: g.hash } ).then( loadGaps );
@@ -435,10 +532,28 @@
 		initModal();
 
 		if ( startBtn ) {
-			startBtn.addEventListener( 'click', openModal );
+			startBtn.addEventListener( 'click', function () {
+				openModal( '', startBtn );
+			} );
 		}
+		Array.prototype.forEach.call( document.querySelectorAll( '[data-sp-kb-open-picker]' ), function ( trigger ) {
+			trigger.addEventListener( 'click', function () {
+				openModal( trigger.getAttribute( 'data-sp-kb-open-picker' ) || '', trigger );
+			} );
+		} );
 		if ( reindexBtn ) {
 			reindexBtn.addEventListener( 'click', function () {
+				if ( window.confirm( t( 'confirmAll' ) ) ) {
+					startIndexing( true, { post_types: [], categories: [] } );
+				}
+			} );
+		}
+
+		// Header-bar action "Re-index everything" (G-22) runs the same full re-index.
+		var headerReindex = $( 'sp-kb-header-reindex' );
+		if ( headerReindex ) {
+			headerReindex.addEventListener( 'click', function ( e ) {
+				e.preventDefault();
 				if ( window.confirm( t( 'confirmAll' ) ) ) {
 					startIndexing( true, { post_types: [], categories: [] } );
 				}
@@ -474,8 +589,18 @@
 			} );
 		}
 
-		// Load initial data.
-		loadTable( 1 );
+		// The indexed-entry manager is a deep route; avoid a needless API call
+		// from the four canonical Site Knowledge tabs.
+		if ( rows ) {
+			loadTable( 1 );
+		}
+
+		var resumeBtn = $( 'sp-kb-resume' );
+		if ( resumeBtn ) {
+			resumeBtn.addEventListener( 'click', function () {
+				startIndexing( false, null, true );
+			} );
+		}
 		loadGaps();
 	}
 

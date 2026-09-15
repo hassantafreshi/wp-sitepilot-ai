@@ -9,6 +9,7 @@ use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Content\VectorSearch;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Providers\ProviderException;
 use AISAAutoPilot\Providers\ProviderManager;
 
 /**
@@ -107,6 +108,10 @@ final class ChatEngine {
 			try {
 				$decision = $provider->generate_structured_output( $system, $user );
 			} catch ( \Throwable $e ) {
+				if ( $e instanceof ProviderException && 'usage_cap_reached' === $e->error_code() ) {
+					throw $e;
+				}
+
 				// Fallback: some providers dislike JSON mode — degrade to plain text.
 				$this->logger->error( 'chat_rag_structured', $e->getMessage() );
 				$plain = $provider->generate_text( $this->build_plain_prompt( $context ), $user );
@@ -115,6 +120,17 @@ final class ChatEngine {
 
 			return $this->finalise( $question, $decision, $map, $cache, $is_followup );
 
+		} catch ( ProviderException $e ) {
+			$this->logger->error( 'chat_rag', $e->getMessage(), array( 'code' => $e->error_code() ) );
+			if ( 'usage_cap_reached' === $e->error_code() ) {
+				return $this->result( $e->user_message(), array(), $e->error_code() );
+			}
+
+			return $this->result(
+				__( 'An error occurred while processing your question. Please try again.', 'ai-site-assistant-autopilot' ),
+				array(),
+				'error'
+			);
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'chat_rag', $e->getMessage() );
 
@@ -360,17 +376,7 @@ final class ChatEngine {
 	 * Whether a human handoff is enabled and has at least one configured channel.
 	 */
 	private function offer_handoff(): bool {
-		$w = Settings::get( 'widget', array() );
-		if ( ! is_array( $w ) || empty( $w['handoff_enabled'] ) ) {
-			return false;
-		}
-
-		$email         = sanitize_email( (string) ( $w['handoff_email_to'] ?? get_option( 'admin_email', '' ) ) );
-		$has_email    = ! empty( $w['handoff_email_enabled'] ) && '' !== $email && is_email( $email );
-		$has_telegram = Settings::has_handoff_secret( 'handoff_telegram_token' ) && ! empty( $w['handoff_telegram_chat'] );
-		$has_twilio   = Settings::has_handoff_secret( 'handoff_twilio_sid' ) && Settings::has_handoff_secret( 'handoff_twilio_token' );
-
-		return $has_email || $has_telegram || $has_twilio;
+		return Settings::answer_desk_handoff_available();
 	}
 
 	private function not_found_message( bool $handoff ): string {

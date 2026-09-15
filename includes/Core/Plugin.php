@@ -12,7 +12,10 @@ use AISAAutoPilot\Content\ContentHooks;
 use AISAAutoPilot\Efb\EfbBuilderButton;
 use AISAAutoPilot\Frontend\ChatWidget;
 use AISAAutoPilot\Frontend\FormShortcode;
-use AISAAutoPilot\Frontend\WidgetRenderer;
+use AISAAutoPilot\Admin\LogExport;
+use AISAAutoPilot\Admin\ContentStudioHistoryExport;
+use AISAAutoPilot\Support\HandoffInbox;
+use AISAAutoPilot\Chat\VisitorConversationStore;
 
 final class Plugin {
 	private static ?Plugin $instance = null;
@@ -47,23 +50,30 @@ final class Plugin {
 		add_action( 'admin_menu', array( $this->container->get( AdminMenu::class ), 'register' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->container->get( AdminMenu::class ), 'enqueue_assets' ) );
 		add_action( 'rest_api_init', array( $this->container->get( RestRoutes::class ), 'register' ) );
+		( new LogExport() )->register();
+		( new ContentStudioHistoryExport() )->register();
 
 		/*
-		 * The lightweight public assistant and the configurable ChatWidget are
-		 * alternate front-end experiences. This avoids rendering two launchers.
+		 * Answer Desk has one visitor-facing implementation: the configurable
+		 * widget. Both the Integration gate and the Widget visibility toggle are
+		 * checked by the renderer, controller and shortcode. Registering these
+		 * hooks unconditionally makes a later settings change take effect without
+		 * a plugin reload and prevents a second, incompatible public widget.
 		 */
-		if ( ! Settings::get( 'public_assistant_enabled', false ) ) {
-			add_shortcode( 'aisaautopilot_chat', array( ChatWidget::class, 'render_standalone' ) );
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_widget_assets' ) );
-			add_action( 'wp_footer', array( $this, 'render_widget' ) );
-		}
+		add_shortcode( 'aisaautopilot_chat', array( ChatWidget::class, 'render_standalone' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_widget_assets' ) );
+		add_action( 'wp_footer', array( $this, 'render_widget' ) );
 
 		if ( is_admin() ) {
 			( new EfbBuilderButton() )->register();
 		}
-		if ( Settings::get( 'kb_auto_index', true ) ) {
-			( new ContentHooks() )->register();
-		}
+		/*
+		 * ContentHooks owns both optional publish/update indexing and mandatory
+		 * lifecycle cleanup. The handler itself checks kb_auto_index before it
+		 * schedules work, but it must always be registered so unpublished,
+		 * trashed, and deleted content is removed from the Knowledge Base.
+		 */
+		( new ContentHooks() )->register();
 		WpConnectors::register();
 	}
 
@@ -98,19 +108,20 @@ final class Plugin {
 	 */
 	public function on_init(): void {
 		NativeFormConnector::register_post_types();
+		// Runs once per schema version, so existing installations receive the
+		// inbox table without requiring a deactivate/reactivate cycle.
+		HandoffInbox::ensure_schema();
+		VisitorConversationStore::ensure_schema();
 		( new FormShortcode() )->register();
-		( new WidgetRenderer() )->register();
 	}
 
 	public function enqueue_widget_assets(): void {
 
-		$settings = Settings::all();
-		// The opt-in public assistant has its own renderer. Never enqueue the
-		// legacy configurable widget alongside it, otherwise visitors receive
-		// two overlapping chat launchers.
-		if ( ! empty( $settings['public_assistant_enabled'] ) || empty( $settings['widget']['enabled'] ) ) {
-				return;
+		if ( ! Settings::answer_desk_enabled() ) {
+			return;
 		}
+
+		$settings = Settings::all();
 		wp_enqueue_style( 'aisaautopilot-widget', AISAAUTOPILOT_URL . 'assets/frontend/widget.css', array(), AISAAUTOPILOT_VERSION );
 		wp_enqueue_script( 'aisaautopilot-widget', AISAAUTOPILOT_URL . 'assets/frontend/widget.js', array(), AISAAUTOPILOT_VERSION, true );
 		wp_localize_script(
@@ -160,10 +171,10 @@ final class Plugin {
 
 	public function render_widget(): void {
 
-		$settings = Settings::all();
-		if ( ! empty( $settings['public_assistant_enabled'] ) || empty( $settings['widget']['enabled'] ) ) {
+		$widget = new ChatWidget();
+		if ( ! Settings::answer_desk_enabled() || ! $widget->should_render_widget() ) {
 			return;
 		}
-		echo ( new ChatWidget() )->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes dynamic values.
+		echo $widget->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes dynamic values.
 	}
 }

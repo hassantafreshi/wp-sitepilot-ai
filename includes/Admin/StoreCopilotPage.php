@@ -1,0 +1,426 @@
+<?php
+declare(strict_types=1);
+
+namespace AISAAutoPilot\Admin;
+
+use AISAAutoPilot\Connectors\WooCommerceConnector;
+use AISAAutoPilot\Providers\ProviderManager;
+
+/**
+ * Canonical Store Copilot surface.
+ *
+ * Phase 1 deliberately has four mockup-aligned tabs: proposal to reviewed
+ * draft, capability/status settings, a read-only product list, and an honest
+ * order-access contract. Publishing, editing, bulk work and order mutations
+ * are never rendered as usable actions.
+ */
+final class StoreCopilotPage {
+
+	private const TABS = array(
+		'newproduct'   => 'New product',
+		'capabilities' => 'What it can do',
+		'products'     => 'Products',
+		'orders'       => 'Orders',
+	);
+
+	public function render(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to view this page.', 'ai-site-assistant-autopilot' ) );
+		}
+
+		$tab            = $this->current_tab();
+		$health         = WooCommerceConnector::get_health();
+		$settings       = WooCommerceConnector::get_settings();
+		$active         = ! empty( $health['active'] );
+		$can_manage     = ! empty( $health['can_manage'] );
+		$enabled        = ! empty( $settings['enabled'] );
+		$provider_ready = ( new ProviderManager() )->is_configured();
+		$proposal_ready = $active && $can_manage && $enabled && $provider_ready;
+
+		Ui::grad_defs();
+		?>
+		<div
+			class="wrap sp-app"
+			data-sp-wc-dashboard
+			data-sp-store-copilot
+			data-sp-store-tab="<?php echo esc_attr( $tab ); ?>"
+			data-sp-store-active="<?php echo $active ? '1' : '0'; ?>"
+			data-sp-store-enabled="<?php echo $enabled ? '1' : '0'; ?>"
+			data-sp-store-search="<?php echo ! empty( $settings['enable_search'] ) ? '1' : '0'; ?>"
+			data-sp-store-provider="<?php echo $provider_ready ? '1' : '0'; ?>"
+			data-sp-store-can-manage="<?php echo $can_manage ? '1' : '0'; ?>"
+		>
+			<section class="sp-screen">
+				<?php
+				Ui::page_header(
+					__( 'Store Copilot', 'ai-site-assistant-autopilot' ),
+					__( 'Propose one product at a time. You review it, AutoPilot saves a draft.', 'ai-site-assistant-autopilot' ),
+					array(
+						'chip'    => ConnectionChip::derive(),
+						'subtabs' => $this->subtabs( $tab ),
+					)
+				);
+				?>
+				<div class="sp-pagebody sp-store-page">
+					<?php $this->render_availability_notice( $active, $can_manage, $enabled ); ?>
+
+					<?php
+					switch ( $tab ) {
+						case 'capabilities':
+							$this->render_capabilities( $health, $settings, $provider_ready );
+							break;
+						case 'products':
+							$this->render_products( $active, $enabled );
+							break;
+						case 'orders':
+							$this->render_orders( $active, $enabled, $can_manage );
+							break;
+						case 'newproduct':
+						default:
+							$this->render_new_product( $proposal_ready, $active, $enabled, $can_manage, $provider_ready );
+							break;
+					}
+					?>
+				</div>
+			</section>
+			<?php Ui::overlays(); ?>
+		</div>
+		<?php
+		Ui::json_script(
+			'sp-store-i18n',
+			array(
+				'proposing'        => __( 'Writing the proposal...', 'ai-site-assistant-autopilot' ),
+				'proposal_ready'   => __( 'Read the proposal before creating the draft.', 'ai-site-assistant-autopilot' ),
+				'creating'         => __( 'Creating the WooCommerce draft...', 'ai-site-assistant-autopilot' ),
+				'draft_created'    => __( 'Draft created. Publishing remains a manual WooCommerce step.', 'ai-site-assistant-autopilot' ),
+				'network_error'    => __( 'Network error. Please try again.', 'ai-site-assistant-autopilot' ),
+				'prompt_required'  => __( 'Describe the product you want to draft.', 'ai-site-assistant-autopilot' ),
+				'proposal_expired' => __( 'This proposal expired before it was approved. Nothing was created.', 'ai-site-assistant-autopilot' ),
+				'draft_only'       => __( 'Draft only', 'ai-site-assistant-autopilot' ),
+				'not_managed'      => __( 'Not managed', 'ai-site-assistant-autopilot' ),
+				'settings_saved'   => __( 'Store Copilot settings saved.', 'ai-site-assistant-autopilot' ),
+				'settings_failed'  => __( 'The Store Copilot settings could not be saved.', 'ai-site-assistant-autopilot' ),
+			)
+		);
+	}
+
+	private function current_tab(): string {
+		$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'newproduct'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab selection.
+		return array_key_exists( $tab, self::TABS ) ? $tab : 'newproduct';
+	}
+
+	/**
+	 * Sub-tab definitions preserve the exact Store order from the mockup.
+	 *
+	 * @return array<int,array{id:string,label:string,url:string,active:bool}>
+	 */
+	private function subtabs( string $current ): array {
+		$base  = admin_url( 'admin.php?page=' . AdminMenu::SLUG_WC_DASHBOARD );
+		$items = array(
+			'newproduct'   => __( 'New product', 'ai-site-assistant-autopilot' ),
+			'capabilities' => __( 'What it can do', 'ai-site-assistant-autopilot' ),
+			'products'     => __( 'Products', 'ai-site-assistant-autopilot' ),
+			'orders'       => __( 'Orders', 'ai-site-assistant-autopilot' ),
+		);
+		$tabs  = array();
+		foreach ( $items as $key => $label ) {
+			$tabs[] = array(
+				'id'     => $key,
+				'label'  => $label,
+				'url'    => add_query_arg( 'tab', $key, $base ),
+				'active' => $current === $key,
+			);
+		}
+		return $tabs;
+	}
+
+	private function render_availability_notice( bool $active, bool $can_manage, bool $enabled ): void {
+		if ( ! $active ) {
+			$install_url = admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
+			Ui::alert(
+				'warn',
+				'warning',
+				sprintf(
+					/* translators: %s: WooCommerce installation URL. */
+					__( 'WooCommerce is not active. Store Copilot cannot read products, orders, or create drafts until it is active. <a href="%s">Install WooCommerce</a>.', 'ai-site-assistant-autopilot' ),
+					esc_url( $install_url )
+				)
+			);
+			return;
+		}
+
+		if ( ! $can_manage ) {
+			Ui::alert(
+				'warn',
+				'warning',
+				esc_html__( 'Your account does not have WooCommerce management access. Store Copilot remains read-only and cannot create a proposal.', 'ai-site-assistant-autopilot' )
+			);
+			return;
+		}
+
+		if ( ! $enabled ) {
+			Ui::alert(
+				'warn',
+				'warning',
+				esc_html__( 'The WooCommerce AI connector is paused. It cannot read store data or create a draft until you turn it on in What it can do.', 'ai-site-assistant-autopilot' )
+			);
+		}
+	}
+
+	private function render_new_product( bool $proposal_ready, bool $active, bool $enabled, bool $can_manage, bool $provider_ready ): void {
+		?>
+		<div class="sp-store-compose-wrap" data-sp-store-new-product>
+			<section class="sp-card sp-card--24 sp-store-compose" id="sp-woo-compose">
+				<h2 class="sp-h2 sp-h2--md"><?php esc_html_e( 'Describe the product', 'ai-site-assistant-autopilot' ); ?></h2>
+				<p class="sp-sub"><?php esc_html_e( 'One product at a time. AutoPilot writes a proposal, you read it, and only then does it create a draft in WooCommerce.', 'ai-site-assistant-autopilot' ); ?></p>
+				<label class="sp-sr" for="sp-woo-prompt"><?php esc_html_e( 'Product draft prompt', 'ai-site-assistant-autopilot' ); ?></label>
+				<textarea id="sp-woo-prompt" class="sp-textarea" rows="5" maxlength="2000" placeholder="<?php esc_attr_e( 'A linen camp collar shirt for summer, 89 euros, in Shirts...', 'ai-site-assistant-autopilot' ); ?>" <?php disabled( ! $proposal_ready ); ?>></textarea>
+				<div class="sp-store-compose__actions">
+					<button type="button" id="sp-woo-plan" class="sp-btn sp-btn--r8" <?php disabled( ! $proposal_ready ); ?>><?php esc_html_e( 'Write proposal', 'ai-site-assistant-autopilot' ); ?></button>
+					<span class="sp-status-text" id="sp-woo-plan-status" role="status" aria-live="polite"></span>
+					<span class="sp-store-compose__note"><?php esc_html_e( 'Nothing is written to your store at this step.', 'ai-site-assistant-autopilot' ); ?></span>
+				</div>
+				<?php if ( ! $proposal_ready ) : ?>
+					<p class="sp-help sp-help--12 sp-store-compose__blocked">
+						<?php echo esc_html( $this->proposal_block_reason( $active, $enabled, $can_manage, $provider_ready ) ); ?>
+					</p>
+				<?php endif; ?>
+				<div class="sp-store-examples" aria-label="<?php esc_attr_e( 'Product examples', 'ai-site-assistant-autopilot' ); ?>">
+					<span class="sp-store-examples__label"><?php esc_html_e( 'Try one of these', 'ai-site-assistant-autopilot' ); ?></span>
+					<button type="button" class="sp-store-example" data-sp-store-example="<?php esc_attr_e( 'A simple 500g organic Arabic coffee, with a short description, SKU and introductory price.', 'ai-site-assistant-autopilot' ); ?>"><?php esc_html_e( 'A simple 500g organic Arabic coffee with a SKU and introductory price', 'ai-site-assistant-autopilot' ); ?></button>
+					<button type="button" class="sp-store-example" data-sp-store-example="<?php esc_attr_e( 'A linen camp collar shirt for summer, 89 euros, in Shirts.', 'ai-site-assistant-autopilot' ); ?>"><?php esc_html_e( 'A linen camp collar shirt for summer, 89 euros, in Shirts', 'ai-site-assistant-autopilot' ); ?></button>
+					<button type="button" class="sp-store-example" data-sp-store-example="<?php esc_attr_e( 'A simple ceramic travel mug, with a short description and stock status.', 'ai-site-assistant-autopilot' ); ?>"><?php esc_html_e( 'A simple ceramic travel mug with stock status', 'ai-site-assistant-autopilot' ); ?></button>
+				</div>
+			</section>
+
+			<section class="sp-card sp-store-proposal" id="sp-woo-review" data-sp-store-proposal hidden>
+				<div class="sp-store-proposal__head">
+					<h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( 'Proposal - read it before approving', 'ai-site-assistant-autopilot' ); ?></h2>
+					<?php echo Ui::pill( __( 'Not created yet', 'ai-site-assistant-autopilot' ), 'info', false, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in Ui. ?>
+					<span class="sp-store-proposal__ttl" id="sp-woo-ttl" aria-live="polite"></span>
+				</div>
+				<div class="sp-store-proposal__summary" id="sp-woo-review-summary"></div>
+				<div class="sp-kv sp-store-proposal__fields" id="sp-woo-review-fields"></div>
+				<div class="sp-store-proposal__actions">
+					<button type="button" id="sp-woo-approve" class="sp-btn sp-btn--r8"><?php esc_html_e( 'Approve - create the draft', 'ai-site-assistant-autopilot' ); ?></button>
+					<button type="button" id="sp-woo-regenerate" class="sp-btn sp-btn--ghost sp-btn--r8"><?php esc_html_e( 'Propose again', 'ai-site-assistant-autopilot' ); ?></button>
+					<button type="button" id="sp-woo-cancel" class="sp-btn sp-btn--ghost sp-btn--r8"><?php esc_html_e( 'Discard', 'ai-site-assistant-autopilot' ); ?></button>
+					<span class="sp-store-proposal__note"><?php esc_html_e( 'Creates a draft only. You publish it yourself.', 'ai-site-assistant-autopilot' ); ?></span>
+				</div>
+			</section>
+
+			<section class="sp-store-result" id="sp-woo-result" data-sp-store-result hidden aria-live="polite"></section>
+		</div>
+		<?php
+	}
+
+	private function proposal_block_reason( bool $active, bool $enabled, bool $can_manage, bool $provider_ready ): string {
+		if ( ! $active ) {
+			return __( 'Activate WooCommerce before Store Copilot can make a proposal.', 'ai-site-assistant-autopilot' );
+		}
+		if ( ! $can_manage ) {
+			return __( 'WooCommerce management access is required before a proposal can be approved.', 'ai-site-assistant-autopilot' );
+		}
+		if ( ! $enabled ) {
+			return __( 'Turn on the WooCommerce AI connector in What it can do before writing a proposal.', 'ai-site-assistant-autopilot' );
+		}
+		if ( ! $provider_ready ) {
+			return __( 'Connect an AI provider in Setup before Store Copilot can write a proposal.', 'ai-site-assistant-autopilot' );
+		}
+		return '';
+	}
+
+	/** @param array<string,mixed> $health @param array<string,bool> $settings */
+	private function render_capabilities( array $health, array $settings, bool $provider_ready ): void {
+		$capabilities = (array) ( $health['capabilities'] ?? array() );
+		$active       = ! empty( $health['active'] );
+		$can_manage   = ! empty( $health['can_manage'] );
+		$enabled      = ! empty( $settings['enabled'] );
+		$woo_status   = $active
+			? sprintf(
+				/* translators: %s: active WooCommerce version. */
+				__( 'Active - %s', 'ai-site-assistant-autopilot' ),
+				(string) ( $health['version'] ?: '-' )
+			)
+			: __( 'Not active', 'ai-site-assistant-autopilot' );
+		?>
+		<div class="sp-store-grid" data-sp-store-capabilities>
+			<section class="sp-card sp-store-panel sp-store-capabilities">
+				<div class="sp-store-panel__head">
+					<h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( 'Phase 1 capabilities', 'ai-site-assistant-autopilot' ); ?></h2>
+					<span class="sp-store-panel__sub"><?php esc_html_e( 'What the connector is allowed to do today', 'ai-site-assistant-autopilot' ); ?></span>
+				</div>
+				<?php
+				$this->capability_group(
+					__( 'Products', 'ai-site-assistant-autopilot' ),
+					array(
+						array( __( 'Read your products and categories', 'ai-site-assistant-autopilot' ), ! empty( $capabilities['products']['read'] ), '' ),
+						array( __( 'Propose one simple product as a draft', 'ai-site-assistant-autopilot' ), ! empty( $capabilities['products']['create_draft'] ) && $provider_ready, '' ),
+						array( __( 'Publish a product', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
+						array( __( 'Edit a product that already exists', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
+						array( __( 'Change many products at once', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
+					)
+				);
+				$this->capability_group(
+					__( 'Orders', 'ai-site-assistant-autopilot' ),
+					array(
+						array( __( 'Read a recent order summary as a store manager', 'ai-site-assistant-autopilot' ), ! empty( $capabilities['orders']['read'] ), '' ),
+						array( __( 'Change an order', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
+						array( __( 'Issue a refund', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
+					)
+				);
+				$this->capability_group(
+					__( 'Analytics', 'ai-site-assistant-autopilot' ),
+					array(
+						array( __( 'Read store analytics', 'ai-site-assistant-autopilot' ), ! empty( $capabilities['analytics']['read'] ), '' ),
+					)
+				);
+				?>
+			</section>
+
+			<aside class="sp-store-side">
+				<section class="sp-card sp-store-panel" data-sp-store-status>
+					<div class="sp-store-panel__head"><h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( 'Status', 'ai-site-assistant-autopilot' ); ?></h2></div>
+					<div class="sp-kv sp-store-status-list">
+						<?php $this->status_row( __( 'WooCommerce', 'ai-site-assistant-autopilot' ), $woo_status, $active ? 'ok' : 'err' ); ?>
+						<?php $this->status_row( __( 'Your access', 'ai-site-assistant-autopilot' ), $active ? $this->access_label( $can_manage ) : '-', $can_manage ? 'ok' : 'err' ); ?>
+						<?php $this->status_row( __( 'Products', 'ai-site-assistant-autopilot' ), $active ? number_format_i18n( (int) ( $health['product_count'] ?? 0 ) ) : '-' ); ?>
+						<?php $this->status_row( __( 'Categories', 'ai-site-assistant-autopilot' ), $active ? number_format_i18n( (int) ( $health['category_count'] ?? 0 ) ) : '-' ); ?>
+						<?php $this->status_row( __( 'Product tags', 'ai-site-assistant-autopilot' ), $active ? number_format_i18n( (int) ( $health['tag_count'] ?? 0 ) ) : '-' ); ?>
+						<?php $this->status_row( __( 'Draft workflow', 'ai-site-assistant-autopilot' ), $enabled ? __( 'Always draft (fixed in Phase 1)', 'ai-site-assistant-autopilot' ) : __( 'Connector paused', 'ai-site-assistant-autopilot' ), $enabled ? 'ok' : 'err' ); ?>
+					</div>
+				</section>
+
+				<section class="sp-card sp-store-panel" data-sp-store-settings>
+					<div class="sp-store-panel__head"><h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( 'Settings', 'ai-site-assistant-autopilot' ); ?></h2></div>
+					<div class="sp-store-settings-list">
+						<?php $this->setting_toggle( 'enabled', __( 'WooCommerce AI connector', 'ai-site-assistant-autopilot' ), __( 'Off means no proposals, drafts, or Store Copilot reads.', 'ai-site-assistant-autopilot' ), $enabled ); ?>
+						<?php $this->setting_toggle( 'enable_search', __( 'Smart product search', 'ai-site-assistant-autopilot' ), __( 'Controls the protected Store search endpoint. It does not add a visitor-facing search interface.', 'ai-site-assistant-autopilot' ), ! empty( $settings['enable_search'] ) ); ?>
+						<?php $this->locked_toggle( __( 'Product editing by AI', 'ai-site-assistant-autopilot' ), __( 'Reserved for Phase 2. It cannot be switched on yet.', 'ai-site-assistant-autopilot' ), false ); ?>
+						<?php $this->locked_toggle( __( 'Always create as draft', 'ai-site-assistant-autopilot' ), __( 'Fixed in Phase 1. Publishing stays a manual step.', 'ai-site-assistant-autopilot' ), true ); ?>
+					</div>
+					<p class="sp-status-text" data-sp-store-settings-status role="status" aria-live="polite"></p>
+				</section>
+			</aside>
+		</div>
+		<?php
+	}
+
+	/** @param array<int,array{0:string,1:bool,2:string}> $rows */
+	private function capability_group( string $title, array $rows ): void {
+		?>
+		<div class="sp-store-capability-group">
+			<h3 class="sp-store-capability-group__title"><?php echo esc_html( $title ); ?></h3>
+			<?php foreach ( $rows as $row ) : ?>
+				<?php
+				list( $label, $available, $phase ) = $row;
+				$state                             = '' !== $phase ? 'locked' : ( $available ? 'ready' : 'unavailable' );
+				?>
+				<div class="sp-store-capability-row" data-sp-store-capability-state="<?php echo esc_attr( $state ); ?>">
+					<span class="sp-store-capability-row__icon"><?php echo Ui::icon( $available ? 'check-circle' : 'lock', 14, 'currentColor', 2.1 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+					<span class="sp-store-capability-row__label"><?php echo esc_html( $label ); ?></span>
+					<?php
+					if ( '' !== $phase ) :
+						?>
+						<span class="sp-store-phase"><?php echo esc_html( $phase ); ?></span><?php endif; ?>
+				</div>
+			<?php endforeach; ?>
+		</div>
+		<?php
+	}
+
+	private function status_row( string $label, string $value, string $tone = '' ): void {
+		?>
+		<div class="sp-kv__row sp-kv__row--ruled" data-sp-store-status-row>
+			<span class="sp-kv__k"><?php echo esc_html( $label ); ?></span>
+			<span class="sp-kv__v<?php echo '' !== $tone ? ' sp-store-status--' . esc_attr( $tone ) : ''; ?>"><?php echo esc_html( $value ); ?></span>
+		</div>
+		<?php
+	}
+
+	private function access_label( bool $can_manage ): string {
+		if ( ! $can_manage ) {
+			return __( 'No store-management access', 'ai-site-assistant-autopilot' );
+		}
+		return current_user_can( 'manage_woocommerce' ) ? 'manage_woocommerce' : 'manage_options';
+	}
+
+	private function setting_toggle( string $setting, string $title, string $note, bool $on ): void {
+		?>
+		<div class="sp-store-setting">
+			<button type="button" class="sp-store-switch<?php echo $on ? ' is-on' : ''; ?>" role="switch" aria-checked="<?php echo $on ? 'true' : 'false'; ?>" data-sp-store-setting="<?php echo esc_attr( $setting ); ?>">
+				<span class="sp-store-switch__knob"></span>
+			</button>
+			<div class="sp-store-setting__body"><strong><?php echo esc_html( $title ); ?></strong><p><?php echo esc_html( $note ); ?></p></div>
+		</div>
+		<?php
+	}
+
+	private function locked_toggle( string $title, string $note, bool $on ): void {
+		?>
+		<div class="sp-store-setting is-locked" aria-disabled="true">
+			<span class="sp-store-switch<?php echo $on ? ' is-on' : ''; ?>" aria-hidden="true"><span class="sp-store-switch__knob"></span></span>
+			<div class="sp-store-setting__body"><strong><?php echo esc_html( $title ); ?></strong><p><?php echo esc_html( $note ); ?></p></div>
+		</div>
+		<?php
+	}
+
+	private function render_products( bool $active, bool $enabled ): void {
+		$products = $active && $enabled ? WooCommerceConnector::recent_products() : array();
+		?>
+		<section class="sp-card sp-store-panel sp-store-products" data-sp-store-products>
+			<div class="sp-store-panel__head">
+				<h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( 'Products', 'ai-site-assistant-autopilot' ); ?></h2>
+				<span class="sp-store-panel__sub"><?php esc_html_e( 'Read-only in Phase 1 - AutoPilot cannot edit what already exists', 'ai-site-assistant-autopilot' ); ?></span>
+			</div>
+			<?php if ( ! $active || ! $enabled ) : ?>
+				<p class="sp-empty sp-store-empty"><?php esc_html_e( 'Products become available here when WooCommerce and its AI connector are active.', 'ai-site-assistant-autopilot' ); ?></p>
+			<?php elseif ( array() === $products ) : ?>
+				<p class="sp-empty sp-store-empty"><?php esc_html_e( 'No WooCommerce products were found yet. Drafts created by AutoPilot will be marked here.', 'ai-site-assistant-autopilot' ); ?></p>
+			<?php else : ?>
+				<?php foreach ( $products as $product ) : ?>
+					<?php $product_status = strtolower( (string) $product['status'] ); ?>
+					<div class="sp-store-product-row" data-sp-store-product-row data-sp-store-product-generated="<?php echo ! empty( $product['generated'] ) ? '1' : '0'; ?>">
+						<div class="sp-store-product-row__body">
+							<strong><?php echo esc_html( $product['name'] ); ?></strong>
+							<span><?php echo esc_html( $product['category'] . ' - ' . $product['origin'] ); ?></span>
+						</div>
+						<?php echo Ui::pill( (string) $product['status'], 'draft' === $product_status ? 'warn' : 'off', false, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in Ui. ?>
+					</div>
+				<?php endforeach; ?>
+			<?php endif; ?>
+			<div class="sp-store-panel__foot"><?php esc_html_e( 'Drafts AutoPilot created are marked. Everything else it can read but not touch until Phase 2.', 'ai-site-assistant-autopilot' ); ?></div>
+		</section>
+		<?php
+	}
+
+	private function render_orders( bool $active, bool $enabled, bool $can_manage ): void {
+		$manager_read = $active && $enabled && $can_manage;
+		?>
+		<section class="sp-card sp-store-orders" data-sp-store-orders>
+			<h2 class="sp-h2 sp-h2--md"><?php esc_html_e( 'What it may read from an order', 'ai-site-assistant-autopilot' ); ?></h2>
+			<p class="sp-sub sp-store-orders__intro"><?php esc_html_e( 'The current order route is protected for a store manager. A visitor-facing order lookup is not registered in this release.', 'ai-site-assistant-autopilot' ); ?></p>
+			<div class="sp-store-order-permissions">
+				<?php $this->order_permission_row( __( 'Recent order summary for a store manager', 'ai-site-assistant-autopilot' ), $manager_read, $manager_read ? __( 'Read only', 'ai-site-assistant-autopilot' ) : __( 'Unavailable', 'ai-site-assistant-autopilot' ) ); ?>
+				<?php $this->order_permission_row( __( 'Customer-facing order lookup', 'ai-site-assistant-autopilot' ), false, __( 'Not registered', 'ai-site-assistant-autopilot' ) ); ?>
+				<?php $this->order_permission_row( __( 'Order items, notes, or personal details', 'ai-site-assistant-autopilot' ), false, __( 'Not registered', 'ai-site-assistant-autopilot' ) ); ?>
+				<?php $this->order_permission_row( __( 'Change status, cancel, or refund', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ); ?>
+			</div>
+			<div class="sp-store-orders__privacy">
+				<?php echo Ui::icon( 'lock', 16, 'currentColor', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+				<p><?php esc_html_e( 'Changing an order status, cancelling, and refunding are not registered as Store Copilot routes in Phase 1. No prompt in this UI can trigger them.', 'ai-site-assistant-autopilot' ); ?></p>
+			</div>
+		</section>
+		<?php
+	}
+
+	private function order_permission_row( string $label, bool $on, string $note ): void {
+		?>
+		<div class="sp-store-order-permission" data-sp-store-order-permission="<?php echo $on ? 'on' : 'off'; ?>">
+			<span class="sp-store-switch<?php echo $on ? ' is-on' : ''; ?>" aria-hidden="true"><span class="sp-store-switch__knob"></span></span>
+			<span class="sp-store-order-permission__label"><?php echo esc_html( $label ); ?></span>
+			<span class="sp-store-order-permission__note"><?php echo esc_html( $note ); ?></span>
+		</div>
+		<?php
+	}
+}

@@ -74,7 +74,7 @@ class HandoffTwilio {
 					self::API_BASE . "/{$sid}/Messages.json",
 					array(
 						'timeout'            => self::TIMEOUT,
-						'headers' => array(
+						'headers'            => array(
 							'Authorization' => "Basic {$auth}",
 							'Content-Type'  => 'application/x-www-form-urlencoded',
 						),
@@ -163,7 +163,7 @@ class HandoffTwilio {
 				self::API_BASE . "/{$sid}/Accounts/{$sid}.json",
 				array(
 					'timeout'            => self::TIMEOUT,
-					'headers' => array( 'Authorization' => "Basic {$auth}" ),
+					'headers'            => array( 'Authorization' => "Basic {$auth}" ),
 					'redirection'        => 0,
 					'reject_unsafe_urls' => true,
 				)

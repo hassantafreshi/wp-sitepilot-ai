@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Content;
 use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Providers\ProviderException;
 use AISAAutoPilot\Providers\ProviderManager;
+use AISAAutoPilot\Usage\UsageTracker;
 
 /**
  * Batch content indexer. Reads WordPress posts/pages/CPTs in small batches,
@@ -84,7 +85,11 @@ final class ContentIndexer {
 	 *   total: int,
 	 *   offset: int,
 	 *   items: array<int, array{post_id:int, title:string, status:string, message:string}>,
-	 *   percent: int
+	 *   percent: int,
+	 *   paused?: bool,
+	 *   code?: string,
+	 *   message?: string,
+	 *   error?: string
 	 * }
 	 */
 	public function process_batch( int $offset = 0, array $filters = array() ): array {
@@ -132,8 +137,12 @@ final class ContentIndexer {
 				'offset'    => $offset,
 				'items'     => array(),
 				'percent'   => 0,
+				'code'      => 'not_configured',
 				'error'     => __( 'AI provider is not configured. Please add your API key in Settings.', 'ai-site-assistant-autopilot' ),
 			);
+		}
+		if ( ( new UsageTracker() )->is_exhausted() ) {
+			return $this->paused_result( $offset, $processed, $total, $items );
 		}
 
 		$provider      = $provider_manager->make();
@@ -212,6 +221,12 @@ final class ContentIndexer {
 				$this->logger->info( 'kb_index', sprintf( 'Indexed post %d: %s', $post_id, $title ) );
 
 			} catch ( ProviderException $e ) {
+				if ( 'usage_cap_reached' === $e->error_code() ) {
+					// Keep the cursor on this post. A later resume must not silently
+					// skip a document that could not be sent to the provider.
+					return $this->paused_result( $offset, $processed, $total, $items );
+				}
+
 				$items[] = array(
 					'post_id' => $post_id,
 					'title'   => $title,
@@ -254,9 +269,34 @@ final class ContentIndexer {
 	}
 
 	/**
+	 * Return an actionable, resumable cap stop without advancing the cursor for
+	 * the post that could not run. Earlier items in this batch remain reflected
+	 * in the offset, so the browser can preserve real progress before pausing.
+	 *
+	 * @param array<int, array{post_id:int, title:string, status:string, message:string}> $items
+	 * @return array{done:false, processed:int, total:int, offset:int, items:array<int, array{post_id:int, title:string, status:string, message:string}>, percent:int, paused:true, code:string, message:string}
+	 */
+	private function paused_result( int $offset, int $processed, int $total, array $items ): array {
+		$new_offset = $offset + $processed;
+		$percent    = $total > 0 ? min( 100, (int) round( ( $new_offset / $total ) * 100 ) ) : 0;
+
+		return array(
+			'done'      => false,
+			'processed' => $processed,
+			'total'     => $total,
+			'offset'    => $new_offset,
+			'items'     => $items,
+			'percent'   => $percent,
+			'paused'    => true,
+			'code'      => 'usage_cap_reached',
+			'message'   => __( 'The local AI usage cap has been reached. Raise or reset the token cap in Usage & Cost, then resume this indexing pass.', 'ai-site-assistant-autopilot' ),
+		);
+	}
+
+	/**
 	 * Index a single post (used by auto-refresh hooks).
 	 *
-	 * @return array{status:string, message:string}
+	 * @return array{status:string, message:string, code?:string}
 	 */
 	public function index_single( int $post_id ): array {
 		$post = get_post( $post_id );
@@ -279,6 +319,13 @@ final class ContentIndexer {
 			return array(
 				'status'  => 'error',
 				'message' => __( 'AI provider not configured.', 'ai-site-assistant-autopilot' ),
+			);
+		}
+		if ( ( new UsageTracker() )->is_exhausted() ) {
+			return array(
+				'status'  => 'paused',
+				'code'    => 'usage_cap_reached',
+				'message' => __( 'The local AI usage cap has been reached. Raise or reset the token cap before indexing this content.', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
@@ -323,6 +370,21 @@ final class ContentIndexer {
 				'message' => __( 'Content indexed successfully.', 'ai-site-assistant-autopilot' ),
 			);
 
+		} catch ( ProviderException $e ) {
+			if ( 'usage_cap_reached' === $e->error_code() ) {
+				return array(
+					'status'  => 'paused',
+					'code'    => 'usage_cap_reached',
+					'message' => $e->user_message(),
+				);
+			}
+
+			$this->logger->error( 'kb_auto_refresh', sprintf( 'Auto-index failed post %d: %s', $post_id, $e->getMessage() ) );
+
+			return array(
+				'status'  => 'error',
+				'message' => $e->getMessage(),
+			);
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'kb_auto_refresh', sprintf( 'Auto-index failed post %d: %s', $post_id, $e->getMessage() ) );
 
@@ -354,6 +416,13 @@ final class ContentIndexer {
 		try {
 			$result = $provider->generate_embedding( $text );
 			return $this->kb->update_embedding( $post_id, $result['embedding'], $model );
+		} catch ( ProviderException $e ) {
+			if ( 'usage_cap_reached' === $e->error_code() ) {
+				throw $e;
+			}
+
+			$this->logger->error( 'kb_embed', sprintf( 'Embedding failed for post %d: %s', $post_id, $e->getMessage() ) );
+			return false;
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'kb_embed', sprintf( 'Embedding failed for post %d: %s', $post_id, $e->getMessage() ) );
 			return false;

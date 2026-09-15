@@ -4,6 +4,9 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Frontend;
 
 use AISAAutoPilot\Admin\AdminMenu;
+use AISAAutoPilot\Admin\AnswerDeskNavigation;
+use AISAAutoPilot\Admin\ConnectionChip;
+use AISAAutoPilot\Admin\HandoffInboxPage;
 use AISAAutoPilot\Admin\Ui;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Support\HandoffEmail;
@@ -16,7 +19,10 @@ use AISAAutoPilot\Support\HandoffTwilio;
  */
 final class ChatWidgetSettings {
 
-	/** Position keys mapped to the short codes the preview stage uses. */
+
+	/**
+	 * Position keys mapped to the short codes the preview stage uses.
+	 */
 	private const POSITIONS = array(
 		'bottom-right' => 'br',
 		'bottom-left'  => 'bl',
@@ -32,7 +38,7 @@ final class ChatWidgetSettings {
 		$saved = $this->save();
 		$w     = array_merge( Settings::widget_defaults(), (array) Settings::get( 'widget', array() ) );
 
-		$brand    = (string) ( $w['color'] ?: '#4f46e5' );
+		$brand    = (string) ( $w['color'] ?: '#202a8d' );
 		$theme    = 'dark' === ( $w['theme'] ?? 'light' ) ? 'dark' : 'light';
 		$derived  = Settings::widget_derived_colors( $brand, $theme );
 		$custom   = ! empty( $w['custom_colors'] );
@@ -45,35 +51,59 @@ final class ChatWidgetSettings {
 		$tw_on   = ! empty( $w['handoff_twilio_enabled'] );
 		$count   = (int) $mail_on + (int) $tg_on + (int) $tw_on;
 
-		$has_tg_token  = Settings::has_handoff_secret( 'handoff_telegram_token' );
-		$has_tw_sid    = Settings::has_handoff_secret( 'handoff_twilio_sid' );
-		$has_tw_token  = Settings::has_handoff_secret( 'handoff_twilio_token' );
+		$has_tg_token = Settings::has_handoff_secret( 'handoff_telegram_token' );
+		$has_tw_sid   = Settings::has_handoff_secret( 'handoff_twilio_sid' );
+		$has_tw_token = Settings::has_handoff_secret( 'handoff_twilio_token' );
 
 		Ui::grad_defs();
+		$requested_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'widget'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab selection.
+		$current_tab   = in_array( $requested_tab, array( 'voice', 'handoff' ), true ) ? $requested_tab : AnswerDeskNavigation::TAB_WIDGET;
 		?>
 		<div class="wrap sp-app" data-sp-widget>
 			<section class="sp-screen">
-				<?php Ui::title( __( 'Widget', 'ai-site-assistant-autopilot' ), 'chat', true ); ?>
-				<p class="sp-lead" style="margin-bottom:16px !important"><?php esc_html_e( 'The visitor assistant is read-only and rate-limited. It never edits site content.', 'ai-site-assistant-autopilot' ); ?></p>
+		<?php
+		Ui::page_header(
+			__( 'Answer Desk', 'ai-site-assistant-autopilot' ),
+			__( 'The support chat on your site, and every conversation it handled.', 'ai-site-assistant-autopilot' ),
+			array(
+				'chip'    => ConnectionChip::derive(),
+				'action'  => array(
+					'label' => __( 'Widget settings', 'ai-site-assistant-autopilot' ),
+					'url'   => AnswerDeskNavigation::url( AnswerDeskNavigation::TAB_WIDGET ),
+				),
+				'subtabs' => AnswerDeskNavigation::subtabs( $current_tab ),
+			)
+		);
+		?>
+		<div class="sp-pagebody">
 
-				<?php if ( $saved ) : ?>
-					<?php Ui::alert( 'ok', 'check-circle', esc_html__( 'Settings saved.', 'ai-site-assistant-autopilot' ) ); ?>
-				<?php endif; ?>
+		<?php if ( $saved ) : ?>
+			<?php Ui::alert( 'ok', 'check-circle', esc_html__( 'Settings saved.', 'ai-site-assistant-autopilot' ) ); ?>
+		<?php endif; ?>
 
 				<form method="post">
-					<?php wp_nonce_field( 'sp_widget_save' ); ?>
+		<?php wp_nonce_field( 'sp_widget_save' ); ?>
 					<div class="sp-cols">
 						<div class="sp-col sp-col--480">
 
 							<!-- ── Widget basics ─────────────────────────── -->
-							<div class="sp-card sp-card--24">
+							<div class="sp-card sp-card--24" id="answer-desk-widget">
 								<div class="sp-card__rule">
-									<?php echo Ui::icon( 'chat', 18, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+									<?php echo Ui::icon( 'chat', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 									<span><?php esc_html_e( 'Widget basics', 'ai-site-assistant-autopilot' ); ?></span>
 								</div>
 								<label class="sp-check sp-check--14" style="margin-bottom:16px">
 									<input type="checkbox" name="widget[enabled]" value="1" <?php checked( ! empty( $w['enabled'] ) ); ?> />
 									<span><?php esc_html_e( 'Enable Widget', 'ai-site-assistant-autopilot' ); ?></span>
+								</label>
+								<label class="sp-check sp-check--14" style="margin-bottom:8px">
+									<input type="checkbox" name="widget[conversation_logging_enabled]" value="1" <?php checked( ! empty( $w['conversation_logging_enabled'] ) ); ?> />
+									<span><?php esc_html_e( 'Record visitor conversations for the Answer Desk inbox', 'ai-site-assistant-autopilot' ); ?></span>
+								</label>
+								<label class="sp-field" style="margin-bottom:16px">
+									<span class="sp-label sp-mb0"><?php esc_html_e( 'Visitor notice', 'ai-site-assistant-autopilot' ); ?></span>
+									<input type="text" class="sp-input sp-input--sm" name="widget[conversation_notice]" value="<?php echo esc_attr( (string) $w['conversation_notice'] ); ?>" />
+									<span class="sp-help"><?php esc_html_e( 'Shown in the widget when recording is enabled. Ensure this wording meets your privacy obligations.', 'ai-site-assistant-autopilot' ); ?></span>
 								</label>
 								<div class="sp-cols sp-cols--16">
 									<label class="sp-field" style="flex:1 1 200px">
@@ -98,7 +128,7 @@ final class ChatWidgetSettings {
 							<!-- ── Appearance ────────────────────────────── -->
 							<div class="sp-card sp-card--24">
 								<div class="sp-card__rule">
-									<?php echo Ui::icon( 'palette', 18, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+									<?php echo Ui::icon( 'palette', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 									<span><?php esc_html_e( 'Appearance', 'ai-site-assistant-autopilot' ); ?></span>
 								</div>
 
@@ -131,11 +161,11 @@ final class ChatWidgetSettings {
 								<div style="margin-bottom:16px">
 									<span class="sp-label"><?php esc_html_e( 'Brand color', 'ai-site-assistant-autopilot' ); ?></span>
 									<div class="sp-swatches">
-										<?php foreach ( array( '#4f46e5', '#7c3aed', '#059669', '#1d2327' ) as $swatch ) : ?>
+									<?php foreach ( array( '#202a8d', '#181f66', '#198754', '#14152b' ) as $swatch ) : ?>
 											<button type="button" class="sp-swatch<?php echo strtolower( $brand ) === $swatch ? ' is-on' : ''; ?>" data-sp-brand="<?php echo esc_attr( $swatch ); ?>" aria-label="<?php echo esc_attr( $swatch ); ?>">
 												<span style="background:<?php echo esc_attr( $swatch ); ?>"></span>
 											</button>
-										<?php endforeach; ?>
+									<?php endforeach; ?>
 										<input type="hidden" name="widget[color]" id="sp-w-brand" value="<?php echo esc_attr( $brand ); ?>" />
 										<button type="button" class="sp-choice sp-choice--round<?php echo $custom ? ' is-on' : ''; ?>" id="sp-w-customize" aria-expanded="<?php echo $custom ? 'true' : 'false'; ?>">
 											<?php echo Ui::icon( 'gear', 15, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
@@ -174,11 +204,11 @@ final class ChatWidgetSettings {
 									<div>
 										<div class="sp-h3" style="font-size:13px;margin-bottom:10px"><?php esc_html_e( 'Icons (drop a PNG)', 'ai-site-assistant-autopilot' ); ?></div>
 										<div class="sp-tiles" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
-											<?php
-											Ui::slot( 'widget[icons][avatar]', __( 'Header icon', 'ai-site-assistant-autopilot' ), __( 'Beside the header title', 'ai-site-assistant-autopilot' ), (string) ( $icons['avatar'] ?? '' ) );
-											Ui::slot( 'widget[icons][voice]', __( 'Voice icon', 'ai-site-assistant-autopilot' ), __( 'The mic button', 'ai-site-assistant-autopilot' ), (string) ( $icons['voice'] ?? '' ) );
-											Ui::slot( 'widget[icons][handoff]', __( 'Handoff icon', 'ai-site-assistant-autopilot' ), __( 'The talk-to-human button', 'ai-site-assistant-autopilot' ), (string) ( $icons['handoff'] ?? '' ) );
-											?>
+				<?php
+				Ui::slot( 'widget[icons][avatar]', __( 'Header icon', 'ai-site-assistant-autopilot' ), __( 'Beside the header title', 'ai-site-assistant-autopilot' ), (string) ( $icons['avatar'] ?? '' ) );
+				Ui::slot( 'widget[icons][voice]', __( 'Voice icon', 'ai-site-assistant-autopilot' ), __( 'The mic button', 'ai-site-assistant-autopilot' ), (string) ( $icons['voice'] ?? '' ) );
+				Ui::slot( 'widget[icons][handoff]', __( 'Handoff icon', 'ai-site-assistant-autopilot' ), __( 'The talk-to-human button', 'ai-site-assistant-autopilot' ), (string) ( $icons['handoff'] ?? '' ) );
+				?>
 										</div>
 									</div>
 
@@ -216,19 +246,19 @@ final class ChatWidgetSettings {
 												<span><?php esc_html_e( 'Colour', 'ai-site-assistant-autopilot' ); ?></span>
 												<input type="color" class="sp-color" name="widget[colors][bubble]" value="<?php echo esc_attr( (string) $colors['bubble'] ); ?>" data-sp-color="bubble" />
 											</label>
-											<?php Ui::slot( 'widget[icons][float]', __( 'Icon', 'ai-site-assistant-autopilot' ), __( 'Drop a PNG', 'ai-site-assistant-autopilot' ), (string) ( $icons['float'] ?? '' ) ); ?>
+				<?php Ui::slot( 'widget[icons][float]', __( 'Icon', 'ai-site-assistant-autopilot' ), __( 'Drop a PNG', 'ai-site-assistant-autopilot' ), (string) ( $icons['float'] ?? '' ) ); ?>
 										</div>
 									</div>
 
 									<div>
 										<div class="sp-h3" style="font-size:13px;margin-bottom:10px"><?php esc_html_e( 'Colors of each part', 'ai-site-assistant-autopilot' ); ?></div>
 										<div class="sp-tiles" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 24px">
-											<?php foreach ( $this->color_labels() as $key => $label ) : ?>
+				<?php foreach ( $this->color_labels() as $key => $label ) : ?>
 												<label class="sp-kv__row" style="font-size:13px;font-weight:600">
 													<span><?php echo esc_html( $label ); ?></span>
-													<input type="color" class="sp-color" name="widget[colors][<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( (string) ( $colors[ $key ] ?? '#4f46e5' ) ); ?>" data-sp-color="<?php echo esc_attr( $key ); ?>" />
+											<input type="color" class="sp-color" name="widget[colors][<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( (string) ( $colors[ $key ] ?? '#202a8d' ) ); ?>" data-sp-color="<?php echo esc_attr( $key ); ?>" />
 												</label>
-											<?php endforeach; ?>
+				<?php endforeach; ?>
 										</div>
 										<button type="button" class="sp-btn sp-btn--ghost sp-btn--r8" id="sp-w-reset-colors" style="margin-top:14px;padding:8px 14px;font-size:13px"><?php esc_html_e( 'Reset to brand colour', 'ai-site-assistant-autopilot' ); ?></button>
 									</div>
@@ -236,9 +266,9 @@ final class ChatWidgetSettings {
 							</div>
 
 							<!-- ── Voice ─────────────────────────────────── -->
-							<div class="sp-card sp-card--24">
+							<div class="sp-card sp-card--24" id="answer-desk-voice">
 								<div class="sp-card__rule">
-									<?php echo Ui::icon( 'mic-full', 18, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+			<?php echo Ui::icon( 'mic-full', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 									<span><?php esc_html_e( 'Voice', 'ai-site-assistant-autopilot' ); ?></span>
 								</div>
 								<label class="sp-check sp-check--14" style="margin-bottom:12px">
@@ -252,9 +282,9 @@ final class ChatWidgetSettings {
 							</div>
 
 							<!-- ── Handoff ───────────────────────────────── -->
-							<div class="sp-card sp-card--24">
+							<div class="sp-card sp-card--24" id="answer-desk-handoff">
 								<div class="sp-card__rule">
-									<?php echo Ui::icon( 'headset', 18, '#4f46e5' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+			<?php echo Ui::icon( 'headset', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 									<span><?php esc_html_e( 'Handoff', 'ai-site-assistant-autopilot' ); ?></span>
 								</div>
 								<label class="sp-check sp-check--14" style="margin-bottom:12px">
@@ -275,25 +305,25 @@ final class ChatWidgetSettings {
 								<div style="margin-top:20px;padding-top:16px;border-block-start:1px solid var(--sp-line-soft)">
 									<div class="sp-h3" style="font-size:13px;margin-bottom:2px"><?php esc_html_e( 'Channels', 'ai-site-assistant-autopilot' ); ?></div>
 									<p class="sp-help sp-help--12" id="sp-w-channel-summary">
-										<?php
-										echo 0 === $count
-											? esc_html__( 'No channel is enabled, so the handoff button stays hidden from visitors.', 'ai-site-assistant-autopilot' )
-											: esc_html(
-												sprintf(
-													/* translators: %s: number of enabled handoff channels. */
-													_n( '%s channel enabled. The handoff message goes to every enabled channel.', '%s channels enabled. The handoff message goes to every enabled channel.', $count, 'ai-site-assistant-autopilot' ),
-													number_format_i18n( $count )
-												)
-											);
-										?>
+			<?php
+				echo 0 === $count
+				? esc_html__( 'No channel is enabled, so the handoff button stays hidden from visitors.', 'ai-site-assistant-autopilot' )
+				: esc_html(
+					sprintf(
+					/* translators: %s: number of enabled handoff channels. */
+						_n( '%s channel enabled. The handoff message goes to every enabled channel.', '%s channels enabled. The handoff message goes to every enabled channel.', $count, 'ai-site-assistant-autopilot' ),
+						number_format_i18n( $count )
+					)
+				);
+			?>
 									</p>
 								</div>
 
-								<?php
-								$this->channel_email( $w, $mail_on );
-								$this->channel_telegram( $w, $tg_on, $has_tg_token );
-								$this->channel_twilio( $w, $tw_on, $has_tw_sid, $has_tw_token );
-								?>
+			<?php
+			$this->channel_email( $w, $mail_on );
+			$this->channel_telegram( $w, $tg_on, $has_tg_token );
+			$this->channel_twilio( $w, $tw_on, $has_tw_sid, $has_tw_token );
+			?>
 							</div>
 
 							<div style="position:sticky;bottom:0;display:flex;gap:10px;align-items:center;padding:14px 0;margin-top:8px">
@@ -302,14 +332,26 @@ final class ChatWidgetSettings {
 						</div>
 
 						<!-- ── Live preview ──────────────────────────────── -->
-						<aside class="sp-side sp-side--340" style="position:sticky;top:40px">
+						<aside class="sp-side sp-side--340" id="answer-desk-preview" style="position:sticky;top:40px">
 							<div class="sp-eyebrow"><?php esc_html_e( 'Live preview', 'ai-site-assistant-autopilot' ); ?></div>
-							<?php $this->preview( $w, $colors, $icons, $position, $theme ); ?>
+			<?php $this->preview( $w, $colors, $icons, $position, $theme ); ?>
 						</aside>
 					</div>
 				</form>
+
+				<?php if ( AnswerDeskNavigation::TAB_HANDOFF === $current_tab ) : ?>
+					<div class="sp-card sp-card--24" id="answer-desk-handoff-inbox" style="margin-top:20px">
+						<div class="sp-card__rule">
+							<?php echo Ui::icon( 'headset', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span><?php esc_html_e( 'Escalated conversations', 'ai-site-assistant-autopilot' ); ?></span>
+						</div>
+						<p class="sp-help sp-help--12" style="margin-bottom:14px"><?php esc_html_e( 'Visitors who explicitly asked for a person. Update each thread once it is taken care of.', 'ai-site-assistant-autopilot' ); ?></p>
+						<?php ( new HandoffInboxPage() )->render_inbox(); ?>
+					</div>
+				<?php endif; ?>
+			</div>
 			</section>
-			<?php Ui::overlays(); ?>
+		<?php Ui::overlays(); ?>
 		</div>
 		<?php
 	}
@@ -347,7 +389,7 @@ final class ChatWidgetSettings {
 			<div class="sp-wpanel">
 				<div class="sp-wpanel__head">
 					<span class="sp-wpanel__avatar" data-sp-icon="avatar">
-						<?php if ( ! empty( $icons['avatar'] ) ) : ?>
+		<?php if ( ! empty( $icons['avatar'] ) ) : ?>
 							<img src="<?php echo esc_url( (string) $icons['avatar'] ); ?>" alt="" />
 						<?php else : ?>
 							<?php echo Ui::solid( 'sparkle2', 22, 'currentColor' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
@@ -360,17 +402,17 @@ final class ChatWidgetSettings {
 					<span class="sp-wpanel__x"><?php echo Ui::icon( 'close', 16, 'currentColor', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
 				</div>
 
-				<?php
-				/*
-				 * Mirrors the real panel's empty state: greeting as a heading, then
-				 * the one-tap suggested questions, then a sample exchange.
-				 */
-				$preview_suggestions = array_slice( (array) ( $w['suggestions'] ?? array() ), 0, 4 );
-				?>
+		<?php
+		/*
+		* Mirrors the real panel's empty state: greeting as a heading, then
+		* the one-tap suggested questions, then a sample exchange.
+		*/
+		$preview_suggestions = array_slice( (array) ( $w['suggestions'] ?? array() ), 0, 4 );
+		?>
 				<div class="sp-wpanel__msgs">
 					<div class="sp-wwelcome">
 						<span class="sp-wwelcome__icon" data-sp-icon="avatar">
-							<?php if ( ! empty( $icons['avatar'] ) ) : ?>
+			<?php if ( ! empty( $icons['avatar'] ) ) : ?>
 								<img src="<?php echo esc_url( (string) $icons['avatar'] ); ?>" alt="" />
 							<?php else : ?>
 								<?php echo Ui::solid( 'sparkle2', 22, 'currentColor' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
@@ -378,9 +420,9 @@ final class ChatWidgetSettings {
 						</span>
 						<span class="sp-wwelcome__title" data-sp-out="greeting"><?php echo esc_html( (string) $w['greeting'] ); ?></span>
 						<span class="sp-wwelcome__list" data-sp-out="suggestions">
-							<?php foreach ( $preview_suggestions as $suggestion ) : ?>
+		<?php foreach ( $preview_suggestions as $suggestion ) : ?>
 								<span class="sp-wwelcome__chip"><?php echo esc_html( (string) $suggestion ); ?></span>
-							<?php endforeach; ?>
+		<?php endforeach; ?>
 						</span>
 					</div>
 					<span class="sp-wbubble sp-wbubble--me"><?php esc_html_e( 'Do you ship to Shiraz?', 'ai-site-assistant-autopilot' ); ?></span>
@@ -390,7 +432,7 @@ final class ChatWidgetSettings {
 					<span class="sp-wpanel__hook" data-sp-out="hook"><?php echo esc_html( (string) ( $w['handoff_hook'] ?? '' ) ); ?></span>
 					<button type="button" class="sp-wpanel__handoff-btn" tabindex="-1">
 						<span data-sp-icon="handoff">
-							<?php if ( ! empty( $icons['handoff'] ) ) : ?>
+		<?php if ( ! empty( $icons['handoff'] ) ) : ?>
 								<img src="<?php echo esc_url( (string) $icons['handoff'] ); ?>" alt="" style="width:14px;height:14px;object-fit:contain" />
 							<?php else : ?>
 								<?php echo Ui::icon( 'headset', 14, 'currentColor', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
@@ -402,7 +444,7 @@ final class ChatWidgetSettings {
 
 				<div class="sp-wpanel__foot">
 					<span class="sp-wpanel__mic" data-sp-icon="voice">
-						<?php if ( ! empty( $icons['voice'] ) ) : ?>
+		<?php if ( ! empty( $icons['voice'] ) ) : ?>
 							<img src="<?php echo esc_url( (string) $icons['voice'] ); ?>" alt="" />
 						<?php else : ?>
 							<?php echo Ui::icon( 'mic-full', 15, 'var(--wc-muted,#6b7280)', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
@@ -414,7 +456,7 @@ final class ChatWidgetSettings {
 			</div>
 
 			<span class="sp-wfloat" data-sp-icon="float">
-				<?php if ( ! empty( $icons['float'] ) ) : ?>
+		<?php if ( ! empty( $icons['float'] ) ) : ?>
 					<img src="<?php echo esc_url( (string) $icons['float'] ); ?>" alt="" />
 				<?php else : ?>
 					<?php echo Ui::icon( 'chat', 26, 'currentColor', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
@@ -426,7 +468,9 @@ final class ChatWidgetSettings {
 
 	// ── Channel cards ───────────────────────────────────────────
 
-	/** @param array<string, mixed> $w */
+	/**
+	 * @param array<string, mixed> $w
+	 */
 	private function channel_email( array $w, bool $on ): void {
 		$configured = ( new HandoffEmail() )->is_configured();
 		?>
@@ -437,7 +481,7 @@ final class ChatWidgetSettings {
 					<span class="sp-channel__name"><?php esc_html_e( 'Email', 'ai-site-assistant-autopilot' ); ?></span>
 					<span class="sp-channel__note"><?php esc_html_e( 'Where the handoff message is sent', 'ai-site-assistant-autopilot' ); ?></span>
 				</span>
-				<?php echo Ui::pill( $on && $configured ? __( 'Enabled', 'ai-site-assistant-autopilot' ) : ( $on ? __( 'Needs setup', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) ), $on && $configured ? 'ok' : ( $on ? 'warn' : 'off' ), true, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
+		<?php echo Ui::pill( $on && $configured ? __( 'Enabled', 'ai-site-assistant-autopilot' ) : ( $on ? __( 'Needs setup', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) ), $on && $configured ? 'ok' : ( $on ? 'warn' : 'off' ), true, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
 				<label class="sp-check" style="font-size:12.5px;font-weight:600;white-space:nowrap">
 					<input type="checkbox" name="widget[handoff_email_enabled]" value="1" <?php checked( $on ); ?> data-sp-channel-toggle />
 					<span><?php esc_html_e( 'Enable', 'ai-site-assistant-autopilot' ); ?></span>
@@ -453,7 +497,9 @@ final class ChatWidgetSettings {
 		<?php
 	}
 
-	/** @param array<string, mixed> $w */
+	/**
+	 * @param array<string, mixed> $w
+	 */
 	private function channel_telegram( array $w, bool $on, bool $has_token ): void {
 		$configured = ( new HandoffTelegram() )->is_configured();
 		?>
@@ -464,7 +510,7 @@ final class ChatWidgetSettings {
 					<span class="sp-channel__name"><?php esc_html_e( 'Telegram', 'ai-site-assistant-autopilot' ); ?></span>
 					<span class="sp-channel__note"><?php esc_html_e( 'Sends into one chat or group', 'ai-site-assistant-autopilot' ); ?></span>
 				</span>
-				<?php echo Ui::pill( $on && $configured ? __( 'Enabled', 'ai-site-assistant-autopilot' ) : ( $on ? __( 'Needs setup', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) ), $on && $configured ? 'ok' : ( $on ? 'warn' : 'off' ), true, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
+		<?php echo Ui::pill( $on && $configured ? __( 'Enabled', 'ai-site-assistant-autopilot' ) : ( $on ? __( 'Needs setup', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) ), $on && $configured ? 'ok' : ( $on ? 'warn' : 'off' ), true, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
 				<label class="sp-check" style="font-size:12.5px;font-weight:600;white-space:nowrap">
 					<input type="checkbox" name="widget[handoff_telegram_enabled]" value="1" <?php checked( $on ); ?> data-sp-channel-toggle />
 					<span><?php esc_html_e( 'Enable', 'ai-site-assistant-autopilot' ); ?></span>
@@ -475,12 +521,12 @@ final class ChatWidgetSettings {
 					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'Bot token', 'ai-site-assistant-autopilot' ); ?></span>
 					<input type="password" class="sp-input sp-input--sm sp-mono" autocomplete="new-password" name="widget[handoff_telegram_token]" value=""
 						placeholder="<?php echo esc_attr( $has_token ? __( 'Saved securely — enter a new token to replace it', 'ai-site-assistant-autopilot' ) : '123456789:AA…' ); ?>" />
-					<?php if ( $has_token ) : ?>
+		<?php if ( $has_token ) : ?>
 						<label class="sp-check" style="font-size:12px;margin-top:6px">
 							<input type="checkbox" name="widget[clear_handoff_telegram_token]" value="1" />
 							<span><?php esc_html_e( 'Remove saved token', 'ai-site-assistant-autopilot' ); ?></span>
 						</label>
-					<?php endif; ?>
+		<?php endif; ?>
 				</label>
 				<label class="sp-field sp-field--row">
 					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'Chat ID', 'ai-site-assistant-autopilot' ); ?></span>
@@ -491,7 +537,9 @@ final class ChatWidgetSettings {
 		<?php
 	}
 
-	/** @param array<string, mixed> $w */
+	/**
+	 * @param array<string, mixed> $w
+	 */
 	private function channel_twilio( array $w, bool $on, bool $has_sid, bool $has_token ): void {
 		$configured = ( new HandoffTwilio() )->is_configured();
 		?>
@@ -502,7 +550,7 @@ final class ChatWidgetSettings {
 					<span class="sp-channel__name"><?php esc_html_e( 'Twilio (SMS)', 'ai-site-assistant-autopilot' ); ?></span>
 					<span class="sp-channel__note"><?php esc_html_e( 'Text message to your support number', 'ai-site-assistant-autopilot' ); ?></span>
 				</span>
-				<?php echo Ui::pill( $on && $configured ? __( 'Enabled', 'ai-site-assistant-autopilot' ) : ( $on ? __( 'Needs setup', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) ), $on && $configured ? 'ok' : ( $on ? 'warn' : 'off' ), true, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
+		<?php echo Ui::pill( $on && $configured ? __( 'Enabled', 'ai-site-assistant-autopilot' ) : ( $on ? __( 'Needs setup', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) ), $on && $configured ? 'ok' : ( $on ? 'warn' : 'off' ), true, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
 				<label class="sp-check" style="font-size:12.5px;font-weight:600;white-space:nowrap">
 					<input type="checkbox" name="widget[handoff_twilio_enabled]" value="1" <?php checked( $on ); ?> data-sp-channel-toggle />
 					<span><?php esc_html_e( 'Enable', 'ai-site-assistant-autopilot' ); ?></span>
@@ -513,23 +561,23 @@ final class ChatWidgetSettings {
 					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'Account SID', 'ai-site-assistant-autopilot' ); ?></span>
 					<input type="text" class="sp-input sp-input--sm sp-mono" autocomplete="off" name="widget[handoff_twilio_sid]" value=""
 						placeholder="<?php echo esc_attr( $has_sid ? __( 'Saved securely — enter a new SID to replace it', 'ai-site-assistant-autopilot' ) : 'AC…' ); ?>" />
-					<?php if ( $has_sid ) : ?>
+		<?php if ( $has_sid ) : ?>
 						<label class="sp-check" style="font-size:12px;margin-top:6px">
 							<input type="checkbox" name="widget[clear_handoff_twilio_sid]" value="1" />
 							<span><?php esc_html_e( 'Remove saved SID', 'ai-site-assistant-autopilot' ); ?></span>
 						</label>
-					<?php endif; ?>
+		<?php endif; ?>
 				</label>
 				<label class="sp-field sp-field--row">
 					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'Auth token', 'ai-site-assistant-autopilot' ); ?></span>
 					<input type="password" class="sp-input sp-input--sm sp-mono" autocomplete="new-password" name="widget[handoff_twilio_token]" value=""
 						placeholder="<?php echo esc_attr( $has_token ? __( 'Saved securely — enter a new token to replace it', 'ai-site-assistant-autopilot' ) : '••••••••' ); ?>" />
-					<?php if ( $has_token ) : ?>
+		<?php if ( $has_token ) : ?>
 						<label class="sp-check" style="font-size:12px;margin-top:6px">
 							<input type="checkbox" name="widget[clear_handoff_twilio_token]" value="1" />
 							<span><?php esc_html_e( 'Remove saved token', 'ai-site-assistant-autopilot' ); ?></span>
 						</label>
-					<?php endif; ?>
+		<?php endif; ?>
 				</label>
 				<label class="sp-field sp-field--row">
 					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'From number', 'ai-site-assistant-autopilot' ); ?></span>
@@ -559,7 +607,9 @@ final class ChatWidgetSettings {
 		}
 	}
 
-	/** @return array<string, string> */
+	/**
+	 * @return array<string, string>
+	 */
 	private function color_labels(): array {
 		return array(
 			'head_from' => __( 'Header from', 'ai-site-assistant-autopilot' ),
@@ -590,36 +640,38 @@ final class ChatWidgetSettings {
 		$existing = array_merge( Settings::widget_defaults(), (array) Settings::get( 'widget', array() ) );
 
 		$parsed = array(
-			'enabled'                  => ! empty( $raw['enabled'] ),
-			'position'                 => array_key_exists( (string) ( $raw['position'] ?? '' ), self::POSITIONS ) ? sanitize_text_field( (string) $raw['position'] ) : 'bottom-right',
-			'theme'                    => 'dark' === ( $raw['theme'] ?? 'light' ) ? 'dark' : 'light',
-			'color'                    => sanitize_hex_color( (string) ( $raw['color'] ?? '#4f46e5' ) ) ?: '#4f46e5',
-			'bg'                       => sanitize_hex_color( (string) ( $raw['bg'] ?? '#ffffff' ) ) ?: '#ffffff',
-			'title'                    => sanitize_text_field( (string) ( $raw['title'] ?? 'AI Site Assistant AutoPilot' ) ),
-			'subtitle'                 => sanitize_text_field( (string) ( $raw['subtitle'] ?? 'AI Assistant' ) ),
-			'greeting'                 => sanitize_text_field( (string) ( $raw['greeting'] ?? 'Hi!' ) ),
-			'suggestions'              => $this->sanitize_suggestions( (string) ( $raw['suggestions'] ?? '' ) ),
-			'panel_radius'             => max( 0, min( 28, absint( $raw['panel_radius'] ?? 16 ) ) ),
-			'msg_radius'               => max( 0, min( 24, absint( $raw['msg_radius'] ?? 14 ) ) ),
-			'bubble_radius'            => max( 6, min( 30, absint( $raw['bubble_radius'] ?? 30 ) ) ),
+			'enabled'                      => ! empty( $raw['enabled'] ),
+			'position'                     => array_key_exists( (string) ( $raw['position'] ?? '' ), self::POSITIONS ) ? sanitize_text_field( (string) $raw['position'] ) : 'bottom-right',
+			'theme'                        => 'dark' === ( $raw['theme'] ?? 'light' ) ? 'dark' : 'light',
+			'color'                        => sanitize_hex_color( (string) ( $raw['color'] ?? '#202a8d' ) ) ?: '#202a8d',
+			'bg'                           => sanitize_hex_color( (string) ( $raw['bg'] ?? '#ffffff' ) ) ?: '#ffffff',
+			'title'                        => sanitize_text_field( (string) ( $raw['title'] ?? 'AI Site Assistant AutoPilot' ) ),
+			'subtitle'                     => sanitize_text_field( (string) ( $raw['subtitle'] ?? 'AI Assistant' ) ),
+			'greeting'                     => sanitize_text_field( (string) ( $raw['greeting'] ?? 'Hi!' ) ),
+			'suggestions'                  => $this->sanitize_suggestions( (string) ( $raw['suggestions'] ?? '' ) ),
+			'panel_radius'                 => max( 0, min( 28, absint( $raw['panel_radius'] ?? 16 ) ) ),
+			'msg_radius'                   => max( 0, min( 24, absint( $raw['msg_radius'] ?? 14 ) ) ),
+			'bubble_radius'                => max( 6, min( 30, absint( $raw['bubble_radius'] ?? 30 ) ) ),
 			// empty() already treats the string '0' as off, so no second guard.
-			'custom_colors'            => ! empty( $raw['custom_colors'] ),
-			'colors'                   => $this->sanitize_colors( (array) ( $raw['colors'] ?? array() ) ),
-			'icons'                    => $this->sanitize_icons( (array) ( $raw['icons'] ?? array() ), (array) ( $existing['icons'] ?? array() ) ),
-			'auto_open'                => absint( $raw['auto_open'] ?? $existing['auto_open'] ),
-			'voice_enabled'            => ! empty( $raw['voice_enabled'] ),
-			'voice_auto'               => ! empty( $raw['voice_auto'] ),
-			'voice_name'               => sanitize_text_field( (string) ( $raw['voice_name'] ?? $existing['voice_name'] ) ),
-			'handoff_enabled'          => ! empty( $raw['handoff_enabled'] ),
-			'handoff_text'             => sanitize_text_field( (string) ( $raw['handoff_text'] ?? 'Talk to human' ) ),
-			'handoff_hook'             => sanitize_text_field( (string) ( $raw['handoff_hook'] ?? '' ) ),
-			'handoff_email_enabled'    => ! empty( $raw['handoff_email_enabled'] ),
-			'handoff_email_to'         => sanitize_email( (string) ( $raw['handoff_email_to'] ?? '' ) ),
-			'handoff_telegram_enabled' => ! empty( $raw['handoff_telegram_enabled'] ),
-			'handoff_telegram_chat'    => sanitize_text_field( (string) ( $raw['handoff_telegram_chat'] ?? '' ) ),
-			'handoff_twilio_enabled'   => ! empty( $raw['handoff_twilio_enabled'] ),
-			'handoff_twilio_from'      => sanitize_text_field( (string) ( $raw['handoff_twilio_from'] ?? '' ) ),
-			'handoff_twilio_to'        => sanitize_text_field( (string) ( $raw['handoff_twilio_to'] ?? '' ) ),
+			'custom_colors'                => ! empty( $raw['custom_colors'] ),
+			'colors'                       => $this->sanitize_colors( (array) ( $raw['colors'] ?? array() ) ),
+			'icons'                        => $this->sanitize_icons( (array) ( $raw['icons'] ?? array() ), (array) ( $existing['icons'] ?? array() ) ),
+			'auto_open'                    => absint( $raw['auto_open'] ?? $existing['auto_open'] ),
+			'voice_enabled'                => ! empty( $raw['voice_enabled'] ),
+			'voice_auto'                   => ! empty( $raw['voice_auto'] ),
+			'conversation_logging_enabled' => ! empty( $raw['conversation_logging_enabled'] ),
+			'conversation_notice'          => mb_substr( sanitize_text_field( (string) ( $raw['conversation_notice'] ?? '' ) ), 0, 240 ),
+			'voice_name'                   => sanitize_text_field( (string) ( $raw['voice_name'] ?? $existing['voice_name'] ) ),
+			'handoff_enabled'              => ! empty( $raw['handoff_enabled'] ),
+			'handoff_text'                 => sanitize_text_field( (string) ( $raw['handoff_text'] ?? 'Talk to human' ) ),
+			'handoff_hook'                 => sanitize_text_field( (string) ( $raw['handoff_hook'] ?? '' ) ),
+			'handoff_email_enabled'        => ! empty( $raw['handoff_email_enabled'] ),
+			'handoff_email_to'             => sanitize_email( (string) ( $raw['handoff_email_to'] ?? '' ) ),
+			'handoff_telegram_enabled'     => ! empty( $raw['handoff_telegram_enabled'] ),
+			'handoff_telegram_chat'        => sanitize_text_field( (string) ( $raw['handoff_telegram_chat'] ?? '' ) ),
+			'handoff_twilio_enabled'       => ! empty( $raw['handoff_twilio_enabled'] ),
+			'handoff_twilio_from'          => sanitize_text_field( (string) ( $raw['handoff_twilio_from'] ?? '' ) ),
+			'handoff_twilio_to'            => sanitize_text_field( (string) ( $raw['handoff_twilio_to'] ?? '' ) ),
 		);
 
 		foreach ( array( 'handoff_telegram_token', 'handoff_twilio_sid', 'handoff_twilio_token' ) as $secret_key ) {
@@ -654,7 +706,7 @@ final class ChatWidgetSettings {
 	}
 
 	/**
-	 * @param array<string, mixed> $raw
+	 * @param  array<string, mixed> $raw
 	 * @return array<string, string>
 	 */
 	private function sanitize_colors( array $raw ): array {
@@ -674,8 +726,8 @@ final class ChatWidgetSettings {
 	 * URL. Anything else — or an oversized payload — is dropped, and an empty
 	 * submission keeps whatever was saved before.
 	 *
-	 * @param array<string, mixed> $raw
-	 * @param array<string, mixed> $existing
+	 * @param  array<string, mixed> $raw
+	 * @param  array<string, mixed> $existing
 	 * @return array<string, string>
 	 */
 	private function sanitize_icons( array $raw, array $existing ): array {

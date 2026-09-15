@@ -7,11 +7,11 @@ class PdfExporter {
 		$blog  = get_bloginfo( 'name' );
 		$url   = get_site_url();
 		$date  = gmdate( 'Y-m-d H:i T' );
-		$color = '#4f46e5';
+		$color = '#202a8d';
 		$msgs  = '';
 		foreach ( $messages as $m ) {
-			$r     = 'user' === ( $m['role'] ?? 'user' ) ? 'User' : 'AI';
-			$c     = nl2br( esc_html( $m['content'] ?? '' ) );
+			$r = 'user' === ( $m['role'] ?? 'user' ) ? 'User' : 'AI';
+			$c = nl2br( esc_html( $m['content'] ?? '' ) );
 			// Logical margins, so the visitor's bubble stays on the reading-end
 			// side of an RTL transcript instead of being mirrored to the wrong one.
 			$msgs .= '<div style="margin:12px 0;padding:12px 16px;border-radius:8px;max-width:80%;' . ( 'User' === $r ? 'margin-inline-start:auto;background:#eef2ff;' : 'margin-inline-end:auto;background:#f3f4f6;' ) . "\"><strong style=\"font-size:11px;color:{$color};\">{$r}</strong><p style=\"margin:4px 0 0;font-size:14px;line-height:1.6;\">{$c}</p></div>";

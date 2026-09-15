@@ -5,6 +5,7 @@ namespace AISAAutoPilot\Connectors;
 
 use AISAAutoPilot\Execution\ActionStore;
 use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Providers\ProviderException;
 use AISAAutoPilot\Providers\ProviderManager;
 use AISAAutoPilot\Skills\ProductPlanValidator;
 
@@ -72,6 +73,9 @@ final class WooCommerceProductSkill {
 				'action_id'  => $action_id,
 				'expires_at' => time() + ActionStore::ttl(),
 			);
+		} catch ( ProviderException $e ) {
+			$this->logger->error( 'woo.draft.plan_failed', $e->getMessage() );
+			return $this->failure( $e->error_code(), $e->user_message() );
 		} catch ( \Throwable $e ) {
 			$this->logger->error( 'woo.draft.plan_failed', $e->getMessage() );
 			return $this->failure( 'provider_error', __( 'The product proposal could not be created. Please try again.', 'ai-site-assistant-autopilot' ) );
@@ -84,7 +88,7 @@ final class WooCommerceProductSkill {
 			return $this->failure( 'connector_not_available', __( 'WooCommerce AI draft creation is not available for this account.', 'ai-site-assistant-autopilot' ) );
 		}
 
-		$claim = $this->store->claim( $action_id, get_current_user_id() );
+		$claim = $this->store->claim( $action_id, get_current_user_id(), 'woocommerce_product_draft' );
 		if ( 'missing' === $claim['status'] ) {
 			return $this->failure( 'action_expired', __( 'This product proposal has expired. Please create a new proposal.', 'ai-site-assistant-autopilot' ) );
 		}
@@ -93,6 +97,9 @@ final class WooCommerceProductSkill {
 		}
 		if ( 'already_claimed' === $claim['status'] ) {
 			return $this->failure( 'action_already_processed', __( 'This product proposal is already being processed or has already been used.', 'ai-site-assistant-autopilot' ) );
+		}
+		if ( 'wrong_connector' === $claim['status'] ) {
+			return $this->failure( 'invalid_action', __( 'This approval is not a WooCommerce product draft.', 'ai-site-assistant-autopilot' ) );
 		}
 
 		$record = (array) ( $claim['record'] ?? array() );
@@ -141,6 +148,7 @@ final class WooCommerceProductSkill {
 		$product->set_sku( $sku );
 		$product->set_weight( (string) ( $plan['weight'] ?? '' ) );
 		$product->set_category_ids( array_values( array_intersect( (array) $plan['categories'], array_keys( WooCommerceConnector::get_categories() ) ) ) );
+		$product->update_meta_data( '_aisaautopilot_generated', '1' );
 		$product_id = $product->save();
 
 		if ( $product_id <= 0 ) {

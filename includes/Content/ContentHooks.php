@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Content;
 
+use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Logging\Logger;
 
 /**
@@ -20,7 +21,7 @@ use AISAAutoPilot\Logging\Logger;
  */
 final class ContentHooks {
 
-	private const CRON_ACTION = 'aisaautopilot_index_post';
+	public const CRON_ACTION = 'aisaautopilot_index_post';
 
 	private Logger $logger;
 
@@ -65,6 +66,9 @@ final class ContentHooks {
 			return;
 		}
 		if ( wp_is_post_revision( $post->ID ) ) {
+			return;
+		}
+		if ( ! Settings::get( 'kb_auto_index', true ) ) {
 			return;
 		}
 

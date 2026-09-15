@@ -17,6 +17,7 @@ use AISAAutoPilot\Admin\ConnectionsPage;
 use AISAAutoPilot\Admin\EasyFormBuilderPage;
 use AISAAutoPilot\Admin\HistoryPage;
 use AISAAutoPilot\Admin\HomePage;
+use AISAAutoPilot\Admin\IntegrationsPage;
 use AISAAutoPilot\Admin\KnowledgeBasePage;
 use AISAAutoPilot\Admin\LogsPage;
 use AISAAutoPilot\Admin\NativeFormsPage;
@@ -64,43 +65,104 @@ try {
 
 	do_action( 'admin_menu' );
 	global $submenu;
-	$slugs = array();
-	foreach ( (array) ( $submenu[ AdminMenu::SLUG_SETUP ] ?? array() ) as $item ) {
-		$slugs[] = (string) ( $item[2] ?? '' );
-	}
-	$check( in_array( AdminMenu::SLUG_SETUP, $slugs, true ) && in_array( AdminMenu::SLUG_FORM_BUILDER, $slugs, true ) && in_array( AdminMenu::SLUG_FORMS, $slugs, true ), 'wireframe form menus registered' );
+	$visible_menu_slugs = array_map(
+		static fn( array $item ): string => (string) ( $item[2] ?? '' ),
+		(array) ( $submenu[ AdminMenu::SLUG_HOME ] ?? array() )
+	);
+	$expected_menu_slugs = array(
+		AdminMenu::SLUG_HOME,
+		AdminMenu::SLUG_SETUP,
+		AdminMenu::SLUG_INTEGRATIONS,
+		AdminMenu::SLUG_KB,
+		AdminMenu::SLUG_CONVERSATIONS,
+		AdminMenu::SLUG_WC_DASHBOARD,
+		AdminMenu::SLUG_FORM_BUILDER,
+		AdminMenu::SLUG_USAGE,
+		AdminMenu::SLUG_CONNECTIONS,
+		AdminMenu::SLUG_LOGS,
+	);
+	$legacy_menu_slugs = array(
+		AdminMenu::SLUG_SETTINGS,
+		AdminMenu::SLUG_FORMS,
+		AdminMenu::SLUG_HISTORY,
+		AdminMenu::SLUG_CHAT,
+		AdminMenu::SLUG_EFB,
+		AdminMenu::SLUG_WC,
+		AdminMenu::SLUG_WIDGET,
+		AdminMenu::SLUG_HANDOFFS,
+	);
+	$check( $expected_menu_slugs === $visible_menu_slugs, 'visible admin sidebar matches the 10 mockup pages in order' );
+	$check( array() === array_intersect( $legacy_menu_slugs, $visible_menu_slugs ), 'legacy admin routes stay hidden from the sidebar' );
 
-	$render = static function ( object $screen ): string {
+	$render = static function ( object $screen, array $query = array() ): string {
+		$_GET = $query;
 		ob_start();
 		$screen->render();
-		return (string) ob_get_clean();
+		$html = (string) ob_get_clean();
+		$_GET = array();
+		return $html;
 	};
-	$page = $render( new CopilotPage() );
-	$check( false !== strpos( $page, 'aisaautopilot-voice-toggle' ) && false !== strpos( $page, 'aisaautopilot-compose-screen' ) && false !== strpos( $page, 'aisaautopilot-review-screen' ), 'exclusive Build with AI voice/text UI renders' );
+	$page = $render( new CopilotPage(), array( 'mode' => 'forms' ) );
+	$check( false !== strpos( $page, 'aisaautopilot-voice-toggle' ) && false !== strpos( $page, 'aisaautopilot-compose-screen' ) && false !== strpos( $page, 'aisaautopilot-review-screen' ), 'Form Composer keeps its exclusive voice/text compose and review UI' );
 	$home = $render( new HomePage() );
-	$check( false !== strpos( $home, 'sp-page-head' ) && false !== strpos( $home, 'page=' . AdminMenu::SLUG_SETUP ), 'home renders and points at the merged Setup & Settings screen' );
-	$check( false !== strpos( $render( new ConnectionsPage() ), 'Connections &amp; health' ), 'connections health screen renders' );
-	$check( false !== strpos( $render( new NativeFormsPage() ), 'AISAAutoPilot Forms' ), 'simple forms management screen renders' );
+	$check( false !== strpos( $home, 'sp-pagebar' ) && false !== strpos( $home, 'sp-weekstats' ) && false !== strpos( $home, 'page=' . AdminMenu::SLUG_SETUP ), 'Overview renders the mockup header, metrics and Setup route' );
+	$integrations = $render( new IntegrationsPage(), array( 'page' => AdminMenu::SLUG_INTEGRATIONS ) );
+	$check( false !== strpos( $integrations, 'data-sp-integrations' ) && 4 === substr_count( $integrations, 'data-sp-integration-group=' ) && 6 === substr_count( $integrations, 'data-sp-integration-card=' ), 'Integrations renders the four mockup groups and six capability cards' );
+	$check( false !== strpos( $integrations, 'data-sp-integration-status="always-on"' ) && false !== strpos( $integrations, 'data-sp-integration-open="site-knowledge"' ) && false !== strpos( $integrations, 'data-sp-integration-dialog="site-knowledge"' ), 'Integrations keeps the Site Knowledge always-on state and accessible Configure dialog contract' );
+	$connections = $render( new ConnectionsPage() );
+	$check( false !== strpos( $connections, 'data-sp-connections' ) && 8 === substr_count( $connections, 'data-sp-health-row' ) && false !== strpos( $connections, 'sp-run-diagnostics' ), 'Health renders the eight-row mockup diagnostic list and action' );
+	$native_forms = $render( new NativeFormsPage() );
+	$check( false !== strpos( $native_forms, 'sp-page-head' ) && false !== strpos( $native_forms, 'page=' . AdminMenu::SLUG_FORM_BUILDER ), 'legacy native-form management route remains usable but is not a sidebar page' );
 	$check( false !== strpos( $render( new EasyFormBuilderPage() ), 'Easy Form Builder' ), 'advanced form connector screen renders' );
-	$check( false !== strpos( $render( new LogsPage() ), 'Activity Log' ), 'activity log screen renders' );
+	$logs = $render( new LogsPage() );
+	$check(
+		false !== strpos( $logs, 'data-sp-logs' )
+		&& ( false !== strpos( $logs, 'data-sp-activity-timeline' ) || false !== strpos( $logs, 'data-sp-activity-empty' ) )
+		&& false === strpos( $logs, 'sp-logs-search' )
+		&& false === strpos( $logs, 'sp-logs-level' ),
+		'Activity Log renders its canonical timeline or truthful empty-state contract without legacy filters'
+	);
 	$history = $render( new HistoryPage() );
-	$check( false !== strpos( $history, 'Action history' ) && false !== strpos( $history, 'sp-history-search' ), 'action history screen renders with its filters' );
+	$check(
+		false !== strpos( $history, 'data-sp-history' )
+		&& false !== strpos( $history, 'data-content-history' )
+		&& false !== strpos( $history, 'sp-content-history__export' )
+		&& false === strpos( $history, 'sp-history-search' )
+		&& false === strpos( $history, 'sp-tr--head' ),
+		'Content Studio History renders its mockup card and CSV contract without legacy filters'
+	);
 	$chat = $render( new ChatPage() );
 	$check( false !== strpos( $chat, 'data-sp-chat' ) && false !== strpos( $chat, 'sp-chat-input' ) && false !== strpos( $chat, 'sp-mic-btn' ), 'redesigned AI chat keeps text and voice composer contracts' );
 	$kb_page = $render( new KnowledgeBasePage() );
-	$check( false !== strpos( $kb_page, 'data-sp-kb' ) && false !== strpos( $kb_page, 'sp-kb-start-index' ), 'redesigned knowledge base keeps indexing contract' );
+	$check(
+		false !== strpos( $kb_page, 'data-sp-kb-overview' )
+		&& 4 === substr_count( $kb_page, 'data-sp-subtab=' )
+		&& ( false !== strpos( $kb_page, 'sp-kb-start-index' ) || false !== strpos( $kb_page, 'data-sp-kb-open-picker' ) )
+		&& false === strpos( $kb_page, 'id="sp-kb-rows"' ),
+		'Site Knowledge keeps its canonical four-tab overview and a real indexing entry point'
+	);
 	$usage_page = $render( new UsagePage() );
-	$check( false !== strpos( $usage_page, 'data-sp-usage' ) && false !== strpos( $usage_page, 'sp-usage-refresh' ) && false !== strpos( $usage_page, 'sp-save-budget' ), 'redesigned usage keeps dashboard controls' );
-	$settings_page = $render( new SettingsPage() );
-	$check( false !== strpos( $settings_page, 'sp-test' ) && false !== strpos( $settings_page, 'sp-form-notification-email' ) && false !== strpos( $settings_page, 'sp-test-form-delivery' ), 'merged settings keeps provider and delivery controls' );
-	$check( false !== strpos( $settings_page, 'sp-setup-testbox' ) && false !== strpos( $settings_page, 'data-sp-provider-chips' ), 'merged settings absorbs the setup wizard connect-and-test steps' );
-	$check( false !== strpos( $settings_page, 'sp-model-select' ) && false !== strpos( $settings_page, 'sp-refresh-models' ) && false !== strpos( $settings_page, 'sp-provider-catalog' ), 'model picker offers a list and a live refresh instead of free text only' );
+	$check(
+		false !== strpos( $usage_page, 'data-sp-usage' )
+		&& 2 === substr_count( $usage_page, 'data-sp-usage-card=' )
+		&& 7 === substr_count( $usage_page, 'data-sp-usage-day aria-label=' )
+		&& false !== strpos( $usage_page, 'sp-usage-cap-open' )
+		&& false !== strpos( $usage_page, 'sp-usage-cap-editor' )
+		&& false === strpos( $usage_page, 'sp-usage-refresh' ),
+		'Usage renders the mockup two-card cap and seven-day dashboard without legacy controls'
+	);
+	$setup_page = $render( new SettingsPage(), array( 'page' => AdminMenu::SLUG_SETUP ) );
+	$check( false !== strpos( $setup_page, 'data-sp-setup-wizard' ) && 4 === substr_count( $setup_page, 'data-sp-setup-step=' ) && false !== strpos( $setup_page, 'data-sp-setup-complete' ), 'Setup renders the canonical four-step wizard and completion state' );
+	$check( false !== strpos( $setup_page, 'data-sp-provider-card' ) && false !== strpos( $setup_page, 'sp-setup-testbox' ) && false !== strpos( $setup_page, 'data-sp-setup-integrations' ), 'Setup keeps provider selection, connection test and integration controls in the wizard' );
+	$check( false !== strpos( $setup_page, 'sp-model-select' ) && false !== strpos( $setup_page, 'sp-refresh-models' ) && false !== strpos( $setup_page, 'sp-provider-catalog' ), 'Setup model picker offers a list and a live refresh instead of free text only' );
+	$advanced_settings_page = $render( new SettingsPage(), array( 'page' => AdminMenu::SLUG_SETTINGS ) );
+	$check( false !== strpos( $advanced_settings_page, 'sp-form-notification-email' ) && false !== strpos( $advanced_settings_page, 'sp-test-form-delivery' ), 'hidden Settings alias retains advanced delivery and connector controls' );
 	$widget_page = $render( new ChatWidgetSettings() );
 	$check( false !== strpos( $widget_page, 'data-sp-widget' ) && false !== strpos( $widget_page, 'widget[title]' ) && false !== strpos( $widget_page, 'sp-w-stage' ), 'redesigned widget keeps settings and live preview' );
-	$woo_dashboard = $render( new WooCommerceDashboardPage() );
-	$check( false !== strpos( $woo_dashboard, 'data-sp-wc-dashboard' ) && false !== strpos( $woo_dashboard, 'sp-stat-revenue' ), 'redesigned WooCommerce dashboard keeps live data targets' );
+	$woo_dashboard = $render( new WooCommerceDashboardPage(), array( 'tab' => 'products' ) );
+	$check( false !== strpos( $woo_dashboard, 'data-sp-store-copilot' ) && false !== strpos( $woo_dashboard, 'data-sp-store-products' ) && false === strpos( $woo_dashboard, 'sp-stat-revenue' ) && false === strpos( $woo_dashboard, 'sp-sales-chart' ), 'Store Copilot Products tab keeps the mockup read-only product contract without legacy analytics targets' );
 	$woo_settings = $render( new WooCommerceSettings() );
-	$check( false !== strpos( $woo_settings, 'data-sp-wc' ) && false !== strpos( $woo_settings, 'woocommerce[enabled]' ) && false !== strpos( $woo_settings, 'sp_woo_nonce' ) && false !== strpos( $woo_settings, 'sp-woo-plan' ), 'redesigned WooCommerce AI keeps settings and draft review contract' );
+	$check( false !== strpos( $woo_settings, 'data-sp-store-copilot' ) && false !== strpos( $woo_settings, 'data-sp-store-tab="capabilities"' ) && false !== strpos( $woo_settings, 'data-sp-store-setting="enabled"' ) && false === strpos( $woo_settings, 'sp_woo_nonce' ), 'legacy WooCommerce alias now keeps the canonical Store capability contract' );
 	$efb_health = ( new EasyFormBuilderConnector() )->get_health();
 	$check( ! empty( $efb_health['compatible'] ) && version_compare( (string) $efb_health['version'], '4.1.0', '>=' ), 'Easy Form Builder passes the active version and schema contract' );
 	$efb_result = ( new EasyFormBuilderConnector() )->execute_action(
@@ -171,8 +233,12 @@ try {
 	}
 	ob_start();
 	Plugin::instance()->render_widget();
-	$legacy_widget_output = (string) ob_get_clean();
-	$check( '' === trim( $legacy_widget_output ), 'enabling the public assistant suppresses the legacy widget so no duplicate launcher is rendered' );
+	$canonical_widget_output = (string) ob_get_clean();
+	$check(
+		false !== strpos( $canonical_widget_output, 'id="spw-toggle"' )
+		&& false === strpos( $canonical_widget_output, 'aisaautopilot-public-chat' ),
+		'enabling Answer Desk renders one configurable widget instead of a second incompatible launcher'
+	);
 
 	$plan = array(
 		'title'              => 'P1 integration test form',
@@ -195,6 +261,7 @@ try {
 	$markup = do_shortcode( sprintf( '[aisaautopilot_form id="%d"]', $form_id ) );
 	$check( false !== strpos( $markup, 'aisaautopilot-form__honeypot' ) && false === strpos( $markup, 'multipart/form-data' ), 'front-end form has honeypot and no upload surface' );
 
+	$delivery_recipient = Settings::form_notification_email();
 	delete_transient( 'aisaautopilot_form_delivery_test_' . get_current_user_id() );
 	add_filter(
 		'pre_wp_mail',
@@ -207,7 +274,21 @@ try {
 	);
 	$delivery_response = ( new FormDeliveryController() )->test();
 	$delivery_data     = $delivery_response->get_data();
-	$check( ! empty( $delivery_data['ok'] ) && (string) get_option( 'admin_email' ) === (string) ( $delivery_mail['to'] ?? '' ) && false !== strpos( (string) ( $delivery_mail['message'] ?? '' ), 'No visitor data' ), 'delivery test sends a data-free message to the configured recipient' );
+	$delivery_sent             = ! empty( $delivery_data['ok'] );
+	$delivery_recipient_exists = '' !== $delivery_recipient;
+	$delivery_recipient_match  = $delivery_recipient === (string) ( $delivery_mail['to'] ?? '' );
+	$delivery_data_free        = __( "This is a AISAAutoPilot Forms delivery test.\n\nNo visitor data is included in this message.", 'ai-site-assistant-autopilot' ) === (string) ( $delivery_mail['message'] ?? '' );
+	$check( $delivery_recipient_exists && $delivery_sent && $delivery_recipient_match && $delivery_data_free, 'delivery test sends a data-free message to the configured recipient' );
+	if ( ! ( $delivery_recipient_exists && $delivery_sent && $delivery_recipient_match && $delivery_data_free ) ) {
+		printf(
+			"Delivery diagnostic: status=%d code=%s recipient_configured=%s recipient_match=%s data_free=%s\n",
+			$delivery_response->get_status(),
+			sanitize_key( (string) ( $delivery_data['code'] ?? '' ) ),
+			$delivery_recipient_exists ? 'yes' : 'no',
+			$delivery_recipient_match ? 'yes' : 'no',
+			$delivery_data_free ? 'yes' : 'no'
+		);
+	}
 	$rate_limited = ( new FormDeliveryController() )->test();
 	$check( 429 === $rate_limited->get_status(), 'delivery test is rate-limited per administrator' );
 	delete_transient( 'aisaautopilot_form_delivery_test_' . get_current_user_id() );
@@ -227,7 +308,7 @@ try {
 		);
 		$draft_result = ( new WooCommerceProductSkill( $store ) )->execute( $draft_action );
 		$product_id = (int) ( $draft_result['product_id'] ?? 0 );
-		$check( ! empty( $draft_result['ok'] ) && $product_id > 0 && 'draft' === get_post_status( $product_id ), 'approved WooCommerce action creates exactly one product draft' );
+		$check( ! empty( $draft_result['ok'] ) && $product_id > 0 && 'draft' === get_post_status( $product_id ) && '1' === get_post_meta( $product_id, '_aisaautopilot_generated', true ), 'approved WooCommerce action creates exactly one product draft with an AutoPilot source marker' );
 		$replay_result = ( new WooCommerceProductSkill( $store ) )->execute( $draft_action );
 		$check( empty( $replay_result['ok'] ) && 'action_expired' === ( $replay_result['code'] ?? '' ), 'WooCommerce product proposal cannot be replayed' );
 	} else {
