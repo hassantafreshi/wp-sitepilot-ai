@@ -399,7 +399,8 @@ final class IntegrationsPage {
 	}
 
 	private function maybe_save(): bool {
-		if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) || ! isset( $_POST['aisaautopilot_integration'] ) ) {
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+		if ( 'POST' !== $method || ! isset( $_POST['aisaautopilot_integration'] ) ) {
 			return false;
 		}
 
@@ -484,11 +485,19 @@ final class IntegrationsPage {
 		return '1' === $this->post_value( $key );
 	}
 
+	/**
+	 * Generic POST reader. It cannot verify the nonce itself, because
+	 * maybe_save() uses it to read the nonce field before verifying it; every
+	 * other caller runs after the wp_verify_nonce() + manage_options gate in
+	 * maybe_save().
+	 */
 	private function post_value( string $key ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- See method docblock: nonce is verified by the only caller before any write.
 		if ( ! isset( $_POST[ $key ] ) || ! is_string( $_POST[ $key ] ) ) {
 			return '';
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- See method docblock: nonce is verified by the only caller before any write.
 		return sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
 	}
 }

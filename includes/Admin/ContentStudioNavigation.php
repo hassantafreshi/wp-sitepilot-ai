@@ -80,12 +80,13 @@ final class ContentStudioNavigation {
 	 * validation before contacting a provider.
 	 */
 	public static function write_brief(): string {
-		$raw = $_GET['brief'] ?? ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only draft prefill.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read-only draft prefill. Sanitised immediately below with wp_check_invalid_utf8 + wp_strip_all_tags, which keep the line breaks a brief needs; sanitize_text_field would collapse them.
+		$raw = isset( $_GET['brief'] ) ? wp_unslash( $_GET['brief'] ) : '';
 		if ( ! is_string( $raw ) ) {
 			return '';
 		}
 
-		$brief = wp_check_invalid_utf8( wp_unslash( $raw ) );
+		$brief = wp_check_invalid_utf8( $raw );
 		$brief = wp_strip_all_tags( $brief, false );
 		$brief = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $brief );
 		if ( ! is_string( $brief ) ) {

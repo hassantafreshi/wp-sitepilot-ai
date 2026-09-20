@@ -14,8 +14,13 @@ final class WooCommerceSettings {
 	public const SLUG = 'aisaautopilot-woocommerce';
 
 	public function render(): void {
-		$had_tab      = array_key_exists( 'tab', $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only alias selection.
-		$previous_tab = $had_tab ? $_GET['tab'] : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- restored only after canonical rendering.
+		$had_tab = array_key_exists( 'tab', $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only alias selection.
+		// The raw value is deliberately NOT unslashed or sanitised: it is never
+		// read, output or stored. It is held verbatim so the exact original
+		// $_GET['tab'] can be put back in the finally block; sanitising here
+		// would silently rewrite the caller's superglobal.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- See comment above: opaque save/restore, never consumed.
+		$previous_tab = $had_tab ? $_GET['tab'] : null;
 		$_GET['tab']  = 'capabilities';
 
 		try {

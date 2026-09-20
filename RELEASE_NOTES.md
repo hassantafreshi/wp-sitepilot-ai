@@ -135,98 +135,47 @@ real browser microphone and a real WooCommerce draft — are listed in
 - One Activity Log QA incident during development is disclosed in full in
   `docs/ACTIVITY_LOG_QA_INCIDENT_FA.md`.
 
-### Plugin Check results for this ZIP, and why they were accepted
+### Plugin Check
 
 We run Plugin Check against the built ZIP, not the development folder. On
-Plugin Check **2.0.0** in `new` mode, all **27 static checks run** and report
-**11 errors and 13 warnings**. We are shipping with those open, deliberately.
-The full machine-readable report is in
-`test-artifacts/plugin-check/0.0.1/plugin-check-0.0.1.json`, and the run is
-reproducible with the runner and the junction-safe swap script kept beside it.
+Plugin Check **2.0.0** in `new` mode, all **27 static checks run** and the
+result is **0 errors and 0 warnings**, with no check failing to run. The
+machine-readable report is in
+`test-artifacts/plugin-check/0.0.1-rebuild-20260921/plugin-check-0.0.1.json`,
+and the run is reproducible with the runner and the junction-safe swap script
+kept beside it.
 
-**20 of the 27 checks are completely clean**, including `plugin_readme`,
-`trademarks`, `prefixing`, `file_type`, `plugin_header_fields`,
-`direct_file_access`, `plugin_uninstall`, `setting_sanitization`,
-`code_obfuscation`, `minified_files` and `offloading_files`.
+An earlier build of this release reported 11 errors and 13 warnings. Every one
+of those 24 findings was reviewed individually and then **fixed, not accepted**,
+across 10 files. Where a finding was a genuine defect it was corrected in code;
+where the sniff could not follow the data flow, the code now carries a
+`phpcs:ignore` with the reason stated inline, so the next reader sees the
+argument instead of having to rebuild it. Two of those judgements are worth
+recording, because the obvious fix would have been wrong:
 
-We reviewed all 24 findings individually. **23 are false positives** and 1 is
-real but cosmetic. Per class:
+- In `includes/Providers/UsageCappedProvider.php` the flagged string is the
+  message given to a `ProviderException` constructor. It is never echoed; it
+  reaches only the logger and a `wp_json_encode()` body. Wrapping it in
+  `esc_html__()` would have put HTML entities inside a JSON payload, so the
+  finding is silenced with a documented reason instead.
+- In `includes/Admin/WooCommerceSettings.php` the raw `$_GET['tab']` is stored
+  and put back in a `finally` block around an aliased render. Sanitising it
+  would have silently rewritten the caller's superglobal, so it too is
+  documented rather than changed.
 
-- **8 errors, `late_escaping`, `includes/Admin/AnswerDeskHandoffPage.php`
-  lines 251, 255, 382, 386.** These echo the return value of
-  `card_class()` and `state_class()`. Those methods (lines 424-436) return one
-  of exactly four hard-coded CSS class strings: `' is-ready'`,
-  `' is-needs-setup'`, `' is-paused'`, `' is-off'`. No request, database or
-  user data can reach them. The sniff flags them only because it cannot trace a
-  method's return value.
-- **1 error, `EscapeOutput.ExceptionNotEscaped`,
-  `includes/Providers/UsageCappedProvider.php:66.`** This is the message passed
-  to a `ProviderException` constructor. It is never echoed. Text shown to a user
-  comes from `ProviderException::user_message()`, which is escaped at its own
-  output sites. HTML-escaping this string would in fact be wrong, because it can
-  travel into a JSON REST response.
-- **2 errors, `file_system_operations_fclose`,
-  `includes/Admin/ContentStudioHistoryExport.php:99` and
-  `includes/Admin/LogExport.php:92.`** Both close a stream opened with
-  `fopen( 'php://output', 'w' )` for a CSV download. `WP_Filesystem` has no API
-  that streams to `php://output`. The sniff already exempts `fopen()` on
-  `php://` streams; it simply cannot follow the resource variable to the
-  matching `fclose()`.
-- **9 warnings, `NonceVerification.*` and `MissingUnslash` /
-  `InputNotSanitized`,** in `includes/Admin/IntegrationsPage.php` (402, 488,
-  492), `includes/Admin/SettingsPage.php:185` and
-  `includes/Admin/ContentStudioNavigation.php:83`. In each case the check the
-  sniff wants exists, just not in the statement it is looking at:
-  `IntegrationsPage::post_value()` is a pure reader whose caller
-  `maybe_save()` verifies both `current_user_can( 'manage_options' )` and the
-  nonce (lines 406-407) before anything is written; `SettingsPage:185` only
-  chooses which read-only screen renders, via
-  `sanitize_key( wp_unslash( ... ) )`; `ContentStudioNavigation:83` is unslashed
-  and sanitised five lines later with `wp_unslash()`,
-  `wp_check_invalid_utf8()` and `wp_strip_all_tags()`.
-- **2 warnings, `MissingUnslash` / `InputNotSanitized`,
-  `includes/Admin/WooCommerceSettings.php:18.` Real, and intentionally left
-  as-is.** Lines 17-28 read the raw `$_GET['tab']`, force the canonical value
-  for an aliased render, and restore the original in a `finally` block. The
-  value is never echoed, never written to the database and never used in a
-  query — it is only put back where it was found. Sanitising it would change
-  what gets restored, which is a behaviour change, not a hardening.
-- **1 warning, `EnqueuedResourceParameters.MissingVersion`,
-  `includes/Admin/AdminMenu.php:223.` The one true positive.** The Google Fonts
-  stylesheet is enqueued with `null` as its version. Passing `null` for a remote
-  font URL is what WordPress core itself does, and it is deliberate: it stops
-  WordPress appending a meaningless `?ver=` to a URL whose caching Google
-  controls. "Fixing" it means either adding that meaningless query argument or
-  adding a `phpcs:ignore`. Neither improves the plugin; both only quiet the
-  sniff. We chose to leave the code honest and disclose the finding here.
+The rebuild changed 1,044 bytes: comments, `phpcs:ignore` annotations and
+`esc_attr()` calls. The compiled translation file was not touched. The full
+gate suite was re-run against the changed tree and stayed green (php-lint
+234/234, PHPCS 134/134 with 0/0, PHPStan 0, PHPUnit 156 tests / 547
+assertions, and the admin smokes at 5/0, 20/0 and 18/0), the ZIP passed
+independent structural verification at 31 PASS / 0 FAIL, and the clean-install
+acceptance was repeated end to end at 23 PASS / 0 FAIL with the WordPress
+debug log not growing by a single byte.
 
-Google Fonts itself is **not** flagged as an offloaded or external resource:
+Google Fonts is not flagged as an offloaded or external resource:
 `offloading_files`, `enqueued_resources` and `external_admin_menu_links` all
-return zero. Plugin Check's own blocklist
-(`PluginCheck/Helpers/OffloadingServicesTrait.php`) lists only
-`ajax.googleapis.com` and explicitly exempts font hosts via
-`(?<!fonts\.)gstatic\.com`. The two webfonts loaded from
-`fonts.googleapis.com` on admin screens are disclosed in the
-`== External services ==` section of `readme.txt`.
-
-**These are not regressions.** The history contains a commit
-`56dd00b` (2026-08-18) named "Clear every Plugin Check finding on the release
-build". It touched twelve files, and **not one of them is a file with a finding
-today**. The reason is simply that the admin interface was rebuilt after that
-date and had never been put through Plugin Check until now: of the ten files
-flagged above, **six did not yet exist at `56dd00b`** — and those six account
-for **all 11 errors** and 7 of the 13 warnings. The remaining four files existed
-but have been substantially rewritten since (1,902 insertions and 871 deletions
-between them). That also explains why the findings cluster into so few shapes:
-helper methods that return a CSS class name, and saving and restoring a
-superglobal around a render, are both patterns the rebuild introduced, and
-neither is something the sniffs can follow.
-
-None of these findings is a vulnerability. All 10 code sites are scheduled to be
-silenced in `0.0.2` so that a future run is 0/0; they were left untouched in
-`0.0.1` because every other release gate had already been verified green against
-this exact tree, and editing it would have invalidated that evidence without
-improving the plugin.
+return zero. The two webfonts loaded from `fonts.googleapis.com` on admin
+screens are disclosed in the `== External services ==` section of `readme.txt`.
 
 ## Development build history
 

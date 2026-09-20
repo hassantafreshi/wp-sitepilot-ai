@@ -14,6 +14,9 @@ For the `0.0.1` release the owner decided (D-33, 2026-09-20, his own words): *"t
 - When a late release task turns up findings that need product edits, default to deferring them to `0.0.2` with a backlog row (D-33 produced B-10), rather than editing and rebuilding.
 - A **partial** fix is the worst option: it does not make the gate green, but it does invalidate the independently verified ZIP. Either fix everything or nothing.
 - Raise a decision row with three honest options (ship as-is / fix only the true positives / fix everything) and let the owner choose. Versioning policy until `1.0.0`: bump only the rightmost component, so the next version is `0.0.2`.
-- This reasoning was applied again in T23 (D-34) for the Plugin Check findings.
+
+**Important correction (2026-09-21):** the owner applied this reasoning to D-33 (unhooked files) but **reversed it for D-34** (Plugin Check), choosing "fix everything" with the words *"خودت پلاگین چکر را انجام بده و درستش کن"*. All 24 findings were fixed across 10 files, the ZIP was rebuilt (`68FA68A5…`, 760,432 bytes) and the whole `-Tier full` tier was re-run green.
+
+So the rule is narrower than it first looked: **the frozen-tree argument only holds while nobody is willing to pay for a full re-run.** Once the owner accepts re-running every gate, the argument evaporates and the better artifact wins — a package Plugin Check passes at 0/0 beats a package with 24 explained findings, because a WordPress.org reviewer runs that same tool. Present it that way: not "changing code is bad", but "changing code costs a full re-run; here is what you get for it". The version number stays the same when nothing was ever published.
 
 Related: [[plugin-check-false-positive-classes]].

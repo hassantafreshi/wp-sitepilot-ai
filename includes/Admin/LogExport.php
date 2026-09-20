@@ -89,6 +89,7 @@ final class LogExport {
 		}
 
 		$this->write_csv( $stream );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- php://output is a response stream, not a file; WP_Filesystem cannot write to it.
 		fclose( $stream );
 		exit;
 	}

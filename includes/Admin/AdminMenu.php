@@ -220,6 +220,7 @@ final class AdminMenu {
 		}
 
 		// One stylesheet for every screen: the wireframe's design system.
+		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- null is deliberate: this is a third-party CDN URL that already carries its own cache key, and appending ?ver= would only bust Google's cache. WordPress core enqueues remote webfonts the same way.
 		wp_enqueue_style( 'aisaautopilot-plus-jakarta-sans', 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap', array(), null );
 		wp_enqueue_style( 'aisaautopilot-ui', AISAAUTOPILOT_URL . 'assets/admin/aisaautopilot-ui.css', array(), AISAAUTOPILOT_VERSION );
 

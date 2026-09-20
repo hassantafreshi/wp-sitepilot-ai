@@ -182,6 +182,7 @@ final class SettingsPage {
 	}
 
 	private function is_advanced_route(): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen routing: picks which page to render and writes nothing.
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 		return AdminMenu::SLUG_SETTINGS === $page;
 	}

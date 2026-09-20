@@ -388,7 +388,7 @@ final class HomePage {
 		if ( $table !== $exists ) {
 			return 0;
 		}
-		$count = $wpdb->get_var( "SELECT COALESCE(SUM(FLOOR(message_count / 2)), 0) FROM {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed internal table, read-only aggregate.
+		$count = $wpdb->get_var( "SELECT COALESCE(SUM(FLOOR(message_count / 2)), 0) FROM {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table is $wpdb->prefix plus a class constant, never user input; line 387 already proved it exists via a prepared probe.
 		return (int) $count;
 	}
 

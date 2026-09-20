@@ -11,21 +11,24 @@
 | مورد | مقدار |
 |---|---|
 | فایل | `ai-site-assistant-autopilot-0.0.1.zip` |
-| اندازه | ۷۵۹٬۳۸۸ بایت |
-| SHA-256 | `90E5AE16B321DBAF1D4C6EDC3415E3E9C8336E3301FD025052ED1496BC33193E` |
+| اندازه | **۷۶۰٬۴۳۲ بایت** |
+| SHA-256 | **`68FA68A56CFDBB7C11608B7794B42D375DE3F1596F14954AD29C45EB527F3B47`** |
 | تعداد entry | ۱۷۰ (۱۳۴ PHP، ۲۴ JS، ۵ CSS) |
-| ساخته‌شده در | T22، ۲۰۲۶-۰۹-۲۰ |
+| ساخته‌شده در | بازسازی ۲۰۲۶-۰۹-۲۱، پس از بازگشت تصمیم **D-34** |
 
-**این ZIP منجمد است و بازسازی نمی‌شود.** طبق تصمیم‌های مالک **D-33** و **D-34**، درخت `0.0.1` بسته است و هر اصلاحی به `0.0.2` می‌رود (ردیف‌های **B-10** و **B-11** بک‌لاگ). ساخت دوباره لزوماً همان SHA را نمی‌دهد و آن‌وقت شواهد T22، T23 و T24 موضوعشان را از دست می‌دهند.
+**این ZIP جایگزین ساخت ۲۰۲۶-۰۹-۲۰ شد.** ساخت اول (SHA-256 `90E5AE16…`، ۷۵۹٬۳۸۸ بایت) با یافته‌های Plugin Check عرضه می‌شد؛ مالک تصمیم D-34 را به گزینهٔ (ج) برگرداند («خودت پلاگین چکر را انجام بده و درستش کن»)، هر ۲۴ یافته رفع شد و ZIP دوباره ساخته شد. اختلاف **۱٬۰۴۴ بایت** است و فقط کامنت، `phpcs:ignore` و `esc_attr()` — فایل ترجمهٔ کامپایل‌شده (MO) دست نخورد و همان `03FAF4AA…` ماند. **شمارهٔ نسخه `0.0.1` ماند**، چون هرگز منتشر نشد و هیچ سایتی آن را ندارد.
 
-### دو مسیر نگهداری ZIP — هر دو لازم‌اند
+**این ZIP اکنون منجمد است.** تا انتشار `0.0.1`، هر تغییر کد یعنی ZIP تازه با SHA تازه و اجرای دوبارهٔ گیت‌های T22 تا T24. تنها بدهی باقی‌مانده برای `0.0.2` ردیف **B-10** (پنج فایل بی‌hook، طبق D-33) است؛ ردیف **B-11** بسته شد چون یافته‌های Plugin Check در همین نسخه رفع شدند.
+
+### سه مسیر نگهداری ZIP
 
 | مسیر | نقش |
 |---|---|
-| `apps/wordpress-plugin/ai-site-assistant-autopilot/dist/ai-site-assistant-autopilot-0.0.1.zip` | خروجی اصلی build |
-| `test-artifacts/release-zip/20260920-t22/ai-site-assistant-autopilot-0.0.1.zip` | **کپی پشتیبان بایت‌به‌بایت**، به‌همراه `FROZEN-ARTIFACT-README.md` |
+| `apps/wordpress-plugin/ai-site-assistant-autopilot/dist/ai-site-assistant-autopilot-0.0.1.zip` | **خروجی معتبر فعلی** |
+| `test-artifacts/release-zip/20260921-t22-rebuild/ai-site-assistant-autopilot-0.0.1.zip` | **کپی پشتیبان بایت‌به‌بایت** (تأییدشده `68FA68A5…`)، با `FROZEN-ARTIFACT-README.md` و `zip-verification.txt` |
+| `test-artifacts/release-zip/20260920-t22/SUPERSEDED-ai-site-assistant-autopilot-0.0.1.zip` | ساخت اول، **منسوخ**، فقط برای سابقه — عرضه نمی‌شود |
 
-**نکتهٔ مهم برای commit انتشار:** پوشهٔ `dist/` در `.gitignore` افزونه است (خط ۶، `/dist/`). پس ZIP **در commit انتشار روی `master` نخواهد بود** و در commit پشتیبان `snapshot/pre-release-0.0.1-20260921` (`39c2ae3`) هم نبود. تا پیش از ساخت کپی پشتیبان، این فایل **تنها یک نسخه** روی کل دیسک داشت. برابری دو نسخه در ۲۰۲۶-۰۹-۲۱ با SHA-256 و اندازه دوباره تأیید شد.
+**نکتهٔ مهم برای commit انتشار:** پوشهٔ `dist/` در `.gitignore` افزونه است (خط ۶، `/dist/`). پس ZIP **در commit انتشار روی `master` نخواهد بود** و در commit پشتیبان `snapshot/pre-release-0.0.1-20260921` (`39c2ae3`) هم نبود. مرجع دائمی‌اش کپی پشتیبان بالاست. برابری دو نسخه در ۲۰۲۶-۰۹-۲۱ با SHA-256 و اندازه تأیید شد.
 
 ---
 
@@ -40,15 +43,19 @@
 | **T19** | ممیزی قرارداد و preserve-list | **۶۵ route، صفر حذف‌شده**؛ ۵۹ handler مدیریتی `manage_options`؛ ۱۴ ردیف preserve-list همه «حفظ»؛ `KeyVault` و `RebrandMigrator` صفر خط diff | `docs/CONTRACT_AUDIT_Q4_T19_REPORT_FA.md`، `test-artifacts/contract-audit/20260918-t19/` |
 | **T20** | بازبینی امنیتی بازطراحی | دامنهٔ **۱۲۴ فایل**؛ **۴ نقص رفع، صفر ریسک پذیرفته‌شده** (S20-1 XSS ذخیره‌شده، S20-2 حذف ناقص، S20-3 نشت توکن، S20-4 نوع فایل صدا)؛ هر رفع با آزمون و کنترل منفی | `docs/SECURITY_REVIEW_Q4_T20_REPORT_FA.md`، `test-artifacts/security-review/20260918-t20/` |
 | **T21** | متادیتای انتشار | نسخه در هر سه جا `0.0.1`؛ inventory کامل: **۲۷ option، ۴ جدول، ۵ خانوادهٔ transient، ۱ cron، ۴ post meta، ۲ post type**؛ صفر user meta / site option / role / cap؛ ۲ نقص واقعی `uninstall.php` رفع شد | `test-artifacts/release-metadata/20260920-t21/verification.txt` |
-| **T22** | ساخت و وارسی ZIP | build **exit 0**؛ وارسی مستقل **۳۱ PASS / ۰ FAIL**؛ کنترل منفی: اسکریپت HEAD با exit 1 و ZIP ۱۸۴ entry که ۱۳ تای آن `test-artifacts/` بود؛ smoke **۸/۸** | `test-artifacts/release-zip/20260920-t22/`، `test-artifacts/gates/20260920-160315-smoke` |
-| **T23** | Plugin Check روی ZIP | **۲۷ static check موجود / ۲۷ اجراشده / ۰ اجرانشده**؛ **۱۱ error و ۱۳ warning** — گیت ۰/۰ نخورد و با حکم مستند **D-34** پذیرفته شد (بخش ۴)؛ junction سالم با **SWAP_FAILURES 0** | `test-artifacts/plugin-check/0.0.1/` |
-| **T24** | پذیرش نصب تمیز | **۵۹ PASS / ۰ FAIL** روی WordPress **7.1.1** منتشرشده؛ فعال‌سازی با صفر notice و صفر بایت خروجی؛ هر شش ردپا پس از حذف به پایه برگشت | `test-artifacts/clean-install/20260921-t24/` |
+| **T22** | ساخت و وارسی ZIP | build **exit 0**؛ وارسی مستقل **۳۱ PASS / ۰ FAIL** روی ZIP بازسازی‌شده؛ کنترل منفی: اسکریپت HEAD با exit 1 و ZIP ۱۸۴ entry که ۱۳ تای آن `test-artifacts/` بود | `test-artifacts/release-zip/20260921-t22-rebuild/zip-verification.txt`؛ ساخت اول: `…/20260920-t22/` |
+| **T23** | Plugin Check روی ZIP | **۲۷ static check موجود / ۲۷ اجراشده / ۰ اجرانشده؛ ۰ error و ۰ warning — `RESULT PASS`**؛ junction سالم با **SWAP_FAILURES 0** | `test-artifacts/plugin-check/0.0.1-rebuild-20260921/`؛ اجرای اول: `…/plugin-check/0.0.1/` |
+| **T24** | پذیرش نصب تمیز | **۵۹ PASS / ۰ FAIL** روی WordPress **7.1.1** منتشرشده؛ فعال‌سازی با صفر notice و صفر بایت خروجی؛ هر شش ردپا پس از حذف به پایه برگشت. **پذیرش دوباره روی ZIP بازسازی‌شده: ۲۳ PASS / ۰ FAIL و `debug.log` صفر بایت رشد کرد** | `test-artifacts/clean-install/20260921-t24/`، `…/20260921-t24-rebuild/reacceptance.txt` |
 
 ### گیت‌های مشترک، آخرین مقدار معتبر
 
 | گیت | مقدار | artifact |
 |---|---|---|
-| php-lint | **۲۳۴ / ۲۳۴** | `test-artifacts/gates/20260920-160315-smoke` |
+آخرین اجرا پس از رفع یافته‌های Plugin Check است، یعنی روی همان درختی که ZIP معتبر از آن ساخته شد: تیر **`-Tier full`، ۹ از ۹ گیت سبز**.
+
+| گیت | مقدار | artifact |
+|---|---|---|
+| php-lint | **۲۳۴ / ۲۳۴** | `test-artifacts/gates/20260921-013502-full` |
 | node --check | **۴۵ / ۴۵** | همان |
 | PHPCS | **۱۳۴ / ۱۳۴ فایل، ۰ error، ۰ warning** | همان |
 | PHPStan | **۰ error** | همان |
@@ -56,7 +63,9 @@
 | menu smoke | **۵ / ۰** | همان، و دوباره روی نصب تمیز در T24 |
 | assets smoke | **۲۰ / ۰** | همان، و دوباره روی نصب تمیز در T24 |
 | render smoke | **۱۸ / ۰** | همان، و دوباره روی نصب تمیز در T24 |
-| MO فارسی | **۱۸۱۹ از ۱۸۱۹**، `msgfmt --check` سالم، ۲۳۳٬۸۷۳ بایت، SHA-256 `03FAF4AA…` | `scripts/compile-mo.php` |
+| Phase 1 integration | **۴۵ / ۰** | همان |
+| Plugin Check | **۲۷ / ۲۷ check، ۰ error، ۰ warning** | `test-artifacts/plugin-check/0.0.1-rebuild-20260921/` |
+| MO فارسی | **۱۸۱۹ از ۱۸۱۹**، `msgfmt --check` سالم، ۲۳۳٬۸۷۳ بایت، SHA-256 `03FAF4AA…` — **بازسازی ZIP آن را تغییر نداد** | `scripts/compile-mo.php` |
 
 ---
 
@@ -83,26 +92,24 @@
 
 ## ۴. محدودیت‌های شناخته‌شده در این نسخه
 
-### ۴.۱ یافته‌های Plugin Check (تصمیم مالک D-34، گزینهٔ الف)
+### ۴.۱ Plugin Check — **دیگر محدودیت نیست**
 
-Plugin Check **2.0.0** در حالت `new` روی ZIP: **۱۱ error و ۱۳ warning**. **۲۳ از ۲۴ یافته مثبت کاذب است و یکی واقعی و کم‌اثر؛ هیچ‌کدام آسیب‌پذیری نیست.** **۲۰ از ۲۷ check کاملاً پاک بودند**، از جمله `plugin_readme`، `trademarks` و `prefixing`.
+Plugin Check **2.0.0** در حالت `new` روی ZIP معتبر: **۲۷ از ۲۷ check اجرا شد و نتیجه ۰ error و ۰ warning است** (`RESULT PASS`). این ردیف فقط برای سابقه اینجاست.
 
-| کلاس | شمار | حکم |
-|---|---|---|
-| `late_escaping` روی `AnswerDeskHandoffPage` | ۸ error | خروجی `card_class()`/`state_class()` از مجموعهٔ بستهٔ چهار رشتهٔ ثابت CSS است |
-| `ExceptionNotEscaped` روی `UsageCappedProvider:66` | ۱ error | پیام سازندهٔ `ProviderException`؛ به UI نمی‌رود |
-| `file_system_operations_fclose` | ۲ error | stream برابر `php://output` است؛ `WP_Filesystem` جایگزینش نیست |
-| nonce و unslash در چهار فایل Admin | ۹ warning | بررسی در همان تابع یا تابع فراخوان وجود دارد |
-| `WooCommerceSettings:18` | ۲ warning | **واقعی ولی عمدی**: مقدار خام `$_GET['tab']` ذخیره و در `finally` بازگردانده می‌شود |
-| `MissingVersion` روی `AdminMenu:223` | ۱ warning | **تنها مثبت واقعی**؛ نسخهٔ `null` برای گوگل‌فونت |
+ساخت اول (۲۰۲۶-۰۹-۲۰) **۱۱ error و ۱۳ warning** داشت و قرار بود با حکم مستند پذیرفته شود (D-34 گزینهٔ الف). مالک در ۲۰۲۶-۰۹-۲۱ تصمیم را به **گزینهٔ (ج)** برگرداند — «خودت پلاگین چکر را انجام بده و درستش کن» — و هر ۲۴ یافته در **۱۰ فایل** رفع شد، نه پذیرفته. جایی که یافته نقص واقعی بود کد اصلاح شد؛ جایی که sniff نمی‌توانست جریان داده را دنبال کند، `phpcs:ignore` با دلیل **درون خود کد** نوشته شد تا خوانندهٔ بعدی استدلال را ببیند.
 
-**اینها regression نیستند.** commit `56dd00b` (۲۰۲۶-۰۸-۱۸، «Clear every Plugin Check finding on the release build») ۱۲ فایل را لمس کرده و هیچ‌کدام از ۱۰ فایل یافته‌های امروز در آن نیست؛ **۶ فایل از ۱۰ تا در آن commit اصلاً وجود نداشتند** و همان شش **هر ۱۱ error** را می‌سازند. چهار فایل باقی از آن زمان بازنویسی شده‌اند (۱۹۰۲ افزوده / ۸۷۱ حذف).
+دو قضاوت ارزش ثبت دارند، چون رفع بدیهی در آن‌ها **غلط** می‌بود:
 
-**گوگل‌فونت علامت نمی‌خورد:** `offloading_files`، `enqueued_resources` و `external_admin_menu_links` هر سه صفر. فهرست دامنه‌های Plugin Check فقط `ajax.googleapis.com` را دارد و font hostها را با `(?<!fonts\.)gstatic\.com` استثنا می‌کند. دو webfont در `readme.txt` بخش `== External services ==` افشا شده‌اند.
+- **`Providers/UsageCappedProvider.php`** — رشتهٔ علامت‌خورده پیام سازندهٔ `ProviderException` است و هرگز echo نمی‌شود؛ فقط به Logger و بدنهٔ `wp_json_encode()` می‌رود. `esc_html__()` موجودیت HTML را داخل بدنهٔ JSON می‌گذاشت، پس ignore مستند گرفت.
+- **`Admin/WooCommerceSettings.php`** — مقدار خام `$_GET['tab']` فقط ذخیره و در `finally` بازگردانده می‌شود. sanitize کردنش superglobal فراخواننده را بی‌صدا بازنویسی می‌کرد، پس آن هم مستند شد و تغییر نکرد. (این همان هشداری است که ارزیابی T23 صریحاً داده بود و رعایت شد.)
 
-متن کامل و قابل‌خواندن برای بازبین WordPress.org در `RELEASE_NOTES.md` است. بدهی رفع: **B-11**.
+پس از تغییر، **کل تیر `-Tier full` دوباره اجرا شد و ۹ از ۹ گیت سبز ماند**، ZIP دوباره وارسی مستقل شد (**۳۱ PASS / ۰ FAIL**) و پذیرش نصب تمیز از ابتدا تا انتها تکرار شد (**۲۳ PASS / ۰ FAIL**، با `debug.log` که **صفر بایت** رشد کرد).
 
-### ۴.۲ پنج فایل بی‌hook (تصمیم مالک D-33، گزینهٔ الف)
+**گوگل‌فونت هیچ‌وقت علامت نخورد:** `offloading_files`، `enqueued_resources` و `external_admin_menu_links` هر سه صفر. فهرست دامنه‌های Plugin Check فقط `ajax.googleapis.com` را دارد و font hostها را با `(?<!fonts\.)gstatic\.com` استثنا می‌کند. دو webfont در `readme.txt` بخش `== External services ==` افشا شده‌اند.
+
+متن کامل و قابل‌خواندن برای بازبین WordPress.org در `RELEASE_NOTES.md` است. ردیف بدهی **B-11 بسته شد**.
+
+### ۴.۲ پنج فایل بی‌hook (تصمیم مالک D-33، گزینهٔ الف) — **تنها بدهی باز `0.0.2`**
 
 `assets/admin/dashboard.js`، `assets/frontend/chat-widget.js`، `assets/frontend/chat-widget.css`، `includes/Frontend/WidgetRenderer.php` و `includes/Voice/VoiceService.php` — روی هم **۳۹٬۶۵۰ بایت نافشرده** — در ZIP هستند ولی هیچ hook یا فراخوان محصولی ندارند. سطح حمله نیستند چون هیچ‌کدام بارگذاری نمی‌شوند. حذف در `0.0.2`: ردیف **B-10**.
 
@@ -143,11 +150,13 @@ Plugin Check **2.0.0** در حالت `new` روی ZIP: **۱۱ error و ۱۳ warn
 |---|---|
 | commit پشتیبان | `snapshot/pre-release-0.0.1-20260921` روی **`39c2ae3`** — ۱۰۷ فایل تغییرکرده و ۸۴ فایل تازه |
 | پشتیبان روی remote | `origin/snapshot/pre-release-0.0.1-20260921` روی `39c2ae3`. مخزن `hassantafreshi/wp-sitepilot-ai` **خصوصی** است و این پیش از push وارسی شد |
-| `master` | دست‌نخورده روی `459bfd8`، هم محلی و هم روی remote |
+| `master` | در ۲۰۲۶-۰۹-۲۱ یک commit انتشار و tag `v0.0.1` روی `3a0e309` ساخته شد، ولی **هر دو درخت پیش از رفع Plugin Check را دارند و منسوخ‌اند**؛ پس از نشستن این اسناد هر دو دوباره ساخته می‌شوند |
 | **تصمیم D-05** | **یک commit انتشار روی `master` به‌علاوهٔ tag `v0.0.1`.** گزینهٔ «چند commit منطقی به تفکیک فاز» رد شد، چون ژورنال `PRODUCT_COMPLETION_ROADMAP_FA.md` تاریخچهٔ فازبه‌فاز را با جزئیاتی بسیار بیشتر از هر پیام commit ثبت کرده است |
 | شاخهٔ snapshot | به‌عنوان تور ایمنی باقی می‌ماند |
 
-**یادآوری عملیاتی:** `/dist/` در `.gitignore` است، پس ZIP انتشار در هیچ commit نمی‌آید. مرجع دائمی آن، کپی پشتیبان و `FROZEN-ARTIFACT-README.md` در `test-artifacts/release-zip/20260920-t22/` است.
+**یادآوری عملیاتی:** `/dist/` در `.gitignore` است، پس ZIP انتشار در هیچ commit نمی‌آید. مرجع دائمی آن، کپی پشتیبان و `FROZEN-ARTIFACT-README.md` در `test-artifacts/release-zip/20260921-t22-rebuild/` است.
+
+**هشدار:** commit انتشار و tag `v0.0.1` موجود روی `3a0e309` درختِ **پیش از** رفع یافته‌های Plugin Check را دارند. هر دو باید روی درخت فعلی دوباره ساخته شوند، وگرنه چیزی که tag می‌خورد با ZIPیی که SHA-256 `68FA68A5…` دارد یکی نیست.
 
 ---
 
@@ -158,7 +167,7 @@ Plugin Check **2.0.0** در حالت `new` روی ZIP: **۱۱ error و ۱۳ warn
 | مورد | مقدار |
 |---|---|
 | نسخه | `0.0.1` |
-| SHA-256 بستهٔ انتشار | `90E5AE16B321DBAF1D4C6EDC3415E3E9C8336E3301FD025052ED1496BC33193E` |
+| SHA-256 بستهٔ انتشار | `68FA68A56CFDBB7C11608B7794B42D375DE3F1596F14954AD29C45EB527F3B47` |
 | تاریخ امضا | ☐ |
 | امضای مالک | ☐ |
 

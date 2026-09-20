@@ -63,6 +63,7 @@ final class UsageCappedProvider implements ProviderInterface {
 		if ( $this->usage->is_exhausted() ) {
 			throw new ProviderException(
 				'usage_cap_reached',
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Constructor argument, never echoed: it reaches only Logger and wp_json_encode'd REST bodies. The UI string comes from ProviderException::user_message().
 				__( 'The local AI usage cap has been reached.', 'ai-site-assistant-autopilot' )
 			);
 		}

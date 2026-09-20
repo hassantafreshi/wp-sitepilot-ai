@@ -248,11 +248,11 @@ final class AnswerDeskHandoffPage {
 			)
 			: __( 'Not set up yet', 'ai-site-assistant-autopilot' );
 		?>
-		<article class="sp-answer-handoff-card<?php echo $this->card_class( $enabled, $twilio->is_configured() ); ?>" data-sp-handoff-card data-sp-handoff-channel="twilio" data-sp-handoff-enabled="<?php echo $enabled ? '1' : '0'; ?>" data-sp-handoff-configured="<?php echo $twilio->is_configured() ? '1' : '0'; ?>"<?php echo $show ? '' : ' hidden'; ?>>
+		<article class="sp-answer-handoff-card<?php echo esc_attr( $this->card_class( $enabled, $twilio->is_configured() ) ); ?>" data-sp-handoff-card data-sp-handoff-channel="twilio" data-sp-handoff-enabled="<?php echo $enabled ? '1' : '0'; ?>" data-sp-handoff-configured="<?php echo $twilio->is_configured() ? '1' : '0'; ?>"<?php echo $show ? '' : ' hidden'; ?>>
 			<div class="sp-answer-handoff-card__head">
 				<span class="sp-answer-handoff-card__icon" aria-hidden="true"><?php echo Ui::icon( 'phone', 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
 				<div class="sp-answer-handoff-card__body">
-					<div class="sp-answer-handoff-card__title"><strong><?php esc_html_e( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ); ?></strong><span class="sp-answer-handoff-state<?php echo self::state_class( $enabled, $twilio->is_configured() ); ?>" data-sp-handoff-state><?php echo esc_html( self::state_label( $enabled, $twilio->is_configured() ) ); ?></span></div>
+					<div class="sp-answer-handoff-card__title"><strong><?php esc_html_e( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ); ?></strong><span class="sp-answer-handoff-state<?php echo esc_attr( self::state_class( $enabled, $twilio->is_configured() ) ); ?>" data-sp-handoff-state><?php echo esc_html( self::state_label( $enabled, $twilio->is_configured() ) ); ?></span></div>
 					<p><?php esc_html_e( 'Sends a text message to the configured support number.', 'ai-site-assistant-autopilot' ); ?></p>
 					<span class="sp-answer-handoff-card__summary" data-sp-handoff-summary><?php echo esc_html( $summary ); ?></span>
 				</div>
@@ -379,11 +379,11 @@ final class AnswerDeskHandoffPage {
 			$title
 		);
 		?>
-		<article class="sp-answer-handoff-card<?php echo $this->card_class( $enabled, $configured ); ?>" data-sp-handoff-card data-sp-handoff-channel="<?php echo esc_attr( $id ); ?>" data-sp-handoff-enabled="<?php echo $enabled ? '1' : '0'; ?>" data-sp-handoff-configured="<?php echo $configured ? '1' : '0'; ?>">
+		<article class="sp-answer-handoff-card<?php echo esc_attr( $this->card_class( $enabled, $configured ) ); ?>" data-sp-handoff-card data-sp-handoff-channel="<?php echo esc_attr( $id ); ?>" data-sp-handoff-enabled="<?php echo $enabled ? '1' : '0'; ?>" data-sp-handoff-configured="<?php echo $configured ? '1' : '0'; ?>">
 			<div class="sp-answer-handoff-card__head">
 				<span class="sp-answer-handoff-card__icon" aria-hidden="true"><?php echo Ui::icon( $icon, 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
 				<div class="sp-answer-handoff-card__body">
-					<div class="sp-answer-handoff-card__title"><strong><?php echo esc_html( $title ); ?></strong><span class="sp-answer-handoff-state<?php echo self::state_class( $enabled, $configured ); ?>" data-sp-handoff-state><?php echo esc_html( self::state_label( $enabled, $configured ) ); ?></span></div>
+					<div class="sp-answer-handoff-card__title"><strong><?php echo esc_html( $title ); ?></strong><span class="sp-answer-handoff-state<?php echo esc_attr( self::state_class( $enabled, $configured ) ); ?>" data-sp-handoff-state><?php echo esc_html( self::state_label( $enabled, $configured ) ); ?></span></div>
 					<p><?php echo esc_html( $description ); ?></p>
 					<span class="sp-answer-handoff-card__summary" data-sp-handoff-summary><?php echo esc_html( $summary ); ?></span>
 				</div>
