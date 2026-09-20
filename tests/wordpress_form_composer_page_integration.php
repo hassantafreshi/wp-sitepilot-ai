@@ -1,5 +1,5 @@
 <?php
-/** Local WordPress renderer contract for the specialist Form Composer shell. */
+/** Local WordPress renderer contract for the specialist Form Studio shell (D-23; formerly "Form Composer"). */
 
 declare(strict_types=1);
 
@@ -51,10 +51,14 @@ try {
 		&& 1 === substr_count( $html, 'data-sp-form-canvas' )
 		&& 1 === substr_count( $html, 'data-sp-form-assistant' )
 		&& 1 === substr_count( $html, 'data-sp-form-empty' ),
-		'Form Composer renders one mockup header, canvas, assistant and truthful empty state'
+		'Form Studio renders one mockup header, canvas, assistant and truthful empty state'
 	);
 	$check(
-		3 === substr_count( $html, 'data-example=' )
+		// Three canvas examples plus the same three as assistant suggestions (mockup);
+		// all are plain buttons that only prefill the prompt.
+		6 === substr_count( $html, 'data-example=' )
+		&& 6 === substr_count( $html, '<button type="button" class="sp-chip" data-example=' )
+		&& 1 === substr_count( $html, 'data-sp-fc-suggestions' )
 		&& false !== strpos( $html, 'id="aisaautopilot-prompt"' )
 		&& false !== strpos( $html, 'id="aisaautopilot-generate"' )
 		&& false !== strpos( $html, 'id="aisaautopilot-voice-toggle"' )
@@ -74,7 +78,7 @@ try {
 	$check(
 		1 === preg_match( '/id="aisaautopilot-prompt"[^>]*disabled/', $disabled )
 		&& 1 === preg_match( '/id="aisaautopilot-generate"[^>]*disabled/', $disabled )
-		&& false !== strpos( $disabled, 'Form Composer is turned off' )
+		&& false !== strpos( $disabled, 'Form Studio is turned off' )
 		&& false !== strpos( $disabled, 'Open Integrations' ),
 		'Disabled integration preserves the mockup shell but prevents plan requests and offers the real recovery route'
 	);

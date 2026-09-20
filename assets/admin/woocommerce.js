@@ -100,11 +100,13 @@
 			actionId = '';
 			var review = byId( 'sp-woo-review' );
 			if ( review ) { review.hidden = true; }
+			// T16: the result box is the live region, so the status line stays empty instead of repeating it.
 			showResult( 'warn', t( 'proposal_expired', 'This proposal expired before it was approved. Nothing was created.' ), '' );
-			setStatus( t( 'proposal_expired', 'This proposal expired before it was approved. Nothing was created.' ), 'error' );
+			setStatus( '', '' );
 			return;
 		}
-		ttl.textContent = 'Expires in ' + formatRemaining( remaining );
+		// T16: every visible string comes from sp-store-i18n, so it follows the admin language.
+		ttl.textContent = t( 'expires_in', 'Expires in %s' ).replace( '%s', formatRemaining( remaining ) );
 	}
 
 	function showProposal( plan, expiry ) {
@@ -119,8 +121,8 @@
 		if ( plan.description ) { appendText( summary, 'p', 'sp-store-proposal__body', plan.description ); }
 
 		clear( fields );
-		field( fields, 'type', plan.type || 'simple', 'Phase 1 creates simple products only' );
-		field( fields, 'status', 'draft', 'Phase 1 always creates a draft' );
+		field( fields, 'type', plan.type || 'simple', t( 'lock_simple', 'Phase 1 creates simple products only' ) );
+		field( fields, 'status', 'draft', t( 'lock_draft', 'Phase 1 always creates a draft' ) );
 		field( fields, 'regular_price', plan.regular_price || plan.price );
 		field( fields, 'sale_price', plan.sale_price || '-' );
 		field( fields, 'sku', plan.sku );
@@ -185,7 +187,7 @@
 		hideResult();
 		request( 'woocommerce/plan', { prompt: prompt.value.trim() } ).then( function ( data ) {
 			if ( ! data.ok || ! data.action_id || ! data.plan ) {
-				setStatus( errorMessage( data ), 'error' );
+				setStatus( '', '' );
 				showResult( 'err', errorMessage( data ), '' );
 				return;
 			}
@@ -204,7 +206,7 @@
 		setStatus( t( 'creating', 'Creating the WooCommerce draft...' ), '' );
 		request( 'woocommerce/execute', { action_id: actionId } ).then( function ( data ) {
 			if ( ! data.ok ) {
-				setStatus( errorMessage( data ), 'error' );
+				setStatus( '', '' );
 				showResult( 'err', errorMessage( data ), '' );
 				return;
 			}
@@ -216,9 +218,9 @@
 				'ok',
 				data.message || t( 'draft_created', 'Draft created. Publishing remains a manual WooCommerce step.' ),
 				'',
-				data.edit_url ? { href: data.edit_url, label: 'Review product draft' } : null
+				data.edit_url ? { href: data.edit_url, label: t( 'review_draft', 'Review product draft' ) } : null
 			);
-			setStatus( t( 'draft_created', 'Draft created. Publishing remains a manual WooCommerce step.' ), 'ok' );
+			setStatus( '', '' );
 		} ).catch( function () {
 			setStatus( t( 'network_error', 'Network error. Please try again.' ), 'error' );
 		} ).finally( function () { button.disabled = false; } );

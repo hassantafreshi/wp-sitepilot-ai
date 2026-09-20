@@ -2,9 +2,10 @@
 /**
  * Read-only local WordPress checks for Content Studio's canonical navigation.
  *
- * The mockup permits exactly Write, Templates, and History. Form Composer is
- * deliberately retained through its compatibility deep link, never as a
- * fourth Studio tab.
+ * The mockup permits exactly Write, Templates, and History. Form Studio
+ * (D-23, 2026-09-17; formerly "Form Composer") is its own top-level page;
+ * its old Content Studio deep link is deliberately retained for compatibility,
+ * never as a fourth Studio tab.
  */
 
 declare(strict_types=1);
@@ -85,15 +86,23 @@ try {
 		'Legacy content, templates, and history URLs resolve to the canonical Studio surfaces'
 	);
 
-	$form_composer = $render( new CopilotPage(), array( 'page' => AdminMenu::SLUG_FORM_BUILDER, 'mode' => 'forms' ) );
-	$native_forms  = $render( new NativeFormsPage(), array( 'page' => AdminMenu::SLUG_FORMS ) );
+	$form_studio_legacy_link = $render( new CopilotPage(), array( 'page' => AdminMenu::SLUG_FORM_BUILDER, 'mode' => 'forms' ) );
+	// The real top-level Form Studio page is registered straight against
+	// `render_forms()` (see AdminMenu::register()), bypassing `render()`'s
+	// tab/mode detection entirely, so it is called the same way here.
+	$_GET                    = array( 'page' => AdminMenu::SLUG_FORM_STUDIO ); // phpcs:ignore WordPress.Variables.GlobalVariables.OverrideProhibited -- isolated local renderer assertion.
+	ob_start();
+	( new CopilotPage() )->render_forms();
+	$form_studio_top_level = (string) ob_get_clean();
+	$native_forms          = $render( new NativeFormsPage(), array( 'page' => AdminMenu::SLUG_FORMS ) );
 	$check(
-		false !== strpos( $form_composer, 'data-aisaautopilot-copilot' )
-		&& false === strpos( $form_composer, 'data-sp-content-studio' )
-		&& false === strpos( $form_composer, 'data-sp-subtab=' )
-		&& false !== strpos( $form_composer, 'Form Composer' )
-		&& false !== strpos( $native_forms, 'mode=forms' ),
-		'Form Composer remains available through a deep link without becoming a fourth Studio tab'
+		false !== strpos( $form_studio_legacy_link, 'data-aisaautopilot-copilot' )
+		&& false === strpos( $form_studio_legacy_link, 'data-sp-content-studio' )
+		&& false === strpos( $form_studio_legacy_link, 'data-sp-subtab=' )
+		&& false !== strpos( $form_studio_legacy_link, 'Form Studio' )
+		&& $form_studio_legacy_link === $form_studio_top_level
+		&& false !== strpos( $native_forms, 'page=' . AdminMenu::SLUG_FORM_STUDIO ),
+		'Form Studio (D-23; formerly "Form Composer") is a real top-level page and its legacy Content Studio deep link renders identically, without becoming a fourth Studio tab'
 	);
 
 	$write_scripts     = $scripts_for( array( 'page' => AdminMenu::SLUG_FORM_BUILDER, 'tab' => 'write' ) );
@@ -110,7 +119,7 @@ try {
 		&& in_array( 'aisaautopilot-form-builder', $forms_scripts, true )
 		&& ! in_array( 'aisaautopilot-form-builder', $write_scripts, true )
 		&& ! in_array( 'aisaautopilot-content-studio', $forms_scripts, true ),
-		'Write and Templates receive their matching script while History keeps only the shared shell and Form Composer stays isolated'
+		'Write and Templates receive their matching script while History keeps only the shared shell and the legacy Form Studio deep link stays isolated'
 	);
 } finally {
 	$_GET = $original_get;

@@ -85,7 +85,7 @@ try {
 	$form_data     = $form_response->get_data();
 	$check(
 		403 === $form_response->get_status() && 'integration_disabled' === ( $form_data['code'] ?? '' ),
-		'Form Composer server action is denied while its Integration switch is off'
+		'Form Studio server action is denied while its Integration switch is off'
 	);
 
 	$content_response = ( new ContentController() )->plan( new WP_REST_Request( 'POST' ) );
@@ -100,16 +100,16 @@ try {
 		! $routes->can_manage_form_composer()
 		&& ! $routes->can_manage_content_studio()
 		&& ! $routes->can_manage_efb_copilot(),
-		'Form Composer, Content Studio and EFB REST permission gates follow their persisted switches'
+		'Form Studio, Content Studio and EFB REST permission gates follow their persisted switches'
 	);
 	$form_ui    = $render_copilot( 'forms' );
 	$content_ui = $render_copilot( 'content' );
 	$check(
-		false !== strpos( $form_ui, 'Form Composer is turned off' )
+		false !== strpos( $form_ui, 'Form Studio is turned off' )
 		&& false !== strpos( $form_ui, 'Open Integrations' )
 		&& false !== strpos( $content_ui, 'Content Studio is turned off' )
 		&& false !== strpos( $content_ui, 'Open Integrations' ),
-		'disabled Form Composer and Content Studio routes show a truthful Integration recovery state'
+		'disabled Form Studio and Content Studio routes show a truthful Integration recovery state'
 	);
 
 	$woo            = (array) ( Settings::all()['woocommerce'] ?? array() );
@@ -137,7 +137,7 @@ try {
 		&& false !== strpos( $hub, 'data-sp-integration-status="always-on"' )
 		&& false !== strpos( $hub, 'data-sp-integration-open="site-knowledge"' )
 		&& false !== strpos( $hub, 'data-sp-integration-dialog="site-knowledge"' ),
-		'Form Composer and the always-on Site Knowledge Configure dialog keep their stable UI contracts'
+		'Form Studio and the always-on Site Knowledge Configure dialog keep their stable UI contracts'
 	);
 	$check(
 		false !== strpos( $hub, 'data-sp-integrations-all-off' ),
@@ -192,7 +192,7 @@ try {
 		! empty( Settings::get( 'form_composer_enabled', false ) )
 		&& $widget_before === Settings::get( 'widget', array() )
 		&& false !== strpos( $form_saved, 'Integration settings saved.' ),
-		'The Form Composer dialog persists only its gate and preserves unrelated widget settings'
+		'The Form Studio dialog persists only its gate and preserves unrelated widget settings'
 	);
 
 	$temporary_post = wp_insert_post(

@@ -150,8 +150,13 @@ final class ActivityTimeline {
 		if ( 0 === strpos( $event, 'chat_' ) || 0 === strpos( $event, 'handoff_' ) || 0 === strpos( $event, 'voice_' ) ) {
 			return __( 'Answer Desk', 'ai-site-assistant-autopilot' );
 		}
-		if ( 0 === strpos( $event, 'form.' ) || 0 === strpos( $event, 'efb.' ) || 0 === strpos( $event, 'action.' ) || 0 === strpos( $event, 'plan.' ) ) {
-			return __( 'Form Composer', 'ai-site-assistant-autopilot' );
+		// Every efb.* event is written by the copilot inside the Easy Form Builder editor
+		// (EfbCopilotController), not by Form Studio (T16).
+		if ( 0 === strpos( $event, 'efb.' ) ) {
+			return __( 'Easy Form Builder Copilot', 'ai-site-assistant-autopilot' );
+		}
+		if ( 0 === strpos( $event, 'form.' ) || 0 === strpos( $event, 'action.' ) || 0 === strpos( $event, 'plan.' ) ) {
+			return __( 'Form Studio', 'ai-site-assistant-autopilot' );
 		}
 		if ( 0 === strpos( $event, 'usage.' ) ) {
 			return __( 'Usage & Cost', 'ai-site-assistant-autopilot' );

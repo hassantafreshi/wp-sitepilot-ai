@@ -2,9 +2,12 @@
 /**
  * Read-only local WordPress smoke test for the redesigned admin navigation.
  *
- * It validates the visible 10-item information architecture against the
- * canonical admin mockup. Legacy URLs remain registered but must not leak
- * back into the sidebar.
+ * It validates the visible 8-item information architecture set by D-23
+ * (2026-09-17: Overview gained 4 internal tabs — Usage & Cost, Health and
+ * Activity Log moved from top-level pages to hidden aliases owned by
+ * Overview — and Form Studio, formerly the "Form Composer" deep link, was
+ * promoted to its own top-level page). Legacy URLs remain registered but
+ * must not leak back into the sidebar.
  *
  * Run: C:\xampp\php\php.exe tests\local_admin_menu_smoke.php
  */
@@ -48,9 +51,7 @@ $expected_slugs = array(
 	AdminMenu::SLUG_CONVERSATIONS,
 	AdminMenu::SLUG_WC_DASHBOARD,
 	AdminMenu::SLUG_FORM_BUILDER,
-	AdminMenu::SLUG_USAGE,
-	AdminMenu::SLUG_CONNECTIONS,
-	AdminMenu::SLUG_LOGS,
+	AdminMenu::SLUG_FORM_STUDIO,
 );
 
 $legacy_slugs = array(
@@ -62,6 +63,11 @@ $legacy_slugs = array(
 	AdminMenu::SLUG_WC,
 	AdminMenu::SLUG_WIDGET,
 	AdminMenu::SLUG_HANDOFFS,
+	// D-23 (2026-09-17): these three used to be visible top-level pages and
+	// are now Overview tabs — hidden aliases, exactly like the rest of this list.
+	AdminMenu::SLUG_USAGE,
+	AdminMenu::SLUG_CONNECTIONS,
+	AdminMenu::SLUG_LOGS,
 );
 $visible_slugs = array_column( $actual, 'slug' );
 $visible_titles = array_column( $actual, 'title' );
@@ -77,8 +83,8 @@ $legacy_routes_registered = array_reduce(
 
 $checks = array(
 	'admin-menu hook completed without PHP warnings' => array() === $warnings,
-	'visible sidebar exactly matches the 10 mockup pages in order' => $expected_slugs === $visible_slugs,
-	'visible sidebar labels are present in the active locale' => 10 === count( $visible_titles ) && 10 === count( array_filter( $visible_titles ) ),
+	'visible sidebar exactly matches the D-23 8-page information architecture in order' => $expected_slugs === $visible_slugs,
+	'visible sidebar labels are present in the active locale' => 8 === count( $visible_titles ) && 8 === count( array_filter( $visible_titles ) ),
 	'legacy technical routes are hidden from the sidebar' => array() === array_intersect( $legacy_slugs, $visible_slugs ),
 	'legacy bookmark routes are registered as direct hidden pages' => $legacy_routes_registered,
 );

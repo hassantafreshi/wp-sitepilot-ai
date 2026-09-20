@@ -20,10 +20,14 @@ const AISAAUTOPILOT_EFB_FIXTURE_OPTION = 'aisaautopilot_efb_copilot_browser_fixt
 const AISAAUTOPILOT_EFB_FIXTURE_NAME   = 'AISAAutoPilot EFB Copilot browser QA';
 
 $restore = static function (): void {
-	$record = get_option( AISAAUTOPILOT_EFB_FIXTURE_OPTION, array() );
-	if ( ! is_array( $record ) ) {
-		delete_option( AISAAUTOPILOT_EFB_FIXTURE_OPTION );
+	$record = get_option( AISAAUTOPILOT_EFB_FIXTURE_OPTION, null );
+	// No snapshot means no fixture to restore. Never touch live settings here:
+	// before T15 a missing snapshot fell through to delete_option( Settings::OPTION ).
+	if ( null === $record ) {
 		return;
+	}
+	if ( ! is_array( $record ) || ! array_key_exists( 'had_settings', $record ) ) {
+		throw new RuntimeException( 'EFB Copilot fixture snapshot is invalid; live settings were left untouched.' );
 	}
 
 	global $wpdb;

@@ -64,6 +64,27 @@ final class Ui {
 		'chart'        => '<path d="M4 18V9M10 18V5M16 18v-6M22 18H2" stroke-linecap="round"/>',
 		'chevron'      => '<path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>',
 		'image'        => '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 15l5-4 4 3 3-2 6 5"/>',
+		// Integration marks copied from the mockup's INTEGRATIONS table.
+		'book-open'    => '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5ZM4 5.5v15M9 8h6M9 12h4" stroke-linecap="round" stroke-linejoin="round"/>',
+		'bubble'       => '<path d="M21 12a8 8 0 0 1-8 8H8l-4 3v-6.5A8 8 0 0 1 12 4h1a8 8 0 0 1 8 8Z" stroke-linecap="round" stroke-linejoin="round"/>',
+		'form-lines'   => '<path d="M4 5h16v14H4ZM8 9h8M8 13h5M8 17h3" stroke-linecap="round" stroke-linejoin="round"/>',
+		'layers'       => '<path d="M12 3 3 8l9 5 9-5-9-5ZM3 14l9 5 9-5M3 11l9 5 9-5" stroke-linecap="round" stroke-linejoin="round"/>',
+		'pencil'       => '<path d="M17 3l4 4L8 20H4v-4L17 3ZM14 6l4 4" stroke-linecap="round" stroke-linejoin="round"/>',
+		'cart-mock'    => '<path d="M6 6h15l-1.5 8.5H7.5L6 6ZM6 6 5 3H2M9 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm9 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" stroke-linecap="round" stroke-linejoin="round"/>',
+		// Setup wizard marks from the mockup.
+		'shield-check' => '<path d="M12 3 4 7.5v5.2c0 4.4 3.3 7.9 8 8.8 4.7-.9 8-4.4 8-8.8V7.5L12 3Z" stroke-linecap="round" stroke-linejoin="round"/><path d="m9 12 2.2 2.2L15 10.5" stroke-linecap="round" stroke-linejoin="round"/>',
+		'shield-key'   => '<path d="M12 3 4 7.5v5.2c0 4.4 3.3 7.9 8 8.8 4.7-.9 8-4.4 8-8.8V7.5L12 3Zm0 6v3m0 3h.01" stroke-linecap="round" stroke-linejoin="round"/>',
+		'connector'    => '<path d="M7 12h10M6 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm12 0a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z" stroke-linecap="round" stroke-linejoin="round"/>',
+		'tick'         => '<path d="m5 13 4.5 4.5L19 7" stroke-linecap="round" stroke-linejoin="round"/>',
+		'dash'         => '<path d="M7 12h10" stroke-linecap="round"/>',
+		'triangle'     => '<path d="M12 8v5M12 17h.01M10.3 3.9 2.5 17.4a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" stroke-linecap="round" stroke-linejoin="round"/>',
+		'chev-left'    => '<path d="m14 6-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/>',
+		'chev-right'   => '<path d="m10 6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>',
+		'chev-down'    => '<path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>',
+		'external'     => '<path d="M14 5h5v5M19 5 10 14M17 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round"/>',
+		'sliders'      => '<path d="M4 8h11M19 8h1M4 16h4M12 16h8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17" cy="8" r="2"/><circle cx="10" cy="16" r="2"/>',
+		'cog'          => '<path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.4-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.4l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4Z" stroke-linecap="round" stroke-linejoin="round"/>',
+		'magnify'      => '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/>',
 	);
 
 	/** Solid (filled) marks used inside gradient avatars. */
@@ -368,6 +389,8 @@ final class Ui {
 				</nav>
 			<?php endif; ?>
 		</div>
+		<?php /* WordPress moves admin notices below this marker instead of into the title row. */ ?>
+		<hr class="wp-header-end" />
 		<?php
 	}
 

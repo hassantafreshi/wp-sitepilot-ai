@@ -175,9 +175,14 @@ try {
 	$check(
 		false !== strpos( $localized_widget_data, 'Lifecycle greeting' )
 		&& false !== strpos( $localized_widget_data, 'Lifecycle voice' )
-		&& false !== strpos( $localized_widget_data, 'Lifecycle handoff' )
-		&& false !== strpos( $localized_widget_data, 'Lifecycle hook' ),
-		'Frontend widget assets keep the persisted widget settings instead of fallback values'
+		// T11 moved the handoff label and hook out of the script data: ChatWidget renders both
+		// into the card and the footnote, so they are no longer pushed to every page view.
+		// What the site owner saved must still reach the visitor, now through the markup.
+		&& false === strpos( $localized_widget_data, 'Lifecycle handoff' )
+		&& false === strpos( $localized_widget_data, 'Lifecycle hook' )
+		&& false !== strpos( $active_markup, 'Lifecycle handoff' )
+		&& false !== strpos( $active_markup, 'Lifecycle hook' ),
+		'Frontend widget assets keep the persisted widget settings instead of fallback values: the greeting and voice name as script data, the handoff label and hook in the rendered card'
 	);
 } finally {
 	if ( $original_settings === $missing ) {

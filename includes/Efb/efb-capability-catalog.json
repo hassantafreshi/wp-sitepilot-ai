@@ -1,14 +1,16 @@
 {
   "schema_version": "1.0.0",
-  "efb_version_target": "4.1.x",
+  "efb_version_target": "4.2.x",
   "purpose": "Authoritative AISAAutoPilot capability, storage, and safe-execution catalog for Easy Form Builder. It describes the flat valj_efb/form_structer model; it does not replace EFB's renderer or settings UI.",
   "sources": [
     "EFB-CORE-KNOWLEDGE-BASE.en.md (2026-07-22)",
     "docs/recorder-fields.md (recorder settings registry)",
     "includes/admin/assets/js/val-efb.js",
     "includes/admin/assets/js/admin-efb.js",
+    "includes/admin/assets/js/steps-progress-builder-efb.js (steps and progress styles, EFB 4.2.0)",
     "includes/class-Emsfb-formbuilder.php",
-    "includes/functions.php addon registry"
+    "includes/class-Emsfb-public.php (show_steps and show_progress rendering)",
+    "includes/functions.php addon registry and efb_steps_style_name_efb/efb_progress_style_name_efb"
   ],
   "scope_exclusions": [
     "calculation addon and calculate action",
@@ -33,7 +35,7 @@
       "shape": "Flat array: index 0 is the form object; subsequent objects are steps, fields, options, and matrix rows. Options and matrix rows reference their owner with parent; never nest them."
     },
     "submissions": {
-      "table": "{prefix}emsfb_message",
+      "table": "{prefix}emsfb_msg_",
       "content_column": "content",
       "normalization_note": "Checkbox and multiselect values can be normalized with the @efb! separator; preserve EFB's canonical handling."
     },
@@ -156,8 +158,10 @@
     "private": { "role": "legacy privacy setting" },
     "stateForm": { "role": "logged-in-only form flag" },
     "dShowBg": { "role": "form card/background flag" },
-    "show_icon": { "role": "button icon visibility" },
-    "show_pro_bar": { "role": "EFB branding/pro bar visibility" },
+    "show_icon": { "role": "true hides the steps row (step icons and names); EFB's toggle reads \"Don't show icons & names of steps\" and its form templates store true. Not a button icon." },
+    "show_pro_bar": { "role": "true hides the progress bar; EFB's toggle reads \"Don't show progress bar\". Not EFB branding." },
+    "steps_style": { "role": "steps row style classic, circles, pills or chevrons; a missing or unknown value renders classic (EFB 4.2.0)" },
+    "progress_style": { "role": "progress bar style classic, bar, segments or ring; a missing or unknown value renders classic (EFB 4.2.0)" },
     "currency": { "role": "payment currency; optional on old forms" },
     "type": { "role": "form, payment, survey, login, register, subscribe, or smartForm" },
     "survey_chart_type": { "role": "none, bar, or pie public-results mode" },
@@ -338,8 +342,10 @@
     "loading_type": { "storage_path": "loading_type", "value_type": "enum", "values": ["bars", "dots", "spinner", "pulse", "ripple", "bounce", "orbit", "wave", "hourglass"], "ai_writable": true },
     "loading_color": { "storage_path": "loading_color", "value_type": "hex_color", "ai_writable": true },
     "button_alignment": { "storage_path": "btns_align", "value_type": "enum", "values": { "left": "justify-content-start", "center": "justify-content-center", "right": "justify-content-end" }, "ai_writable": true },
-    "show_button_icon": { "storage_path": "show_icon", "value_type": "boolean_flag", "ai_writable": true },
-    "show_pro_bar": { "storage_path": "show_pro_bar", "value_type": "boolean_flag", "ai_writable": false, "reason": "Product/licensing presentation is controlled by EFB" },
+    "hide_steps_row": { "storage_path": "show_icon", "value_type": "boolean_flag", "ai_writable": true, "aliases": ["hide_steps", "hide_step_names", "hide_step_icons"], "prompt_hint": "true hides the row of step icons and names on a multi-step form, false shows it", "note": "Stored under EFB's misleadingly named show_icon key: the toggle reads \"Don't show icons & names of steps\" and true hides the row (admin-efb.js showSIconsEl, class-Emsfb-public.php show_steps). EFB's own form templates store true." },
+    "hide_progress_bar": { "storage_path": "show_pro_bar", "value_type": "boolean_flag", "ai_writable": true, "aliases": ["hide_progress"], "prompt_hint": "true hides the progress bar on a multi-step form, false shows it", "note": "Stored under EFB's show_pro_bar key: the toggle reads \"Don't show progress bar\" and true hides the bar. It is not EFB branding." },
+    "steps_style": { "storage_path": "steps_style", "value_type": "enum", "values": ["classic", "circles", "pills", "chevrons"], "default": "classic", "ai_writable": true, "aliases": ["step_style", "steps_row_style"], "prompt_hint": "shown only while hide_steps_row is false", "note": "EFB 4.2.0: efb_steps_style_name_efb and steps-progress-builder-efb.js render any other value as classic, and the builder shows this picker only while the steps row is not hidden." },
+    "progress_style": { "storage_path": "progress_style", "value_type": "enum", "values": ["classic", "bar", "segments", "ring"], "default": "classic", "ai_writable": true, "aliases": ["progress_bar_style"], "prompt_hint": "shown only while hide_progress_bar is false", "note": "EFB 4.2.0: efb_progress_style_name_efb renders any other value as classic, and the builder shows this picker only while the progress bar is not hidden." },
     "global_mobile_hide_labels": { "requires_pro": true, "storage_path": "global_mobile_hflabel", "value_type": "boolean_flag", "ai_writable": true },
     "thank_you_mode": { "storage_path": "thank_you", "value_type": "enum", "values": ["msg", "rdrct"], "ai_writable": false, "reason": "Redirect URLs need source allowlisting" },
     "thank_you_redirect": { "storage_path": "rePage", "value_type": "url", "ai_writable": false, "reason": "AI links need an explicit allowlist/source map" },

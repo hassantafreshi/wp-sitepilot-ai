@@ -50,6 +50,7 @@ final class UsagePage {
 						),
 					)
 				);
+				OverviewNavigation::render( OverviewNavigation::TAB_USAGE );
 				?>
 				<div class="sp-pagebody">
 					<div class="sp-usage__grid" data-sp-usage-grid>
@@ -90,19 +91,19 @@ final class UsagePage {
 									<button type="button" id="sp-save-budget" class="sp-btn sp-btn--r8" data-sp-usage-cap-save><?php esc_html_e( 'Save cap', 'ai-site-assistant-autopilot' ); ?></button>
 									<button type="button" id="sp-usage-cap-cancel" class="sp-btn sp-btn--ghost sp-btn--r8" data-sp-usage-cap-cancel><?php esc_html_e( 'Cancel', 'ai-site-assistant-autopilot' ); ?></button>
 								</div>
-								<div class="sp-usage__reset-row">
-									<button type="button" id="sp-reset-usage" class="sp-btn sp-btn--reject" data-sp-usage-reset><?php esc_html_e( 'Reset this month\'s usage', 'ai-site-assistant-autopilot' ); ?></button>
-								</div>
 								<span id="sp-budget-status" class="sp-status-text" data-sp-usage-status role="status" aria-live="polite"></span>
 							</div>
 
 							<div class="sp-usage__chart-section">
 								<h3 class="sp-usage__eyebrow"><?php esc_html_e( 'Last 7 days', 'ai-site-assistant-autopilot' ); ?></h3>
-								<div class="sp-usage__chart" data-sp-usage-chart>
+								<?php if ( $max_day <= 0 ) : ?>
+									<p class="sp-usage__chart-empty" data-sp-usage-chart-empty><?php esc_html_e( 'No tokens were recorded in the last 7 days.', 'ai-site-assistant-autopilot' ); ?></p>
+								<?php endif; ?>
+								<div class="sp-usage__chart<?php echo $max_day <= 0 ? ' is-empty' : ''; ?>" data-sp-usage-chart>
 									<?php foreach ( $days as $day ) : ?>
 										<?php $height = $max_day > 0 && $day['tokens'] > 0 ? max( 4.0, ( $day['tokens'] / $max_day ) * 100 ) : 0.0; ?>
 										<div class="sp-usage__day" data-sp-usage-day aria-label="<?php echo esc_attr( $this->day_label( $day ) ); ?>">
-											<span class="sp-usage__day-bar" style="--sp-usage-day-height:<?php echo esc_attr( (string) round( $height, 2 ) ); ?>%"></span>
+											<span class="sp-usage__day-bar<?php echo 0.0 === $height ? ' is-zero' : ''; ?>" style="--sp-usage-day-height:<?php echo esc_attr( (string) round( $height, 2 ) ); ?>%"></span>
 											<span class="sp-usage__day-label"><?php echo esc_html( $day['label'] ); ?></span>
 										</div>
 									<?php endforeach; ?>
@@ -131,6 +132,15 @@ final class UsagePage {
 							<p class="sp-usage__foot" data-sp-usage-foot><?php esc_html_e( 'Token totals are recorded locally on this site. Provider prices and billing are not available here.', 'ai-site-assistant-autopilot' ); ?></p>
 						</section>
 					</div>
+
+					<section class="sp-usage__danger" data-sp-usage-danger aria-labelledby="sp-usage-reset-title">
+						<div class="sp-usage__danger-body">
+							<h2 class="sp-usage__danger-title" id="sp-usage-reset-title"><?php esc_html_e( 'Reset this month\'s counter', 'ai-site-assistant-autopilot' ); ?></h2>
+							<p class="sp-usage__danger-text"><?php esc_html_e( 'Sets the tokens recorded this month back to zero, which lifts a reached cap straight away. Your cap stays the same and earlier months are kept.', 'ai-site-assistant-autopilot' ); ?></p>
+							<span id="sp-usage-reset-status" class="sp-status-text" role="status" aria-live="polite"></span>
+						</div>
+						<button type="button" id="sp-reset-usage" class="sp-btn sp-usage__danger-btn" data-sp-usage-reset><?php esc_html_e( 'Reset counter', 'ai-site-assistant-autopilot' ); ?></button>
+					</section>
 				</div>
 			</section>
 			<?php Ui::overlays(); ?>
@@ -144,6 +154,10 @@ final class UsagePage {
 				'failed'        => __( 'Could not save the token cap.', 'ai-site-assistant-autopilot' ),
 				'invalidBudget' => __( 'Enter a whole number of zero or more tokens.', 'ai-site-assistant-autopilot' ),
 				'confirmWipe'   => __( 'Reset only this month\'s token usage? This cannot be undone.', 'ai-site-assistant-autopilot' ),
+				'resetTitle'    => __( 'Reset this month\'s usage?', 'ai-site-assistant-autopilot' ),
+				'resetBody'     => __( 'This month\'s recorded tokens go back to zero, which lifts a reached cap straight away. Your cap stays the same and earlier months are kept. This cannot be undone.', 'ai-site-assistant-autopilot' ),
+				'resetCta'      => __( 'Reset to zero', 'ai-site-assistant-autopilot' ),
+				'resetFailed'   => __( 'Could not reset this month\'s usage.', 'ai-site-assistant-autopilot' ),
 				'resetting'     => __( 'Resetting...', 'ai-site-assistant-autopilot' ),
 				'resetDone'     => __( 'This month\'s usage was reset.', 'ai-site-assistant-autopilot' ),
 			)

@@ -1,4 +1,4 @@
-/* Local XAMPP-only Form Composer browser matrix. Credentials never reach stdout. */
+/* Local XAMPP-only Form Studio browser matrix. Credentials never reach stdout. */
 'use strict';
 const { execFileSync, spawnSync } = require( 'node:child_process' );
 const path = require( 'node:path' );

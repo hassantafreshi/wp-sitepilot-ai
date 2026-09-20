@@ -45,7 +45,7 @@ final class IntegrationsPage {
 		$foundation = array(
 			array(
 				'id'           => 'site-knowledge',
-				'icon'         => 'book',
+				'icon'         => 'book-open',
 				'title'        => __( 'Site Knowledge', 'ai-site-assistant-autopilot' ),
 				'description'  => __( 'Keeps answers grounded in your published site content and its cited sources.', 'ai-site-assistant-autopilot' ),
 				'status'       => __( 'Always on', 'ai-site-assistant-autopilot' ),
@@ -61,7 +61,7 @@ final class IntegrationsPage {
 		$visitors   = array(
 			array(
 				'id'           => 'answer-desk',
-				'icon'         => 'chat',
+				'icon'         => 'bubble',
 				'title'        => __( 'Answer Desk', 'ai-site-assistant-autopilot' ),
 				'description'  => __( 'Lets visitors ask grounded questions through the read-only public assistant.', 'ai-site-assistant-autopilot' ),
 				'status'       => $answer_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
@@ -77,8 +77,8 @@ final class IntegrationsPage {
 		$making     = array(
 			array(
 				'id'           => 'form-composer',
-				'icon'         => 'form',
-				'title'        => __( 'Form Composer', 'ai-site-assistant-autopilot' ),
+				'icon'         => 'form-lines',
+				'title'        => __( 'Form Studio', 'ai-site-assistant-autopilot' ),
 				'description'  => __( 'Creates reviewable native forms with email-only delivery and server-side validation.', 'ai-site-assistant-autopilot' ),
 				'status'       => $form_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
 				'status_key'   => $form_on ? 'on' : 'off',
@@ -91,7 +91,7 @@ final class IntegrationsPage {
 			),
 			array(
 				'id'           => 'efb-copilot',
-				'icon'         => 'form',
+				'icon'         => 'layers',
 				'title'        => __( 'Easy Form Builder Copilot', 'ai-site-assistant-autopilot' ),
 				'description'  => $efb_available
 					? __( 'Adds an approved AI helper to a compatible Easy Form Builder editor.', 'ai-site-assistant-autopilot' )
@@ -110,7 +110,7 @@ final class IntegrationsPage {
 			),
 			array(
 				'id'           => 'content-studio',
-				'icon'         => 'spark',
+				'icon'         => 'pencil',
 				'title'        => __( 'Content Studio', 'ai-site-assistant-autopilot' ),
 				'description'  => __( 'Creates reviewable WordPress page and post drafts; publishing always stays with you.', 'ai-site-assistant-autopilot' ),
 				'status'       => $content_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
@@ -126,7 +126,7 @@ final class IntegrationsPage {
 		$store      = array(
 			array(
 				'id'           => 'store-copilot',
-				'icon'         => 'cart',
+				'icon'         => 'cart-mock',
 				'title'        => __( 'Store Copilot', 'ai-site-assistant-autopilot' ),
 				'description'  => $woo_available
 					? __( 'Creates reviewed simple-product drafts and presents safe store insights.', 'ai-site-assistant-autopilot' )
@@ -209,7 +209,7 @@ final class IntegrationsPage {
 		?>
 		<article class="sp-card sp-card--flat sp-integration<?php echo $enabled ? ' sp-integration--on' : ''; ?>" data-sp-integration-card="<?php echo esc_attr( $id ); ?>">
 			<div class="sp-integration__head">
-				<span class="sp-integration__icon"><?php echo Ui::icon( (string) $card['icon'], 20, 'grad' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
+				<span class="sp-integration__icon"><?php echo Ui::icon( (string) $card['icon'], 18, 'currentColor', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
 				<div class="sp-integration__headcopy">
 					<h3 class="sp-h3 sp-integration__title"><?php echo esc_html( $title ); ?></h3>
 					<span class="sp-integration__status sp-integration__status--<?php echo esc_attr( (string) $card['tone'] ); ?>" data-sp-integration-status="<?php echo esc_attr( (string) $card['status_key'] ); ?>"><?php echo esc_html( (string) $card['status'] ); ?></span>
@@ -309,10 +309,10 @@ final class IntegrationsPage {
 		</dialog>
 
 		<dialog class="sp-integration-dialog" id="sp-integration-dialog-form-composer" data-sp-integration-dialog="form-composer" aria-labelledby="sp-integration-title-form-composer">
-			<?php $this->dialog_heading( 'form-composer', __( 'Form Composer', 'ai-site-assistant-autopilot' ), __( 'The form workflow creates proposals for review and keeps visitor submissions out of WordPress.', 'ai-site-assistant-autopilot' ) ); ?>
+			<?php $this->dialog_heading( 'form-composer', __( 'Form Studio', 'ai-site-assistant-autopilot' ), __( 'The form workflow creates proposals for review and keeps visitor submissions out of WordPress.', 'ai-site-assistant-autopilot' ) ); ?>
 			<form method="post" class="sp-integration-dialog__form">
 				<?php $this->dialog_fields( 'form-composer' ); ?>
-				<?php $this->render_config_checkbox( 'form_composer_enabled', __( 'Enable Form Composer', 'ai-site-assistant-autopilot' ), __( 'Makes the native-form planning and execution endpoints available to administrators.', 'ai-site-assistant-autopilot' ), ! empty( $settings['form_composer_enabled'] ) ); ?>
+				<?php $this->render_config_checkbox( 'form_composer_enabled', __( 'Enable Form Studio', 'ai-site-assistant-autopilot' ), __( 'Makes the native-form planning and execution endpoints available to administrators.', 'ai-site-assistant-autopilot' ), ! empty( $settings['form_composer_enabled'] ) ); ?>
 				<?php $this->render_locked_row( __( 'Submission storage', 'ai-site-assistant-autopilot' ), __( 'Email delivery only; personal data is not stored here', 'ai-site-assistant-autopilot' ) ); ?>
 				<?php $this->render_locked_row( __( 'Validation', 'ai-site-assistant-autopilot' ), __( 'Server-side validation is always required', 'ai-site-assistant-autopilot' ) ); ?>
 				<?php $this->dialog_actions(); ?>
@@ -399,7 +399,8 @@ final class IntegrationsPage {
 	}
 
 	private function maybe_save(): bool {
-		if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) || ! isset( $_POST['aisaautopilot_integration'] ) ) {
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+		if ( 'POST' !== $method || ! isset( $_POST['aisaautopilot_integration'] ) ) {
 			return false;
 		}
 
@@ -484,11 +485,19 @@ final class IntegrationsPage {
 		return '1' === $this->post_value( $key );
 	}
 
+	/**
+	 * Generic POST reader. It cannot verify the nonce itself, because
+	 * maybe_save() uses it to read the nonce field before verifying it; every
+	 * other caller runs after the wp_verify_nonce() + manage_options gate in
+	 * maybe_save().
+	 */
 	private function post_value( string $key ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- See method docblock: nonce is verified by the only caller before any write.
 		if ( ! isset( $_POST[ $key ] ) || ! is_string( $_POST[ $key ] ) ) {
 			return '';
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- See method docblock: nonce is verified by the only caller before any write.
 		return sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
 	}
 }

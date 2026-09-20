@@ -7,6 +7,7 @@ use AISAAutoPilot\Chat\ChatEngine;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Security\RateLimiter;
+use AISAAutoPilot\Support\HandoffContact;
 use AISAAutoPilot\Support\HandoffService;
 
 /** Public, deliberately limited API for the site assistant widget. */
@@ -19,6 +20,7 @@ final class ChatWidgetController {
 		$widget   = $settings['widget'] ?? Settings::widget_defaults();
 		$color    = sanitize_hex_color( (string) ( $widget['color'] ?? '' ) ) ?: '#202a8d';
 		$bg       = sanitize_hex_color( (string) ( $widget['bg'] ?? '' ) ) ?: '#ffffff';
+		$copy     = Settings::widget_copy( (array) $widget );
 
 		// Never expose delivery credentials or exclusion rules to a site visitor.
 		return new \WP_REST_Response(
@@ -30,8 +32,8 @@ final class ChatWidgetController {
 				'theme'                        => sanitize_key( (string) ( $widget['theme'] ?? 'light' ) ),
 				'color'                        => $color,
 				'bg'                           => $bg,
-				'title'                        => sanitize_text_field( (string) ( $widget['title'] ?? '' ) ),
-				'greeting'                     => sanitize_textarea_field( (string) ( $widget['greeting'] ?? '' ) ),
+				'title'                        => sanitize_text_field( $copy['title'] ),
+				'greeting'                     => sanitize_textarea_field( $copy['greeting'] ),
 				'auto_open'                    => absint( $widget['auto_open'] ?? 0 ),
 				'voice_enabled'                => ! empty( $widget['voice_enabled'] ),
 				'voice_auto'                   => ! empty( $widget['voice_auto'] ),
@@ -39,7 +41,7 @@ final class ChatWidgetController {
 				'handoff_enabled'              => Settings::answer_desk_handoff_available(),
 				'handoff_text'                 => sanitize_text_field( (string) ( $widget['handoff_text'] ?? '' ) ),
 				'conversation_logging_enabled' => ! empty( $widget['conversation_logging_enabled'] ),
-				'conversation_notice'          => sanitize_text_field( (string) ( $widget['conversation_notice'] ?? '' ) ),
+				'conversation_notice'          => sanitize_text_field( $copy['conversation_notice'] ),
 			)
 		);
 	}
@@ -58,11 +60,13 @@ final class ChatWidgetController {
 
 		$question = trim( sanitize_textarea_field( (string) $request->get_param( 'question' ) ) );
 		if ( '' === trim( $question ) ) {
+			// Refusals carry "message"; only a successful reply carries "answer". The widget
+			// reads an "answer" as the assistant speaking, so this one used to be shown as one.
 			return new \WP_REST_Response(
 				array(
-					'ok'     => false,
-					'code'   => 'empty',
-					'answer' => __( 'Please enter a question.', 'ai-site-assistant-autopilot' ),
+					'ok'      => false,
+					'code'    => 'empty',
+					'message' => __( 'Please enter a question.', 'ai-site-assistant-autopilot' ),
 				),
 				400
 			);
@@ -166,14 +170,41 @@ final class ChatWidgetController {
 		}
 
 		$messages = $this->clean_handoff_messages( $request->get_param( 'messages' ) );
-		$name     = mb_substr( sanitize_text_field( (string) $request->get_param( 'name' ) ), 0, 120 );
-		$email    = sanitize_email( (string) $request->get_param( 'email' ) );
-		if ( '' !== (string) $request->get_param( 'email' ) && ! is_email( $email ) ) {
+		// Only the details the site owner switched on are read; the rest of the request is ignored.
+		$contact = HandoffContact::collect(
+			Settings::handoff_fields(),
+			array(
+				'name'    => $request->get_param( 'name' ),
+				'email'   => $request->get_param( 'email' ),
+				'phone'   => $request->get_param( 'phone' ),
+				'website' => $request->get_param( 'website' ),
+			)
+		);
+		if ( array() !== $contact['invalid'] ) {
+			$invalid           = $contact['invalid'][0];
+			$messages_by_field = array(
+				'name'    => __( 'Please enter your name.', 'ai-site-assistant-autopilot' ),
+				'email'   => __( 'Please provide a valid email address.', 'ai-site-assistant-autopilot' ),
+				'phone'   => __( 'Please enter a valid mobile number.', 'ai-site-assistant-autopilot' ),
+				'website' => __( 'Please enter a valid website address.', 'ai-site-assistant-autopilot' ),
+			);
 			return new \WP_REST_Response(
 				array(
 					'ok'      => false,
-					'code'    => 'invalid_email',
-					'message' => __( 'Please provide a valid email address.', 'ai-site-assistant-autopilot' ),
+					'code'    => 'invalid_' . $invalid,
+					'message' => $messages_by_field[ $invalid ],
+					'fields'  => $contact['invalid'],
+				),
+				400
+			);
+		}
+		if ( array() !== $contact['missing'] ) {
+			return new \WP_REST_Response(
+				array(
+					'ok'      => false,
+					'code'    => 'missing_contact',
+					'message' => __( 'Please fill in the required details.', 'ai-site-assistant-autopilot' ),
+					'fields'  => $contact['missing'],
 				),
 				400
 			);
@@ -189,15 +220,17 @@ final class ChatWidgetController {
 			);
 		}
 
-		$result = ( new HandoffService() )->handoff( $messages, $name, $email );
+		$result = ( new HandoffService() )->handoff( $messages, $contact['values'] );
 		// A visitor deliberately pressed "Talk to human", so keeping this request
 		// in the protected inbox is appropriate. Ordinary chat messages remain
 		// client-side only.
 		$inbox_id = ( new \AISAAutoPilot\Support\HandoffInbox() )->record(
 			$messages,
-			$name,
-			$email,
-			! empty( $result['ok'] ) ? 'new' : 'failed'
+			$contact['values']['name'],
+			$contact['values']['email'],
+			! empty( $result['ok'] ) ? 'new' : 'failed',
+			$contact['values']['phone'],
+			$contact['values']['website']
 		);
 		return new \WP_REST_Response(
 			array(
@@ -259,7 +292,11 @@ final class ChatWidgetController {
 			if ( ! is_array( $message ) ) {
 				continue;
 			}
-			$content = trim( sanitize_textarea_field( (string) ( $message['content'] ?? '' ) ) );
+			// A transcript is plain text: keep what the visitor typed ("3<4" is not markup) and drop only control
+			// characters. Every output escapes it: the inbox (esc_html, textContent), the email (esc_html) and
+			// Telegram (htmlspecialchars); SMS is plain text.
+			$content = str_replace( array( "\r\n", "\r" ), "\n", wp_check_invalid_utf8( (string) ( $message['content'] ?? '' ), true ) );
+			$content = trim( (string) preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $content ) );
 			if ( '' === $content ) {
 				continue;
 			}

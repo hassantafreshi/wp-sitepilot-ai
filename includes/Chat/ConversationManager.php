@@ -105,7 +105,8 @@ final class ConversationManager {
 
 		// Auto-generate title from first user message.
 		$title = $row['title'];
-		if ( 'New conversation' === $title && 'user' === $message['role'] ) {
+		// A conversation created under a translated locale stores the translated placeholder.
+		if ( 'user' === $message['role'] && in_array( (string) $title, array( '', 'New conversation', __( 'New conversation', 'ai-site-assistant-autopilot' ) ), true ) ) {
 			$title = mb_substr( wp_strip_all_tags( $message['content'] ), 0, 60 );
 		}
 

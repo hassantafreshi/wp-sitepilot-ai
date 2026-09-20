@@ -14,7 +14,7 @@ use AISAAutoPilot\Providers\ProviderInterface;
  */
 final class EfbCustomizeSkill {
 
-	private const OPS    = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_step', 'remove_field', 'add_option', 'remove_option' );
+	public const OPS     = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_step', 'remove_field', 'add_option', 'remove_option' );
 	private const PROPS  = array( 'label', 'required', 'placeholder', 'width', 'help' );
 	private const WIDTHS = array( 'full', 'half', 'third', 'quarter' );
 

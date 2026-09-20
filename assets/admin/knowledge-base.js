@@ -13,6 +13,7 @@
 
 	// Friendly labels for auto content-type slugs (embedded server-side).
 	var ctLabels = readJson( 'sp-kb-ctype-labels' );
+	var typeLabels = readJson( 'sp-kb-type-labels' );
 	var T = readJson( 'sp-kb-i18n' );
 
 	function readJson( id ) {
@@ -64,7 +65,8 @@
 		return fetch( cfg.restUrl + path, {
 			method: 'GET',
 			credentials: 'same-origin',
-			headers: { 'X-WP-Nonce': cfg.nonce },
+			// WordPress honours _locale=user only for JSON requests, so server-built labels match the admin language.
+			headers: { 'X-WP-Nonce': cfg.nonce, Accept: 'application/json' },
 		} ).then( function ( r ) {
 			return r.json().then( function ( data ) { return { status: r.status, data: data }; } );
 		} );
@@ -289,22 +291,41 @@
 		if ( ctypeFilter ) { params += '&content_type=' + encodeURIComponent( ctypeFilter ); }
 
 		var wrap = $( 'sp-kb-rows' );
-		if ( wrap ) {
-			wrap.textContent = '';
-			wrap.appendChild( el( 'div', { class: 'sp-empty', text: t( 'loading' ) } ) );
-		}
+		if ( wrap ) { showListLoading( wrap ); }
 
 		apiGet( 'kb/list?' + params )
 			.then( function ( res ) {
-				if ( ! res.data.ok ) { return; }
+				// A refused request (an expired nonce, for example) is a failed load too, never an endless loading state.
+				if ( ! res.data || ! res.data.ok ) { throw new Error( 'kb/list' ); }
 				renderTable( res.data.items, res.data.page, res.data.pages );
 			} )
 			.catch( function () {
-				if ( wrap ) {
-					wrap.textContent = '';
-					wrap.appendChild( el( 'div', { class: 'sp-empty', text: t( 'loadFailed' ) } ) );
-				}
+				if ( wrap ) { showListError( wrap ); }
 			} );
+	}
+
+	// Skeleton rows while the list loads; only the note is announced to screen readers.
+	function showListLoading( wrap ) {
+		wrap.textContent = '';
+		var box = el( 'div', { class: 'sp-kb-loading', 'aria-busy': 'true', 'data-sp-kb-list-loading': '' } );
+		for ( var i = 0; i < 5; i++ ) {
+			box.appendChild( el( 'div', { class: 'sp-kb-skeleton', 'aria-hidden': 'true' }, [ el( 'span' ), el( 'span' ), el( 'span' ), el( 'span' ) ] ) );
+		}
+		box.appendChild( el( 'p', { class: 'sp-kb-loading__note', role: 'status', text: t( 'readingIndex', 'Reading the index…' ) } ) );
+		wrap.appendChild( box );
+	}
+
+	// A failed list request removes nothing, so say that and retry the same page.
+	function showListError( wrap ) {
+		wrap.textContent = '';
+		var box = el( 'div', { class: 'sp-kb-load-error', role: 'alert', 'data-sp-kb-list-error': '' } );
+		box.appendChild( el( 'span', { class: 'sp-kb-load-error__icon', 'aria-hidden': 'true', html: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 8v5M12 17h.01M10.3 3.9 2.5 17.4a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>' } ) );
+		box.appendChild( el( 'p', { class: 'sp-kb-load-error__title', text: t( 'listFailed', 'The list could not be loaded' ) } ) );
+		box.appendChild( el( 'p', { class: 'sp-kb-load-error__text', text: t( 'listFailedBody', 'The request to your site failed. Nothing was removed from the index.' ) } ) );
+		var retry = el( 'button', { type: 'button', class: 'sp-btn sp-btn--r8 sp-kb-load-error__retry', 'data-sp-kb-list-retry': '', text: t( 'tryAgain', 'Try again' ) } );
+		retry.addEventListener( 'click', function () { loadTable( currentPage ); } );
+		box.appendChild( retry );
+		wrap.appendChild( box );
 	}
 
 	function renderTable( items, page, pages ) {
@@ -324,23 +345,27 @@
 		}
 
 		items.forEach( function ( item ) {
-			var typeLabel = item.content_type ? ( ctLabels[ item.content_type ] || item.content_type ) : item.post_type;
+			var title = item.title || '—';
+			var type = item.post_type ? ( typeLabels[ item.post_type ] || item.post_type ) : '—';
+			var category = item.content_type ? ( ctLabels[ item.content_type ] || item.content_type ) : '—';
+			var indexed = ! item.status || 'indexed' === item.status;
+			var readAt = item.indexed_at && '1970' !== String( item.indexed_at ).substring( 0, 4 ) ? item.indexed_at : item.updated_at;
 			var remove = el( 'button', {
 				type: 'button',
-				class: 'sp-btn--icon-sm sp-kb-delete',
+				class: 'sp-btn sp-btn--ghost sp-btn--xs sp-kb-delete',
 				'data-post-id': item.post_id,
-				text: '✕',
-				title: t( 'remove' ),
-				'aria-label': t( 'remove' ),
+				text: t( 'removeShort', 'Remove' ),
+				'aria-label': String( t( 'removeNamed', 'Remove “%s” from the index' ) ).replace( '%s', title ),
 			} );
 
-			wrap.appendChild( el( 'div', { class: 'sp-tr', style: '--sp-cols:' + cols() }, [
-				el( 'span', { class: 'sp-td sp-td--strong sp-td--clip', title: item.summary || '', text: item.title || '—' } ),
-				el( 'span', { class: 'sp-td sp-td--muted sp-td--clip', text: typeLabel } ),
+			wrap.appendChild( el( 'div', { class: 'sp-tr sp-kb-entry', style: '--sp-cols:' + cols() }, [
+				el( 'span', { class: 'sp-td sp-td--strong sp-td--clip', title: item.summary || '', text: title } ),
+				el( 'span', { class: 'sp-td sp-td--muted sp-td--clip', text: type } ),
+				el( 'span', { class: 'sp-td sp-td--muted sp-td--clip', text: category } ),
 				el( 'span', { class: 'sp-td' }, [
-					el( 'span', { class: 'sp-pill sp-pill--ok sp-pill--sm', text: t( 'indexed' ) } ),
+					el( 'span', { class: 'sp-pill sp-pill--sm ' + ( indexed ? 'sp-pill--ok' : 'sp-pill--warn' ), text: indexed ? t( 'indexed' ) : t( 'pending' ) } ),
 				] ),
-				el( 'span', { class: 'sp-td sp-td--muted sp-td--nowrap', text: item.updated_at ? item.updated_at.substring( 0, 10 ) : '—' } ),
+				el( 'span', { class: 'sp-td sp-td--muted sp-td--nowrap', text: readAt ? String( readAt ).substring( 0, 16 ) : '—' } ),
 				el( 'span', { class: 'sp-td' }, [ remove ] ),
 			] ) );
 		} );
@@ -356,7 +381,7 @@
 		if ( pages <= 1 ) { return; }
 
 		if ( page > 1 ) {
-			var prev = el( 'button', { type: 'button', class: 'sp-btn sp-btn--ghost sp-btn--xs', text: '←' } );
+			var prev = el( 'button', { type: 'button', class: 'sp-btn sp-btn--ghost sp-btn--xs', text: '←', 'aria-label': t( 'previousPage', 'Previous page' ) } );
 			prev.addEventListener( 'click', function () { loadTable( page - 1 ); } );
 			wrap.appendChild( prev );
 		}
@@ -367,10 +392,17 @@
 		} ) );
 
 		if ( page < pages ) {
-			var next = el( 'button', { type: 'button', class: 'sp-btn sp-btn--ghost sp-btn--xs', text: '→' } );
+			var next = el( 'button', { type: 'button', class: 'sp-btn sp-btn--ghost sp-btn--xs', text: '→', 'aria-label': t( 'nextPage', 'Next page' ) } );
 			next.addEventListener( 'click', function () { loadTable( page + 1 ); } );
 			wrap.appendChild( next );
 		}
+	}
+
+	/* ── Confirm: the shared accessible dialog, native confirm only as a fallback ── */
+	function confirmAction( opts ) {
+		var shell = window.AISAAutoPilotShell;
+		if ( shell && typeof shell.confirm === 'function' ) { return shell.confirm( opts ); }
+		return Promise.resolve( window.confirm( opts.title ) );
 	}
 
 	/* ── Delete KB entry ── */
@@ -381,8 +413,12 @@
 		var postId = parseInt( btn.getAttribute( 'data-post-id' ), 10 );
 		if ( ! postId ) { return; }
 
-		if ( ! window.confirm( t( 'confirmOne' ) ) ) { return; }
+		confirmAction( { title: t( 'confirmOne' ), body: t( 'removeBody' ), confirmLabel: t( 'removeCta' ), danger: true } ).then( function ( yes ) {
+			if ( yes ) { deleteEntry( btn, postId ); }
+		} );
+	}
 
+	function deleteEntry( btn, postId ) {
 		btn.disabled = true;
 		btn.textContent = '…';
 
@@ -393,13 +429,13 @@
 					loadStats();
 				} else {
 					btn.disabled = false;
-					btn.textContent = '✕';
+					btn.textContent = t( 'removeShort', 'Remove' );
 					window.alert( res.data.message || t( 'failed' ) );
 				}
 			} )
 			.catch( function () {
 				btn.disabled = false;
-				btn.textContent = '✕';
+				btn.textContent = t( 'removeShort', 'Remove' );
 			} );
 	}
 
@@ -485,39 +521,343 @@
 		}
 	}
 
-	/* ── Content Gaps ── */
+	/* ── Content Gaps and saved answers ── */
+	var gapsWindow = 'all';
+	var formCount = 0;
+
+	function toast( message ) {
+		var shell = window.AISAAutoPilotShell;
+		if ( shell && typeof shell.toast === 'function' ) { shell.toast( message ); }
+	}
+
 	function loadGaps() {
-		apiGet( 'kb/gaps' ).then( function ( res ) {
+		return apiGet( 'kb/gaps?_locale=user&window=' + encodeURIComponent( gapsWindow ) ).then( function ( res ) {
 			if ( ! res.data.ok ) { return; }
-			renderGaps( res.data.items || [] );
+			renderGaps( res.data.items || [], res.data.total );
 		} ).catch( function () {} );
 	}
 
-	function renderGaps( items ) {
+	/**
+	 * An inline answer editor. A gap passes a fixed question; a saved answer or a new one edits both fields.
+	 * Nothing is sent until the administrator presses Save answer.
+	 */
+	function answerForm( opts ) {
+		formCount++;
+		var form = el( 'form', { class: 'sp-kb-answer-form', 'data-sp-kb-answer-form': '', novalidate: 'novalidate' } );
+		var questionInput = null;
+		if ( opts.editQuestion ) {
+			var questionId = 'sp-kb-answer-q-' + formCount;
+			form.appendChild( el( 'label', { class: 'sp-kb-answer-form__label', for: questionId, text: t( 'answerQuestion', 'Question visitors ask' ) } ) );
+			questionInput = el( 'input', { id: questionId, class: 'sp-input sp-input--sm', type: 'text', maxlength: '300', dir: 'auto', 'data-sp-kb-answer-question': '' } );
+			questionInput.value = opts.question || '';
+			form.appendChild( questionInput );
+		}
+		var answerId = 'sp-kb-answer-a-' + formCount;
+		form.appendChild( el( 'label', { class: 'sp-kb-answer-form__label', for: answerId, text: t( 'answerLabel', 'Answer visitors get' ) } ) );
+		var answer = el( 'textarea', { id: answerId, class: 'sp-textarea sp-kb-answer-form__text', rows: '4', maxlength: '2000', dir: 'auto', 'aria-describedby': answerId + '-hint', 'data-sp-kb-answer-text': '' } );
+		answer.value = opts.answer || '';
+		form.appendChild( answer );
+		form.appendChild( el( 'p', { id: answerId + '-hint', class: 'sp-kb-answer-form__hint', text: t( 'answerHint', '' ) } ) );
+
+		var save = el( 'button', { type: 'submit', class: 'sp-btn sp-btn--xs', 'data-sp-kb-answer-save': '', text: t( 'answerSave', 'Save answer' ) } );
+		var cancel = el( 'button', { type: 'button', class: 'sp-btn sp-btn--ghost sp-btn--xs', text: t( 'cancel', 'Cancel' ) } );
+		var status = el( 'p', { class: 'sp-kb-answer-form__status', role: 'status', 'aria-live': 'polite', 'data-sp-kb-answer-status': '' } );
+		form.appendChild( el( 'div', { class: 'sp-kb-answer-form__actions' }, [ save, cancel, status ] ) );
+
+		cancel.addEventListener( 'click', opts.onCancel );
+		form.addEventListener( 'keydown', function ( event ) {
+			if ( 'Escape' === event.key ) {
+				event.preventDefault();
+				opts.onCancel();
+			}
+		} );
+		form.addEventListener( 'submit', function ( event ) {
+			event.preventDefault();
+			var values = { answer: answer.value.trim() };
+			if ( questionInput ) {
+				values.question = questionInput.value.trim();
+				if ( ! values.question ) {
+					status.textContent = t( 'answerNeedAsk', 'Enter the question first.' );
+					questionInput.focus();
+					return;
+				}
+			}
+			if ( ! values.answer ) {
+				status.textContent = t( 'answerNeedText', 'Write the answer first.' );
+				answer.focus();
+				return;
+			}
+			save.disabled = true;
+			status.textContent = t( 'saving', 'Saving…' );
+			opts.onSave( values ).then( function ( res ) {
+				if ( res && res.data && res.data.ok ) { return; }
+				save.disabled = false;
+				status.textContent = ( res && res.data && res.data.message ) || t( 'answerFailed', 'Could not save the answer. Please try again.' );
+			} ).catch( function () {
+				save.disabled = false;
+				status.textContent = t( 'answerFailed', 'Could not save the answer. Please try again.' );
+			} );
+		} );
+		form.focusFirst = function () {
+			( questionInput && ! questionInput.value ? questionInput : answer ).focus();
+		};
+		return form;
+	}
+
+	function renderGaps( items, total ) {
 		var wrap = $( 'sp-kb-gaps' );
 		var list = $( 'sp-kb-gaps-list' );
 		var count = $( 'sp-kb-gaps-count' );
+		var empty = $( 'sp-kb-gaps-empty' );
+		var clear = $( 'sp-kb-gaps-clear' );
 		if ( ! wrap || ! list ) { return; }
 
-		if ( ! items.length ) { wrap.hidden = true; return; }
+		list.textContent = '';
+		if ( empty && ! empty.hasAttribute( 'data-all-text' ) ) {
+			empty.setAttribute( 'data-all-text', empty.textContent );
+		}
+		if ( ! items.length ) {
+			// The overview keeps the card visible with an honest empty line (mockup);
+			// surfaces without that line still hide the card.
+			wrap.hidden = ! empty;
+			if ( empty ) {
+				empty.hidden = false;
+				empty.textContent = '7d' === gapsWindow ? t( 'gapsEmpty7d', 'No unanswered questions were asked in the last 7 days.' ) : empty.getAttribute( 'data-all-text' );
+			}
+			if ( count ) { count.hidden = true; }
+			if ( clear ) { clear.hidden = true; }
+			revealGapsFromHash( wrap );
+			return;
+		}
 
 		wrap.hidden = false;
-		if ( count ) { count.textContent = items.length; }
-		list.textContent = '';
+		if ( empty ) { empty.hidden = true; }
+		if ( clear ) { clear.hidden = false; }
+		if ( count ) { count.hidden = false; count.textContent = String( undefined !== total ? total : items.length ); }
 
 		items.forEach( function ( g ) {
-			var row = el( 'div', { class: 'sp-kb-gap' }, [
-				el( 'span', { class: 'sp-kb-gap__body', text: g.question } ),
-				el( 'span', { class: 'sp-kb-gap__count', text: '×' + ( g.count || 1 ) } ),
+			var questionId = 'sp-kb-gap-q-' + g.hash;
+			var badge = g.draft
+				? el( 'span', { class: 'sp-kb-gap__count is-draft', text: t( 'draftReady', 'Draft ready' ) } )
+				: el( 'span', { class: 'sp-kb-gap__count', text: g.asked_label || ( '×' + ( g.count || 1 ) ) } );
+			var main = el( 'div', { class: 'sp-kb-gap__main' }, [
+				el( 'div', { class: 'sp-kb-gap__top' }, [
+					el( 'span', { class: 'sp-kb-gap__body', id: questionId, dir: 'auto', text: g.question } ),
+					badge,
+				] ),
+				g.reason_label ? el( 'p', { class: 'sp-kb-gap__reason', text: g.reason_label } ) : null,
 			] );
-			var dismiss = el( 'button', { type: 'button', class: 'sp-kb-gap__dismiss', text: t( 'dismiss' ), 'aria-label': t( 'dismiss' ) } );
+			var actions = el( 'div', { class: 'sp-kb-gap__actions' } );
+			var row = el( 'div', { class: 'sp-kb-gap', 'data-sp-kb-gap': g.hash }, [ main, actions ] );
+
+			// Write it only opens Content Studio with an editable brief; an existing draft opens in the editor.
+			var write = g.draft
+				? el( 'a', { class: 'sp-btn sp-btn--xs', href: g.draft.url, 'data-sp-kb-gap-draft': '', 'aria-describedby': questionId, text: t( 'openDraft', 'Open draft' ) } )
+				: el( 'a', { class: 'sp-btn sp-btn--xs', href: g.write_url || '#', 'data-sp-kb-gap-write': '', 'aria-describedby': questionId, text: t( 'writeIt', 'Write it' ) } );
+			var answerBtn = el( 'button', { type: 'button', class: 'sp-kb-gap__action', 'aria-expanded': 'false', 'aria-describedby': questionId, 'data-sp-kb-gap-answer': '', text: t( 'answerIt', 'Answer it' ) } );
+			var dismiss = el( 'button', { type: 'button', class: 'sp-kb-gap__dismiss', 'aria-describedby': questionId, 'data-sp-kb-gap-dismiss': '', text: t( 'dismiss' ) } );
+			actions.appendChild( write );
+			actions.appendChild( answerBtn );
+			actions.appendChild( dismiss );
+
+			var editor = null;
+			function closeEditor() {
+				if ( editor ) { editor.remove(); editor = null; }
+				answerBtn.setAttribute( 'aria-expanded', 'false' );
+				answerBtn.focus();
+			}
+			answerBtn.addEventListener( 'click', function () {
+				if ( editor ) { closeEditor(); return; }
+				editor = answerForm( {
+					editQuestion: false,
+					onCancel: closeEditor,
+					onSave: function ( values ) {
+						return api( 'kb/answers?_locale=user', { gap: g.hash, answer: values.answer } ).then( function ( res ) {
+							if ( res.data && res.data.ok ) {
+								toast( t( 'answerSavedGap', 'Answer saved. The question moved to Saved answers.' ) );
+								loadGaps();
+								loadAnswers().then( function () { focusAnswer( res.data.item && res.data.item.id ); } );
+							}
+							return res;
+						} );
+					},
+				} );
+				row.appendChild( editor );
+				answerBtn.setAttribute( 'aria-expanded', 'true' );
+				editor.focusFirst();
+			} );
 			dismiss.addEventListener( 'click', function () {
 				row.style.opacity = '0.4';
 				api( 'kb/gaps/dismiss', { hash: g.hash } ).then( loadGaps );
 			} );
-			row.appendChild( dismiss );
 			list.appendChild( row );
 		} );
+		revealGapsFromHash( wrap );
+	}
+
+	function answersSection() { return document.querySelector( '[data-sp-kb-answers]' ); }
+
+	function loadAnswers() {
+		var section = answersSection();
+		if ( ! section ) { return Promise.resolve(); }
+		return apiGet( 'kb/answers' ).then( function ( res ) {
+			if ( ! res.data || ! res.data.ok ) { throw new Error( 'answers_failed' ); }
+			renderAnswers( res.data.items || [] );
+		} ).catch( function () {
+			var error = section.querySelector( '[data-sp-kb-answers-error]' );
+			if ( error ) { error.hidden = false; }
+		} );
+	}
+
+	function focusAnswer( id ) {
+		var section = answersSection();
+		if ( ! section ) { return; }
+		var edit = id ? section.querySelector( '[data-sp-kb-answer="' + id + '"] [data-sp-kb-answer-edit]' ) : null;
+		if ( edit ) {
+			edit.focus();
+			return;
+		}
+		var title = section.querySelector( '#sp-kb-answers-title' );
+		if ( title ) { title.focus(); }
+	}
+
+	function usedLabel( hits ) {
+		if ( ! hits ) { return t( 'usedNever', 'Not used yet' ); }
+		return ( 1 === hits ? t( 'usedOne', 'Used %s time' ) : t( 'usedMany', 'Used %s times' ) ).replace( '%s', String( hits ) );
+	}
+
+	function renderAnswers( items ) {
+		var section = answersSection();
+		var list = section.querySelector( '[data-sp-kb-answers-list]' );
+		var count = section.querySelector( '[data-sp-kb-answers-count]' );
+		var empty = section.querySelector( '[data-sp-kb-answers-empty]' );
+		var error = section.querySelector( '[data-sp-kb-answers-error]' );
+		list.textContent = '';
+		if ( error ) { error.hidden = true; }
+		if ( empty ) { empty.hidden = items.length > 0; }
+		if ( count ) {
+			count.hidden = ! items.length;
+			count.textContent = String( items.length );
+		}
+		items.forEach( function ( item ) { list.appendChild( answerRow( item ) ); } );
+	}
+
+	function answerRow( item ) {
+		var questionId = 'sp-kb-answer-row-q-' + item.id;
+		var edit = el( 'button', { type: 'button', class: 'sp-kb-gap__action', 'aria-expanded': 'false', 'aria-describedby': questionId, 'data-sp-kb-answer-edit': '', text: t( 'edit', 'Edit' ) } );
+		var del = el( 'button', { type: 'button', class: 'sp-kb-gap__dismiss', 'aria-describedby': questionId, 'data-sp-kb-answer-delete': '', text: t( 'delete', 'Delete' ) } );
+		var row = el( 'div', { class: 'sp-kb-gap sp-kb-answer', 'data-sp-kb-answer': item.id }, [
+			el( 'div', { class: 'sp-kb-gap__main' }, [
+				el( 'span', { class: 'sp-kb-gap__body', id: questionId, dir: 'auto', text: item.question } ),
+				el( 'p', { class: 'sp-kb-answer__text', dir: 'auto', text: item.answer } ),
+				el( 'span', { class: 'sp-kb-answer__meta', text: usedLabel( item.hits ) } ),
+			] ),
+			el( 'div', { class: 'sp-kb-gap__actions' }, [ edit, del ] ),
+		] );
+
+		var editor = null;
+		function closeEditor() {
+			if ( editor ) { editor.remove(); editor = null; }
+			edit.setAttribute( 'aria-expanded', 'false' );
+			edit.focus();
+		}
+		edit.addEventListener( 'click', function () {
+			if ( editor ) { closeEditor(); return; }
+			editor = answerForm( {
+				editQuestion: true,
+				question: item.question,
+				answer: item.answer,
+				onCancel: closeEditor,
+				onSave: function ( values ) {
+					return api( 'kb/answers?_locale=user', { id: item.id, question: values.question, answer: values.answer } ).then( function ( res ) {
+						if ( res.data && res.data.ok ) {
+							toast( t( 'answerSaved', 'Answer saved.' ) );
+							loadAnswers().then( function () { focusAnswer( res.data.item && res.data.item.id ); } );
+						}
+						return res;
+					} );
+				},
+			} );
+			row.appendChild( editor );
+			edit.setAttribute( 'aria-expanded', 'true' );
+			editor.focusFirst();
+		} );
+		del.addEventListener( 'click', function () {
+			confirmAction( { title: t( 'deleteTitle', 'Delete this saved answer?' ), body: t( 'deleteBody', '' ), confirmLabel: t( 'deleteCta', 'Delete answer' ), danger: true } ).then( function ( yes ) {
+				if ( ! yes ) { return; }
+				del.disabled = true;
+				api( 'kb/answers/delete', { id: item.id } ).then( function ( res ) {
+					if ( ! res.data || ! res.data.ok ) { throw new Error( 'delete_failed' ); }
+					toast( t( 'deleted', 'Saved answer deleted.' ) );
+					return loadAnswers().then( function () { focusAnswer( '' ); } );
+				} ).catch( function () {
+					del.disabled = false;
+					toast( t( 'deleteFailed', 'Could not delete the saved answer. Please try again.' ) );
+				} );
+			} );
+		} );
+		return row;
+	}
+
+	function bindAnswers() {
+		var section = answersSection();
+		if ( ! section ) { return; }
+		var add = section.querySelector( '[data-sp-kb-answer-add]' );
+		var slot = section.querySelector( '[data-sp-kb-answer-new]' );
+		if ( ! add || ! slot ) { return; }
+		function closeNew() {
+			slot.textContent = '';
+			slot.hidden = true;
+			add.setAttribute( 'aria-expanded', 'false' );
+			add.focus();
+		}
+		add.addEventListener( 'click', function () {
+			if ( ! slot.hidden ) { closeNew(); return; }
+			var form = answerForm( {
+				editQuestion: true,
+				onCancel: closeNew,
+				onSave: function ( values ) {
+					return api( 'kb/answers?_locale=user', { question: values.question, answer: values.answer } ).then( function ( res ) {
+						if ( res.data && res.data.ok ) {
+							slot.textContent = '';
+							slot.hidden = true;
+							add.setAttribute( 'aria-expanded', 'false' );
+							toast( t( 'answerSaved', 'Answer saved.' ) );
+							loadAnswers().then( function () { focusAnswer( res.data.item && res.data.item.id ); } );
+						}
+						return res;
+					} );
+				},
+			} );
+			slot.appendChild( form );
+			slot.hidden = false;
+			add.setAttribute( 'aria-expanded', 'true' );
+			form.focusFirst();
+		} );
+	}
+
+	function bindGapsWindow() {
+		Array.prototype.forEach.call( document.querySelectorAll( '[data-sp-kb-gaps-window]' ), function ( button ) {
+			button.addEventListener( 'click', function () {
+				gapsWindow = '7d' === button.getAttribute( 'data-sp-kb-gaps-window' ) ? '7d' : 'all';
+				Array.prototype.forEach.call( document.querySelectorAll( '[data-sp-kb-gaps-window]' ), function ( other ) {
+					var on = other === button;
+					other.classList.toggle( 'is-on', on );
+					other.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
+				} );
+				loadGaps();
+			} );
+		} );
+	}
+
+	// The Ask console links to #sp-kb-gaps. The card stays hidden until gaps load, so scroll to it once it shows.
+	var gapsRevealed = false;
+	function revealGapsFromHash( wrap ) {
+		if ( gapsRevealed || wrap.hidden || '#sp-kb-gaps' !== window.location.hash ) { return; }
+		gapsRevealed = true;
+		wrap.setAttribute( 'tabindex', '-1' );
+		wrap.scrollIntoView( { block: 'start' } );
+		wrap.focus( { preventScroll: true } );
 	}
 
 	/* ── Init ── */
@@ -543,9 +883,9 @@
 		} );
 		if ( reindexBtn ) {
 			reindexBtn.addEventListener( 'click', function () {
-				if ( window.confirm( t( 'confirmAll' ) ) ) {
-					startIndexing( true, { post_types: [], categories: [] } );
-				}
+				confirmAction( { title: t( 'confirmAll' ), body: t( 'reindexBody' ), confirmLabel: t( 'reindexCta' ), danger: true } ).then( function ( yes ) {
+					if ( yes ) { startIndexing( true, { post_types: [], categories: [] } ); }
+				} );
 			} );
 		}
 
@@ -554,9 +894,9 @@
 		if ( headerReindex ) {
 			headerReindex.addEventListener( 'click', function ( e ) {
 				e.preventDefault();
-				if ( window.confirm( t( 'confirmAll' ) ) ) {
-					startIndexing( true, { post_types: [], categories: [] } );
-				}
+				confirmAction( { title: t( 'confirmAll' ), body: t( 'reindexBody' ), confirmLabel: t( 'reindexCta' ), danger: true } ).then( function ( yes ) {
+					if ( yes ) { startIndexing( true, { post_types: [], categories: [] } ); }
+				} );
 			} );
 		}
 
@@ -583,9 +923,9 @@
 		var gapsClear = $( 'sp-kb-gaps-clear' );
 		if ( gapsClear ) {
 			gapsClear.addEventListener( 'click', function () {
-				if ( window.confirm( t( 'confirmGaps' ) ) ) {
-					api( 'kb/gaps/dismiss', { hash: '' } ).then( loadGaps );
-				}
+				confirmAction( { title: t( 'confirmGaps' ), body: t( 'gapsBody' ), confirmLabel: t( 'gapsCta' ), danger: true } ).then( function ( yes ) {
+					if ( yes ) { api( 'kb/gaps/dismiss', { hash: '' } ).then( loadGaps ); }
+				} );
 			} );
 		}
 
@@ -601,7 +941,10 @@
 				startIndexing( false, null, true );
 			} );
 		}
+		bindGapsWindow();
+		bindAnswers();
 		loadGaps();
+		loadAnswers();
 	}
 
 	if ( document.readyState === 'loading' ) {

@@ -37,6 +37,7 @@ final class ConnectionsPage {
 						),
 					)
 				);
+				OverviewNavigation::render( OverviewNavigation::TAB_HEALTH );
 				?>
 				<div class="sp-pagebody">
 					<div class="sp-health-card" id="sp-health-list" data-sp-health-list aria-live="polite">

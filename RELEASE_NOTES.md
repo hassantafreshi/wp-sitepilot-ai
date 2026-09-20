@@ -1,55 +1,201 @@
-# AI Site Assistant AutoPilot 1.0.2 - Phase 1 release candidate
+# AI Site Assistant AutoPilot 0.0.1
 
-## Release status
+First release. The plugin has never been published before, so the numbering
+starts at `0.0.1` (owner decision D-03, 2026-09-20). Until the product actually
+reaches `1.0.0`, every version bump moves the **rightmost segment only**, so the
+next release is `0.0.2`.
 
-This release completes the Phase 1 contract. It does not claim that the
-roadmap's Phase 2 commerce automation, RAG, billing, or cloud capabilities are
-ready. The precise production acceptance steps are tracked in
-`PHASE_1_RELEASE_READINESS_FA.md`.
+`0.0.1` is lower than the `1.0.4` that internal development builds carried. No
+site has an upgrade path from those builds — they were never released — and no
+code compares versions: `AISAAUTOPILOT_VERSION` is used only for asset
+cache-busting and one informational field in the native form connector.
 
-## Included changes
+- Tested up to: WordPress 7.1
+- Requires at least: WordPress 6.2
+- Requires PHP: 8.1
 
-- Pinned action execution: the connector selected at preview is the only one
-  allowed to run after approval. A connector that becomes unavailable causes a
-  safe failure and a fresh preview is required.
-- Owner/capability/one-time protection: proposals expire after 15 minutes,
-  cannot be approved by a different user, and use an atomic claim lock to
-  prevent replay.
-- Redacted action and delivery audit events; no form values are logged.
-- Native AISAAutoPilot Forms data contract: 20-field maximum and only text, email,
-  tel, textarea, select, radio, and checkbox fields. `phone` normalizes to
-  `tel`; uploads and high-risk field types are rejected.
-- **Create with AI** accepts text and a protected, maximum-45-second voice
-  command, then displays the exact preview and masked delivery recipient.
-- Public submission delivery uses `wp_mail()` with server-side validation,
-  nonce, honeypot, hashed per-form/IP transient rate limit, and safe Reply-To.
-  Visitor values are not stored by AISAAutoPilot.
-- Easy Form Builder is visibly separated as the advanced-form route.
-- WooCommerce can create only a separately approved **simple product draft**;
-  publish, order, refund, cart, checkout, discount, and price writes remain
-  unavailable.
-- Every AISAAutoPilot admin route uses the shared UI shell. The form builder uses
-  one exclusive compose/review/result state at a time.
+## The contract this release keeps
 
-## Verification performed
+- **AI proposes, a human approves, the backend executes.** Every write goes
+  through request, plan, validation, an immutable preview, explicit approval,
+  execution, an audit event and a usage record. Nothing bypasses approval and
+  nothing publishes on its own.
+- **No fake UI.** A control without a real backend is either absent or visibly
+  locked with the real reason. There is no sample data, and no invented count,
+  cost, status or success message.
+- **WooCommerce stays draft-only.** One reviewed simple-product draft. Publish,
+  edit, bulk, order and refund operations are not reachable.
+- **Voice is transcript-first.** What you dictate becomes editable text; nothing
+  is sent until you press Send.
+- **Secrets stay server-side.** API keys are encrypted at rest and never reach
+  the DOM, a REST response, the activity log or an export.
+- **Visitor form values are never stored.** They are validated in memory, sent
+  by `wp_mail()`, and discarded.
 
-- PHP syntax check: 93 production files passed.
-- PHPUnit: 102 tests / 383 assertions passed.
-- PHPStan level 5: passed with no errors.
-- Local WordPress Phase 1 integration: 34/34 checks passed.
-- Native form smoke test: 8/8 checks passed.
-- WooCommerce draft smoke test: 3/3 checks passed.
-- Browser E2E: all 14 AISAAutoPilot admin pages, the single form-builder flow,
-  390px mobile layout, RTL layout, widget launcher, TTS, and the safe public
-  microphone endpoint passed with no AISAAutoPilot JavaScript console errors.
-- The delivery test uses `pre_wp_mail` and verifies recipient, body,
-  Reply-To, rate limiting, and that visitor values are never stored.
+## What ships
 
-## Environment acceptance before public launch
+**Admin information architecture** — eight top-level screens: Overview (with
+Usage & Cost, Health and Activity Log as tabs), Setup & Connection,
+Integrations, Site Knowledge, Answer Desk, Store Copilot, Content Studio and
+Form Studio. Every slug that existed before stays registered as a hidden alias,
+so old bookmarks and deep links keep working.
 
-- Configure an AI provider and execute `tests/ai_runtime_check.php`; this local
-  environment intentionally contains no provider secret.
-- Send a real form submission to the production notification inbox (and test a
-  browser microphone) after configuring the site's SMTP/mail transport.
-- Repeat the browser acceptance once in the target hosting/browser environment
-  as part of the deployment checklist.
+**Setup & Connection** — a four-step wizard: provider, API key and a real
+connection test, model chosen from the provider's live catalogue, and
+integrations. Fourteen provider presets plus a Custom OpenAI-compatible
+endpoint.
+
+**Site Knowledge** — indexing of published WordPress content, an entries list
+with single delete and full re-index, an "Ask your knowledge base" console,
+unanswered questions with "Write it" into Content Studio, saved answers,
+and Collections / Sync sources views derived from the index. Optional
+embeddings for semantic search.
+
+**Answer Desk** — the visitor chat widget (off by default) with panel and
+full-screen modes, a customiser for colours, icons, greeting, suggested
+questions and the pages it appears on, conversation logging with a privacy
+notice, a human-handoff card with configurable contact details, and a handoff
+inbox in wp-admin with optional email, Telegram or Twilio delivery.
+
+**Store Copilot** — read-only WooCommerce insight and a single reviewed
+simple-product draft.
+
+**Content Studio and Form Studio** — AI-drafted posts and pages with templates,
+history and CSV export; and forms described in text or voice, previewed field
+by field with a masked recipient, approved, then placed by shortcode.
+
+**Easy Form Builder Copilot** — a "Build with AI" button inside Easy Form
+Builder that creates and edits real EFB forms. Saving stays with EFB's own
+button, and the interface says so.
+
+**Usage and cost** — per period and per context, with an optional monthly token
+budget that stops requests once it is reached.
+
+**Localisation** — a complete Persian translation and full right-to-left
+layout, built with CSS logical properties rather than a mirrored stylesheet.
+
+## What deleting the plugin removes
+
+Deactivating changes nothing. Deleting runs `uninstall.php`.
+
+| Removed | Detail |
+|---|---|
+| Tables | `{prefix}aisaautopilot_kb`, `{prefix}aisaautopilot_chats`, `{prefix}aisaautopilot_widget_chats`, `{prefix}aisaautopilot_handoffs` |
+| Options | 27 named `aisaautopilot_*` options (settings, encrypted keys, handoff secrets, logs, usage and budget, knowledge gaps and saved answers, schema stamps, the rebrand marker), every `aisaautopilot_action_claim_*` replay lock, and a final sweep of any remaining `aisaautopilot_*` row |
+| Transients | Rate-limit counters, the 15-minute action preview, the provider-test record and the delivery-test cooldown, by `_transient_aisaautopilot_*` prefix |
+| Cron | `aisaautopilot_index_post` is unscheduled |
+
+| Kept on purpose | Why |
+|---|---|
+| `aisaautopilot_form` posts and their `_aisaautopilot_form_plan` meta | Your forms |
+| Legacy `aisaautopilot_entry` posts | Data an older version created |
+| Posts, pages and product drafts written through the plugin, with their `_aisaautopilot_generated`, `_aisaautopilot_meta_description` and `_aisaautopilot_source_gap` meta | Your content |
+| Easy Form Builder forms | They belong to that plugin |
+
+The plugin stores no user meta and no network-wide options. Under a persistent
+object cache the plugin's transients live in the cache rather than the options
+table; they are not reachable from the uninstall hook and expire within an hour.
+
+## Verification
+
+| Check | Result | Evidence |
+|---|---|---|
+| Static gate | php-lint 234/234, node --check 43/43, PHPCS 134/134 files with 0 errors and 0 warnings, PHPStan 0, PHPUnit 155 tests / 544 assertions | `test-artifacts/gates/20260919-003345-static` |
+| Smoke gate | 8/8, including menu 5/0, assets 20/0 and render smoke 18/0 | `test-artifacts/gates/20260919-071048-smoke` |
+| Phase 1 integration | 45/0 | `test-artifacts/gates/20260916-204545-release` |
+| Release browser smoke (T15) | 587 PASS / 0 FAIL over 19 routes, `en_US` 288 and `fa_IR` 299, at 1440 and 390 | `test-artifacts/release-smoke/20260918-t15/run6-matrix.txt` |
+| Visual parity with the mockups (T16) | 135 of 135 mockup states judged, 0 open defects | `docs/VISUAL_PARITY_Q4_2_REPORT_FA.md` |
+| Accessibility, RTL and responsive (T17) | admin 1522/0 over 26 routes, visitor widget 437/0, EFB copilot 156/0 | `docs/ACCESSIBILITY_Q4_3_REPORT_FA.md` |
+| Admin IA matrix (T56) | 652 PASS / 0 FAIL, `en_US` 316 and `fa_IR` 336 | `test-artifacts/admin-ia/20260918-t56/matrix-run5.txt` |
+| Translation (T18) | POT and PO both 1819 of 1819 translated, 0 fuzzy, 0 obsolete, `msgfmt --check` clean | `test-artifacts/i18n/20260919-t18/` |
+| Contract audit (T19) | 65 REST routes and 66 handlers; 7 public routes unchanged; all 59 admin handlers require `manage_options`; no route removed; frozen identifiers unchanged | `docs/CONTRACT_AUDIT_Q4_T19_REPORT_FA.md` |
+| Security review (T20) | 124 files reviewed; four findings fixed, none accepted as risk; each fix has a test that fails against the pre-fix code | `docs/SECURITY_REVIEW_Q4_T20_REPORT_FA.md` |
+
+Steps that need a real environment — a live provider key, real SMTP delivery, a
+real browser microphone and a real WooCommerce draft — are listed in
+`MANUAL-TESTING.md` and signed off by the site owner, not by automation.
+
+## Known limitations in this release
+
+- The indexing queue keeps no persistent cursor: a pass lives only while the
+  browser tab is open, and the screen says so.
+- PDF and external-URL knowledge sources are not built. Only WordPress post
+  types are indexed.
+- Voice has no realtime session: no live captions, no barge-in, no continuous
+  call. The widget and the admin screens both state this.
+- Visitor location, order-status lookups for visitors, and paid-tier features
+  are not built.
+- `includes/Frontend/WidgetRenderer.php`, `assets/frontend/chat-widget.js|css`,
+  `assets/admin/dashboard.js` and `includes/Voice/VoiceService.php` are not
+  hooked anywhere. They ship but never run; removing them is a separate
+  decision.
+- Deliberate differences from the hi-fi mockups are listed, one by one, in
+  `docs/MOCKUP_FEATURE_GAP_REPORT_FA.md` and in each package's execution
+  report.
+- One Activity Log QA incident during development is disclosed in full in
+  `docs/ACTIVITY_LOG_QA_INCIDENT_FA.md`.
+
+### Plugin Check
+
+We run Plugin Check against the built ZIP, not the development folder. On
+Plugin Check **2.0.0** in `new` mode, all **27 static checks run** and the
+result is **0 errors and 0 warnings**, with no check failing to run. The
+machine-readable report is in
+`test-artifacts/plugin-check/0.0.1-rebuild-20260921/plugin-check-0.0.1.json`,
+and the run is reproducible with the runner and the junction-safe swap script
+kept beside it.
+
+An earlier build of this release reported 11 errors and 13 warnings. Every one
+of those 24 findings was reviewed individually and then **fixed, not accepted**,
+across 10 files. Where a finding was a genuine defect it was corrected in code;
+where the sniff could not follow the data flow, the code now carries a
+`phpcs:ignore` with the reason stated inline, so the next reader sees the
+argument instead of having to rebuild it. Two of those judgements are worth
+recording, because the obvious fix would have been wrong:
+
+- In `includes/Providers/UsageCappedProvider.php` the flagged string is the
+  message given to a `ProviderException` constructor. It is never echoed; it
+  reaches only the logger and a `wp_json_encode()` body. Wrapping it in
+  `esc_html__()` would have put HTML entities inside a JSON payload, so the
+  finding is silenced with a documented reason instead.
+- In `includes/Admin/WooCommerceSettings.php` the raw `$_GET['tab']` is stored
+  and put back in a `finally` block around an aliased render. Sanitising it
+  would have silently rewritten the caller's superglobal, so it too is
+  documented rather than changed.
+
+The rebuild changed 1,044 bytes: comments, `phpcs:ignore` annotations and
+`esc_attr()` calls. The compiled translation file was not touched. The full
+gate suite was re-run against the changed tree and stayed green (php-lint
+234/234, PHPCS 134/134 with 0/0, PHPStan 0, PHPUnit 156 tests / 547
+assertions, and the admin smokes at 5/0, 20/0 and 18/0), the ZIP passed
+independent structural verification at 31 PASS / 0 FAIL, and the clean-install
+acceptance was repeated end to end at 23 PASS / 0 FAIL with the WordPress
+debug log not growing by a single byte.
+
+Google Fonts is not flagged as an offloaded or external resource:
+`offloading_files`, `enqueued_resources` and `external_admin_menu_links` all
+return zero. The two webfonts loaded from `fonts.googleapis.com` on admin
+screens are disclosed in the `== External services ==` section of `readme.txt`.
+
+## Development build history
+
+These builds were never published. They are kept here because the readme
+changelog now starts at `0.0.1`.
+
+**1.0.4** — merged the first-run wizard into a single Setup & Settings screen;
+expanded the provider catalogue to fifteen entries including Anthropic over its
+native Messages API; model dropdown with "Refresh from provider"; provider
+marks and right-to-left support for the visitor panel, public forms and
+exported transcripts; replaced a direct cURL upload with `wp_remote_post()`.
+
+**1.0.3** — security hardening: scoped administrator conversations, encrypted
+handoff credentials, rate-limited public and voice endpoints, safe outbound
+HTTP.
+
+**1.0.2** — the Phase 1 contract: pinned action execution, owner/capability and
+one-time protection with a 15-minute expiry and an atomic claim lock, redacted
+audit events, the native email-only forms product, the Easy Form Builder route
+and the WooCommerce simple-product draft.
+
+**1.0.1** — the first safe text/voice form flow, email-only delivery with no
+visitor-value storage, and one-time pinned action execution.

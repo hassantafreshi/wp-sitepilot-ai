@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Api;
 
+use AISAAutoPilot\Content\KbGaps;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Execution\ActionStore;
 use AISAAutoPilot\Execution\ContentDraftExecutor;
@@ -35,6 +36,12 @@ final class ContentController {
 		if ( '' === $prompt || mb_strlen( $prompt ) > 6000 ) {
 			return $this->respond( array( 'message' => __( 'Describe the post or page you want to draft in 6,000 characters or fewer.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_prompt' );
 		}
+		// "Write it" on an unanswered question passes its hash. It must name a question that is still open;
+		// the link to the draft is made from the stored proposal after approval, never from the client.
+		$source_gap = (string) $request->get_param( 'source_gap' );
+		if ( '' !== $source_gap && null === ( new KbGaps() )->get( $source_gap ) ) {
+			return $this->respond( array( 'message' => __( 'The unanswered question this draft was for is no longer in the list. Open Write again to draft without linking it.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_source_gap' );
+		}
 		if ( ( new UsageTracker() )->is_exhausted() ) {
 			$this->logger->info( 'content.usage_cap_reached', 'Content planning was blocked because the token budget is exhausted.' );
 			return $this->respond( array( 'message' => __( 'Your AI usage cap has been reached. Increase or reset the budget before drafting content.', 'ai-site-assistant-autopilot' ) ), false, 429, 'usage_cap_reached' );
@@ -59,7 +66,7 @@ final class ContentController {
 				'validation_failed'
 			);
 		}
-		$action_id = $this->store->create( $result->plan, 'content_draft' );
+		$action_id = $this->store->create( $result->plan, 'content_draft', array( 'source_gap' => $source_gap ) );
 		$this->logger->info(
 			'content.plan_created',
 			'Content Studio plan created.',

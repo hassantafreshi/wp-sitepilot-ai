@@ -19,6 +19,7 @@ final class AnswerDeskWidgetPage {
 		}
 
 		$widget       = array_merge( Settings::widget_defaults(), (array) Settings::get( 'widget', array() ) );
+		$copy         = Settings::widget_copy( $widget );
 		$brand        = sanitize_hex_color( (string) ( $widget['color'] ?? '' ) ) ?: '#202a8d';
 		$theme        = 'dark' === ( $widget['theme'] ?? 'light' ) ? 'dark' : 'light';
 		$derived      = Settings::widget_derived_colors( $brand, $theme );
@@ -91,6 +92,16 @@ final class AnswerDeskWidgetPage {
 								<a class="sp-answer-widget-row__link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_WIDGET . '#answer-desk-widget' ) ); ?>"><?php esc_html_e( 'Advanced', 'ai-site-assistant-autopilot' ); ?></a>
 							</div>
 
+							<?php $where = $this->where_summary( $widget ); ?>
+							<div class="sp-answer-widget-row" data-sp-widget-where="<?php echo esc_attr( $where['state'] ); ?>">
+								<span class="sp-answer-widget-row__mark<?php echo 'everywhere' === $where['state'] ? ' is-on' : ''; ?>" aria-hidden="true"></span>
+								<div class="sp-answer-widget-row__body">
+									<strong><?php esc_html_e( 'Pages where the chat appears', 'ai-site-assistant-autopilot' ); ?></strong>
+									<p><?php echo esc_html( $where['text'] ); ?></p>
+								</div>
+								<a class="sp-answer-widget-row__link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_WIDGET . '#answer-desk-visibility' ) ); ?>"><?php esc_html_e( 'Choose pages', 'ai-site-assistant-autopilot' ); ?></a>
+							</div>
+
 							<div class="sp-answer-widget-row is-locked" data-sp-widget-theme-locked>
 								<span class="sp-answer-widget-row__mark" aria-hidden="true"></span>
 								<div class="sp-answer-widget-row__body">
@@ -130,8 +141,8 @@ final class AnswerDeskWidgetPage {
 						<h2 class="sp-h3" id="sp-answer-widget-preview-title"><?php esc_html_e( 'Live preview', 'ai-site-assistant-autopilot' ); ?></h2>
 						<figure class="sp-answer-widget-preview__frame" dir="<?php echo esc_attr( is_rtl() ? 'rtl' : 'ltr' ); ?>">
 							<div class="sp-answer-widget-preview__head">
-								<strong><?php echo esc_html( (string) $widget['title'] ); ?></strong>
-								<span><?php echo esc_html( (string) $widget['subtitle'] ); ?></span>
+								<strong><?php echo esc_html( $copy['title'] ); ?></strong>
+								<span><?php echo esc_html( $copy['subtitle'] ); ?></span>
 							</div>
 							<div class="sp-answer-widget-preview__messages" aria-hidden="true">
 								<p class="sp-answer-widget-preview__question"><?php esc_html_e( 'Do you ship to Canada?', 'ai-site-assistant-autopilot' ); ?></p>
@@ -147,6 +158,61 @@ final class AnswerDeskWidgetPage {
 			<?php Ui::overlays(); ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * One line on where visitors see the chat, counting only rules that still point at something.
+	 *
+	 * @param array<string, mixed> $widget
+	 * @return array{state:string, text:string}
+	 */
+	private function where_summary( array $widget ): array {
+		if ( 'exclude' !== ( $widget['widget_visibility'] ?? 'all' ) ) {
+			return array(
+				'state' => 'everywhere',
+				'text'  => __( 'The chat shows on every page of your site.', 'ai-site-assistant-autopilot' ),
+			);
+		}
+
+		$rules   = Settings::widget_exclusions( $widget );
+		$entries = count(
+			array_filter(
+				$rules['ids'],
+				static function ( int $id ): bool {
+					$entry = get_post( $id );
+					return $entry instanceof \WP_Post && 'trash' !== $entry->post_status;
+				}
+			)
+		);
+		$types   = count( array_filter( $rules['types'], 'post_type_exists' ) );
+		$cats    = count( array_filter( $rules['cats'], static fn( int $id ): bool => get_term( $id, 'category' ) instanceof \WP_Term ) );
+
+		$parts = array();
+		if ( $entries > 0 ) {
+			/* translators: %s: number of single pages, posts or products. */
+			$parts[] = sprintf( _n( '%s single entry', '%s single entries', $entries, 'ai-site-assistant-autopilot' ), number_format_i18n( $entries ) );
+		}
+		if ( $types > 0 ) {
+			/* translators: %s: number of content types such as Posts or Products. */
+			$parts[] = sprintf( _n( '%s content type', '%s content types', $types, 'ai-site-assistant-autopilot' ), number_format_i18n( $types ) );
+		}
+		if ( $cats > 0 ) {
+			/* translators: %s: number of post categories. */
+			$parts[] = sprintf( _n( '%s category', '%s categories', $cats, 'ai-site-assistant-autopilot' ), number_format_i18n( $cats ) );
+		}
+
+		if ( array() === $parts ) {
+			return array(
+				'state' => 'everywhere',
+				'text'  => __( 'Set to hide the chat on some pages, but none is chosen yet, so it shows on every page.', 'ai-site-assistant-autopilot' ),
+			);
+		}
+
+		return array(
+			'state' => 'limited',
+			/* translators: %s: list such as "2 single entries and 1 category". */
+			'text'  => sprintf( __( 'Hidden on %s. Shown everywhere else.', 'ai-site-assistant-autopilot' ), wp_sprintf( '%l', $parts ) ),
+		);
 	}
 
 	private function position_label( string $position ): string {

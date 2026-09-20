@@ -44,6 +44,7 @@ final class Plugin {
 		}
 		$this->booted = true;
 		Settings::migrate_legacy_handoff_secrets();
+		Settings::migrate_widget_defaults();
 
 		$this->register_services();
 		add_action( 'init', array( $this, 'on_init' ) );
@@ -122,22 +123,25 @@ final class Plugin {
 		}
 
 		$settings = Settings::all();
+		$copy     = Settings::widget_copy( (array) $settings['widget'] );
 		wp_enqueue_style( 'aisaautopilot-widget', AISAAUTOPILOT_URL . 'assets/frontend/widget.css', array(), AISAAUTOPILOT_VERSION );
 		wp_enqueue_script( 'aisaautopilot-widget', AISAAUTOPILOT_URL . 'assets/frontend/widget.js', array(), AISAAUTOPILOT_VERSION, true );
 		wp_localize_script(
 			'aisaautopilot-widget',
 			'AISAAutoPilotWidget',
 			array(
-				'restUrl'        => rest_url( RestRoutes::NAMESPACE . '/' ),
-				'nonce'          => wp_create_nonce( 'wp_rest' ),
-				'greeting'       => $settings['widget']['greeting'] ?? 'Hi!',
-				'voiceName'      => $settings['widget']['voice_name'] ?? 'Google UK English Female',
-				'voiceAuto'      => ! empty( $settings['widget']['voice_auto'] ),
-				'handoffText'    => $settings['widget']['handoff_text'] ?? 'Talk to human',
-				'handoffSending' => __( 'Sending…', 'ai-site-assistant-autopilot' ),
-				'handoffSent'    => __( 'Sent — we will be in touch.', 'ai-site-assistant-autopilot' ),
-				'handoffHook'    => $settings['widget']['handoff_hook'] ?? '',
-				'i18n'           => self::widget_strings(),
+				'restUrl'      => rest_url( RestRoutes::NAMESPACE . '/' ),
+				'nonce'        => wp_create_nonce( 'wp_rest' ),
+				'greeting'     => $copy['greeting'],
+				// The widget reads its voice settings here instead of asking the REST API on
+				// every page view (F-15): the panel is rendered from the same values.
+				'voiceEnabled' => ! empty( $settings['widget']['voice_enabled'] ),
+				'voiceName'    => (string) ( $settings['widget']['voice_name'] ?? '' ),
+				'voiceAuto'    => ! empty( $settings['widget']['voice_auto'] ),
+				// The handoff label and hook are rendered into the markup by ChatWidget and the
+				// card's two status strings live in i18n, so nothing else about the handoff is
+				// pushed to every page view.
+				'i18n'         => self::widget_strings(),
 			)
 		);
 	}
@@ -152,7 +156,10 @@ final class Plugin {
 			'sources'          => __( 'Sources', 'ai-site-assistant-autopilot' ),
 			'retry'            => __( 'Try again', 'ai-site-assistant-autopilot' ),
 			'send'             => __( 'Send', 'ai-site-assistant-autopilot' ),
-			'stop'             => __( 'Stop', 'ai-site-assistant-autopilot' ),
+			// Honest about what the button does: the question has already reached the site.
+			'stopWaiting'      => __( 'Stop waiting for the reply', 'ai-site-assistant-autopilot' ),
+			'stoppedWaiting'   => __( 'You stopped waiting. The site may still finish this answer, but it will not appear here.', 'ai-site-assistant-autopilot' ),
+			'clarifyLabel'     => __( 'Choose what you mean', 'ai-site-assistant-autopilot' ),
 			'sending'          => __( 'Sending…', 'ai-site-assistant-autopilot' ),
 			'sent'             => __( 'Sent — we will be in touch.', 'ai-site-assistant-autopilot' ),
 			'sendFailed'       => __( 'Could not send. Please try again.', 'ai-site-assistant-autopilot' ),
@@ -166,6 +173,19 @@ final class Plugin {
 			'micDenied'        => __( 'Microphone access was denied.', 'ai-site-assistant-autopilot' ),
 			'noAudio'          => __( 'No audio was captured. Please try again.', 'ai-site-assistant-autopilot' ),
 			'transcribeFailed' => __( 'Could not transcribe that. Please try again.', 'ai-site-assistant-autopilot' ),
+			// Voice phases announced in the widget's status region: recording is the full
+			// sentence below, and these two cover the rest of the transcript-first flow.
+			'transcribing'     => __( 'Transcribing your recording…', 'ai-site-assistant-autopilot' ),
+			'transcriptReady'  => __( 'Your words are in the message box. Check them, then press Send. Nothing was sent yet.', 'ai-site-assistant-autopilot' ),
+			'from'             => __( 'From', 'ai-site-assistant-autopilot' ),
+			'typing'           => __( 'The assistant is writing a reply', 'ai-site-assistant-autopilot' ),
+			'recording'        => __( 'Listening… tap the mic again to stop', 'ai-site-assistant-autopilot' ),
+			// The placeholder while recording stays one line on a phone; the mic shows a stop square.
+			'listening'        => __( 'Listening…', 'ai-site-assistant-autopilot' ),
+			'fieldRequired'    => __( 'Please fill this in.', 'ai-site-assistant-autopilot' ),
+			'emailInvalid'     => __( 'Please provide a valid email address.', 'ai-site-assistant-autopilot' ),
+			'phoneInvalid'     => __( 'Please enter a valid mobile number.', 'ai-site-assistant-autopilot' ),
+			'websiteInvalid'   => __( 'Please enter a valid website address.', 'ai-site-assistant-autopilot' ),
 		);
 	}
 

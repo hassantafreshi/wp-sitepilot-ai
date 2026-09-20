@@ -2,32 +2,116 @@
 Contributors: aisaautopilot
 Tags: ai, forms, form-builder, voice, email
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.4
+Stable tag: 0.0.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Describe a form by text or voice, review it, approve it, and deliver submissions by email without storing visitor field values.
+An AI copilot for your site that proposes, never publishes: every form, draft and product is previewed and approved by a human first.
 
 == Description ==
 
-AI Site Assistant AutoPilot creates simple, single-step AISAAutoPilot Forms through a safe admin
-flow: request, AI plan, preview, explicit approval, and create.
+AI Site Assistant AutoPilot adds an AI copilot to wp-admin. The AI proposes,
+you review an exact preview, and only your approval lets the plugin write
+anything. It never publishes on its own.
 
-The native AISAAutoPilot Forms product supports text, email, telephone, textarea,
-select, radio and checkbox fields (up to 20 fields). Public submissions are
-validated server-side and sent with wp_mail(). AISAAutoPilot does not save form
-values in posts, post meta, options or activity logs.
+Everything in this first version:
 
-Easy Form Builder is a separate, optional advanced-form path. Use it for
-uploads, payments, conditional logic, calculations, multi-step flows or its
-own advanced integrations.
+* Overview screen with four tabs: Overview, Usage & Cost, Health and Activity Log.
+* Setup & Connection wizard: pick one of fourteen AI provider presets, or point
+  the Custom preset at any OpenAI-compatible endpoint. Save your own API key
+  encrypted, test the connection, and choose a model from the provider's live
+  catalogue.
+* Integrations screen: one place to turn each capability on or off and see
+  which ones this site can actually run.
+* Site Knowledge: index your published content, browse and re-index entries,
+  an "Ask your knowledge base" console, unanswered questions and saved answers,
+  plus Collections and Sync sources views of what is read. WordPress post types
+  are the only sources in this version. Optional embeddings for semantic search.
+* Answer Desk: a visitor chat widget (off until you enable it) with panel and
+  full-screen modes, conversation history, a customiser for colours, icons,
+  greeting and suggested questions, and a rule for which pages it appears on.
+* Human handoff: a visitor can ask for a person. The request reaches an inbox
+  in wp-admin, and optionally email, Telegram or WhatsApp/SMS through Twilio.
+* Voice input that is transcript-first: speech becomes editable text in the
+  message box and is never sent by itself.
+* Store Copilot for WooCommerce: read-only store insight, plus creation of a
+  single reviewed simple-product draft. Publishing, editing, bulk changes,
+  orders and refunds stay unavailable.
+* Content Studio: AI-drafted posts and pages with templates, an immutable
+  preview, explicit approval, a history screen and CSV export. Drafts only.
+* Form Studio: describe a form in text or by voice, review the exact fields
+  and the masked delivery recipient, approve, and place the shortcode.
+* Native AISAAutoPilot Forms: text, email, tel, textarea, select, radio and
+  checkbox, up to 20 fields, validated server-side and delivered by
+  wp_mail(). Visitor values are never stored in posts, meta, options or logs.
+* Easy Form Builder Copilot: a "Build with AI" button inside Easy Form Builder
+  that creates and edits real EFB forms. Saving stays with EFB's own button.
+* Usage & cost tracking per period and per context, with an optional monthly
+  token budget that stops requests once it is reached.
+* Activity log of plans, approvals and executions, with API keys and tokens
+  redacted.
+* Full right-to-left support and a complete Persian translation. The interface
+  uses CSS logical properties rather than a mirrored stylesheet, and the
+  visitor panel and public forms declare their own text direction.
 
-The interface is fully right-to-left aware. It is laid out with CSS logical
-properties rather than a mirrored stylesheet, and the visitor chat panel and
-public forms declare their own text direction, so they read correctly even in a
-theme that never sets one.
+Easy Form Builder is a separate, optional plugin. Use it for uploads,
+payments, conditional logic, calculations or multi-step flows.
+
+== What deleting the plugin removes ==
+
+Deactivating changes nothing. Deleting the plugin from the Plugins screen runs
+uninstall.php, which removes exactly this:
+
+Database tables (dropped):
+
+* {prefix}aisaautopilot_kb - the knowledge index.
+* {prefix}aisaautopilot_chats - administrator conversations.
+* {prefix}aisaautopilot_widget_chats - visitor conversations.
+* {prefix}aisaautopilot_handoffs - handoff requests, including the contact
+  details a visitor typed.
+
+Options (deleted): aisaautopilot_settings, aisaautopilot_provider_key,
+aisaautopilot_embedding_key, aisaautopilot_handoff_secrets,
+aisaautopilot_wp_connector_key, aisaautopilot_provider_verified,
+aisaautopilot_setup_step, aisaautopilot_logs, aisaautopilot_usage_log,
+aisaautopilot_usage_totals, aisaautopilot_monthly_budget,
+aisaautopilot_kb_gaps, aisaautopilot_kb_saved_answers,
+aisaautopilot_kb_answer_cache, aisaautopilot_kb_version,
+aisaautopilot_usage_period, aisaautopilot_usage_period_contexts,
+aisaautopilot_usage_daily, aisaautopilot_usage_historical_totals,
+aisaautopilot_usage_historical_log, aisaautopilot_usage_period_archive,
+aisaautopilot_voice_usage_log, aisaautopilot_health_diagnostics,
+aisaautopilot_last_diagnostics, aisaautopilot_handoff_inbox_schema,
+aisaautopilot_widget_chat_schema, aisaautopilot_rebrand_migrated, and every
+aisaautopilot_action_claim_* replay lock.
+
+Anything else stored under the plugin's own aisaautopilot_ prefix is swept by
+prefix, so an install that was migrated from the plugin's former name does not
+leave rows behind.
+
+Temporary entries (deleted): the plugin's transients - rate-limit counters,
+the fifteen-minute action preview, the provider-test record and the delivery
+test cooldown. They hold no personal data (callers are stored as a keyed hash,
+never a raw IP address) and none of them lives longer than an hour. If your
+site uses a persistent object cache, transients are held there instead of in
+the options table; they are not reachable from the uninstall hook and expire on
+their own.
+
+The scheduled indexing job (aisaautopilot_index_post) is unscheduled.
+
+Kept on purpose, because it is your content:
+
+* Forms you created, as aisaautopilot_form posts, and their stored plan in the
+  _aisaautopilot_form_plan post meta.
+* Legacy aisaautopilot_entry posts, if an older version created any.
+* Posts, pages and WooCommerce product drafts written through Content Studio
+  or Store Copilot, and their _aisaautopilot_generated,
+  _aisaautopilot_meta_description and _aisaautopilot_source_gap meta.
+* Forms created in Easy Form Builder. They belong to that plugin.
+
+The plugin stores no user meta and no site-wide (network) options.
 
 == External services ==
 
@@ -37,9 +121,10 @@ request is made until you save a provider and an API key.
 
 **AI provider (required for any AI feature)**
 
-You pick one provider in AI Site Assistant AutoPilot > Setup & Settings and supply your own API
-key. Requests are sent only when you generate a form, chat with the assistant,
-index knowledge, or press "Test connection" / "Refresh from provider".
+You pick one provider in AI Site Assistant AutoPilot > Setup & Connection and supply your own
+API key. Requests are sent only when you generate a form or a draft, chat with
+the assistant, index knowledge, transcribe a voice message, or press "Test
+connection" / "Refresh from provider".
 
 What is sent: the instruction you typed or dictated, the plugin's own system
 prompt, and — for the assistant and knowledge base — excerpts of the published,
@@ -88,8 +173,18 @@ handoff message and the numbers you configured are sent to api.twilio.com.
 Terms: https://www.twilio.com/legal/tos, privacy:
 https://www.twilio.com/legal/privacy
 
+**Google Fonts (admin screens only)**
+
+The plugin's admin screens load the Plus Jakarta Sans and JetBrains Mono
+webfonts from fonts.googleapis.com. This request is made by the browser of a
+logged-in administrator viewing one of the plugin's own pages; no visitor page
+and no site content is involved, and nothing is sent about the site itself.
+Terms: https://policies.google.com/terms, privacy:
+https://policies.google.com/privacy
+
 Provider logos shown in the settings screen use path data from Simple Icons
-(https://simpleicons.org), released under CC0-1.0. The marks remain the
+(https://simpleicons.org), released under CC0-1.0. The path data is bundled
+with the plugin, so no request is made to that service. The marks remain the
 trademarks of their owners and are shown only to identify each service.
 AI Site Assistant AutoPilot is not affiliated with, or endorsed by, any of them.
 
@@ -97,11 +192,14 @@ AI Site Assistant AutoPilot is not affiliated with, or endorsed by, any of them.
 
 1. Upload the plugin folder to `/wp-content/plugins/` or install its zip.
 2. Activate AI Site Assistant AutoPilot.
-3. Go to AI Site Assistant AutoPilot > Settings and configure an AI provider plus the
-   AISAAutoPilot Forms notification email.
-4. Go to AI Site Assistant AutoPilot > Create with AI and type or record a form request.
-5. Review the fields and delivery destination, approve it, and place the
+3. Go to AI Site Assistant AutoPilot > Setup & Connection and complete the four
+   steps: provider, API key and connection test, model, and integrations.
+4. Go to AI Site Assistant AutoPilot > Form Studio and type or record a form
+   request.
+5. Review the fields and the delivery destination, approve it, and place the
    generated shortcode in a page or post.
+
+The visitor chat widget is off until you enable it in Answer Desk.
 
 == Frequently Asked Questions ==
 
@@ -116,45 +214,38 @@ No. Install and use Easy Form Builder for advanced form features.
 
 = Can AI choose the email recipient? =
 
-No. The recipient is configured by an administrator in AISAAutoPilot Settings and
-is shown masked in the preview.
+No. The recipient is configured by an administrator in Advanced settings and is
+shown masked in the preview.
+
+= Can the plugin publish a post or a product by itself? =
+
+No. Content Studio creates drafts, and WooCommerce work is limited to one
+reviewed simple-product draft. Publishing is always a human action in
+WordPress' own editor.
 
 = Why is voice input unavailable? =
 
 Voice requires browser microphone support and an AI provider compatible with
-the `/audio/transcriptions` endpoint.
+the `/audio/transcriptions` endpoint. What you dictate always arrives as
+editable text; nothing is sent until you press Send.
 
 == Changelog ==
 
-= 1.0.4 =
-* Merged the first-run setup wizard into a single Setup & Settings screen; the
-  progress strip is now derived from real state instead of a stored step.
-* Expanded the AI provider catalogue to fifteen entries, including Anthropic
-  (Claude) over its native Messages API, Google Gemini, Mistral, Perplexity,
-  Azure OpenAI and several gateways.
-* Models are chosen from a dropdown, with a "Refresh from provider" button that
-  reads the provider's live catalogue instead of a list frozen at release.
-* Added provider marks to the picker and completed right-to-left support for the
-  visitor chat panel, public forms and exported transcripts.
-* Replaced a direct cURL upload with wp_remote_post(), removed a dead
-  translation subsystem whose strings were unextractable, and corrected around
-  sixty Persian entries that carried another string's translation.
+= 0.0.1 =
+* First release.
+* Admin rebuilt around eight screens: Overview (with Usage & Cost, Health and
+  Activity Log as tabs), Setup & Connection, Integrations, Site Knowledge,
+  Answer Desk, Store Copilot, Content Studio and Form Studio.
+* Visitor chat widget with panel and full-screen modes, human handoff by inbox,
+  email, Telegram or Twilio, and transcript-first voice input.
+* Site Knowledge with indexing, an ask console, unanswered questions and saved
+  answers.
+* Content Studio drafts, Form Studio forms, native email-only forms, and the
+  Easy Form Builder copilot.
+* Usage and cost tracking with an optional monthly token budget.
+* Complete Persian translation and right-to-left layout.
+* Uninstall removes the plugin's tables, options and transients and leaves your
+  posts, forms and drafts in place.
 
-= 1.0.3 =
-* Security hardening: scoped administrator conversations, encrypted handoff credentials, rate-limited public and voice endpoints, and safe outbound HTTP handling.
-
-= 1.0.2 =
-* Finalized the Phase 1 release contract and cross-page admin UI.
-* Added a protected text/voice form creation flow with immutable preview,
-  explicit approval, one-time execution, and redacted audit events.
-* Added the independent, email-only AISAAutoPilot Forms product and its safe
-  delivery controls.
-* Added the optional Easy Form Builder handoff and safe WooCommerce simple
-  product draft workflow.
-
-= 1.0.1 =
-* Added the P1 safe, text/voice AISAAutoPilot Forms flow.
-* Added email-only delivery, no visitor-value storage, validation and abuse
-  controls.
-* Added one-time pinned action execution and redacted audit events.
-* Separated the Easy Form Builder advanced-form path.
+Development builds before this release were numbered 1.0.1 to 1.0.4 and were
+never published. Their notes are kept in RELEASE_NOTES.md.

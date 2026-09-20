@@ -1,0 +1,151 @@
+# مدل داده
+
+همهٔ نام‌ها پیشوند `aisaautopilot_` دارند و منجمد هستند. نام option یا جدولی را تغییر ندهید. داده‌ای که بعد از تغییر نام افزونه آمده از `sitepilot-ai` منتقل شده است (`RebrandMigrator`).
+
+## optionها
+
+### تنظیمات و اسرار
+
+| option | محتوا | نکته |
+|---|---|---|
+| `aisaautopilot_settings` | تنظیمات عمومی (`Settings::defaults()`) و زیرآرایهٔ `widget` (`Settings::widget_defaults()`) | `Settings::all()` کلیدهای اسرار handoff را از `widget` حذف می‌کند. `Settings::update()` کلیدهای ارسال‌شده را روی مقدار موجود ادغام می‌کند. |
+| `aisaautopilot_provider_key` | کلید provider، رمزشده با `KeyVault` | فقط جایگزین یا حذف می‌شود و هرگز خوانده و نمایش داده نمی‌شود. |
+| `aisaautopilot_embedding_key` | کلید جدای embeddings، رمزشده | اختیاری است. خالی یعنی استفاده از کلید اصلی (جز Anthropic). |
+| `aisaautopilot_handoff_secrets` | توکن Telegram، SID و توکن Twilio | جدا از تنظیمات عمومی نگهداری می‌شوند. |
+| `aisaautopilot_wp_connector_key` | جایگاه کلید در Connectors API وردپرس 7 | با `key_management = wp_connectors` |
+| `aisaautopilot_provider_verified` | زمان آخرین آزمون موفق همان پیکربندی ذخیره‌شده | با تغییر provider، endpoint، مدل، کلید یا روش نگهداری پاک می‌شود. |
+
+کلیدهای مهم `aisaautopilot_settings`:
+
+- **provider:** `provider`، `base_url`، `model`، `temperature`، `key_management`
+- **embeddings:** `embeddings_enabled`، `embedding_model`، `embedding_base_url`
+- **صدا:** `voice_model`، `voice_responses_enabled`
+- **دستیار عمومی:** `public_assistant_enabled`
+- **فرم‌ها:** `prefer_efb`، `default_form_status`، `form_notification_email`
+- **دانش سایت:** `kb_auto_index`
+- **سوئیچ قابلیت‌ها:** `form_composer_enabled`، `content_studio_enabled`، `efb_copilot_enabled`
+- **WooCommerce:** زیرآرایهٔ `woocommerce`
+
+کلیدهای مهم `widget`:
+
+- **نمایش:** `enabled` (کلید روشن و خاموش در برگهٔ Widget)، و قاعده‌های صفحه که کارت «Pages where the chat appears» در تنظیمات پیشرفتهٔ ویجت می‌نویسد:
+  - `widget_visibility`: `all` (پیش‌فرض، همه‌جا) یا `exclude` (همه‌جا جز موارد انتخاب‌شده). در حالت `all` قاعده‌ها نگه داشته می‌شوند ولی اثری ندارند.
+  - `exclude_types`: slug نوع‌های عمومی (بدون `attachment`)؛ گفت‌وگو در هر مورد تکی آن نوع و در بایگانی همان نوع پنهان است.
+  - `exclude_cats`: شناسهٔ دسته‌های `category`؛ در نوشته‌های آن دسته و در صفحهٔ خود دسته پنهان است.
+  - `exclude_ids`: شناسهٔ برگه، نوشته یا محصول، حداکثر 200 (`Settings::WIDGET_EXCLUDE_IDS_MAX`)؛ فقط با شیء `WP_Post` صفحهٔ جاری مقایسه می‌شود، پس شناسهٔ یک دسته هرگز با آن اشتباه نمی‌شود.
+  - `exclude_pages` و `widget_exclude_ids` (کلید قدیمی خواننده، بیرون از پیش‌فرض‌ها) فقط خوانده می‌شوند: `Settings::widget_exclusions()` هر سه کلید شناسه را یکی می‌کند. ذخیرهٔ کارت همه را در `exclude_ids` می‌نویسد و آن دو را خالی می‌کند تا موردی که مدیر حذف کرد برنگردد.
+  - ورودی‌ها در ذخیره اعتبارسنجی می‌شوند: نوع ثبت‌شده، دستهٔ موجود، و مورد موجودِ بیرون از سطل زباله با صفحهٔ عمومی. `Settings::positive_id()` عدد منفی یا آرایه را صفر می‌کند (برخلاف `absint()` که ‎-3 را 3 می‌کرد). کد کوتاه `[aisaautopilot_chat]` از همین قاعده‌ها پیروی می‌کند.
+- **ظاهر:** `position`، `theme`، `color`، `custom_colors`، `colors`، `icons`، `panel_radius` (پیش‌فرض 20)، `msg_radius`، `bubble_radius`، `window_width` و `window_height` (پیش‌فرض 392 و 624، بدون UI)
+- **متن:** `title`، `subtitle`، `greeting`، `suggestions`. پیش‌فرض‌ها انگلیسی ذخیره می‌شوند و `Settings::widget_copy()` آن‌ها را به زبان جاری نمایش می‌دهد.
+- **رفتار:** `auto_open` (ثانیه، پیش‌فرض 0 یعنی هرگز؛ سقف 120)
+- **صدا:** `voice_enabled`، `voice_auto` (پیش‌فرض `false` از T08)
+- **بازبینی پیش‌فرض‌ها:** `defaults_revision` (عدد صحیح، اکنون 2). `Settings::migrate_widget_defaults()` در boot فقط وقتی این نشان کمتر از 2 است مقدارهای قدیمیِ انتخاب‌نشده را جابه‌جا می‌کند: `auto_open` 5 به 0، `window_width` 380 به 392 و `window_height` 550 به 624. option تازه‌ای نمی‌سازد؛ حذف در uninstall همراه خود `aisaautopilot_settings` است.
+- **ثبت گفت‌وگو:** `conversation_logging_enabled`، `conversation_notice`
+- **انتقال به انسان:** `handoff_enabled`، `handoff_text`، `handoff_hook`، `handoff_email_*`، `handoff_telegram_*`، `handoff_twilio_*`، `handoff_fields` (کلیدهای `name`، `email`، `phone`، `website` با مقدار `off`، `optional` یا `required`؛ پیش‌فرض همه `off`)
+- **کلیدهای بازنشسته (F-12، ۲۰۲۶-۰۹-۱۸):** دوازده کلید از طرح نخست ویجت در `Settings::WIDGET_RETIRED_DEFAULTS` جمع شده‌اند. هیچ کدی آن‌ها را نمی‌خواند و هیچ فرمی نمی‌نویسد؛ فقط چون `Settings::update()` روی هر سایتی که یک‌بار ذخیره کرده آن‌ها را نوشته است، در پیش‌فرض‌ها می‌مانند و با خود `aisaautopilot_settings` در uninstall حذف می‌شوند. به آن‌ها سیم‌کشی نشود: شش تای اول کار یک کنترل زنده را تکرار می‌کنند و دو کنترل برای یک کار مدیر را گیج می‌کند.
+
+  | کلید بازنشسته | کنترل زنده‌ای که همین کار را می‌کند |
+  |---|---|
+  | `btn_color` | `colors.bubble` (رنگ Floating button) یا رنگ برند `color` |
+  | `btn_icon` | `icons.float` (Floating button icon) |
+  | `btn_shape` | `bubble_radius` (Button shape: Circle 30، Rounded 16، Square 6) |
+  | `window_border_radius` | `panel_radius` (Panel corners) |
+  | `window_accent_color` | `color` (رنگ برند) |
+  | `window_header_color` | `colors.head_from` و `colors.head_to` |
+  | `btn_size` | ندارد؛ اندازهٔ دکمه ثابت 62px (`--spw-bubble-size`) با ناحیهٔ لمس کافی |
+  | `btn_animation` | ندارد؛ حلقهٔ launcher ثابت است و زیر `prefers-reduced-motion` خاموش می‌شود |
+  | `btn_offset_x`، `btn_offset_y` | ندارد؛ فاصله از لبه ثابت 26px با احترام به `safe-area-inset` |
+  | `window_font_size` | ندارد؛ پنل از stack فونت سیستم و اندازه‌های موکاپ پیروی می‌کند |
+  | `window_shadow` | ندارد؛ سایهٔ پنل ثابت موکاپ است |
+
+  اگر روزی «فاصله از لبه» یا «اندازهٔ دکمه» لازم شد، قابلیت تازه با کلید تازه، UI و آزمون ساخته شود، نه با زنده کردن این کلیدها: مقدارهای ذخیره‌شده‌شان (مثلاً 20px) را کسی انتخاب نکرده است، همان تله‌ای که `auto_open` در D-25 داشت.
+
+### مصرف
+
+| option | محتوا |
+|---|---|
+| `aisaautopilot_usage_log`، `aisaautopilot_usage_totals` | رکوردها و جمع دورهٔ جاری |
+| `aisaautopilot_monthly_budget` | سقف ماهانهٔ توکن (0 یعنی نامحدود) |
+| `aisaautopilot_usage_period`، `aisaautopilot_usage_period_contexts` | دورهٔ جاری و بافت عملیات |
+| `aisaautopilot_usage_daily` | مصرف روزانه برای نمودار هفت روز |
+| `aisaautopilot_usage_historical_totals`، `aisaautopilot_usage_historical_log`، `aisaautopilot_usage_period_archive` | بایگانی دوره‌های قبل |
+| `aisaautopilot_voice_usage_log` | فقط مدت تبدیل گفتار. صدا و متن ذخیره نمی‌شوند. |
+
+### دانش سایت، لاگ و سلامت
+
+| option | محتوا |
+|---|---|
+| `aisaautopilot_kb_gaps` | پرسش‌های بی‌پاسخ به تفکیک hash: `question`، `language`، `count`، `first_seen`، `last_seen` (ISO)، `status`، `reason` (`no_context`، `model_not_found`، `empty_answer`، `no_citation` یا خالی)، `draft_post_id`. ورودی‌های قدیمی `first` و `last` دارند. پرسنده ثبت نمی‌شود. نوشتن با `OptionLock`. |
+| `aisaautopilot_kb_saved_answers` | پاسخ‌های ذخیره‌شدهٔ مدیر به تفکیک `SavedAnswers::key()`: `question`، `answer`، `created`، `updated`، `hits`، `last_used`. حداکثر 200. نوشتن با `OptionLock`. |
+| `aisaautopilot_kb_answer_cache` | کش پاسخ `ChatEngine`. با تغییر نسخهٔ دانش سایت باطل می‌شود. |
+| `aisaautopilot_logs` | حداکثر 200 رویداد. نوشتن زیر قفل `GET_LOCK` است و متن از `Redactor` می‌گذرد. |
+| `aisaautopilot_health_diagnostics` | نتیجهٔ امن آخرین اجرای Health |
+| `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema` | نسخهٔ schema جدول‌های تازه، برای ساخت بدون فعال‌سازی دوباره |
+| `aisaautopilot_rebrand_migrated` | نشانهٔ پایان مهاجرت نام |
+
+## transientها
+
+| کلید | عمر | کاربرد |
+|---|---|---|
+| پیشنهاد `ActionStore` | 900 ثانیه | plan اعتبارسنجی‌شدهٔ منتظر تأیید، مخصوص کاربر سازنده. قفل claim به‌صورت option غیر-autoload یک روز می‌ماند تا از تکرار جلوگیری کند. |
+| `aisaautopilot_provider_test_*` | 15 دقیقه | آزمون موفق ذخیره‌نشده، مخصوص همان مدیر. کلید خام فقط در HMAC به کار می‌رود. |
+| `aisaautopilot_rate_*` | پنجرهٔ هر scope | شمارندهٔ rate limit |
+| `aisaautopilot_form_rate_<form>_<hmac>` | 600 ثانیه | سقف ارسال فرم عمومی. شناسهٔ فرستنده فقط به‌صورت HMAC از IP و nonce salt ذخیره می‌شود، نه IP خام. |
+| `aisaautopilot_form_delivery_test_<user>` | 300 ثانیه | فاصلهٔ بین دو «آزمون تحویل ایمیل» در صفحهٔ فرم‌های بومی |
+
+## جدول‌ها
+
+| جدول | ستون‌ها | کاربرد |
+|---|---|---|
+| `{prefix}aisaautopilot_kb` | `id`، `post_id` (یکتا)، `post_type`، `title`، `summary`، `keywords`، `category`، `content_type`، `embedding` (LONGTEXT)، `embedding_model`، `content_hash`، `status`، `token_count`، `indexed_at`، `updated_at` | مدخل‌های دانش سایت. `KnowledgeBase::ensure_schema()` ستون‌های تازه را اضافه می‌کند. |
+| `{prefix}aisaautopilot_chats` | `id`، `user_id`، `title`، `messages` (JSON)، `message_count`، `created_at`، `updated_at` | گفت‌وگوهای کنسول مدیر. هر خواندن و حذف به کاربر جاری محدود است. |
+| `{prefix}aisaautopilot_widget_chats` | `id`، `session_token` (یکتا)، `messages`، `message_count`، `created_at`، `updated_at` | فقط وقتی ثبت گفت‌وگوی ویجت روشن است. |
+| `{prefix}aisaautopilot_handoffs` | `id`، `status`، `visitor_name`، `visitor_email`، `visitor_phone`، `visitor_website`، `messages`، `created_at`، `updated_at`، `archived_at` (NULL تا بایگانی) | صندوق انتقال. وضعیت‌ها در `HandoffInbox::STATUSES`. schema نسخهٔ 2 از ۲۰۲۶-۰۹-۱۶؛ `ensure_schema()` ستون‌های تازه را با `dbDelta` روی جدول موجود اضافه می‌کند. |
+
+## post typeها و actionها
+
+| نام | نوع | کاربرد |
+|---|---|---|
+| `aisaautopilot_form` | post type | فرم بومی با plan تأییدشده و تغییرناپذیر در meta (`NativeFormConnector::META_KEY`) |
+| `aisaautopilot_entry` | post type | ثبت می‌شود، اما مسیر فعلی ارسال فرم پاسخ را فقط ایمیل می‌کند و ذخیره نمی‌کند. |
+| `aisaautopilot_form_submit` | `admin_post` و `admin_post_nopriv` | ارسال فرم عمومی. اعتبارسنجی با `NativeFormSubmission` و ارسال با ایمیل. |
+| `aisaautopilot_export_logs` | `admin_post` | خروجی CSV لاگ |
+| `aisaautopilot_export_content_studio_history` | `admin_post` | خروجی CSV تاریخچهٔ Content Studio |
+| `aisaautopilot_index_post` | cron تک‌رویداد، 5 ثانیه پس از ذخیره | ایندکس یک نوشته بدون مسدود کردن درخواست ذخیره |
+
+## حذف افزونه
+
+`uninstall.php` تنها مسیر پاک‌سازی است؛ غیرفعال کردن افزونه هیچ داده‌ای را حذف نمی‌کند. فهرست زیر در T21 (۲۰۲۶-۰۹-۲۰) با grep کامل `add_option`، `update_option`، `set_transient`، `CREATE TABLE`، `register_post_type` و کلیدهای meta در `includes/` بازساخته شد و `tests/UninstallInventoryTest.php` آن را نگه می‌دارد.
+
+### حذف می‌شود
+
+| دسته | موارد |
+|---|---|
+| جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats` و `{prefix}aisaautopilot_handoffs` (دو تای آخر دادهٔ بازدیدکننده دارند) |
+| تنظیمات و اسرار | `aisaautopilot_settings`، `aisaautopilot_provider_key`، `aisaautopilot_embedding_key`، `aisaautopilot_handoff_secrets`، `aisaautopilot_wp_connector_key`، `aisaautopilot_provider_verified` |
+| لاگ و مصرف | `aisaautopilot_logs`، `aisaautopilot_usage_log`، `aisaautopilot_usage_totals`، `aisaautopilot_monthly_budget`، `aisaautopilot_usage_period`، `aisaautopilot_usage_period_contexts`، `aisaautopilot_usage_daily`، `aisaautopilot_usage_historical_totals`، `aisaautopilot_usage_historical_log`، `aisaautopilot_usage_period_archive`، `aisaautopilot_voice_usage_log` |
+| دانش سایت | `aisaautopilot_kb_gaps`، `aisaautopilot_kb_saved_answers`، `aisaautopilot_kb_answer_cache`، `aisaautopilot_kb_version` |
+| سلامت و schema | `aisaautopilot_health_diagnostics`، `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema` |
+| قدیمی | `aisaautopilot_setup_step` (مکان‌نمای ویزارد نسخه‌های پیشین) و `aisaautopilot_last_diagnostics` (مهر صفحهٔ Connections در 1.0.4) |
+| مهاجرت | `aisaautopilot_rebrand_migrated` — عمداً پاک می‌شود تا نصب دوباره در کنار ردیف‌های قدیمی، مهاجرت را دوباره اجرا کند |
+| قفل‌ها | هر `aisaautopilot_action_claim_*` با `DELETE ... LIKE` |
+| transientها | `_transient_aisaautopilot_%` و `_transient_timeout_aisaautopilot_%` با `DELETE ... LIKE` |
+| جاروی پایانی | هر ردیف باقی‌ماندهٔ `aisaautopilot_%` در جدول options |
+| cron | `wp_clear_scheduled_hook( 'aisaautopilot_index_post' )` |
+
+**چرا جاروی پایانی لازم است:** `RebrandMigrator::migrate_options()` هر option با پیشوند `sitepilot_` را با تغییر پیشوند به `aisaautopilot_` منتقل می‌کند و فهرست را از دیتابیس کشف می‌کند، نه از یک آرایهٔ ثابت. پس سایتی که از نام قدیمی ارتقا یافته می‌تواند ردیف‌های `aisaautopilot_*` داشته باشد که نام‌شان در این نسخه اصلاً اعلام نشده است و فهرست صریح به آن‌ها نمی‌رسد. پیشوند منجمد و مخصوص همین افزونه است، پس جارو به دادهٔ افزونهٔ دیگری نمی‌رسد.
+
+### عمداً می‌ماند
+
+| مورد | دلیل |
+|---|---|
+| نوشته‌های `aisaautopilot_form` و meta `_aisaautopilot_form_plan` | فرم‌های خود مدیر |
+| نوشته‌های `aisaautopilot_entry` | اگر نسخه‌ای قدیمی ساخته باشد؛ مسیر فعلی ارسال فرم چیزی ذخیره نمی‌کند |
+| نوشته، برگه و پیش‌نویس محصول ساخته‌شده با افزونه و metaهای `_aisaautopilot_generated`، `_aisaautopilot_meta_description` و `_aisaautopilot_source_gap` | محتوای خود سایت |
+| فرم‌های Easy Form Builder | مال آن افزونه است |
+
+### محدودیت‌های شناخته‌شده
+
+- افزونه **هیچ user meta و هیچ option شبکه‌ای (`update_site_option`) نمی‌نویسد**، پس چیزی برای پاک کردن در آن دو جا نیست.
+- با object cache پایدار، transientها در کش می‌نشینند نه در جدول options؛ از قلاب uninstall در دسترس نیستند و خودشان حداکثر تا یک ساعت (بلندترین پنجرهٔ rate limit) منقضی می‌شوند. هیچ‌کدام دادهٔ شخصی ندارند.
+- افزونه `wp_cache_set`/`wp_cache_add` با کلید اختصاصی ندارد؛ تنها استفاده از object cache یک `wp_cache_delete` روی گروه `options` در `OptionLock` است که فقط کپی کهنهٔ خود وردپرس را می‌اندازد.

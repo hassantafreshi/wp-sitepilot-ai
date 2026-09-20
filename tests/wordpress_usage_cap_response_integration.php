@@ -156,7 +156,7 @@ try {
 	$form_request = new WP_REST_Request( 'POST', '/aisaautopilot/v1/form/plan' );
 	$form_request->set_param( 'prompt', 'Create a small contact form.' );
 	$form_response = ( new CopilotController() )->plan( $form_request );
-	$check( $is_cap_response( $form_response ), 'Form Composer returns an actionable 429 when the shared cap is reached' );
+	$check( $is_cap_response( $form_response ), 'Form Studio returns an actionable 429 when the shared cap is reached' );
 
 	$kb_request = new WP_REST_Request( 'POST', '/aisaautopilot/v1/kb/chat' );
 	$kb_request->set_param( 'question', 'What is the usage cap response fixture?' );

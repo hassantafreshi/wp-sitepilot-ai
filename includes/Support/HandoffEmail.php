@@ -42,21 +42,47 @@ class HandoffEmail {
 		foreach ( $messages as $m ) {
 			$role    = ( $m['role'] ?? 'user' ) === 'user' ? 'user' : 'ai';
 			$caption = ucfirst( $role );
-			$content = nl2br( esc_html( wp_strip_all_tags( (string) ( $m['content'] ?? '' ) ) ) );
+			// Plain text: escape it. Stripping tags would drop everything after a "<" the visitor typed.
+			$content = nl2br( esc_html( (string) ( $m['content'] ?? '' ) ) );
 			$html   .= '<div class="msg msg-' . $role . '"><div class="msg-role">' . esc_html( $caption ) . '</div><div class="msg-text">' . $content . '</div></div>';
 		}
 		return $html;
 	}
 
-	public function send( string $to, string $subject, string $html ): array {
+	/**
+	 * The details a visitor left, escaped. Empty when they left none.
+	 *
+	 * @param array<string,string> $contact name, email, phone and website.
+	 */
+	public function build_contact_html( array $contact ): string {
+		$rows = array();
+		foreach ( array(
+			'name'    => __( 'Visitor', 'ai-site-assistant-autopilot' ),
+			'email'   => __( 'Email', 'ai-site-assistant-autopilot' ),
+			'phone'   => __( 'Mobile', 'ai-site-assistant-autopilot' ),
+			'website' => __( 'Website', 'ai-site-assistant-autopilot' ),
+		) as $key => $label ) {
+			$value = (string) ( $contact[ $key ] ?? '' );
+			if ( '' !== $value ) {
+				$rows[] = '<strong>' . esc_html( $label ) . ':</strong> ' . esc_html( $value );
+			}
+		}
+		return array() !== $rows ? '<p>' . implode( '<br>', $rows ) . '</p>' : '';
+	}
+
+	public function send( string $to, string $subject, string $html, string $reply_to = '' ): array {
 		try {
 			if ( ! is_email( $to ) ) {
 				return array(
 					'ok'    => false,
 					'error' => 'Invalid email: ' . $to,
 				);}
-			$headers = array( 'Content-Type: text/html; charset=UTF-8', 'From: ' . get_bloginfo( 'name' ) . ' <' . get_option( 'admin_email' ) . '>' );
-			$result  = wp_mail( $to, $subject, $html, $headers );
+			$headers  = array( 'Content-Type: text/html; charset=UTF-8', 'From: ' . get_bloginfo( 'name' ) . ' <' . get_option( 'admin_email' ) . '>' );
+			$reply_to = sanitize_email( $reply_to );
+			if ( '' !== $reply_to && is_email( $reply_to ) ) {
+				$headers[] = 'Reply-To: ' . $reply_to;
+			}
+			$result = wp_mail( $to, $subject, $html, $headers );
 			if ( ! $result ) {
 				throw new \RuntimeException( 'wp_mail returned false' );}
 			$this->logger->info( 'handoff_email', "Sent to {$to}" );

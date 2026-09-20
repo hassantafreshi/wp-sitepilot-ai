@@ -41,8 +41,11 @@ final class ActionStore {
 		$action_id = $this->uuid();
 		// Only the explicit, bounded creation status belongs in the proposal. A
 		// later Settings change must not alter what the administrator approved.
+		$source_gap        = (string) ( $execution_context['source_gap'] ?? '' );
 		$execution_context = array(
-			'status' => 'publish' === ( $execution_context['status'] ?? '' ) ? 'publish' : 'draft',
+			'status'     => 'publish' === ( $execution_context['status'] ?? '' ) ? 'publish' : 'draft',
+			// The unanswered question a Content Studio draft answers, validated by the caller; empty otherwise.
+			'source_gap' => 1 === preg_match( '/^[a-f0-9]{32}$/', $source_gap ) ? $source_gap : '',
 		);
 		$record            = array(
 			'action_id'         => $action_id,

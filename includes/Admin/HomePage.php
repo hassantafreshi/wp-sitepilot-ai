@@ -59,6 +59,7 @@ final class HomePage {
 					__( 'What AutoPilot did on your site, and what needs you.', 'ai-site-assistant-autopilot' ),
 					array( 'chip' => ConnectionChip::derive() )
 				);
+				OverviewNavigation::render( OverviewNavigation::TAB_OVERVIEW );
 				?>
 				<div class="sp-pagebody">
 					<?php if ( ! $provider_ready ) : ?>
@@ -130,7 +131,7 @@ final class HomePage {
 										<span class="sp-home-running__name"><?php echo esc_html( $row['name'] ); ?></span>
 										<span class="sp-home-running__state">
 											<span class="sp-home-running__dot" style="background:<?php echo esc_attr( $row['on'] ? '#198754' : '#d3d5e4' ); ?>"></span>
-											<span style="color:<?php echo esc_attr( $row['on'] ? '#166a45' : '#9a9dbb' ); ?>"><?php echo esc_html( $row['state'] ); ?></span>
+											<span style="color:<?php echo esc_attr( $row['on'] ? '#166a45' : '#686b8a' ); ?>"><?php echo esc_html( $row['state'] ); ?></span>
 										</span>
 									</div>
 								<?php endforeach; ?>
@@ -324,10 +325,13 @@ final class HomePage {
 	 * @return array<int, array{id:string,name:string,state:string,on:bool,icon:string}>
 	 */
 	private function running_now( array $settings ): array {
-		$widget = (array) ( $settings['widget'] ?? array() );
-		$woo    = (array) ( $settings['woocommerce'] ?? array() );
-		$woo_on = WooCommerceConnector::is_active() && ! empty( $woo['enabled'] );
-		$efb_on = ( new EasyFormBuilderConnector() )->is_available();
+		// Same predicates as the Integrations cards, so both screens always agree.
+		$woo        = (array) ( $settings['woocommerce'] ?? array() );
+		$woo_on     = WooCommerceConnector::is_active() && ! empty( $woo['enabled'] );
+		$efb_on     = ( new EasyFormBuilderConnector() )->is_available() && ! empty( $settings['efb_copilot_enabled'] );
+		$answer_on  = ! empty( $settings['public_assistant_enabled'] );
+		$form_on    = ! empty( $settings['form_composer_enabled'] );
+		$content_on = ! empty( $settings['content_studio_enabled'] );
 
 		return array(
 			array(
@@ -335,14 +339,14 @@ final class HomePage {
 				'name'  => __( 'Site Knowledge', 'ai-site-assistant-autopilot' ),
 				'state' => __( 'Always on', 'ai-site-assistant-autopilot' ),
 				'on'    => true,
-				'icon'  => 'book',
+				'icon'  => 'book-open',
 			),
 			array(
 				'id'    => 'answer-desk',
 				'name'  => __( 'Answer Desk', 'ai-site-assistant-autopilot' ),
-				'state' => ! empty( $widget['enabled'] ) ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
-				'on'    => ! empty( $widget['enabled'] ),
-				'icon'  => 'chat',
+				'state' => $answer_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
+				'on'    => $answer_on,
+				'icon'  => 'bubble',
 			),
 			array(
 				'id'    => 'store-copilot',
@@ -353,24 +357,24 @@ final class HomePage {
 			),
 			array(
 				'id'    => 'form-composer',
-				'name'  => __( 'Form Composer', 'ai-site-assistant-autopilot' ),
-				'state' => __( 'Always on', 'ai-site-assistant-autopilot' ),
-				'on'    => true,
-				'icon'  => 'form',
+				'name'  => __( 'Form Studio', 'ai-site-assistant-autopilot' ),
+				'state' => $form_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
+				'on'    => $form_on,
+				'icon'  => 'form-lines',
 			),
 			array(
 				'id'    => 'easy-form-builder',
 				'name'  => __( 'Easy Form Builder Copilot', 'ai-site-assistant-autopilot' ),
 				'state' => $efb_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
 				'on'    => $efb_on,
-				'icon'  => 'form',
+				'icon'  => 'layers',
 			),
 			array(
 				'id'    => 'content-studio',
 				'name'  => __( 'Content Studio', 'ai-site-assistant-autopilot' ),
-				'state' => __( 'Always on', 'ai-site-assistant-autopilot' ),
-				'on'    => true,
-				'icon'  => 'spark',
+				'state' => $content_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ),
+				'on'    => $content_on,
+				'icon'  => 'pencil',
 			),
 		);
 	}
@@ -384,7 +388,7 @@ final class HomePage {
 		if ( $table !== $exists ) {
 			return 0;
 		}
-		$count = $wpdb->get_var( "SELECT COALESCE(SUM(FLOOR(message_count / 2)), 0) FROM {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fixed internal table, read-only aggregate.
+		$count = $wpdb->get_var( "SELECT COALESCE(SUM(FLOOR(message_count / 2)), 0) FROM {$table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table is $wpdb->prefix plus a class constant, never user input; line 387 already proved it exists via a prepared probe.
 		return (int) $count;
 	}
 

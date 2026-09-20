@@ -100,6 +100,11 @@ final class StoreCopilotPage {
 				'not_managed'      => __( 'Not managed', 'ai-site-assistant-autopilot' ),
 				'settings_saved'   => __( 'Store Copilot settings saved.', 'ai-site-assistant-autopilot' ),
 				'settings_failed'  => __( 'The Store Copilot settings could not be saved.', 'ai-site-assistant-autopilot' ),
+				/* translators: %s: time left before the proposal expires, as m:ss. */
+				'expires_in'       => __( 'Expires in %s', 'ai-site-assistant-autopilot' ),
+				'review_draft'     => __( 'Review product draft', 'ai-site-assistant-autopilot' ),
+				'lock_simple'      => __( 'Phase 1 creates simple products only', 'ai-site-assistant-autopilot' ),
+				'lock_draft'       => __( 'Phase 1 always creates a draft', 'ai-site-assistant-autopilot' ),
 			)
 		);
 	}
@@ -239,7 +244,7 @@ final class StoreCopilotPage {
 		$woo_status   = $active
 			? sprintf(
 				/* translators: %s: active WooCommerce version. */
-				__( 'Active - %s', 'ai-site-assistant-autopilot' ),
+				__( 'Active · %s', 'ai-site-assistant-autopilot' ),
 				(string) ( $health['version'] ?: '-' )
 			)
 			: __( 'Not active', 'ai-site-assistant-autopilot' );
@@ -317,7 +322,7 @@ final class StoreCopilotPage {
 				$state                             = '' !== $phase ? 'locked' : ( $available ? 'ready' : 'unavailable' );
 				?>
 				<div class="sp-store-capability-row" data-sp-store-capability-state="<?php echo esc_attr( $state ); ?>">
-					<span class="sp-store-capability-row__icon"><?php echo Ui::icon( $available ? 'check-circle' : 'lock', 14, 'currentColor', 2.1 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+					<span class="sp-store-capability-row__icon"><?php echo Ui::icon( $available ? 'tick' : 'dash', 13, 'currentColor', 2.4 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
 					<span class="sp-store-capability-row__label"><?php echo esc_html( $label ); ?></span>
 					<?php
 					if ( '' !== $phase ) :
@@ -346,12 +351,14 @@ final class StoreCopilotPage {
 	}
 
 	private function setting_toggle( string $setting, string $title, string $note, bool $on ): void {
+		// The switch is icon-only: its name and description are the visible title and note beside it (T17).
+		$id = 'sp-store-setting-' . sanitize_key( $setting );
 		?>
 		<div class="sp-store-setting">
-			<button type="button" class="sp-store-switch<?php echo $on ? ' is-on' : ''; ?>" role="switch" aria-checked="<?php echo $on ? 'true' : 'false'; ?>" data-sp-store-setting="<?php echo esc_attr( $setting ); ?>">
+			<button type="button" class="sp-store-switch<?php echo $on ? ' is-on' : ''; ?>" role="switch" aria-checked="<?php echo $on ? 'true' : 'false'; ?>" aria-labelledby="<?php echo esc_attr( $id . '-title' ); ?>" aria-describedby="<?php echo esc_attr( $id . '-note' ); ?>" data-sp-store-setting="<?php echo esc_attr( $setting ); ?>">
 				<span class="sp-store-switch__knob"></span>
 			</button>
-			<div class="sp-store-setting__body"><strong><?php echo esc_html( $title ); ?></strong><p><?php echo esc_html( $note ); ?></p></div>
+			<div class="sp-store-setting__body"><strong id="<?php echo esc_attr( $id . '-title' ); ?>"><?php echo esc_html( $title ); ?></strong><p id="<?php echo esc_attr( $id . '-note' ); ?>"><?php echo esc_html( $note ); ?></p></div>
 		</div>
 		<?php
 	}

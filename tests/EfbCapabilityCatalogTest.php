@@ -631,4 +631,73 @@ final class EfbCapabilityCatalogTest extends TestCase {
 		$this->assertSame( 'personal_info', $result['ops'][0]['step_ref'] );
 		$this->assertSame( 'step_requires_add_step', $result['dropped'][0]['reason'] );
 	}
+
+	public function test_steps_row_and_progress_bar_settings_follow_efb_4_2(): void {
+		$catalog = EfbFormModel::capability_catalog();
+
+		$this->assertSame( '4.2.x', $catalog['efb_version_target'] );
+		$this->assertSame( '{prefix}emsfb_msg_', $catalog['storage']['submissions']['table'] );
+
+		// EFB stores "hide" under show_* keys: true hides the row or the bar.
+		$this->assertSame( 'hide_steps_row', EfbFormModel::resolve_form_property( 'hide_steps' ) );
+		$this->assertSame( 'show_icon', EfbFormModel::form_property( 'hide_steps_row' )['storage_path'] );
+		$this->assertSame( 'show_pro_bar', EfbFormModel::form_property( 'hide_progress_bar' )['storage_path'] );
+		$this->assertNull( EfbFormModel::resolve_form_property( 'show_button_icon' ) );
+		$this->assertNull( EfbFormModel::resolve_form_property( 'show_icon' ) );
+		$this->assertStringContainsString( 'hides the steps row', $catalog['form_settings_contract']['show_icon']['role'] );
+		$this->assertStringContainsString( 'hides the progress bar', $catalog['form_settings_contract']['show_pro_bar']['role'] );
+
+		$this->assertSame( array( 'classic', 'circles', 'pills', 'chevrons' ), EfbFormModel::form_property( 'steps_style' )['values'] );
+		$this->assertSame( array( 'classic', 'bar', 'segments', 'ring' ), EfbFormModel::form_property( 'progress_style' )['values'] );
+		$this->assertSame( 'classic', EfbFormModel::form_property( 'steps_style' )['default'] );
+		$this->assertSame( 'classic', EfbFormModel::form_property( 'progress_style' )['default'] );
+		foreach ( array( 'hide_steps_row', 'hide_progress_bar', 'steps_style', 'progress_style' ) as $key ) {
+			$this->assertFalse( EfbFormModel::requires_pro_form_property( $key ), $key . ' has no Pro lock in EFB' );
+		}
+
+		// A new form keeps EFB's own defaults and carries no style key, so EFB draws classic.
+		$form = EfbFormModel::template( 'form_settings' );
+		$this->assertNotSame( array(), $form );
+		$this->assertArrayNotHasKey( 'steps_style', $form );
+		$this->assertArrayNotHasKey( 'progress_style', $form );
+	}
+
+	public function test_step_and_progress_styles_are_writable_only_with_efb_values(): void {
+		$result = EfbCustomizeSkill::validate_ops_verbose(
+			array(
+				array( 'op' => 'set_form_property', 'property' => 'steps_style', 'value' => 'Pills' ),
+				array( 'op' => 'set_form_property', 'property' => 'progress_bar_style', 'value' => 'ring' ),
+				array( 'op' => 'set_form_property', 'property' => 'hide_steps_row', 'value' => false ),
+				array( 'op' => 'set_form_property', 'property' => 'hide_progress_bar', 'value' => 'true' ),
+				array( 'op' => 'set_form_property', 'property' => 'steps_style', 'value' => 'zigzag' ),
+				array( 'op' => 'set_form_property', 'property' => 'progress_style', 'value' => 'circles' ),
+				array( 'op' => 'set_form_property', 'property' => 'show_button_icon', 'value' => true ),
+				array( 'op' => 'set_form_property', 'property' => 'show_pro_bar', 'value' => false ),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array( 'op' => 'set_form_property', 'property' => 'steps_style', 'value' => 'pills' ),
+				array( 'op' => 'set_form_property', 'property' => 'progress_style', 'value' => 'ring' ),
+				array( 'op' => 'set_form_property', 'property' => 'hide_steps_row', 'value' => false ),
+				array( 'op' => 'set_form_property', 'property' => 'hide_progress_bar', 'value' => true ),
+			),
+			$result['ops']
+		);
+		$this->assertSame(
+			array( 'invalid_property_value:steps_style', 'invalid_property_value:progress_style', 'unknown_property', 'unknown_property' ),
+			array_column( $result['dropped'], 'reason' )
+		);
+
+		$client = EfbFormModel::client_form_properties();
+		$this->assertSame( 'steps_style', $client['steps_style']['storage_path'] );
+		$this->assertSame( array( 'classic', 'bar', 'segments', 'ring' ), $client['progress_style']['values'] );
+		$this->assertSame( 'show_icon', $client['hide_steps_row']['storage_path'] );
+		$this->assertArrayNotHasKey( 'show_button_icon', $client );
+
+		$prompt = EfbFormModel::customization_capabilities_for_prompt();
+		$this->assertStringContainsString( 'steps_style (enum: classic|circles|pills|chevrons)', $prompt );
+		$this->assertStringContainsString( 'hide_progress_bar (boolean_flag) — true hides the progress bar', $prompt );
+	}
 }

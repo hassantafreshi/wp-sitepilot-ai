@@ -27,15 +27,24 @@ final class WpConnectors {
 	 * Check whether the WordPress Connectors API is available (WP 7.0+).
 	 */
 	public static function is_available(): bool {
-		return function_exists( 'wp_register_connector' )
+		// WordPress 7.0 shipped the registry class and the `wp_connectors_init`
+		// action; the two function names are pre-release spellings kept for
+		// sites that ran a beta.
+		return class_exists( 'WP_Connector_Registry' )
+			|| function_exists( 'wp_register_connector' )
 			|| function_exists( 'wp_connectors_register' );
 	}
 
 	/**
 	 * Register AI Site Assistant AutoPilot as a connector in WordPress 7's Connectors API.
-	 * Called on `init` — safe to call on WP < 7 (no-ops gracefully).
+	 * Called while the plugin boots, before `init` — safe on WP < 7 (no-ops gracefully).
 	 */
 	public static function register(): void {
+		if ( class_exists( 'WP_Connector_Registry' ) ) {
+			add_action( 'wp_connectors_init', array( self::class, 'register_with_registry' ) );
+			return;
+		}
+
 		if ( ! self::is_available() ) {
 			return;
 		}
@@ -61,6 +70,44 @@ final class WpConnectors {
 		} elseif ( function_exists( 'wp_connectors_register' ) ) {
 			wp_connectors_register( self::CONNECTOR_ID, $args );
 		}
+	}
+
+	/**
+	 * Add the AutoPilot key slot to the WordPress 7 connector registry.
+	 *
+	 * The setting name is the option AutoPilot already reads, so a key saved
+	 * in Settings → Connectors is the key get_api_key() returns. The type is
+	 * not `ai_provider`: that type is reserved for WP AI Client providers and
+	 * would report the slot as disconnected even when a key is stored.
+	 *
+	 * @param object $registry WP_Connector_Registry instance.
+	 */
+	public static function register_with_registry( $registry ): void {
+		if ( ! is_object( $registry ) || ! method_exists( $registry, 'register' ) ) {
+			return;
+		}
+		if ( method_exists( $registry, 'is_registered' ) && $registry->is_registered( self::CONNECTOR_ID ) ) {
+			return;
+		}
+
+		$registry->register(
+			self::CONNECTOR_ID,
+			array(
+				'name'           => __( 'AI Site Assistant AutoPilot', 'ai-site-assistant-autopilot' ),
+				'description'    => __( 'The AI provider key AutoPilot uses when Setup is set to WordPress Connector.', 'ai-site-assistant-autopilot' ),
+				'type'           => 'ai_assistant',
+				'authentication' => array(
+					'method'        => 'api_key',
+					'setting_name'  => self::WP_OPTION_KEY,
+					'constant_name' => 'AISAAUTOPILOT_API_KEY',
+					'env_var_name'  => 'AISAAUTOPILOT_API_KEY',
+				),
+				'plugin'         => array(
+					'file'      => plugin_basename( AISAAUTOPILOT_FILE ),
+					'is_active' => '__return_true',
+				),
+			)
+		);
 	}
 
 	/**

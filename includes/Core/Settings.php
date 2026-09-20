@@ -376,6 +376,34 @@ final class Settings {
 	/** The four icon slots offered by the widget customiser. */
 	public const WIDGET_ICON_KEYS = array( 'avatar', 'voice', 'handoff', 'float' );
 
+	/** Contact details the handoff card can ask a visitor for, in display order. */
+	public const HANDOFF_FIELD_KEYS = array( 'name', 'email', 'phone', 'website' );
+
+	/** Per detail: not asked, asked but optional, or required before the conversation can be sent. */
+	public const HANDOFF_FIELD_MODES = array( 'off', 'optional', 'required' );
+
+	/**
+	 * Revision of the shipped widget defaults, stored as widget.defaults_revision.
+	 *
+	 * Revision 2 (S3.3.1, owner decision D-25): the chat no longer opens on its own, replies are
+	 * not read aloud unless the site owner turns it on, and the panel uses the mockup's 392×624.
+	 */
+	public const WIDGET_DEFAULTS_REVISION = 2;
+
+	/**
+	 * Legacy values that no admin screen ever wrote, mapped to their revision-2 defaults.
+	 *
+	 * Settings::update() stores the whole widget_defaults() on every save, so these values sit in
+	 * the option of any site that saved anything before revision 2 without anyone choosing them.
+	 *
+	 * @var array<string, array{0:int, 1:int}>
+	 */
+	private const WIDGET_LEGACY_DEFAULTS = array(
+		'auto_open'     => array( 5, 0 ),
+		'window_width'  => array( 380, 392 ),
+		'window_height' => array( 550, 624 ),
+	);
+
 	/**
 	 * Colours derived from the brand colour and theme. These are the starting
 	 * point the customiser opens with, and the values used when the customiser
@@ -413,15 +441,16 @@ final class Settings {
 			'subtitle'                     => 'AI Assistant',
 			'greeting'                     => 'Hi! How can I help you?',
 			'suggestions'                  => array(),
-			'panel_radius'                 => 16,
+			'panel_radius'                 => 20,
 			'msg_radius'                   => 14,
 			'bubble_radius'                => 30,
 			'custom_colors'                => false,
 			'colors'                       => array(),
 			'icons'                        => array(),
-			'auto_open'                    => 5,
+			// Seconds before the panel opens by itself; 0 keeps it closed and shows the nudge instead.
+			'auto_open'                    => 0,
 			'voice_enabled'                => true,
-			'voice_auto'                   => true,
+			'voice_auto'                   => false,
 			'conversation_logging_enabled' => false,
 			'conversation_notice'          => 'This conversation may be recorded to help our support team.',
 			'handoff_enabled'              => false,
@@ -432,26 +461,138 @@ final class Settings {
 			'handoff_telegram_chat'        => '',
 			'handoff_twilio_from'          => '',
 			'handoff_twilio_to'            => '',
-			'exclude_pages'                => array(),
-			'exclude_cats'                 => array(),
-			'exclude_types'                => array(),
-			'exclude_ids'                  => array(),
-			'btn_size'                     => 56,
-			'btn_shape'                    => 'circle',
-			'btn_color'                    => '#202a8d',
-			'btn_icon'                     => 'bubble',
-			'btn_animation'                => 'pulse',
-			'btn_offset_x'                 => 20,
-			'btn_offset_y'                 => 20,
-			'window_width'                 => 380,
-			'window_height'                => 550,
-			'window_border_radius'         => 12,
-			'window_accent_color'          => '#202a8d',
-			'window_header_color'          => '#202a8d',
-			'window_font_size'             => 'medium',
-			'window_shadow'                => 'medium',
+			'handoff_fields'               => array_fill_keys( self::HANDOFF_FIELD_KEYS, 'off' ),
+			// 'all' shows the widget everywhere; 'exclude' hides it where widget_exclusions() matches.
 			'widget_visibility'            => 'all',
+			'exclude_types'                => array(),
+			'exclude_cats'                 => array(),
+			'exclude_ids'                  => array(),
+			// Read with exclude_ids so nothing saved is lost; the page picker writes exclude_ids only.
+			'exclude_pages'                => array(),
+			'window_width'                 => 392,
+			'window_height'                => 624,
+			'defaults_revision'            => self::WIDGET_DEFAULTS_REVISION,
+		) + self::WIDGET_RETIRED_DEFAULTS;
+	}
+
+	/**
+	 * Keys from the first widget design. Nothing reads or writes them; they stay only because
+	 * Settings::update() has already stored them on every site that saved. The live setting that
+	 * does each job is listed in docs/technical/DATA_MODEL_FA.md.
+	 *
+	 * @var array<string, int|string>
+	 */
+	private const WIDGET_RETIRED_DEFAULTS = array(
+		'btn_size'             => 56,
+		'btn_shape'            => 'circle',
+		'btn_color'            => '#202a8d',
+		'btn_icon'             => 'bubble',
+		'btn_animation'        => 'pulse',
+		'btn_offset_x'         => 20,
+		'btn_offset_y'         => 20,
+		'window_border_radius' => 12,
+		'window_accent_color'  => '#202a8d',
+		'window_header_color'  => '#202a8d',
+		'window_font_size'     => 'medium',
+		'window_shadow'        => 'medium',
+	);
+
+	/** The most single entries the widget can be hidden on. */
+	public const WIDGET_EXCLUDE_IDS_MAX = 200;
+
+	/**
+	 * Where the widget is hidden while widget_visibility is 'exclude', normalised.
+	 *
+	 * Entry IDs are merged from exclude_ids, exclude_pages and widget_exclude_ids (the key an
+	 * earlier renderer read), so a choice stored under any of them still applies.
+	 *
+	 * @param array<string, mixed> $widget
+	 * @return array{ids: array<int, int>, types: array<int, string>, cats: array<int, int>}
+	 */
+	public static function widget_exclusions( array $widget ): array {
+		$ids = array();
+		foreach ( array( 'exclude_ids', 'exclude_pages', 'widget_exclude_ids' ) as $key ) {
+			foreach ( (array) ( $widget[ $key ] ?? array() ) as $id ) {
+				$id = self::positive_id( $id );
+				if ( $id > 0 ) {
+					$ids[ $id ] = $id;
+				}
+			}
+		}
+
+		$types = array();
+		foreach ( (array) ( $widget['exclude_types'] ?? array() ) as $type ) {
+			$type = is_scalar( $type ) ? sanitize_key( (string) $type ) : '';
+			if ( '' !== $type ) {
+				$types[ $type ] = $type;
+			}
+		}
+
+		$cats = array();
+		foreach ( (array) ( $widget['exclude_cats'] ?? array() ) as $cat ) {
+			$cat = self::positive_id( $cat );
+			if ( $cat > 0 ) {
+				$cats[ $cat ] = $cat;
+			}
+		}
+
+		return array(
+			'ids'   => array_slice( array_values( $ids ), 0, self::WIDGET_EXCLUDE_IDS_MAX ),
+			'types' => array_values( $types ),
+			'cats'  => array_values( $cats ),
 		);
+	}
+
+	/**
+	 * A stored or posted ID as a positive integer, or 0. Unlike absint(), -3 stays invalid
+	 * instead of becoming 3, and an array never casts to 1.
+	 *
+	 * @param mixed $value
+	 */
+	public static function positive_id( $value ): int {
+		if ( ! is_int( $value ) && ! ( is_string( $value ) && ctype_digit( $value ) ) ) {
+			return 0;
+		}
+		return max( 0, (int) $value );
+	}
+
+	/**
+	 * The visitor-facing default copy, in the current language.
+	 *
+	 * Keys match widget_defaults(), which keeps these strings in English.
+	 *
+	 * @return array{title:string, subtitle:string, greeting:string, conversation_notice:string}
+	 */
+	public static function widget_default_copy(): array {
+		return array(
+			'title'               => __( 'AI Site Assistant AutoPilot', 'ai-site-assistant-autopilot' ),
+			'subtitle'            => __( 'AI Assistant', 'ai-site-assistant-autopilot' ),
+			'greeting'            => __( 'Hi! How can I help you?', 'ai-site-assistant-autopilot' ),
+			'conversation_notice' => __( 'This conversation may be recorded to help our support team.', 'ai-site-assistant-autopilot' ),
+		);
+	}
+
+	/**
+	 * The widget's header, greeting and recording notice as visitors should read them.
+	 *
+	 * The shipped defaults are stored in English, because Settings::update() writes them on every
+	 * save. A stored value equal to its default was therefore never written by anyone, so it is
+	 * shown in the current language. Anything the site owner typed comes back exactly as saved.
+	 *
+	 * @param array<string, mixed> $widget
+	 * @return array{title:string, subtitle:string, greeting:string, conversation_notice:string}
+	 */
+	public static function widget_copy( array $widget ): array {
+		$defaults = self::widget_defaults();
+		$copy     = self::widget_default_copy();
+		foreach ( $copy as $key => $translated ) {
+			$stored = $widget[ $key ] ?? $defaults[ $key ];
+			$stored = is_scalar( $stored ) ? (string) $stored : '';
+			if ( $stored !== $defaults[ $key ] ) {
+				$copy[ $key ] = $stored;
+			}
+		}
+		return $copy;
 	}
 
 	/**
@@ -502,6 +643,23 @@ final class Settings {
 			&& '' !== trim( (string) ( $widget['handoff_twilio_to'] ?? '' ) );
 
 		return $has_email || $has_telegram || $has_twilio;
+	}
+
+	/**
+	 * The contact details the handoff card asks for, each 'off', 'optional' or 'required'. A missing or
+	 * unknown value is 'off', so nothing is collected unless the site owner chose it.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function handoff_fields(): array {
+		$widget = (array) self::get( 'widget', array() );
+		$stored = isset( $widget['handoff_fields'] ) && is_array( $widget['handoff_fields'] ) ? $widget['handoff_fields'] : array();
+		$fields = array();
+		foreach ( self::HANDOFF_FIELD_KEYS as $key ) {
+			$mode           = (string) ( $stored[ $key ] ?? 'off' );
+			$fields[ $key ] = in_array( $mode, self::HANDOFF_FIELD_MODES, true ) ? $mode : 'off';
+		}
+		return $fields;
 	}
 
 	public static function all(): array {
@@ -707,6 +865,36 @@ final class Settings {
 		if ( $changed ) {
 			update_option( self::OPTION, $settings, false );
 		}
+	}
+
+	/**
+	 * One-time move of stored widget values off defaults that nobody chose.
+	 *
+	 * Only the exact legacy values in WIDGET_LEGACY_DEFAULTS move, only for keys that had no admin
+	 * control before revision 2, and only while the stored widget carries no revision marker.
+	 * Values a site owner can set on a screen, such as voice_auto and panel_radius, are never
+	 * touched. Sites that never saved settings read the new defaults directly.
+	 */
+	public static function migrate_widget_defaults(): void {
+		$settings = get_option( self::OPTION, array() );
+		if ( ! is_array( $settings ) || empty( $settings['widget'] ) || ! is_array( $settings['widget'] ) ) {
+			return;
+		}
+
+		$widget   = $settings['widget'];
+		$revision = $widget['defaults_revision'] ?? 0;
+		if ( is_numeric( $revision ) && (int) $revision >= self::WIDGET_DEFAULTS_REVISION ) {
+			return;
+		}
+
+		foreach ( self::WIDGET_LEGACY_DEFAULTS as $key => $move ) {
+			if ( isset( $widget[ $key ] ) && is_numeric( $widget[ $key ] ) && (int) $widget[ $key ] === $move[0] ) {
+				$widget[ $key ] = $move[1];
+			}
+		}
+		$widget['defaults_revision'] = self::WIDGET_DEFAULTS_REVISION;
+		$settings['widget']          = $widget;
+		update_option( self::OPTION, $settings, false );
 	}
 
 	/**

@@ -45,7 +45,8 @@
 			engine.classList.toggle( 'is-on', enabled );
 			engine.setAttribute( 'aria-checked', enabled ? 'true' : 'false' );
 		}
-		if ( engineState ) { engineState.textContent = enabled ? 'On' : 'Paused'; }
+		// T16: translated copy from the script strings; the English is only a fallback.
+		if ( engineState ) { engineState.textContent = enabled ? ( strings().voiceOn || 'On' ) : ( strings().voicePaused || 'Paused' ); }
 		if ( autoControl ) {
 			autoControl.classList.toggle( 'is-on', auto );
 			autoControl.setAttribute( 'aria-checked', auto ? 'true' : 'false' );
@@ -53,8 +54,8 @@
 		}
 		if ( autoNote ) {
 			autoNote.textContent = enabled
-				? 'Uses the visitor’s browser speech engine. Off keeps voice input but shows the answer as text only.'
-				: 'Turn on transcribe + speak first; reply playback is unavailable while voice input is paused.';
+				? ( strings().voiceAutoNoteOn || 'Uses the visitor’s browser speech engine. Off keeps voice input but shows the answer as text only.' )
+				: ( strings().voiceAutoNoteOff || 'Turn on transcribe + speak first; reply playback is unavailable while voice input is paused.' );
 		}
 		if ( test ) { test.disabled = ! enabled; }
 		if ( ! enabled && window.speechSynthesis && window.speechSynthesis.cancel ) { window.speechSynthesis.cancel(); }
@@ -105,7 +106,8 @@
 		}
 
 		try {
-			var utterance = new window.SpeechSynthesisUtterance( 'This is a local AutoPilot voice test.' );
+			// Spoken in the admin language, which is also the utterance's lang below.
+			var utterance = new window.SpeechSynthesisUtterance( strings().voiceTestPhrase || 'This is a local AutoPilot voice test.' );
 			utterance.lang = document.documentElement.lang || '';
 			utterance.onend = function () {
 				setStatus( strings().voiceTestDone || 'Test phrase finished in this browser.', 'saved' );

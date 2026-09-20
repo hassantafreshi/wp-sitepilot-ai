@@ -43,6 +43,12 @@ final class PublicChatController {
 		if ( ! $this->is_enabled() ) {
 			return $this->error( 'assistant_disabled', __( 'The site assistant is not enabled.', 'ai-site-assistant-autopilot' ), 403 );
 		}
+		// The mic is a widget setting, so this route follows it. The gate runs before the rate
+		// limiter: a site with voice switched off should spend neither the visitor's voice
+		// quota nor a provider call.
+		if ( ! $this->is_voice_enabled() ) {
+			return $this->error( 'voice_disabled', __( 'Voice input is turned off for this site.', 'ai-site-assistant-autopilot' ), 403 );
+		}
 		if ( ! $this->allow( 'voice', self::VOICE_LIMIT ) ) {
 			return $this->error( 'rate_limited', __( 'Too many voice requests. Please try again later.', 'ai-site-assistant-autopilot' ), 429 );
 		}
@@ -65,6 +71,12 @@ final class PublicChatController {
 
 	private function is_enabled(): bool {
 		return Settings::answer_desk_enabled();
+	}
+
+	/** The same flag that decides whether the widget renders a mic at all. */
+	private function is_voice_enabled(): bool {
+		$widget = (array) ( Settings::all()['widget'] ?? array() );
+		return ! empty( $widget['voice_enabled'] );
 	}
 	/** @return array<int,array{role:string,text:string}> */
 	private function clean_history( array $history ): array {

@@ -300,9 +300,10 @@ final class AnswerConversationsPage {
 	/** @param array<string,mixed> $widget */
 	private function render_widget_preview( array $widget ): void {
 		$brand       = sanitize_hex_color( (string) ( $widget['color'] ?? '' ) ) ?: '#202a8d';
-		$title       = (string) ( $widget['title'] ?? '' );
-		$subtitle    = (string) ( $widget['subtitle'] ?? '' );
-		$greeting    = (string) ( $widget['greeting'] ?? '' );
+		$copy        = Settings::widget_copy( $widget );
+		$title       = $copy['title'];
+		$subtitle    = $copy['subtitle'];
+		$greeting    = $copy['greeting'];
 		$suggestions = array_filter( (array) ( $widget['suggestions'] ?? array() ), 'is_string' );
 		$preview_dir = is_rtl() ? 'rtl' : 'ltr';
 		?>
@@ -312,14 +313,15 @@ final class AnswerConversationsPage {
 				<a href="<?php echo esc_url( AnswerDeskNavigation::url( AnswerDeskNavigation::TAB_WIDGET ) ); ?>"><?php esc_html_e( 'Settings', 'ai-site-assistant-autopilot' ); ?></a>
 			</div>
 			<div class="sp-answer-preview__widget" dir="<?php echo esc_attr( $preview_dir ); ?>" style="--sp-answer-accent:<?php echo esc_attr( $brand ); ?>">
+				<?php /* F15-2 (T17): copy the owner typed may be in another script than the admin; dir="auto" keeps its punctuation in place, as the widget itself does. */ ?>
 				<div class="sp-answer-preview__header">
-					<strong><?php echo esc_html( '' !== $title ? $title : __( 'Answer Desk', 'ai-site-assistant-autopilot' ) ); ?></strong>
-					<span><?php echo esc_html( $subtitle ); ?></span>
+					<strong dir="auto"><?php echo esc_html( '' !== $title ? $title : __( 'Answer Desk', 'ai-site-assistant-autopilot' ) ); ?></strong>
+					<span dir="auto"><?php echo esc_html( $subtitle ); ?></span>
 				</div>
 				<div class="sp-answer-preview__body">
-					<p class="sp-answer-preview__greeting"><?php echo esc_html( $greeting ); ?></p>
+					<p class="sp-answer-preview__greeting" dir="auto"><?php echo esc_html( $greeting ); ?></p>
 					<?php if ( array() !== $suggestions ) : ?>
-						<span class="sp-answer-preview__suggestion"><?php echo esc_html( (string) reset( $suggestions ) ); ?></span>
+						<span class="sp-answer-preview__suggestion" dir="auto"><?php echo esc_html( (string) reset( $suggestions ) ); ?></span>
 					<?php endif; ?>
 				</div>
 				<div class="sp-answer-preview__input"><?php esc_html_e( 'Type your question…', 'ai-site-assistant-autopilot' ); ?></div>

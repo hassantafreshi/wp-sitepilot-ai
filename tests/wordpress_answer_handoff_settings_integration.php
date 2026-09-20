@@ -3,8 +3,8 @@
  * Local WordPress integration checks for the compact Human handoff endpoint.
  *
  * No provider request or test delivery is made. The test is intentionally
- * limited to capability checks, validation, encrypted credential storage and
- * the visitor-availability gate.
+ * limited to capability checks, validation, encrypted credential storage, the
+ * visitor-availability gate and the details the handoff card asks visitors for.
  */
 
 declare(strict_types=1);
@@ -144,6 +144,69 @@ try {
 		&& '' === Settings::get_handoff_secret( 'handoff_telegram_token' )
 		&& ! Settings::answer_desk_handoff_available(),
 		'An explicit credential removal keeps the channel honest and hides the visitor handoff action'
+	);
+
+	// Details the handoff card asks for.
+	$fields_request = static function ( int $user_id, $fields ): \WP_REST_Response {
+		wp_set_current_user( $user_id );
+		$request = new \WP_REST_Request( 'POST', '/aisaautopilot/v1/handoff/visitor-fields' );
+		$request->set_param( 'fields', $fields );
+		return rest_do_request( $request );
+	};
+	$check(
+		isset( $routes['/aisaautopilot/v1/handoff/visitor-fields'] )
+		&& array(
+			'name'    => 'off',
+			'email'   => 'off',
+			'phone'   => 'off',
+			'website' => 'off',
+		) === Settings::handoff_fields(),
+		'Visitor details have their own protected route and every detail starts switched off'
+	);
+	$wanted          = array(
+		'name'    => 'required',
+		'email'   => 'optional',
+		'phone'   => 'optional',
+		'website' => 'off',
+	);
+	$fields_before   = (array) Settings::get( 'widget', array() );
+	$subscriber_save = $fields_request( $subscriber_id, $wanted );
+	$check(
+		$subscriber_id > 0 && in_array( $subscriber_save->get_status(), array( 401, 403 ), true ) && $fields_before === (array) Settings::get( 'widget', array() ),
+		'Saving visitor details requires the manage_options capability'
+	);
+	$saved_fields = $fields_request( 1, $wanted );
+	$check(
+		200 === $saved_fields->get_status()
+		&& $wanted === ( $saved_fields->get_data()['fields'] ?? null )
+		&& $wanted === Settings::handoff_fields()
+		&& 'Keep this title' === ( (array) Settings::get( 'widget', array() ) )['title'],
+		'An administrator saves off, optional or required per detail without touching other widget settings'
+	);
+	$refusals = array(
+		array_merge( $wanted, array( 'name' => 'maybe' ) ),
+		array( 'name' => 'off' ),
+		array_merge( $wanted, array( 'fax' => 'optional' ) ),
+		'required',
+	);
+	$all_refused = true;
+	foreach ( $refusals as $refusal ) {
+		$response    = $fields_request( 1, $refusal );
+		$all_refused = $all_refused && 400 === $response->get_status() && 'handoff_fields_invalid' === ( $response->get_data()['code'] ?? '' );
+	}
+	$check( $all_refused && $wanted === Settings::handoff_fields(), 'An unknown mode, a partial set, an unknown detail or a non-object is refused and nothing changes' );
+
+	wp_set_current_user( 1 );
+	ob_start();
+	( new \AISAAutoPilot\Admin\AnswerDeskHandoffPage() )->render();
+	$page_html = (string) ob_get_clean();
+	$check(
+		false !== strpos( $page_html, 'data-sp-handoff-details-form' )
+		&& 4 === substr_count( $page_html, 'role="radiogroup"' )
+		&& 12 === substr_count( $page_html, 'class="sp-answer-handoff-seg__option"' )
+		&& 1 === preg_match( '/name="name" value="required" checked=\'checked\'/', $page_html )
+		&& 1 === preg_match( '/name="website" value="off" checked=\'checked\'/', $page_html ),
+		'The Human handoff tab lists the four details with Off, Optional and Required and marks the saved choice'
 	);
 } finally {
 	if ( $subscriber_id > 0 ) {

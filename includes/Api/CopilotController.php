@@ -37,7 +37,7 @@ final class CopilotController {
 	 */
 	public function plan( WP_REST_Request $request ): WP_REST_Response {
 		if ( ! Settings::get( 'form_composer_enabled', true ) ) {
-			return $this->respond( array( 'message' => __( 'Form Composer is turned off in Integrations.', 'ai-site-assistant-autopilot' ) ), false, 403, 'integration_disabled' );
+			return $this->respond( array( 'message' => __( 'Form Studio is turned off in Integrations.', 'ai-site-assistant-autopilot' ) ), false, 403, 'integration_disabled' );
 		}
 		$prompt = trim( (string) $request->get_param( 'prompt' ) );
 
@@ -131,7 +131,7 @@ final class CopilotController {
 	 */
 	public function execute( WP_REST_Request $request ): WP_REST_Response {
 		if ( ! Settings::get( 'form_composer_enabled', true ) ) {
-			return $this->respond( array( 'message' => __( 'Form Composer is turned off in Integrations.', 'ai-site-assistant-autopilot' ) ), false, 403, 'integration_disabled' );
+			return $this->respond( array( 'message' => __( 'Form Studio is turned off in Integrations.', 'ai-site-assistant-autopilot' ) ), false, 403, 'integration_disabled' );
 		}
 		$action_id = sanitize_text_field( (string) $request->get_param( 'action_id' ) );
 		if ( '' === $action_id ) {

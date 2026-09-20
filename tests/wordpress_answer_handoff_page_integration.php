@@ -2,6 +2,7 @@
 /**
  * Local WordPress integration checks for the mockup-aligned Answer Desk
  * Human handoff tab. No provider request, connection test or delivery runs.
+ * Two inbox rows are inserted with a unique marker and removed by id and marker in finally.
  */
 
 declare(strict_types=1);
@@ -9,9 +10,11 @@ declare(strict_types=1);
 $wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\\xampp\\htdocs\\wp';
 require $wp_root . '/wp-load.php';
 
+use AISAAutoPilot\Admin\AdminMenu;
 use AISAAutoPilot\Admin\AnswerConversationsPage;
 use AISAAutoPilot\Admin\AnswerDeskNavigation;
 use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Support\HandoffInbox;
 
 $missing           = new stdClass();
 $original_settings = get_option( Settings::OPTION, $missing );
@@ -19,6 +22,9 @@ $original_secrets  = get_option( Settings::HANDOFF_SECRET_OPTION, $missing );
 $original_get      = $_GET;
 $original_user_id  = get_current_user_id();
 $checks            = array();
+$inbox             = new HandoffInbox();
+$marker            = 'Handoff tab strip QA ' . wp_generate_password( 8, false, false );
+$inserted          = array();
 
 $check = static function ( bool $ok, string $name ) use ( &$checks ): void {
 	$checks[] = array(
@@ -82,6 +88,7 @@ try {
 	);
 	$check(
 		false !== strpos( $markup, 'When a visitor asks for a person, the plugin sends the handoff to every enabled and configured channel below.' )
+		&& false !== strpos( $markup, 'data-sp-handoff-delivery-mode="fan-out"' )
 		&& false !== strpos( $markup, 'Check connection' )
 		&& false !== strpos( $markup, 'data-sp-handoff-test-url=' )
 		&& false === strpos( $markup, 'Send a test message' )
@@ -92,10 +99,83 @@ try {
 		false === strpos( $markup, 'name="widget[voice_enabled]"' )
 		&& false === strpos( $markup, 'Legacy handoff label' )
 		&& false === strpos( $markup, 'Escalated conversations' )
-		&& false === strpos( $markup, 'Handoff inbox' ),
+		&& false === strpos( $markup, 'data-sp-handoff-inbox-list' )
+		&& false === strpos( $markup, 'data-sp-handoff-item' )
+		&& false === strpos( $markup, 'data-sp-handoff-drawer' ),
 		'Canonical handoff tab stays within the mockup channel configuration scope and leaves unrelated legacy controls out'
 	);
+	// The inbox lives on its own screen; this tab only carries the entry strip the design adds above the channel cards.
+	$inbox_url = esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HANDOFFS ) );
+	$check(
+		1 === substr_count( $markup, 'data-sp-handoff-inbox-link' )
+		&& false !== strpos( $markup, 'href="' . $inbox_url . '" data-sp-handoff-inbox-link' )
+		&& false !== strpos( $markup, 'Open inbox' ),
+		'Human handoff links to the separate handoff inbox instead of embedding it'
+	);
+
+	// The strip reads real counts from the inbox table: one new and one failed thread are added, then removed by id and marker.
+	$new_before    = $inbox->count_new();
+	$failed_before = $inbox->count_failed();
+	if ( $inbox->is_ready() ) {
+		$inserted[] = $inbox->record(
+			array(
+				array(
+					'role'    => 'user',
+					'content' => 'Strip QA new',
+				),
+			),
+			$marker,
+			'strip-new@example.test',
+			'new'
+		);
+		$inserted[] = $inbox->record(
+			array(
+				array(
+					'role'    => 'user',
+					'content' => 'Strip QA failed',
+				),
+			),
+			$marker,
+			'strip-failed@example.test',
+			'failed'
+		);
+		$with_rows = $render_handoff();
+		$check(
+			$new_before + 1 === $inbox->count_new()
+			&& $failed_before + 1 === $inbox->count_failed()
+			&& false !== strpos( $with_rows, 'data-sp-handoff-inbox-strip="waiting"' )
+			&& false !== strpos( $with_rows, 'data-sp-handoff-strip-new="' . ( $new_before + 1 ) . '"' )
+			&& false !== strpos( $with_rows, 'data-sp-handoff-strip-failed="' . ( $failed_before + 1 ) . '"' )
+			&& false !== strpos( $with_rows, 'Waiting for a person' ),
+			'The inbox strip counts new and delivery-failed threads from the inbox table'
+		);
+	} else {
+		$check( 0 === $new_before && 0 === $failed_before, 'Without the inbox table both strip counts are 0 and nothing is queried' );
+	}
+
+	// With handoff switched off no request can be taken, so the strip must not promise that requests are kept or delivered.
+	Settings::update(
+		array(
+			'widget' => array_merge( (array) Settings::get( 'widget', array() ), array( 'handoff_enabled' => false ) ),
+		)
+	);
+	$unavailable = $render_handoff();
+	$check(
+		false !== strpos( $unavailable, 'data-sp-handoff-inbox-strip="unavailable"' )
+		&& false !== strpos( $unavailable, 'Visitors are not offered a person until handoff is on and at least one channel below is ready.' )
+		&& false === strpos( $unavailable, 'Requests are still kept in the inbox, but nobody is notified' )
+		&& 1 === preg_match( '/data-count-state="(waiting|quiet)" data-body-ready="[^"]+" data-body-unavailable="Visitors are not offered a person/', $unavailable ),
+		'Without a ready handoff the strip says visitors are not offered a person'
+	);
 } finally {
+	if ( array() !== $inserted ) {
+		global $wpdb;
+		foreach ( $inserted as $row_id ) {
+			if ( $row_id > 0 ) {
+				$wpdb->delete( $inbox->table(), array( 'id' => $row_id, 'visitor_name' => $marker ), array( '%d', '%s' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- removes only the rows this check inserted.
+			}
+		}
+	}
 	$_GET = $original_get;
 	if ( $original_settings === $missing ) {
 		delete_option( Settings::OPTION );

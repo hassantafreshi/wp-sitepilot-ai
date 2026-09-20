@@ -1,0 +1,42 @@
+{
+  "article": "handoff-inbox",
+  "locales": ["fa_IR", "en_US"],
+  "viewport": { "width": 1440, "height": 960 },
+  "fixture": "local_handoff_inbox_browser_fixture.php",
+  "maskColor": "#e4e6f0",
+  "mocks": [],
+  "shots": [
+    {
+      "name": "inbox-list",
+      "url": "wp-admin/admin.php?page=aisaautopilot-handoffs",
+      "waitFor": "[data-sp-handoff-inbox-list]",
+      "clip": ".sp-hoi__card",
+      "mask": [".sp-hoi__name", ".sp-hoi__contact"]
+    },
+    {
+      "name": "channels",
+      "url": "wp-admin/admin.php?page=aisaautopilot-handoffs",
+      "waitFor": "[data-sp-handoff-inbox-list]",
+      "clip": ".sp-hoi__channels"
+    },
+    {
+      "name": "thread-drawer",
+      "url": "wp-admin/admin.php?page=aisaautopilot-handoffs",
+      "waitFor": "[data-sp-handoff-inbox-list]",
+      "steps": [
+        { "click": "[data-sp-handoff-open]" },
+        { "waitFor": ".sp-hoi-drawer__panel" }
+      ],
+      "clip": ".sp-hoi-drawer__panel",
+      "mask": [".sp-hoi-drawer__name", ".sp-hoi-drawer__contact", ".sp-hoi-msg--visitor .sp-hoi-msg__who"]
+    },
+    {
+      "name": "inbox-mobile",
+      "url": "wp-admin/admin.php?page=aisaautopilot-handoffs",
+      "waitFor": "[data-sp-handoff-inbox-list]",
+      "viewport": { "width": 390, "height": 844 },
+      "clip": ".sp-hoi__card",
+      "mask": [".sp-hoi__name", ".sp-hoi__contact"]
+    }
+  ]
+}

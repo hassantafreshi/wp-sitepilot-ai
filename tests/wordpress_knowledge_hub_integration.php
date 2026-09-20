@@ -130,6 +130,7 @@ try {
 	$check(
 		false !== strpos( $queue, 'data-sp-kb-queue' )
 		&& false !== strpos( $queue, 'Browser session only' )
+		&& false !== strpos( $queue, 'data-sp-kb-queue-scope="browser-session"' )
 		&& false !== strpos( $queue, 'No active indexing pass' )
 		&& false === strpos( $queue, 'Retry the 3 failed' )
 		&& 1 === substr_count( $queue, 'id="sp-kb-progress"' ),
@@ -147,6 +148,8 @@ try {
 	$check(
 		false !== strpos( $ask, 'Open admin chat console' )
 		&& false !== strpos( $entries, 'id="sp-kb-rows"' )
+		&& false !== strpos( $entries, '"listFailedBody":' )
+		&& false !== strpos( $entries, '"tryAgain":' )
 		&& false === strpos( $ask, 'data-sp-subtab="ask"' )
 		&& false === strpos( $entries, 'data-sp-subtab="entries"' ),
 		'Legacy Ask and indexed-entry screens remain direct deep aliases, not visible tabs'

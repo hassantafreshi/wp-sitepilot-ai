@@ -120,8 +120,10 @@ try {
 		&& false !== strpos( $near_html, 'Embeddings' )
 		&& false !== strpos( $near_text, 'You are close to this month\'s token cap.' )
 		&& false !== strpos( $near_html, 'data-sp-usage-cap-editor' )
-		&& false !== strpos( $near_text, 'Reset this month\'s usage' ),
-		'Near-cap state uses real token operations, seven-day data and an inline cap editor'
+		&& false !== strpos( $near_html, 'data-sp-usage-danger' )
+		&& false !== strpos( $near_text, 'Reset this month\'s counter' )
+		&& 1 === substr_count( $near_html, 'data-sp-usage-reset' ),
+		'Near-cap state uses real token operations, seven-day data, an inline cap editor and a separate reset danger zone'
 	);
 
 	update_option(
