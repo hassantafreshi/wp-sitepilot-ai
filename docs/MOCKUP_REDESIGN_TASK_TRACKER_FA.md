@@ -115,10 +115,10 @@
 
 | ID | کار کوچک | وضعیت | گیت پذیرش |
 |---|---|---|---|
-| Q4.1 | browser smoke برای هر ۱۸ slug/alias | منتظر | HTTP/render/console/screenshot |
-| Q4.2 | visual side-by-side با ۴ موکاپ | منتظر | اختلاف‌های عمدی مستند |
-| Q4.3 | accessibility، RTL و responsive کامل | منتظر | keyboard/focus/contrast/overflow پاس |
-| Q4.4 | build ZIP و release validation | منتظر | ZIP همگام و سالم |
+| Q4.1 | browser smoke برای هر ۱۸ slug/alias | تکمیل (T15) | HTTP/render/console/screenshot — **۵۸۷ PASS / ۰ FAIL** روی ۱۹ route (`en_US` ۲۸۸، `fa_IR` ۲۹۹)؛ شمار route ۱۹ شد چون Form Studio در T54 اضافه شد |
+| Q4.2 | visual side-by-side با ۴ موکاپ | تکمیل (T16) | اختلاف‌های عمدی مستند — هر **۱۳۵** حالت موکاپ حکم دارد، نقص باز صفر؛ X-06 تا X-13 ثبت شد |
+| Q4.3 | accessibility، RTL و responsive کامل | تکمیل (T17) | keyboard/focus/contrast/overflow پاس — a11y **۱۵۲۲/۰**، ویجت **۴۳۷/۰**، EFB **۱۵۶/۰** |
+| Q4.4 | build ZIP و release validation | تکمیل (T22، T23) | ZIP همگام و سالم — وارسی مستقل **۳۱ PASS / ۰ FAIL**؛ Plugin Check ۲۷/۲۷ اجرا با حکم مستند D-34 |
 
 ## فاز ۵ — بازآرایی IA (S6، دستور مستقیم مالک ۲۰۲۶-۰۹-۱۷)
 
@@ -151,6 +151,8 @@
 سند کامل: `HUMAN_SUPPORT_S7_AUDIT_AND_PLAN_FA.md`؛ صف، وابستگی و تصمیم‌ها در `PRODUCT_COMPLETION_ROADMAP_FA.md` (T57 تا T72، D-26 تا D-32).
 
 ## لاگ اجرا
+
+- ۲۰۲۶-۰۹-۲۱ — **فاز ۴ بسته شد: هر چهار ردیف Q4 به `تکمیل` رفت و گزارش آمادگی انتشار نوشته شد (T25).** Q4.1 ← T15 (**۵۸۷ PASS / ۰ FAIL** روی ۱۹ route؛ شمار ۱۹ است نه ۱۸، چون Form Studio در T54 افزوده شد)؛ Q4.2 ← T16 (هر **۱۳۵** حالت موکاپ حکم دارد، نقص باز صفر)؛ Q4.3 ← T17 (a11y **۱۵۲۲/۰**، ویجت **۴۳۷/۰**، EFB **۱۵۶/۰**)؛ Q4.4 ← T22 و T23 (وارسی مستقل ZIP **۳۱ PASS / ۰ FAIL**؛ Plugin Check ۲۷ از ۲۷ static check اجرا شد و با حکم مستند D-34 پذیرفته شد، نه با گیت ۰/۰). به‌علاوه T24 پذیرش نصب تمیز را روی WordPress 7.1.1 با **۵۹ PASS / ۰ FAIL** بست و هر شش ردپای افزونه پس از حذف به پایه برگشت. سند تازه: [`docs/RELEASE_READINESS_0.0.1_FA.md`](RELEASE_READINESS_0.0.1_FA.md). **دو مورد باز که کار ایجنت نیست:** امضای مالک، و چهار مورد پذیرش محیطی E-1 تا E-4 (کلید واقعی provider، تحویل واقعی SMTP، میکروفون مرورگر واقعی، draft واقعی ووکامرس) که ذاتاً بیرون از QA خودکارند.
 
 - ۲۰۲۶-۰۹-۱۸ — اجرای دوبارهٔ matrix ویجت به درخواست مالک، پس از تغییر هم‌زمان T73. جلسه‌های T15 و T73 برای این اجرا مکث کردند. اجرای اول نقص **F-26** را نشان داد: دکمهٔ «آخرین پیام» وقتی focus داشت پنهان می‌شد و focus از پنل بیرون می‌افتاد. این ریشهٔ شکست گذرای T13 بود و رفع شد. نتیجهٔ نهایی: matrix **429/0**، render integration **97/0**، smoke 8/8، preflight تمیز. جزئیات در بخش «اجرای دوبارهٔ matrix» فایل plan S3.3.
 - ۲۰۲۶-۰۹-۱۸ — **پیگیری S3.3 به دستور مالک (T73): دو محدودیت باز گزارش S3.3 حل شد.** F-11 مشکل UI بود: کارت «Pages where the chat appears» در سفارشی‌سازی ویجت («Every page» یا «Every page except the ones below»، نوع محتوا، دستهٔ نوشته، جست‌وجوی برگه و نوشته و محصول با عنوان) و ردیف خلاصه در برگهٔ Widget؛ خوانندهٔ استثنا سه نقص داشت (کلید `widget_exclude_ids` به‌جای `exclude_ids`، `exclude_pages` بی‌اثر، و مقایسهٔ شناسهٔ دسته با شناسهٔ نوشته) که رفع شد. F-12 مشکل مستندات بود: دوازده کلید بازنشسته با کنترل زندهٔ جانشین هرکدام در `docs/technical/DATA_MODEL_FA.md` تعریف شدند و حذف نشدند. integration تازه **27/0**، widget customise browser matrix **85/0** (en_US 41، fa_IR 44)، 31 msgid فارسی. دو اجرای مرورگر نخست با matrixهای T15 و T56 هم‌زمان شد و بی‌اعتبار است؛ اجرای معتبر پس از واگذاری نوبتی پنجره (21:27 تا 21:32) است. جزئیات در ردیف T73 رودمپ.
