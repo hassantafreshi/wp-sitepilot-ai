@@ -3,28 +3,52 @@
 	'use strict';
 
 	var cfg = window.AISAAutoPilotChat || window.AISAAutoPilotAI || {};
+	var T = readJson( 'sp-chat-i18n' );
 	var recorder = null;
 	var stream = null;
 	var chunks = [];
 	var isRecording = false;
+	var isTranscribing = false;
 	var startedAt = 0;
 	var stopTimer = null;
 	var maxDurationMs = 45000;
 	var synth = window.speechSynthesis;
 
-	function setStatus( message, state ) {
+	function readJson( id ) {
+		try {
+			var node = document.getElementById( id );
+			return node ? ( JSON.parse( node.textContent || '{}' ) || {} ) : {};
+		} catch ( e ) { return {}; }
+	}
+
+	function t( key, fallback ) { return T[ key ] || fallback; }
+
+	function setStatus( message, tone ) {
 		var status = document.getElementById( 'sp-chat-status' );
 		if ( ! status ) { return; }
-		status.textContent = message;
-		status.className = 'aisaautopilot-status' + ( state ? ' aisaautopilot-status--' + state : '' );
+		status.textContent = message || '';
+		if ( tone ) {
+			status.setAttribute( 'data-tone', tone );
+		} else {
+			status.removeAttribute( 'data-tone' );
+		}
 	}
 
 	function updateMicButton() {
 		var button = document.getElementById( 'sp-mic-btn' );
 		if ( ! button ) { return; }
-		button.classList.toggle( 'sp-mic-btn--recording', isRecording );
-		button.setAttribute( 'aria-label', isRecording ? 'Stop voice input' : 'Start voice input' );
-		button.title = isRecording ? 'Stop voice input' : 'Start voice input';
+		var label = isRecording ? t( 'recordStop', 'Stop recording' ) : t( 'recordStart', 'Record a question' );
+		button.classList.toggle( 'is-recording', isRecording );
+		button.setAttribute( 'aria-pressed', isRecording ? 'true' : 'false' );
+		button.setAttribute( 'aria-busy', isTranscribing ? 'true' : 'false' );
+		button.setAttribute( 'aria-label', label );
+		button.title = label;
+		if ( isTranscribing ) {
+			button.disabled = true;
+		} else if ( ! isRecording ) {
+			var input = document.getElementById( 'sp-chat-input' );
+			button.disabled = !! input && input.disabled;
+		}
 	}
 
 	function stopTracks() {
@@ -45,21 +69,32 @@
 		recorder.stop();
 	}
 
-	function submitText( transcript ) {
+	// Voice never sends by itself: the transcript waits in the composer for review.
+	function placeTranscript( transcript ) {
 		var input = document.getElementById( 'sp-chat-input' );
-		var button = document.getElementById( 'sp-chat-send' );
-		if ( ! input || ! button || button.disabled ) { return; }
-		input.value = transcript;
+		if ( ! input ) { return; }
+		var current = input.value.trim();
+		input.value = current ? current + ' ' + transcript : transcript;
 		input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
-		button.click();
+		if ( ! input.disabled ) {
+			input.focus();
+			try { input.setSelectionRange( input.value.length, input.value.length ); } catch ( e ) {}
+		}
+	}
+
+	function finishTranscribing() {
+		isTranscribing = false;
+		updateMicButton();
 	}
 
 	function sendAudio( blob, durationMs ) {
 		if ( ! blob || ! blob.size ) {
-			setStatus( 'No audio was captured. Please try again.', 'error' );
+			setStatus( t( 'noAudio', 'No audio was captured. Please try again.' ), 'error' );
 			return;
 		}
-		setStatus( 'Transcribing voice input…', 'loading' );
+		isTranscribing = true;
+		updateMicButton();
+		setStatus( t( 'transcribing', 'Transcribing your question…' ), 'loading' );
 		var form = new FormData();
 		form.append( 'audio', blob, 'aisaautopilot-chat-command.webm' );
 		form.append( 'duration_ms', String( Math.min( maxDurationMs, Math.max( 0, durationMs ) ) ) );
@@ -71,26 +106,28 @@
 			headers: { 'X-WP-Nonce': cfg.nonce },
 			body: form,
 		} ).then( function ( response ) {
-			return response.json().then( function ( data ) {
-				if ( ! response.ok ) { throw new Error( data.message || 'Could not transcribe audio.' ); }
+			return response.json().catch( function () { return {}; } ).then( function ( data ) {
+				if ( ! response.ok ) { throw new Error( data.message || '' ); }
 				return data;
 			} );
 		} ).then( function ( data ) {
+			finishTranscribing();
 			if ( data.ok && data.transcript ) {
-				setStatus( 'Voice command recognized. Sending it to AISAAutoPilot…', 'ok' );
-				submitText( data.transcript );
+				placeTranscript( data.transcript );
+				setStatus( t( 'transcriptReady', 'Transcript ready — check it, then send. Nothing is sent on its own.' ), 'ok' );
 				return;
 			}
-			setStatus( data.message || 'Could not transcribe audio.', 'error' );
+			setStatus( data.message || t( 'transcribeFailed', 'Voice transcription failed. Please try again.' ), 'error' );
 		} ).catch( function ( error ) {
-			setStatus( error.message || 'Voice transcription failed. Please try again.', 'error' );
+			finishTranscribing();
+			setStatus( ( error && error.message ) || t( 'transcribeFailed', 'Voice transcription failed. Please try again.' ), 'error' );
 		} );
 	}
 
 	function startRecording() {
-		if ( isRecording ) { return; }
+		if ( isRecording || isTranscribing ) { return; }
 		if ( ! navigator.mediaDevices || ! navigator.mediaDevices.getUserMedia || ! window.MediaRecorder ) {
-			setStatus( 'Voice recording is not supported in this browser.', 'error' );
+			setStatus( t( 'micUnsupported', 'Voice recording is not supported in this browser.' ), 'error' );
 			return;
 		}
 
@@ -103,7 +140,7 @@
 				recorder = preferred ? new MediaRecorder( stream, { mimeType: preferred } ) : new MediaRecorder( stream );
 			} catch ( error ) {
 				stopTracks();
-				setStatus( 'This browser cannot create a supported voice recording.', 'error' );
+				setStatus( t( 'recorderFailed', 'This browser cannot create a supported voice recording.' ), 'error' );
 				return;
 			}
 			chunks = [];
@@ -121,14 +158,14 @@
 			isRecording = true;
 			stopTimer = window.setTimeout( function () {
 				if ( isRecording ) {
-					setStatus( 'Maximum recording time reached. Transcribing…', 'loading' );
+					setStatus( t( 'maxDuration', 'Maximum recording time reached. Transcribing…' ), 'loading' );
 					stopRecording();
 				}
 			}, maxDurationMs );
 			updateMicButton();
-			setStatus( 'Listening… Select the microphone again when you are finished.', 'recording' );
-		} ).catch( function ( error ) {
-			setStatus( 'Microphone access was denied: ' + error.message, 'error' );
+			setStatus( t( 'listening', 'Listening… Select the microphone again when you are finished.' ), 'recording' );
+		}, function () {
+			setStatus( t( 'micDenied', 'Microphone access was denied. Allow it in your browser, then try again.' ), 'error' );
 		} );
 	}
 
@@ -136,7 +173,7 @@
 		if ( isRecording ) { stopRecording(); } else { startRecording(); }
 	}
 
-	function speakText( text ) {
+	function speakText( text, onEnd ) {
 		if ( ! synth || ! text ) { return false; }
 		synth.cancel();
 		var utterance = new SpeechSynthesisUtterance( text );
@@ -145,6 +182,10 @@
 		var language = utterance.lang.toLowerCase().slice( 0, 2 );
 		var preferred = voices.filter( function ( voice ) { return voice.lang.toLowerCase().slice( 0, 2 ) === language; } );
 		if ( preferred.length ) { utterance.voice = preferred[ 0 ]; }
+		if ( onEnd ) {
+			utterance.onend = onEnd;
+			utterance.onerror = onEnd;
+		}
 		synth.speak( utterance );
 		return true;
 	}
@@ -158,9 +199,9 @@
 			stopRecording: stopRecording,
 			toggleRecording: toggleRecording,
 			speakText: speakText,
-			toggleSpeech: function ( text ) {
+			toggleSpeech: function ( text, onEnd ) {
 				if ( synth && synth.speaking ) { synth.cancel(); return false; }
-				return speakText( text );
+				return speakText( text, onEnd );
 			},
 			stopSpeech: function () { if ( synth ) { synth.cancel(); } },
 		};

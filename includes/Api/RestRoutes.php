@@ -151,6 +151,30 @@ final class RestRoutes {
 				),
 			)
 		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/handoffs/(?P<id>\\d+)/archive',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $inbox, 'archive' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'archived' => array(
+						'type'     => 'boolean',
+						'required' => true,
+					),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/handoffs/archive-resolved',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $inbox, 'archive_resolved' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
 		$conversations = new VisitorConversationController();
 		register_rest_route(
 			self::NAMESPACE,
@@ -454,6 +478,31 @@ final class RestRoutes {
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/kb/answers',
+			array(
+				array(
+					'methods'             => 'GET',
+					'callback'            => array( $kb, 'answers' ),
+					'permission_callback' => array( $this, 'can_manage' ),
+				),
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $kb, 'answers_save' ),
+					'permission_callback' => array( $this, 'can_manage' ),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/kb/answers/delete',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $kb, 'answers_delete' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
 
 		register_rest_route(
 			self::NAMESPACE,
@@ -567,6 +616,15 @@ final class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $admin_handoff, 'update' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/handoff/visitor-fields',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $admin_handoff, 'update_fields' ),
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);

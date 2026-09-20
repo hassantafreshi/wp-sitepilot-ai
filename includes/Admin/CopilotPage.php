@@ -36,6 +36,23 @@ final class CopilotPage {
 			return;
 		}
 
+		$this->render_forms();
+	}
+
+	/**
+	 * Form Studio (D-23, 2026-09-17; formerly the "Form Composer" mockup name).
+	 *
+	 * Registered directly as the Form Studio top-level page and also reached
+	 * as Content Studio's `mode=forms` deep link via `render()` above, so old
+	 * bookmarks and generated links keep resolving unchanged. Three mutually
+	 * exclusive stages — compose, review, result. JavaScript moves between
+	 * them; only one is ever visible, exactly like the wireframe's screen switch.
+	 */
+	public function render_forms(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to view this page.', 'ai-site-assistant-autopilot' ) );
+		}
+
 		$configured   = ( new ProviderManager() )->is_configured();
 		$recipient    = Settings::form_notification_email();
 		$efb_ready    = ( new EasyFormBuilderConnector() )->is_available();
@@ -46,7 +63,7 @@ final class CopilotPage {
 		$integrations_url = admin_url( 'admin.php?page=' . AdminMenu::SLUG_INTEGRATIONS );
 		$efb_url          = admin_url( 'admin.php?page=' . AdminMenu::SLUG_EFB );
 		$disabled_title   = ! $form_enabled
-			? __( 'Form Composer is turned off', 'ai-site-assistant-autopilot' )
+			? __( 'Form Studio is turned off', 'ai-site-assistant-autopilot' )
 			: ( $configured ? __( 'Form delivery is not configured', 'ai-site-assistant-autopilot' ) : __( 'AI provider unavailable', 'ai-site-assistant-autopilot' ) );
 		$disabled_note    = ! $form_enabled
 			? __( 'Turn it on in Integrations before building a form plan.', 'ai-site-assistant-autopilot' )
@@ -63,6 +80,12 @@ final class CopilotPage {
 			__( 'Make a newsletter signup with first name and email.', 'ai-site-assistant-autopilot' ),
 			__( 'Support request form with name, email, priority (low, medium, high) and details.', 'ai-site-assistant-autopilot' ),
 		);
+		// Short chip labels (mockup) that still insert the full, reviewable prompt.
+		$example_chips = array(
+			array( __( 'A contact form', 'ai-site-assistant-autopilot' ), __( 'Contact form', 'ai-site-assistant-autopilot' ), $examples[0] ),
+			array( __( 'A newsletter signup', 'ai-site-assistant-autopilot' ), __( 'Newsletter signup', 'ai-site-assistant-autopilot' ), $examples[2] ),
+			array( __( 'A support request', 'ai-site-assistant-autopilot' ), __( 'Support request', 'ai-site-assistant-autopilot' ), $examples[3] ),
+		);
 
 		Ui::grad_defs();
 		?>
@@ -70,7 +93,7 @@ final class CopilotPage {
 			<header class="sp-fc-header">
 				<span class="sp-fc-header__icon" aria-hidden="true"><?php echo Ui::icon( 'form', 18, '#fff', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
 				<div class="sp-fc-header__titles">
-					<h1><?php esc_html_e( 'Form Composer', 'ai-site-assistant-autopilot' ); ?></h1>
+					<h1><?php esc_html_e( 'Form Studio', 'ai-site-assistant-autopilot' ); ?></h1>
 					<p><?php esc_html_e( 'Describe a form, review every field, then create it. Simple fields, emailed to you.', 'ai-site-assistant-autopilot' ); ?></p>
 				</div>
 				<span class="sp-fc-header__badge"><?php esc_html_e( 'Native form · simple fields', 'ai-site-assistant-autopilot' ); ?></span>
@@ -94,8 +117,8 @@ final class CopilotPage {
 								<h2 id="sp-fc-canvas-title"><?php esc_html_e( 'Describe your form', 'ai-site-assistant-autopilot' ); ?></h2>
 								<p><?php esc_html_e( 'Say what you need in one line. The assistant drafts a plan here; you review every field before anything is created.', 'ai-site-assistant-autopilot' ); ?></p>
 								<div class="sp-fc-empty__examples" id="aisaautopilot-examples">
-									<?php foreach ( array_slice( $examples, 0, 3 ) as $example ) : ?>
-										<button type="button" class="sp-chip" data-example="<?php echo esc_attr( $example ); ?>"><?php echo esc_html( $example ); ?></button>
+									<?php foreach ( $example_chips as $chip ) : ?>
+										<button type="button" class="sp-chip" data-example="<?php echo esc_attr( $chip[2] ); ?>" title="<?php echo esc_attr( $chip[2] ); ?>"><?php echo esc_html( $chip[0] ); ?></button>
 									<?php endforeach; ?>
 								</div>
 							</section>
@@ -118,6 +141,13 @@ final class CopilotPage {
 						</header>
 						<div class="sp-fc-assistant__thread">
 							<p><?php esc_html_e( 'Describe the form you need. I will build a reviewable plan and will not create anything until you approve it.', 'ai-site-assistant-autopilot' ); ?></p>
+							<?php if ( $ready ) : ?>
+								<div class="sp-fc-assistant__chips" data-sp-fc-suggestions>
+									<?php foreach ( $example_chips as $chip ) : ?>
+										<button type="button" class="sp-chip" data-example="<?php echo esc_attr( $chip[2] ); ?>" title="<?php echo esc_attr( $chip[2] ); ?>"><?php echo esc_html( $chip[1] ); ?></button>
+									<?php endforeach; ?>
+								</div>
+							<?php endif; ?>
 						</div>
 						<div class="sp-fc-assistant__footer">
 						<div class="sp-fc-composer">
@@ -228,6 +258,9 @@ final class CopilotPage {
 		$drafts           = ( new ContentStudioReadModel() )->recent_drafts( 3 );
 		$has_drafts       = array() !== $drafts;
 		$brief            = ContentStudioNavigation::write_brief();
+		$source_gap       = ContentStudioNavigation::write_source_gap();
+		$gap              = '' !== $source_gap ? ( new \AISAAutoPilot\Content\KbGaps() )->get( $source_gap ) : null;
+		$source_gap       = null !== $gap ? $source_gap : '';
 		$integrations_url = admin_url( 'admin.php?page=' . AdminMenu::SLUG_INTEGRATIONS );
 		$usage_url        = admin_url( 'admin.php?page=' . AdminMenu::SLUG_USAGE );
 		$disabled_title   = ! $content_enabled
@@ -267,7 +300,16 @@ final class CopilotPage {
 					<p class="sp-content-empty__copy"><?php esc_html_e( 'Describe what you need in the box below and Content Studio writes a first draft in the voice it learned from your site. Drafts are never published on their own.', 'ai-site-assistant-autopilot' ); ?></p>
 				</div>
 
-				<div class="sp-card sp-content-compose" data-content-compose>
+				<div class="sp-card sp-content-compose" data-content-compose data-content-source-gap="<?php echo esc_attr( $source_gap ); ?>">
+					<?php if ( null !== $gap ) : ?>
+						<p class="sp-content-compose__source" data-content-source-note>
+							<?php echo Ui::icon( 'chat', 14, 'currentColor', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span>
+								<?php esc_html_e( 'Drafting an answer to:', 'ai-site-assistant-autopilot' ); ?>
+								<bdi dir="auto"><?php echo esc_html( $gap['question'] ); ?></bdi>
+							</span>
+						</p>
+					<?php endif; ?>
 					<label class="sp-content-compose__label" for="aisaautopilot-content-prompt"><?php esc_html_e( 'What should it write?', 'ai-site-assistant-autopilot' ); ?></label>
 					<textarea id="aisaautopilot-content-prompt" class="sp-textarea sp-content-compose__prompt" rows="4" maxlength="6000" placeholder="<?php esc_attr_e( 'A post about why multi-step forms convert better, for shop owners, around 900 words…', 'ai-site-assistant-autopilot' ); ?>" <?php disabled( ! $ready ); ?>><?php echo esc_textarea( $brief ); ?></textarea>
 					<div class="sp-content-compose__footer">

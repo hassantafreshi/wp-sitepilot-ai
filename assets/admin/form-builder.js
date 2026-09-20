@@ -657,7 +657,8 @@
 			} );
 		}
 
-		Array.prototype.forEach.call( document.querySelectorAll( '#aisaautopilot-examples .sp-chip' ), function ( chip ) {
+		// Canvas and assistant chips only prefill the composer; nothing is sent until the admin submits.
+		Array.prototype.forEach.call( document.querySelectorAll( '#aisaautopilot-examples .sp-chip, [data-sp-fc-suggestions] .sp-chip' ), function ( chip ) {
 			chip.addEventListener( 'click', function () {
 				var node = byId( 'aisaautopilot-prompt' );
 				node.value = chip.getAttribute( 'data-example' ) || '';

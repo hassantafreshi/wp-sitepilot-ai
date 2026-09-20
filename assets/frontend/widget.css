@@ -1,675 +1,691 @@
 /* ══════════════════════════════════════════════════════
    AI Site Assistant AutoPilot — visitor chat widget
-   The panel follows the admin chat layout (.sp-chat__main):
-   scrolling log of avatar + bubble rows, an empty state that
-   suggests questions, and a composer pinned to the bottom.
+   Follows "Front Chat Widget.dc.html": launcher + nudge, docked panel,
+   centred full screen with popular questions, in-thread handoff card.
+   Every rule is scoped under .spw-root with a local reset so theme
+   button, textarea and link styles cannot repaint the widget.
    ══════════════════════════════════════════════════════ */
 
 /* ── Variables ──
    The admin widget customiser writes the --spw-* values below onto .spw-root,
    so every control on that screen changes the real widget. Each one falls back
    to a brand-derived default. */
-:root {
+.spw-root {
 	--spw-primary: #202a8d;
-	--spw-primary-hover: #4338ca;
 	--spw-bg: #ffffff;
-	--spw-text: #1f2937;
-	--spw-text-secondary: #6b7280;
-	--spw-border: #e5e7eb;
-	--spw-radius: 16px;
+	--spw-text: #14152b;
+	--spw-text-secondary: #5b5e7d;
+	/* Small helper text (day label, placeholder, source line, footnote, column label) must still
+	   reach 4.5:1 on every light surface it sits on, down to #eef0fb (T13 contrast check). */
+	--spw-faint: #686b8a;
+	--spw-border: #e6e7f0;
+	--spw-line: #eceef6;
+	--spw-radius: 20px;
 	--spw-msg-radius: 14px;
 	--spw-float-radius: 50%;
-	--spw-bubble-size: 60px;
+	--spw-bubble-size: 62px;
 	--spw-bottom: 24px;
 	--spw-side: 24px;
 	--spw-z: 999999;
-	--spw-w: 400px;
-	--spw-h: 620px;
-	--spw-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	--spw-transition: all .25s cubic-bezier(.4, 0, .2, 1);
-
-	/* Layered shadow reads as depth rather than a grey halo. */
-	--spw-shadow: 0 24px 48px -12px rgba(16, 24, 40, .18), 0 8px 16px -8px rgba(16, 24, 40, .12);
+	--spw-w: 392px;
+	--spw-h: 624px;
+	--spw-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Vazirmatn', Tahoma, sans-serif;
+	--spw-shadow: 0 26px 64px rgba(20, 21, 43, .3);
 
 	/* Per-part colours, all defaulting to the brand colour. */
 	--spw-head-from: var(--spw-primary);
 	--spw-head-to: #181f66;
 	--spw-user: var(--spw-primary);
 	--spw-ai-bg: #ffffff;
-	--spw-ai-text: var(--spw-text);
-	--spw-msgs: #f9fafb;
-	--spw-input-bg: #f9fafb;
+	--spw-ai-text: #20224a;
+	--spw-msgs: #f7f8fc;
+	--spw-input-bg: #f4f5fa;
 	--spw-send: var(--spw-primary);
 	--spw-handoff: var(--spw-primary);
 	--spw-float: var(--spw-primary);
+
+	font-family: var(--spw-font);
 }
+
+/* ── Local reset (themes restyle bare buttons and fields aggressively) ── */
+.spw-root,
+.spw-root *,
+.spw-root *::before,
+.spw-root *::after { box-sizing: border-box; }
+
+.spw-root button {
+	-webkit-appearance: none;
+	appearance: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	color: inherit;
+	font: inherit;
+	letter-spacing: normal;
+	line-height: 1.3;
+	min-width: 0;
+	min-height: 0;
+	text-align: inherit;
+	text-decoration: none;
+	text-shadow: none;
+	text-transform: none;
+	cursor: pointer;
+}
+
+.spw-root button:hover,
+.spw-root button:focus,
+.spw-root button:active { background: none; border: 0; box-shadow: none; color: inherit; }
+.spw-root button[hidden],
+.spw-root [hidden] { display: none !important; }
+.spw-root svg { display: block; flex-shrink: 0; }
+.spw-root img { display: block; max-width: 100%; }
+.spw-root p { margin: 0; padding: 0; }
+.spw-root ul,
+.spw-root ol { margin: 0; padding: 0; list-style-position: outside; }
+.spw-root li { margin: 0; }
+.spw-root a { box-shadow: none; }
 
 /* ── Launcher ─────────────────────────────────────────── */
 
 /* Placement is physical, not writing-direction relative: an administrator who
    picks "bottom right" expects the bottom right corner on an RTL site too. */
-.spw-toggle {
+.spw-root .spw-toggle {
 	position: fixed;
-	bottom: max(var(--spw-bottom), env(safe-area-inset-bottom, 0px));
-	right: var(--spw-side);
+	bottom: max(26px, env(safe-area-inset-bottom, 0px));
+	right: 26px;
 	width: var(--spw-bubble-size);
 	height: var(--spw-bubble-size);
 	border-radius: var(--spw-float-radius);
 	background: var(--spw-float);
 	color: #fff;
-	border: none;
-	box-shadow: 0 8px 24px -6px rgba(16, 24, 40, .35);
-	cursor: pointer;
+	box-shadow: 0 14px 34px rgba(32, 42, 141, .42);
 	z-index: var(--spw-z);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	overflow: hidden;
-	transition: var(--spw-transition);
+	transition: transform .2s ease, box-shadow .2s ease;
 }
 
-.spw-toggle img { width: 100%; height: 100%; object-fit: cover; }
-.spw-toggle svg { width: 26px; height: 26px; }
-.spw-toggle:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -6px rgba(16, 24, 40, .45); }
-.spw-toggle:focus-visible { outline: 3px solid var(--spw-primary); outline-offset: 3px; }
+.spw-root .spw-toggle:hover { background: var(--spw-float); color: #fff; transform: translateY(-2px); box-shadow: 0 18px 38px rgba(32, 42, 141, .5); }
+.spw-root .spw-toggle:focus-visible { outline: 3px solid var(--spw-float); outline-offset: 4px; }
+.spw-root .spw-toggle__ico { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; overflow: hidden; border-radius: inherit; }
+.spw-root .spw-toggle__ico svg { width: 27px; height: 27px; }
+.spw-root .spw-toggle__ico img { width: 100%; height: 100%; object-fit: cover; }
+.spw-root .spw-toggle__ring { position: absolute; inset: 0; border-radius: inherit; border: 2px solid var(--spw-float); animation: spwRing 2.8s ease-out infinite; pointer-events: none; }
+.spw-root.spw-root--open .spw-toggle { display: none; }
 
-.spw-toggle__ico { display: flex; align-items: center; justify-content: center; }
-.spw-toggle__ico--close { display: none; }
-.spw-toggle--open .spw-toggle__ico--open { display: none; }
-.spw-toggle--open .spw-toggle__ico--close { display: flex; }
-.spw-toggle--open { transform: none !important; }
+@keyframes spwRing {
+	0% { transform: scale(.6); opacity: .55; }
+	70% { opacity: 0; }
+	100% { transform: scale(1.9); opacity: 0; }
+}
+
+/* ── Nudge ────────────────────────────────────────────── */
+
+.spw-root .spw-nudge {
+	position: fixed;
+	bottom: calc(26px + var(--spw-bubble-size) + 12px);
+	right: 26px;
+	z-index: var(--spw-z);
+	display: flex;
+	align-items: flex-start;
+	gap: 4px;
+	max-width: min(260px, calc(100vw - 52px));
+	padding: 12px 8px 12px 15px;
+	border: 1px solid var(--spw-border);
+	border-radius: 14px;
+	border-end-end-radius: 4px;
+	background: var(--spw-bg);
+	box-shadow: 0 12px 34px rgba(20, 21, 43, .16);
+	animation: spwRise .3s ease;
+}
+
+.spw-root .spw-nudge__body { display: flex; flex-direction: column; gap: 2px; text-align: start; }
+.spw-root .spw-nudge__title { font-size: 13px; font-weight: 700; color: var(--spw-text); }
+.spw-root .spw-nudge__text { font-size: 12.5px; line-height: 1.5; color: var(--spw-text-secondary); }
+.spw-root .spw-nudge__close { display: flex; align-items: center; justify-content: center; flex: 0 0 24px; width: 24px; height: 24px; border-radius: 7px; color: var(--spw-faint); }
+.spw-root .spw-nudge__close:hover { color: var(--spw-text); background: #f2f4f8; }
+.spw-root .spw-nudge__close svg { width: 13px; height: 13px; }
+.spw-root .spw-nudge button:focus-visible { outline: 2px solid var(--spw-primary); outline-offset: 2px; border-radius: 6px; }
+
+@keyframes spwRise {
+	from { opacity: 0; transform: translateY(10px); }
+	to { opacity: 1; transform: none; }
+}
 
 /* ── Panel ────────────────────────────────────────────── */
 
-.spw-panel {
+.spw-root .spw-panel {
 	position: fixed;
-	bottom: calc(var(--spw-bottom) + var(--spw-bubble-size) + 16px);
+	bottom: max(var(--spw-bottom), env(safe-area-inset-bottom, 0px));
 	right: var(--spw-side);
 	width: var(--spw-w);
 	max-width: calc(100vw - 32px);
 	height: var(--spw-h);
-	/* Never grow past the viewport, launcher included. */
-	max-height: calc(100dvh - var(--spw-bubble-size) - 56px);
+	max-height: calc(100dvh - 40px);
 	background: var(--spw-bg);
+	border: 1px solid var(--spw-border);
 	border-radius: var(--spw-radius);
 	box-shadow: var(--spw-shadow);
-	border: 1px solid var(--spw-border);
 	z-index: var(--spw-z);
 	display: none;
-	flex-direction: column;
 	overflow: hidden;
-	font-family: var(--spw-font);
 	color: var(--spw-text);
-	/* Isolate the widget from theme typography. */
+	font-family: var(--spw-font);
 	font-size: 14px;
-	line-height: 1.6;
+	line-height: 1.55;
 	text-align: start;
 }
 
-.spw-panel *,
-.spw-panel *::before,
-.spw-panel *::after { box-sizing: border-box; }
-
-.spw-panel--open { display: flex; animation: spwPanelIn .28s cubic-bezier(.16, 1, .3, 1); }
+.spw-root .spw-panel--open { display: flex; animation: spwPanelIn .32s cubic-bezier(.2, .8, .2, 1); }
+.spw-root .spw-panel:focus { outline: none; }
 
 @keyframes spwPanelIn {
-	from { opacity: 0; transform: translateY(12px) scale(.98); }
+	from { opacity: 0; transform: translateY(14px) scale(.97); }
 	to { opacity: 1; transform: none; }
 }
 
-/* Explicit full-screen state, with the close control always visible. */
-.spw-panel--full {
-	inset: 12px;
-	width: auto;
-	height: auto;
-	max-width: none;
-	max-height: none;
-	border-radius: 14px;
-}
-
-.spw-panel :focus-visible { outline: 2px solid var(--spw-primary); outline-offset: 2px; border-radius: 6px; }
+.spw-root .spw-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.spw-root .spw-panel :focus-visible { outline: 2px solid var(--spw-primary); outline-offset: 2px; }
 
 /* ── Header ───────────────────────────────────────────── */
 
-.spw-header {
-	display: flex;
-	align-items: center;
-	gap: 11px;
-	padding: 13px 14px;
-	background: var(--spw-head-from);
-	color: #fff;
-	flex-shrink: 0;
-}
+.spw-root .spw-header { display: flex; align-items: center; gap: 11px; padding: 15px 16px; background: var(--spw-head-from); color: #fff; flex-shrink: 0; }
 
-.spw-avatar {
-	width: 36px;
-	height: 36px;
-	border-radius: 50%;
-	background: rgba(255, 255, 255, .2);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	overflow: hidden;
-}
+.spw-root .spw-avatar { position: relative; flex: 0 0 38px; width: 38px; height: 38px; }
+.spw-root .spw-avatar__icon { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; background: rgba(255, 255, 255, .14); color: #fff; overflow: hidden; }
+.spw-root .spw-avatar__icon svg { width: 20px; height: 20px; }
+.spw-root .spw-avatar__icon img { width: 100%; height: 100%; object-fit: cover; }
 
-.spw-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.spw-avatar svg { width: 21px; height: 21px; }
+.spw-root .spw-header__meta { flex: 1; min-width: 0; }
+/* Owner-written copy carries dir="auto" (F-06), so a Latin title on a Persian site reads
+   left-to-right. It must still line up on the widget's side, next to the avatar, like the
+   subtitle below it. text-align: start would follow the text's own direction, and Chrome
+   does not support match-parent, so the side comes from the root's dir attribute (T13). */
+.spw-root[dir="ltr"] .spw-header__title,
+.spw-root[dir="ltr"] .spw-header__sub,
+.spw-root[dir="ltr"] .spw-nudge__text,
+.spw-root[dir="ltr"] .spw-side__q { text-align: left; }
+.spw-root[dir="rtl"] .spw-header__title,
+.spw-root[dir="rtl"] .spw-header__sub,
+.spw-root[dir="rtl"] .spw-nudge__text,
+.spw-root[dir="rtl"] .spw-side__q { text-align: right; }
+.spw-root .spw-header__title { overflow: hidden; font-size: 14px; font-weight: 700; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; color: #fff; }
+.spw-root .spw-header__sub { overflow: hidden; font-size: 11.5px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; color: rgba(255, 255, 255, .72); }
 
-.spw-header__meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.spw-header__title { font-size: 15px; font-weight: 700; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.spw-header__sub { display: flex; align-items: center; gap: 5px; font-size: 11.5px; opacity: .85; }
-
-.spw-status-dot {
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-	background: #34d399;
-	flex-shrink: 0;
-	animation: spwStatus 2s ease-in-out infinite;
-}
-
-@keyframes spwStatus {
-	0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, .5); }
-	50% { box-shadow: 0 0 0 4px rgba(52, 211, 153, 0); }
-}
-
-.spw-hbtn {
-	width: 30px;
-	height: 30px;
-	padding: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border: none;
-	border-radius: 9px;
-	background: rgba(255, 255, 255, .14);
-	color: #fff;
-	cursor: pointer;
-	flex-shrink: 0;
-	transition: background .18s ease;
-}
-
-.spw-hbtn:hover { background: rgba(255, 255, 255, .28); }
-.spw-hbtn svg { width: 16px; height: 16px; }
-.spw-hbtn__off { display: none; }
-.spw-panel--full .spw-hbtn__on { display: none; }
-.spw-panel--full .spw-hbtn__off { display: flex; }
-
-/* The expand control only makes sense with room to expand into. */
-@media (max-width: 640px) { .spw-hbtn--expand { display: none; } }
+.spw-root .spw-hbtn { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; background: rgba(255, 255, 255, .13); color: #fff; transition: background .18s ease; }
+.spw-root .spw-hbtn:hover,
+.spw-root .spw-hbtn:focus { background: rgba(255, 255, 255, .24); color: #fff; }
+.spw-root .spw-hbtn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.spw-root .spw-hbtn svg { width: 16px; height: 16px; }
+.spw-root .spw-hbtn__label { display: none; font-size: 12.5px; font-weight: 700; }
+.spw-root .spw-hbtn__on,
+.spw-root .spw-hbtn__off { display: flex; }
+.spw-root .spw-hbtn__off { display: none; }
+.spw-root .spw-panel--full .spw-hbtn__on { display: none; }
+.spw-root .spw-panel--full .spw-hbtn__off { display: flex; }
+.spw-root .spw-hbtn.spw-mic--recording { background: #ff455f; animation: spwPulse 1.2s infinite; }
 
 /* ── Message log ──────────────────────────────────────── */
 
-.spw-body { position: relative; flex: 1; min-height: 0; display: flex; }
+.spw-root .spw-body { position: relative; flex: 1; min-height: 0; display: flex; }
 
-.spw-messages {
+.spw-root .spw-messages {
 	flex: 1;
 	min-height: 0;
 	overflow-y: auto;
-	/* Keep wheel/touch scrolling inside the panel. */
 	overscroll-behavior: contain;
 	scroll-behavior: smooth;
-	padding: 18px 14px;
+	/* T17 (WCAG 2.4.11): focus scrolls a field clear of the floating "latest message" button,
+	   34px tall at 14px from the edge, instead of leaving it under the button. */
+	scroll-padding-block-end: 62px;
+	padding: 16px;
 	display: flex;
 	flex-direction: column;
-	gap: 14px;
+	gap: 12px;
 	background: var(--spw-msgs);
 	scrollbar-width: thin;
 	scrollbar-color: rgba(120, 128, 140, .35) transparent;
 }
 
-.spw-messages::-webkit-scrollbar { width: 8px; }
-.spw-messages::-webkit-scrollbar-thumb { background: rgba(120, 128, 140, .3); border-radius: 99px; border: 2px solid transparent; background-clip: content-box; }
-.spw-messages::-webkit-scrollbar-thumb:hover { background: rgba(120, 128, 140, .5); background-clip: content-box; }
+.spw-root .spw-messages::-webkit-scrollbar { width: 8px; }
+.spw-root .spw-messages::-webkit-scrollbar-thumb { background: rgba(120, 128, 140, .3); border-radius: 99px; border: 2px solid transparent; background-clip: content-box; }
 
-/* ── Empty state ──────────────────────────────────────── */
+.spw-root .spw-day { margin-bottom: 2px; font-size: 11px; font-weight: 600; text-align: center; color: var(--spw-faint); }
 
-.spw-welcome { margin: auto 0; padding: 8px 4px 4px; text-align: center; }
+.spw-root .spw-row { display: flex; max-width: 100%; animation: spwRise .28s ease; }
+.spw-root .spw-row--user { justify-content: flex-end; }
+.spw-root .spw-row--ai { justify-content: flex-start; }
+.spw-root .spw-row__stack { display: flex; flex-direction: column; gap: 5px; min-width: 0; max-width: 84%; }
+.spw-root .spw-row--user .spw-row__stack { align-items: flex-end; }
+.spw-root .spw-row--ai .spw-row__stack { align-items: flex-start; }
 
-.spw-welcome__icon {
-	width: 52px;
-	height: 52px;
-	margin: 0 auto 12px;
-	border-radius: 15px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	overflow: hidden;
-	color: var(--spw-primary);
-	background: color-mix(in srgb, var(--spw-primary) 10%, #fff);
-	border: 1px solid color-mix(in srgb, var(--spw-primary) 18%, transparent);
-}
-
-.spw-welcome__icon svg { width: 25px; height: 25px; }
-.spw-welcome__icon img { width: 100%; height: 100%; object-fit: cover; }
-
-.spw-welcome__title {
-	margin: 0 0 4px;
-	padding: 0;
-	font-size: 16px;
-	font-weight: 700;
-	line-height: 1.45;
-	color: var(--spw-text);
-}
-
-.spw-welcome__hint { margin: 0 0 14px; font-size: 12.5px; color: var(--spw-text-secondary); }
-
-.spw-recording-notice { margin: 6px 2px 0; color: var(--spw-text-secondary); font-size: 10.5px; line-height: 1.45; text-align: center; }
-
-.spw-suggest { display: flex; flex-direction: column; gap: 8px; }
-
-.spw-suggest__chip {
-	display: block;
-	width: 100%;
-	padding: 10px 14px;
-	border-radius: 12px;
-	border: 1px solid var(--spw-border);
-	background: var(--spw-ai-bg);
-	color: var(--spw-ai-text);
-	font-family: inherit;
-	font-size: 13px;
-	line-height: 1.5;
-	text-align: start;
-	cursor: pointer;
-	transition: var(--spw-transition);
-}
-
-.spw-suggest__chip:hover {
-	border-color: var(--spw-primary);
-	color: var(--spw-primary);
-	transform: translateY(-1px);
-}
-
-/* ── Message rows ─────────────────────────────────────── */
-
-.spw-row {
-	display: flex;
-	gap: 8px;
-	/* Top-aligned so the avatar sits beside the first line of a long reply
-	   rather than drifting down next to the timestamp. */
-	align-items: flex-start;
-	max-width: 92%;
-	animation: spwFadeIn .26s ease;
-}
-
-@keyframes spwFadeIn {
-	from { opacity: 0; transform: translateY(6px); }
-	to { opacity: 1; transform: none; }
-}
-
-.spw-row--user { align-self: flex-end; flex-direction: row-reverse; }
-.spw-row--ai { align-self: flex-start; }
-
-.spw-row__avatar {
-	width: 26px;
-	height: 26px;
-	flex-shrink: 0;
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	overflow: hidden;
-	margin-top: 3px;
-	color: var(--spw-primary);
-	background: color-mix(in srgb, var(--spw-primary) 12%, #fff);
-	border: 1px solid color-mix(in srgb, var(--spw-primary) 20%, transparent);
-}
-
-.spw-row__avatar svg { width: 14px; height: 14px; }
-.spw-row__avatar img { width: 100%; height: 100%; object-fit: cover; }
-.spw-row--user .spw-row__avatar { display: none; }
-
-.spw-row__stack { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-
-.spw-msg {
-	padding: 10px 14px;
+.spw-root .spw-msg {
+	padding: 10px 13px;
 	border-radius: var(--spw-msg-radius);
-	line-height: 1.6;
-	font-size: 14px;
+	font-size: 13px;
+	line-height: 1.55;
 	overflow-wrap: anywhere;
-	/* Growing text must not reflow the rest of the log. */
+	white-space: pre-wrap;
 	contain: layout style;
 }
 
-.spw-msg--ai {
-	background: var(--spw-ai-bg);
-	color: var(--spw-ai-text);
-	border: 1px solid var(--spw-border);
-	border-end-start-radius: 5px;
-}
+.spw-root .spw-msg--ai { background: var(--spw-ai-bg); color: var(--spw-ai-text); border: 1px solid var(--spw-line); border-end-start-radius: 4px; }
+.spw-root .spw-msg--user { background: var(--spw-user); color: #fff; border-end-end-radius: 4px; }
+.spw-root .spw-msg--error { background: #fff6f7; border: 1px solid #f7ccd4; color: #a2233a; }
+.spw-root .spw-msg a { color: inherit; text-decoration: underline; }
 
-.spw-msg--user {
-	background: var(--spw-user);
-	color: #fff;
-	border-end-end-radius: 5px;
-}
+.spw-root .spw-source { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding-inline: 2px; font-size: 11px; line-height: 1.4; color: var(--spw-faint); }
+.spw-root .spw-source__icon { display: flex; }
+.spw-root .spw-source__icon svg { width: 12px; height: 12px; }
+.spw-root .spw-source a { color: var(--spw-faint); text-decoration: none; }
+.spw-root .spw-source a:hover { color: var(--spw-primary); text-decoration: underline; }
 
-.spw-msg--error {
-	background: #fef2f2;
-	border: 1px solid #fecaca;
-	color: #b91c1c;
-}
+.spw-root .spw-retry { align-self: flex-start; padding: 5px 11px; border: 1px solid #f7ccd4; border-radius: 8px; background: #fff; color: #a2233a; font-size: 12px; font-weight: 600; }
+.spw-root .spw-retry:hover { border: 1px solid #f7ccd4; background: #fff6f7; color: #a2233a; }
 
-.spw-msg p { margin: 0 0 8px; }
-.spw-msg p:last-child { margin-bottom: 0; }
-.spw-msg a { color: inherit; text-decoration: underline; }
+/* ── Markdown inside an answer ────────────────────────────
+   The engine answers in short Markdown; widget.js turns the subset it uses into
+   real elements. Spacing is set here because the theme's paragraph and list rules
+   never reach inside .spw-root. */
+.spw-root .spw-msg .spw-md-p + .spw-md-p,
+.spw-root .spw-msg .spw-md-list + .spw-md-p,
+.spw-root .spw-msg .spw-md-p + .spw-md-list,
+.spw-root .spw-msg .spw-md-p + .spw-md-h,
+.spw-root .spw-msg .spw-md-list + .spw-md-h { margin-block-start: 8px; }
+.spw-root .spw-msg .spw-md-h { font-weight: 700; }
+.spw-root .spw-msg .spw-md-list { padding-inline-start: 18px; white-space: normal; }
+.spw-root .spw-msg .spw-md-list li { margin-block-start: 2px; }
+.spw-root .spw-msg .spw-code { padding: 1px 5px; border-radius: 5px; background: rgba(32, 42, 141, .08); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+.spw-root .spw-msg--user .spw-code { background: rgba(255, 255, 255, .22); }
 
-.spw-time {
-	font-size: 10.5px;
-	color: var(--spw-text-secondary);
-	padding-inline: 4px;
-}
+/* Topics the assistant proposed when a question was ambiguous: pressing one fills
+   the composer, so the visitor sends the question themselves. */
+.spw-root .spw-clarify { display: flex; flex-wrap: wrap; gap: 7px; }
 
-.spw-row--user .spw-time { text-align: end; }
-
-.spw-retry {
-	align-self: flex-start;
-	margin-top: 2px;
-	padding: 5px 11px;
-	border-radius: 8px;
-	border: 1px solid #fecaca;
-	background: #fff;
-	color: #b91c1c;
-	font-family: inherit;
-	font-size: 12px;
-	font-weight: 600;
-	cursor: pointer;
-}
-
-.spw-retry:hover { background: #fef2f2; }
-
-/* Sources — shown as chips so the answer stays checkable. */
-.spw-msg__sources {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	align-items: center;
-	margin-top: 9px;
-	padding-top: 8px;
-	border-top: 1px solid var(--spw-border);
-	font-size: 11px;
-	color: var(--spw-text-secondary);
-}
-
-.spw-msg__sources a {
-	padding: 2px 8px;
-	border-radius: 6px;
-	background: color-mix(in srgb, var(--spw-primary) 9%, transparent);
-	color: var(--spw-primary);
-	text-decoration: none;
-	max-width: 100%;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.spw-msg__sources a:hover { text-decoration: underline; }
+/* A note about the conversation, not a turn in it (for example: you stopped waiting). */
+.spw-root .spw-note { align-self: center; max-width: 84%; padding: 4px 2px; color: var(--spw-text-secondary); font-size: 11px; line-height: 1.5; text-align: center; }
 
 /* Karaoke word highlight during read-aloud. */
-.spw-word { transition: background .15s ease; }
-.spw-word--active { font-weight: 700; background: color-mix(in srgb, var(--spw-primary) 16%, transparent); border-radius: 3px; }
+.spw-root .spw-word { transition: background .15s ease; }
+.spw-root .spw-word--active { font-weight: 700; background: rgba(32, 42, 141, .14); border-radius: 3px; }
+
+/* ── Suggested questions ──────────────────────────────── */
+
+.spw-root .spw-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.spw-root .spw-chip { padding: 7px 13px; border: 1px solid #d9dcec; border-radius: 20px; background: #fff; color: var(--spw-primary); font-size: 12px; font-weight: 600; line-height: 1.35; text-align: start; transition: border-color .15s ease, background .15s ease; }
+.spw-root .spw-chip:hover,
+.spw-root .spw-chip:focus { border: 1px solid var(--spw-primary); background: #fff; color: var(--spw-primary); }
 
 /* ── Typing indicator ─────────────────────────────────── */
 
-.spw-typing {
-	align-self: flex-start;
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	padding: 13px 15px;
-	background: var(--spw-ai-bg);
-	border: 1px solid var(--spw-border);
-	border-radius: var(--spw-msg-radius);
-	border-end-start-radius: 5px;
-}
+.spw-root .spw-typing { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; padding: 11px 14px; background: var(--spw-ai-bg); border: 1px solid var(--spw-line); border-radius: 14px; border-end-start-radius: 4px; }
+.spw-root .spw-typing__dot { width: 6px; height: 6px; border-radius: 50%; background: #b3b6cf; animation: spwDot 1.3s ease-in-out infinite; }
+.spw-root .spw-typing__dot:nth-child(2) { animation-delay: .18s; }
+.spw-root .spw-typing__dot:nth-child(3) { animation-delay: .36s; }
 
-.spw-typing__dot {
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-	background: var(--spw-text-secondary);
-	animation: spwBounce 1.3s ease infinite;
-}
-
-.spw-typing__dot:nth-child(2) { animation-delay: .18s; }
-.spw-typing__dot:nth-child(3) { animation-delay: .36s; }
-
-@keyframes spwBounce {
-	0%, 60%, 100% { transform: translateY(0); opacity: .55; }
-	30% { transform: translateY(-5px); opacity: 1; }
+@keyframes spwDot {
+	0%, 80%, 100% { transform: translateY(0); opacity: .4; }
+	40% { transform: translateY(-4px); opacity: 1; }
 }
 
 /* ── Jump to latest ───────────────────────────────────── */
 
-.spw-jump {
-	position: absolute;
-	inset-block-end: 14px;
-	inset-inline-end: 14px;
-	width: 34px;
-	height: 34px;
-	border-radius: 50%;
-	border: 1px solid var(--spw-border);
-	background: var(--spw-bg);
-	color: var(--spw-text);
-	box-shadow: 0 6px 16px -6px rgba(16, 24, 40, .3);
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	animation: spwFadeIn .2s ease;
-}
+.spw-root .spw-jump { position: absolute; inset-block-end: 14px; inset-inline-end: 14px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--spw-border); background: var(--spw-bg); color: var(--spw-text); box-shadow: 0 6px 16px -6px rgba(16, 24, 40, .3); display: flex; align-items: center; justify-content: center; }
+.spw-root .spw-jump:hover { border: 1px solid var(--spw-primary); background: var(--spw-bg); color: var(--spw-primary); }
+.spw-root .spw-jump svg { width: 16px; height: 16px; }
 
-.spw-jump[hidden] { display: none; }
-.spw-jump svg { width: 16px; height: 16px; }
-.spw-jump:hover { border-color: var(--spw-primary); color: var(--spw-primary); }
+/* ── Handoff card ─────────────────────────────────────── */
 
-/* ── Handoff ──────────────────────────────────────────── */
-
-.spw-handoff {
-	padding: 11px 14px;
-	border-top: 1px solid var(--spw-border);
-	background: var(--spw-msgs);
-	flex-shrink: 0;
-}
-
-.spw-handoff p { font-size: 12px; color: var(--spw-text-secondary); margin: 0 0 8px; text-align: center; }
-
-.spw-handoff-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
+.spw-root .spw-handoff { padding: 14px; border: 1px solid #f0e4a8; border-radius: 14px; background: #fffdf2; animation: spwRise .3s ease; }
+.spw-root .spw-handoff__title { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #6b5a12; }
+.spw-root .spw-handoff__title svg,
+.spw-root .spw-handoff__title img { width: 15px; height: 15px; color: #a8880c; }
+.spw-root .spw-handoff__text { margin-top: 5px; font-size: 12px; line-height: 1.55; color: #6b5a12; }
+.spw-root .spw-handoff__fields { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.spw-root .spw-handoff__field { display: flex; flex-direction: column; gap: 4px; margin: 0; }
+.spw-root .spw-handoff__label { font-size: 11.5px; font-weight: 700; line-height: 1.4; color: #6b5a12; }
+.spw-root .spw-handoff__label em { font-style: normal; font-weight: 600; color: #8f7a2a; }
+.spw-root .spw-handoff__input {
 	width: 100%;
-	padding: 9px 12px;
-	border-radius: 11px;
-	border: 1.5px solid var(--spw-handoff);
-	background: transparent;
-	color: var(--spw-handoff);
+	min-height: 38px;
+	margin: 0;
+	padding: 8px 10px;
+	border: 1px solid #e3d48f;
+	border-radius: 9px;
+	background: #fff;
+	box-shadow: none;
+	color: #14152b;
 	font-family: inherit;
-	font-weight: 700;
-	font-size: 13px;
-	cursor: pointer;
-	transition: var(--spw-transition);
+	/* 16px stops iOS Safari zooming the page on focus. */
+	font-size: 16px;
+	line-height: 1.35;
+	outline: none;
 }
-
-.spw-handoff-btn img { width: 15px; height: 15px; object-fit: contain; }
-.spw-handoff-btn svg { width: 16px; height: 16px; }
-.spw-handoff-btn:hover { background: var(--spw-handoff); color: #fff; }
-.spw-handoff-btn:disabled { opacity: .55; cursor: not-allowed; }
+@media (min-width: 481px) { .spw-root .spw-handoff__input { font-size: 13px; } }
+.spw-root .spw-handoff__input:focus { border-color: var(--spw-handoff); box-shadow: 0 0 0 3px rgba(32, 42, 141, .14); background: #fff; color: #14152b; }
+.spw-root .spw-handoff__input[aria-invalid="true"] { border-color: #c2334a; }
+.spw-root .spw-handoff__input[readonly] { background: #fbf8ea; color: #5b5e7d; }
+.spw-root .spw-handoff__input::placeholder { color: #a9a47f; opacity: 1; }
+.spw-root .spw-handoff__error { font-size: 11.5px; font-weight: 600; line-height: 1.4; color: #b42338; }
+.spw-root .spw-handoff__error[hidden] { display: none; }
+.spw-root .spw-handoff.is-sent .spw-handoff__input { border-color: #cfe8da; background: #fff; }
+.spw-root .spw-handoff__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
+.spw-root .spw-handoff__send { padding: 8px 14px; border-radius: 9px; background: var(--spw-handoff); color: #fff; font-size: 12px; font-weight: 700; }
+.spw-root .spw-handoff__send:hover,
+.spw-root .spw-handoff__send:focus { background: var(--spw-handoff); color: #fff; filter: brightness(1.1); }
+.spw-root .spw-handoff__later { padding: 7px 13px; border: 1px solid #dcc978; border-radius: 9px; color: #6b5a12; font-size: 12px; font-weight: 700; }
+.spw-root .spw-handoff__later:hover,
+.spw-root .spw-handoff__later:focus { border: 1px solid #c9b35a; color: #6b5a12; }
+.spw-root .spw-handoff button:disabled { opacity: .6; cursor: not-allowed; }
+.spw-root .spw-handoff__status { margin-top: 8px; font-size: 12px; font-weight: 600; color: #6b5a12; }
+.spw-root .spw-handoff__status:empty { display: none; }
+.spw-root .spw-handoff.is-sent { border-color: #cfe8da; background: #f4faf6; }
+.spw-root .spw-handoff.is-sent .spw-handoff__status { color: #166a45; }
 
 /* ── Composer ─────────────────────────────────────────── */
 
-.spw-composer {
-	flex-shrink: 0;
-	padding: 11px 14px calc(9px + env(safe-area-inset-bottom, 0px));
-	border-top: 1px solid var(--spw-border);
-	background: var(--spw-bg);
-}
+.spw-root .spw-composer { flex-shrink: 0; padding: 11px 12px calc(9px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--spw-line); background: var(--spw-bg); }
 
-.spw-composer__row { display: flex; gap: 8px; align-items: flex-end; }
+.spw-root .spw-composer__box { display: flex; align-items: flex-end; gap: 8px; padding-block: 6px; padding-inline: 14px 6px; border: 1px solid var(--spw-border); border-radius: 14px; background: var(--spw-input-bg); transition: border-color .18s ease, box-shadow .18s ease; }
+.spw-root .spw-composer__box:focus-within { border-color: var(--spw-primary); box-shadow: 0 0 0 3px rgba(32, 42, 141, .12); }
 
-.spw-input {
+.spw-root .spw-input {
 	flex: 1;
 	min-width: 0;
-	border: 1.5px solid var(--spw-border);
-	border-radius: 12px;
-	padding: 10px 14px;
-	/* 16px stops iOS Safari zooming the page on focus. */
-	font-size: 16px;
-	font-family: inherit;
-	line-height: 1.5;
-	color: var(--spw-text);
-	background: var(--spw-input-bg);
-	resize: none;
+	width: auto;
 	max-height: 120px;
+	min-height: 36px;
+	margin: 0;
+	padding: 8px 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	color: var(--spw-text);
+	/* 16px stops iOS Safari zooming the page on focus. */
+	font-family: inherit;
+	font-size: 16px;
+	line-height: 1.45;
+	resize: none;
 	outline: none;
-	transition: border-color .18s ease, box-shadow .18s ease;
 }
 
-.spw-input::placeholder { color: var(--spw-text-secondary); opacity: 1; }
-.spw-input:focus { border-color: var(--spw-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--spw-primary) 16%, transparent); }
+.spw-root .spw-input:focus { border: 0; box-shadow: none; outline: none; background: transparent; }
+.spw-root .spw-input::placeholder { color: var(--spw-faint); opacity: 1; }
+@media (min-width: 481px) { .spw-root .spw-input { font-size: 13px; } }
 
-@media (min-width: 481px) { .spw-input { font-size: 14px; } }
+.spw-root .spw-send,
+.spw-root .spw-mic { display: flex; align-items: center; justify-content: center; flex: 0 0 36px; width: 36px; height: 36px; border-radius: 10px; }
+.spw-root .spw-send { background: var(--spw-send); color: #fff; transition: filter .15s ease; }
+.spw-root .spw-send:hover,
+.spw-root .spw-send:focus { background: var(--spw-send); color: #fff; filter: brightness(1.12); }
+.spw-root .spw-send svg { width: 17px; height: 17px; }
+.spw-root .spw-send__ico,
+.spw-root .spw-send__stop { display: flex; }
+.spw-root .spw-send__stop { display: none; }
+.spw-root .spw-send--busy .spw-send__ico { display: none; }
+.spw-root .spw-send--busy .spw-send__stop { display: flex; }
+.spw-root .spw-send--busy,
+.spw-root .spw-send--busy:hover { background: #ff455f; }
 
-.spw-send,
-.spw-mic {
-	width: 40px;
-	height: 40px;
-	flex-shrink: 0;
-	border-radius: 12px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	transition: var(--spw-transition);
-}
-
-.spw-send { border: none; background: var(--spw-send); color: #fff; }
-.spw-send:hover:not(:disabled) { filter: brightness(1.08); }
-.spw-send:disabled { opacity: .45; cursor: not-allowed; }
-.spw-send svg { width: 18px; height: 18px; }
-.spw-send__stop { display: none; }
-
-/* While a reply is generating the send button becomes a stop control. */
-.spw-send--busy .spw-send__ico { display: none; }
-.spw-send--busy .spw-send__stop { display: flex; }
-.spw-send--busy { background: #dc2626; opacity: 1; cursor: pointer; }
-
-.spw-mic { border: 1.5px solid var(--spw-border); background: var(--spw-bg); color: var(--spw-text-secondary); overflow: hidden; }
-.spw-mic img { width: 18px; height: 18px; object-fit: contain; }
-.spw-mic svg { width: 18px; height: 18px; }
-.spw-mic:hover { border-color: var(--spw-primary); color: var(--spw-primary); }
-.spw-mic--recording { border-color: #ef4444; color: #ef4444; background: #fef2f2; animation: spwPulse 1.2s infinite; }
+/* Its own timing, like the header buttons, so a theme's "transition: all" on bare buttons
+   cannot fade the recording coral in slowly. */
+.spw-root .spw-mic { color: var(--spw-text-secondary); transition: background .18s ease, color .18s ease; }
+.spw-root .spw-mic:hover,
+.spw-root .spw-mic:focus { color: var(--spw-primary); background: rgba(32, 42, 141, .06); }
+.spw-root .spw-mic svg { width: 18px; height: 18px; }
+.spw-root .spw-mic img { width: 18px; height: 18px; object-fit: contain; }
+.spw-root .spw-mic.spw-mic--recording,
+.spw-root .spw-mic.spw-mic--recording:hover { color: #fff; background: #ff455f; animation: spwPulse 1.2s infinite; }
 
 @keyframes spwPulse {
-	0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, .4); }
-	50% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0); }
+	0%, 100% { box-shadow: 0 0 0 0 rgba(255, 69, 95, .45); }
+	50% { box-shadow: 0 0 0 7px rgba(255, 69, 95, 0); }
 }
 
-.spw-disclaimer {
-	margin: 7px 0 0;
-	font-size: 10.5px;
-	line-height: 1.4;
-	color: var(--spw-text-secondary);
-	text-align: center;
-	opacity: .85;
+/* While recording, both mic buttons are stop buttons: the square replaces the microphone,
+   so "press again to stop" needs no sentence in the placeholder. */
+.spw-root .spw-mic__ico,
+.spw-root .spw-mic__stop { display: flex; align-items: center; justify-content: center; }
+.spw-root .spw-mic__stop { display: none; }
+.spw-root .spw-mic--recording .spw-mic__ico { display: none; }
+.spw-root .spw-mic--recording .spw-mic__stop { display: flex; }
+
+/* Recording in the composer: a coral frame, a live dot and the elapsed time say the
+   microphone is on, so the placeholder is a one-line "Listening…" at every width and the
+   box keeps its height on a phone and on the desktop (F-25 follow-up). */
+.spw-root .spw-composer__box--recording,
+.spw-root .spw-composer__box--recording:focus-within { border-color: #ff455f; box-shadow: 0 0 0 3px rgba(255, 69, 95, .14); }
+.spw-root .spw-rec { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; align-self: center; font-size: 12.5px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; color: var(--spw-text-secondary); }
+.spw-root .spw-rec__dot { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: #ff455f; animation: spwBlink 1.2s ease-in-out infinite; }
+.spw-root .spw-rec__time { unicode-bidi: isolate; }
+
+@keyframes spwBlink { 50% { opacity: .3; } }
+
+.spw-root .spw-footnote { margin-top: 7px; font-size: 10.5px; line-height: 1.45; text-align: center; color: var(--spw-faint); }
+.spw-root .spw-link { display: inline; padding: 0; font-weight: 600; font-size: inherit; color: var(--spw-primary); text-decoration: underline; text-underline-offset: 2px; }
+.spw-root .spw-link:hover,
+.spw-root .spw-link:focus { color: var(--spw-primary); text-decoration: none; }
+.spw-root .spw-recording-notice { margin-top: 4px; font-size: 10.5px; line-height: 1.45; text-align: center; color: var(--spw-text-secondary); }
+
+/* The voice phase is already visible in the recording dot and the typing dots, so this
+   live region exists for assistive tech only. It stays in the layout (not display:none)
+   because a hidden region is never announced. */
+.spw-root .spw-live { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* ── Hit targets ──────────────────────────────────────────
+   Icon buttons keep the mockup's drawn size (34px in the header and the jump
+   button, 36px in the composer, 24px for the nudge close) while a transparent
+   ::before grows the clickable area to at least 44×44px. No extension is wider
+   than the gap to the next control, so two targets never overlap. Nothing that
+   holds these buttons may clip overflow, or the extra area stops receiving
+   clicks. */
+.spw-root .spw-hbtn,
+.spw-root .spw-send,
+.spw-root .spw-mic,
+.spw-root .spw-nudge__close { position: relative; }
+
+.spw-root .spw-hbtn::before,
+.spw-root .spw-send::before,
+.spw-root .spw-mic::before,
+.spw-root .spw-jump::before,
+.spw-root .spw-nudge__close::before { content: ""; position: absolute; }
+
+/* 34px + 5px on each side; the header gap between buttons is 11px. */
+.spw-root .spw-hbtn::before,
+.spw-root .spw-jump::before { inset: -5px; }
+/* 36px + 4px on each side; the composer gap between buttons is 8px. */
+.spw-root .spw-send::before,
+.spw-root .spw-mic::before { inset: -4px; }
+/* 24px: the 4px gap before it, 16px into the nudge's own padding and edge, 10px above and below. */
+.spw-root .spw-nudge__close::before { inset-block: -10px; inset-inline-start: -4px; inset-inline-end: -16px; }
+
+/* ── Full screen ──────────────────────────────────────── */
+
+.spw-root .spw-scrim { position: fixed; inset: 0; z-index: calc(var(--spw-z) - 1); background: rgba(16, 17, 34, .5); backdrop-filter: blur(2px); animation: spwFade .25s ease; }
+
+@keyframes spwFade { from { opacity: 0; } to { opacity: 1; } }
+
+.spw-root .spw-side { display: none; }
+
+.spw-root .spw-panel.spw-panel--full {
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	margin: auto;
+	width: min(940px, calc(100vw - 52px));
+	max-width: none;
+	height: min(760px, calc(100dvh - 52px));
+	max-height: none;
+	border: 0;
+	border-radius: 22px;
+	box-shadow: 0 40px 90px rgba(12, 13, 32, .5);
+	animation: spwPanelIn .34s cubic-bezier(.2, .8, .2, 1);
 }
+
+.spw-root .spw-panel--full .spw-header { padding: 17px 22px; gap: 13px; }
+.spw-root .spw-panel--full .spw-avatar,
+.spw-root .spw-panel--full .spw-avatar__icon { width: 40px; height: 40px; flex-basis: 40px; border-radius: 12px; }
+.spw-root .spw-panel--full .spw-header__title { font-size: 16px; font-weight: 800; }
+.spw-root .spw-panel--full .spw-header__sub { font-size: 12px; }
+.spw-root .spw-panel--full .spw-hbtn { width: 38px; height: 38px; background: rgba(255, 255, 255, .14); }
+.spw-root .spw-panel--full .spw-hbtn--voice { width: auto; padding: 0 14px; }
+.spw-root .spw-panel--full .spw-hbtn--voice .spw-hbtn__label { display: inline; }
+.spw-root .spw-panel--full .spw-hbtn--close { display: none; }
+.spw-root .spw-panel--full .spw-messages { padding-block: 24px; padding-inline: max(26px, calc((100% - 660px) / 2)); gap: 15px; }
+.spw-root .spw-panel--full .spw-row__stack { max-width: 76%; }
+.spw-root .spw-panel--full .spw-msg { padding: 12px 16px; font-size: 14px; line-height: 1.6; }
+.spw-root .spw-panel--full .spw-source { font-size: 12px; }
+.spw-root .spw-panel--full .spw-composer { padding: 16px 26px; }
+.spw-root .spw-panel--full .spw-composer__box { max-width: 660px; margin-inline: auto; padding-block: 7px; padding-inline: 16px 7px; border-radius: 15px; }
+.spw-root .spw-panel--full .spw-send,
+.spw-root .spw-panel--full .spw-mic { width: 40px; height: 40px; flex-basis: 40px; border-radius: 11px; }
+.spw-root .spw-panel--full .spw-footnote,
+.spw-root .spw-panel--full .spw-recording-notice { max-width: 660px; margin-inline: auto; }
+.spw-root .spw-panel--full:has(.spw-side__list) .spw-chips { display: none; }
+
+.spw-root .spw-panel--full .spw-side { display: flex; flex-direction: column; gap: 22px; flex: 0 0 270px; width: 270px; padding: 22px 20px; border-inline-start: 1px solid var(--spw-line); background: var(--spw-bg); overflow-y: auto; }
+.spw-root .spw-side__label { margin-bottom: 11px; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--spw-faint); }
+.spw-root .spw-side__list { display: flex; flex-direction: column; gap: 8px; }
+.spw-root .spw-side__q { padding: 11px 13px; border: 1px solid var(--spw-line); border-radius: 11px; background: #f7f8fc; color: var(--spw-text); font-size: 12.5px; font-weight: 600; line-height: 1.4; }
+.spw-root .spw-side__q:hover,
+.spw-root .spw-side__q:focus { border: 1px solid #ccd1f0; background: #eef0fb; color: var(--spw-text); }
+.spw-root .spw-side__human { margin-top: auto; padding-top: 18px; border-top: 1px solid var(--spw-line); }
+.spw-root .spw-side__human-title { font-size: 12.5px; font-weight: 700; color: var(--spw-text); }
+.spw-root .spw-side__human p { margin-top: 4px; font-size: 12px; line-height: 1.5; color: var(--spw-text-secondary); }
+.spw-root .spw-side__btn { width: 100%; margin-top: 11px; padding: 10px; border: 1px solid #d9dcec; border-radius: 10px; color: var(--spw-primary); font-size: 12.5px; font-weight: 700; text-align: center; }
+.spw-root .spw-side__btn:hover,
+.spw-root .spw-side__btn:focus { border: 1px solid var(--spw-primary); color: var(--spw-primary); }
 
 /* ── Dark theme ───────────────────────────────────────── */
 
-.spw--dark {
+.spw-root.spw--dark {
 	--spw-bg: #1f2937;
 	--spw-text: #f3f4f6;
 	--spw-text-secondary: #9ca3af;
+	--spw-faint: #9098a6;
 	--spw-border: #374151;
+	--spw-line: #374151;
+	--spw-msgs: #111827;
+	--spw-input-bg: #111827;
+	--spw-ai-bg: #1f2937;
+	--spw-ai-text: #f3f4f6;
 	--spw-shadow: 0 24px 48px -12px rgba(0, 0, 0, .5), 0 8px 16px -8px rgba(0, 0, 0, .4);
 }
 
-.spw--dark .spw-messages { background: #111827; }
-.spw--dark .spw-msg--ai { background: #1f2937; border-color: #374151; }
-.spw--dark .spw-msg--error { background: #3f1d1d; border-color: #7f1d1d; color: #fca5a5; }
-.spw--dark .spw-retry { background: #1f2937; border-color: #7f1d1d; color: #fca5a5; }
-.spw--dark .spw-typing { background: #1f2937; border-color: #374151; }
-.spw--dark .spw-handoff { background: #111827; }
-.spw--dark .spw-composer { background: #1f2937; }
-.spw--dark .spw-input { background: #111827; color: #f3f4f6; border-color: #374151; }
-.spw--dark .spw-mic { background: #374151; color: #f3f4f6; }
-.spw--dark .spw-jump { background: #1f2937; color: #f3f4f6; }
-.spw--dark .spw-welcome__icon { background: rgba(32, 42, 141, .18); }
-.spw--dark .spw-suggest__chip { background: #1f2937; color: #f3f4f6; border-color: #374151; }
-.spw--dark .spw-row__avatar { background: rgba(32, 42, 141, .2); }
+.spw-root.spw--dark .spw-chip,
+.spw-root.spw--dark .spw-side__q { background: #1f2937; border-color: #374151; color: #e5e7eb; }
+.spw-root.spw--dark .spw-msg--error { background: #3f1d1d; border-color: #7f1d1d; color: #fca5a5; }
+.spw-root.spw--dark .spw-msg .spw-code { background: rgba(255, 255, 255, .14); }
+.spw-root.spw--dark .spw-nudge__close:hover { background: #374151; }
 
 /* ── Launcher / panel positions ───────────────────────── */
 
-.spw--bottom-left .spw-toggle,
-.spw--bottom-left .spw-panel {
-	right: auto;
-	left: var(--spw-side);
-}
+.spw-root.spw--bottom-left .spw-toggle,
+.spw-root.spw--bottom-left .spw-nudge { right: auto; left: 26px; }
+.spw-root.spw--bottom-left .spw-panel:not(.spw-panel--full) { right: auto; left: var(--spw-side); }
 
-.spw--top-right .spw-toggle,
-.spw--top-left .spw-toggle {
-	top: max(var(--spw-bottom), env(safe-area-inset-top, 0px));
-	bottom: auto;
-}
+.spw-root.spw--top-right .spw-toggle,
+.spw-root.spw--top-left .spw-toggle { top: max(26px, env(safe-area-inset-top, 0px)); bottom: auto; }
+.spw-root.spw--top-right .spw-nudge,
+.spw-root.spw--top-left .spw-nudge { top: calc(26px + var(--spw-bubble-size) + 12px); bottom: auto; }
+.spw-root.spw--top-right .spw-panel:not(.spw-panel--full),
+.spw-root.spw--top-left .spw-panel:not(.spw-panel--full) { top: max(var(--spw-bottom), env(safe-area-inset-top, 0px)); bottom: auto; }
 
-.spw--top-right .spw-panel,
-.spw--top-left .spw-panel {
-	top: calc(var(--spw-bottom) + var(--spw-bubble-size) + 16px);
-	bottom: auto;
-}
+.spw-root.spw--top-left .spw-toggle,
+.spw-root.spw--top-left .spw-nudge { right: auto; left: 26px; }
+.spw-root.spw--top-left .spw-panel:not(.spw-panel--full) { right: auto; left: var(--spw-side); }
 
-.spw--top-left .spw-toggle,
-.spw--top-left .spw-panel {
-	right: auto;
-	left: var(--spw-side);
-}
+/* ── Small screens: the panel is a sheet, full screen adds nothing ──
+   The sheet covers the whole page, so widget.js treats it as modal, like full screen:
+   aria-modal, Tab kept inside and the page behind locked (same 640px threshold there). */
 
-/* Full screen overrides every anchoring rule above. */
-.spw-root .spw-panel--full { inset: 12px; top: 12px; bottom: 12px; }
-
-/* ── Mobile ───────────────────────────────────────────── */
-
-@media (max-width: 480px) {
-	.spw-panel {
-		inset: 0;
+@media (max-width: 640px) {
+	.spw-root .spw-panel,
+	.spw-root .spw-panel.spw-panel--full,
+	.spw-root.spw--bottom-left .spw-panel:not(.spw-panel--full),
+	.spw-root.spw--top-right .spw-panel:not(.spw-panel--full),
+	.spw-root.spw--top-left .spw-panel:not(.spw-panel--full) {
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		margin: 0;
 		width: 100%;
 		max-width: none;
 		height: 100dvh;
 		max-height: none;
-		border-radius: 0;
 		border: 0;
+		border-radius: 0;
 	}
 
-	.spw-root .spw-panel--full { inset: 0; }
-	.spw-messages { padding: 16px 12px; }
-	.spw-row { max-width: 94%; }
+	.spw-root .spw-hbtn--expand { display: none; }
+	.spw-root .spw-panel--full .spw-side { display: none; }
+	/* Same :has() specificity as the rule that hides the chips beside the side column,
+	   otherwise the chips stay hidden here too and the questions disappear altogether. */
+	.spw-root .spw-panel--full:has(.spw-side__list) .spw-chips { display: flex; }
+	.spw-root .spw-scrim { display: none; }
+	.spw-root .spw-row__stack { max-width: 88%; }
 
-	/* The panel covers the screen, so the launcher would only get in the way. */
-	.spw-toggle--open { display: none; }
+	/* T17: on a touch sheet every text control is a 44px finger target, like the icon buttons.
+	   Desktop keeps the mockup's 32px chips: a pointer does not need the extra height. */
+	.spw-root .spw-chip,
+	.spw-root .spw-handoff__send,
+	.spw-root .spw-handoff__later { min-block-size: 44px; }
+	/* The handoff link sits inside the footnote sentence. Its hit area grows to 44px downwards
+	   only, so it never takes clicks from the composer just above it, and inside the layout (no
+	   negative bottom margin): content hanging out of the sheet let focus scrolling shift the
+	   whole sheet, header included, by a few pixels. The sheet gains that space at its foot. */
+	.spw-root .spw-footnote [data-spw-handoff] { display: inline-block; padding-block: 4px 26px; margin-block-start: -4px; }
+}
+
+/* ── 641 to 768px: full screen is the whole viewport ──
+   A 270px side column would eat a third of the width and a centred frame with a 26px
+   margin buys nothing at this size, so full screen fills the viewport, the scrim has
+   nothing left to dim and the questions come back as chips in the thread. */
+
+@media (min-width: 641px) and (max-width: 768px) {
+	.spw-root .spw-panel.spw-panel--full {
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		margin: 0;
+		width: 100%;
+		max-width: none;
+		height: 100dvh;
+		max-height: none;
+		border: 0;
+		border-radius: 0;
+	}
+
+	.spw-root .spw-panel--full .spw-side { display: none; }
+	.spw-root .spw-panel--full:has(.spw-side__list) .spw-chips { display: flex; }
+	.spw-root .spw-scrim { display: none; }
 }
 
 /* ── Accessibility ────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
-	.spw-toggle,
-	.spw-panel,
-	.spw-panel--open,
-	.spw-row,
-	.spw-jump,
-	.spw-typing__dot,
-	.spw-status-dot,
-	.spw-mic--recording { animation: none !important; transition: none !important; }
-
-	.spw-messages { scroll-behavior: auto; }
+	.spw-root *,
+	.spw-root *::before,
+	.spw-root *::after { animation: none !important; transition: none !important; }
+	.spw-root .spw-messages { scroll-behavior: auto; }
+	/* No pulsing ring and no lift on hover: nothing moves unless the visitor moves it. */
+	.spw-root .spw-toggle__ring { display: none; }
+	.spw-root .spw-toggle:hover { transform: none; }
 }
 
 @media (prefers-contrast: more) {
-	.spw-panel { border-width: 2px; }
-	.spw-msg--ai { border-width: 2px; }
-	.spw-disclaimer { opacity: 1; }
+	.spw-root .spw-panel { border-width: 2px; }
+	.spw-root .spw-msg--ai { border-width: 2px; }
+	.spw-root .spw-footnote { color: var(--spw-text-secondary); }
 }
 
 /* ── Print ────────────────────────────────────────────── */
-@media print { .spw-toggle, .spw-panel { display: none !important; } }
+@media print { .spw-root .spw-toggle, .spw-root .spw-panel, .spw-root .spw-nudge, .spw-root .spw-scrim { display: none !important; } }

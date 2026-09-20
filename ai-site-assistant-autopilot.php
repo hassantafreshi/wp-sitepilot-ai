@@ -3,7 +3,7 @@
  * Plugin Name: AI Site Assistant AutoPilot
  * Plugin URI: https://aisaautopilot.ai
  * Description: Safe AI copilot for email forms, voice commands, Easy Form Builder, and WooCommerce product drafts.
- * Version: 1.0.4
+ * Version: 0.0.1
  * Requires at least: 6.2
  * Requires PHP: 8.1
  * Author: AI Site Assistant AutoPilot
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'AISAAUTOPILOT_VERSION', '1.0.4' );
+define( 'AISAAUTOPILOT_VERSION', '0.0.1' );
 define( 'AISAAUTOPILOT_FILE', __FILE__ );
 define( 'AISAAUTOPILOT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AISAAUTOPILOT_URL', plugin_dir_url( __FILE__ ) );

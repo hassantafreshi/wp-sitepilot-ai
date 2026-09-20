@@ -153,22 +153,36 @@
 
 	if ( resetBtn ) {
 		resetBtn.addEventListener( 'click', function () {
-			if ( ! window.confirm( t( 'confirmWipe', 'Reset only this month\'s token usage? This cannot be undone.' ) ) ) { return; }
+			var shell = window.AISAAutoPilotShell;
+			var asked = shell && typeof shell.confirm === 'function'
+				? shell.confirm( {
+					title: t( 'resetTitle', 'Reset this month\'s usage?' ),
+					body: t( 'resetBody', 'This month\'s recorded tokens go back to zero, which lifts a reached cap straight away. Your cap stays the same and earlier months are kept. This cannot be undone.' ),
+					confirmLabel: t( 'resetCta', 'Reset to zero' ),
+					danger: true
+				} )
+				: Promise.resolve( window.confirm( t( 'confirmWipe', 'Reset only this month\'s token usage? This cannot be undone.' ) ) );
 
-			setStatus( status, t( 'resetting', 'Resetting...' ) );
-			setBusy( true );
-			api( 'usage/reset', {} ).then( function ( result ) {
-				if ( result.ok ) {
-					setStatus( status, t( 'resetDone', 'This month\'s usage was reset.' ), 'ok' );
-					window.setTimeout( function () { window.location.reload(); }, 700 );
-					return;
-				}
+			asked.then( function ( yes ) {
+				if ( ! yes ) { return; }
 
-				setStatus( status, result.data.message || t( 'failed', 'Could not save the token cap.' ), 'err' );
-				setBusy( false );
-			} ).catch( function () {
-				setStatus( status, t( 'failed', 'Could not save the token cap.' ), 'err' );
-				setBusy( false );
+				// The danger-zone card has its own status line; the cap editor's is usually hidden.
+				var resetStatus = $( 'sp-usage-reset-status' ) || status;
+				setStatus( resetStatus, t( 'resetting', 'Resetting...' ) );
+				setBusy( true );
+				api( 'usage/reset', {} ).then( function ( result ) {
+					if ( result.ok ) {
+						setStatus( resetStatus, t( 'resetDone', 'This month\'s usage was reset.' ), 'ok' );
+						window.setTimeout( function () { window.location.reload(); }, 700 );
+						return;
+					}
+
+					setStatus( resetStatus, result.data.message || t( 'resetFailed', 'Could not reset this month\'s usage.' ), 'err' );
+					setBusy( false );
+				} ).catch( function () {
+					setStatus( resetStatus, t( 'resetFailed', 'Could not reset this month\'s usage.' ), 'err' );
+					setBusy( false );
+				} );
 			} );
 		} );
 	}

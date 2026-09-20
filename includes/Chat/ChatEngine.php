@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Chat;
 use AISAAutoPilot\Content\KbCache;
 use AISAAutoPilot\Content\KbGaps;
 use AISAAutoPilot\Content\KnowledgeBase;
+use AISAAutoPilot\Content\SavedAnswers;
 use AISAAutoPilot\Content\VectorSearch;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Logging\Logger;
@@ -59,6 +60,19 @@ final class ChatEngine {
 	 * }
 	 */
 	public function ask( string $question, string $history = '' ): array {
+		// 0) A saved answer the site owner wrote for this question: no AI request, so it also works without a provider
+		//    and never counts against the usage cap. Follow-ups are skipped because their meaning depends on history.
+		if ( '' === trim( $history ) ) {
+			$saved_answers = new SavedAnswers();
+			$saved         = $saved_answers->find( $question );
+			if ( null !== $saved ) {
+				$saved_answers->record_use( $saved['id'] );
+				$res                 = $this->result( $saved['answer'], array(), 'answered' );
+				$res['saved_answer'] = true;
+				return $res;
+			}
+		}
+
 		$manager = new ProviderManager();
 		if ( ! $manager->is_configured() ) {
 			return $this->result(
@@ -89,7 +103,7 @@ final class ChatEngine {
 
 			if ( '' === trim( $context ) ) {
 				$gap = $this->offer_handoff();
-				( new KbGaps() )->record( $question );
+				( new KbGaps() )->record( $question, '', 'no_context' );
 				return $this->result(
 					$this->not_found_message( $gap ),
 					array(),
@@ -198,7 +212,7 @@ final class ChatEngine {
 
 		if ( 'not_found' === $status || '' === $answer ) {
 			$gap = $this->offer_handoff();
-			( new KbGaps() )->record( $question );
+			( new KbGaps() )->record( $question, '', 'model_not_found' );
 
 			$message = '' !== $answer ? $answer : $this->not_found_message( $gap );
 			if ( $gap && '' !== $answer ) {
@@ -240,13 +254,13 @@ final class ChatEngine {
 		$answer = trim( (string) preg_replace( '/\n*\s*SOURCES:\s*[^\n]*\s*$/i', '', $answer ) );
 
 		if ( '' === $answer ) {
-			( new KbGaps() )->record( $question );
+			( new KbGaps() )->record( $question, '', 'empty_answer' );
 			$gap = $this->offer_handoff();
 			return $this->result( $this->not_found_message( $gap ), array(), 'not_found', array(), $gap );
 		}
 
 		if ( empty( $sources ) ) {
-			( new KbGaps() )->record( $question );
+			( new KbGaps() )->record( $question, '', 'no_citation' );
 		} elseif ( ! $is_followup ) {
 			$cache->put( $question, $answer, $sources );
 		}

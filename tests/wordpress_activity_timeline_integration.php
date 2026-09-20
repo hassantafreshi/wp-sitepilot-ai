@@ -192,11 +192,19 @@ try {
 	$check( null === ( new ActivityTimeline( $feed ) )->groups( 100, $now )[0]['rows'][0]['action'], 'A post cannot be mistaken for a WooCommerce product' );
 
 	$entry['event'] = 'action.executed';
-	foreach ( array( 'content_draft' => 'Content Studio', 'woocommerce_product_draft' => 'Store Copilot', 'native_form' => 'Form Composer', 'easy_form_builder' => 'Form Composer', 'unknown' => 'AutoPilot' ) as $connector => $feature ) {
+	foreach ( array( 'content_draft' => 'Content Studio', 'woocommerce_product_draft' => 'Store Copilot', 'native_form' => 'Form Studio', 'easy_form_builder' => 'Form Studio', 'unknown' => 'AutoPilot' ) as $connector => $feature ) {
 		$entry['context'] = array( 'connector_id' => $connector );
 		$seed( array( $entry ) );
 		$check( $feature === ( new ActivityTimeline( $feed ) )->groups( 100, $now )[0]['rows'][0]['feature'], 'Generic action uses the actual connector: ' . $connector );
 	}
+	// T16: the copilot inside the Easy Form Builder editor writes efb.*; Form Studio does not.
+	foreach ( array( 'efb.client.chat', 'efb.customize', 'efb.save', 'efb.apply', 'efb.plan.provider_error' ) as $efb_event ) {
+		$entry['event']   = $efb_event;
+		$entry['context'] = array();
+		$seed( array( $entry ) );
+		$check( __( 'Easy Form Builder Copilot', 'ai-site-assistant-autopilot' ) === ( new ActivityTimeline( $feed ) )->groups( 100, $now )[0]['rows'][0]['feature'], 'EFB copilot event is labelled Easy Form Builder Copilot, not Form Studio: ' . $efb_event );
+	}
+	$entry['event'] = 'action.executed';
 	foreach ( array( 'tomorrow', '2026-09-06 18:00:00', '2026-02-30T18:00:00Z', '2026-09-06T25:00:00Z' ) as $invalid_time ) {
 		$entry['time'] = $invalid_time;
 		$seed( array( $entry ) );

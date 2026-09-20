@@ -77,9 +77,7 @@ try {
 		AdminMenu::SLUG_CONVERSATIONS,
 		AdminMenu::SLUG_WC_DASHBOARD,
 		AdminMenu::SLUG_FORM_BUILDER,
-		AdminMenu::SLUG_USAGE,
-		AdminMenu::SLUG_CONNECTIONS,
-		AdminMenu::SLUG_LOGS,
+		AdminMenu::SLUG_FORM_STUDIO,
 	);
 	$legacy_menu_slugs = array(
 		AdminMenu::SLUG_SETTINGS,
@@ -90,9 +88,12 @@ try {
 		AdminMenu::SLUG_WC,
 		AdminMenu::SLUG_WIDGET,
 		AdminMenu::SLUG_HANDOFFS,
+		AdminMenu::SLUG_USAGE,
+		AdminMenu::SLUG_CONNECTIONS,
+		AdminMenu::SLUG_LOGS,
 	);
-	$check( $expected_menu_slugs === $visible_menu_slugs, 'visible admin sidebar matches the 10 mockup pages in order' );
-	$check( array() === array_intersect( $legacy_menu_slugs, $visible_menu_slugs ), 'legacy admin routes stay hidden from the sidebar' );
+	$check( $expected_menu_slugs === $visible_menu_slugs, 'visible admin sidebar matches the D-23 information architecture (8 main pages) in order' );
+	$check( array() === array_intersect( $legacy_menu_slugs, $visible_menu_slugs ), 'legacy admin routes and the Overview tabs stay hidden from the sidebar' );
 
 	$render = static function ( object $screen, array $query = array() ): string {
 		$_GET = $query;
@@ -103,7 +104,7 @@ try {
 		return $html;
 	};
 	$page = $render( new CopilotPage(), array( 'mode' => 'forms' ) );
-	$check( false !== strpos( $page, 'aisaautopilot-voice-toggle' ) && false !== strpos( $page, 'aisaautopilot-compose-screen' ) && false !== strpos( $page, 'aisaautopilot-review-screen' ), 'Form Composer keeps its exclusive voice/text compose and review UI' );
+	$check( false !== strpos( $page, 'aisaautopilot-voice-toggle' ) && false !== strpos( $page, 'aisaautopilot-compose-screen' ) && false !== strpos( $page, 'aisaautopilot-review-screen' ), 'Form Studio keeps its exclusive voice/text compose and review UI, reached through the legacy Content Studio deep link' );
 	$home = $render( new HomePage() );
 	$check( false !== strpos( $home, 'sp-pagebar' ) && false !== strpos( $home, 'sp-weekstats' ) && false !== strpos( $home, 'page=' . AdminMenu::SLUG_SETUP ), 'Overview renders the mockup header, metrics and Setup route' );
 	$integrations = $render( new IntegrationsPage(), array( 'page' => AdminMenu::SLUG_INTEGRATIONS ) );
@@ -112,7 +113,7 @@ try {
 	$connections = $render( new ConnectionsPage() );
 	$check( false !== strpos( $connections, 'data-sp-connections' ) && 8 === substr_count( $connections, 'data-sp-health-row' ) && false !== strpos( $connections, 'sp-run-diagnostics' ), 'Health renders the eight-row mockup diagnostic list and action' );
 	$native_forms = $render( new NativeFormsPage() );
-	$check( false !== strpos( $native_forms, 'sp-page-head' ) && false !== strpos( $native_forms, 'page=' . AdminMenu::SLUG_FORM_BUILDER ), 'legacy native-form management route remains usable but is not a sidebar page' );
+	$check( false !== strpos( $native_forms, 'sp-pagebar' ) && false !== strpos( $native_forms, 'page=' . AdminMenu::SLUG_FORM_STUDIO ), 'legacy native-form management route remains usable, is not a sidebar page, and its "Create a form" action points at Form Studio' );
 	$check( false !== strpos( $render( new EasyFormBuilderPage() ), 'Easy Form Builder' ), 'advanced form connector screen renders' );
 	$logs = $render( new LogsPage() );
 	$check(

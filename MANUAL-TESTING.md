@@ -1,236 +1,304 @@
 # AI Site Assistant AutoPilot — Manual Testing Checklist
 
+نسخهٔ هدف: **0.0.1**. آخرین بازنویسی: ۲۰۲۶-۰۹-۲۰ (T21).
+
 راهنمای تست دستی مرحله‌به‌مرحله. هر گام یک **Action** (کاری که انجام می‌دهید) و یک **Expected**
-(نتیجه‌ی مورد انتظار) دارد. کنار هر گام تیک بزنید. اگر گامی شکست خورد، شماره‌اش را یادداشت کنید.
+(نتیجهٔ مورد انتظار) دارد. کنار هر گام تیک بزنید. اگر گامی شکست خورد، شماره‌اش را یادداشت کنید.
+
+این سند فقط چیزهایی را می‌آزماید که واقعاً در این نسخه عرضه می‌شوند. گام‌هایی که به کلید واقعی،
+ایمیل واقعی، میکروفن واقعی یا فروشگاه واقعی نیاز دارند با **(محیط واقعی)** نشانه‌گذاری شده‌اند؛
+این‌ها را فقط مالک سایت می‌تواند تأیید کند و هیچ آزمون خودکاری جایشان را نمی‌گیرد.
 
 - Plugin path (source): `apps/wordpress-plugin/ai-site-assistant-autopilot`
-- Deployed to: `C:\xampp\htdocs\wp\wp-content\plugins\ai-site-assistant-autopilot`
-- نیازمندی: یک کلید API از یک سرویس سازگار با OpenAI (پیش‌فرض: **DeepSeek** → https://platform.deepseek.com/api_keys). cloud.ai / OpenAI / OpenRouter / Groq هم کار می‌کنند.
+- Local WordPress: `C:\xampp\htdocs\wp` (پوشهٔ افزونه یک junction به همین source است)
+- نیازمندی: یک کلید API از یک سرویس سازگار با OpenAI (پیش‌فرض: **DeepSeek**). OpenAI، Anthropic،
+  Gemini، Groq، OpenRouter و ده پریست دیگر هم پشتیبانی می‌شوند.
 
-> اگر کلید API ندارید، همه‌ی گام‌ها به‌جز «تولید فرم واقعی» را می‌توانید تست کنید (Parts 0,1-partial,5b,6).
+> بدون کلید API هم بیشتر گام‌ها اجرا می‌شوند: هر صفحه باید قفل صادقانه با علت واقعی نشان دهد، نه
+> دادهٔ نمونه و نه خطای نامفهوم. نبودِ provider یک حالت QA پذیرفته‌شده است (`provider_not_configured`).
 
 ---
 
 ## Part 0 — Install & activate
 
-- [ ] **0.1** Start XAMPP → Apache + MySQL running. Open your site admin: `http://localhost/wp/wp-admin`.
-  **Expected:** WordPress dashboard loads.
-- [ ] **0.2** Go to **Plugins → Installed Plugins**. Find **AI Site Assistant AutoPilot**.
-  **Expected:** It appears in the list (deployed by the sync script).
-- [ ] **0.3** Click **Activate**.
-  **Expected:** Activates with no error. A **AI Site Assistant AutoPilot** menu (superhero icon) appears in the left admin sidebar.
-- [ ] **0.4** (PHP < 8.1 only) If activation is blocked, you should see a clear message “requires PHP 8.1 or higher”.
-  **Expected:** Graceful message, not a fatal white screen.
+- [ ] **0.1** XAMPP را بالا بیاورید (Apache + MySQL) و `http://127.0.0.1/wp/wp-admin` را باز کنید.
+  **Expected:** داشبورد وردپرس بالا می‌آید.
+- [ ] **0.2** **Plugins → Installed Plugins** → **AI Site Assistant AutoPilot**.
+  **Expected:** نسخه **0.0.1** نمایش داده می‌شود.
+- [ ] **0.3** Activate.
+  **Expected:** بدون خطا فعال می‌شود و یک منوی **AI Site Assistant AutoPilot** با **دقیقاً هشت آیتم**
+  ظاهر می‌شود: Overview، Setup & Connection، Integrations، Site Knowledge، Answer Desk،
+  Store Copilot، Content Studio، Form Studio.
+- [ ] **0.4** (فقط PHP < 8.1) اگر فعال‌سازی متوقف شد.
+  **Expected:** پیام روشن «requires PHP 8.1 or higher»، نه صفحهٔ سفید.
+- [ ] **0.5** بلافاصله پس از فعال‌سازی، صفحهٔ اول سایت را در حالت خارج‌شده ببینید.
+  **Expected:** هیچ ویجت گفت‌وگویی دیده نمی‌شود؛ دستیار عمومی پیش‌فرض **خاموش** است.
 
 ---
 
-## Part 1 — Settings & provider connection
+## Part 1 — Setup & Connection
 
-- [ ] **1.1** Open **AI Site Assistant AutoPilot → Settings**.
-  **Expected:** Settings page loads with a blue info banner about standalone mode.
-- [ ] **1.2** In **AI Provider**, pick **DeepSeek**.
-  **Expected:** Base URL auto-fills to `https://api.deepseek.com/v1`, Model to `deepseek-chat`, and a “Get your DeepSeek API key” link appears under the API Key field.
-- [ ] **1.3** Change provider to **Custom (OpenAI-compatible)**.
-  **Expected:** Base URL / Model are **not** wiped (your typed values are preserved). Switching back to DeepSeek auto-fills again.
-- [ ] **1.4** Paste your API key into **API Key**. Leave “create as **Draft**” selected. Click **Save settings**.
-  **Expected:** “Settings saved.” notice. Reload the page — the key field now shows a masked placeholder “•••••••• (a key is saved…)”, i.e. the real key is never shown back.
-- [ ] **1.5** Click **Test connection**.
-  **Expected:** A spinner, then a green **“Connection successful.”** (If the key is wrong you get a red “rejected your API key”; if base URL is wrong, “could not reach the provider”.)
-- [ ] **1.6** Scroll to **Form connectors** table.
-  **Expected:** “AISAAutoPilot Built-in Forms” = **Available**. “Easy Form Builder” = **Not active** (expected, until an EFB integration is registered).
-
----
-
-## Part 2 — Generate a form (happy path)
-
-- [ ] **2.1** Open **AI Site Assistant AutoPilot → Copilot**.
-  **Expected:** Composer card with a textarea and example chips. No warning banner (because a key is configured).
-- [ ] **2.2** Click the example chip **“Create a contact form with name, email, phone, and message.”**
-  **Expected:** The text drops into the textarea.
-- [ ] **2.3** Click **Generate preview**.
-  **Expected:** Button shows a spinner + “Thinking… drafting your form.”, then a **Preview** card appears with: title, a pills row (connector name, field count, Risk: …, Draft/Published), and a fields table (Label / Type / Required / Options).
-- [ ] **2.4** Check the fields table.
-  **Expected:** Rows like Name (text), Email (email), Phone (phone/tel), Message (textarea). Types are from the allowed set only.
+- [ ] **1.1** **Setup & Connection** را باز کنید.
+  **Expected:** ویزارد چهار مرحله‌ای: Provider، API key، Model، Integrations. نوار پیشرفت از وضعیت
+  واقعی ساخته می‌شود، نه از یک شمارندهٔ ذخیره‌شده.
+- [ ] **1.2** یک provider (مثلاً DeepSeek) برگزینید.
+  **Expected:** Base URL و Model خودکار پر می‌شوند و پیوند «گرفتن کلید» همان سرویس پیدا می‌شود.
+- [ ] **1.3** provider را به **Custom (OpenAI-compatible)** عوض کنید.
+  **Expected:** مقدارهای تایپ‌شدهٔ شما پاک نمی‌شوند.
+- [ ] **1.4 (محیط واقعی)** کلید خود را بگذارید و ذخیره کنید.
+  **Expected:** «Settings saved.» و پس از بارگذاری دوباره، فیلد کلید فقط placeholder ماسک‌شده دارد.
+  کلید هرگز به DOM برنمی‌گردد.
+- [ ] **1.5 (محیط واقعی)** **Test connection**.
+  **Expected:** موفق: پیام سبز. کلید نادرست: پیام قرمز «rejected your API key». Base URL نادرست:
+  «could not reach the provider». هیچ‌کدام کلید ذخیره‌شده را باطل نمی‌کند.
+- [ ] **1.6 (محیط واقعی)** **Refresh from provider** در گام Model.
+  **Expected:** فهرست مدل از خود سرویس خوانده می‌شود، نه از فهرست ثابت.
+- [ ] **1.7** صفحهٔ **Advanced settings** (زیر Setup & Connection) را باز کنید.
+  **Expected:** جست‌وجوی معنایی، صدا، فرم‌ها و تحویل، و دستیار عمومی. بخش اتصال اینجا فقط‌خواندنی است.
 
 ---
 
-## Part 3 — Approve → create
+## Part 2 — Overview و سه تب آن
 
-- [ ] **3.1** In the Preview card, click **Cancel**.
-  **Expected:** Preview hides. Nothing was created.
-- [ ] **3.2** Generate the preview again (repeat 2.2–2.3), then click **Approve & create form**.
-  **Expected:** Spinner + “Creating the form…”, then a **Result** card: “Form created as a draft”, a shortcode box `[aisaautopilot_form id="N"]` with a **Copy shortcode** button, and an **Open the form** button.
-- [ ] **3.3** Click **Copy shortcode**.
-  **Expected:** Button briefly says “Copied!”. (Clipboard now holds the shortcode.)
-- [ ] **3.4** Confirm the form exists: click **Open the form** (or check the DB) — it opens the AISAAutoPilot Forms edit screen for the new post.
-  **Expected:** A `aisaautopilot_form` post exists with your title, saved as **Draft**.
-
----
-
-## Part 4 — Show the form on the site & submit it
-
-- [ ] **4.1** Create a page: **Pages → Add New**. Title “Contact test”. In the content, paste the shortcode `[aisaautopilot_form id="N"]` (use your N). **Publish**.
-  **Expected:** Page publishes.
-- [ ] **4.2** Click **View page**.
-  **Expected:** The form renders with styled fields (name/email/phone/message), required fields marked with a red `*`, and a submit button.
-- [ ] **4.3** Submit the form **empty**.
-  **Expected:** Browser blocks submission on required fields (HTML5 validation).
-- [ ] **4.4** Fill valid values and submit.
-  **Expected:** Page reloads and shows the green confirmation message (“Thank you…”).
-- [ ] **4.5** Confirm that visitor values were **not** stored after delivery. Check that no new AISAAutoPilot entry/post meta/log/option contains the submitted name, email, or message.
-  **Expected:** The notification email is the only delivery channel for visitor values. The Activity Log may record a metadata-only delivery outcome, but never visitor field values.
+- [ ] **2.1** **Overview**.
+  **Expected:** نوار تب با چهار تب (Overview، Usage & Cost، Health، Activity Log) و تنها یک
+  `aria-current`. در روز اول، حالت «روز اول» واقعی است، نه آمار ساختگی.
+- [ ] **2.2** تب **Usage & Cost**.
+  **Expected:** مصرف دورهٔ جاری، تفکیک بر حسب context و نمودار. اگر هنوز مصرفی نیست، حالت خالی
+  صادقانه است و عددی از خودش نمی‌سازد.
+- [ ] **2.3** در همان تب، یک **cap** (سقف توکن ماهانه) بگذارید و **Save cap** بزنید.
+  **Expected:** سقف ذخیره می‌شود و متر و متن زیر آن به‌روز می‌شوند. سقف صفر یعنی «بدون سقف».
+- [ ] **2.4 (محیط واقعی)** پس از رسیدن به سقف، یک درخواست AI بدهید.
+  **Expected:** پاسخ `usage_cap_reached` با پیام روشن؛ هیچ درخواستی به provider نمی‌رود.
+- [ ] **2.5** تب **Health**.
+  **Expected:** وضعیت واقعی اتصال، ایندکس، صدا و کانال‌های انتقال. هیچ ردیفی بدون آزمون واقعی
+  «connected» نمی‌گوید.
+- [ ] **2.6** تب **Activity Log**.
+  **Expected:** رویدادهای `plan.created`، `action.executed` و `*.error`. **دکمهٔ Clear log عمداً
+  وجود ندارد** (تصمیم A2.10). دکمهٔ **Export CSV** هست.
+- [ ] **2.7** خروجی CSV را باز کنید.
+  **Expected:** هیچ کلید API، توکن یا مقدار فیلد بازدیدکننده در آن نیست. سلولی که با `=`، `+`،
+  `-` یا `@` شروع شود خنثی شده است.
 
 ---
 
-## Part 5 — Safety tests (important)
+## Part 3 — Integrations
 
-- [ ] **5.1 (forbidden fields)** In Copilot, ask: **“Create a payment form with name and credit card number and CVV.”** → Generate preview.
-  **Expected:** Either the plan comes back **without** the card/CVV fields (payment fields stripped, risk may be “high”), or you get a validation error refusing forbidden fields. A card/CVV field must **never** appear in the preview.
-- [ ] **5.2 (login/password)** Ask: **“Make a user registration form with username and password.”** → Generate.
-  **Expected:** Password field is rejected/omitted. No password input in the preview.
-- [ ] **5.3 (no key)** In Settings, tick **“Remove the saved key”**, Save. Go to Copilot.
-  **Expected:** A yellow banner “No AI provider is connected yet” with a link to Settings; the textarea and Generate button are **disabled**. (Re-add your key afterward to continue.)
-- [ ] **5.4 (approval expiry / single-use)** Generate a preview, then wait **>15 minutes** (or open two tabs, approve in one, then click Approve again after it succeeded). Try to approve the stale one.
-  **Expected:** “This proposal has expired. Please generate the form again.” — an approved plan cannot be executed twice.
-- [ ] **5.5 (gibberish)** Ask something impossible: **“asdkjfh qwqw”** → Generate.
-  **Expected:** A friendly error like “Could not generate a valid structured result…”, no crash.
+- [ ] **3.1** **Integrations**.
+  **Expected:** چهار گروه و شش کارت قابلیت. هر کارت وضعیت واقعی دارد: در دسترس، خاموش، یا
+  «پیش‌نیاز ندارید» با علت.
+- [ ] **3.2** یک قابلیت را خاموش کنید.
+  **Expected:** صفحهٔ متناظر آن دیگر در دسترس نیست یا قفل صادقانه نشان می‌دهد، و route مربوطش هم
+  رد می‌کند (نه فقط UI).
 
 ---
 
-## Part 6 — Activity log
+## Part 4 — Site Knowledge
 
-- [ ] **6.1** Open **AI Site Assistant AutoPilot → Logs**.
-  **Expected:** A table of recent events: `plan.created`, `action.executed`, plus any `*.error` rows. Times in UTC, level pills.
-- [ ] **6.2** Inspect messages.
-  **Expected:** **No API key** or secret appears anywhere in the log (redaction works).
-- [ ] **6.3** Click **Clear log** → confirm.
-  **Expected:** “Logs cleared.” and the table empties.
-
----
-
-## Part 7 — Draft vs Published setting
-
-- [ ] **7.1** In Settings, choose **create as Published**, Save. Create a new form via Copilot and approve.
-  **Expected:** Result says “Form created” (not “as a draft”); the `aisaautopilot_form` post status is **Published**. The preview pill should have shown “Will be published”.
-- [ ] **7.2** Switch back to **Draft** for safety.
-
----
-
-## Part 8 — Easy Form Builder fallback (design check)
-
-- [ ] **8.1** With no EFB integration registered, generate + approve a form.
-  **Expected:** The connector used (shown in the preview pill and result) is **AISAAutoPilot Built-in Forms** — the built-in fallback works even without EFB.
-- [ ] **8.2** (Optional, for developers) Register the two filters from `README.md` (`aisaautopilot_efb_available`, `aisaautopilot_efb_create_form`) with Easy Form Builder active.
-  **Expected:** The preview/result now show **Easy Form Builder** as the connector, and the form is created via EFB.
+- [ ] **4.1** **Site Knowledge → Overview**.
+  **Expected:** شمار محتوای منتشرشده و ایندکس‌شده. بدون provider، «Asking is locked» علت واقعی را
+  می‌گوید و composer و میکروفن قفل‌اند.
+- [ ] **4.2 (محیط واقعی)** ایندکس را اجرا کنید.
+  **Expected:** پیشرفت واقعی؛ پس از پایان، شمار ایندکس بالا می‌رود.
+- [ ] **4.3** تب **Queue**.
+  **Expected:** صریح می‌گوید این نسخه صف پایدار، فهرست retry و مکان‌نما نگه نمی‌دارد.
+- [ ] **4.4** تب **Collections** و **Sources**.
+  **Expected:** فقط نوع‌های محتوای وردپرس. هیچ منبع PDF یا URL بیرونی ادعا نمی‌شود.
+- [ ] **4.5** تب **Entries**.
+  **Expected:** ستون‌های Title، Type، Category، Status، Last read و Actions؛ حذف تکی و بازایندکس
+  کامل هر دو confirm می‌خواهند و می‌گویند دقیقاً چه چیزی عوض می‌شود.
+- [ ] **4.6 (محیط واقعی)** کنسول **Ask your knowledge base**: یک پرسش از محتوای سایت بپرسید.
+  **Expected:** پاسخ با منبع‌های عمومی. پرسش بی‌پاسخ به کارت «Unanswered questions» می‌رود.
+- [ ] **4.7** روی یک پرسش بی‌پاسخ **Write it** بزنید.
+  **Expected:** Content Studio با همان brief باز می‌شود و خط «Drafting an answer to» را نشان می‌دهد.
+- [ ] **4.8** یک **Saved answer** بنویسید، ویرایش و سپس حذف کنید.
+  **Expected:** ویرایشگر درون‌خطی با Escape بسته می‌شود؛ حذف confirm می‌خواهد.
 
 ---
 
-## Part 9 — Uninstall hygiene (optional)
+## Part 5 — Content Studio
 
-- [ ] **9.1** Deactivate the plugin.
-  **Expected:** No error. Your created forms/pages remain.
-- [ ] **9.2** Delete the plugin.
-  **Expected:** Plugin settings, the encrypted key, and logs are removed; form definitions (`aisaautopilot_form`) and any legacy entry posts are intentionally left in place. New public submissions are never persisted by AISAAutoPilot.
+- [ ] **5.1** **Content Studio → Write**، یک درخواست بنویسید و پیش‌نویس بگیرید.
+  **Expected:** پیش‌نمایش دقیق پیش از هر نوشتنی. تا تأیید نکنید چیزی ساخته نمی‌شود.
+- [ ] **5.2** تأیید کنید.
+  **Expected:** نوشته **به‌صورت draft** ساخته می‌شود. هیچ مسیری در افزونه آن را منتشر نمی‌کند.
+- [ ] **5.3** تب **Templates** و تب **History**.
+  **Expected:** History پیش‌نویس‌های ساخته‌شده را با زمان واقعی نشان می‌دهد و **Export CSV** دارد.
+- [ ] **5.4** Cancel روی پیش‌نمایش.
+  **Expected:** چیزی ساخته نمی‌شود.
 
 ---
 
-## Part 10 — Easy Form Builder integration (floating button)
+## Part 6 — Form Studio و فرم‌های بومی
 
-> Requires Easy Form Builder active and an AI key configured (Part 1). The plugin creates **real
-> EFB forms** in the `wp_emsfb_form` table — the persistence format was verified byte-for-byte
-> against EFB's own 140 forms.
+- [ ] **6.1** **Form Studio** را باز کنید و بنویسید: «Create a contact form with name, email, phone,
+  and message» → **Generate preview**.
+  **Expected:** کارت Preview: عنوان، نام connector، شمار فیلد، سطح ریسک، وضعیت Draft/Published و
+  جدول فیلدها (Label / Type / Required / Options).
+- [ ] **6.2** گیرندهٔ تحویل را ببینید.
+  **Expected:** ایمیل گیرنده **ماسک‌شده** نمایش داده می‌شود و از تنظیمات مدیر می‌آید، نه از prompt.
+- [ ] **6.3** **Approve & create form**.
+  **Expected:** کارت نتیجه با shortcode `[aisaautopilot_form id="N"]` و دکمهٔ کپی.
+- [ ] **6.4** shortcode را در یک برگه بگذارید و برگه را ببینید.
+  **Expected:** فرم با فیلدهای ساخته‌شده رندر می‌شود و فیلدهای اجباری علامت دارند.
+- [ ] **6.5** فرم را خالی بفرستید، سپس با مقدار نامعتبر (ایمیل بد).
+  **Expected:** اعتبارسنجی سمت سرور پیام روشن می‌دهد.
+- [ ] **6.6 (محیط واقعی)** فرم را درست پر کنید و بفرستید.
+  **Expected:** پیام تشکر و رسیدن ایمیل به گیرندهٔ تنظیم‌شده.
+- [ ] **6.7** پس از ارسال، دیتابیس را بگردید.
+  **Expected:** **هیچ** مقدار بازدیدکننده در post، post meta، option یا Activity Log نیست. فقط یک
+  رویداد متادیتایی تحویل ثبت می‌شود.
+- [ ] **6.8** فرم را دوباره و دوباره بفرستید.
+  **Expected:** پس از سقف، محدودیت نرخ فعال می‌شود (پنجرهٔ ۱۰ دقیقه‌ای، شناسایی با هش، نه IP خام).
+- [ ] **6.9** صفحهٔ **Native forms** (زیر Content Studio).
+  **Expected:** فهرست فرم‌ها، shortcode با دکمهٔ کپی، و **آزمون تحویل ایمیل** با فاصلهٔ پنج دقیقه.
 
-- [ ] **10.1** Go to **Easy Form Builder → Forms** (`admin.php?page=Emsfb`).
-  **Expected:** A round **“Build with AI”** button (superhero icon) floats at the bottom corner.
-- [ ] **10.2** Also open the builder page (`admin.php?page=Emsfb_create`).
-  **Expected:** The same floating button appears there too.
-- [ ] **10.3** On a **non-EFB** admin page (e.g. Dashboard), confirm the button is **absent**.
-  **Expected:** The floating button only shows on `page=Emsfb` and `page=Emsfb_create`.
-- [ ] **10.4** Click **Build with AI**.
-  **Expected:** A modal opens with a prompt box + example chips. (If no API key: a notice links to Settings.)
-- [ ] **10.5** Click an example chip (e.g. the job-application one) or type: *“Contact form with name,
-  email, phone, a topic dropdown (Sales, Support) and a message”*. Click **Generate preview**.
-  **Expected:** Spinner, then a preview card: title, connector = **Easy Form Builder**, a fields table
-  (label / type / required / options). Types should include EFB types like `tel`, `select`, `textarea`.
-- [ ] **10.6** Confirm the dropdown field shows its **options** (Sales, Support) in the table.
-  **Expected:** Choice fields list their options.
-- [ ] **10.7** Click **Approve & create in Easy Form Builder**.
-  **Expected:** Spinner, then a success card: “Form created in Easy Form Builder”, a shortcode
-  `[EMS_Form_Builder id=N]` with **Copy**, and an **Open Easy Form Builder forms** button.
-- [ ] **10.8** Click **Open Easy Form Builder forms** (or reload `page=Emsfb`).
-  **Expected:** The new form appears in EFB’s own forms list with your title.
-- [ ] **10.9** Open the new form in EFB’s builder.
-  **Expected:** It opens with the fields AISAAutoPilot generated — you can edit/style/save it with EFB’s
-  own tools (name, email, phone/tel, the dropdown with its options, message textarea).
-- [ ] **10.10** Put the shortcode `[EMS_Form_Builder id=N]` on a page and view it on the front end.
-  **Expected:** EFB renders the form; it submits and stores a response in EFB (its own responses view).
-- [ ] **10.11 (safety)** Ask for *“a payment form with credit card and CVV”* → Generate.
-  **Expected:** Card/CVV fields are omitted or rejected (forbidden types never reach EFB).
-- [ ] **10.12 (routing)** In **AI Site Assistant AutoPilot → Settings → Form connectors**, confirm **Easy Form Builder**
-  shows **Available / Detected**. In the main **Copilot** page, approving a form now also routes to EFB
-  (built-in forms are only the fallback when EFB is off).
+---
 
-## Part 11 — Type-aware forms, edit redirect, chat customize & how-to
+## Part 7 — Answer Desk (ویجت بازدیدکننده)
 
-> On an EFB page (`page=Emsfb` or `page=Emsfb_create`) with an API key configured.
+- [ ] **7.1** **Answer Desk → Widget**: دستیار عمومی را روشن کنید.
+  **Expected:** پس از ذخیره، ویجت روی سایت دیده می‌شود.
+- [ ] **7.2** در سفارشی‌سازی پیشرفته، رنگ‌ها، آیکون‌ها، عنوان، پیام آغاز و پرسش‌های پیشنهادی را
+  عوض کنید.
+  **Expected:** نوار «Unsaved changes» با Save و Discard؛ Discard همه را برمی‌گرداند.
+- [ ] **7.3** کارت **Pages where the chat appears**: «Every page except the ones below» را برگزینید،
+  یک نوع محتوا، یک دسته و یک برگهٔ تکی (با جست‌وجوی عنوان) اضافه کنید و ذخیره کنید.
+  **Expected:** ویجت دقیقاً در همان صفحه‌ها پنهان می‌شود و ردیف خلاصه در برگهٔ Widget درست می‌شود.
+- [ ] **7.4** ویجت را روی سایت باز کنید.
+  **Expected:** تا باز نشدن پنل هیچ درخواست RESTی نمی‌رود. ویجت خودش باز نمی‌شود.
+- [ ] **7.5 (محیط واقعی)** یک پرسش بپرسید.
+  **Expected:** پاسخ با منبع‌های عمومی. Markdown امن رندر می‌شود (هیچ HTML تزریق‌شده‌ای اجرا نمی‌شود).
+- [ ] **7.6** حالت full screen و در موبایل (۳۹۰px) حالت sheet.
+  **Expected:** Tab داخل پنل می‌ماند، صفحهٔ پشت قفل می‌شود و بستن، صفحه را همان‌جا برمی‌گرداند.
+- [ ] **7.7 (محیط واقعی)** دکمهٔ میکروفن.
+  **Expected:** حالت ضبط با قاب، نقطهٔ زنده و زمان؛ متن به کادر پیام می‌آید و **خودش ارسال نمی‌شود**.
+  ردکردن اجازهٔ میکروفن پیام روشن می‌دهد و تایپ همچنان کار می‌کند.
+- [ ] **7.8** میکروفن را در تنظیمات خاموش کنید و دوباره امتحان کنید.
+  **Expected:** میکروفن رندر نمی‌شود و فراخوانی مستقیم `POST /public/voice` با 403 `voice_disabled`
+  رد می‌شود — **پیش از** آنکه سهمیهٔ نرخ بازدیدکننده مصرف شود.
+- [ ] **7.9** **Human handoff** را روشن کنید و اطلاعات تماس لازم را تعیین کنید.
+  **Expected:** کارت انتقال در ویجت همان فیلدها را می‌خواهد و هیچ ادعایی دربارهٔ «اپراتور آنلاین»
+  یا زمان پاسخ نمی‌کند. بدون کانال آماده، کارت اصلاً وجود ندارد.
+- [ ] **7.10** یک درخواست انتقال بفرستید و **Answer Desk → Handoff inbox** را ببینید.
+  **Expected:** درخواست با وضعیت `new` می‌آید، برچسب منوی Answer Desk حباب شمار می‌گیرد، و تغییر
+  وضعیت بدون بارگذاری دوباره حباب را به‌روز می‌کند.
+- [ ] **7.11 (محیط واقعی)** کانال ایمیل، تلگرام یا Twilio را پیکربندی کنید و یک تست بفرستید.
+  **Expected:** پیام واقعاً می‌رسد. بدون پیکربندی، وضعیت صادقانه «پیکربندی نشده» است.
+- [ ] **7.12** تب **Conversations** و تب **Real-time voice**.
+  **Expected:** Conversations گفت‌وگوهای واقعی ثبت‌شده را نشان می‌دهد (اگر ثبت را روشن کرده باشید).
+  صفحهٔ voice صریح می‌گوید ویجت هیچ اتصال صوتی پیوسته‌ای باز نمی‌کند.
 
-- [ ] **11.1 (type-aware)** In the floating **Build with AI** modal → **Create** tab, ask for a real
-  form type, e.g. *“A booking form for a dental clinic.”* Generate.
-  **Expected:** A complete, sensible form (relevant fields, some half-width pairs, good options and
-  confirmation) — not a bare 2-field form.
-- [ ] **11.2 (edit redirect)** Approve the form.
-  **Expected:** The page redirects to `admin.php?page=Emsfb&state=edit-form&id=<new id>` and the new
-  form loads in EFB’s own builder (dropzone shows it).
+---
 
-## Part 11 — Voice and public live assistant
+## Part 8 — Store Copilot (WooCommerce)
 
-- [ ] **11.1** In **AI Site Assistant AutoPilot → Settings**, set a provider with an OpenAI/Groq-compatible
-  `/audio/transcriptions` endpoint and save its STT model (for example `whisper-1`).
-- [ ] **11.2** Open an Easy Form Builder page, open AISAAutoPilot, and use the microphone button.
-  **Expected:** supported browsers show interim words in the message box while speaking; recording
-  visibly stops after 45 seconds at most; its transcript is put in the
-  message box and is not sent until the administrator explicitly presses Send.
-- [ ] **11.3** Deny microphone permission. **Expected:** a clear fallback message; typed chat still works.
-- [ ] **11.4** Enable **public site assistant** in Settings and visit a public page.
-  **Expected:** the floating widget keeps a continuous text conversation, shows only public KB sources,
-  and its microphone similarly produces an editable transcript before Send.
-- [ ] **11.5** With the site in Persian, begin in Persian, then ask a question in English.
-  **Expected:** initial/default interaction follows the site locale; the response to the English turn
-  continues in English. Repeat with a spoken English question to verify STT language auto-detection.
-- [ ] **11.6** Enable **Read AI replies aloud**. **Expected:** the browser reads completed AI answers
-  aloud using the answer language; turning the setting off leaves answers as text only.
-- [ ] **11.7** In the Easy Form Builder chat header, click the speech-bubble button to start **live
-  voice conversation**. **Expected:** words appear while speaking; after a short pause the turn is
-  submitted, the AI response is read aloud when 11.6 is enabled, and the widget listens for the next
-  turn. Click the same button or close the chat to stop it.
-- [ ] **11.3 (customize chat)** On that editor page, open **Build with AI → Customize** tab. Type
-  *“Make Email required and reduce its width to half.”* Click **Apply change**.
-  **Expected:** A green “Applied. Preview updated.” note, a change-log line, and the **dropzone
-  re-renders** with Email now required + half width. (Reopen a field’s green gear to confirm.)
-- [ ] **11.4** Try more commands: *“Rename the form to Clinic Booking”*, *“Add option Evening to
-  Preferred time”*, *“Remove the Notes field.”*
-  **Expected:** Each updates the dropzone; the change log lists what changed; the form row is saved.
-- [ ] **11.5 (how-to)** Open the **How do I…** tab. Ask *“How do I make a field required?”*
-  **Expected:** A precise, grounded answer: select the field → click its green gear → the settings
-  panel opens on the left (LTR) / right (RTL) → toggle **Required** → Save. Try other questions
-  (width, options, notifications, shortcode) and the suggestion chips.
-- [ ] **11.6 (customize needs a form)** Open **Customize** on the plain forms list (`page=Emsfb`
-  with no form open).
-  **Expected:** A friendly notice telling you to open/create a form first (no errors).
+- [ ] **8.1** بدون WooCommerce.
+  **Expected:** حالت واقعی «WooCommerce نصب نیست»، نه دادهٔ نمونه.
+- [ ] **8.2** با WooCommerce فعال.
+  **Expected:** نمای فقط‌خواندنی محصول‌ها و کارت قابلیت‌ها.
+- [ ] **8.3 (محیط واقعی)** یک محصول ساده بسازید.
+  **Expected:** فقط **draft** ساخته می‌شود. انتشار، ویرایش انبوه، سفارش و بازپرداخت در دسترس نیستند
+  و هیچ routeی برایشان وجود ندارد.
+
+---
+
+## Part 9 — Easy Form Builder Copilot
+
+> نیازمند افزونهٔ Easy Form Builder فعال و یک کلید AI.
+
+- [ ] **9.1** `admin.php?page=Emsfb` و `admin.php?page=Emsfb_create`.
+  **Expected:** دکمهٔ شناور **Build with AI** فقط در همین دو صفحه دیده می‌شود.
+- [ ] **9.2** modal را باز کنید و یک فرم بخواهید → Generate preview → Approve.
+  **Expected:** فرم واقعی در EFB ساخته می‌شود و صفحه به builder خود EFB می‌رود.
+- [ ] **9.3** تب **Customize**: «Make Email required and reduce its width to half.»
+  **Expected:** canvas زندهٔ EFB به‌روز می‌شود و رابط صریح می‌گوید ذخیره با دکمهٔ Save خود EFB است.
+- [ ] **9.4** تب **How do I…**.
+  **Expected:** پاسخ دقیق و مبتنی بر خود EFB، نه حدس.
+- [ ] **9.5** Customize را روی فهرست فرم‌ها بدون فرم باز امتحان کنید.
+  **Expected:** پیام دوستانه «اول یک فرم باز یا بسازید»، بدون خطا.
+
+---
+
+## Part 10 — آزمون‌های ایمنی
+
+- [ ] **10.1** در Form Studio بخواهید: «Create a payment form with credit card number and CVV.»
+  **Expected:** فیلدهای کارت و CVV یا حذف می‌شوند یا کل طرح رد می‌شود. هرگز در پیش‌نمایش نمی‌آیند.
+- [ ] **10.2** «Make a user registration form with username and password.»
+  **Expected:** فیلد password رد یا حذف می‌شود.
+- [ ] **10.3** کلید را حذف کنید و Form Studio و Content Studio را باز کنید.
+  **Expected:** بنر روشن «هیچ provider متصل نیست» با پیوند به Setup & Connection؛ کنترل‌ها غیرفعال‌اند.
+- [ ] **10.4** یک پیش‌نمایش بسازید و **بیش از ۱۵ دقیقه** صبر کنید، سپس تأیید کنید.
+  **Expected:** «This proposal has expired.» — و یک طرح تأییدشده دو بار اجرا نمی‌شود.
+- [ ] **10.5** با کاربری که `manage_options` ندارد، یک route مدیریتی `aisaautopilot/v1` را صدا بزنید.
+  **Expected:** 401/403. هیچ route مدیریتی بدون capability باز نیست.
+- [ ] **10.6** منبع صفحه و پاسخ‌های REST را بگردید.
+  **Expected:** هیچ کلید API، توکن تلگرام یا اعتبار Twilio در DOM، در پاسخ REST یا در Activity Log نیست.
+- [ ] **10.7** یک درخواست بی‌معنی بدهید: «asdkjfh qwqw».
+  **Expected:** خطای دوستانه، بدون crash.
+
+---
+
+## Part 11 — فارسی، راست‌به‌چپ و موبایل
+
+- [ ] **11.1** زبان سایت را به **فارسی** عوض کنید و هر هشت صفحه را ببینید.
+  **Expected:** همهٔ متن‌های نمایشی فارسی‌اند، چیدمان راست‌به‌چپ است و هیچ overflow افقی نیست.
+- [ ] **11.2** همان صفحه‌ها در عرض **۳۹۰px**.
+  **Expected:** بدون اسکرول افقی؛ نوار تب Overview در ۲×۲ می‌شکند و هر هدف لمسی دست‌کم 44px است.
+- [ ] **11.3** ویجت بازدیدکننده در سایت فارسی.
+  **Expected:** عنوان، زیرعنوان و کادر پیام درست هم‌تراز و راست‌چین‌اند.
+
+---
+
+## Part 12 — پاک‌سازی هنگام حذف افزونه
+
+- [ ] **12.1** افزونه را **غیرفعال** کنید.
+  **Expected:** هیچ خطایی نیست و هیچ داده‌ای پاک نمی‌شود.
+- [ ] **12.2** افزونه را از صفحهٔ Plugins **حذف** کنید، سپس دیتابیس را بگردید.
+
+  **باید حذف شده باشد:**
+
+  | چه چیزی | جزئیات |
+  |---|---|
+  | جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats`، `{prefix}aisaautopilot_handoffs` |
+  | optionها | ۲۷ option نام‌دار `aisaautopilot_*` (تنظیمات، کلیدهای رمزشده، اسرار انتقال، لاگ، مصرف و سقف، پرسش‌های بی‌پاسخ و پاسخ‌های ذخیره‌شده، مهر schema، نشان مهاجرت)، هر قفل `aisaautopilot_action_claim_*`، و در پایان جاروی هر ردیف باقی‌ماندهٔ `aisaautopilot_*` |
+  | transientها | شمارنده‌های محدودیت نرخ، پیش‌نمایش ۱۵ دقیقه‌ای، رکورد آزمون provider و فاصلهٔ آزمون تحویل، با پیشوند `_transient_aisaautopilot_*` |
+  | cron | `aisaautopilot_index_post` از زمان‌بندی درمی‌آید |
+
+  **باید عمداً مانده باشد:**
+
+  | چه چیزی | چرا |
+  |---|---|
+  | نوشته‌های `aisaautopilot_form` و meta `_aisaautopilot_form_plan` | فرم‌های خود شما |
+  | نوشته‌های قدیمی `aisaautopilot_entry` | دادهٔ نسخه‌های پیشین |
+  | نوشته، برگه و پیش‌نویس محصول ساخته‌شده با افزونه و metaهای `_aisaautopilot_generated`، `_aisaautopilot_meta_description` و `_aisaautopilot_source_gap` | محتوای خود شما |
+  | فرم‌های Easy Form Builder | مال آن افزونه است |
+
+- [ ] **12.3** جدول `usermeta` و optionهای شبکه را بگردید.
+  **Expected:** افزونه هیچ user meta و هیچ option شبکه‌ای نمی‌نویسد، پس چیزی نباید پیدا شود.
+- [ ] **12.4** اگر سایت object cache پایدار دارد.
+  **Expected:** transientها در کش‌اند نه در جدول options؛ از قلاب uninstall در دسترس نیستند و
+  خودشان حداکثر تا یک ساعت منقضی می‌شوند. این یک محدودیت شناخته‌شده و مستند است.
+
+---
 
 ## Result summary
 
 | Part | Pass? | Notes |
 |---|---|---|
 | 0 Install |  |  |
-| 1 Settings/connection |  |  |
-| 2 Generate |  |  |
-| 3 Approve/create |  |  |
-| 4 Frontend/submit |  |  |
-| 5 Safety |  |  |
-| 6 Logs |  |  |
-| 7 Draft/publish |  |  |
-| 8 EFB fallback |  |  |
-| 10 EFB integration |  |  |
+| 1 Setup & Connection |  |  |
+| 2 Overview + tabs |  |  |
+| 3 Integrations |  |  |
+| 4 Site Knowledge |  |  |
+| 5 Content Studio |  |  |
+| 6 Form Studio + forms |  |  |
+| 7 Answer Desk |  |  |
+| 8 Store Copilot |  |  |
+| 9 EFB Copilot |  |  |
+| 10 Safety |  |  |
+| 11 fa_IR / RTL / 390px |  |  |
+| 12 Uninstall |  |  |
 
-اگر جایی خطا دیدید: شماره‌ی گام + پیام خطا (و در صورت امکان یک اسکرین‌شات یا محتوای صفحه‌ی **Logs**) را بفرستید تا سریع رفع کنیم.
+اگر جایی خطا دیدید: شمارهٔ گام + پیام خطا (و در صورت امکان یک اسکرین‌شات یا محتوای تب **Activity Log**)
+را بفرستید.

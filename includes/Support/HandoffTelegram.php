@@ -288,7 +288,9 @@ class HandoffTelegram {
 			return wp_strip_all_tags( $text );
 		}
 
-		return htmlspecialchars( wp_strip_all_tags( $text ), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' );
+		// Plain text for HTML parse mode: escape once (existing entities such as a site name's &amp; stay single)
+		// and do not strip tags, which would drop everything after a "<" the visitor typed.
+		return htmlspecialchars( $text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false );
 	}
 
 	/**

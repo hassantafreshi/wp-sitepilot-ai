@@ -1,4 +1,4 @@
-/* global AISAAutoPilotEFB, valj_efb, editFormEfb */
+/* global AISAAutoPilotEFB, valj_efb, editFormEfb, efb_var */
 ( function () {
 	'use strict';
 
@@ -18,9 +18,21 @@
 	var voiceInputPrefix = '';
 	var voiceFinalText = '';
 	var selectedField = null;
+	// The id whose selection message is already the newest thing in the transcript, so a
+	// Clear and reselect of the same field does not repeat an identical line. The banner
+	// stays the standing indicator of the context.
+	var lastIntroFieldId = '';
 	function t( key, fallback, replacement ) {
 		var value = cfg.i18n && cfg.i18n[ key ] ? cfg.i18n[ key ] : fallback;
-		return replacement === undefined ? value : value.replace( '%s', String( replacement ) );
+		if ( replacement === undefined ) { return value; }
+		// Accepts one value or a list for numbered placeholders (%1$s, %2$s). A replacer
+		// function keeps `$&`-style sequences in field labels literal.
+		var args = Array.isArray( replacement ) ? replacement : [ replacement ];
+		var next = 0;
+		return value.replace( /%(?:(\d+)\$)?s/g, function ( match, position ) {
+			var i = position ? Number( position ) - 1 : next++;
+			return i < args.length ? String( args[ i ] ) : match;
+		} );
 	}
 	function responseLanguage( text ) { if ( /[\u0600-\u06ff]/.test( text ) ) { return /[\u067e\u0686\u0698\u06af]/.test( text ) ? 'fa' : 'ar'; } if ( /[\u0400-\u04ff]/.test( text ) ) { return 'ru'; } return cfg.language || 'en'; }
 	function speakReply( text ) { if ( ! cfg.voiceResponses || ! text || ! window.speechSynthesis || ! window.SpeechSynthesisUtterance ) { return; } window.speechSynthesis.cancel(); var utterance = new SpeechSynthesisUtterance( text ); utterance.lang = responseLanguage( text ); utterance.rate = 1; window.speechSynthesis.speak( utterance ); }
@@ -45,7 +57,7 @@
 		} ).then( function ( r ) {
 			return r.text().then( function ( text ) {
 				var data = {};
-				try { data = text ? JSON.parse( text ) : {}; } catch ( e ) { data = { ok: false, message: 'Invalid server response.' }; }
+				try { data = text ? JSON.parse( text ) : {}; } catch ( e ) { data = { ok: false, message: t( 'invalidResponse', 'Invalid server response.' ) }; }
 				return { status: r.status, data: data };
 			} );
 		} );
@@ -56,7 +68,7 @@
 		data.append( 'duration_ms', String( duration ) );
 		data.append( 'language', cfg.language || 'en' );
 		return fetch( cfg.restUrl + 'efb/voice/transcribe', { method: 'POST', credentials: 'same-origin', headers: { 'X-WP-Nonce': cfg.nonce }, body: data } ).then( function ( r ) {
-			return r.json().catch( function () { return { ok: false, message: 'Invalid server response.' }; } );
+			return r.json().catch( function () { return { ok: false, message: t( 'invalidResponse', 'Invalid server response.' ) }; } );
 		} );
 	}
 	function makeTraceId() {
@@ -71,13 +83,15 @@
 	/* ---------- message rendering ---------- */
 	function messages() { return $( 'aisaautopilot-efb-messages' ); }
 	function scrollDown() { var m = messages(); if ( m ) { m.scrollTop = m.scrollHeight; } }
+	// Free text takes its direction from its own first strong character (T17): an English reply in a
+	// Persian editor, or a Persian question in an English one, reads in its own direction.
 	function addUser( text ) {
-		messages().appendChild( el( 'div', { class: 'aisaautopilot-efb-msg aisaautopilot-efb-msg--user' }, [ el( 'div', { class: 'aisaautopilot-efb-bubble', text: text } ) ] ) );
+		messages().appendChild( el( 'div', { class: 'aisaautopilot-efb-msg aisaautopilot-efb-msg--user' }, [ el( 'div', { class: 'aisaautopilot-efb-bubble', dir: 'auto', text: text } ) ] ) );
 		scrollDown();
 	}
 	function addAi( content, wide ) {
 		var bubble = el( 'div', { class: 'aisaautopilot-efb-bubble' } );
-		if ( typeof content === 'string' ) { bubble.textContent = content; } else { bubble.appendChild( content ); }
+		if ( typeof content === 'string' ) { bubble.setAttribute( 'dir', 'auto' ); bubble.textContent = content; } else { bubble.appendChild( content ); }
 		var row = el( 'div', { class: 'aisaautopilot-efb-msg aisaautopilot-efb-msg--ai' + ( wide ? ' aisaautopilot-efb-msg--wide' : '' ) }, [ bubble ] );
 		messages().appendChild( row );
 		scrollDown();
@@ -91,12 +105,24 @@
 		scrollDown();
 	}
 	function removeTyping() { var t = $( 'aisaautopilot-efb-typing' ); if ( t ) { t.remove(); } }
-	function chips( items, onPick ) {
-		var box = el( 'div', { class: 'aisaautopilot-efb-chips' } );
+	// Chips never send. They fill and focus the composer so the admin reads and edits
+	// the command before anything leaves the browser (same contract as Form Studio
+	// and the chat console). The mockup runs its chips at once; that is a deliberate
+	// difference recorded in the S3.2 report.
+	function prefill( text ) {
+		var input = $( 'aisaautopilot-efb-input' );
+		if ( ! input ) { return; }
+		input.value = String( text === undefined || text === null ? '' : text );
+		autoGrow();
+		input.focus();
+		try { input.setSelectionRange( input.value.length, input.value.length ); } catch ( e ) {}
+	}
+	function chips( items, kind ) {
+		var box = el( 'div', { class: 'aisaautopilot-efb-chips', 'data-sp-efb-chips': kind } );
 		items.forEach( function ( it ) {
 			var label = typeof it === 'string' ? it : it.title;
-			var c = el( 'button', { type: 'button', class: 'aisaautopilot-efb-chip', text: label } );
-			c.addEventListener( 'click', function () { onPick( it ); } );
+			var c = el( 'button', { type: 'button', class: 'aisaautopilot-efb-chip', 'data-sp-efb-chip': kind, text: label } );
+			c.addEventListener( 'click', function () { prefill( label ); } );
 			box.appendChild( c );
 		} );
 		return box;
@@ -155,7 +181,10 @@
 		selectedField = { id: String( field.id_ ), label: String( field.name || field.value || field.id_ ), type: String( field.type ) };
 		updateSelection();
 		open( false );
-		if ( changed && greeted ) { addAi( t( 'fieldIntro', 'You selected “%s”. Tell me what to change — make it required, rename it, or add help text.', selectedField.label ) ); }
+		if ( changed && greeted && lastIntroFieldId !== selectedField.id ) {
+			addAi( el( 'div', { 'data-sp-efb-intro': 'field', text: t( 'fieldIntro', 'You selected “%s”. Tell me what to change — make it required, rename it, or add help text.', selectedField.label ) } ) );
+			lastIntroFieldId = selectedField.id;
+		}
 	}
 	function clearSelection() { selectedField = null; updateSelection(); }
 	function maxAmount() { var m = 0; valj_efb.forEach( function ( it ) { var a = Number( it.amount ); if ( a > m ) { m = a; } } ); return m; }
@@ -166,7 +195,11 @@
 	function enumValue( definition, value ) {
 		var values = definition ? definition.values : null;
 		if ( ! values ) { return value; }
-		if ( Array.isArray( values ) ) { return value; }
+		if ( Array.isArray( values ) ) {
+			// EFB compares style names case-sensitively, so store the catalog's spelling.
+			for ( var j = 0; j < values.length; j++ ) { if ( String( values[ j ] ).toLowerCase() === String( value ).toLowerCase() ) { return values[ j ]; } }
+			return value;
+		}
 		var wanted = String( value ).toLowerCase();
 		var keys = Object.keys( values );
 		for ( var i = 0; i < keys.length; i++ ) {
@@ -190,9 +223,87 @@
 		object[ parts[ parts.length - 1 ] ] = value;
 	}
 	function propertyLabel( key ) { return String( key || '' ).replace( /_/g, ' ' ); }
+	function enumAllows( definition, value ) {
+		var values = definition && definition.values ? definition.values : {};
+		var wanted = String( value ).toLowerCase();
+		if ( Array.isArray( values ) ) { return values.some( function ( item ) { return String( item ).toLowerCase() === wanted; } ); }
+		return Object.keys( values ).some( function ( key ) { return key.toLowerCase() === wanted || String( values[ key ] ).toLowerCase() === wanted; } );
+	}
+	var STEP_STYLE_PROPERTIES = [ 'steps_style', 'progress_style', 'hide_steps_row', 'hide_progress_bar' ];
+	// EFB already translates its style names for the settings picker; reuse them so
+	// the chat names a style exactly as the picker beside it does.
+	var STYLE_LABEL_KEYS = { classic: 'styleClassic', circles: 'stepStyleCircles', pills: 'stepStylePills', chevrons: 'stepStyleChevrons', bar: 'progStyleBar', segments: 'progStyleSegments', ring: 'progStyleRing' };
+	function styleName( style ) {
+		var key = STYLE_LABEL_KEYS[ style ];
+		var text = typeof efb_var !== 'undefined' && efb_var && efb_var.text ? efb_var.text : {};
+		return key && text[ key ] ? String( text[ key ] ) : String( style );
+	}
+	function formPropertyApplied( property, value ) {
+		if ( property === 'steps_style' ) { return t( 'stepsStyleSet', 'Steps style set to %s', styleName( value ) ); }
+		if ( property === 'progress_style' ) { return t( 'progressStyleSet', 'Progress bar style set to %s', styleName( value ) ); }
+		if ( property === 'hide_steps_row' ) { return value ? t( 'stepsRowHidden', 'Steps row hidden' ) : t( 'stepsRowShown', 'Steps row shown' ); }
+		if ( property === 'hide_progress_bar' ) { return value ? t( 'progressBarHidden', 'Progress bar hidden' ) : t( 'progressBarShown', 'Progress bar shown' ); }
+		return t( 'formPropertyUpdated', 'Updated the form setting “%s”', propertyLabel( property ) );
+	}
+	// EFB draws its form settings panel once. When it is open, keep its hide toggles
+	// and style pickers in step with what the chat just changed on valj_efb[0].
+	function syncStepStyleControls() {
+		var form = valj_efb[ 0 ];
+		if ( ! form ) { return; }
+		[ [ 'showSIconsEl', 'show_icon', 'steps_style' ], [ 'showSprosiEl', 'show_pro_bar', 'progress_style' ] ].forEach( function ( row ) {
+			var hidden = form[ row[ 1 ] ] === true || Number( form[ row[ 1 ] ] ) === 1;
+			var toggle = document.getElementById( row[ 0 ] );
+			if ( toggle ) { toggle.classList.toggle( 'active', hidden ); }
+			var picker = document.getElementById( 'efb-picker-' + row[ 2 ] );
+			if ( ! picker ) { return; }
+			picker.classList.toggle( 'd-none', hidden );
+			var current = String( form[ row[ 2 ] ] || 'classic' );
+			Array.prototype.forEach.call( picker.querySelectorAll( '.efb-sp-picker__opt' ), function ( option ) {
+				var on = option.getAttribute( 'data-style' ) === current;
+				option.classList.toggle( 'active', on );
+				option.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
+			} );
+		} );
+	}
 	function failure( report, index, op, reason ) {
 		report.failed.push( { index: index, operation: String( op.op || 'unknown' ), target: String( op.target || '' ), reason: reason } );
 	}
+	// Reason codes stay in the client log; people read a translated sentence.
+	var REASONS = {
+		invalid_operation: [ 'reasonInvalidOperation', 'the operation was malformed' ],
+		field_not_found: [ 'reasonFieldNotFound', 'the field was not found in this form' ],
+		unsupported_field_property: [ 'reasonUnsupportedFieldProperty', 'that field setting cannot be changed here' ],
+		property_not_available: [ 'reasonPropertyNotAvailable', 'that setting is not available for this field type' ],
+		invalid_colour_or_storage: [ 'reasonInvalidColour', 'the colour or setting value is not valid' ],
+		form_property_not_available: [ 'reasonFormPropertyNotAvailable', 'that form setting is not available' ],
+		invalid_form_property_value: [ 'reasonInvalidFormPropertyValue', 'Easy Form Builder does not accept that value' ],
+		step_template_missing: [ 'reasonStepTemplateMissing', 'the step template was missing from the reply' ],
+		field_template_missing: [ 'reasonFieldTemplateMissing', 'the field template was missing from the reply' ],
+		invalid_or_duplicate_field_template: [ 'reasonInvalidFieldTemplate', 'the new field was invalid or its ID already exists' ],
+		target_is_not_a_choice_field: [ 'reasonNotChoiceField', 'options can only be added to a choice field' ],
+		option_not_found: [ 'reasonOptionNotFound', 'the option was not found' ],
+		unsupported_operation: [ 'reasonUnsupportedOperation', 'this change is not supported' ],
+		no_operation: [ 'reasonNoOperation', 'the reply contained no change to apply' ],
+		exception: [ 'reasonException', 'an unexpected error stopped this change' ],
+		render: [ 'reasonRender', 'the Easy Form Builder canvas could not redraw' ]
+	};
+	function reasonCode( failed ) {
+		var code = String( failed && failed.reason ? failed.reason : 'unknown' );
+		if ( code.indexOf( 'exception:' ) === 0 ) { return 'exception'; }
+		if ( failed && failed.operation === 'render' ) { return 'render'; }
+		return code;
+	}
+	function reasonText( code ) {
+		var entry = REASONS[ code ];
+		return entry ? t( entry[ 0 ], entry[ 1 ] ) : t( 'reasonUnknown', 'this change could not be applied' );
+	}
+	function note( text, kind, reason ) {
+		var attrs = { class: 'aisaautopilot-efb-inline-note', text: text, 'data-sp-efb-note': kind };
+		if ( reason ) { attrs[ 'data-sp-efb-reason' ] = reason; }
+		return el( 'div', attrs );
+	}
+	var WIDTH_LABELS = { full: [ 'widthFull', 'full width' ], half: [ 'widthHalf', 'half width' ], third: [ 'widthThird', 'one third' ], quarter: [ 'widthQuarter', 'one quarter' ] };
+	function widthLabel( value ) { var entry = WIDTH_LABELS[ value ]; return entry ? t( entry[ 0 ], entry[ 1 ] ) : String( value ); }
 	function colorToken( value ) {
 		var hex = String( value || '' ).toLowerCase();
 		var colors = { '#0d6efd': 'primary', '#198754': 'success', '#6c757d': 'secondary', '#ff455f': 'danger', '#e9c31a': 'warning', '#31d2f2': 'info', '#fbfbfb': 'light', '#202a8d': 'darkb', '#898aa9': 'labelEfb', '#83859f': 'd', '#ff4b93': 'pinkEfb', '#ffffff': 'white', '#212529': 'dark', '#777777': 'muted' };
@@ -221,7 +332,7 @@
 		var fields = valj_efb.filter( isFieldItem );
 		var step = requestedStep ? String( requestedStep ) : ( fields.length ? String( fields[ fields.length - 1 ].step || '1' ) : '1' );
 		var amount = maxAmount();
-		var fieldLabel = op.field && op.field.label ? op.field.label : 'field';
+		var fieldLabel = op.field && op.field.label ? op.field.label : t( 'newFieldLabel', 'New field' );
 		items.forEach( function ( source ) {
 			var item = Object.assign( {}, source );
 			amount += 1;
@@ -229,7 +340,7 @@
 			item.step = step;
 			valj_efb.push( item );
 		} );
-		report.applied.push( 'Added "' + fieldLabel + '"' );
+		report.applied.push( t( 'fieldAdded', 'Added “%s”', fieldLabel ) );
 		report.changed = true;
 	}
 	function addStepItem( op, report, index ) {
@@ -247,7 +358,7 @@
 		item.id = String( next );
 		item.type = 'step';
 		item.classes = item.classes || 'stepNavEfb';
-		item.name = String( op.label || item.name || 'Step ' + next );
+		item.name = String( op.label || item.name || t( 'stepDefaultName', 'Step %s', next ) );
 		item.step = String( next );
 		item.amount = String( maxAmount() + 1 );
 		valj_efb.push( item );
@@ -255,7 +366,7 @@
 			valj_efb[ 0 ].steps = String( next );
 			valj_efb[ 0 ].button_state = 'multi';
 		}
-		report.applied.push( 'Added Step "' + item.name + '"' );
+		report.applied.push( t( 'stepAdded', 'Added the step “%s”', item.name ) );
 		report.changed = true;
 		return String( next );
 	}
@@ -266,15 +377,15 @@
 		ops.forEach( function ( op, index ) {
 			try {
 				if ( ! op || ! op.op ) { failure( report, index, op || {}, 'invalid_operation' ); return; }
-				if ( op.op === 'set_form_name' ) { valj_efb[ 0 ].formName = op.value; report.applied.push( 'Renamed form to "' + op.value + '"' ); report.changed = true; }
-				else if ( op.op === 'set_confirmation' ) { if ( ! valj_efb[ 0 ].thank_you_message || typeof valj_efb[ 0 ].thank_you_message !== 'object' ) { valj_efb[ 0 ].thank_you_message = {}; } valj_efb[ 0 ].thank_you_message.thankYou = op.value; report.applied.push( 'Updated confirmation message' ); report.changed = true; }
+				if ( op.op === 'set_form_name' ) { valj_efb[ 0 ].formName = op.value; report.applied.push( t( 'formRenamed', 'Renamed the form to “%s”', op.value ) ); report.changed = true; }
+				else if ( op.op === 'set_confirmation' ) { if ( ! valj_efb[ 0 ].thank_you_message || typeof valj_efb[ 0 ].thank_you_message !== 'object' ) { valj_efb[ 0 ].thank_you_message = {}; } valj_efb[ 0 ].thank_you_message.thankYou = op.value; report.applied.push( t( 'confirmationSet', 'Updated the confirmation message' ) ); report.changed = true; }
 				else if ( op.op === 'set_field' ) {
 					var f = findField( op.target ); if ( ! f ) { failure( report, index, op, 'field_not_found' ); return; }
-					if ( op.prop === 'label' ) { f.name = op.value; report.applied.push( 'Renamed "' + op.target + '" to "' + op.value + '"' ); }
-					else if ( op.prop === 'required' ) { f.required = op.value ? '1' : '0'; report.applied.push( 'Made "' + op.target + '" ' + ( op.value ? 'required' : 'optional' ) ); }
-					else if ( op.prop === 'placeholder' ) { f.placeholder = op.value; report.applied.push( 'Set placeholder of "' + op.target + '"' ); }
-					else if ( op.prop === 'width' ) { f.size = WIDTH[ op.value ] || '100'; report.applied.push( 'Set width of "' + op.target + '" to ' + op.value ); }
-					else if ( op.prop === 'help' ) { f.message = op.value; report.applied.push( 'Set help text of "' + op.target + '"' ); }
+					if ( op.prop === 'label' ) { f.name = op.value; report.applied.push( t( 'fieldRenamed', 'Renamed “%1$s” to “%2$s”', [ op.target, op.value ] ) ); }
+					else if ( op.prop === 'required' ) { f.required = op.value ? '1' : '0'; report.applied.push( op.value ? t( 'fieldRequired', 'Made “%s” required', op.target ) : t( 'fieldOptional', 'Made “%s” optional', op.target ) ); }
+					else if ( op.prop === 'placeholder' ) { f.placeholder = op.value; report.applied.push( t( 'placeholderSet', 'Set the placeholder of “%s”', op.target ) ); }
+					else if ( op.prop === 'width' ) { f.size = WIDTH[ op.value ] || '100'; report.applied.push( t( 'widthSet', 'Set the width of “%1$s” to %2$s', [ op.target, widthLabel( op.value ) ] ) ); }
+					else if ( op.prop === 'help' ) { f.message = op.value; report.applied.push( t( 'helpTextSet', 'Set the help text of “%s”', op.target ) ); }
 					else { failure( report, index, op, 'unsupported_field_property' ); return; }
 					report.changed = true;
 				}
@@ -293,18 +404,22 @@
 							for ( var m = 0; m < pd.mirror_keys.length; m++ ) { pf[ pd.mirror_keys[ m ] ] = stored; }
 						}
 					}
-					report.applied.push( 'Updated ' + propertyLabel( op.property ) + ' for "' + op.target + '"' ); report.changed = true;
+					report.applied.push( t( 'fieldSettingSet', 'Updated %1$s for “%2$s”', [ propertyLabel( op.property ), op.target ] ) ); report.changed = true;
 				}
 				else if ( op.op === 'set_form_property' ) {
 					var fd = FORM_PROPERTIES[ op.property ];
 					if ( ! fd || ! fd.storage_path || ! valj_efb[ 0 ] ) { failure( report, index, op, 'form_property_not_available' ); return; }
+					// The server already validated the value. Check enums again so a stale or
+					// tampered response never stores a style EFB would quietly draw as classic.
+					if ( fd.value_type === 'enum' && ! enumAllows( fd, op.value ) ) { failure( report, index, op, 'invalid_form_property_value' ); return; }
 					if ( fd.value_type === 'efb_color' ? ! applyEfbColor( valj_efb[ 0 ], fd, op.value ) : ! fd.storage_path ) { failure( report, index, op, 'invalid_colour_or_storage' ); return; }
 					if ( fd.value_type !== 'efb_color' ) { setPath( valj_efb[ 0 ], fd.storage_path, catalogValue( fd, op.value, true ) ); }
-					report.applied.push( 'Updated form ' + propertyLabel( op.property ) ); report.changed = true;
+					if ( STEP_STYLE_PROPERTIES.indexOf( op.property ) !== -1 ) { report.stepStyles = true; }
+					report.applied.push( formPropertyApplied( op.property, catalogValue( fd, op.value, true ) ) ); report.changed = true;
 				}
 				else if ( op.op === 'add_step' ) { var newStep = addStepItem( op, report, index ); if ( newStep && op.step_ref ) { stepRefs[ op.step_ref ] = newStep; } }
 				else if ( op.op === 'add_field' ) { addFieldItems( op, report, index, op.step_ref ? stepRefs[ op.step_ref ] : '' ); }
-				else if ( op.op === 'remove_field' ) { var rf = findField( op.target ); if ( ! rf ) { failure( report, index, op, 'field_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return it !== rf && it.parent !== rf.id_; } ); window.valj_efb = valj_efb; report.applied.push( 'Removed "' + op.target + '"' ); report.changed = true; }
+				else if ( op.op === 'remove_field' ) { var rf = findField( op.target ); if ( ! rf ) { failure( report, index, op, 'field_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return it !== rf && it.parent !== rf.id_; } ); window.valj_efb = valj_efb; report.applied.push( t( 'fieldRemoved', 'Removed “%s”', op.target ) ); report.changed = true; }
 				else if ( op.op === 'add_option' ) {
 					var af = findField( op.target ); if ( ! af ) { failure( report, index, op, 'field_not_found' ); return; }
 					if ( ! isChoiceField( af ) ) { failure( report, index, op, 'target_is_not_a_choice_field' ); return; }
@@ -312,9 +427,9 @@
 					var opt = { id_: oid, dataId: oid + '-id', parent: af.id_, type: 'option', value: op.value, id_op: oid, step: af.step || '1', amount: String( maxAmount() + 1 ) };
 					var lastIdx = valj_efb.length - 1;
 					for ( var i = valj_efb.length - 1; i >= 0; i-- ) { if ( valj_efb[ i ].parent === af.id_ || valj_efb[ i ] === af ) { lastIdx = i; break; } }
-					valj_efb.splice( lastIdx + 1, 0, opt ); report.applied.push( 'Added option "' + op.value + '" to "' + op.target + '"' ); report.changed = true;
+					valj_efb.splice( lastIdx + 1, 0, opt ); report.applied.push( t( 'optionAdded', 'Added the option “%1$s” to “%2$s”', [ op.value, op.target ] ) ); report.changed = true;
 				}
-				else if ( op.op === 'remove_option' ) { var of = findField( op.target ); if ( ! of ) { failure( report, index, op, 'field_not_found' ); return; } var hadOption = valj_efb.some( function ( it ) { return it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase(); } ); if ( ! hadOption ) { failure( report, index, op, 'option_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return ! ( it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase() ); } ); window.valj_efb = valj_efb; report.applied.push( 'Removed option "' + op.value + '" from "' + op.target + '"' ); report.changed = true; }
+				else if ( op.op === 'remove_option' ) { var of = findField( op.target ); if ( ! of ) { failure( report, index, op, 'field_not_found' ); return; } var hadOption = valj_efb.some( function ( it ) { return it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase(); } ); if ( ! hadOption ) { failure( report, index, op, 'option_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return ! ( it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase() ); } ); window.valj_efb = valj_efb; report.applied.push( t( 'optionRemoved', 'Removed the option “%1$s” from “%2$s”', [ op.value, op.target ] ) ); report.changed = true; }
 				else { failure( report, index, op, 'unsupported_operation' ); }
 			} catch ( e ) { failure( report, index, op || {}, 'exception:' + String( e && e.message ? e.message : 'unknown' ).slice( 0, 120 ) ); }
 		} );
@@ -332,7 +447,7 @@
 	/* ---------- response renderers ---------- */
 	function renderMessage( data ) {
 		var bubble = el( 'div', {} );
-		bubble.appendChild( el( 'div', { text: data.reply || '' } ) );
+		bubble.appendChild( el( 'div', { dir: 'auto', text: data.reply || '' } ) );
 		if ( data.errors && data.errors.length ) { bubble.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
 		if ( data.upgrade_required ) {
 			var upgrade = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--pro', text: t( 'upgrade', 'Upgrade to EFB Pro' ) } );
@@ -349,7 +464,7 @@
 	}
 	function renderPreview( data ) {
 		var box = el( 'div', {} );
-		if ( data.reply ) { box.appendChild( el( 'div', { text: data.reply } ) ); }
+		if ( data.reply ) { box.appendChild( el( 'div', { dir: 'auto', text: data.reply } ) ); }
 		var p = data.preview;
 		var card = el( 'div', { class: 'aisaautopilot-efb-card' } );
 		card.appendChild( el( 'h3', { text: p.title } ) );
@@ -361,7 +476,7 @@
 		table.appendChild( el( 'thead', {}, [ el( 'tr', {}, [ el( 'th', { text: t( 'label', 'Label' ) } ), el( 'th', { text: t( 'type', 'Type' ) } ), el( 'th', { text: t( 'requiredShort', 'Req.' ) } ), el( 'th', { text: t( 'widthShort', 'W' ) } ) ] ) ] ) );
 		var tb = el( 'tbody' );
 		p.fields.forEach( function ( f ) {
-			tb.appendChild( el( 'tr', {}, [ el( 'td', { text: f.label } ), el( 'td', {}, [ el( 'code', { text: f.type } ) ] ), el( 'td', { text: f.required ? '✓' : '' } ), el( 'td', { text: ( f.width || 'full' ).charAt( 0 ) } ) ] ) );
+			tb.appendChild( el( 'tr', {}, [ el( 'td', { text: f.label } ), el( 'td', {}, [ el( 'code', { text: f.type } ) ] ), el( 'td', { text: f.required ? '✓' : '' } ), el( 'td', { text: ( WIDTH[ f.width ] || '100' ) + '%' } ) ] ) );
 		} );
 		table.appendChild( tb );
 		card.appendChild( table );
@@ -371,7 +486,7 @@
 		approve.addEventListener( 'click', function () {
 			approve.disabled = true; note.textContent = t( 'creating', 'Creating…' );
 			api( 'efb/create', { action_id: data.action_id } ).then( function ( res ) {
-				if ( ! res.data.ok ) { note.textContent = res.data.message || 'Failed.'; approve.disabled = false; return; }
+				if ( ! res.data.ok ) { note.textContent = res.data.message || t( 'createFailed', 'The form could not be created. Please try again.' ); approve.disabled = false; return; }
 				note.textContent = t( 'createdOpening', 'Created! Opening the editor…' );
 				if ( res.data.result && res.data.result.edit_url ) { setTimeout( function () { window.location.href = res.data.result.edit_url; }, 600 ); }
 			} ).catch( function () { note.textContent = t( 'networkError', 'Network error. Please try again.' ); approve.disabled = false; } );
@@ -398,32 +513,34 @@
 	function renderOps( data, traceId ) {
 		if ( ! hasLiveForm() ) {
 			clientLog( traceId, 'apply_unavailable', 'Browser did not expose a live EFB form.', { operation_count: ( data.operations || [] ).length, failed: [ { reason: 'live_form_not_available' } ] } );
-			addAi( 'Open a form in the editor first (create one here, or open Easy Form Builder → Forms and edit a form), then ask me to change it.' );
+			addAi( t( 'openFormFirst', 'Open a form in the editor first (create one here, or open Easy Form Builder → Forms and edit a form), then ask me to change it.' ) );
 			history.push( { role: 'assistant', text: 'Asked user to open a form first.' } );
 			return;
 		}
 		var report = applyOps( data.operations || [] );
 		var box = el( 'div', {} );
-		box.appendChild( el( 'div', { text: data.reply || 'Done.' } ) );
+		box.appendChild( el( 'div', { text: data.reply || t( 'done', 'Done.' ) } ) );
 		// Server-side notes (e.g. a batch truncated at the op limit) must show here
 		// too, otherwise a partly-applied change still reads as a clean success.
-		if ( data.errors && data.errors.length ) { box.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: data.errors.join( ' ' ) } ) ); }
+		if ( data.errors && data.errors.length ) { box.appendChild( note( data.errors.join( ' ' ), 'server' ) ); }
 		if ( ! report.applied.length ) {
-			var reason = report.failed.length ? report.failed[ 0 ].reason.replace( /_/g, ' ' ) : 'no operation was applied';
-			box.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: 'No change was applied: ' + reason + '.' } ) );
+			var code = report.failed.length ? reasonCode( report.failed[ 0 ] ) : 'no_operation';
+			var reason = report.failed.length ? report.failed[ 0 ].reason : 'no_operation';
+			box.appendChild( note( t( 'noChangeApplied', 'No change was applied: %s.', reasonText( code ) ), 'no-change', code ) );
 			clientLog( traceId, 'apply_failed', 'No requested operation was applied.', { operation_count: ( data.operations || [] ).length, failed: report.failed } );
 			addAi( box ); history.push( { role: 'assistant', text: 'No operation applied: ' + reason } ); return;
 		}
 		var refreshed = refreshDropzone();
 		updateSelection();
+		if ( report.stepStyles ) { syncStepStyleControls(); }
 		if ( ! refreshed.ok ) { report.failed.push( { operation: 'render', reason: refreshed.reason || 'renderer_refresh_failed' } ); }
 		clientLog( traceId, refreshed.ok ? 'apply_completed' : 'apply_render_failed', refreshed.ok ? 'Operations applied in the live EFB canvas.' : 'Operations changed the structure but the EFB renderer failed.', { operation_count: ( data.operations || [] ).length, applied: report.applied, failed: report.failed, renderer: refreshed } );
 		var ul = el( 'div', {} );
-		report.applied.forEach( function ( a ) { ul.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: '✓ ' + a } ) ); } );
-		report.failed.forEach( function ( f ) { ul.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: 'Not applied: ' + f.reason.replace( /_/g, ' ' ) } ) ); } );
+		report.applied.forEach( function ( a ) { ul.appendChild( note( '✓ ' + a, 'applied' ) ); } );
+		report.failed.forEach( function ( f ) { var failedCode = reasonCode( f ); ul.appendChild( note( t( 'notApplied', 'Not applied: %s', reasonText( failedCode ) ), 'failed', failedCode ) ); } );
 		box.appendChild( ul );
-		if ( ! refreshed.ok ) { box.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: 'The EFB canvas could not refresh. Reload the editor and check AI Site Assistant AutoPilot → Logs with trace ' + traceId + '.' } ) ); }
-		else { box.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', text: 'Applied to the canvas. Review it, then click Easy Form Builder’s green Save button to persist the changes.' } ) ); }
+		if ( ! refreshed.ok ) { box.appendChild( note( t( 'canvasRefreshFail', 'The Easy Form Builder canvas could not redraw, so the editor reloads now. Check the form before you save it; trace %s is in AI Site Assistant AutoPilot → Activity Log.', traceId ), 'render-failed' ) ); }
+		else { box.appendChild( note( t( 'appliedSaveNote', 'Applied to the canvas. Review it, then click Easy Form Builder’s green Save button to keep the changes.' ), 'save-ownership' ) ); }
 		addAi( box );
 		history.push( { role: 'assistant', text: 'Applied: ' + report.applied.join( '; ' ) } );
 		if ( ! refreshed.ok ) { setTimeout( function () { window.location.reload(); }, 800 ); }
@@ -432,7 +549,7 @@
 		var box = el( 'div', {} );
 		if ( data.reply ) { box.appendChild( el( 'div', { text: data.reply } ) ); }
 		if ( data.suggestions && data.suggestions.length ) {
-			box.appendChild( chips( data.suggestions, function ( s ) { submit( s.title ); } ) );
+			box.appendChild( chips( data.suggestions, 'suggestion' ) );
 			addAi( box ); history.push( { role: 'assistant', text: data.reply || 'Suggested topics.' } ); return;
 		}
 		var card = el( 'div', { class: 'aisaautopilot-efb-card' } );
@@ -455,6 +572,7 @@
 		text = ( text || '' ).trim();
 		if ( ! text || busy ) { return; }
 		addUser( text );
+		lastIntroFieldId = '';
 		var prior = history.slice();
 		history.push( { role: 'user', text: text } );
 		var input = $( 'aisaautopilot-efb-input' );
@@ -470,8 +588,8 @@
 		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps, selected_field: selectedId } )
 			.then( function ( res ) {
 				removeTyping(); busy = false; $( 'aisaautopilot-efb-send' ).disabled = false;
-				var data = res.data || { type: 'message', reply: 'Sorry, something went wrong.' };
-				if ( data.ok === false && ! data.reply ) { data.type = 'message'; data.reply = data.message || 'The request could not be completed.'; }
+				var data = res.data || { type: 'message', reply: t( 'genericError', 'Sorry, something went wrong.' ) };
+				if ( data.ok === false && ! data.reply ) { data.type = 'message'; data.reply = data.message || t( 'requestFailed', 'The request could not be completed.' ); }
 				var context = { status: res.status, response_type: data.type || 'message', code: data.code || '', operation_count: Array.isArray( data.operations ) ? data.operations.length : 0 };
 				clientLog( traceId, data.ok === false ? 'chat_response_error' : 'chat_response', data.ok === false ? ( data.message || 'Chat endpoint returned an error.' ) : 'Chat response received.', context );
 				renderResponse( data, traceId );
@@ -511,7 +629,7 @@
 				if ( blob.size > 5000000 ) { addAi( t( 'audioLarge', 'That recording is too large. Please record a shorter message.' ) ); return; }
 				voiceStatus( t( 'transcribing', 'Transcribing…' ) );
 				uploadAudio( blob, duration ).then( function ( result ) {
-					if ( ! result.ok ) { addAi( result.message || 'Voice transcription failed.' ); return; }
+					if ( ! result.ok ) { addAi( result.message || t( 'transcriptionFail', 'Voice transcription failed. Please try again.' ) ); return; }
 					var input = $( 'aisaautopilot-efb-input' ); input.value = voiceInputPrefix + ( result.transcript || voiceFinalText ).trim(); autoGrow(); input.focus(); voiceStatus( t( 'transcriptReady', 'Transcript ready. Review it, then send.' ) );
 				} ).catch( function () { addAi( t( 'transcriptionFail', 'Voice transcription failed. Please try again.' ) ); } );
 			};
@@ -526,11 +644,12 @@
 			? t( 'fieldIntro', 'You selected “%s”. Tell me what to change — make it required, rename it, or add help text.', selectedField.label )
 			: ( hasLiveForm() ? t( 'formIntro', 'Hi! I can change this form, design a new one, or explain how to do something in Easy Form Builder.' ) : t( 'newFormIntro', 'Hi! Tell me what form you need and I will design a complete one, or ask me an Easy Form Builder question.' ) );
 		var box = el( 'div', {} );
-		box.appendChild( el( 'div', { text: intro } ) );
+		box.appendChild( el( 'div', { 'data-sp-efb-intro': selectedField ? 'field' : ( hasLiveForm() ? 'form' : 'new-form' ), text: intro } ) );
+		lastIntroFieldId = selectedField ? selectedField.id : '';
 		var starters = hasLiveForm()
 			? [ t( 'makeRequired', 'Make Email required' ), t( 'renameForm', 'Rename the form to Contact us' ), t( 'addOptionsHelp', 'How do I add options to a dropdown?' ) ]
 			: [ t( 'buildContact', 'Build a contact form' ), t( 'buildBooking', 'A booking form for a dental clinic' ), t( 'buildJob', 'Job application form' ), t( 'notificationHelp', 'How do I turn on email notifications?' ) ];
-		box.appendChild( chips( starters, function ( s ) { submit( s ); } ) );
+		box.appendChild( chips( starters, 'starter' ) );
 		addAi( box );
 	}
 
@@ -538,7 +657,9 @@
 	function open( focusInput ) { var c = $( 'aisaautopilot-efb-chat' ); if ( ! c ) { return; } c.hidden = false; c.setAttribute( 'aria-hidden', 'false' ); $( 'aisaautopilot-efb-launch' ).setAttribute( 'aria-expanded', 'true' ); updateSelection(); greet(); if ( focusInput !== false ) { setTimeout( function () { $( 'aisaautopilot-efb-input' ).focus(); }, 50 ); } }
 	function close() { var c = $( 'aisaautopilot-efb-chat' ); if ( ! c || c.hidden ) { return; } if ( recorder && recorder.state === 'recording' ) { stopVoice(); } c.hidden = true; c.setAttribute( 'aria-hidden', 'true' ); var launch = $( 'aisaautopilot-efb-launch' ); launch.setAttribute( 'aria-expanded', 'false' ); launch.focus(); }
 	function toggle() { var c = $( 'aisaautopilot-efb-chat' ); if ( c && c.hidden ) { open(); } else { close(); } }
-	function reset() { history = []; greeted = false; messages().textContent = ''; greet(); }
+	// New chat also drops the voice status line: a microphone error from the previous
+	// conversation is stale once the transcript is gone.
+	function reset() { history = []; greeted = false; messages().textContent = ''; voiceStatus( '' ); greet(); }
 
 	function autoGrow() { var t = $( 'aisaautopilot-efb-input' ); if ( ! t ) { return; } t.style.height = 'auto'; t.style.height = Math.min( t.scrollHeight, 140 ) + 'px'; }
 

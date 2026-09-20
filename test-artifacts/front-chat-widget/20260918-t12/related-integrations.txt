@@ -1,0 +1,10 @@
+﻿
+wordpress_answer_voice_settings_integration :: exit=0 :: 5 checks, 0 failed
+wordpress_answer_voice_page_integration :: exit=0 :: 4 checks, 0 failed
+wordpress_answer_desk_lifecycle_integration :: exit=0 :: 6 checks, 0 failed
+wordpress_answer_widget_settings_integration :: exit=0 :: 4 checks, 0 failed
+wordpress_answer_widget_page_integration :: exit=0 :: 4 checks, 0 failed
+wordpress_widget_handoff_flow_integration :: exit=0 :: 21 checks, 0 failed
+wordpress_widget_customise_integration :: exit=0 :: 12 checks, 0 failed
+wordpress_usage_cap_response_integration :: exit=0 :: 6 checks, 0 failed
+wordpress_phase1_integration :: exit=0 :: 45 checks, 0 failed

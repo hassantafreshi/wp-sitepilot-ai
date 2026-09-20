@@ -3,15 +3,13 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Admin;
 
-use AISAAutoPilot\Connectors\ConnectorRegistry;
 use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
 use AISAAutoPilot\Connectors\WooCommerceConnector;
-use AISAAutoPilot\Content\ContentIndexer;
 use AISAAutoPilot\Content\KnowledgeBase;
-use AISAAutoPilot\Core\Plugin;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Core\WpConnectors;
 use AISAAutoPilot\Providers\ProviderManager;
+use AISAAutoPilot\Usage\UsageTracker;
 
 /**
  * Setup & Settings — one screen.
@@ -37,8 +35,20 @@ final class SettingsPage {
 	/** Save feedback reserved for the visible, server-validated setup flow. */
 	private string $save_error = '';
 
-	/** The quick-pick chips above the full provider dropdown. */
-	private const QUICK_PICKS = array( 'openai', 'anthropic', 'gemini', 'deepseek', 'qwen', 'mistral', 'groq', 'openrouter' );
+	/** The six services the Setup mockup lists as popular with WordPress sites. */
+	private const POPULAR_PROVIDERS = array( 'openai', 'anthropic', 'gemini', 'deepseek', 'openrouter', 'groq' );
+
+	/** Documented key prefixes, used only to explain a rejected key. */
+	private const KEY_PREFIXES = array(
+		'openai'     => 'sk-',
+		'anthropic'  => 'sk-ant-',
+		'gemini'     => 'AIza',
+		'deepseek'   => 'sk-',
+		'openrouter' => 'sk-or-',
+		'groq'       => 'gsk_',
+		'perplexity' => 'pplx-',
+		'qwen'       => 'sk-',
+	);
 
 	/**
 	 * Remember a successful test until the same administrator saves exactly the
@@ -183,30 +193,45 @@ final class SettingsPage {
 
 		$saved       = $this->maybe_save();
 		$s           = Settings::all();
-		$wp_conn     = WpConnectors::is_available();
-		$key_mode    = (string) ( $s['key_management'] ?? 'keyvault' );
 		$kb          = new KnowledgeBase();
 		$embedded    = $kb->table_exists() ? $kb->count_with_embeddings() : 0;
 		$kb_total    = $kb->table_exists() ? (int) ( $kb->get_stats()['total'] ?? 0 ) : 0;
-		$indexable   = ( new ContentIndexer() )->get_total_posts();
-		$has_key     = Settings::has_api_key();
 		$has_emb_key = Settings::has_embedding_key();
 		$presets     = Settings::presets();
 		$provider    = isset( $presets[ $s['provider'] ] ) ? (string) $s['provider'] : 'custom';
 		$preset      = Settings::preset( $provider );
-		$efb_ready   = ( new EasyFormBuilderConnector() )->is_available();
-		$steps       = $this->steps( $kb_total );
+		$embeddings  = (array) ( $preset['embeddings'] ?? array() );
+		$efb_health  = ( new EasyFormBuilderConnector() )->get_health();
+		$efb_ready   = ! empty( $efb_health['available'] );
+		$configured  = ( new ProviderManager() )->is_configured();
+		$endpoint    = (string) wp_parse_url( (string) $s['base_url'], PHP_URL_HOST );
+		$emb_on      = ! empty( $s['embeddings_enabled'] );
+		$no_embeds   = array() === $embeddings && '' === trim( (string) ( $s['embedding_base_url'] ?? '' ) );
+		$setup_url   = admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP );
 		$kb_url      = admin_url( 'admin.php?page=' . AdminMenu::SLUG_KB );
+		$sections    = array(
+			'sp-adv-connection' => __( 'Connection', 'ai-site-assistant-autopilot' ),
+			'sp-adv-search'     => __( 'Semantic search', 'ai-site-assistant-autopilot' ),
+			'sp-adv-voice'      => __( 'Voice', 'ai-site-assistant-autopilot' ),
+			'sp-adv-forms'      => __( 'Forms and delivery', 'ai-site-assistant-autopilot' ),
+			'sp-adv-public'     => __( 'Public site assistant', 'ai-site-assistant-autopilot' ),
+		);
 
 		Ui::grad_defs();
 		?>
-		<div class="wrap sp-app sp-app--narrow" data-sp-settings>
+		<div class="wrap sp-app" data-sp-settings data-sp-advanced-settings>
 			<section class="sp-screen">
 				<?php
 				Ui::page_header(
-					__( 'Setup & Connection', 'ai-site-assistant-autopilot' ),
-					'',
-					array( 'chip' => ConnectionChip::derive() )
+					__( 'Advanced settings', 'ai-site-assistant-autopilot' ),
+					__( 'Search, voice, forms and the public assistant. The AI service itself is set up in Setup & Connection.', 'ai-site-assistant-autopilot' ),
+					array(
+						'chip'   => ConnectionChip::derive(),
+						'action' => array(
+							'label' => __( 'Back to Setup', 'ai-site-assistant-autopilot' ),
+							'url'   => $setup_url,
+						),
+					)
 				);
 				?>
 				<div class="sp-pagebody">
@@ -215,360 +240,231 @@ final class SettingsPage {
 					<?php Ui::alert( 'ok', 'check-circle', esc_html__( 'Settings saved.', 'ai-site-assistant-autopilot' ) ); ?>
 				<?php endif; ?>
 
-				<?php $this->render_progress( $steps ); ?>
+				<div class="sp-adv">
+					<nav class="sp-adv__nav" aria-labelledby="sp-adv-nav-title">
+						<span class="sp-adv__nav-title" id="sp-adv-nav-title"><?php esc_html_e( 'On this page', 'ai-site-assistant-autopilot' ); ?></span>
+						<?php foreach ( $sections as $section_id => $section_label ) : ?>
+							<a href="#<?php echo esc_attr( $section_id ); ?>"><?php echo esc_html( $section_label ); ?></a>
+						<?php endforeach; ?>
+					</nav>
 
-				<?php
-				Ui::alert(
-					'ok',
-					'shield',
-					sprintf(
-						/* translators: %s: key storage label. */
-						esc_html__( 'API key security: %s.', 'ai-site-assistant-autopilot' ),
-						esc_html( WpConnectors::get_key_source_label() )
-					)
-				);
-				?>
+					<form method="post" class="sp-adv__main" data-sp-advanced-form>
+						<?php wp_nonce_field( 'aisaautopilot_settings_save', 'aisaautopilot_settings_nonce' ); ?>
+						<input type="hidden" name="advanced_settings" value="1" />
 
-				<form method="post">
-					<?php wp_nonce_field( 'aisaautopilot_settings_save', 'aisaautopilot_settings_nonce' ); ?>
-
-					<div class="sp-card sp-card--24" style="margin-bottom:16px;display:flex;flex-direction:column;gap:18px">
-
-						<div>
-							<h2 class="sp-h2 sp-h2--md" style="margin-bottom:6px !important"><?php esc_html_e( '1. Connect an AI provider', 'ai-site-assistant-autopilot' ); ?></h2>
-							<p class="sp-sub" style="max-width:700px;font-size:13px"><?php esc_html_e( 'Pick a provider and the endpoint fills itself in. Everything here except Anthropic speaks the OpenAI Chat Completions format; Claude uses its own Messages API, which AISAAutoPilot handles for you.', 'ai-site-assistant-autopilot' ); ?></p>
-
-							<div class="sp-row-wrap sp-row-wrap--sm" style="margin:12px 0 14px" data-sp-provider-chips>
-								<?php foreach ( self::QUICK_PICKS as $key ) : ?>
-									<?php if ( ! isset( $presets[ $key ] ) ) : ?>
-										<?php continue; ?>
-									<?php endif; ?>
-									<button type="button" class="sp-choice sp-choice--brand<?php echo $provider === $key ? ' is-on' : ''; ?>" data-provider="<?php echo esc_attr( $key ); ?>">
-										<?php echo BrandMarks::svg( (string) $key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed path data, escaped in svg(). ?>
-										<span><?php echo esc_html( (string) $presets[ $key ]['label'] ); ?></span>
-									</button>
-								<?php endforeach; ?>
-								<button type="button" class="sp-choice sp-choice--brand<?php echo 'custom' === $provider ? ' is-on' : ''; ?>" data-provider="custom">
-									<?php echo BrandMarks::svg( 'custom' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed markup. ?>
-									<span><?php esc_html_e( 'Custom endpoint', 'ai-site-assistant-autopilot' ); ?></span>
-								</button>
+						<section class="sp-wz-card" id="sp-adv-connection" aria-labelledby="sp-adv-connection-title">
+							<div class="sp-wz-card__head sp-adv-connection__head">
+								<h2 class="sp-wz-card__title" id="sp-adv-connection-title"><?php esc_html_e( 'Connection', 'ai-site-assistant-autopilot' ); ?></h2>
+								<span class="sp-adv-readonly" data-sp-adv-readonly><?php esc_html_e( 'Read-only', 'ai-site-assistant-autopilot' ); ?></span>
+								<a class="sp-adv-button" href="<?php echo esc_url( $setup_url ); ?>"><?php esc_html_e( 'Open the setup wizard', 'ai-site-assistant-autopilot' ); ?></a>
 							</div>
-						</div>
-
-						<div class="sp-tiles sp-tiles--240">
-							<label class="sp-field">
-								<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'AI Provider', 'ai-site-assistant-autopilot' ); ?></span>
-								<span class="sp-brandline">
-									<?php // A select cannot hold markup, so the chosen provider's mark sits beside it; the script keeps it in step. ?>
-									<span class="sp-brandbox" id="sp-provider-brand"><?php echo BrandMarks::svg( $provider, 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed path data, escaped in svg(). ?></span>
-								<select id="sp-provider" name="provider" class="sp-select">
-									<?php foreach ( Settings::preset_groups() as $group => $group_label ) : ?>
-										<optgroup label="<?php echo esc_attr( $group_label ); ?>">
-											<?php foreach ( $presets as $key => $entry ) : ?>
-												<?php if ( ( $entry['group'] ?? 'direct' ) !== $group ) : ?>
-													<?php continue; ?>
-												<?php endif; ?>
-												<option value="<?php echo esc_attr( (string) $key ); ?>" <?php selected( $provider, $key ); ?>><?php echo esc_html( (string) $entry['label'] ); ?></option>
-											<?php endforeach; ?>
-										</optgroup>
-									<?php endforeach; ?>
-								</select>
-								</span>
-								<span class="sp-help" id="sp-provider-note"><?php echo esc_html( (string) $preset['note'] ); ?></span>
-							</label>
-
-							<label class="sp-field">
-								<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'API Base URL', 'ai-site-assistant-autopilot' ); ?></span>
-								<input type="url" id="sp-base-url" name="base_url" class="sp-input sp-mono" value="<?php echo esc_attr( (string) $s['base_url'] ); ?>" placeholder="https://api.openai.com/v1" />
-								<span class="sp-help" id="sp-key-link"></span>
-							</label>
-
-							<label class="sp-field">
-								<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Model', 'ai-site-assistant-autopilot' ); ?></span>
-								<?php
-								/*
-								 * Rendered server-side as well as by the script, so the picker is
-								 * populated on first paint and still usable if the script fails.
-								 * The saved model is always offered, even when the preset has
-								 * never heard of it.
-								 */
-								$saved_model = (string) $s['model'];
-								$model_list  = (array) $preset['models'];
-								?>
-								<select id="sp-model-select" class="sp-select">
-									<?php if ( '' !== $saved_model && ! array_key_exists( $saved_model, $model_list ) ) : ?>
-										<option value="<?php echo esc_attr( $saved_model ); ?>" selected><?php echo esc_html( sprintf( '%s — %s', $saved_model, __( 'Saved model', 'ai-site-assistant-autopilot' ) ) ); ?></option>
-									<?php endif; ?>
-									<?php foreach ( $model_list as $model_id => $model_label ) : ?>
-										<option value="<?php echo esc_attr( (string) $model_id ); ?>" <?php selected( $saved_model, (string) $model_id ); ?>><?php echo esc_html( (string) $model_label ); ?></option>
-									<?php endforeach; ?>
-									<option value="__custom" <?php selected( '', $saved_model ); ?>><?php esc_html_e( 'Other — type a model name', 'ai-site-assistant-autopilot' ); ?></option>
-								</select>
-								<span class="sp-help"><?php esc_html_e( 'Pick from the provider’s models, or choose “Other” to type an exact model name.', 'ai-site-assistant-autopilot' ); ?></span>
-							</label>
-
-							<label class="sp-field" id="sp-model-field">
-								<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Model ID sent to the provider', 'ai-site-assistant-autopilot' ); ?></span>
-								<input type="text" id="sp-model" name="model" class="sp-input sp-mono" value="<?php echo esc_attr( (string) $s['model'] ); ?>" placeholder="gpt-5.6-luna" />
-								<span class="sp-row-wrap sp-row-wrap--sm" style="margin-top:8px">
-									<button type="button" id="sp-refresh-models" class="sp-btn sp-btn--ghost sp-btn--r8" style="padding:7px 12px;font-size:12.5px">
-										<?php echo Ui::icon( 'refresh', 14, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-										<span><?php esc_html_e( 'Refresh from provider', 'ai-site-assistant-autopilot' ); ?></span>
-									</button>
-									<span id="sp-models-status" class="sp-status-text" role="status" aria-live="polite"></span>
-								</span>
-							</label>
-
-							<?php if ( 'wp_connectors' !== $key_mode || ! $wp_conn ) : ?>
-								<label class="sp-field">
-									<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'API Key', 'ai-site-assistant-autopilot' ); ?></span>
-									<input type="password" id="sp-api-key" name="api_key" class="sp-input" autocomplete="off" dir="ltr"
-										placeholder="<?php echo $has_key ? esc_attr__( '•••••••• (a key is saved — leave blank to keep it)', 'ai-site-assistant-autopilot' ) : esc_attr__( 'Paste your API key here', 'ai-site-assistant-autopilot' ); ?>" />
-									<?php if ( $has_key ) : ?>
-										<label class="sp-check" style="font-size:12.5px">
-											<input type="checkbox" name="clear_api_key" value="1" />
-											<span><?php esc_html_e( 'Remove saved API key', 'ai-site-assistant-autopilot' ); ?></span>
-										</label>
-									<?php endif; ?>
-								</label>
+							<p class="sp-adv-lead"><?php esc_html_e( 'Your service, model and key are set in the setup wizard, where the connection is checked before it can be saved. They cannot be edited here.', 'ai-site-assistant-autopilot' ); ?></p>
+							<?php if ( ! $configured ) : ?>
+								<p class="sp-adv-notice"><?php esc_html_e( 'No AI service is connected yet. Search, voice and form drafting need one, so connect it in Setup first.', 'ai-site-assistant-autopilot' ); ?></p>
 							<?php endif; ?>
+							<dl class="sp-adv-facts">
+								<div>
+									<dt><?php esc_html_e( 'Service', 'ai-site-assistant-autopilot' ); ?></dt>
+									<dd><?php echo esc_html( (string) ( $preset['label'] ?? $provider ) ); ?></dd>
+								</div>
+								<div>
+									<dt><?php esc_html_e( 'Model', 'ai-site-assistant-autopilot' ); ?></dt>
+									<dd dir="ltr"><?php echo esc_html( '' !== (string) $s['model'] ? (string) $s['model'] : '—' ); ?></dd>
+								</div>
+								<div>
+									<dt><?php esc_html_e( 'Endpoint', 'ai-site-assistant-autopilot' ); ?></dt>
+									<dd dir="ltr"><?php echo esc_html( '' !== $endpoint ? $endpoint : '—' ); ?></dd>
+								</div>
+								<div>
+									<dt><?php esc_html_e( 'Key stored in', 'ai-site-assistant-autopilot' ); ?></dt>
+									<dd><?php echo esc_html( WpConnectors::get_key_source_label() ); ?></dd>
+								</div>
+								<div>
+									<dt><?php esc_html_e( 'Temperature', 'ai-site-assistant-autopilot' ); ?></dt>
+									<dd dir="ltr"><?php echo esc_html( number_format_i18n( (float) $s['temperature'], 1 ) ); ?></dd>
+								</div>
+							</dl>
+						</section>
 
-							<label class="sp-field">
-								<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Temperature', 'ai-site-assistant-autopilot' ); ?></span>
-								<input type="number" id="sp-temperature" name="temperature" class="sp-input sp-mono" min="0" max="1" step="0.1" value="<?php echo esc_attr( (string) $s['temperature'] ); ?>" />
-								<span class="sp-help"><?php esc_html_e( 'Lower = more deterministic. Recommended: 0.2. Ignored by models that no longer accept a sampling temperature.', 'ai-site-assistant-autopilot' ); ?></span>
-							</label>
-						</div>
-
-						<div>
-							<div class="sp-label sp-label--14" style="margin-bottom:8px"><?php esc_html_e( 'Where should the key live?', 'ai-site-assistant-autopilot' ); ?></div>
-							<div class="sp-tiles sp-tiles--250">
-								<label class="sp-check sp-check--top sp-check--card<?php echo 'keyvault' === $key_mode ? ' is-on' : ''; ?>">
-									<input type="radio" name="key_management" value="keyvault" <?php checked( 'keyvault', $key_mode ); ?> />
-									<span class="sp-check__body">
-										<strong><?php esc_html_e( 'AISAAutoPilot Encrypted Vault', 'ai-site-assistant-autopilot' ); ?></strong>
-										<small><?php esc_html_e( 'API key encrypted with XSalsa20-Poly1305 / AES-256-GCM and stored on this site.', 'ai-site-assistant-autopilot' ); ?></small>
-									</span>
-								</label>
-								<label class="sp-check sp-check--top sp-check--card<?php echo 'wp_connectors' === $key_mode ? ' is-on' : ''; ?><?php echo $wp_conn ? '' : ' is-off'; ?>">
-									<input type="radio" name="key_management" value="wp_connectors" <?php checked( 'wp_connectors', $key_mode ); ?> <?php disabled( ! $wp_conn ); ?> />
-									<span class="sp-check__body">
-										<strong>WordPress Connectors</strong>
-										<small>
-											<?php if ( $wp_conn ) : ?>
-												<?php esc_html_e( 'Use the native WordPress key manager.', 'ai-site-assistant-autopilot' ); ?>
-												<a href="<?php echo esc_url( admin_url( 'options-general.php?page=wp-connectors' ) ); ?>"><?php esc_html_e( 'Settings → Connectors', 'ai-site-assistant-autopilot' ); ?></a>
-											<?php else : ?>
-												<?php esc_html_e( 'Available in WordPress 7.0+. Update WordPress to enable this option.', 'ai-site-assistant-autopilot' ); ?>
-											<?php endif; ?>
-										</small>
-									</span>
-								</label>
-							</div>
-							<p class="sp-help sp-help--12" style="margin-top:8px"><?php esc_html_e( 'For your security the key is never displayed or copyable again — you can only replace it.', 'ai-site-assistant-autopilot' ); ?></p>
-						</div>
-
-						<div class="sp-hr"></div>
-
-						<div>
-							<h2 class="sp-h2 sp-h2--md" style="margin-bottom:6px !important"><?php esc_html_e( '2. Test the connection', 'ai-site-assistant-autopilot' ); ?></h2>
-							<p class="sp-sub" style="max-width:700px;font-size:13px"><?php esc_html_e( 'One short request confirms the key, endpoint and model work together. Unsaved values in the fields above are used, so you can verify before saving.', 'ai-site-assistant-autopilot' ); ?></p>
-
-							<div class="sp-testbox" id="sp-setup-testbox">
-								<span style="flex:0 0 auto;margin-top:2px;display:flex">
-									<span class="sp-mark" id="sp-setup-testmark" style="background:#1d2327">?</span>
-								</span>
-								<div style="min-width:0">
-									<div class="sp-testbox__title" id="sp-setup-testtitle"><?php esc_html_e( 'Not tested yet', 'ai-site-assistant-autopilot' ); ?></div>
-									<div class="sp-testbox__body" id="sp-setup-testbody"><?php esc_html_e( 'Run a short test to confirm the key and endpoint.', 'ai-site-assistant-autopilot' ); ?></div>
-									<div class="sp-testbox__meta" id="sp-setup-testmeta"><?php echo esc_html( sprintf( '%s · %s', (string) $preset['label'], 'anthropic' === $preset['api'] ? 'messages' : 'chat/completions' ) ); ?></div>
+						<section class="sp-wz-card" id="sp-adv-search" aria-labelledby="sp-adv-search-title">
+							<div class="sp-wz-switch-row sp-adv-switch-head">
+								<input type="hidden" name="embeddings_enabled" value="0" />
+								<input type="checkbox" class="sp-wz-switch" id="sp-adv-embeddings" role="switch" name="embeddings_enabled" value="1" aria-describedby="sp-adv-search-text" data-sp-adv-toggle="search" <?php checked( $emb_on ); ?> />
+								<div class="sp-wz-switch-row__body">
+									<h2 class="sp-wz-card__title" id="sp-adv-search-title"><label for="sp-adv-embeddings"><?php esc_html_e( 'Semantic search', 'ai-site-assistant-autopilot' ); ?></label></h2>
+									<p class="sp-wz-switch-row__note" id="sp-adv-search-text"><?php esc_html_e( 'Finds answers by meaning, so a question in one language can match a page written in another. It needs a service with an embeddings endpoint.', 'ai-site-assistant-autopilot' ); ?></p>
 								</div>
 							</div>
-
-							<div class="sp-row-wrap" style="margin-top:12px">
-								<button type="button" id="sp-test" class="sp-btn sp-btn--ghost sp-btn--r8"><?php esc_html_e( 'Test connection', 'ai-site-assistant-autopilot' ); ?></button>
-								<span id="sp-test-result" class="sp-status-text" role="status" aria-live="polite"></span>
-							</div>
-						</div>
-
-						<div class="sp-hr"></div>
-
-						<div>
-							<h2 class="sp-h2 sp-h2--md" style="margin-bottom:6px !important"><?php esc_html_e( '3. Semantic search (embeddings)', 'ai-site-assistant-autopilot' ); ?></h2>
-							<p class="sp-sub" style="max-width:700px;font-size:13px"><?php esc_html_e( 'When enabled, AISAAutoPilot ranks knowledge by meaning instead of keywords. It needs a provider with an /embeddings endpoint — OpenAI, Gemini, Qwen and Mistral have one; Anthropic, DeepSeek, Groq and Perplexity do not, so point the fields below at a provider that does.', 'ai-site-assistant-autopilot' ); ?></p>
-							<label class="sp-check">
-								<input type="checkbox" name="embeddings_enabled" value="1" <?php checked( ! empty( $s['embeddings_enabled'] ) ); ?> />
-								<span><?php esc_html_e( 'Enable semantic search', 'ai-site-assistant-autopilot' ); ?></span>
-							</label>
-							<p class="sp-help" style="margin-top:6px;padding-inline-start:26px">
+							<?php if ( $no_embeds ) : ?>
+								<p class="sp-adv-notice" data-sp-adv-no-embeddings>
 								<?php
-								printf(
-									/* translators: %d: number of indexed items that already have an embedding. */
-									esc_html__( '%d indexed items currently have an embedding. After enabling, run indexing on the Knowledge Base page to build the missing vectors.', 'ai-site-assistant-autopilot' ),
-									(int) $embedded
-								);
-								?>
-							</p>
-
-							<div class="sp-tiles sp-tiles--240" style="margin-top:14px">
-								<label class="sp-field">
-									<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Embedding Model', 'ai-site-assistant-autopilot' ); ?></span>
-									<input type="text" id="sp-embedding-model" name="embedding_model" class="sp-input sp-mono" value="<?php echo esc_attr( (string) ( $s['embedding_model'] ?? '' ) ); ?>" placeholder="text-embedding-3-small" list="sp-embedding-models" />
-									<datalist id="sp-embedding-models"></datalist>
-								</label>
-								<label class="sp-field">
-									<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Embedding Base URL (optional)', 'ai-site-assistant-autopilot' ); ?></span>
-									<input type="url" name="embedding_base_url" class="sp-input sp-mono" value="<?php echo esc_attr( (string) ( $s['embedding_base_url'] ?? '' ) ); ?>" placeholder="https://api.openai.com/v1" />
-									<span class="sp-help"><?php esc_html_e( 'Leave blank to use the same endpoint as your chat provider.', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-								<label class="sp-field">
-									<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Embedding API Key (optional)', 'ai-site-assistant-autopilot' ); ?></span>
-									<input type="password" name="embedding_api_key" class="sp-input" autocomplete="off" dir="ltr"
-										placeholder="<?php echo $has_emb_key ? esc_attr__( '•••••••• (saved — leave blank to keep it)', 'ai-site-assistant-autopilot' ) : esc_attr__( 'Leave blank to reuse your provider API key', 'ai-site-assistant-autopilot' ); ?>" />
-									<?php if ( $has_emb_key ) : ?>
-										<label class="sp-check" style="font-size:12.5px">
-											<input type="checkbox" name="clear_embedding_key" value="1" />
-											<span><?php esc_html_e( 'Remove saved embedding key', 'ai-site-assistant-autopilot' ); ?></span>
-										</label>
-									<?php endif; ?>
-								</label>
-								<label class="sp-field">
-									<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Speech-to-text model', 'ai-site-assistant-autopilot' ); ?></span>
-									<input type="text" name="voice_model" class="sp-input sp-mono" value="<?php echo esc_attr( (string) $s['voice_model'] ); ?>" placeholder="whisper-1" />
-									<span class="sp-help"><?php esc_html_e( 'Audio is sent only for transcription and is never stored by AISAAutoPilot.', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-							</div>
-						</div>
-
-						<div class="sp-hr"></div>
-
-						<div>
-							<h2 class="sp-h2 sp-h2--md" style="margin-bottom:6px !important"><?php esc_html_e( '4. Forms: connector and delivery', 'ai-site-assistant-autopilot' ); ?></h2>
-							<p class="sp-sub" style="max-width:700px;font-size:13px"><?php esc_html_e( 'The connector is what actually creates the form in WordPress.', 'ai-site-assistant-autopilot' ); ?></p>
-
-							<div class="sp-tiles sp-tiles--md" style="margin:12px 0 16px">
-								<div class="sp-conn-card sp-conn-card--on">
-									<div class="sp-conn-card__head">
-										<span class="sp-conn-card__name">AISAAutoPilot Forms</span>
-										<?php echo Ui::pill( __( 'Active', 'ai-site-assistant-autopilot' ), 'ok', true, 'sp-pill--sm' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
-									</div>
-									<p class="sp-conn-card__note"><?php esc_html_e( 'Built in. Always available, no extra plugin.', 'ai-site-assistant-autopilot' ); ?></p>
-									<div class="sp-tags">
-										<span class="sp-tag"><?php esc_html_e( 'create form', 'ai-site-assistant-autopilot' ); ?></span>
-										<span class="sp-tag"><?php esc_html_e( 'draft', 'ai-site-assistant-autopilot' ); ?></span>
-									</div>
-								</div>
-								<div class="sp-conn-card <?php echo $efb_ready ? 'sp-conn-card--ok' : 'sp-conn-card--warn'; ?>">
-									<div class="sp-conn-card__head">
-										<span class="sp-conn-card__name">Easy Form Builder</span>
-										<?php echo Ui::pill( $efb_ready ? __( 'Active', 'ai-site-assistant-autopilot' ) : __( 'Not installed', 'ai-site-assistant-autopilot' ), $efb_ready ? 'ok' : 'warn', true, 'sp-pill--sm' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
-									</div>
-									<p class="sp-conn-card__note"><?php echo esc_html( $efb_ready ? __( 'Installed and compatible. Generated forms are editable directly in EFB.', 'ai-site-assistant-autopilot' ) : __( 'Install Easy Form Builder for advanced fields, logic, files and multi-step forms.', 'ai-site-assistant-autopilot' ) ); ?></p>
-									<div class="sp-tags">
-										<span class="sp-tag"><?php esc_html_e( 'create form', 'ai-site-assistant-autopilot' ); ?></span>
-										<span class="sp-tag"><?php esc_html_e( 'edit in EFB', 'ai-site-assistant-autopilot' ); ?></span>
-										<span class="sp-tag">shortcode</span>
-									</div>
-								</div>
-							</div>
-
-							<div class="sp-tiles sp-tiles--240">
-								<label class="sp-field">
-									<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Default form status', 'ai-site-assistant-autopilot' ); ?></span>
-									<select name="default_form_status" class="sp-select">
-										<option value="draft" <?php selected( $s['default_form_status'], 'draft' ); ?>><?php esc_html_e( 'Draft (recommended)', 'ai-site-assistant-autopilot' ); ?></option>
-										<option value="publish" <?php selected( $s['default_form_status'], 'publish' ); ?>><?php esc_html_e( 'Publish immediately', 'ai-site-assistant-autopilot' ); ?></option>
-									</select>
-									<span class="sp-help"><?php esc_html_e( 'Publishing is a higher-risk action and always asks again.', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-								<label class="sp-field">
-									<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Notification email', 'ai-site-assistant-autopilot' ); ?></span>
-									<input type="email" id="sp-form-notification-email" name="form_notification_email" class="sp-input" dir="ltr" value="<?php echo esc_attr( Settings::form_notification_email() ); ?>" />
-									<span class="sp-help"><?php esc_html_e( 'Every submission is delivered only to this address and is not saved in WordPress. Leave blank to use the site Administration Email Address.', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-							</div>
-							<div class="sp-row-wrap" style="margin-top:10px">
-								<button type="button" id="sp-test-form-delivery" class="sp-btn sp-btn--ghost sp-btn--r8"><?php esc_html_e( 'Send delivery test', 'ai-site-assistant-autopilot' ); ?></button>
-								<span id="sp-form-delivery-test-result" class="sp-status-text" role="status" aria-live="polite"></span>
-							</div>
-						</div>
-
-						<div class="sp-hr"></div>
-
-						<div class="sp-stack sp-stack--md">
-							<h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( '5. Site assistant', 'ai-site-assistant-autopilot' ); ?></h2>
-							<label class="sp-check">
-								<input type="checkbox" name="public_assistant_enabled" value="1" <?php checked( ! empty( $s['public_assistant_enabled'] ) ); ?> />
-								<span><?php esc_html_e( 'Enable the public site assistant (text and optional voice input)', 'ai-site-assistant-autopilot' ); ?></span>
-							</label>
-							<span class="sp-help" style="padding-inline-start:26px"><?php esc_html_e( 'The visitor assistant is read-only and rate-limited. It never edits site content.', 'ai-site-assistant-autopilot' ); ?></span>
-							<label class="sp-check">
-								<input type="checkbox" name="voice_responses_enabled" value="1" <?php checked( ! empty( $s['voice_responses_enabled'] ) ); ?> />
-								<span><?php esc_html_e( 'Read AI replies aloud', 'ai-site-assistant-autopilot' ); ?></span>
-							</label>
-							<label class="sp-check">
-								<input type="checkbox" name="prefer_efb" value="1" <?php checked( ! empty( $s['prefer_efb'] ) ); ?> />
-								<span><?php esc_html_e( 'Prefer Easy Form Builder when available', 'ai-site-assistant-autopilot' ); ?></span>
-							</label>
-						</div>
-
-						<div class="sp-form-actions">
-							<button type="submit" class="sp-btn sp-btn--r8"><?php esc_html_e( 'Save settings', 'ai-site-assistant-autopilot' ); ?></button>
-						</div>
-					</div>
-				</form>
-
-				<div class="sp-card sp-card--24" style="margin-bottom:16px">
-					<h2 class="sp-h2 sp-h2--md" style="margin-bottom:6px !important"><?php esc_html_e( '6. Prepare the knowledge base', 'ai-site-assistant-autopilot' ); ?></h2>
-					<p class="sp-sub" style="max-width:700px;font-size:13px">
-						<?php
-						printf(
-							/* translators: 1: number of indexed items, 2: number of public posts and pages. */
-							esc_html__( 'Only published, public content is indexed. %1$s of about %2$s public items are indexed so far. Building forms does not need the knowledge base.', 'ai-site-assistant-autopilot' ),
-							esc_html( number_format_i18n( $kb_total ) ),
-							esc_html( number_format_i18n( $indexable ) )
-						);
-						?>
-					</p>
-					<a class="sp-btn sp-btn--ghost sp-btn--r8" style="margin-top:10px" href="<?php echo esc_url( $kb_url ); ?>"><?php esc_html_e( 'Open the Knowledge Base', 'ai-site-assistant-autopilot' ); ?></a>
-				</div>
-
-				<div class="sp-card sp-card--24">
-					<h2 class="sp-h2 sp-h2--md" style="margin-bottom:14px !important"><?php esc_html_e( 'Form connectors', 'ai-site-assistant-autopilot' ); ?></h2>
-					<div class="sp-tr sp-tr--head" style="--sp-cols:1.4fr .7fr 2fr;background:transparent;padding:0 0 10px;border-block-end:1px solid var(--sp-line-soft)">
-						<span><?php esc_html_e( 'Connector', 'ai-site-assistant-autopilot' ); ?></span>
-						<span><?php esc_html_e( 'Status', 'ai-site-assistant-autopilot' ); ?></span>
-						<span><?php esc_html_e( 'Notes', 'ai-site-assistant-autopilot' ); ?></span>
-					</div>
-					<?php
-					/** @var ConnectorRegistry $registry */
-					$registry = Plugin::instance()->container()->get( ConnectorRegistry::class );
-					foreach ( $registry->all() as $connector ) :
-						$health = $connector->get_health();
-						?>
-						<div class="sp-tr" style="--sp-cols:1.4fr .7fr 2fr;padding:13px 0">
-							<span class="sp-td sp-td--strong"><?php echo esc_html( $connector->get_name() ); ?></span>
-							<span class="sp-td">
-								<?php
-								echo wp_kses_post(
-									Ui::pill(
-										$health['available'] ? __( 'Available', 'ai-site-assistant-autopilot' ) : __( 'Not active', 'ai-site-assistant-autopilot' ),
-										$health['available'] ? 'ok' : 'off',
-										false
+								echo esc_html(
+									sprintf(
+										/* translators: %s: AI service name, such as DeepSeek. */
+										__( '%s has no embeddings endpoint. Add a separate endpoint and key below (for example OpenAI), or keep this off to match on keywords.', 'ai-site-assistant-autopilot' ),
+										(string) ( $preset['label'] ?? $provider )
 									)
 								);
 								?>
-							</span>
-							<span class="sp-td sp-td--muted"><?php echo esc_html( (string) $health['notes'] ); ?></span>
+								</p>
+							<?php endif; ?>
+							<div class="sp-wz-card__grid<?php echo $emb_on ? '' : ' is-muted'; ?>" data-sp-adv-fields="search">
+								<label class="sp-wz-field">
+									<span class="sp-wz-field__label"><?php esc_html_e( 'Embedding model', 'ai-site-assistant-autopilot' ); ?></span>
+									<input type="text" id="sp-embedding-model" name="embedding_model" class="sp-input sp-input--sm sp-mono" dir="ltr" maxlength="100" value="<?php echo esc_attr( (string) ( $s['embedding_model'] ?? '' ) ); ?>" placeholder="text-embedding-3-small" list="sp-embedding-models" />
+									<datalist id="sp-embedding-models">
+										<?php foreach ( $embeddings as $embedding_id => $embedding_label ) : ?>
+											<option value="<?php echo esc_attr( (string) $embedding_id ); ?>"><?php echo esc_html( (string) $embedding_label ); ?></option>
+										<?php endforeach; ?>
+									</datalist>
+								</label>
+								<label class="sp-wz-field">
+									<span class="sp-wz-field__label"><?php esc_html_e( 'Endpoint (optional)', 'ai-site-assistant-autopilot' ); ?></span>
+									<input type="url" name="embedding_base_url" class="sp-input sp-input--sm sp-mono" dir="ltr" value="<?php echo esc_attr( (string) ( $s['embedding_base_url'] ?? '' ) ); ?>" placeholder="https://api.openai.com/v1" />
+									<span class="sp-wz-field__help"><?php esc_html_e( 'Leave blank to use the same endpoint as your AI service.', 'ai-site-assistant-autopilot' ); ?></span>
+								</label>
+								<div class="sp-wz-field">
+									<label class="sp-wz-field__label" for="sp-adv-embedding-key"><?php esc_html_e( 'Key (optional)', 'ai-site-assistant-autopilot' ); ?></label>
+									<input type="password" id="sp-adv-embedding-key" name="embedding_api_key" class="sp-input sp-input--sm" autocomplete="new-password" dir="ltr" placeholder="<?php echo $has_emb_key ? esc_attr__( 'Saved securely — enter a new key to replace it', 'ai-site-assistant-autopilot' ) : esc_attr__( 'Leave blank to reuse your key', 'ai-site-assistant-autopilot' ); ?>" />
+									<?php if ( $has_emb_key ) : ?>
+										<label class="sp-adv-check">
+											<input type="checkbox" name="clear_embedding_key" value="1" />
+											<span><?php esc_html_e( 'Remove the saved embedding key', 'ai-site-assistant-autopilot' ); ?></span>
+										</label>
+									<?php endif; ?>
+								</div>
+							</div>
+							<p class="sp-wz-card__note">
+								<?php
+								printf(
+									/* translators: 1: indexed items that have vectors, 2: all indexed items. */
+									esc_html( _n( '%1$s of %2$s indexed item has vectors.', '%1$s of %2$s indexed items have vectors.', $kb_total, 'ai-site-assistant-autopilot' ) ),
+									esc_html( number_format_i18n( $embedded ) ),
+									esc_html( number_format_i18n( $kb_total ) )
+								);
+								?>
+								<?php esc_html_e( 'Re-index after turning this on to build the rest.', 'ai-site-assistant-autopilot' ); ?>
+								<a href="<?php echo esc_url( $kb_url ); ?>"><?php esc_html_e( 'Open Site Knowledge', 'ai-site-assistant-autopilot' ); ?></a>
+							</p>
+						</section>
+
+						<section class="sp-wz-card" id="sp-adv-voice" aria-labelledby="sp-adv-voice-title">
+							<h2 class="sp-wz-card__title" id="sp-adv-voice-title"><?php esc_html_e( 'Voice', 'ai-site-assistant-autopilot' ); ?></h2>
+							<div class="sp-wz-card__grid">
+								<label class="sp-wz-field">
+									<span class="sp-wz-field__label"><?php esc_html_e( 'Speech-to-text model', 'ai-site-assistant-autopilot' ); ?></span>
+									<input type="text" name="voice_model" class="sp-input sp-input--sm sp-mono" dir="ltr" maxlength="100" value="<?php echo esc_attr( (string) $s['voice_model'] ); ?>" placeholder="whisper-1" />
+									<span class="sp-wz-field__help"><?php esc_html_e( 'Audio is sent to your AI service only to transcribe it. AutoPilot does not store it.', 'ai-site-assistant-autopilot' ); ?></span>
+								</label>
+								<div class="sp-wz-switch-row">
+									<input type="hidden" name="voice_responses_enabled" value="0" />
+									<input type="checkbox" class="sp-wz-switch" id="sp-adv-voice-aloud" role="switch" name="voice_responses_enabled" value="1" aria-describedby="sp-adv-voice-aloud-note" <?php checked( ! empty( $s['voice_responses_enabled'] ) ); ?> />
+									<div class="sp-wz-switch-row__body">
+										<label class="sp-wz-switch-row__title" for="sp-adv-voice-aloud"><?php esc_html_e( 'Read replies aloud', 'ai-site-assistant-autopilot' ); ?></label>
+										<p class="sp-wz-switch-row__note" id="sp-adv-voice-aloud-note"><?php esc_html_e( 'Uses the browser’s own voice in the site assistant and the Easy Form Builder copilot, where the browser supports it.', 'ai-site-assistant-autopilot' ); ?></p>
+									</div>
+								</div>
+							</div>
+						</section>
+
+						<section class="sp-wz-card" id="sp-adv-forms" aria-labelledby="sp-adv-forms-title">
+							<h2 class="sp-wz-card__title" id="sp-adv-forms-title"><?php esc_html_e( 'Forms and delivery', 'ai-site-assistant-autopilot' ); ?></h2>
+							<div class="sp-adv-connectors">
+								<div class="sp-adv-connector is-info">
+									<div class="sp-adv-connector__head">
+										<strong><?php esc_html_e( 'AutoPilot Forms', 'ai-site-assistant-autopilot' ); ?></strong>
+										<span><?php esc_html_e( 'Active', 'ai-site-assistant-autopilot' ); ?></span>
+									</div>
+									<p><?php esc_html_e( 'Built in. Simple forms whose submissions are emailed to you.', 'ai-site-assistant-autopilot' ); ?></p>
+								</div>
+								<div class="sp-adv-connector <?php echo $efb_ready ? 'is-ok' : 'is-warn'; ?>" data-sp-adv-efb="<?php echo $efb_ready ? 'active' : 'inactive'; ?>">
+									<div class="sp-adv-connector__head">
+										<strong>Easy Form Builder</strong>
+										<span><?php echo esc_html( $efb_ready ? __( 'Active', 'ai-site-assistant-autopilot' ) : __( 'Not active', 'ai-site-assistant-autopilot' ) ); ?></span>
+									</div>
+									<p>
+									<?php
+									echo esc_html(
+										$efb_ready
+											? sprintf(
+												/* translators: %s: Easy Form Builder version. */
+												__( 'Version %s. Its forms open in its own editor.', 'ai-site-assistant-autopilot' ),
+												(string) ( $efb_health['version'] ?? '' )
+											)
+											: __( 'Install or activate Easy Form Builder 4.1 or newer for advanced fields, logic and multi-step forms.', 'ai-site-assistant-autopilot' )
+									);
+									?>
+									</p>
+								</div>
+							</div>
+							<div class="sp-wz-switch-row">
+								<input type="hidden" name="prefer_efb" value="0" />
+								<input type="checkbox" class="sp-wz-switch" id="sp-adv-prefer-efb" role="switch" name="prefer_efb" value="1" aria-describedby="sp-adv-prefer-efb-note" <?php checked( ! empty( $s['prefer_efb'] ) ); ?> />
+								<div class="sp-wz-switch-row__body">
+									<label class="sp-wz-switch-row__title" for="sp-adv-prefer-efb"><?php esc_html_e( 'Prefer Easy Form Builder when it is available', 'ai-site-assistant-autopilot' ); ?></label>
+									<p class="sp-wz-switch-row__note" id="sp-adv-prefer-efb-note"><?php esc_html_e( 'New forms are created in Easy Form Builder while it is active. Simple native forms stay available.', 'ai-site-assistant-autopilot' ); ?></p>
+								</div>
+							</div>
+							<div class="sp-wz-card__grid">
+								<label class="sp-wz-field">
+									<span class="sp-wz-field__label"><?php esc_html_e( 'New forms start as', 'ai-site-assistant-autopilot' ); ?></span>
+									<select name="default_form_status" class="sp-select">
+										<option value="draft" <?php selected( (string) $s['default_form_status'], 'draft' ); ?>><?php esc_html_e( 'Draft (recommended)', 'ai-site-assistant-autopilot' ); ?></option>
+										<option value="publish" <?php selected( (string) $s['default_form_status'], 'publish' ); ?>><?php esc_html_e( 'Publish immediately', 'ai-site-assistant-autopilot' ); ?></option>
+									</select>
+									<span class="sp-wz-field__help"><?php esc_html_e( 'Publishing is a higher-risk action and always asks again.', 'ai-site-assistant-autopilot' ); ?></span>
+								</label>
+								<label class="sp-wz-field">
+									<span class="sp-wz-field__label"><?php esc_html_e( 'Send submissions to', 'ai-site-assistant-autopilot' ); ?></span>
+									<input type="email" id="sp-form-notification-email" name="form_notification_email" class="sp-input sp-input--sm" dir="ltr" value="<?php echo esc_attr( Settings::form_notification_email() ); ?>" />
+									<span class="sp-wz-field__help"><?php esc_html_e( 'Submissions are delivered only to this address and are not saved in WordPress. Leave blank to use the site administration email.', 'ai-site-assistant-autopilot' ); ?></span>
+								</label>
+							</div>
+							<div class="sp-adv-delivery">
+								<button type="button" id="sp-test-form-delivery" class="sp-btn sp-btn--ghost sp-btn--r8"><?php esc_html_e( 'Send a delivery test', 'ai-site-assistant-autopilot' ); ?></button>
+								<span id="sp-form-delivery-test-result" class="sp-status-text" role="status" aria-live="polite"></span>
+							</div>
+							<p class="sp-wz-card__note"><?php esc_html_e( 'The test goes to the saved address. Save first if you changed it.', 'ai-site-assistant-autopilot' ); ?></p>
+						</section>
+
+						<section class="sp-wz-card" id="sp-adv-public" aria-labelledby="sp-adv-public-title">
+							<div class="sp-wz-switch-row sp-adv-switch-head">
+								<input type="hidden" name="public_assistant_enabled" value="0" />
+								<input type="checkbox" class="sp-wz-switch" id="sp-adv-public-toggle" role="switch" name="public_assistant_enabled" value="1" aria-describedby="sp-adv-public-note" <?php checked( ! empty( $s['public_assistant_enabled'] ) ); ?> />
+								<div class="sp-wz-switch-row__body">
+									<h2 class="sp-wz-card__title" id="sp-adv-public-title"><label for="sp-adv-public-toggle"><?php esc_html_e( 'Public site assistant', 'ai-site-assistant-autopilot' ); ?></label></h2>
+									<p class="sp-wz-switch-row__note" id="sp-adv-public-note"><?php esc_html_e( 'The same switch as Answer Desk in Integrations. Visitors can only ask; the assistant never edits your site, and requests are rate-limited.', 'ai-site-assistant-autopilot' ); ?></p>
+								</div>
+							</div>
+						</section>
+
+						<div class="sp-wz-actions">
+							<button type="submit" class="sp-btn sp-btn--r8"><?php esc_html_e( 'Save changes', 'ai-site-assistant-autopilot' ); ?></button>
 						</div>
-					<?php endforeach; ?>
+
+						<div class="sp-wz-savebar" data-sp-savebar hidden>
+							<div class="sp-wz-savebar__inner" role="region" aria-label="<?php esc_attr_e( 'Unsaved changes', 'ai-site-assistant-autopilot' ); ?>">
+								<span class="sp-wz-savebar__dot" aria-hidden="true"></span>
+								<span class="sp-wz-savebar__text"><?php esc_html_e( 'Unsaved changes on this page', 'ai-site-assistant-autopilot' ); ?></span>
+								<button type="button" class="sp-wz-savebar__discard" data-sp-discard><?php esc_html_e( 'Discard', 'ai-site-assistant-autopilot' ); ?></button>
+								<button type="submit" class="sp-wz-savebar__save"><?php esc_html_e( 'Save changes', 'ai-site-assistant-autopilot' ); ?></button>
+							</div>
+						</div>
+					</form>
 				</div>
 				</div>
 			</section>
 			<?php Ui::overlays(); ?>
 		</div>
 		<?php
-		Ui::json_script( 'sp-provider-catalog', $this->catalog() );
+		Ui::json_script(
+			'sp-adv-i18n',
+			array(
+				'discardTitle' => __( 'Discard your changes?', 'ai-site-assistant-autopilot' ),
+				'discardBody'  => __( 'Advanced settings go back to their last saved values.', 'ai-site-assistant-autopilot' ),
+				'discardCta'   => __( 'Discard changes', 'ai-site-assistant-autopilot' ),
+			)
+		);
 	}
 
 	/**
@@ -584,345 +480,425 @@ final class SettingsPage {
 		$presets       = Settings::presets();
 		$provider      = isset( $presets[ $settings['provider'] ] ) ? (string) $settings['provider'] : 'custom';
 		$preset        = Settings::preset( $provider );
-		$key_mode      = (string) ( $settings['key_management'] ?? 'keyvault' );
 		$wp_connectors = WpConnectors::is_available();
-		$has_key       = '' !== WpConnectors::get_effective_api_key();
+		$key_mode      = (string) ( $settings['key_management'] ?? 'keyvault' );
+		if ( ! $wp_connectors || 'wp_connectors' !== $key_mode ) {
+			$key_mode = 'keyvault';
+		}
+		$wp_version    = (string) get_bloginfo( 'version' );
+		$has_vault_key = Settings::has_api_key();
 		$is_verified   = (int) get_option( self::VERIFIED_OPTION, 0 ) > 0;
 		$efb_ready     = ( new EasyFormBuilderConnector() )->is_available();
 		$woo_available = WooCommerceConnector::is_active();
 		$woo_settings  = (array) ( $settings['woocommerce'] ?? array() );
 		$woo_enabled   = ! array_key_exists( 'enabled', $woo_settings ) || ! empty( $woo_settings['enabled'] );
-		$model_list    = (array) $preset['models'];
 		$saved_model   = (string) $settings['model'];
 		$advanced_url  = admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETTINGS );
-		$kb_url        = admin_url( 'admin.php?page=' . AdminMenu::SLUG_KB );
-		$answer_url    = admin_url( 'admin.php?page=' . AdminMenu::SLUG_CONVERSATIONS );
-		$store_url     = admin_url( 'admin.php?page=' . AdminMenu::SLUG_WC_DASHBOARD );
+		$budget        = ( new UsageTracker() )->get_budget();
+		$cards         = $this->wizard_integrations( $settings, $efb_ready, $woo_available, $woo_enabled );
+		$enabled_names = array();
+		foreach ( $cards as $card ) {
+			if ( ! empty( $card['on'] ) ) {
+				$enabled_names[] = (string) $card['name'];
+			}
+		}
+		$step_labels = array(
+			__( 'Connection', 'ai-site-assistant-autopilot' ),
+			__( 'AI service', 'ai-site-assistant-autopilot' ),
+			__( 'Key & model', 'ai-site-assistant-autopilot' ),
+			__( 'Integrations', 'ai-site-assistant-autopilot' ),
+		);
+		$temperature = (float) $settings['temperature'];
 
 		Ui::grad_defs();
 		?>
 		<div
-			class="wrap sp-app sp-app--tight"
+			class="wrap sp-app sp-app--tight sp-wizard"
 			data-sp-setup-wizard
 			data-saved="<?php echo $saved ? '1' : '0'; ?>"
 			data-verified="<?php echo $is_verified ? '1' : '0'; ?>"
 			data-wp-connectors="<?php echo $wp_connectors ? '1' : '0'; ?>"
+			data-has-vault-key="<?php echo $has_vault_key ? '1' : '0'; ?>"
 		>
-			<section class="sp-screen">
-				<?php
-				Ui::page_header(
-					__( 'Set up AutoPilot AI', 'ai-site-assistant-autopilot' ),
-					__( 'Four short steps to connect a provider and choose what AutoPilot can do on this site.', 'ai-site-assistant-autopilot' ),
-					array( 'chip' => ConnectionChip::derive() )
-				);
-				?>
+			<hr class="wp-header-end" />
+			<section class="sp-screen sp-wizard__frame">
+				<header class="sp-wizard__head">
+					<span class="sp-wizard__mark" aria-hidden="true"><?php echo Ui::icon( 'shield-check', 21, '#fff', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+					<div class="sp-wizard__titles">
+						<h1 class="sp-wizard__title"><?php esc_html_e( 'Set up AutoPilot AI', 'ai-site-assistant-autopilot' ); ?></h1>
+						<p class="sp-wizard__sub"><?php esc_html_e( 'Four short steps. Everything after this is optional.', 'ai-site-assistant-autopilot' ); ?></p>
+					</div>
+					<div class="sp-wizard__counter" data-sp-setup-counter aria-live="polite">
+						<?php
+						/* translators: 1: current setup step, 2: number of setup steps. */
+						echo esc_html( sprintf( __( 'Step %1$s of %2$s', 'ai-site-assistant-autopilot' ), number_format_i18n( 1 ), number_format_i18n( 4 ) ) );
+						?>
+					</div>
+				</header>
 
-				<?php if ( $saved ) : ?>
-					<?php Ui::alert( 'ok', 'check-circle', esc_html__( 'Setup saved. AutoPilot will use the settings below.', 'ai-site-assistant-autopilot' ) ); ?>
-				<?php endif; ?>
 				<?php if ( '' !== $this->save_error ) : ?>
 					<?php Ui::alert( 'err', 'alert-circle', $this->save_error ); ?>
 				<?php endif; ?>
 
-				<form method="post" data-sp-setup-form>
+				<form method="post" data-sp-setup-form novalidate>
 					<?php wp_nonce_field( 'aisaautopilot_settings_save', 'aisaautopilot_settings_nonce' ); ?>
 					<input type="hidden" name="setup_wizard" value="1" />
 
-					<ol class="sp-setup-progress" aria-label="<?php esc_attr_e( 'Setup progress', 'ai-site-assistant-autopilot' ); ?>" data-sp-setup-progress>
-						<?php
-						$wizard_steps = array(
-							__( 'Connection', 'ai-site-assistant-autopilot' ),
-							__( 'AI service', 'ai-site-assistant-autopilot' ),
-							__( 'Key & model', 'ai-site-assistant-autopilot' ),
-							__( 'Integrations', 'ai-site-assistant-autopilot' ),
-						);
-						foreach ( $wizard_steps as $index => $label ) :
-							?>
-							<li class="sp-setup-progress__item<?php echo 0 === $index ? ' is-current' : ''; ?>" data-sp-setup-progress-step="<?php echo esc_attr( (string) ( $index + 1 ) ); ?>">
-								<span class="sp-setup-progress__number"><?php echo esc_html( (string) ( $index + 1 ) ); ?></span>
-								<span><?php echo esc_html( $label ); ?></span>
+					<ol class="sp-wizard-steps" aria-label="<?php esc_attr_e( 'Setup progress', 'ai-site-assistant-autopilot' ); ?>" data-sp-setup-progress>
+						<?php foreach ( $step_labels as $index => $label ) : ?>
+							<li class="sp-wizard-steps__item<?php echo 0 === $index ? ' is-current' : ''; ?>" data-sp-setup-progress-step="<?php echo esc_attr( (string) ( $index + 1 ) ); ?>">
+								<span class="sp-wizard-steps__dot" aria-hidden="true">
+									<span class="sp-wizard-steps__num"><?php echo esc_html( number_format_i18n( $index + 1 ) ); ?></span>
+									<?php echo Ui::icon( 'tick', 13, 'currentColor', 3 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								</span>
+								<span class="sp-wizard-steps__label"><?php echo esc_html( $label ); ?></span>
+								<?php if ( $index < 3 ) : ?>
+									<span class="sp-wizard-steps__line" aria-hidden="true"></span>
+								<?php endif; ?>
 							</li>
 						<?php endforeach; ?>
 					</ol>
 
-					<section class="sp-setup-panel" data-sp-setup-step="1">
-						<div class="sp-setup-panel__head">
-							<span class="sp-setup-panel__icon"><?php echo Ui::icon( 'lock', 22, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-							<div>
-								<h2 class="sp-h2"><?php esc_html_e( 'Choose where the API key lives', 'ai-site-assistant-autopilot' ); ?></h2>
-								<p class="sp-sub sp-mb0"><?php esc_html_e( 'The provider key stays on this WordPress site and is sent only to the service you choose.', 'ai-site-assistant-autopilot' ); ?></p>
-							</div>
-						</div>
+					<section class="sp-wizard__panel" data-sp-setup-step="1" aria-labelledby="sp-setup-h1">
+						<h2 class="sp-wizard__h2" id="sp-setup-h1"><?php esc_html_e( 'Where should your API key live?', 'ai-site-assistant-autopilot' ); ?></h2>
+						<p class="sp-wizard__lead"><?php esc_html_e( 'Both options keep the key on your own server. Pick the first one if you are not sure.', 'ai-site-assistant-autopilot' ); ?></p>
 
-						<div class="sp-setup-choices">
-							<label class="sp-setup-choice<?php echo 'keyvault' === $key_mode ? ' is-selected' : ''; ?>" data-sp-key-mode="keyvault">
-								<input type="radio" name="key_management" value="keyvault" <?php checked( 'keyvault', $key_mode ); ?> />
-								<span class="sp-setup-choice__mark"><?php echo Ui::icon( 'shield', 22, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-								<span class="sp-setup-choice__body">
-									<strong><?php esc_html_e( 'Encrypted vault', 'ai-site-assistant-autopilot' ); ?></strong>
-									<small><?php esc_html_e( 'Recommended. The key is encrypted with this site’s WordPress keys before it is stored.', 'ai-site-assistant-autopilot' ); ?></small>
-								</span>
-								<span class="sp-pill sp-pill--ok"><span class="sp-dot"></span><?php esc_html_e( 'Recommended', 'ai-site-assistant-autopilot' ); ?></span>
-							</label>
-
-							<label class="sp-setup-choice<?php echo 'wp_connectors' === $key_mode ? ' is-selected' : ''; ?><?php echo $wp_connectors ? '' : ' is-disabled'; ?>" data-sp-key-mode="wp_connectors">
-								<input type="radio" name="key_management" value="wp_connectors" <?php checked( 'wp_connectors', $key_mode ); ?> <?php disabled( ! $wp_connectors ); ?> />
-								<span class="sp-setup-choice__mark"><?php echo Ui::icon( 'plug', 22, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-								<span class="sp-setup-choice__body">
-									<strong>WordPress Connectors</strong>
-									<small>
+						<div class="sp-wizard-choices" role="radiogroup" aria-labelledby="sp-setup-h1">
+							<label class="sp-wizard-choice<?php echo 'keyvault' === $key_mode ? ' is-selected' : ''; ?>" data-sp-key-mode="keyvault">
+								<input class="sp-sr" type="radio" name="key_management" value="keyvault" <?php checked( 'keyvault', $key_mode ); ?> />
+								<span class="sp-wizard-choice__icon" aria-hidden="true"><?php echo Ui::icon( 'shield-key', 19, 'currentColor', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+								<span class="sp-wizard-choice__body">
+									<span class="sp-wizard-choice__title-row">
+										<span class="sp-wizard-choice__title"><?php esc_html_e( 'Managed by AutoPilot', 'ai-site-assistant-autopilot' ); ?></span>
+										<span class="sp-wizard-tag sp-wizard-tag--brand"><?php esc_html_e( 'Recommended', 'ai-site-assistant-autopilot' ); ?></span>
+									</span>
+									<span class="sp-wizard-choice__desc"><?php esc_html_e( 'You paste an API key once. We encrypt it in your database and only this plugin can read it.', 'ai-site-assistant-autopilot' ); ?></span>
+									<span class="sp-wizard-choice__req is-ok">
+										<?php echo Ui::icon( 'tick', 13, 'currentColor', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 										<?php
-										if ( $wp_connectors ) {
-											esc_html_e( 'Use WordPress’s native connector key manager for this provider credential.', 'ai-site-assistant-autopilot' );
-										} else {
-											esc_html_e( 'Available when the WordPress Connectors API is present on this site.', 'ai-site-assistant-autopilot' );
-										}
+										/* translators: %s: minimum WordPress version. */
+										echo esc_html( sprintf( __( 'Works on WordPress %s and up', 'ai-site-assistant-autopilot' ), '6.2' ) );
 										?>
-									</small>
+									</span>
 								</span>
-								<?php if ( $wp_connectors ) : ?>
-									<a class="sp-setup-choice__link" href="<?php echo esc_url( admin_url( 'options-general.php?page=wp-connectors' ) ); ?>"><?php esc_html_e( 'Open connectors', 'ai-site-assistant-autopilot' ); ?></a>
-								<?php endif; ?>
+								<span class="sp-wizard-radio" aria-hidden="true"></span>
+							</label>
+
+							<label class="sp-wizard-choice<?php echo 'wp_connectors' === $key_mode ? ' is-selected' : ''; ?><?php echo $wp_connectors ? '' : ' is-disabled'; ?>" data-sp-key-mode="wp_connectors">
+								<input class="sp-sr" type="radio" name="key_management" value="wp_connectors" <?php checked( 'wp_connectors', $key_mode ); ?> <?php disabled( ! $wp_connectors ); ?> />
+								<span class="sp-wizard-choice__icon" aria-hidden="true"><?php echo Ui::icon( 'connector', 19, 'currentColor', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+								<span class="sp-wizard-choice__body">
+									<span class="sp-wizard-choice__title-row">
+										<span class="sp-wizard-choice__title"><?php esc_html_e( 'WordPress Connector', 'ai-site-assistant-autopilot' ); ?></span>
+										<?php if ( $wp_connectors ) : ?>
+											<span class="sp-wizard-tag"><?php esc_html_e( 'WP 7.0+', 'ai-site-assistant-autopilot' ); ?></span>
+										<?php endif; ?>
+									</span>
+									<span class="sp-wizard-choice__desc"><?php esc_html_e( 'The key lives in Settings → Connectors, where WordPress shares it with any plugin you allow.', 'ai-site-assistant-autopilot' ); ?></span>
+									<?php if ( ! $wp_connectors ) : ?>
+										<span class="sp-wizard-choice__req is-warn">
+											<?php echo Ui::icon( 'triangle', 13, 'currentColor', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+											<?php
+											/* translators: %s: the WordPress version this site runs. */
+											echo esc_html( sprintf( __( 'Needs WordPress 7.0 — this site runs %s', 'ai-site-assistant-autopilot' ), $wp_version ) );
+											?>
+										</span>
+									<?php elseif ( WpConnectors::has_api_key() ) : ?>
+										<span class="sp-wizard-choice__req is-ok">
+											<?php echo Ui::icon( 'tick', 13, 'currentColor', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+											<?php esc_html_e( 'A key is already saved in Settings → Connectors', 'ai-site-assistant-autopilot' ); ?>
+										</span>
+									<?php else : ?>
+										<span class="sp-wizard-choice__req is-ok">
+											<?php echo Ui::icon( 'tick', 13, 'currentColor', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+											<?php
+											/* translators: %s: the WordPress version this site runs. */
+											echo esc_html( sprintf( __( 'Detected WordPress %s on this site', 'ai-site-assistant-autopilot' ), $wp_version ) );
+											?>
+										</span>
+									<?php endif; ?>
+								</span>
+								<span class="sp-wizard-radio" aria-hidden="true"></span>
 							</label>
 						</div>
-						<p class="sp-setup-note"><?php esc_html_e( 'For security, a saved key is never shown again. You can replace or remove it, but cannot copy it back out.', 'ai-site-assistant-autopilot' ); ?></p>
+						<?php if ( $wp_connectors ) : ?>
+							<p class="sp-wizard__foot-note" data-sp-connector-note <?php echo 'wp_connectors' === $key_mode ? '' : 'hidden'; ?>>
+								<?php esc_html_e( 'Save the provider key in Settings → Connectors first, then come back and check it here.', 'ai-site-assistant-autopilot' ); ?>
+								<a href="<?php echo esc_url( admin_url( 'options-connectors.php' ) ); ?>"><?php esc_html_e( 'Open Connectors', 'ai-site-assistant-autopilot' ); ?></a>
+							</p>
+						<?php endif; ?>
 					</section>
 
-					<section class="sp-setup-panel" data-sp-setup-step="2" hidden>
-						<div class="sp-setup-panel__head">
-							<span class="sp-setup-panel__icon"><?php echo Ui::icon( 'spark', 22, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-							<div>
-								<h2 class="sp-h2"><?php esc_html_e( 'Pick an AI service', 'ai-site-assistant-autopilot' ); ?></h2>
-								<p class="sp-sub sp-mb0"><?php esc_html_e( 'Choose a service and AutoPilot fills in its endpoint and recommended model. You can still use a custom OpenAI-compatible endpoint.', 'ai-site-assistant-autopilot' ); ?></p>
-							</div>
-						</div>
+					<section class="sp-wizard__panel" data-sp-setup-step="2" aria-labelledby="sp-setup-h2" hidden>
+						<h2 class="sp-wizard__h2" id="sp-setup-h2"><?php esc_html_e( 'Which AI service will you use?', 'ai-site-assistant-autopilot' ); ?></h2>
+						<p class="sp-wizard__lead"><?php esc_html_e( 'You need an account with one of them. Search by name, or pick a popular one below.', 'ai-site-assistant-autopilot' ); ?></p>
 
-						<div class="sp-setup-provider-tools">
-							<label class="sp-setup-search">
-								<span class="sp-sr"><?php esc_html_e( 'Search AI services', 'ai-site-assistant-autopilot' ); ?></span>
-								<?php echo Ui::icon( 'search', 17, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-								<input type="search" id="sp-setup-provider-search" placeholder="<?php esc_attr_e( 'Search services', 'ai-site-assistant-autopilot' ); ?>" autocomplete="off" />
-							</label>
-							<button type="button" class="sp-btn sp-btn--ghost sp-btn--sm" data-sp-provider-filter="popular"><?php esc_html_e( 'Popular', 'ai-site-assistant-autopilot' ); ?></button>
-							<button type="button" class="sp-btn sp-btn--ghost sp-btn--sm" data-sp-provider-filter="all">
-							<?php
-								/* translators: %d: number of available AI services. */
-								printf( esc_html__( 'All %d services', 'ai-site-assistant-autopilot' ), count( $presets ) );
-							?>
-								</button>
-						</div>
+						<label class="sp-wizard-search">
+							<span class="sp-sr"><?php esc_html_e( 'Search AI services', 'ai-site-assistant-autopilot' ); ?></span>
+							<?php echo Ui::icon( 'magnify', 17, 'currentColor', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<input
+								type="search"
+								id="sp-setup-provider-search"
+								autocomplete="off"
+								placeholder="<?php echo esc_attr( sprintf( /* translators: %s: number of AI services. */ __( 'Search %s services — OpenAI, Claude, Gemini, DeepSeek…', 'ai-site-assistant-autopilot' ), number_format_i18n( count( $presets ) ) ) ); ?>"
+							/>
+						</label>
 
+						<div class="sp-wizard-eyebrow" data-sp-provider-results aria-live="polite"><?php esc_html_e( 'Popular with WordPress sites', 'ai-site-assistant-autopilot' ); ?></div>
 						<input type="hidden" id="sp-provider" name="provider" value="<?php echo esc_attr( $provider ); ?>" />
-						<div class="sp-setup-providers" data-sp-provider-grid>
+						<div class="sp-wizard-providers" data-sp-provider-grid>
 							<?php foreach ( $presets as $key => $entry ) : ?>
 								<?php
 								$key     = (string) $key;
-								$popular = in_array( $key, self::QUICK_PICKS, true );
+								$popular = in_array( $key, self::POPULAR_PROVIDERS, true );
+								$badge   = $this->provider_badge( $key );
 								?>
 								<button
 									type="button"
-									class="sp-setup-provider<?php echo $provider === $key ? ' is-selected' : ''; ?>"
+									class="sp-wizard-provider<?php echo $provider === $key ? ' is-selected' : ''; ?>"
 									data-sp-provider-card
 									data-provider="<?php echo esc_attr( $key ); ?>"
 									data-popular="<?php echo $popular ? '1' : '0'; ?>"
 									aria-pressed="<?php echo $provider === $key ? 'true' : 'false'; ?>"
 								>
-									<span class="sp-setup-provider__mark"><?php echo BrandMarks::svg( $key, 22 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG path data. ?></span>
-									<span class="sp-setup-provider__body">
-										<strong><?php echo esc_html( (string) $entry['label'] ); ?></strong>
-										<small><?php echo esc_html( $this->provider_trait( $key, $entry ) ); ?></small>
+									<span class="sp-wizard-provider__row">
+										<span class="sp-wizard-provider__mark" aria-hidden="true"><?php echo BrandMarks::svg( $key, 17 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG path data. ?></span>
+										<span class="sp-wizard-provider__copy">
+											<span class="sp-wizard-provider__name"><?php echo esc_html( (string) $entry['label'] ); ?></span>
+											<span class="sp-wizard-provider__trait"><?php echo esc_html( $this->provider_trait( $key, $entry ) ); ?></span>
+										</span>
+										<span class="sp-wizard-provider__check" aria-hidden="true"><?php echo Ui::icon( 'tick', 17, 'currentColor', 2.6 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
 									</span>
-									<?php if ( 'openai' === $key ) : ?>
-										<span class="sp-pill sp-pill--ok"><?php esc_html_e( 'Recommended', 'ai-site-assistant-autopilot' ); ?></span>
+									<?php if ( '' !== $badge ) : ?>
+										<span class="sp-wizard-tag<?php echo 'openai' === $key ? ' sp-wizard-tag--ok' : ' sp-wizard-tag--brand'; ?>"><?php echo esc_html( $badge ); ?></span>
 									<?php endif; ?>
 								</button>
 							<?php endforeach; ?>
 						</div>
-						<div class="sp-empty" data-sp-provider-empty hidden>
-							<span class="sp-empty__icon">⌕</span>
-							<?php esc_html_e( 'No matching service. Choose Custom endpoint to enter a compatible URL yourself.', 'ai-site-assistant-autopilot' ); ?>
+
+						<div class="sp-wizard-empty" data-sp-provider-empty hidden>
+							<div class="sp-wizard-empty__title" data-sp-provider-empty-title></div>
+							<p class="sp-wizard-empty__text"><?php esc_html_e( 'If it speaks the OpenAI API, add it as a custom endpoint.', 'ai-site-assistant-autopilot' ); ?></p>
+							<button type="button" class="sp-wizard-btn sp-wizard-btn--primary" data-sp-provider-custom><?php esc_html_e( 'Use a custom endpoint', 'ai-site-assistant-autopilot' ); ?></button>
 						</div>
+
+						<button type="button" class="sp-wizard-link sp-wizard-expand" data-sp-provider-filter="all" aria-expanded="false">
+							<?php echo Ui::icon( 'chev-down', 15, 'currentColor', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span data-sp-provider-toggle-label>
+								<?php
+								/* translators: %s: number of AI services. */
+								echo esc_html( sprintf( __( 'See all %s services', 'ai-site-assistant-autopilot' ), number_format_i18n( count( $presets ) ) ) );
+								?>
+							</span>
+						</button>
 					</section>
 
-					<section class="sp-setup-panel" data-sp-setup-step="3" hidden>
-						<div class="sp-setup-panel__head">
-							<span class="sp-setup-panel__icon"><?php echo Ui::icon( 'lock', 22, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-							<div>
-								<h2 class="sp-h2"><?php esc_html_e( 'Add a key and test it', 'ai-site-assistant-autopilot' ); ?></h2>
-								<p class="sp-sub sp-mb0"><?php esc_html_e( 'The test uses the values on this screen before they are saved. A successful test is required before continuing.', 'ai-site-assistant-autopilot' ); ?></p>
+					<section class="sp-wizard__panel" data-sp-setup-step="3" aria-labelledby="sp-setup-h3" hidden>
+						<h2 class="sp-wizard__h2" id="sp-setup-h3" data-sp-setup-key-heading><?php esc_html_e( 'Connect your key', 'ai-site-assistant-autopilot' ); ?></h2>
+						<p class="sp-wizard__lead" data-sp-setup-key-lead></p>
+
+						<div class="sp-wizard-card sp-wizard-key">
+							<div class="sp-wizard-key__label-row">
+								<label class="sp-wizard-label" for="sp-api-key"><?php esc_html_e( 'API key', 'ai-site-assistant-autopilot' ); ?></label>
+								<a class="sp-wizard-key__get" id="sp-key-link" href="<?php echo esc_url( (string) $preset['key_url'] ); ?>" target="_blank" rel="noopener noreferrer" <?php echo '' === (string) $preset['key_url'] ? 'hidden' : ''; ?>>
+									<?php esc_html_e( 'Get a key', 'ai-site-assistant-autopilot' ); ?>
+									<?php echo Ui::icon( 'external', 12, 'currentColor', 2.4 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+									<span class="sp-sr"><?php esc_html_e( '(opens in a new tab)', 'ai-site-assistant-autopilot' ); ?></span>
+								</a>
+							</div>
+							<div class="sp-wizard-key__row">
+								<input type="password" id="sp-api-key" name="api_key" class="sp-wizard-input sp-mono" autocomplete="off" spellcheck="false" dir="ltr" aria-describedby="sp-setup-key-hint" />
+								<button type="button" class="sp-wizard-btn sp-wizard-btn--primary sp-wizard-check" id="sp-test" data-sp-setup-test>
+									<span class="sp-wizard-check__spin" aria-hidden="true"></span>
+									<span data-sp-setup-test-label><?php esc_html_e( 'Check connection', 'ai-site-assistant-autopilot' ); ?></span>
+								</button>
+							</div>
+							<p class="sp-wizard-hint" id="sp-setup-key-hint" data-sp-setup-key-source><?php esc_html_e( 'Nothing is saved until the check passes.', 'ai-site-assistant-autopilot' ); ?></p>
+							<?php if ( $has_vault_key ) : ?>
+								<label class="sp-wizard-inline-check"><input type="checkbox" name="clear_api_key" value="1" /> <span><?php esc_html_e( 'Remove the saved vault key', 'ai-site-assistant-autopilot' ); ?></span></label>
+							<?php endif; ?>
+
+							<div class="sp-wizard-endpoint" data-sp-setup-endpoint>
+								<label class="sp-wizard-label" for="sp-base-url"><?php esc_html_e( 'API base URL', 'ai-site-assistant-autopilot' ); ?></label>
+								<input type="url" id="sp-base-url" name="base_url" class="sp-wizard-input sp-mono" dir="ltr" value="<?php echo esc_attr( (string) $settings['base_url'] ); ?>" placeholder="https://api.example.com/v1" />
+								<p class="sp-wizard-hint"><?php esc_html_e( 'Paste the base URL only, up to /v1 — not the full path and not a trailing slash.', 'ai-site-assistant-autopilot' ); ?></p>
+							</div>
+							<button type="button" class="sp-wizard-link" data-sp-setup-endpoint-toggle aria-expanded="false"><?php esc_html_e( 'Change the endpoint', 'ai-site-assistant-autopilot' ); ?></button>
+						</div>
+
+						<div class="sp-wizard-result sp-testbox" id="sp-setup-testbox" data-sp-setup-testbox <?php echo $is_verified ? '' : 'hidden'; ?>>
+							<span class="sp-wizard-result__icon" id="sp-setup-testmark" aria-hidden="true"><?php echo Ui::icon( 'tick', 17, 'currentColor', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+							<div class="sp-wizard-result__body">
+								<div class="sp-wizard-result__title" id="sp-setup-testtitle"><?php echo $is_verified ? esc_html__( 'Previously verified', 'ai-site-assistant-autopilot' ) : ''; ?></div>
+								<p class="sp-wizard-result__text" id="sp-setup-testbody"><?php echo $is_verified ? esc_html__( 'The saved provider passed a previous connection check. Changing these values requires another test.', 'ai-site-assistant-autopilot' ) : ''; ?></p>
+								<ul class="sp-wizard-checklist" data-sp-setup-checklist hidden>
+									<li data-stage="reach"><span class="sp-wizard-checklist__icon" aria-hidden="true"></span><span data-stage-label><?php esc_html_e( 'Reaching the provider', 'ai-site-assistant-autopilot' ); ?></span></li>
+									<li data-stage="key"><span class="sp-wizard-checklist__icon" aria-hidden="true"></span><span data-stage-label><?php esc_html_e( 'Checking the key', 'ai-site-assistant-autopilot' ); ?></span></li>
+									<li data-stage="test"><span class="sp-wizard-checklist__icon" aria-hidden="true"></span><span data-stage-label><?php esc_html_e( 'Sending a one-word test', 'ai-site-assistant-autopilot' ); ?></span></li>
+									<li data-stage="models"><span class="sp-wizard-checklist__icon" aria-hidden="true"></span><span data-stage-label><?php esc_html_e( 'Listing available models', 'ai-site-assistant-autopilot' ); ?></span></li>
+								</ul>
+								<div class="sp-wizard-fix" data-sp-setup-fix hidden>
+									<div class="sp-wizard-fix__label"><?php esc_html_e( 'How to fix it', 'ai-site-assistant-autopilot' ); ?></div>
+									<div class="sp-wizard-fix__text" data-sp-setup-fix-text></div>
+								</div>
+								<div class="sp-wizard-result__actions" data-sp-setup-actions></div>
+								<div class="sp-wizard-result__meta" id="sp-setup-testmeta"></div>
 							</div>
 						</div>
+						<span id="sp-test-result" class="sp-sr" role="status" aria-live="polite"></span>
 
-						<div class="sp-tiles sp-tiles--240">
-							<label class="sp-field">
-								<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'API key', 'ai-site-assistant-autopilot' ); ?></span>
-								<input type="password" id="sp-api-key" name="api_key" class="sp-input sp-mono" autocomplete="off" dir="ltr" placeholder="<?php echo $has_key ? esc_attr__( '•••••••• (saved — leave blank to keep it)', 'ai-site-assistant-autopilot' ) : esc_attr__( 'Paste an API key', 'ai-site-assistant-autopilot' ); ?>" />
-								<span class="sp-help" data-sp-setup-key-source>
-									<?php
-									printf(
-										/* translators: %s: AI provider label. */
-										esc_html__( 'Get a key from %s.', 'ai-site-assistant-autopilot' ),
-										esc_html( (string) $preset['label'] )
-									);
-									?>
-									<?php if ( '' !== (string) $preset['key_url'] ) : ?>
-										<a id="sp-key-link" href="<?php echo esc_url( (string) $preset['key_url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Open key page', 'ai-site-assistant-autopilot' ); ?></a>
-									<?php endif; ?>
-								</span>
-								<?php if ( Settings::has_api_key() ) : ?>
-									<label class="sp-check sp-setup-clear-key"><input type="checkbox" name="clear_api_key" value="1" /> <span><?php esc_html_e( 'Remove the saved vault key', 'ai-site-assistant-autopilot' ); ?></span></label>
-								<?php endif; ?>
-							</label>
-
-							<label class="sp-field">
-								<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'API base URL', 'ai-site-assistant-autopilot' ); ?></span>
-								<input type="url" id="sp-base-url" name="base_url" class="sp-input sp-mono" value="<?php echo esc_attr( (string) $settings['base_url'] ); ?>" placeholder="https://api.openai.com/v1" />
-								<span class="sp-help"><?php esc_html_e( 'Enter only the provider base URL, not a full chat-completions path.', 'ai-site-assistant-autopilot' ); ?></span>
-							</label>
-
-							<label class="sp-field">
-								<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Model', 'ai-site-assistant-autopilot' ); ?></span>
-								<select id="sp-model-select" class="sp-select">
-									<?php if ( '' !== $saved_model && ! array_key_exists( $saved_model, $model_list ) ) : ?>
-										<option value="<?php echo esc_attr( $saved_model ); ?>" selected><?php echo esc_html( sprintf( '%s — %s', $saved_model, __( 'Saved model', 'ai-site-assistant-autopilot' ) ) ); ?></option>
-									<?php endif; ?>
-									<?php foreach ( $model_list as $model_id => $model_label ) : ?>
-										<option value="<?php echo esc_attr( (string) $model_id ); ?>" <?php selected( $saved_model, (string) $model_id ); ?>><?php echo esc_html( (string) $model_label ); ?></option>
-									<?php endforeach; ?>
-									<option value="__custom"><?php esc_html_e( 'Other — type a model name', 'ai-site-assistant-autopilot' ); ?></option>
-								</select>
-								<input type="text" id="sp-model" name="model" class="sp-input sp-mono sp-mt12" value="<?php echo esc_attr( $saved_model ); ?>" placeholder="gpt-5.6-luna" />
-								<span class="sp-row-wrap sp-row-wrap--sm sp-mt12">
-									<button type="button" id="sp-refresh-models" class="sp-btn sp-btn--ghost sp-btn--sm"><?php echo Ui::icon( 'refresh', 14, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php esc_html_e( 'Refresh models', 'ai-site-assistant-autopilot' ); ?></span></button>
-									<span id="sp-models-status" class="sp-status-text" role="status" aria-live="polite"></span>
-								</span>
-							</label>
-						</div>
-
-						<div class="sp-testbox" id="sp-setup-testbox" data-sp-setup-testbox>
-							<span class="sp-mark" id="sp-setup-testmark" style="background:#1d2327">?</span>
-							<div>
-								<div class="sp-testbox__title" id="sp-setup-testtitle"><?php echo $is_verified ? esc_html__( 'Previously verified', 'ai-site-assistant-autopilot' ) : esc_html__( 'Not tested yet', 'ai-site-assistant-autopilot' ); ?></div>
-								<div class="sp-testbox__body" id="sp-setup-testbody"><?php echo $is_verified ? esc_html__( 'The saved provider passed a previous connection check. Changing these values requires another test.', 'ai-site-assistant-autopilot' ) : esc_html__( 'Run a short connection test before continuing.', 'ai-site-assistant-autopilot' ); ?></div>
-								<div class="sp-testbox__meta" id="sp-setup-testmeta"><?php echo esc_html( (string) $preset['label'] . ' · ' . ( 'anthropic' === $preset['api'] ? 'messages' : 'chat/completions' ) ); ?></div>
+						<div class="sp-wizard-card sp-wizard-models" data-sp-setup-models>
+							<div class="sp-wizard-models__head">
+								<div>
+									<div class="sp-wizard-models__title"><?php esc_html_e( 'Model', 'ai-site-assistant-autopilot' ); ?></div>
+									<div class="sp-wizard-models__sub" id="sp-models-status" aria-live="polite"></div>
+								</div>
+								<span class="sp-wizard-pill" data-sp-model-chosen hidden><?php esc_html_e( 'Chosen for you', 'ai-site-assistant-autopilot' ); ?></span>
 							</div>
-						</div>
-						<div class="sp-row-wrap">
-							<button type="button" class="sp-btn sp-btn--ghost" id="sp-test" data-sp-setup-test><?php esc_html_e( 'Test connection', 'ai-site-assistant-autopilot' ); ?></button>
-							<span id="sp-test-result" class="sp-status-text" role="status" aria-live="polite"></span>
-						</div>
-
-						<details class="sp-setup-advanced">
-							<summary><?php esc_html_e( 'Advanced connection controls', 'ai-site-assistant-autopilot' ); ?></summary>
-							<div class="sp-tiles sp-tiles--240 sp-mt12">
-								<label class="sp-field">
-									<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Temperature', 'ai-site-assistant-autopilot' ); ?></span>
-									<input type="number" id="sp-temperature" name="temperature" class="sp-input sp-mono" min="0" max="1" step="0.1" value="<?php echo esc_attr( (string) $settings['temperature'] ); ?>" />
-									<span class="sp-help"><?php esc_html_e( 'Lower values make replies more consistent. 0.2 is the recommended default.', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-								<div class="sp-field">
-									<span class="sp-label sp-label--14 sp-mb0"><?php esc_html_e( 'Reply length', 'ai-site-assistant-autopilot' ); ?></span>
-									<div class="sp-setup-disabled-control" aria-disabled="true">
-										<span><?php esc_html_e( 'Response-length controls are not available in this release.', 'ai-site-assistant-autopilot' ); ?></span>
-									</div>
-									<span class="sp-help"><?php esc_html_e( 'This mockup control stays visible but disabled until the provider request contract supports it.', 'ai-site-assistant-autopilot' ); ?></span>
+							<div class="sp-wizard-models__list" id="sp-model-select" data-sp-model-list role="radiogroup" aria-label="<?php esc_attr_e( 'Model', 'ai-site-assistant-autopilot' ); ?>"></div>
+							<button type="button" class="sp-wizard-models__more" data-sp-model-more hidden></button>
+							<div class="sp-wizard-models__custom">
+								<label class="sp-wizard-label" for="sp-model"><?php esc_html_e( 'Model name', 'ai-site-assistant-autopilot' ); ?></label>
+								<div class="sp-wizard-key__row">
+									<input type="text" id="sp-model" name="model" class="sp-wizard-input sp-mono" dir="ltr" spellcheck="false" value="<?php echo esc_attr( $saved_model ); ?>" />
+									<button type="button" id="sp-refresh-models" class="sp-wizard-btn sp-wizard-btn--ghost"><?php echo Ui::icon( 'refresh', 14, 'currentColor', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php esc_html_e( 'Refresh from provider', 'ai-site-assistant-autopilot' ); ?></span></button>
 								</div>
 							</div>
-							<label class="sp-check sp-mt12">
-								<input type="hidden" name="embeddings_enabled" value="0" />
-								<input type="checkbox" name="embeddings_enabled" value="1" <?php checked( ! empty( $settings['embeddings_enabled'] ) ); ?> />
-								<span><?php esc_html_e( 'Use semantic search for Site Knowledge', 'ai-site-assistant-autopilot' ); ?></span>
-							</label>
-							<p class="sp-help sp-mt12" data-sp-setup-embeddings-note><?php echo esc_html( array() === (array) $preset['embeddings'] ? __( 'This provider does not publish an embeddings endpoint. Configure a separate embedding provider in Advanced Settings if you enable semantic search.', 'ai-site-assistant-autopilot' ) : __( 'This provider supports embeddings. You can configure a separate embedding key in Advanced Settings when needed.', 'ai-site-assistant-autopilot' ) ); ?> <a href="<?php echo esc_url( $advanced_url ); ?>"><?php esc_html_e( 'Open Advanced Settings', 'ai-site-assistant-autopilot' ); ?></a></p>
-						</details>
-					</section>
+						</div>
 
-					<section class="sp-setup-panel" data-sp-setup-step="4" hidden>
-						<div class="sp-setup-panel__head">
-							<span class="sp-setup-panel__icon"><?php echo Ui::icon( 'plug', 22, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-							<div>
-								<h2 class="sp-h2"><?php esc_html_e( 'Choose your integrations', 'ai-site-assistant-autopilot' ); ?></h2>
-								<p class="sp-sub sp-mb0"><?php esc_html_e( 'Start with the useful features for this site. You can change every choice later from the relevant page.', 'ai-site-assistant-autopilot' ); ?></p>
+						<div class="sp-wizard-card sp-wizard-accordion">
+							<button type="button" class="sp-wizard-accordion__toggle" data-sp-accordion aria-expanded="false" aria-controls="sp-setup-advanced-3">
+								<?php echo Ui::icon( 'sliders', 16, '#5b5e7d', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								<span class="sp-wizard-accordion__title"><?php esc_html_e( 'Advanced', 'ai-site-assistant-autopilot' ); ?></span>
+								<span class="sp-wizard-accordion__meta"><?php esc_html_e( 'Temperature, reply length, semantic search', 'ai-site-assistant-autopilot' ); ?></span>
+								<span class="sp-wizard-accordion__chev" aria-hidden="true"><?php echo Ui::icon( 'chev-down', 16, '#5b5e7d', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+							</button>
+							<div class="sp-wizard-accordion__body" id="sp-setup-advanced-3" hidden>
+								<div class="sp-wizard-adv-grid">
+									<div>
+										<div class="sp-wizard-adv-label">
+											<label for="sp-temperature"><?php esc_html_e( 'Temperature', 'ai-site-assistant-autopilot' ); ?></label>
+											<output class="sp-mono" for="sp-temperature" data-sp-temperature-value><?php echo esc_html( number_format_i18n( $temperature, 2 ) ); ?></output>
+										</div>
+										<input type="range" id="sp-temperature" name="temperature" min="0" max="1" step="0.05" value="<?php echo esc_attr( (string) $temperature ); ?>" class="sp-wizard-range" />
+										<div class="sp-wizard-range__ends"><span><?php esc_html_e( 'Predictable', 'ai-site-assistant-autopilot' ); ?></span><span><?php esc_html_e( 'Creative', 'ai-site-assistant-autopilot' ); ?></span></div>
+										<p class="sp-wizard-hint" data-sp-temperature-note></p>
+									</div>
+									<div>
+										<div class="sp-wizard-adv-label"><span><?php esc_html_e( 'Reply length', 'ai-site-assistant-autopilot' ); ?></span><span class="sp-wizard-tag"><?php esc_html_e( 'Not available yet', 'ai-site-assistant-autopilot' ); ?></span></div>
+										<div class="sp-wizard-segmented" aria-disabled="true">
+											<button type="button" disabled><?php esc_html_e( 'Short', 'ai-site-assistant-autopilot' ); ?></button>
+											<button type="button" disabled class="is-on"><?php esc_html_e( 'Standard', 'ai-site-assistant-autopilot' ); ?></button>
+											<button type="button" disabled><?php esc_html_e( 'Long', 'ai-site-assistant-autopilot' ); ?></button>
+										</div>
+										<p class="sp-wizard-hint"><?php esc_html_e( 'Replies use the provider’s own length today. A per-reply cap needs a change to the provider requests, so this stays locked.', 'ai-site-assistant-autopilot' ); ?></p>
+									</div>
+								</div>
+								<div class="sp-wizard-adv-row">
+									<label class="sp-wizard-switch">
+										<input type="hidden" name="embeddings_enabled" value="0" />
+										<input type="checkbox" role="switch" name="embeddings_enabled" value="1" data-sp-embeddings <?php checked( ! empty( $settings['embeddings_enabled'] ) ); ?> />
+										<span class="sp-wizard-switch__track" aria-hidden="true"></span>
+										<span class="sp-wizard-switch__copy">
+											<span class="sp-wizard-switch__title"><?php esc_html_e( 'Semantic search', 'ai-site-assistant-autopilot' ); ?></span>
+											<span class="sp-wizard-switch__desc"><?php esc_html_e( 'Ranks your content by meaning instead of matching words. Needs a provider with an embeddings endpoint.', 'ai-site-assistant-autopilot' ); ?></span>
+										</span>
+									</label>
+									<div class="sp-wizard-warn" data-sp-embeddings-warning hidden></div>
+								</div>
+								<p class="sp-wizard-hint sp-wizard-adv-more">
+									<?php esc_html_e( 'Embedding provider, voice model and form delivery live in the full settings.', 'ai-site-assistant-autopilot' ); ?>
+									<a href="<?php echo esc_url( $advanced_url ); ?>"><?php esc_html_e( 'Open advanced settings', 'ai-site-assistant-autopilot' ); ?></a>
+								</p>
 							</div>
 						</div>
+					</section>
 
-						<div class="sp-setup-integrations" data-sp-setup-integrations>
-							<label class="sp-setup-integration">
-								<input type="hidden" name="kb_auto_index" value="0" />
-								<input class="sp-setup-integration__toggle" type="checkbox" name="kb_auto_index" value="1" <?php checked( ! empty( $settings['kb_auto_index'] ) ); ?> />
-								<span class="sp-setup-integration__icon"><?php echo Ui::icon( 'book', 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-								<span class="sp-setup-integration__body"><strong><?php esc_html_e( 'Site Knowledge', 'ai-site-assistant-autopilot' ); ?></strong><small><?php esc_html_e( 'Index new published content automatically so replies can use it.', 'ai-site-assistant-autopilot' ); ?></small><a href="<?php echo esc_url( $kb_url ); ?>"><?php esc_html_e( 'Open Site Knowledge', 'ai-site-assistant-autopilot' ); ?></a></span>
-							</label>
+					<section class="sp-wizard__panel" data-sp-setup-step="4" aria-labelledby="sp-setup-h4" hidden>
+						<h2 class="sp-wizard__h2" id="sp-setup-h4"><?php esc_html_e( 'Turn on what you need', 'ai-site-assistant-autopilot' ); ?></h2>
+						<p class="sp-wizard__lead"><?php esc_html_e( 'We checked your site and pre-selected what fits. Change any of it later.', 'ai-site-assistant-autopilot' ); ?></p>
 
-							<label class="sp-setup-integration">
-								<input type="hidden" name="public_assistant_enabled" value="0" />
-								<input class="sp-setup-integration__toggle" type="checkbox" name="public_assistant_enabled" value="1" <?php checked( ! empty( $settings['public_assistant_enabled'] ) ); ?> />
-								<span class="sp-setup-integration__icon"><?php echo Ui::icon( 'chat', 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-								<span class="sp-setup-integration__body"><strong><?php esc_html_e( 'Answer Desk', 'ai-site-assistant-autopilot' ); ?></strong><small><?php esc_html_e( 'Enable the read-only public assistant for visitor questions.', 'ai-site-assistant-autopilot' ); ?></small><a href="<?php echo esc_url( $answer_url ); ?>"><?php esc_html_e( 'Open Answer Desk', 'ai-site-assistant-autopilot' ); ?></a></span>
-							</label>
-
-							<label class="sp-setup-integration">
-								<input type="hidden" name="widget[enabled]" value="0" />
-								<input class="sp-setup-integration__toggle" type="checkbox" name="widget[enabled]" value="1" <?php checked( ! empty( $settings['widget']['enabled'] ) ); ?> />
-								<span class="sp-setup-integration__icon"><?php echo Ui::icon( 'globe', 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-								<span class="sp-setup-integration__body"><strong><?php esc_html_e( 'Website chat widget', 'ai-site-assistant-autopilot' ); ?></strong><small><?php esc_html_e( 'Show the visitor assistant launcher on the public site.', 'ai-site-assistant-autopilot' ); ?></small><a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_WIDGET ) ); ?>"><?php esc_html_e( 'Customize widget', 'ai-site-assistant-autopilot' ); ?></a></span>
-							</label>
-
-							<label class="sp-setup-integration<?php echo $woo_available ? '' : ' is-disabled'; ?>">
-								<?php if ( $woo_available ) : ?>
-									<input type="hidden" name="woocommerce[enabled]" value="0" />
-								<?php endif; ?>
-								<input class="sp-setup-integration__toggle" type="checkbox" name="woocommerce[enabled]" value="1" <?php checked( $woo_enabled ); ?> <?php disabled( ! $woo_available ); ?> />
-								<span class="sp-setup-integration__icon"><?php echo Ui::icon( 'cart', 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-								<span class="sp-setup-integration__body">
-									<strong><?php esc_html_e( 'Store Copilot', 'ai-site-assistant-autopilot' ); ?></strong>
-									<small><?php echo esc_html( $woo_available ? __( 'Create reviewed simple-product drafts and view safe store insights.', 'ai-site-assistant-autopilot' ) : __( 'WooCommerce is not active, so Store Copilot remains unavailable.', 'ai-site-assistant-autopilot' ) ); ?></small>
-									<?php if ( $woo_available ) : ?>
-										<a href="<?php echo esc_url( $store_url ); ?>"><?php esc_html_e( 'Open Store Copilot', 'ai-site-assistant-autopilot' ); ?></a>
-									<?php endif; ?>
-								</span>
-							</label>
-
-							<label class="sp-setup-integration<?php echo $efb_ready ? '' : ' is-disabled'; ?>">
-								<?php if ( $efb_ready ) : ?>
-									<input type="hidden" name="prefer_efb" value="0" />
-								<?php endif; ?>
-								<input class="sp-setup-integration__toggle" type="checkbox" name="prefer_efb" value="1" <?php checked( ! empty( $settings['prefer_efb'] ) ); ?> <?php disabled( ! $efb_ready ); ?> />
-								<span class="sp-setup-integration__icon"><?php echo Ui::icon( 'form', 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-								<span class="sp-setup-integration__body"><strong>Easy Form Builder</strong><small><?php echo esc_html( $efb_ready ? __( 'Use it as the preferred form connector when a form is generated.', 'ai-site-assistant-autopilot' ) : __( 'Install and activate Easy Form Builder to enable this connector.', 'ai-site-assistant-autopilot' ) ); ?></small></span>
-							</label>
+						<div class="sp-wizard-integrations" data-sp-setup-integrations>
+							<?php foreach ( $cards as $card ) : ?>
+								<?php $this->render_wizard_integration( $card ); ?>
+							<?php endforeach; ?>
 						</div>
 
-						<div class="sp-setup-guardrails">
-							<span><?php echo Ui::icon( 'shield', 18, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-							<p><strong><?php esc_html_e( 'Safe by default.', 'ai-site-assistant-autopilot' ); ?></strong> <?php esc_html_e( 'Content and products are proposed as drafts for review; the public assistant is read-only.', 'ai-site-assistant-autopilot' ); ?></p>
+						<div class="sp-wizard-card sp-wizard-accordion">
+							<button type="button" class="sp-wizard-accordion__toggle" data-sp-accordion aria-expanded="false" aria-controls="sp-setup-advanced-4">
+								<?php echo Ui::icon( 'cog', 16, '#5b5e7d', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+								<span class="sp-wizard-accordion__title"><?php esc_html_e( 'Advanced', 'ai-site-assistant-autopilot' ); ?></span>
+								<span class="sp-wizard-accordion__meta"><?php esc_html_e( 'Approval before publishing, spend cap', 'ai-site-assistant-autopilot' ); ?></span>
+								<span class="sp-wizard-accordion__chev" aria-hidden="true"><?php echo Ui::icon( 'chev-down', 16, '#5b5e7d', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+							</button>
+							<div class="sp-wizard-accordion__body sp-wizard-guards" id="sp-setup-advanced-4" hidden>
+								<div class="sp-wizard-guard">
+									<span class="sp-wizard-switch__track is-on is-locked" aria-hidden="true"></span>
+									<div>
+										<div class="sp-wizard-switch__title"><?php esc_html_e( 'Ask me before publishing', 'ai-site-assistant-autopilot' ); ?> <span class="sp-wizard-tag"><?php esc_html_e( 'Always on', 'ai-site-assistant-autopilot' ); ?></span></div>
+										<p class="sp-wizard-switch__desc"><?php esc_html_e( 'AutoPilot drafts the change and waits for your approval instead of writing it live. This version cannot switch it off.', 'ai-site-assistant-autopilot' ); ?></p>
+									</div>
+								</div>
+								<div class="sp-wizard-guard">
+									<span class="sp-wizard-switch__track<?php echo $budget > 0 ? ' is-on' : ''; ?> is-locked" aria-hidden="true"></span>
+									<div>
+										<div class="sp-wizard-switch__title"><?php esc_html_e( 'Monthly spend cap', 'ai-site-assistant-autopilot' ); ?></div>
+										<p class="sp-wizard-switch__desc">
+											<?php
+											if ( $budget > 0 ) {
+												/* translators: %s: monthly token budget. */
+												echo esc_html( sprintf( __( 'Pauses every AI feature once this month passes %s tokens.', 'ai-site-assistant-autopilot' ), number_format_i18n( $budget ) ) );
+											} else {
+												esc_html_e( 'No cap is set, so AI features keep running all month.', 'ai-site-assistant-autopilot' );
+											}
+											?>
+											<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_USAGE ) ); ?>"><?php esc_html_e( 'Set it in Usage & Cost', 'ai-site-assistant-autopilot' ); ?></a>
+										</p>
+									</div>
+								</div>
+							</div>
 						</div>
 					</section>
 
-					<section class="sp-setup-complete" data-sp-setup-complete hidden>
-						<span class="sp-done__icon"><?php echo Ui::icon( 'check', 24, 'currentColor', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-						<h2 class="sp-h2"><?php esc_html_e( 'AutoPilot AI is ready', 'ai-site-assistant-autopilot' ); ?></h2>
-						<p class="sp-sub">
-						<?php
-							printf(
-								/* translators: 1: AI provider label, 2: selected model ID. */
-								esc_html__( '%1$s is configured on %2$s. Your integration choices were saved.', 'ai-site-assistant-autopilot' ),
-								esc_html( (string) $preset['label'] ),
-								esc_html( $saved_model )
+					<section class="sp-wizard-done" data-sp-setup-complete hidden>
+						<span class="sp-wizard-done__icon" aria-hidden="true"><?php echo Ui::icon( 'tick', 26, 'currentColor', 2.4 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+						<h2 class="sp-wizard-done__title"><?php esc_html_e( 'AutoPilot is live', 'ai-site-assistant-autopilot' ); ?></h2>
+						<p class="sp-wizard-done__text">
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: 1: AI provider label, 2: model ID, 3: number of enabled features, 4: comma-separated feature names. */
+									_n( '%1$s is connected on %2$s. %3$s feature is on: %4$s.', '%1$s is connected on %2$s. %3$s features are on: %4$s.', count( $enabled_names ), 'ai-site-assistant-autopilot' ),
+									(string) $preset['label'],
+									'' !== $saved_model ? $saved_model : __( 'the recommended model', 'ai-site-assistant-autopilot' ),
+									number_format_i18n( count( $enabled_names ) ),
+									implode( wp_get_list_item_separator(), $enabled_names )
+								)
 							);
-						?>
-							</p>
-						<div class="sp-btn-group">
-							<a class="sp-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HOME ) ); ?>"><?php esc_html_e( 'Go to Overview', 'ai-site-assistant-autopilot' ); ?></a>
-							<a class="sp-btn sp-btn--ghost" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_INTEGRATIONS ) ); ?>"><?php esc_html_e( 'Review integrations', 'ai-site-assistant-autopilot' ); ?></a>
+							?>
+						</p>
+						<div class="sp-wizard-done__actions">
+							<a class="sp-wizard-btn sp-wizard-btn--primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HOME ) ); ?>"><?php esc_html_e( 'Open the dashboard', 'ai-site-assistant-autopilot' ); ?></a>
+							<a class="sp-wizard-btn sp-wizard-btn--outline" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_INTEGRATIONS ) ); ?>"><?php esc_html_e( 'Review integrations', 'ai-site-assistant-autopilot' ); ?></a>
 						</div>
 					</section>
 
-					<footer class="sp-setup-footer" data-sp-setup-footer>
-						<button type="button" class="sp-btn sp-btn--ghost" data-sp-setup-back disabled><?php esc_html_e( 'Back', 'ai-site-assistant-autopilot' ); ?></button>
-						<span class="sp-setup-footer__note" data-sp-setup-block-note role="status" aria-live="polite"></span>
-						<button type="button" class="sp-btn" data-sp-setup-next><?php esc_html_e( 'Next', 'ai-site-assistant-autopilot' ); ?></button>
-						<button type="submit" class="sp-btn" data-sp-setup-save hidden><?php esc_html_e( 'Save and finish', 'ai-site-assistant-autopilot' ); ?></button>
+					<footer class="sp-wizard__footer" data-sp-setup-footer>
+						<button type="button" class="sp-wizard-btn sp-wizard-btn--ghost sp-wizard__back" data-sp-setup-back hidden>
+							<?php echo Ui::icon( 'chev-left', 15, 'currentColor', 2.4 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span><?php esc_html_e( 'Back', 'ai-site-assistant-autopilot' ); ?></span>
+						</button>
+						<div class="sp-wizard__footer-end">
+							<span class="sp-wizard__note" data-sp-setup-block-note role="status" aria-live="polite"></span>
+							<button type="button" class="sp-wizard-btn sp-wizard-btn--primary sp-wizard__next" data-sp-setup-next>
+								<span><?php esc_html_e( 'Next', 'ai-site-assistant-autopilot' ); ?></span>
+								<?php echo Ui::icon( 'chev-right', 15, 'currentColor', 2.4 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							</button>
+							<button type="submit" class="sp-wizard-btn sp-wizard-btn--primary sp-wizard__next" data-sp-setup-save hidden>
+								<span><?php esc_html_e( 'Finish setup', 'ai-site-assistant-autopilot' ); ?></span>
+								<?php echo Ui::icon( 'chev-right', 15, 'currentColor', 2.4 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							</button>
+						</div>
 					</footer>
 				</form>
 			</section>
@@ -930,6 +906,149 @@ final class SettingsPage {
 		</div>
 		<?php
 		Ui::json_script( 'sp-provider-catalog', $this->catalog() );
+	}
+
+	/**
+	 * Step 4 cards in mockup order. Each switch writes the same setting the
+	 * Integrations screen toggles, so the two screens can never disagree.
+	 *
+	 * @param array<string, mixed> $settings
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function wizard_integrations( array $settings, bool $efb_ready, bool $woo_available, bool $woo_enabled ): array {
+		$widget = (array) ( $settings['widget'] ?? array() );
+
+		return array(
+			array(
+				'id'   => 'site-knowledge',
+				'name' => __( 'Site Knowledge', 'ai-site-assistant-autopilot' ),
+				'icon' => 'book-open',
+				'desc' => __( 'Keeps answers grounded in your published site content and its cited sources.', 'ai-site-assistant-autopilot' ),
+				'core' => true,
+				'on'   => true,
+				'sub'  => array(
+					'name'  => 'kb_auto_index',
+					'label' => __( 'Re-read content automatically when it is published', 'ai-site-assistant-autopilot' ),
+					'on'    => ! empty( $settings['kb_auto_index'] ),
+				),
+			),
+			array(
+				'id'    => 'answer-desk',
+				'name'  => __( 'Answer Desk', 'ai-site-assistant-autopilot' ),
+				'icon'  => 'bubble',
+				'desc'  => __( 'Lets visitors ask grounded questions through the read-only public assistant.', 'ai-site-assistant-autopilot' ),
+				'field' => 'public_assistant_enabled',
+				'on'    => ! empty( $settings['public_assistant_enabled'] ),
+				'sub'   => array(
+					'name'  => 'widget[enabled]',
+					'label' => __( 'Show the chat launcher to visitors', 'ai-site-assistant-autopilot' ),
+					'on'    => ! empty( $widget['enabled'] ),
+				),
+			),
+			array(
+				'id'       => 'store-copilot',
+				'name'     => __( 'Store Copilot', 'ai-site-assistant-autopilot' ),
+				'icon'     => 'cart-mock',
+				'desc'     => $woo_available
+					? __( 'Creates reviewed simple-product drafts and presents safe store insights.', 'ai-site-assistant-autopilot' )
+					: __( 'WooCommerce must be installed and active before Store Copilot can be used.', 'ai-site-assistant-autopilot' ),
+				'field'    => 'woocommerce[enabled]',
+				'on'       => $woo_available && $woo_enabled,
+				'requires' => $woo_available ? '' : 'WooCommerce',
+				'install'  => admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' ),
+			),
+			array(
+				'id'    => 'form-composer',
+				'name'  => __( 'Form Studio', 'ai-site-assistant-autopilot' ),
+				'icon'  => 'form-lines',
+				'desc'  => __( 'Creates reviewable native forms with email-only delivery and server-side validation.', 'ai-site-assistant-autopilot' ),
+				'field' => 'form_composer_enabled',
+				'on'    => ! empty( $settings['form_composer_enabled'] ),
+			),
+			array(
+				'id'       => 'efb-copilot',
+				'name'     => __( 'Easy Form Builder Copilot', 'ai-site-assistant-autopilot' ),
+				'icon'     => 'layers',
+				'desc'     => $efb_ready
+					? __( 'Adds an approved AI helper to a compatible Easy Form Builder editor.', 'ai-site-assistant-autopilot' )
+					: __( 'A compatible Easy Form Builder installation is required before this helper can run.', 'ai-site-assistant-autopilot' ),
+				'field'    => 'efb_copilot_enabled',
+				'on'       => $efb_ready && ! empty( $settings['efb_copilot_enabled'] ),
+				'requires' => $efb_ready ? '' : 'Easy Form Builder',
+				'install'  => admin_url( 'plugin-install.php?s=easy+form+builder&tab=search&type=term' ),
+			),
+			array(
+				'id'    => 'content-studio',
+				'name'  => __( 'Content Studio', 'ai-site-assistant-autopilot' ),
+				'icon'  => 'pencil',
+				'desc'  => __( 'Creates reviewable WordPress page and post drafts; publishing always stays with you.', 'ai-site-assistant-autopilot' ),
+				'field' => 'content_studio_enabled',
+				'on'    => ! empty( $settings['content_studio_enabled'] ),
+			),
+		);
+	}
+
+	/**
+	 * @param array<string, mixed> $card One entry from wizard_integrations().
+	 */
+	private function render_wizard_integration( array $card ): void {
+		$core     = ! empty( $card['core'] );
+		$requires = (string) ( $card['requires'] ?? '' );
+		$on       = ! empty( $card['on'] );
+		$id       = (string) $card['id'];
+		if ( $core ) {
+			$state = __( 'Always on', 'ai-site-assistant-autopilot' );
+		} elseif ( '' !== $requires ) {
+			/* translators: %s: required plugin name. */
+			$state = sprintf( __( 'Needs %s', 'ai-site-assistant-autopilot' ), $requires );
+		} else {
+			$state = $on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' );
+		}
+		$tone = $core ? 'neutral' : ( '' !== $requires ? 'warn' : ( $on ? 'ok' : 'neutral' ) );
+		?>
+		<div class="sp-wizard-integration<?php echo $on ? ' is-on' : ''; ?>" data-sp-setup-integration="<?php echo esc_attr( $id ); ?>">
+			<span class="sp-wizard-integration__icon" aria-hidden="true"><?php echo Ui::icon( (string) $card['icon'], 18, 'currentColor', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+			<div class="sp-wizard-integration__body">
+				<div class="sp-wizard-choice__title-row">
+					<span class="sp-wizard-integration__name" id="sp-setup-int-<?php echo esc_attr( $id ); ?>"><?php echo esc_html( (string) $card['name'] ); ?></span>
+					<span class="sp-wizard-tag sp-wizard-tag--<?php echo esc_attr( $tone ); ?>" data-sp-integration-state><?php echo esc_html( $state ); ?></span>
+				</div>
+				<p class="sp-wizard-integration__desc"><?php echo esc_html( (string) $card['desc'] ); ?></p>
+				<?php if ( '' !== $requires ) : ?>
+					<div class="sp-wizard-choice__req is-warn">
+						<?php echo Ui::icon( 'triangle', 13, 'currentColor', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+						<?php
+						/* translators: %s: required plugin name. */
+						echo esc_html( sprintf( __( '%s is not active on this site', 'ai-site-assistant-autopilot' ), $requires ) );
+						?>
+					</div>
+				<?php endif; ?>
+				<?php if ( ! empty( $card['sub'] ) && ( $core || $on || '' === $requires ) ) : ?>
+					<?php $sub = (array) $card['sub']; ?>
+					<label class="sp-wizard-switch sp-wizard-switch--sub">
+						<input type="hidden" name="<?php echo esc_attr( (string) $sub['name'] ); ?>" value="0" />
+						<input type="checkbox" role="switch" name="<?php echo esc_attr( (string) $sub['name'] ); ?>" value="1" <?php checked( ! empty( $sub['on'] ) ); ?> />
+						<span class="sp-wizard-switch__track sp-wizard-switch__track--sm" aria-hidden="true"></span>
+						<span class="sp-wizard-switch__desc"><?php echo esc_html( (string) $sub['label'] ); ?></span>
+					</label>
+				<?php endif; ?>
+			</div>
+			<?php if ( '' !== $requires ) : ?>
+				<a class="sp-wizard-btn sp-wizard-btn--outline sp-wizard-btn--sm" href="<?php echo esc_url( (string) $card['install'] ); ?>">
+					<?php
+					/* translators: %s: required plugin name. */
+					echo esc_html( sprintf( __( 'Install %s', 'ai-site-assistant-autopilot' ), $requires ) );
+					?>
+				</a>
+			<?php elseif ( ! $core ) : ?>
+				<label class="sp-wizard-switch sp-wizard-switch--main">
+					<input type="hidden" name="<?php echo esc_attr( (string) $card['field'] ); ?>" value="0" />
+					<input type="checkbox" role="switch" name="<?php echo esc_attr( (string) $card['field'] ); ?>" value="1" aria-labelledby="sp-setup-int-<?php echo esc_attr( $id ); ?>" data-sp-integration-switch <?php checked( $on ); ?> />
+					<span class="sp-wizard-switch__track" aria-hidden="true"></span>
+				</label>
+			<?php endif; ?>
+		</div>
+		<?php
 	}
 
 	/**
@@ -941,28 +1060,149 @@ final class SettingsPage {
 		$catalog = array();
 
 		foreach ( Settings::presets() as $key => $preset ) {
-			$catalog[ (string) $key ] = array(
+			$key             = (string) $key;
+			$host            = wp_parse_url( (string) $preset['base_url'], PHP_URL_HOST );
+			$catalog[ $key ] = array(
 				'label'      => (string) $preset['label'],
 				'baseUrl'    => (string) $preset['base_url'],
+				'host'       => is_string( $host ) ? $host : '',
 				'model'      => (string) $preset['model'],
 				'keyUrl'     => (string) $preset['key_url'],
+				'keyPrefix'  => self::KEY_PREFIXES[ $key ] ?? '',
 				'api'        => (string) $preset['api'],
+				'group'      => (string) $preset['group'],
 				'note'       => (string) $preset['note'],
 				'models'     => (array) $preset['models'],
 				'embeddings' => (array) $preset['embeddings'],
+				'popular'    => in_array( $key, self::POPULAR_PROVIDERS, true ),
 			);
 		}
 
 		return array(
 			'providers' => $catalog,
-			'i18n'      => array(
-				'other'    => __( 'Other — type a model name', 'ai-site-assistant-autopilot' ),
-				'keyLink'  => __( 'Get an API key', 'ai-site-assistant-autopilot' ),
-				'loading'  => __( 'Loading models…', 'ai-site-assistant-autopilot' ),
-				'saved'    => __( 'Saved model', 'ai-site-assistant-autopilot' ),
-				'endpoint' => 'anthropic' === Settings::provider_api() ? 'messages' : 'chat/completions',
-			),
+			'total'     => count( $catalog ),
+			'i18n'      => $this->wizard_strings(),
 		);
+	}
+
+	/**
+	 * Every string the Setup script shows. Kept server-side so the wizard is
+	 * translated with the rest of the plugin.
+	 *
+	 * @return array<string, string>
+	 */
+	private function wizard_strings(): array {
+		return array(
+			'other'                 => __( 'Other — type a model name', 'ai-site-assistant-autopilot' ),
+			'keyLink'               => __( 'Get a key', 'ai-site-assistant-autopilot' ),
+			'loading'               => __( 'Loading models…', 'ai-site-assistant-autopilot' ),
+			'saved'                 => __( 'Saved model', 'ai-site-assistant-autopilot' ),
+			'endpoint'              => 'anthropic' === Settings::provider_api() ? 'messages' : 'chat/completions',
+			/* translators: {step}: current step number. */
+			'stepOf'                => __( 'Step {step} of 4', 'ai-site-assistant-autopilot' ),
+			'done'                  => __( 'Done', 'ai-site-assistant-autopilot' ),
+			'pickStorage'           => __( 'Pick one to continue', 'ai-site-assistant-autopilot' ),
+			'pickService'           => __( 'Pick a service to continue', 'ai-site-assistant-autopilot' ),
+			'needKey'               => __( 'Connect a working key to continue', 'ai-site-assistant-autopilot' ),
+			'needModel'             => __( 'Choose a model to continue', 'ai-site-assistant-autopilot' ),
+			'needRecheck'           => __( 'Check the connection with this model to continue', 'ai-site-assistant-autopilot' ),
+			'resultsPopular'        => __( 'Popular with WordPress sites', 'ai-site-assistant-autopilot' ),
+			/* translators: {count}: number of AI services. */
+			'resultsAll'            => __( 'All {count} services', 'ai-site-assistant-autopilot' ),
+			/* translators: {count}: number of matching AI services. */
+			'resultsMatches'        => __( '{count} matches', 'ai-site-assistant-autopilot' ),
+			'resultsMatch'          => __( '1 match', 'ai-site-assistant-autopilot' ),
+			/* translators: {count}: number of AI services. */
+			'seeAll'                => __( 'See all {count} services', 'ai-site-assistant-autopilot' ),
+			'showFewer'             => __( 'Show fewer', 'ai-site-assistant-autopilot' ),
+			/* translators: {query}: what the administrator searched for. */
+			'noMatch'               => __( 'No service called “{query}”', 'ai-site-assistant-autopilot' ),
+			/* translators: {provider}: AI service name. */
+			'keyHeading'            => __( 'Connect your {provider} key', 'ai-site-assistant-autopilot' ),
+			/* translators: {host}: provider API host name. */
+			'keyLeadVault'          => __( 'We store it encrypted on this site and never send it anywhere except {host}.', 'ai-site-assistant-autopilot' ),
+			/* translators: {host}: provider API host name. */
+			'keyLeadConnector'      => __( 'The key stays in Settings → Connectors. AutoPilot sends it only to {host}.', 'ai-site-assistant-autopilot' ),
+			'yourEndpoint'          => __( 'your endpoint', 'ai-site-assistant-autopilot' ),
+			'keyHint'               => __( 'Nothing is saved until the check passes.', 'ai-site-assistant-autopilot' ),
+			'keySavedPlaceholder'   => __( '•••••••• saved — leave blank to keep it', 'ai-site-assistant-autopilot' ),
+			'keyPlaceholder'        => __( 'Paste your key', 'ai-site-assistant-autopilot' ),
+			'connectorKeyHint'      => __( 'This choice uses the key saved in Settings → Connectors.', 'ai-site-assistant-autopilot' ),
+			'check'                 => __( 'Check connection', 'ai-site-assistant-autopilot' ),
+			'checking'              => __( 'Checking', 'ai-site-assistant-autopilot' ),
+			'checkAgain'            => __( 'Check again', 'ai-site-assistant-autopilot' ),
+			/* translators: {label}: name of the check that failed. */
+			'stageFailed'           => __( '{label} — failed', 'ai-site-assistant-autopilot' ),
+			'checkingTitle'         => __( 'Checking your key…', 'ai-site-assistant-autopilot' ),
+			/* translators: {host}: provider API host name. */
+			'checkingBody'          => __( 'A short test request is on its way to {host}.', 'ai-site-assistant-autopilot' ),
+			'okTitle'               => __( 'Connected', 'ai-site-assistant-autopilot' ),
+			/* translators: {count}: number of models the key can use. */
+			'okBody'                => __( 'Your key works and {count} models are available on this account.', 'ai-site-assistant-autopilot' ),
+			'okBodyNoList'          => __( 'Your key works. This provider does not publish a model list, so type the model you want below.', 'ai-site-assistant-autopilot' ),
+			'titleNoKey'            => __( 'Add an API key', 'ai-site-assistant-autopilot' ),
+			'titleUnauthorized'     => __( 'That key was rejected', 'ai-site-assistant-autopilot' ),
+			'titlePayment'          => __( 'The key is valid, the account is empty', 'ai-site-assistant-autopilot' ),
+			'titleRateLimit'        => __( 'Too many requests right now', 'ai-site-assistant-autopilot' ),
+			'titleUnreachable'      => __( 'Your server could not reach the provider', 'ai-site-assistant-autopilot' ),
+			'titleNotFound'         => __( 'Wrong endpoint or model', 'ai-site-assistant-autopilot' ),
+			'titleIncomplete'       => __( 'Connection details are incomplete', 'ai-site-assistant-autopilot' ),
+			'titleNoModels'         => __( 'The key works, but no models came back', 'ai-site-assistant-autopilot' ),
+			'titleFailed'           => __( 'The check did not pass', 'ai-site-assistant-autopilot' ),
+			'fixNoKey'              => __( 'Paste the key from your provider dashboard, then check again.', 'ai-site-assistant-autopilot' ),
+			/* translators: 1: {provider} AI service name, 2: {prefix} documented key prefix. */
+			'fixUnauthorizedPrefix' => __( 'Keys for {provider} start with {prefix}. Copy the whole line, including that prefix, and make sure no space slipped in at the end.', 'ai-site-assistant-autopilot' ),
+			'fixUnauthorized'       => __( 'Copy the key again from the provider dashboard — a trailing space is the usual cause.', 'ai-site-assistant-autopilot' ),
+			/* translators: {provider}: AI service name. */
+			'fixPayment'            => __( 'Add credit in your {provider} billing page, then check again. Nothing is wrong with your setup.', 'ai-site-assistant-autopilot' ),
+			'fixRateLimit'          => __( 'Wait a moment and check again. New accounts often start on a low tier that a first payment lifts.', 'ai-site-assistant-autopilot' ),
+			/* translators: {host}: provider API host name. */
+			'fixUnreachable'        => __( 'Usually a host firewall or WP_HTTP_BLOCK_EXTERNAL in wp-config.php. Ask your host to allow outbound HTTPS to {host}, or add it to WP_ACCESSIBLE_HOSTS.', 'ai-site-assistant-autopilot' ),
+			'fixNotFound'           => __( 'Paste the base URL only, up to /v1 — not the full path and not a trailing slash. If the endpoint is right, pick a model this account can use.', 'ai-site-assistant-autopilot' ),
+			'fixIncomplete'         => __( 'Add the base URL and a model name, then check again.', 'ai-site-assistant-autopilot' ),
+			'fixNoModels'           => __( 'Enable at least one chat model for this project in your provider dashboard, or type the model name by hand.', 'ai-site-assistant-autopilot' ),
+			'actionPasteAgain'      => __( 'Paste it again', 'ai-site-assistant-autopilot' ),
+			/* translators: {provider}: AI service name. */
+			'actionOpenKeys'        => __( 'Open {provider} keys', 'ai-site-assistant-autopilot' ),
+			'actionPickAnother'     => __( 'Pick another service', 'ai-site-assistant-autopilot' ),
+			'actionRetry'           => __( 'Retry', 'ai-site-assistant-autopilot' ),
+			'actionNetworkTest'     => __( 'Run the full network test', 'ai-site-assistant-autopilot' ),
+			'actionEditEndpoint'    => __( 'Edit the endpoint', 'ai-site-assistant-autopilot' ),
+			'actionTypeModel'       => __( 'Type a model name', 'ai-site-assistant-autopilot' ),
+			'healthUrl'             => admin_url( 'admin.php?page=' . AdminMenu::SLUG_CONNECTIONS ),
+			/* translators: {count}: number of models. */
+			'modelsFound'           => __( '{count} models available — we picked the one that fits a WordPress site', 'ai-site-assistant-autopilot' ),
+			'modelsPreset'          => __( 'Models this service is known to offer. Refresh to read your account’s own list.', 'ai-site-assistant-autopilot' ),
+			'modelsNone'            => __( 'This service has no fixed list. Type the model or deployment name below.', 'ai-site-assistant-autopilot' ),
+			'modelRecommended'      => __( 'Recommended', 'ai-site-assistant-autopilot' ),
+			/* translators: {count}: number of models. */
+			'showAllModels'         => __( 'Show all {count} models', 'ai-site-assistant-autopilot' ),
+			'showFewerModels'       => __( 'Show fewer models', 'ai-site-assistant-autopilot' ),
+			'modelChanged'          => __( 'You picked a different model. Check the connection again to confirm this account can use it.', 'ai-site-assistant-autopilot' ),
+			'modelsUnsupported'     => __( 'This provider does not publish a model list. Type its model name above.', 'ai-site-assistant-autopilot' ),
+			'tempLow'               => __( 'Low: the same question gets almost the same answer. Best for support replies.', 'ai-site-assistant-autopilot' ),
+			'tempMid'               => __( 'Balanced: reliable for support, still varied enough for writing.', 'ai-site-assistant-autopilot' ),
+			'tempHigh'              => __( 'High: more inventive wording, and more likely to wander off.', 'ai-site-assistant-autopilot' ),
+			/* translators: {provider}: AI service name. */
+			'embedWarning'          => __( '{provider} has no embeddings endpoint. Add a separate embedding key in advanced settings, or leave semantic search off and AutoPilot matches on keywords.', 'ai-site-assistant-autopilot' ),
+			'networkError'          => __( 'Network error. Please try again.', 'ai-site-assistant-autopilot' ),
+			'endpointChange'        => __( 'Change the endpoint', 'ai-site-assistant-autopilot' ),
+			'endpointHide'          => __( 'Hide the endpoint', 'ai-site-assistant-autopilot' ),
+			'stateOn'               => __( 'On', 'ai-site-assistant-autopilot' ),
+			'stateOff'              => __( 'Off', 'ai-site-assistant-autopilot' ),
+		);
+	}
+
+	/** A short uppercase tag some services carry in the mockup grid. */
+	private function provider_badge( string $key ): string {
+		if ( 'openai' === $key ) {
+			return __( 'Recommended', 'ai-site-assistant-autopilot' );
+		}
+		if ( 'openrouter' === $key ) {
+			return __( 'One key, many models', 'ai-site-assistant-autopilot' );
+		}
+
+		return '';
 	}
 
 	/**
@@ -973,16 +1213,23 @@ final class SettingsPage {
 	 * @param array<string, mixed> $entry
 	 */
 	private function provider_trait( string $key, array $entry ): string {
+		// Mockup trait lines where they are verifiable facts; neutral wording
+		// replaces marketing claims ("best", "lowest cost") nobody can check.
 		$traits = array(
 			'openai'     => __( 'Most widely supported', 'ai-site-assistant-autopilot' ),
 			'anthropic'  => __( 'Claude models', 'ai-site-assistant-autopilot' ),
-			'gemini'     => __( 'Google AI Studio', 'ai-site-assistant-autopilot' ),
+			'gemini'     => __( 'Generous free tier', 'ai-site-assistant-autopilot' ),
 			'deepseek'   => __( 'Reasoning focused', 'ai-site-assistant-autopilot' ),
 			'qwen'       => __( 'Alibaba Cloud models', 'ai-site-assistant-autopilot' ),
-			'mistral'    => __( 'European AI models', 'ai-site-assistant-autopilot' ),
+			'mistral'    => __( 'EU-hosted', 'ai-site-assistant-autopilot' ),
 			'groq'       => __( 'Fast inference', 'ai-site-assistant-autopilot' ),
-			'openrouter' => __( 'Multi-provider gateway', 'ai-site-assistant-autopilot' ),
-			'custom'     => __( 'OpenAI-compatible endpoint', 'ai-site-assistant-autopilot' ),
+			'openrouter' => __( 'One key, every vendor', 'ai-site-assistant-autopilot' ),
+			'perplexity' => __( 'Answers from live web', 'ai-site-assistant-autopilot' ),
+			'azure'      => __( 'Your own Azure deployments', 'ai-site-assistant-autopilot' ),
+			'aimlapi'    => __( '1000+ models, one key', 'ai-site-assistant-autopilot' ),
+			'novita'     => __( 'Open-weight models', 'ai-site-assistant-autopilot' ),
+			'edenai'     => __( 'Multi-vendor gateway', 'ai-site-assistant-autopilot' ),
+			'custom'     => __( 'Any OpenAI-compatible API', 'ai-site-assistant-autopilot' ),
 		);
 
 		if ( isset( $traits[ $key ] ) ) {
@@ -995,81 +1242,52 @@ final class SettingsPage {
 	}
 
 	/**
-	 * The four things that have to be true before the plugin is fully useful.
-	 *
-	 * Derived from live state rather than a stored wizard cursor, so removing a
-	 * key or emptying the index honestly reopens the step.
-	 *
-	 * @return array<int, array{label:string, done:bool}>
+	 * Saves only what the advanced settings form shows. The AI service, its key, the key
+	 * storage and the temperature belong to Setup and are never changed from here.
 	 */
-	private function steps( int $kb_total ): array {
-		return array(
-			array(
-				'label' => __( 'Connect AI', 'ai-site-assistant-autopilot' ),
-				'done'  => ( new ProviderManager() )->is_configured(),
-			),
-			array(
-				'label' => __( 'Test connection', 'ai-site-assistant-autopilot' ),
-				'done'  => (int) get_option( self::VERIFIED_OPTION, 0 ) > 0,
-			),
-			array(
-				'label' => __( 'Form delivery', 'ai-site-assistant-autopilot' ),
-				'done'  => '' !== Settings::form_notification_email(),
-			),
-			array(
-				'label' => __( 'Knowledge base', 'ai-site-assistant-autopilot' ),
-				'done'  => $kb_total > 0,
-			),
-		);
-	}
+	private function save_advanced(): bool {
+		// Nonce and capability were verified by maybe_save(); each value is validated below.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$existing = Settings::all();
+		$update   = array();
 
-	/**
-	 * @param array<int, array{label:string, done:bool}> $steps
-	 */
-	private function render_progress( array $steps ): void {
-		$remaining = 0;
-		foreach ( $steps as $step ) {
-			if ( ! $step['done'] ) {
-				++$remaining;
+		foreach ( array( 'embeddings_enabled', 'voice_responses_enabled', 'prefer_efb', 'public_assistant_enabled' ) as $switch ) {
+			if ( array_key_exists( $switch, $_POST ) ) {
+				$update[ $switch ] = ! empty( $_POST[ $switch ] );
 			}
 		}
-
-		if ( 0 === $remaining ) {
-			return;
+		if ( array_key_exists( 'embedding_model', $_POST ) ) {
+			$update['embedding_model'] = mb_substr( sanitize_text_field( wp_unslash( $_POST['embedding_model'] ) ), 0, 100 );
+		}
+		if ( array_key_exists( 'embedding_base_url', $_POST ) ) {
+			$update['embedding_base_url'] = esc_url_raw( wp_unslash( $_POST['embedding_base_url'] ) );
+		}
+		if ( array_key_exists( 'voice_model', $_POST ) ) {
+			$voice_model           = mb_substr( sanitize_text_field( wp_unslash( $_POST['voice_model'] ) ), 0, 100 );
+			$update['voice_model'] = '' !== $voice_model ? $voice_model : (string) ( $existing['voice_model'] ?? 'whisper-1' );
+		}
+		if ( array_key_exists( 'default_form_status', $_POST ) ) {
+			$update['default_form_status'] = 'publish' === sanitize_key( wp_unslash( $_POST['default_form_status'] ) ) ? 'publish' : 'draft';
+		}
+		if ( array_key_exists( 'form_notification_email', $_POST ) ) {
+			$email                             = sanitize_email( (string) wp_unslash( $_POST['form_notification_email'] ) );
+			$update['form_notification_email'] = is_email( $email ) ? $email : '';
+		}
+		if ( array() !== $update ) {
+			Settings::update( $update );
 		}
 
-		$first_open = true;
-		?>
-		<div class="sp-card sp-card--tight sp-card--dashed" style="margin-bottom:16px">
-			<div class="sp-h3" style="font-size:13px"><?php esc_html_e( 'Getting started', 'ai-site-assistant-autopilot' ); ?></div>
-			<p class="sp-help sp-help--12" style="margin-bottom:10px">
-				<?php
-				printf(
-					/* translators: %s: number of setup steps still outstanding. */
-					esc_html__( 'Steps remaining: %s. You can leave and come back — nothing here is lost.', 'ai-site-assistant-autopilot' ),
-					esc_html( number_format_i18n( $remaining ) )
-				);
-				?>
-			</p>
-			<ol class="sp-steps">
-				<?php
-				foreach ( $steps as $step ) :
-					$state = '';
-					if ( $step['done'] ) {
-						$state = 'is-done';
-					} elseif ( $first_open ) {
-						$state      = 'is-current';
-						$first_open = false;
-					}
-					?>
-					<li class="sp-steps__item <?php echo esc_attr( $state ); ?>">
-						<span class="sp-steps__dot"><?php echo $step['done'] ? '&#10003;' : '&bull;'; ?></span>
-						<span class="sp-steps__label"><?php echo esc_html( $step['label'] ); ?></span>
-					</li>
-				<?php endforeach; ?>
-			</ol>
-		</div>
-		<?php
+		if ( ! empty( $_POST['clear_embedding_key'] ) ) {
+			Settings::set_embedding_key( '' );
+		} else {
+			$embed_key = trim( (string) wp_unslash( $_POST['embedding_api_key'] ?? '' ) );
+			if ( '' !== $embed_key ) {
+				Settings::set_embedding_key( $embed_key );
+			}
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+		return true;
 	}
 
 	private function maybe_save(): bool {
@@ -1078,6 +1296,10 @@ final class SettingsPage {
 		}
 		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['aisaautopilot_settings_nonce'] ) ), 'aisaautopilot_settings_save' ) ) {
 			return false;
+		}
+		// The advanced settings form saves only its own fields, never the AI service or its key.
+		if ( ! empty( $_POST['advanced_settings'] ) && empty( $_POST['setup_wizard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified just above.
+			return $this->save_advanced();
 		}
 
 		$provider = sanitize_key( wp_unslash( $_POST['provider'] ?? 'deepseek' ) );
@@ -1166,6 +1388,16 @@ final class SettingsPage {
 		);
 		if ( array_key_exists( 'kb_auto_index', $_POST ) ) {
 			$settings_update['kb_auto_index'] = ! empty( $_POST['kb_auto_index'] );
+		}
+		// Step 4 switches share their settings with the Integrations cards. A
+		// switch that was not rendered (dependency missing) keeps its value.
+		foreach ( array( 'form_composer_enabled', 'content_studio_enabled' ) as $integration_flag ) {
+			if ( array_key_exists( $integration_flag, $_POST ) ) {
+				$settings_update[ $integration_flag ] = ! empty( $_POST[ $integration_flag ] );
+			}
+		}
+		if ( array_key_exists( 'efb_copilot_enabled', $_POST ) && ( new EasyFormBuilderConnector() )->is_available() ) {
+			$settings_update['efb_copilot_enabled'] = ! empty( $_POST['efb_copilot_enabled'] );
 		}
 		if ( isset( $_POST['widget'] ) && is_array( $_POST['widget'] ) && array_key_exists( 'enabled', $_POST['widget'] ) ) {
 			$settings_update['widget'] = array( 'enabled' => ! empty( $_POST['widget']['enabled'] ) );

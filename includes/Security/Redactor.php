@@ -19,7 +19,9 @@ final class Redactor {
 			'/\bBearer\s+[A-Za-z0-9._\-]+/i',
 			'/\bsk-[A-Za-z0-9._\-]{8,}/',
 			'/\b(gsk|rk)_[A-Za-z0-9._\-]{8,}/',
-			'/\b\d{6,}:[A-Za-z0-9_-]{16,}\b/',
+			// Telegram bot tokens, also inside an API URL ("/bot123456:ABC…"),
+			// where no word boundary precedes the digits.
+			'/(?<![0-9])\d{6,}:[A-Za-z0-9_-]{16,}\b/',
 			'/\b(?:AC|SK)[a-zA-Z0-9]{24,}\b/',
 		);
 

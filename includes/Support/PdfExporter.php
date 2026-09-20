@@ -38,8 +38,9 @@ class PdfExporter {
 
 	public function export_text( array $messages ): string {
 		$text = '';foreach ( $messages as $m ) {
+			// Plain text for Telegram and SMS; each channel escapes for its own format.
 			$r     = ( $m['role'] ?? 'user' ) === 'user' ? 'User' : 'AI';
-			$text .= $r . ': ' . ( wp_strip_all_tags( $m['content'] ?? '' ) ) . "\n\n";
+			$text .= $r . ': ' . (string) ( $m['content'] ?? '' ) . "\n\n";
 		}return trim( $text );
 	}
 

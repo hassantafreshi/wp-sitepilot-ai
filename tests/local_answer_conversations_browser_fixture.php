@@ -27,10 +27,14 @@ const FIXTURE_OPTION = 'aisaautopilot_answer_conversations_browser_fixture';
  * from accumulating test posts or conversations.
  */
 $restore = static function (): void {
-	$record = get_option( FIXTURE_OPTION, array() );
-	if ( ! is_array( $record ) ) {
-		delete_option( FIXTURE_OPTION );
+	$record = get_option( FIXTURE_OPTION, null );
+	// No snapshot means no fixture to restore. Never touch live settings here:
+	// before T15 a missing snapshot fell through to delete_option( Settings::OPTION ).
+	if ( null === $record ) {
 		return;
+	}
+	if ( ! is_array( $record ) || ! array_key_exists( 'had_settings', $record ) ) {
+		throw new RuntimeException( 'Answer Desk fixture snapshot is invalid; live settings were left untouched.' );
 	}
 
 	$token = sanitize_text_field( (string) ( $record['conversation_token'] ?? '' ) );

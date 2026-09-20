@@ -41,4 +41,26 @@ if ( ! $mo->export_to_file( $argv[3] ) ) {
 	exit( 73 );
 }
 
-echo count( $mo->entries ) . " translated entries compiled.\n";
+/*
+ * MO::export_to_file() writes only entries that carry a translation, so
+ * count( $mo->entries ) is the number of PO entries merged in, not the number
+ * of entries the compiled MO actually contains. Report both, or the recorded
+ * gate number overstates what ships.
+ */
+$merged     = count( $mo->entries );
+$translated = 0;
+foreach ( $mo->entries as $entry ) {
+	foreach ( (array) $entry->translations as $translation ) {
+		if ( '' !== trim( (string) $translation ) ) {
+			++$translated;
+			break;
+		}
+	}
+}
+
+printf(
+	"%d PO entries merged; %d of them translated and written to the MO (%d untranslated, not written).\n",
+	$merged,
+	$translated,
+	$merged - $translated
+);

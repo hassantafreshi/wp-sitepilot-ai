@@ -89,7 +89,9 @@
 		setPlanButton(true);
 		setStatus(message('contentPlanning', 'Building a reviewable draft...'));
 		try {
-			const payload = await request('content/plan', { prompt: brief });
+			// A draft started from an unanswered question carries its reference; the server links the draft after approval.
+			const sourceGap = compose.dataset.contentSourceGap || '';
+			const payload = await request('content/plan', sourceGap ? { prompt: brief, source_gap: sourceGap } : { prompt: brief });
 			actionId = payload.action_id || '';
 			if (!actionId) throw new Error(message('networkError', 'Network error. Please try again.'));
 			latestPreview = payload.preview || {};

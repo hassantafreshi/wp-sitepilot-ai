@@ -372,6 +372,90 @@
 		if ( delivery ) { delivery.addEventListener( 'click', onDeliveryTest ); }
 
 		initRadioCards();
+		initAdvanced();
+	}
+
+	/* ── Advanced settings: unsaved changes and section navigation ── */
+
+	function readJson( id ) {
+		try {
+			var node = document.getElementById( id );
+			return node ? ( JSON.parse( node.textContent || '{}' ) || {} ) : {};
+		} catch ( e ) { return {}; }
+	}
+
+	function initAdvanced() {
+		var form = document.querySelector( '[data-sp-advanced-form]' );
+		if ( ! form ) { return; }
+		var A = readJson( 'sp-adv-i18n' );
+		var bar = form.querySelector( '[data-sp-savebar]' );
+		var dirty = false;
+
+		function markDirty() {
+			if ( dirty ) { return; }
+			dirty = true;
+			if ( bar ) { bar.hidden = false; }
+		}
+
+		// The delivery test is a button, so it never fires input or change and never counts as a change.
+		form.addEventListener( 'input', markDirty );
+		form.addEventListener( 'change', markDirty );
+		form.addEventListener( 'submit', function () { dirty = false; } );
+		window.addEventListener( 'beforeunload', function ( event ) {
+			if ( ! dirty ) { return; }
+			event.preventDefault();
+			event.returnValue = '';
+		} );
+
+		var discard = form.querySelector( '[data-sp-discard]' );
+		if ( discard ) {
+			discard.addEventListener( 'click', function () {
+				var shell = window.AISAAutoPilotShell;
+				var ask = shell && 'function' === typeof shell.confirm
+					? shell.confirm( {
+						title: A.discardTitle || 'Discard your changes?',
+						body: A.discardBody || 'Advanced settings go back to their last saved values.',
+						confirmLabel: A.discardCta || 'Discard changes',
+						danger: true,
+					} )
+					: Promise.resolve( window.confirm( A.discardTitle || 'Discard your changes?' ) );
+				ask.then( function ( yes ) {
+					if ( ! yes ) { return; }
+					dirty = false;
+					// A GET of the same address, so a page shown after saving is never posted again.
+					window.location.href = window.location.href.split( '#' )[ 0 ];
+				} );
+			} );
+		}
+
+		var search = form.querySelector( '[data-sp-adv-toggle="search"]' );
+		var searchFields = form.querySelector( '[data-sp-adv-fields="search"]' );
+		if ( search && searchFields ) {
+			search.addEventListener( 'change', function () { searchFields.classList.toggle( 'is-muted', ! search.checked ); } );
+		}
+
+		var links = document.querySelectorAll( '.sp-adv__nav a[href^="#"]' );
+		if ( ! links.length || ! ( 'IntersectionObserver' in window ) ) { return; }
+		var byId = {};
+		Array.prototype.forEach.call( links, function ( link ) { byId[ link.getAttribute( 'href' ).slice( 1 ) ] = link; } );
+		var observer = new IntersectionObserver( function ( entries ) {
+			entries.forEach( function ( entry ) {
+				if ( ! entry.isIntersecting ) { return; }
+				Array.prototype.forEach.call( links, function ( link ) {
+					var current = link === byId[ entry.target.id ];
+					link.classList.toggle( 'is-current', current );
+					if ( current ) {
+						link.setAttribute( 'aria-current', 'true' );
+					} else {
+						link.removeAttribute( 'aria-current' );
+					}
+				} );
+			} );
+		}, { rootMargin: '-35% 0px -60% 0px' } );
+		Object.keys( byId ).forEach( function ( id ) {
+			var section = document.getElementById( id );
+			if ( section ) { observer.observe( section ); }
+		} );
 	}
 
 	if ( document.readyState === 'loading' ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }

@@ -74,6 +74,37 @@ final class AdminHandoffSettingsController {
 	}
 
 	/**
+	 * Saves which contact details the widget's handoff card asks for: each of name, email, phone and
+	 * website is 'off', 'optional' or 'required'. All four must be sent, so a partial form never
+	 * switches a detail off by accident.
+	 */
+	public function update_fields( \WP_REST_Request $request ): \WP_REST_Response {
+		$raw     = $request->get_param( 'fields' );
+		$message = __( 'Choose Off, Optional or Required for each detail.', 'ai-site-assistant-autopilot' );
+		if ( ! is_array( $raw ) || array() !== array_diff( array_keys( $raw ), Settings::HANDOFF_FIELD_KEYS ) ) {
+			return $this->error( 'handoff_fields_invalid', $message );
+		}
+
+		$fields = array();
+		foreach ( Settings::HANDOFF_FIELD_KEYS as $key ) {
+			$mode = isset( $raw[ $key ] ) && is_string( $raw[ $key ] ) ? $raw[ $key ] : '';
+			if ( ! in_array( $mode, Settings::HANDOFF_FIELD_MODES, true ) ) {
+				return $this->error( 'handoff_fields_invalid', $message );
+			}
+			$fields[ $key ] = $mode;
+		}
+
+		Settings::update( array( 'widget' => array( 'handoff_fields' => $fields ) ) );
+		return new \WP_REST_Response(
+			array(
+				'ok'     => true,
+				'code'   => 'handoff_fields_updated',
+				'fields' => Settings::handoff_fields(),
+			)
+		);
+	}
+
+	/**
 	 * @param array<string, mixed> $update
 	 */
 	private function email_update( \WP_REST_Request $request, array &$update ): ?\WP_REST_Response {

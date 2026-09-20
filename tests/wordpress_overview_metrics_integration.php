@@ -92,7 +92,7 @@ try {
 	$check(
 		6 === substr_count( $markup, 'data-sp-overview-running=' )
 		&& false !== strpos( $markup, 'data-sp-overview-running="form-composer"' ),
-		'Overview keeps all six mockup running-now integrations including Form Composer'
+		'Overview keeps all six mockup running-now integrations including Form Studio'
 	);
 } finally {
 	if ( $generated_draft_id > 0 ) {

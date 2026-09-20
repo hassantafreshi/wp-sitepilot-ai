@@ -21,6 +21,21 @@ final class VoiceTranscriber {
 	public const MAX_BYTES       = 5_000_000;
 	public const MAX_DURATION_MS = 45_000;
 
+	/**
+	 * The containers a browser MediaRecorder produces, keyed by the bytes that
+	 * open them: Chrome, Edge and Firefox record WebM (older Firefox, Ogg) and
+	 * Safari records MP4; WAV covers recorders that emit PCM. Anything else is
+	 * refused before it reaches a provider, whatever Content-Type the client sent.
+	 *
+	 * @var array<string,array{int,string}> mime => [offset, signature]
+	 */
+	private const CONTAINERS = array(
+		'audio/webm' => array( 0, "\x1A\x45\xDF\xA3" ),
+		'audio/ogg'  => array( 0, 'OggS' ),
+		'audio/mp4'  => array( 4, 'ftyp' ),
+		'audio/wav'  => array( 0, 'RIFF' ), // "WAVE" must follow at offset 8.
+	);
+
 	/** @param array<string,mixed> $file */
 	public static function validate_file( array $file, int $duration_ms ): ?string {
 		if ( ! empty( $file['error'] ) || empty( $file['tmp_name'] ) || ! is_readable( (string) $file['tmp_name'] ) ) {
@@ -32,6 +47,27 @@ final class VoiceTranscriber {
 		}
 		if ( $duration_ms <= 0 || $duration_ms > self::MAX_DURATION_MS ) {
 			return 'audio_too_long';
+		}
+		if ( null === self::detect_mime( (string) $file['tmp_name'] ) ) {
+			return 'invalid_audio';
+		}
+		return null;
+	}
+
+	/** The container the first bytes of the upload declare, or null when it is none of the four. */
+	public static function detect_mime( string $path ): ?string {
+		$head = is_readable( $path ) ? file_get_contents( $path, false, null, 0, 12 ) : false; // Local PHP upload; only its header is read.
+		if ( ! is_string( $head ) || strlen( $head ) < 12 ) {
+			return null;
+		}
+		foreach ( self::CONTAINERS as $mime => $signature ) {
+			if ( substr( $head, $signature[0], strlen( $signature[1] ) ) !== $signature[1] ) {
+				continue;
+			}
+			if ( 'audio/wav' === $mime && 'WAVE' !== substr( $head, 8, 4 ) ) {
+				return null;
+			}
+			return $mime;
 		}
 		return null;
 	}
@@ -52,14 +88,13 @@ final class VoiceTranscriber {
 		}
 
 		$boundary = '----aisaautopilot' . wp_generate_password( 18, false, false );
-		$filename = sanitize_file_name( (string) ( $file['name'] ?? 'voice.webm' ) );
+		// The name and type the provider sees come from the bytes validate_file()
+		// accepted, never from the client's filename or Content-Type.
+		$mime     = (string) self::detect_mime( (string) $file['tmp_name'] );
+		$filename = 'voice.' . substr( $mime, strlen( 'audio/' ) );
 		$contents = file_get_contents( (string) $file['tmp_name'] ); // Temporary PHP upload only; never persisted.
 		if ( false === $contents ) {
 			throw new ProviderException( 'audio_read_failed', __( 'The recording could not be read.', 'ai-site-assistant-autopilot' ) );
-		}
-		$mime = sanitize_mime_type( (string) ( $file['type'] ?? 'audio/webm' ) );
-		if ( '' === $mime || ! str_starts_with( $mime, 'audio/' ) ) {
-			$mime = 'audio/webm';
 		}
 		$model = (string) Settings::get( 'voice_model', 'whisper-1' );
 		// Do not pin Whisper to the site's locale: it must auto-detect a visitor

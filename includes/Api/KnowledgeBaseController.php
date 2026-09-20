@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Api;
 
+use AISAAutoPilot\Admin\ContentStudioNavigation;
 use AISAAutoPilot\Content\ContentIndexer;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Content\KbGaps;
+use AISAAutoPilot\Content\SavedAnswers;
 use AISAAutoPilot\Providers\ProviderException;
 use AISAAutoPilot\Providers\ProviderManager;
 use AISAAutoPilot\Usage\UsageTracker;
@@ -174,15 +176,96 @@ final class KnowledgeBaseController {
 	 * GET /kb/gaps — List questions the KB could not answer (content gaps).
 	 */
 	public function gaps( \WP_REST_Request $request ): \WP_REST_Response {
-		$gaps = new KbGaps();
+		$gaps   = new KbGaps();
+		$window = in_array( (string) $request->get_param( 'window' ), KbGaps::WINDOWS, true ) ? (string) $request->get_param( 'window' ) : 'all';
+		$items  = $gaps->open_list( 50, $window );
+		foreach ( $items as &$item ) {
+			// "Write it" only opens Content Studio with an editable brief; nothing is generated until the administrator asks.
+			$item['write_url'] = ContentStudioNavigation::write_url(
+				sprintf(
+					/* translators: %s: a question a site visitor asked that the site could not answer. */
+					__( 'Write a help article that answers this question from a site visitor: %s', 'ai-site-assistant-autopilot' ),
+					(string) $item['question']
+				),
+				(string) $item['hash']
+			);
+		}
+		unset( $item );
 
 		return $this->respond(
 			array(
-				'items' => $gaps->open_list( 50 ),
-				'total' => $gaps->open_count(),
+				'items'  => $items,
+				'total'  => $gaps->open_count( $window ),
+				'window' => $window,
 			),
 			true
 		);
+	}
+
+	/**
+	 * GET /kb/answers — Answers the site owner saved for visitor questions.
+	 */
+	public function answers(): \WP_REST_Response {
+		return $this->respond(
+			array(
+				'items' => ( new SavedAnswers() )->list(),
+				'limit' => SavedAnswers::MAX_KEEP,
+			),
+			true
+		);
+	}
+
+	/**
+	 * POST /kb/answers — Save an answer. With `gap`, the question comes from that unanswered question, which is
+	 * dismissed once the answer is saved; with `id`, an existing answer is edited.
+	 */
+	public function answers_save( \WP_REST_Request $request ): \WP_REST_Response {
+		$gap_hash = sanitize_key( (string) $request->get_param( 'gap' ) );
+		$question = (string) $request->get_param( 'question' );
+		$gaps     = new KbGaps();
+		if ( '' !== $gap_hash ) {
+			$gap = $gaps->get( $gap_hash );
+			if ( null === $gap ) {
+				return $this->respond( array( 'message' => __( 'This question is no longer in the list. Reload the page and try again.', 'ai-site-assistant-autopilot' ) ), false, 404, 'gap_not_found' );
+			}
+			$question = $gap['question'];
+		}
+
+		$result = ( new SavedAnswers() )->save( $question, (string) $request->get_param( 'answer' ), sanitize_key( (string) $request->get_param( 'id' ) ) );
+		if ( ! $result['ok'] ) {
+			$messages = array(
+				'invalid_question'   => __( 'Enter the question visitors ask.', 'ai-site-assistant-autopilot' ),
+				/* translators: %s: maximum number of characters in a saved answer. */
+				'invalid_answer'     => sprintf( __( 'Write an answer of up to %s characters.', 'ai-site-assistant-autopilot' ), number_format_i18n( SavedAnswers::ANSWER_MAX ) ),
+				'duplicate_question' => __( 'Another saved answer already covers this question.', 'ai-site-assistant-autopilot' ),
+				/* translators: %s: maximum number of saved answers. */
+				'saved_answers_full' => sprintf( __( 'You can keep up to %s saved answers. Delete one before adding another.', 'ai-site-assistant-autopilot' ), number_format_i18n( SavedAnswers::MAX_KEEP ) ),
+			);
+			return $this->respond( array( 'message' => $messages[ $result['code'] ] ?? __( 'Could not save the answer.', 'ai-site-assistant-autopilot' ) ), false, 400, $result['code'] );
+		}
+		if ( '' !== $gap_hash ) {
+			$gaps->dismiss( $gap_hash );
+		}
+
+		return $this->respond(
+			array(
+				'item'          => $result['item'],
+				'gap_dismissed' => '' !== $gap_hash,
+			),
+			true,
+			200,
+			$result['code']
+		);
+	}
+
+	/**
+	 * POST /kb/answers/delete — Delete one saved answer.
+	 */
+	public function answers_delete( \WP_REST_Request $request ): \WP_REST_Response {
+		if ( ! ( new SavedAnswers() )->delete( sanitize_key( (string) $request->get_param( 'id' ) ) ) ) {
+			return $this->respond( array( 'message' => __( 'This saved answer no longer exists.', 'ai-site-assistant-autopilot' ) ), false, 404, 'not_found' );
+		}
+		return $this->respond( array( 'message' => __( 'Saved answer deleted.', 'ai-site-assistant-autopilot' ) ), true );
 	}
 
 	/**

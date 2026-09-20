@@ -67,6 +67,8 @@ final class ChatController {
 				'content' => $result['answer'],
 				'sources' => $result['sources'],
 				'usage'   => $result['usage'],
+				// Kept so a reopened conversation can still mark answers the content did not cover.
+				'status'  => (string) ( $result['status'] ?? 'answered' ),
 			)
 		);
 

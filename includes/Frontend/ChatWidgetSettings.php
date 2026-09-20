@@ -3,32 +3,58 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Frontend;
 
-use AISAAutoPilot\Admin\AdminMenu;
 use AISAAutoPilot\Admin\AnswerDeskNavigation;
 use AISAAutoPilot\Admin\ConnectionChip;
 use AISAAutoPilot\Admin\HandoffInboxPage;
 use AISAAutoPilot\Admin\Ui;
 use AISAAutoPilot\Core\Settings;
-use AISAAutoPilot\Support\HandoffEmail;
-use AISAAutoPilot\Support\HandoffTelegram;
-use AISAAutoPilot\Support\HandoffTwilio;
 
 /**
- * Widget settings — the visitor-facing assistant, with a live preview that
- * reflects every control as it changes.
+ * Advanced Widget settings: how the visitor chat looks, the pages it appears on, what it says
+ * first and whether conversations are recorded, with a live preview that follows every control.
+ *
+ * Only the fields this form renders are saved. Each switch posts an explicit "0" before its
+ * checkbox, and settings the form does not show (the on/off switch, voice, handoff channels and
+ * credentials) are left exactly as they are; they live on their own Answer Desk tabs.
  */
 final class ChatWidgetSettings {
 
-
-	/**
-	 * Position keys mapped to the short codes the preview stage uses.
-	 */
+	/** Position keys mapped to the short codes the preview stage uses. */
 	private const POSITIONS = array(
 		'bottom-right' => 'br',
 		'bottom-left'  => 'bl',
 		'top-right'    => 'tr',
 		'top-left'     => 'tl',
 	);
+
+	/** Brand colour shortcuts; any other colour can be picked with the colour input. */
+	private const BRANDS = array( '#202a8d', '#1b4d89', '#198754', '#14152b', '#ff455f' );
+
+	/** Floating-button corner radius behind each shape choice. */
+	private const BUTTON_SHAPES = array(
+		'circle'  => 30,
+		'rounded' => 16,
+		'square'  => 6,
+	);
+
+	/** Text fields and their saved length limits. */
+	private const TEXT_LIMITS = array(
+		'title'               => 80,
+		'subtitle'            => 80,
+		'greeting'            => 160,
+		'handoff_text'        => 40,
+		'handoff_hook'        => 120,
+		'conversation_notice' => 240,
+	);
+
+	/** Text fields that keep their previous value instead of being saved empty. */
+	private const REQUIRED_TEXT = array( 'title', 'greeting', 'handoff_text' );
+
+	/** Delays offered for opening the chat by itself, in seconds; 0 never opens it. */
+	private const AUTO_OPEN_CHOICES = array( 0, 5, 10, 20, 30, 60 );
+
+	/** The longest delay a saved value may carry, in seconds. */
+	private const AUTO_OPEN_MAX = 120;
 
 	public function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -37,23 +63,25 @@ final class ChatWidgetSettings {
 
 		$saved = $this->save();
 		$w     = array_merge( Settings::widget_defaults(), (array) Settings::get( 'widget', array() ) );
+		// Untouched defaults show in the admin's language; save() stores them back as defaults.
+		$w = array_merge( $w, Settings::widget_copy( $w ) );
 
-		$brand    = (string) ( $w['color'] ?: '#202a8d' );
-		$theme    = 'dark' === ( $w['theme'] ?? 'light' ) ? 'dark' : 'light';
-		$derived  = Settings::widget_derived_colors( $brand, $theme );
-		$custom   = ! empty( $w['custom_colors'] );
-		$colors   = $custom ? array_merge( $derived, (array) ( $w['colors'] ?? array() ) ) : $derived;
-		$icons    = (array) ( $w['icons'] ?? array() );
-		$position = self::POSITIONS[ $w['position'] ?? 'bottom-right' ] ?? 'br';
-
-		$mail_on = ! empty( $w['handoff_email_enabled'] );
-		$tg_on   = ! empty( $w['handoff_telegram_enabled'] );
-		$tw_on   = ! empty( $w['handoff_twilio_enabled'] );
-		$count   = (int) $mail_on + (int) $tg_on + (int) $tw_on;
-
-		$has_tg_token = Settings::has_handoff_secret( 'handoff_telegram_token' );
-		$has_tw_sid   = Settings::has_handoff_secret( 'handoff_twilio_sid' );
-		$has_tw_token = Settings::has_handoff_secret( 'handoff_twilio_token' );
+		$brand         = sanitize_hex_color( (string) ( $w['color'] ?? '' ) ) ?: '#202a8d';
+		$theme         = 'dark' === ( $w['theme'] ?? 'light' ) ? 'dark' : 'light';
+		$derived       = Settings::widget_derived_colors( $brand, $theme );
+		$custom        = ! empty( $w['custom_colors'] );
+		$colors        = $custom ? array_merge( $derived, (array) ( $w['colors'] ?? array() ) ) : $derived;
+		$icons         = (array) ( $w['icons'] ?? array() );
+		$position      = array_key_exists( (string) ( $w['position'] ?? '' ), self::POSITIONS ) ? (string) $w['position'] : 'bottom-right';
+		$recording     = ! empty( $w['conversation_logging_enabled'] );
+		$bubble_radius = max( 6, min( 30, (int) $w['bubble_radius'] ) );
+		$preset_shape  = in_array( $bubble_radius, self::BUTTON_SHAPES, true );
+		$auto_open     = max( 0, min( self::AUTO_OPEN_MAX, (int) $w['auto_open'] ) );
+		$auto_choices  = self::AUTO_OPEN_CHOICES;
+		if ( ! in_array( $auto_open, $auto_choices, true ) ) {
+			$auto_choices[] = $auto_open;
+			sort( $auto_choices );
+		}
 
 		Ui::grad_defs();
 		$requested_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'widget'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only tab selection.
@@ -68,7 +96,7 @@ final class ChatWidgetSettings {
 			array(
 				'chip'    => ConnectionChip::derive(),
 				'action'  => array(
-					'label' => __( 'Widget settings', 'ai-site-assistant-autopilot' ),
+					'label' => __( 'Back to Widget', 'ai-site-assistant-autopilot' ),
 					'url'   => AnswerDeskNavigation::url( AnswerDeskNavigation::TAB_WIDGET ),
 				),
 				'subtabs' => AnswerDeskNavigation::subtabs( $current_tab ),
@@ -81,279 +109,500 @@ final class ChatWidgetSettings {
 			<?php Ui::alert( 'ok', 'check-circle', esc_html__( 'Settings saved.', 'ai-site-assistant-autopilot' ) ); ?>
 		<?php endif; ?>
 
-				<form method="post">
-		<?php wp_nonce_field( 'sp_widget_save' ); ?>
-					<div class="sp-cols">
-						<div class="sp-col sp-col--480">
-
-							<!-- ── Widget basics ─────────────────────────── -->
-							<div class="sp-card sp-card--24" id="answer-desk-widget">
-								<div class="sp-card__rule">
-									<?php echo Ui::icon( 'chat', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-									<span><?php esc_html_e( 'Widget basics', 'ai-site-assistant-autopilot' ); ?></span>
-								</div>
-								<label class="sp-check sp-check--14" style="margin-bottom:16px">
-									<input type="checkbox" name="widget[enabled]" value="1" <?php checked( ! empty( $w['enabled'] ) ); ?> />
-									<span><?php esc_html_e( 'Enable Widget', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-								<label class="sp-check sp-check--14" style="margin-bottom:8px">
-									<input type="checkbox" name="widget[conversation_logging_enabled]" value="1" <?php checked( ! empty( $w['conversation_logging_enabled'] ) ); ?> />
-									<span><?php esc_html_e( 'Record visitor conversations for the Answer Desk inbox', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-								<label class="sp-field" style="margin-bottom:16px">
-									<span class="sp-label sp-mb0"><?php esc_html_e( 'Visitor notice', 'ai-site-assistant-autopilot' ); ?></span>
-									<input type="text" class="sp-input sp-input--sm" name="widget[conversation_notice]" value="<?php echo esc_attr( (string) $w['conversation_notice'] ); ?>" />
-									<span class="sp-help"><?php esc_html_e( 'Shown in the widget when recording is enabled. Ensure this wording meets your privacy obligations.', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-								<div class="sp-cols sp-cols--16">
-									<label class="sp-field" style="flex:1 1 200px">
-										<span class="sp-label sp-mb0"><?php esc_html_e( 'Title', 'ai-site-assistant-autopilot' ); ?></span>
-										<input type="text" class="sp-input sp-input--sm" name="widget[title]" value="<?php echo esc_attr( (string) $w['title'] ); ?>" data-sp-bind="title" />
-									</label>
-									<label class="sp-field" style="flex:1 1 200px">
-										<span class="sp-label sp-mb0"><?php esc_html_e( 'Greeting', 'ai-site-assistant-autopilot' ); ?></span>
-										<input type="text" class="sp-input sp-input--sm" name="widget[greeting]" value="<?php echo esc_attr( (string) $w['greeting'] ); ?>" data-sp-bind="greeting" />
-									</label>
-								</div>
-
-								<label class="sp-field" style="margin-top:16px">
-									<span class="sp-label sp-mb0"><?php esc_html_e( 'Suggested questions', 'ai-site-assistant-autopilot' ); ?></span>
-									<textarea class="sp-textarea" name="widget[suggestions]" rows="3" style="min-height:84px"
-										placeholder="<?php esc_attr_e( "Do you ship to my city?\nWhat are your opening hours?\nHow do I return an item?", 'ai-site-assistant-autopilot' ); ?>"
-										data-sp-bind="suggestions"><?php echo esc_textarea( implode( "\n", (array) ( $w['suggestions'] ?? array() ) ) ); ?></textarea>
-									<span class="sp-help"><?php esc_html_e( 'One per line, up to four. Shown as one-tap buttons before the visitor types — the fastest way to a useful first answer.', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-							</div>
-
-							<!-- ── Appearance ────────────────────────────── -->
-							<div class="sp-card sp-card--24">
-								<div class="sp-card__rule">
-									<?php echo Ui::icon( 'palette', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-									<span><?php esc_html_e( 'Appearance', 'ai-site-assistant-autopilot' ); ?></span>
-								</div>
-
-								<div style="margin-bottom:16px">
-									<span class="sp-label"><?php esc_html_e( 'Position', 'ai-site-assistant-autopilot' ); ?></span>
-									<div class="sp-row-wrap" data-sp-radio-group="position">
-										<?php foreach ( self::POSITIONS as $key => $code ) : ?>
-											<label class="sp-choice sp-choice--round<?php echo ( $w['position'] ?? 'bottom-right' ) === $key ? ' is-on' : ''; ?>">
-												<input type="radio" class="sp-sr" name="widget[position]" value="<?php echo esc_attr( $key ); ?>" data-sp-pos="<?php echo esc_attr( $code ); ?>" <?php checked( $w['position'] ?? 'bottom-right', $key ); ?> />
-												<span><?php echo esc_html( $this->position_label( $key ) ); ?></span>
-											</label>
-										<?php endforeach; ?>
-									</div>
-								</div>
-
-								<div style="margin-bottom:16px">
-									<span class="sp-label"><?php esc_html_e( 'Theme', 'ai-site-assistant-autopilot' ); ?></span>
-									<div class="sp-row-wrap" data-sp-radio-group="theme">
-										<label class="sp-choice sp-choice--round<?php echo 'light' === $theme ? ' is-on' : ''; ?>">
-											<input type="radio" class="sp-sr" name="widget[theme]" value="light" data-sp-theme="light" <?php checked( 'light', $theme ); ?> />
-											<span><?php esc_html_e( 'Light', 'ai-site-assistant-autopilot' ); ?></span>
-										</label>
-										<label class="sp-choice sp-choice--round<?php echo 'dark' === $theme ? ' is-on' : ''; ?>">
-											<input type="radio" class="sp-sr" name="widget[theme]" value="dark" data-sp-theme="dark" <?php checked( 'dark', $theme ); ?> />
-											<span><?php esc_html_e( 'Dark', 'ai-site-assistant-autopilot' ); ?></span>
-										</label>
-									</div>
-								</div>
-
-								<div style="margin-bottom:16px">
-									<span class="sp-label"><?php esc_html_e( 'Brand color', 'ai-site-assistant-autopilot' ); ?></span>
-									<div class="sp-swatches">
-									<?php foreach ( array( '#202a8d', '#181f66', '#198754', '#14152b' ) as $swatch ) : ?>
-											<button type="button" class="sp-swatch<?php echo strtolower( $brand ) === $swatch ? ' is-on' : ''; ?>" data-sp-brand="<?php echo esc_attr( $swatch ); ?>" aria-label="<?php echo esc_attr( $swatch ); ?>">
-												<span style="background:<?php echo esc_attr( $swatch ); ?>"></span>
-											</button>
-									<?php endforeach; ?>
-										<input type="hidden" name="widget[color]" id="sp-w-brand" value="<?php echo esc_attr( $brand ); ?>" />
-										<button type="button" class="sp-choice sp-choice--round<?php echo $custom ? ' is-on' : ''; ?>" id="sp-w-customize" aria-expanded="<?php echo $custom ? 'true' : 'false'; ?>">
-											<?php echo Ui::icon( 'gear', 15, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-											<span><?php esc_html_e( 'Customize', 'ai-site-assistant-autopilot' ); ?></span>
-										</button>
-									</div>
-									<input type="hidden" name="widget[custom_colors]" id="sp-w-custom-flag" value="<?php echo $custom ? '1' : '0'; ?>" />
-									<span class="sp-help" style="display:block;margin-top:8px" id="sp-w-custom-hint">
-										<?php
-										echo esc_html(
-											$custom
-												? __( 'Set each part separately; the brand colour is the starting point.', 'ai-site-assistant-autopilot' )
-												: __( 'Open Customize for header text, icons, corner rounding and per-part colours.', 'ai-site-assistant-autopilot' )
-										);
-										?>
-									</span>
-								</div>
-
-								<!-- Customize panel -->
-								<div class="sp-card sp-card--soft" id="sp-w-custom-panel" style="display:<?php echo $custom ? 'flex' : 'none'; ?>;flex-direction:column;gap:18px;padding:18px">
-
-									<div>
-										<div class="sp-h3" style="font-size:13px;margin-bottom:10px"><?php esc_html_e( 'Header text', 'ai-site-assistant-autopilot' ); ?></div>
-										<div class="sp-cols sp-cols--16">
-											<label class="sp-field" style="flex:1 1 200px">
-												<span class="sp-label sp-mb0"><?php esc_html_e( 'Head', 'ai-site-assistant-autopilot' ); ?></span>
-												<input type="text" class="sp-input sp-input--sm" value="<?php echo esc_attr( (string) $w['title'] ); ?>" data-sp-mirror="title" />
-											</label>
-											<label class="sp-field" style="flex:1 1 200px">
-												<span class="sp-label sp-mb0"><?php esc_html_e( 'Sub head', 'ai-site-assistant-autopilot' ); ?></span>
-												<input type="text" class="sp-input sp-input--sm" name="widget[subtitle]" value="<?php echo esc_attr( (string) $w['subtitle'] ); ?>" data-sp-bind="subtitle" />
-											</label>
-										</div>
-									</div>
-
-									<div>
-										<div class="sp-h3" style="font-size:13px;margin-bottom:10px"><?php esc_html_e( 'Icons (drop a PNG)', 'ai-site-assistant-autopilot' ); ?></div>
-										<div class="sp-tiles" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
-				<?php
-				Ui::slot( 'widget[icons][avatar]', __( 'Header icon', 'ai-site-assistant-autopilot' ), __( 'Beside the header title', 'ai-site-assistant-autopilot' ), (string) ( $icons['avatar'] ?? '' ) );
-				Ui::slot( 'widget[icons][voice]', __( 'Voice icon', 'ai-site-assistant-autopilot' ), __( 'The mic button', 'ai-site-assistant-autopilot' ), (string) ( $icons['voice'] ?? '' ) );
-				Ui::slot( 'widget[icons][handoff]', __( 'Handoff icon', 'ai-site-assistant-autopilot' ), __( 'The talk-to-human button', 'ai-site-assistant-autopilot' ), (string) ( $icons['handoff'] ?? '' ) );
-				?>
-										</div>
-									</div>
-
-									<div>
-										<div class="sp-h3" style="font-size:13px;margin-bottom:10px"><?php esc_html_e( 'Corner rounding', 'ai-site-assistant-autopilot' ); ?></div>
-										<div class="sp-cols sp-cols--16">
-											<label style="flex:1 1 200px">
-												<span class="sp-bar-head" style="font-weight:600;font-size:13px">
-													<span><?php esc_html_e( 'Panel', 'ai-site-assistant-autopilot' ); ?></span>
-													<span class="sp-mono sp-help" data-sp-out="panel_radius"><?php echo esc_html( (string) (int) $w['panel_radius'] ); ?>px</span>
-												</span>
-												<input type="range" class="sp-range" min="0" max="28" name="widget[panel_radius]" value="<?php echo esc_attr( (string) (int) $w['panel_radius'] ); ?>" data-sp-range="panel_radius" />
-											</label>
-											<label style="flex:1 1 200px">
-												<span class="sp-bar-head" style="font-weight:600;font-size:13px">
-													<span><?php esc_html_e( 'Bubbles', 'ai-site-assistant-autopilot' ); ?></span>
-													<span class="sp-mono sp-help" data-sp-out="msg_radius"><?php echo esc_html( (string) (int) $w['msg_radius'] ); ?>px</span>
-												</span>
-												<input type="range" class="sp-range" min="0" max="24" name="widget[msg_radius]" value="<?php echo esc_attr( (string) (int) $w['msg_radius'] ); ?>" data-sp-range="msg_radius" />
-											</label>
-										</div>
-									</div>
-
-									<div>
-										<div class="sp-h3" style="font-size:13px;margin-bottom:10px"><?php esc_html_e( 'Floating button', 'ai-site-assistant-autopilot' ); ?></div>
-										<div class="sp-tiles" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));align-items:start">
-											<label>
-												<span class="sp-bar-head" style="font-weight:600;font-size:13px">
-													<span><?php esc_html_e( 'Corners', 'ai-site-assistant-autopilot' ); ?></span>
-													<span class="sp-mono sp-help" data-sp-out="bubble_radius"><?php echo esc_html( (string) (int) $w['bubble_radius'] ); ?>px</span>
-												</span>
-												<input type="range" class="sp-range" min="6" max="30" name="widget[bubble_radius]" value="<?php echo esc_attr( (string) (int) $w['bubble_radius'] ); ?>" data-sp-range="bubble_radius" />
-											</label>
-											<label class="sp-kv__row" style="font-size:13px;font-weight:600">
-												<span><?php esc_html_e( 'Colour', 'ai-site-assistant-autopilot' ); ?></span>
-												<input type="color" class="sp-color" name="widget[colors][bubble]" value="<?php echo esc_attr( (string) $colors['bubble'] ); ?>" data-sp-color="bubble" />
-											</label>
-				<?php Ui::slot( 'widget[icons][float]', __( 'Icon', 'ai-site-assistant-autopilot' ), __( 'Drop a PNG', 'ai-site-assistant-autopilot' ), (string) ( $icons['float'] ?? '' ) ); ?>
-										</div>
-									</div>
-
-									<div>
-										<div class="sp-h3" style="font-size:13px;margin-bottom:10px"><?php esc_html_e( 'Colors of each part', 'ai-site-assistant-autopilot' ); ?></div>
-										<div class="sp-tiles" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 24px">
-				<?php foreach ( $this->color_labels() as $key => $label ) : ?>
-												<label class="sp-kv__row" style="font-size:13px;font-weight:600">
-													<span><?php echo esc_html( $label ); ?></span>
-											<input type="color" class="sp-color" name="widget[colors][<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( (string) ( $colors[ $key ] ?? '#202a8d' ) ); ?>" data-sp-color="<?php echo esc_attr( $key ); ?>" />
-												</label>
-				<?php endforeach; ?>
-										</div>
-										<button type="button" class="sp-btn sp-btn--ghost sp-btn--r8" id="sp-w-reset-colors" style="margin-top:14px;padding:8px 14px;font-size:13px"><?php esc_html_e( 'Reset to brand colour', 'ai-site-assistant-autopilot' ); ?></button>
-									</div>
-								</div>
-							</div>
-
-							<!-- ── Voice ─────────────────────────────────── -->
-							<div class="sp-card sp-card--24" id="answer-desk-voice">
-								<div class="sp-card__rule">
-			<?php echo Ui::icon( 'mic-full', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-									<span><?php esc_html_e( 'Voice', 'ai-site-assistant-autopilot' ); ?></span>
-								</div>
-								<label class="sp-check sp-check--14" style="margin-bottom:12px">
-									<input type="checkbox" name="widget[voice_enabled]" value="1" <?php checked( ! empty( $w['voice_enabled'] ) ); ?> />
-									<span><?php esc_html_e( 'Enable voice input', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-								<label class="sp-check sp-check--14">
-									<input type="checkbox" name="widget[voice_auto]" value="1" <?php checked( ! empty( $w['voice_auto'] ) ); ?> />
-									<span><?php esc_html_e( 'Auto-play response', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-							</div>
-
-							<!-- ── Handoff ───────────────────────────────── -->
-							<div class="sp-card sp-card--24" id="answer-desk-handoff">
-								<div class="sp-card__rule">
-			<?php echo Ui::icon( 'headset', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-									<span><?php esc_html_e( 'Handoff', 'ai-site-assistant-autopilot' ); ?></span>
-								</div>
-								<label class="sp-check sp-check--14" style="margin-bottom:12px">
-									<input type="checkbox" name="widget[handoff_enabled]" value="1" <?php checked( ! empty( $w['handoff_enabled'] ) ); ?> data-sp-bind="handoff" />
-									<span><?php esc_html_e( 'Enable human handoff', 'ai-site-assistant-autopilot' ); ?></span>
-								</label>
-								<div class="sp-cols sp-cols--16">
-									<label class="sp-field" style="flex:1 1 200px">
-										<span class="sp-label sp-mb0"><?php esc_html_e( 'Button text', 'ai-site-assistant-autopilot' ); ?></span>
-										<input type="text" class="sp-input sp-input--sm" name="widget[handoff_text]" value="<?php echo esc_attr( (string) ( $w['handoff_text'] ?? __( 'Talk to human', 'ai-site-assistant-autopilot' ) ) ); ?>" data-sp-bind="handoffText" />
-									</label>
-									<label class="sp-field" style="flex:1 1 200px">
-										<span class="sp-label sp-mb0"><?php esc_html_e( 'Hook text', 'ai-site-assistant-autopilot' ); ?></span>
-										<input type="text" class="sp-input sp-input--sm" name="widget[handoff_hook]" value="<?php echo esc_attr( (string) ( $w['handoff_hook'] ?? '' ) ); ?>" data-sp-bind="hook" />
-									</label>
-								</div>
-
-								<div style="margin-top:20px;padding-top:16px;border-block-start:1px solid var(--sp-line-soft)">
-									<div class="sp-h3" style="font-size:13px;margin-bottom:2px"><?php esc_html_e( 'Channels', 'ai-site-assistant-autopilot' ); ?></div>
-									<p class="sp-help sp-help--12" id="sp-w-channel-summary">
-			<?php
-				echo 0 === $count
-				? esc_html__( 'No channel is enabled, so the handoff button stays hidden from visitors.', 'ai-site-assistant-autopilot' )
-				: esc_html(
-					sprintf(
-					/* translators: %s: number of enabled handoff channels. */
-						_n( '%s channel enabled. The handoff message goes to every enabled channel.', '%s channels enabled. The handoff message goes to every enabled channel.', $count, 'ai-site-assistant-autopilot' ),
-						number_format_i18n( $count )
-					)
-				);
-			?>
-									</p>
-								</div>
-
-			<?php
-			$this->channel_email( $w, $mail_on );
-			$this->channel_telegram( $w, $tg_on, $has_tg_token );
-			$this->channel_twilio( $w, $tw_on, $has_tw_sid, $has_tw_token );
-			?>
-							</div>
-
-							<div style="position:sticky;bottom:0;display:flex;gap:10px;align-items:center;padding:14px 0;margin-top:8px">
-								<button type="submit" class="sp-btn sp-btn--r8"><?php esc_html_e( 'Save settings', 'ai-site-assistant-autopilot' ); ?></button>
-							</div>
-						</div>
-
-						<!-- ── Live preview ──────────────────────────────── -->
-						<aside class="sp-side sp-side--340" id="answer-desk-preview" style="position:sticky;top:40px">
-							<div class="sp-eyebrow"><?php esc_html_e( 'Live preview', 'ai-site-assistant-autopilot' ); ?></div>
-			<?php $this->preview( $w, $colors, $icons, $position, $theme ); ?>
-						</aside>
-					</div>
-				</form>
-
-				<?php if ( AnswerDeskNavigation::TAB_HANDOFF === $current_tab ) : ?>
-					<div class="sp-card sp-card--24" id="answer-desk-handoff-inbox" style="margin-top:20px">
-						<div class="sp-card__rule">
-							<?php echo Ui::icon( 'headset', 18, '#202a8d' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
-							<span><?php esc_html_e( 'Escalated conversations', 'ai-site-assistant-autopilot' ); ?></span>
-						</div>
-						<p class="sp-help sp-help--12" style="margin-bottom:14px"><?php esc_html_e( 'Visitors who explicitly asked for a person. Update each thread once it is taken care of.', 'ai-site-assistant-autopilot' ); ?></p>
-						<?php ( new HandoffInboxPage() )->render_inbox(); ?>
-					</div>
-				<?php endif; ?>
+			<div class="sp-wz-intro">
+				<div class="sp-wz-intro__body">
+					<h2 class="sp-wz-intro__title"><?php esc_html_e( 'Customise the widget', 'ai-site-assistant-autopilot' ); ?></h2>
+					<p class="sp-wz-intro__text"><?php esc_html_e( 'How the chat looks, which pages it appears on, what it says first and whether conversations are recorded. The on/off switch, voice and human handoff have their own tabs.', 'ai-site-assistant-autopilot' ); ?></p>
+				</div>
+				<nav class="sp-wz-intro__links" aria-label="<?php esc_attr_e( 'Related Answer Desk settings', 'ai-site-assistant-autopilot' ); ?>">
+					<a href="<?php echo esc_url( AnswerDeskNavigation::url( AnswerDeskNavigation::TAB_WIDGET ) ); ?>"><?php esc_html_e( 'Show or hide the widget', 'ai-site-assistant-autopilot' ); ?></a>
+					<a href="<?php echo esc_url( AnswerDeskNavigation::url( AnswerDeskNavigation::TAB_VOICE ) ); ?>"><?php esc_html_e( 'Voice', 'ai-site-assistant-autopilot' ); ?></a>
+					<a href="<?php echo esc_url( AnswerDeskNavigation::url( AnswerDeskNavigation::TAB_HANDOFF ) ); ?>"><?php esc_html_e( 'Human handoff channels', 'ai-site-assistant-autopilot' ); ?></a>
+				</nav>
 			</div>
-			</section>
+
+			<form method="post" class="sp-wz" data-sp-widget-form>
+		<?php wp_nonce_field( 'sp_widget_save' ); ?>
+				<div class="sp-wz__main">
+
+					<section class="sp-wz-card" id="answer-desk-widget" aria-labelledby="sp-wz-look-title">
+						<h2 class="sp-wz-card__title" id="sp-wz-look-title"><?php esc_html_e( 'Where it sits and how it looks', 'ai-site-assistant-autopilot' ); ?></h2>
+						<div class="sp-wz-card__grid">
+							<fieldset class="sp-wz-field">
+								<legend class="sp-wz-field__label"><?php esc_html_e( 'Position', 'ai-site-assistant-autopilot' ); ?></legend>
+								<div class="sp-wz-choices sp-wz-choices--2" data-sp-radio-group="position">
+								<?php foreach ( self::POSITIONS as $key => $code ) : ?>
+									<label class="sp-wz-choice<?php echo $position === $key ? ' is-on' : ''; ?>">
+										<input type="radio" class="sp-sr" name="widget[position]" value="<?php echo esc_attr( $key ); ?>" data-sp-pos="<?php echo esc_attr( $code ); ?>" <?php checked( $position, $key ); ?> />
+										<span><?php echo esc_html( $this->position_label( $key ) ); ?></span>
+									</label>
+								<?php endforeach; ?>
+								</div>
+							</fieldset>
+							<fieldset class="sp-wz-field">
+								<legend class="sp-wz-field__label"><?php esc_html_e( 'Theme', 'ai-site-assistant-autopilot' ); ?></legend>
+								<div class="sp-wz-choices sp-wz-choices--2" data-sp-radio-group="theme">
+									<label class="sp-wz-choice<?php echo 'light' === $theme ? ' is-on' : ''; ?>">
+										<input type="radio" class="sp-sr" name="widget[theme]" value="light" data-sp-theme="light" <?php checked( 'light', $theme ); ?> />
+										<span><?php esc_html_e( 'Light', 'ai-site-assistant-autopilot' ); ?></span>
+									</label>
+									<label class="sp-wz-choice<?php echo 'dark' === $theme ? ' is-on' : ''; ?>">
+										<input type="radio" class="sp-sr" name="widget[theme]" value="dark" data-sp-theme="dark" <?php checked( 'dark', $theme ); ?> />
+										<span><?php esc_html_e( 'Dark', 'ai-site-assistant-autopilot' ); ?></span>
+									</label>
+								</div>
+							</fieldset>
+						</div>
+					</section>
+
+					<?php $this->render_visibility( $w ); ?>
+
+					<section class="sp-wz-card" aria-labelledby="sp-wz-colours-title">
+						<div class="sp-wz-card__head">
+							<h2 class="sp-wz-card__title" id="sp-wz-colours-title"><?php esc_html_e( 'Colours', 'ai-site-assistant-autopilot' ); ?></h2>
+							<button type="button" class="sp-wz-link" id="sp-w-reset-colors"><?php esc_html_e( 'Reset to brand colour', 'ai-site-assistant-autopilot' ); ?></button>
+						</div>
+						<p class="sp-wz-card__text"><?php esc_html_e( 'Pick a brand colour, then adjust any single part.', 'ai-site-assistant-autopilot' ); ?></p>
+						<div class="sp-wz-brands" role="group" aria-label="<?php esc_attr_e( 'Brand colour', 'ai-site-assistant-autopilot' ); ?>">
+						<?php foreach ( self::BRANDS as $swatch ) : ?>
+							<?php $is_brand = strtolower( $brand ) === $swatch; ?>
+							<button type="button" class="sp-wz-brand<?php echo $is_brand ? ' is-on' : ''; ?>" data-sp-brand="<?php echo esc_attr( $swatch ); ?>" aria-pressed="<?php echo $is_brand ? 'true' : 'false'; ?>" aria-label="<?php /* translators: %s: hex colour such as #202a8d. */ echo esc_attr( sprintf( __( 'Use %s as the brand colour', 'ai-site-assistant-autopilot' ), $swatch ) ); ?>">
+								<span style="background:<?php echo esc_attr( $swatch ); ?>"></span>
+							</button>
+						<?php endforeach; ?>
+							<label class="sp-wz-brand-custom">
+								<input type="color" value="<?php echo esc_attr( $brand ); ?>" data-sp-brand-custom />
+								<span><?php esc_html_e( 'Other colour', 'ai-site-assistant-autopilot' ); ?></span>
+							</label>
+							<input type="hidden" name="widget[color]" id="sp-w-brand" value="<?php echo esc_attr( $brand ); ?>" />
+							<input type="hidden" name="widget[custom_colors]" id="sp-w-custom-flag" value="<?php echo $custom ? '1' : '0'; ?>" />
+						</div>
+						<p class="sp-wz-card__note" id="sp-w-custom-hint" data-custom-text="<?php esc_attr_e( 'Some parts use their own colour. Reset to follow the brand colour again.', 'ai-site-assistant-autopilot' ); ?>" data-derived-text="<?php esc_attr_e( 'Every part follows the brand colour.', 'ai-site-assistant-autopilot' ); ?>">
+						<?php
+						echo esc_html(
+							$custom
+								? __( 'Some parts use their own colour. Reset to follow the brand colour again.', 'ai-site-assistant-autopilot' )
+								: __( 'Every part follows the brand colour.', 'ai-site-assistant-autopilot' )
+						);
+						?>
+						</p>
+						<div class="sp-wz-parts">
+						<?php foreach ( $this->color_labels() as $key => $label ) : ?>
+							<?php $hex = (string) ( $colors[ $key ] ?? '#202a8d' ); ?>
+							<label class="sp-wz-part">
+								<input type="color" class="sp-wz-part__input" name="widget[colors][<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( $hex ); ?>" data-sp-color="<?php echo esc_attr( $key ); ?>" />
+								<span class="sp-wz-part__label"><?php echo esc_html( $label ); ?></span>
+								<code class="sp-wz-part__hex" dir="ltr" data-sp-color-hex="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $hex ); ?></code>
+							</label>
+						<?php endforeach; ?>
+						</div>
+					</section>
+
+					<section class="sp-wz-card" aria-labelledby="sp-wz-header-title">
+						<h2 class="sp-wz-card__title" id="sp-wz-header-title"><?php esc_html_e( 'Header text and icons', 'ai-site-assistant-autopilot' ); ?></h2>
+						<div class="sp-wz-card__grid">
+							<label class="sp-wz-field">
+								<span class="sp-wz-field__label"><?php esc_html_e( 'Title', 'ai-site-assistant-autopilot' ); ?></span>
+								<input type="text" class="sp-input sp-input--sm" name="widget[title]" maxlength="80" required value="<?php echo esc_attr( (string) $w['title'] ); ?>" data-sp-bind="title" />
+							</label>
+							<label class="sp-wz-field">
+								<span class="sp-wz-field__label"><?php esc_html_e( 'Subtitle', 'ai-site-assistant-autopilot' ); ?></span>
+								<input type="text" class="sp-input sp-input--sm" name="widget[subtitle]" maxlength="80" value="<?php echo esc_attr( (string) $w['subtitle'] ); ?>" data-sp-bind="subtitle" />
+							</label>
+						</div>
+						<div class="sp-wz-slots">
+						<?php
+						Ui::slot( 'widget[icons][avatar]', __( 'Header icon', 'ai-site-assistant-autopilot' ), __( 'Beside the header title', 'ai-site-assistant-autopilot' ), (string) ( $icons['avatar'] ?? '' ) );
+						Ui::slot( 'widget[icons][voice]', __( 'Voice icon', 'ai-site-assistant-autopilot' ), __( 'The mic button', 'ai-site-assistant-autopilot' ), (string) ( $icons['voice'] ?? '' ) );
+						Ui::slot( 'widget[icons][handoff]', __( 'Handoff icon', 'ai-site-assistant-autopilot' ), __( 'The talk-to-human button', 'ai-site-assistant-autopilot' ), (string) ( $icons['handoff'] ?? '' ) );
+						?>
+						</div>
+						<p class="sp-wz-card__note"><?php esc_html_e( 'PNG, JPEG, WebP or SVG up to 200 KB. Remove an image to use the built-in icon again.', 'ai-site-assistant-autopilot' ); ?></p>
+					</section>
+
+					<section class="sp-wz-card" aria-labelledby="sp-wz-first-title">
+						<h2 class="sp-wz-card__title" id="sp-wz-first-title"><?php esc_html_e( 'What visitors see first', 'ai-site-assistant-autopilot' ); ?></h2>
+						<label class="sp-wz-field">
+							<span class="sp-wz-field__label"><?php esc_html_e( 'Greeting', 'ai-site-assistant-autopilot' ); ?></span>
+							<input type="text" class="sp-input sp-input--sm" name="widget[greeting]" maxlength="160" required value="<?php echo esc_attr( (string) $w['greeting'] ); ?>" data-sp-bind="greeting" />
+						</label>
+						<label class="sp-wz-field">
+							<span class="sp-wz-field__label"><?php esc_html_e( 'Suggested questions', 'ai-site-assistant-autopilot' ); ?></span>
+							<textarea class="sp-textarea" name="widget[suggestions]" rows="4" aria-describedby="sp-wz-suggestions-help"
+								placeholder="<?php esc_attr_e( "Do you ship to my city?\nWhat are your opening hours?\nHow do I return an item?", 'ai-site-assistant-autopilot' ); ?>"
+								data-sp-bind="suggestions"><?php echo esc_textarea( implode( "\n", (array) ( $w['suggestions'] ?? array() ) ) ); ?></textarea>
+							<span class="sp-wz-field__help" id="sp-wz-suggestions-help"><?php esc_html_e( 'One per line, up to four. Shown as one-tap buttons before the visitor types — the fastest way to a useful first answer.', 'ai-site-assistant-autopilot' ); ?></span>
+						</label>
+						<label class="sp-wz-field" data-sp-auto-open-field>
+							<span class="sp-wz-field__label"><?php esc_html_e( 'Open the chat by itself', 'ai-site-assistant-autopilot' ); ?></span>
+							<select class="sp-select sp-input--sm" name="widget[auto_open]" aria-describedby="sp-wz-auto-open-help" data-sp-auto-open>
+								<?php foreach ( $auto_choices as $seconds ) : ?>
+									<option value="<?php echo esc_attr( (string) $seconds ); ?>" <?php selected( $auto_open, $seconds ); ?>>
+									<?php
+									echo esc_html(
+										0 === $seconds
+											? __( 'Never — show a short hint beside the button', 'ai-site-assistant-autopilot' )
+											/* translators: %d: number of seconds after the page loads. */
+											: sprintf( _n( 'After %d second', 'After %d seconds', $seconds, 'ai-site-assistant-autopilot' ), $seconds )
+									);
+									?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+							<span class="sp-wz-field__help" id="sp-wz-auto-open-help"><?php esc_html_e( 'Counted from each page load. On phones the open chat covers the whole screen, so most sites leave this off.', 'ai-site-assistant-autopilot' ); ?></span>
+						</label>
+					</section>
+
+					<section class="sp-wz-card" aria-labelledby="sp-wz-corners-title">
+						<h2 class="sp-wz-card__title" id="sp-wz-corners-title"><?php esc_html_e( 'Corners and the floating button', 'ai-site-assistant-autopilot' ); ?></h2>
+						<div class="sp-wz-card__grid">
+							<label class="sp-wz-field">
+								<span class="sp-wz-field__label sp-wz-field__label--split">
+									<span><?php esc_html_e( 'Panel corners', 'ai-site-assistant-autopilot' ); ?></span>
+									<span class="sp-wz-field__value" dir="ltr" data-sp-out="panel_radius"><?php echo esc_html( (string) (int) $w['panel_radius'] ); ?>px</span>
+								</span>
+								<input type="range" class="sp-wz-range" min="0" max="28" name="widget[panel_radius]" value="<?php echo esc_attr( (string) (int) $w['panel_radius'] ); ?>" data-sp-range="panel_radius" />
+							</label>
+							<label class="sp-wz-field">
+								<span class="sp-wz-field__label sp-wz-field__label--split">
+									<span><?php esc_html_e( 'Message corners', 'ai-site-assistant-autopilot' ); ?></span>
+									<span class="sp-wz-field__value" dir="ltr" data-sp-out="msg_radius"><?php echo esc_html( (string) (int) $w['msg_radius'] ); ?>px</span>
+								</span>
+								<input type="range" class="sp-wz-range" min="0" max="24" name="widget[msg_radius]" value="<?php echo esc_attr( (string) (int) $w['msg_radius'] ); ?>" data-sp-range="msg_radius" />
+							</label>
+						</div>
+						<fieldset class="sp-wz-field">
+							<legend class="sp-wz-field__label"><?php esc_html_e( 'Button shape', 'ai-site-assistant-autopilot' ); ?></legend>
+							<div class="sp-wz-choices sp-wz-choices--auto" data-sp-radio-group="shape">
+							<?php foreach ( self::BUTTON_SHAPES as $shape => $radius ) : ?>
+								<label class="sp-wz-choice<?php echo $bubble_radius === $radius ? ' is-on' : ''; ?>">
+									<input type="radio" class="sp-sr" name="widget[bubble_radius]" value="<?php echo esc_attr( (string) $radius ); ?>" data-sp-shape="<?php echo esc_attr( (string) $radius ); ?>" <?php checked( $bubble_radius, $radius ); ?> />
+									<span><?php echo esc_html( $this->shape_label( $shape ) ); ?></span>
+								</label>
+							<?php endforeach; ?>
+							<?php if ( ! $preset_shape ) : ?>
+								<label class="sp-wz-choice is-on">
+									<input type="radio" class="sp-sr" name="widget[bubble_radius]" value="<?php echo esc_attr( (string) $bubble_radius ); ?>" data-sp-shape="<?php echo esc_attr( (string) $bubble_radius ); ?>" checked />
+									<span>
+									<?php
+									/* translators: %d: corner radius in pixels. */
+									echo esc_html( sprintf( __( 'Custom (%dpx)', 'ai-site-assistant-autopilot' ), $bubble_radius ) );
+									?>
+									</span>
+								</label>
+							<?php endif; ?>
+							</div>
+						</fieldset>
+						<div class="sp-wz-slots sp-wz-slots--single">
+						<?php Ui::slot( 'widget[icons][float]', __( 'Floating button icon', 'ai-site-assistant-autopilot' ), __( 'Replaces the chat bubble on the button', 'ai-site-assistant-autopilot' ), (string) ( $icons['float'] ?? '' ) ); ?>
+						</div>
+					</section>
+
+					<section class="sp-wz-card" aria-labelledby="sp-wz-handoff-title">
+						<h2 class="sp-wz-card__title" id="sp-wz-handoff-title"><?php esc_html_e( 'Talk to a person button', 'ai-site-assistant-autopilot' ); ?></h2>
+						<p class="sp-wz-card__text"><?php esc_html_e( 'Visitors see this button only while Human handoff has a ready channel.', 'ai-site-assistant-autopilot' ); ?></p>
+						<div class="sp-wz-card__grid">
+							<label class="sp-wz-field">
+								<span class="sp-wz-field__label"><?php esc_html_e( 'Button text', 'ai-site-assistant-autopilot' ); ?></span>
+								<input type="text" class="sp-input sp-input--sm" name="widget[handoff_text]" maxlength="40" required value="<?php echo esc_attr( (string) ( $w['handoff_text'] ?? __( 'Talk to a human', 'ai-site-assistant-autopilot' ) ) ); ?>" data-sp-bind="handoffText" />
+							</label>
+							<label class="sp-wz-field">
+								<span class="sp-wz-field__label"><?php esc_html_e( 'Text above the button', 'ai-site-assistant-autopilot' ); ?></span>
+								<input type="text" class="sp-input sp-input--sm" name="widget[handoff_hook]" maxlength="120" value="<?php echo esc_attr( (string) ( $w['handoff_hook'] ?? '' ) ); ?>" data-sp-bind="hook" />
+							</label>
+						</div>
+						<a class="sp-wz-link" href="<?php echo esc_url( AnswerDeskNavigation::url( AnswerDeskNavigation::TAB_HANDOFF ) ); ?>"><?php esc_html_e( 'Set up handoff channels', 'ai-site-assistant-autopilot' ); ?></a>
+					</section>
+
+					<section class="sp-wz-card" id="answer-desk-privacy" aria-labelledby="sp-wz-privacy-title">
+						<h2 class="sp-wz-card__title" id="sp-wz-privacy-title"><?php esc_html_e( 'Recording and privacy', 'ai-site-assistant-autopilot' ); ?></h2>
+						<p class="sp-wz-card__text"><?php esc_html_e( 'Decide whether visitor conversations are kept, and what visitors are told.', 'ai-site-assistant-autopilot' ); ?></p>
+						<div class="sp-wz-switch-row">
+							<input type="hidden" name="widget[conversation_logging_enabled]" value="0" />
+							<input type="checkbox" class="sp-wz-switch" id="sp-wz-recording" role="switch" name="widget[conversation_logging_enabled]" value="1" aria-describedby="sp-wz-recording-note" data-sp-recording <?php checked( $recording ); ?> />
+							<div class="sp-wz-switch-row__body">
+								<label class="sp-wz-switch-row__title" for="sp-wz-recording"><?php esc_html_e( 'Record visitor conversations', 'ai-site-assistant-autopilot' ); ?></label>
+								<p class="sp-wz-switch-row__note" id="sp-wz-recording-note" data-on-text="<?php esc_attr_e( 'Recorded conversations appear under Conversations with the pages each answer used.', 'ai-site-assistant-autopilot' ); ?>" data-off-text="<?php esc_attr_e( 'Conversations are not kept. Questions your content could not answer are still listed as content gaps, without who asked.', 'ai-site-assistant-autopilot' ); ?>">
+								<?php
+								echo esc_html(
+									$recording
+										? __( 'Recorded conversations appear under Conversations with the pages each answer used.', 'ai-site-assistant-autopilot' )
+										: __( 'Conversations are not kept. Questions your content could not answer are still listed as content gaps, without who asked.', 'ai-site-assistant-autopilot' )
+								);
+								?>
+								</p>
+							</div>
+						</div>
+						<label class="sp-wz-field<?php echo $recording ? '' : ' is-muted'; ?>" data-sp-notice-field>
+							<span class="sp-wz-field__label"><?php esc_html_e( 'What visitors are told', 'ai-site-assistant-autopilot' ); ?></span>
+							<textarea class="sp-textarea" name="widget[conversation_notice]" rows="3" maxlength="240" aria-describedby="sp-wz-notice-help" data-sp-bind="notice"><?php echo esc_textarea( (string) $w['conversation_notice'] ); ?></textarea>
+							<span class="sp-wz-field__help" id="sp-wz-notice-help"><?php esc_html_e( 'Shown above the message box while recording is on. Make sure it matches your privacy policy.', 'ai-site-assistant-autopilot' ); ?></span>
+						</label>
+						<p class="sp-wz-info">
+							<?php echo Ui::icon( 'info', 15, '#202a8d', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
+							<span><?php esc_html_e( 'When a visitor asks for a person, that conversation is kept in the handoff inbox so your team can reply — even while recording is off.', 'ai-site-assistant-autopilot' ); ?></span>
+						</p>
+					</section>
+
+					<div class="sp-wz-actions">
+						<button type="submit" class="sp-btn sp-btn--r8"><?php esc_html_e( 'Save changes', 'ai-site-assistant-autopilot' ); ?></button>
+					</div>
+				</div>
+
+				<aside class="sp-wz__preview" aria-labelledby="sp-wz-preview-title">
+					<div class="sp-wz-preview__head">
+						<h2 class="sp-wz-preview__title" id="sp-wz-preview-title"><?php esc_html_e( 'Live preview', 'ai-site-assistant-autopilot' ); ?></h2>
+						<div class="sp-wz-devices" role="group" aria-label="<?php esc_attr_e( 'Preview size', 'ai-site-assistant-autopilot' ); ?>">
+							<button type="button" class="sp-wz-device is-on" data-sp-device="desktop" aria-pressed="true"><?php esc_html_e( 'Desktop', 'ai-site-assistant-autopilot' ); ?></button>
+							<button type="button" class="sp-wz-device" data-sp-device="mobile" aria-pressed="false"><?php esc_html_e( 'Mobile', 'ai-site-assistant-autopilot' ); ?></button>
+						</div>
+					</div>
+					<?php $this->preview( $w, $colors, $icons, self::POSITIONS[ $position ], $theme, $recording, $bubble_radius ); ?>
+					<p class="sp-wz-preview__note"><?php esc_html_e( 'Preview only. Visitors see changes after you save.', 'ai-site-assistant-autopilot' ); ?></p>
+				</aside>
+
+				<div class="sp-wz-savebar" data-sp-savebar hidden>
+					<div class="sp-wz-savebar__inner" role="region" aria-label="<?php esc_attr_e( 'Unsaved changes', 'ai-site-assistant-autopilot' ); ?>">
+						<span class="sp-wz-savebar__dot" aria-hidden="true"></span>
+						<span class="sp-wz-savebar__text"><?php esc_html_e( 'Unsaved widget changes — visitors still see the saved version', 'ai-site-assistant-autopilot' ); ?></span>
+						<button type="button" class="sp-wz-savebar__discard" data-sp-discard><?php esc_html_e( 'Discard', 'ai-site-assistant-autopilot' ); ?></button>
+						<button type="submit" class="sp-wz-savebar__save"><?php esc_html_e( 'Save changes', 'ai-site-assistant-autopilot' ); ?></button>
+					</div>
+				</div>
+			</form>
+
+			<?php if ( AnswerDeskNavigation::TAB_HANDOFF === $current_tab ) : ?>
+				<div class="sp-wz-inbox" id="answer-desk-handoff-inbox">
+					<?php ( new HandoffInboxPage() )->render_inbox(); ?>
+				</div>
+			<?php endif; ?>
+			<?php
+			Ui::json_script(
+				'sp-wz-i18n',
+				array(
+					'discardTitle' => __( 'Discard your changes?', 'ai-site-assistant-autopilot' ),
+					'discardBody'  => __( 'The widget goes back to its last saved settings. Nothing is sent to visitors.', 'ai-site-assistant-autopilot' ),
+					'discardCta'   => __( 'Discard changes', 'ai-site-assistant-autopilot' ),
+					'iconTooLarge' => __( 'That image is too large. Please use a PNG under 200 KB.', 'ai-site-assistant-autopilot' ),
+					'whereLoading' => __( 'Searching…', 'ai-site-assistant-autopilot' ),
+					'whereFound'   => __( 'Choose an entry to hide the chat on it.', 'ai-site-assistant-autopilot' ),
+					'whereNone'    => __( 'No published page, post or product has that title.', 'ai-site-assistant-autopilot' ),
+					'whereError'   => __( 'Search is not available right now. Try again.', 'ai-site-assistant-autopilot' ),
+					'whereAdd'     => __( 'Hide here', 'ai-site-assistant-autopilot' ),
+					'whereAdded'   => __( 'Hidden', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: title of a page, post or product. */
+					'whereAddedOn' => __( '%s added. Save changes to apply it.', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: title of a page, post or product. */
+					'whereRemove'  => __( 'Show the chat again on %s', 'ai-site-assistant-autopilot' ),
+					/* translators: %d: the most single entries the chat can be hidden on. */
+					'whereMax'     => sprintf( __( 'You can hide the chat on up to %d single entries.', 'ai-site-assistant-autopilot' ), Settings::WIDGET_EXCLUDE_IDS_MAX ),
+					'whereNoTitle' => __( '(no title)', 'ai-site-assistant-autopilot' ),
+				)
+			);
+			?>
+		</div>
+		</section>
 		<?php Ui::overlays(); ?>
 		</div>
 		<?php
+	}
+
+	// ── Pages where the chat appears ────────────────────────────
+
+	/**
+	 * @param array<string, mixed> $w
+	 */
+	private function render_visibility( array $w ): void {
+		$except    = 'exclude' === ( $w['widget_visibility'] ?? 'all' );
+		$rules     = Settings::widget_exclusions( $w );
+		$types     = $this->visibility_types();
+		$cats      = get_categories(
+			array(
+				'hide_empty' => false,
+				'orderby'    => 'name',
+			)
+		);
+		$cat_ids   = array_map( static fn( \WP_Term $term ): int => (int) $term->term_id, $cats );
+		$picked    = $this->picked_entries( $rules['ids'] );
+		$has_rules = array() !== array_intersect( $rules['types'], array_keys( $types ) )
+			|| array() !== array_intersect( $rules['cats'], $cat_ids )
+			|| array() !== $picked;
+		?>
+		<section class="sp-wz-card" id="answer-desk-visibility" aria-labelledby="sp-wz-where-title" data-sp-visibility data-sp-where-url="<?php echo esc_url( rest_url( 'wp/v2/search' ) ); ?>" data-sp-where-max="<?php echo esc_attr( (string) Settings::WIDGET_EXCLUDE_IDS_MAX ); ?>">
+			<h2 class="sp-wz-card__title" id="sp-wz-where-title"><?php esc_html_e( 'Pages where the chat appears', 'ai-site-assistant-autopilot' ); ?></h2>
+			<p class="sp-wz-card__text"><?php esc_html_e( 'Hide the chat where it gets in the way, such as checkout or a page that already has its own contact form.', 'ai-site-assistant-autopilot' ); ?></p>
+			<fieldset class="sp-wz-field">
+				<legend class="sp-wz-field__label"><?php esc_html_e( 'Show the chat on', 'ai-site-assistant-autopilot' ); ?></legend>
+				<div class="sp-wz-choices sp-wz-choices--2" data-sp-radio-group="visibility">
+					<label class="sp-wz-choice<?php echo $except ? '' : ' is-on'; ?>">
+						<input type="radio" class="sp-sr" name="widget[widget_visibility]" value="all" <?php checked( ! $except ); ?> />
+						<span><?php esc_html_e( 'Every page', 'ai-site-assistant-autopilot' ); ?></span>
+					</label>
+					<label class="sp-wz-choice<?php echo $except ? ' is-on' : ''; ?>">
+						<input type="radio" class="sp-sr" name="widget[widget_visibility]" value="exclude" <?php checked( $except ); ?> />
+						<span><?php esc_html_e( 'Every page except the ones below', 'ai-site-assistant-autopilot' ); ?></span>
+					</label>
+				</div>
+			</fieldset>
+			<p class="sp-wz-where__warn" data-sp-visibility-none<?php echo $except && ! $has_rules ? '' : ' hidden'; ?>><?php esc_html_e( 'Nothing is chosen below yet, so the chat still shows on every page.', 'ai-site-assistant-autopilot' ); ?></p>
+			<div class="sp-wz-where" data-sp-visibility-rules<?php echo $except ? '' : ' hidden'; ?>>
+				<fieldset class="sp-wz-field">
+					<legend class="sp-wz-field__label"><?php esc_html_e( 'Content types', 'ai-site-assistant-autopilot' ); ?></legend>
+					<input type="hidden" name="widget[exclude_types][]" value="" />
+					<div class="sp-wz-checks">
+					<?php foreach ( $types as $slug => $label ) : ?>
+						<label class="sp-wz-check">
+							<input type="checkbox" name="widget[exclude_types][]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( in_array( $slug, $rules['types'], true ) ); ?> />
+							<span><?php echo esc_html( $label ); ?></span>
+						</label>
+					<?php endforeach; ?>
+					</div>
+					<span class="sp-wz-field__help"><?php esc_html_e( 'Hides the chat on every item of a ticked type and on that type’s archive page.', 'ai-site-assistant-autopilot' ); ?></span>
+				</fieldset>
+				<?php if ( array() !== $cats ) : ?>
+					<fieldset class="sp-wz-field">
+						<legend class="sp-wz-field__label"><?php esc_html_e( 'Post categories', 'ai-site-assistant-autopilot' ); ?></legend>
+						<input type="hidden" name="widget[exclude_cats][]" value="" />
+						<div class="sp-wz-checks sp-wz-checks--scroll">
+						<?php foreach ( $cats as $cat ) : ?>
+							<label class="sp-wz-check">
+								<input type="checkbox" name="widget[exclude_cats][]" value="<?php echo esc_attr( (string) $cat->term_id ); ?>" <?php checked( in_array( (int) $cat->term_id, $rules['cats'], true ) ); ?> />
+								<span><?php echo esc_html( $cat->name ); ?></span>
+							</label>
+						<?php endforeach; ?>
+						</div>
+						<span class="sp-wz-field__help"><?php esc_html_e( 'Hides the chat on posts filed in a ticked category and on that category’s own page.', 'ai-site-assistant-autopilot' ); ?></span>
+					</fieldset>
+				<?php endif; ?>
+				<div class="sp-wz-field">
+					<label class="sp-wz-field__label" for="sp-wz-where-search"><?php esc_html_e( 'Single pages, posts or products', 'ai-site-assistant-autopilot' ); ?></label>
+					<input type="search" id="sp-wz-where-search" class="sp-input sp-input--sm" autocomplete="off" placeholder="<?php esc_attr_e( 'Search by title', 'ai-site-assistant-autopilot' ); ?>" aria-describedby="sp-wz-where-status" aria-controls="sp-wz-where-results" data-sp-where-search />
+					<p class="sp-wz-where__status" id="sp-wz-where-status" role="status" aria-live="polite" data-sp-where-status></p>
+					<ul class="sp-wz-where__results" id="sp-wz-where-results" data-sp-where-results hidden></ul>
+					<input type="hidden" name="widget[exclude_ids][]" value="" />
+					<ul class="sp-wz-where__picked" aria-label="<?php esc_attr_e( 'The chat is hidden on', 'ai-site-assistant-autopilot' ); ?>" data-sp-where-picked>
+					<?php foreach ( $picked as $entry ) : ?>
+						<li class="sp-wz-where__item" data-sp-where-item="<?php echo esc_attr( (string) $entry['id'] ); ?>">
+							<span class="sp-wz-where__name"><?php echo esc_html( $entry['title'] ); ?></span>
+							<span class="sp-wz-where__type"><?php echo esc_html( $entry['type'] ); ?></span>
+							<input type="hidden" name="widget[exclude_ids][]" value="<?php echo esc_attr( (string) $entry['id'] ); ?>" />
+							<button type="button" class="sp-wz-where__remove" data-sp-where-remove aria-label="<?php /* translators: %s: title of a page, post or product. */ echo esc_attr( sprintf( __( 'Show the chat again on %s', 'ai-site-assistant-autopilot' ), $entry['title'] ) ); ?>"><span aria-hidden="true">&times;</span></button>
+						</li>
+					<?php endforeach; ?>
+					</ul>
+					<p class="sp-wz-field__help" data-sp-where-empty<?php echo array() === $picked ? '' : ' hidden'; ?>><?php esc_html_e( 'No single entry is chosen.', 'ai-site-assistant-autopilot' ); ?></p>
+				</div>
+			</div>
+			<p class="sp-wz-card__note"><?php esc_html_e( 'The same rules apply to the [aisaautopilot_chat] shortcode.', 'ai-site-assistant-autopilot' ); ?></p>
+		</section>
+		<?php
+		Ui::json_script( 'sp-wz-where-types', $this->entry_type_labels() );
+	}
+
+	/**
+	 * Post types a visitor can open, as slug => plural name. Media attachments are left out.
+	 *
+	 * @return array<string, string>
+	 */
+	private function visibility_types(): array {
+		$out = array();
+		foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $slug => $type ) {
+			if ( 'attachment' !== $slug ) {
+				$out[ (string) $slug ] = (string) $type->labels->name;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Singular names for the entry type shown beside each search result and chosen entry.
+	 *
+	 * @return array<string, string>
+	 */
+	private function entry_type_labels(): array {
+		$out = array();
+		foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $slug => $type ) {
+			$out[ (string) $slug ] = (string) $type->labels->singular_name;
+		}
+		return $out;
+	}
+
+	/**
+	 * Saved entry IDs that still exist, with the title and type the picker shows.
+	 *
+	 * @param array<int, int> $ids
+	 * @return array<int, array{id:int, title:string, type:string}>
+	 */
+	private function picked_entries( array $ids ): array {
+		$out = array();
+		foreach ( $ids as $id ) {
+			$entry = get_post( $id );
+			if ( ! $entry instanceof \WP_Post || 'trash' === $entry->post_status ) {
+				continue;
+			}
+			$type  = get_post_type_object( $entry->post_type );
+			$title = trim( wp_strip_all_tags( get_the_title( $entry ) ) );
+			$out[] = array(
+				'id'    => $id,
+				/* translators: %d: numeric ID of a page or post that has no title. */
+				'title' => '' !== $title ? $title : sprintf( __( '(no title) #%d', 'ai-site-assistant-autopilot' ), $id ),
+				'type'  => $type ? (string) $type->labels->singular_name : $entry->post_type,
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * @param array<int|string, mixed> $raw
+	 * @return array<int, string>
+	 */
+	private function sanitize_types( array $raw ): array {
+		$allowed = $this->visibility_types();
+		$out     = array();
+		foreach ( $raw as $value ) {
+			$slug = is_scalar( $value ) ? sanitize_key( (string) $value ) : '';
+			if ( isset( $allowed[ $slug ] ) ) {
+				$out[ $slug ] = $slug;
+			}
+		}
+		return array_values( $out );
+	}
+
+	/**
+	 * @param array<int|string, mixed> $raw
+	 * @return array<int, int>
+	 */
+	private function sanitize_categories( array $raw ): array {
+		$out = array();
+		foreach ( $raw as $value ) {
+			$id = Settings::positive_id( $value );
+			if ( $id > 0 && get_term( $id, 'category' ) instanceof \WP_Term ) {
+				$out[ $id ] = $id;
+			}
+		}
+		return array_values( $out );
+	}
+
+	/**
+	 * Entries that exist, are not in the trash and have a public page, up to the saved limit.
+	 *
+	 * @param array<int|string, mixed> $raw
+	 * @return array<int, int>
+	 */
+	private function sanitize_entries( array $raw ): array {
+		$out = array();
+		foreach ( $raw as $value ) {
+			$id    = Settings::positive_id( $value );
+			$entry = $id > 0 ? get_post( $id ) : null;
+			if ( ! $entry instanceof \WP_Post || 'trash' === $entry->post_status || ! is_post_type_viewable( $entry->post_type ) ) {
+				continue;
+			}
+			$out[ $id ] = $id;
+			if ( count( $out ) >= Settings::WIDGET_EXCLUDE_IDS_MAX ) {
+				break;
+			}
+		}
+		return array_values( $out );
 	}
 
 	// ── Live preview ────────────────────────────────────────────
@@ -363,7 +612,7 @@ final class ChatWidgetSettings {
 	 * @param array<string, string> $colors
 	 * @param array<string, mixed>  $icons
 	 */
-	private function preview( array $w, array $colors, array $icons, string $position, string $theme ): void {
+	private function preview( array $w, array $colors, array $icons, string $position, string $theme, bool $recording, int $bubble_radius ): void {
 		$style = sprintf(
 			'--wc-panel:%s;--wc-msgs:%s;--wc-border:%s;--wc-ai-bg:%s;--wc-ai-text:%s;--wc-user:%s;--wc-send:%s;--wc-handoff:%s;--wc-bubble:%s;--wc-input:%s;--wc-head-from:%s;--wc-head-to:%s;--wc-mic:%s;--wc-muted:%s;--wp-radius:%dpx;--wp-msg-radius:%dpx;--wp-bubble-radius:%dpx',
 			esc_attr( $colors['panel'] ),
@@ -382,10 +631,10 @@ final class ChatWidgetSettings {
 			'dark' === $theme ? '#9ca3af' : '#6b7280',
 			(int) $w['panel_radius'],
 			(int) $w['msg_radius'],
-			(int) $w['bubble_radius']
+			$bubble_radius
 		);
 		?>
-		<div class="sp-wstage" id="sp-w-stage" data-pos="<?php echo esc_attr( $position ); ?>" data-theme="<?php echo esc_attr( $theme ); ?>" style="<?php echo $style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each value escaped above. ?>">
+		<div class="sp-wstage" id="sp-w-stage" data-pos="<?php echo esc_attr( $position ); ?>" data-theme="<?php echo esc_attr( $theme ); ?>" data-device="desktop" aria-hidden="true" style="<?php echo $style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each value escaped above. ?>">
 			<div class="sp-wpanel">
 				<div class="sp-wpanel__head">
 					<span class="sp-wpanel__avatar" data-sp-icon="avatar">
@@ -428,9 +677,9 @@ final class ChatWidgetSettings {
 					<span class="sp-wbubble sp-wbubble--me"><?php esc_html_e( 'Do you ship to Shiraz?', 'ai-site-assistant-autopilot' ); ?></span>
 				</div>
 
-				<div class="sp-wpanel__handoff" data-sp-region="handoff" <?php echo empty( $w['handoff_enabled'] ) ? 'hidden' : ''; ?>>
+				<div class="sp-wpanel__handoff" data-sp-region="handoff">
 					<span class="sp-wpanel__hook" data-sp-out="hook"><?php echo esc_html( (string) ( $w['handoff_hook'] ?? '' ) ); ?></span>
-					<button type="button" class="sp-wpanel__handoff-btn" tabindex="-1">
+					<span class="sp-wpanel__handoff-btn">
 						<span data-sp-icon="handoff">
 		<?php if ( ! empty( $icons['handoff'] ) ) : ?>
 								<img src="<?php echo esc_url( (string) $icons['handoff'] ); ?>" alt="" style="width:14px;height:14px;object-fit:contain" />
@@ -438,8 +687,12 @@ final class ChatWidgetSettings {
 								<?php echo Ui::icon( 'headset', 14, 'currentColor', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 							<?php endif; ?>
 						</span>
-						<span data-sp-out="handoffText"><?php echo esc_html( (string) ( $w['handoff_text'] ?? __( 'Talk to human', 'ai-site-assistant-autopilot' ) ) ); ?></span>
-					</button>
+						<span data-sp-out="handoffText"><?php echo esc_html( (string) ( $w['handoff_text'] ?? __( 'Talk to a human', 'ai-site-assistant-autopilot' ) ) ); ?></span>
+					</span>
+				</div>
+
+				<div class="sp-wpanel__notice" data-sp-region="notice"<?php echo $recording ? '' : ' hidden'; ?>>
+					<span data-sp-out="notice"><?php echo esc_html( (string) $w['conversation_notice'] ); ?></span>
 				</div>
 
 				<div class="sp-wpanel__foot">
@@ -466,132 +719,6 @@ final class ChatWidgetSettings {
 		<?php
 	}
 
-	// ── Channel cards ───────────────────────────────────────────
-
-	/**
-	 * @param array<string, mixed> $w
-	 */
-	private function channel_email( array $w, bool $on ): void {
-		$configured = ( new HandoffEmail() )->is_configured();
-		?>
-		<div class="sp-channel<?php echo $on ? ' is-on' : ''; ?>" data-sp-channel>
-			<div class="sp-channel__head">
-				<span class="sp-channel__icon"><?php echo Ui::icon( 'mail', 17 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-				<span class="sp-channel__id">
-					<span class="sp-channel__name"><?php esc_html_e( 'Email', 'ai-site-assistant-autopilot' ); ?></span>
-					<span class="sp-channel__note"><?php esc_html_e( 'Where the handoff message is sent', 'ai-site-assistant-autopilot' ); ?></span>
-				</span>
-		<?php echo Ui::pill( $on && $configured ? __( 'Enabled', 'ai-site-assistant-autopilot' ) : ( $on ? __( 'Needs setup', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) ), $on && $configured ? 'ok' : ( $on ? 'warn' : 'off' ), true, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
-				<label class="sp-check" style="font-size:12.5px;font-weight:600;white-space:nowrap">
-					<input type="checkbox" name="widget[handoff_email_enabled]" value="1" <?php checked( $on ); ?> data-sp-channel-toggle />
-					<span><?php esc_html_e( 'Enable', 'ai-site-assistant-autopilot' ); ?></span>
-				</label>
-			</div>
-			<div class="sp-channel__fields">
-				<label class="sp-field sp-field--row">
-					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'Recipient address', 'ai-site-assistant-autopilot' ); ?></span>
-					<input type="email" class="sp-input sp-input--sm" dir="ltr" name="widget[handoff_email_to]" value="<?php echo esc_attr( (string) ( $w['handoff_email_to'] ?? '' ) ); ?>" placeholder="support@example.com" />
-				</label>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * @param array<string, mixed> $w
-	 */
-	private function channel_telegram( array $w, bool $on, bool $has_token ): void {
-		$configured = ( new HandoffTelegram() )->is_configured();
-		?>
-		<div class="sp-channel<?php echo $on ? ' is-on' : ''; ?>" data-sp-channel>
-			<div class="sp-channel__head">
-				<span class="sp-channel__icon"><?php echo Ui::icon( 'send', 17, 'currentColor', 1.7 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-				<span class="sp-channel__id">
-					<span class="sp-channel__name"><?php esc_html_e( 'Telegram', 'ai-site-assistant-autopilot' ); ?></span>
-					<span class="sp-channel__note"><?php esc_html_e( 'Sends into one chat or group', 'ai-site-assistant-autopilot' ); ?></span>
-				</span>
-		<?php echo Ui::pill( $on && $configured ? __( 'Enabled', 'ai-site-assistant-autopilot' ) : ( $on ? __( 'Needs setup', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) ), $on && $configured ? 'ok' : ( $on ? 'warn' : 'off' ), true, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
-				<label class="sp-check" style="font-size:12.5px;font-weight:600;white-space:nowrap">
-					<input type="checkbox" name="widget[handoff_telegram_enabled]" value="1" <?php checked( $on ); ?> data-sp-channel-toggle />
-					<span><?php esc_html_e( 'Enable', 'ai-site-assistant-autopilot' ); ?></span>
-				</label>
-			</div>
-			<div class="sp-channel__fields">
-				<label class="sp-field sp-field--row">
-					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'Bot token', 'ai-site-assistant-autopilot' ); ?></span>
-					<input type="password" class="sp-input sp-input--sm sp-mono" autocomplete="new-password" name="widget[handoff_telegram_token]" value=""
-						placeholder="<?php echo esc_attr( $has_token ? __( 'Saved securely — enter a new token to replace it', 'ai-site-assistant-autopilot' ) : '123456789:AA…' ); ?>" />
-		<?php if ( $has_token ) : ?>
-						<label class="sp-check" style="font-size:12px;margin-top:6px">
-							<input type="checkbox" name="widget[clear_handoff_telegram_token]" value="1" />
-							<span><?php esc_html_e( 'Remove saved token', 'ai-site-assistant-autopilot' ); ?></span>
-						</label>
-		<?php endif; ?>
-				</label>
-				<label class="sp-field sp-field--row">
-					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'Chat ID', 'ai-site-assistant-autopilot' ); ?></span>
-					<input type="text" class="sp-input sp-input--sm sp-mono" dir="ltr" name="widget[handoff_telegram_chat]" value="<?php echo esc_attr( (string) ( $w['handoff_telegram_chat'] ?? '' ) ); ?>" placeholder="-1001234567890" />
-				</label>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * @param array<string, mixed> $w
-	 */
-	private function channel_twilio( array $w, bool $on, bool $has_sid, bool $has_token ): void {
-		$configured = ( new HandoffTwilio() )->is_configured();
-		?>
-		<div class="sp-channel<?php echo $on ? ' is-on' : ''; ?>" data-sp-channel>
-			<div class="sp-channel__head">
-				<span class="sp-channel__icon"><?php echo Ui::icon( 'phone', 17 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-				<span class="sp-channel__id">
-					<span class="sp-channel__name"><?php esc_html_e( 'Twilio (SMS)', 'ai-site-assistant-autopilot' ); ?></span>
-					<span class="sp-channel__note"><?php esc_html_e( 'Text message to your support number', 'ai-site-assistant-autopilot' ); ?></span>
-				</span>
-		<?php echo Ui::pill( $on && $configured ? __( 'Enabled', 'ai-site-assistant-autopilot' ) : ( $on ? __( 'Needs setup', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) ), $on && $configured ? 'ok' : ( $on ? 'warn' : 'off' ), true, 'sp-pill--xs' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in pill(). ?>
-				<label class="sp-check" style="font-size:12.5px;font-weight:600;white-space:nowrap">
-					<input type="checkbox" name="widget[handoff_twilio_enabled]" value="1" <?php checked( $on ); ?> data-sp-channel-toggle />
-					<span><?php esc_html_e( 'Enable', 'ai-site-assistant-autopilot' ); ?></span>
-				</label>
-			</div>
-			<div class="sp-channel__fields">
-				<label class="sp-field sp-field--row">
-					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'Account SID', 'ai-site-assistant-autopilot' ); ?></span>
-					<input type="text" class="sp-input sp-input--sm sp-mono" autocomplete="off" name="widget[handoff_twilio_sid]" value=""
-						placeholder="<?php echo esc_attr( $has_sid ? __( 'Saved securely — enter a new SID to replace it', 'ai-site-assistant-autopilot' ) : 'AC…' ); ?>" />
-		<?php if ( $has_sid ) : ?>
-						<label class="sp-check" style="font-size:12px;margin-top:6px">
-							<input type="checkbox" name="widget[clear_handoff_twilio_sid]" value="1" />
-							<span><?php esc_html_e( 'Remove saved SID', 'ai-site-assistant-autopilot' ); ?></span>
-						</label>
-		<?php endif; ?>
-				</label>
-				<label class="sp-field sp-field--row">
-					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'Auth token', 'ai-site-assistant-autopilot' ); ?></span>
-					<input type="password" class="sp-input sp-input--sm sp-mono" autocomplete="new-password" name="widget[handoff_twilio_token]" value=""
-						placeholder="<?php echo esc_attr( $has_token ? __( 'Saved securely — enter a new token to replace it', 'ai-site-assistant-autopilot' ) : '••••••••' ); ?>" />
-		<?php if ( $has_token ) : ?>
-						<label class="sp-check" style="font-size:12px;margin-top:6px">
-							<input type="checkbox" name="widget[clear_handoff_twilio_token]" value="1" />
-							<span><?php esc_html_e( 'Remove saved token', 'ai-site-assistant-autopilot' ); ?></span>
-						</label>
-		<?php endif; ?>
-				</label>
-				<label class="sp-field sp-field--row">
-					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'From number', 'ai-site-assistant-autopilot' ); ?></span>
-					<input type="text" class="sp-input sp-input--sm sp-mono" dir="ltr" name="widget[handoff_twilio_from]" value="<?php echo esc_attr( (string) ( $w['handoff_twilio_from'] ?? '' ) ); ?>" placeholder="+15551234567" />
-				</label>
-				<label class="sp-field sp-field--row">
-					<span class="sp-label sp-label--sm sp-mb0"><?php esc_html_e( 'To number', 'ai-site-assistant-autopilot' ); ?></span>
-					<input type="text" class="sp-input sp-input--sm sp-mono" dir="ltr" name="widget[handoff_twilio_to]" value="<?php echo esc_attr( (string) ( $w['handoff_twilio_to'] ?? '' ) ); ?>" placeholder="+989120000000" />
-				</label>
-			</div>
-		</div>
-		<?php
-	}
-
 	// ── Helpers ─────────────────────────────────────────────────
 
 	private function position_label( string $key ): string {
@@ -604,6 +731,17 @@ final class ChatWidgetSettings {
 				return __( 'Top Left', 'ai-site-assistant-autopilot' );
 			default:
 				return __( 'Bottom Right', 'ai-site-assistant-autopilot' );
+		}
+	}
+
+	private function shape_label( string $shape ): string {
+		switch ( $shape ) {
+			case 'rounded':
+				return __( 'Rounded', 'ai-site-assistant-autopilot' );
+			case 'square':
+				return __( 'Square', 'ai-site-assistant-autopilot' );
+			default:
+				return __( 'Circle', 'ai-site-assistant-autopilot' );
 		}
 	}
 
@@ -623,6 +761,7 @@ final class ChatWidgetSettings {
 			'input'     => __( 'Input background', 'ai-site-assistant-autopilot' ),
 			'send'      => __( 'Send button', 'ai-site-assistant-autopilot' ),
 			'handoff'   => __( 'Handoff button', 'ai-site-assistant-autopilot' ),
+			'bubble'    => __( 'Floating button', 'ai-site-assistant-autopilot' ),
 		);
 	}
 
@@ -638,49 +777,82 @@ final class ChatWidgetSettings {
 
 		$raw      = (array) wp_unslash( $_POST['widget'] ?? array() ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each field is sanitized below.
 		$existing = array_merge( Settings::widget_defaults(), (array) Settings::get( 'widget', array() ) );
+		$parsed   = array();
 
-		$parsed = array(
-			'enabled'                      => ! empty( $raw['enabled'] ),
-			'position'                     => array_key_exists( (string) ( $raw['position'] ?? '' ), self::POSITIONS ) ? sanitize_text_field( (string) $raw['position'] ) : 'bottom-right',
-			'theme'                        => 'dark' === ( $raw['theme'] ?? 'light' ) ? 'dark' : 'light',
-			'color'                        => sanitize_hex_color( (string) ( $raw['color'] ?? '#202a8d' ) ) ?: '#202a8d',
-			'bg'                           => sanitize_hex_color( (string) ( $raw['bg'] ?? '#ffffff' ) ) ?: '#ffffff',
-			'title'                        => sanitize_text_field( (string) ( $raw['title'] ?? 'AI Site Assistant AutoPilot' ) ),
-			'subtitle'                     => sanitize_text_field( (string) ( $raw['subtitle'] ?? 'AI Assistant' ) ),
-			'greeting'                     => sanitize_text_field( (string) ( $raw['greeting'] ?? 'Hi!' ) ),
-			'suggestions'                  => $this->sanitize_suggestions( (string) ( $raw['suggestions'] ?? '' ) ),
-			'panel_radius'                 => max( 0, min( 28, absint( $raw['panel_radius'] ?? 16 ) ) ),
-			'msg_radius'                   => max( 0, min( 24, absint( $raw['msg_radius'] ?? 14 ) ) ),
-			'bubble_radius'                => max( 6, min( 30, absint( $raw['bubble_radius'] ?? 30 ) ) ),
-			// empty() already treats the string '0' as off, so no second guard.
-			'custom_colors'                => ! empty( $raw['custom_colors'] ),
-			'colors'                       => $this->sanitize_colors( (array) ( $raw['colors'] ?? array() ) ),
-			'icons'                        => $this->sanitize_icons( (array) ( $raw['icons'] ?? array() ), (array) ( $existing['icons'] ?? array() ) ),
-			'auto_open'                    => absint( $raw['auto_open'] ?? $existing['auto_open'] ),
-			'voice_enabled'                => ! empty( $raw['voice_enabled'] ),
-			'voice_auto'                   => ! empty( $raw['voice_auto'] ),
-			'conversation_logging_enabled' => ! empty( $raw['conversation_logging_enabled'] ),
-			'conversation_notice'          => mb_substr( sanitize_text_field( (string) ( $raw['conversation_notice'] ?? '' ) ), 0, 240 ),
-			'voice_name'                   => sanitize_text_field( (string) ( $raw['voice_name'] ?? $existing['voice_name'] ) ),
-			'handoff_enabled'              => ! empty( $raw['handoff_enabled'] ),
-			'handoff_text'                 => sanitize_text_field( (string) ( $raw['handoff_text'] ?? 'Talk to human' ) ),
-			'handoff_hook'                 => sanitize_text_field( (string) ( $raw['handoff_hook'] ?? '' ) ),
-			'handoff_email_enabled'        => ! empty( $raw['handoff_email_enabled'] ),
-			'handoff_email_to'             => sanitize_email( (string) ( $raw['handoff_email_to'] ?? '' ) ),
-			'handoff_telegram_enabled'     => ! empty( $raw['handoff_telegram_enabled'] ),
-			'handoff_telegram_chat'        => sanitize_text_field( (string) ( $raw['handoff_telegram_chat'] ?? '' ) ),
-			'handoff_twilio_enabled'       => ! empty( $raw['handoff_twilio_enabled'] ),
-			'handoff_twilio_from'          => sanitize_text_field( (string) ( $raw['handoff_twilio_from'] ?? '' ) ),
-			'handoff_twilio_to'            => sanitize_text_field( (string) ( $raw['handoff_twilio_to'] ?? '' ) ),
-		);
-
-		foreach ( array( 'handoff_telegram_token', 'handoff_twilio_sid', 'handoff_twilio_token' ) as $secret_key ) {
-			$secret = trim( sanitize_text_field( (string) ( $raw[ $secret_key ] ?? '' ) ) );
-			if ( ! empty( $raw[ 'clear_' . $secret_key ] ) ) {
-				Settings::set_handoff_secret( $secret_key, '' );
-			} elseif ( '' !== $secret ) {
-				Settings::set_handoff_secret( $secret_key, $secret );
+		// Only keys this form submitted are written, so the on/off switch, voice and handoff settings stay untouched.
+		if ( array_key_exists( 'position', $raw ) ) {
+			$parsed['position'] = array_key_exists( (string) $raw['position'], self::POSITIONS ) ? (string) $raw['position'] : 'bottom-right';
+		}
+		if ( array_key_exists( 'theme', $raw ) ) {
+			$parsed['theme'] = 'dark' === $raw['theme'] ? 'dark' : 'light';
+		}
+		if ( array_key_exists( 'color', $raw ) ) {
+			$parsed['color'] = sanitize_hex_color( (string) $raw['color'] ) ?: '#202a8d';
+		}
+		if ( array_key_exists( 'custom_colors', $raw ) ) {
+			// empty() already treats the string '0' as off.
+			$parsed['custom_colors'] = ! empty( $raw['custom_colors'] );
+		}
+		if ( array_key_exists( 'colors', $raw ) ) {
+			$parsed['colors'] = $this->sanitize_colors( (array) $raw['colors'] );
+		}
+		if ( array_key_exists( 'icons', $raw ) ) {
+			$parsed['icons'] = $this->sanitize_icons( (array) $raw['icons'], (array) ( $existing['icons'] ?? array() ) );
+		}
+		if ( array_key_exists( 'suggestions', $raw ) ) {
+			$parsed['suggestions'] = $this->sanitize_suggestions( (string) $raw['suggestions'] );
+		}
+		$default_copy = Settings::widget_default_copy();
+		$defaults     = Settings::widget_defaults();
+		foreach ( self::TEXT_LIMITS as $key => $limit ) {
+			if ( ! array_key_exists( $key, $raw ) ) {
+				continue;
 			}
+			$value = mb_substr( trim( sanitize_text_field( (string) $raw[ $key ] ) ), 0, $limit );
+			if ( '' === $value && in_array( $key, self::REQUIRED_TEXT, true ) ) {
+				continue;
+			}
+			// The form shows untouched defaults translated; keep them stored as defaults so they follow the site language.
+			if ( isset( $default_copy[ $key ] ) && $value === $default_copy[ $key ] ) {
+				$value = (string) $defaults[ $key ];
+			}
+			$parsed[ $key ] = $value;
+		}
+		if ( array_key_exists( 'auto_open', $raw ) ) {
+			$parsed['auto_open'] = min( self::AUTO_OPEN_MAX, absint( $raw['auto_open'] ) );
+		}
+		foreach ( array(
+			'panel_radius'  => array( 0, 28 ),
+			'msg_radius'    => array( 0, 24 ),
+			'bubble_radius' => array( 6, 30 ),
+		) as $key => $bounds ) {
+			if ( array_key_exists( $key, $raw ) ) {
+				$parsed[ $key ] = max( $bounds[0], min( $bounds[1], absint( $raw[ $key ] ) ) );
+			}
+		}
+		if ( array_key_exists( 'conversation_logging_enabled', $raw ) ) {
+			$parsed['conversation_logging_enabled'] = ! empty( $raw['conversation_logging_enabled'] );
+		}
+		if ( array_key_exists( 'widget_visibility', $raw ) ) {
+			$parsed['widget_visibility'] = 'exclude' === $raw['widget_visibility'] ? 'exclude' : 'all';
+		}
+		if ( array_key_exists( 'exclude_types', $raw ) ) {
+			$parsed['exclude_types'] = $this->sanitize_types( (array) $raw['exclude_types'] );
+		}
+		if ( array_key_exists( 'exclude_cats', $raw ) ) {
+			$parsed['exclude_cats'] = $this->sanitize_categories( (array) $raw['exclude_cats'] );
+		}
+		if ( array_key_exists( 'exclude_ids', $raw ) ) {
+			$parsed['exclude_ids'] = $this->sanitize_entries( (array) $raw['exclude_ids'] );
+			// The picker showed entries from every key the renderer reads, so a removal must empty them all.
+			$parsed['exclude_pages'] = array();
+			if ( array_key_exists( 'widget_exclude_ids', $existing ) ) {
+				$parsed['widget_exclude_ids'] = array();
+			}
+		}
+
+		if ( array() === $parsed ) {
+			return false;
 		}
 
 		Settings::update( array( 'widget' => array_merge( $existing, $parsed ) ) );

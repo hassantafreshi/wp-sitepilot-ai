@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Execution;
 
+use AISAAutoPilot\Content\KbGaps;
 use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Skills\ContentPlanValidator;
 
@@ -69,6 +70,11 @@ final class ContentDraftExecutor {
 			update_post_meta( (int) $post_id, '_aisaautopilot_meta_description', $meta );
 		}
 		update_post_meta( (int) $post_id, '_aisaautopilot_generated', '1' );
+		// A draft written from an unanswered question is linked to it, so the gap offers "Open draft".
+		$source_gap = (string) ( $record['execution_context']['source_gap'] ?? '' );
+		if ( '' !== $source_gap && ( new KbGaps() )->link_draft( $source_gap, (int) $post_id ) ) {
+			update_post_meta( (int) $post_id, '_aisaautopilot_source_gap', $source_gap );
+		}
 		$this->logger->info(
 			'content.draft_created',
 			'Content Studio created a WordPress draft.',

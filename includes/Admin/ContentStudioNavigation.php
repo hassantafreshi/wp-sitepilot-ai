@@ -52,13 +52,26 @@ final class ContentStudioNavigation {
 	/**
 	 * Safe, editable hand-off from a built-in template to the Write brief.
 	 */
-	public static function write_url( string $brief = '' ): string {
+	public static function write_url( string $brief = '', string $source_gap = '' ): string {
 		$url = self::url( self::TAB_WRITE );
-		if ( '' === $brief ) {
-			return $url;
+		if ( '' !== $brief ) {
+			$url = add_query_arg( 'brief', rawurlencode( $brief ), $url );
+		}
+		// The unanswered question this draft answers; the draft is linked to it only after approval, server-side.
+		if ( 1 === preg_match( '/^[a-f0-9]{32}$/', $source_gap ) ) {
+			$url = add_query_arg( 'source_gap', $source_gap, $url );
 		}
 
-		return add_query_arg( 'brief', rawurlencode( $brief ), $url );
+		return $url;
+	}
+
+	/**
+	 * The unanswered-question hash passed by "Write it", or '' when absent or malformed. Whether the
+	 * question is still open is checked by the caller and again by the content/plan route.
+	 */
+	public static function write_source_gap(): string {
+		$raw = isset( $_GET['source_gap'] ) && is_string( $_GET['source_gap'] ) ? sanitize_key( wp_unslash( $_GET['source_gap'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only draft prefill.
+		return 1 === preg_match( '/^[a-f0-9]{32}$/', $raw ) ? $raw : '';
 	}
 
 	/**
@@ -83,10 +96,15 @@ final class ContentStudioNavigation {
 	}
 
 	/**
-	 * Form Composer is a retained secondary surface, not a fourth Studio tab.
+	 * Form Studio (D-23, 2026-09-17; formerly "Form Composer") is its own
+	 * top-level page, not a fourth Content Studio tab. The old deep link
+	 * (`page=aisaautopilot-form-builder&mode=forms`) still renders the same
+	 * content via `CopilotPage::render()`'s fallback, so bookmarks and any
+	 * link built before this change keep resolving; every link generated from
+	 * now on points at the canonical Form Studio slug instead.
 	 */
 	public static function forms_url(): string {
-		return admin_url( 'admin.php?page=' . AdminMenu::SLUG_FORM_BUILDER . '&mode=forms' );
+		return admin_url( 'admin.php?page=' . AdminMenu::SLUG_FORM_STUDIO );
 	}
 
 	public static function render( string $current ): void {

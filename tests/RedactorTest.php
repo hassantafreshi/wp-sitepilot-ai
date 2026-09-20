@@ -33,6 +33,17 @@ final class RedactorTest extends TestCase {
 		$this->assertSame( 'value', $out['nested']['ok'] );
 	}
 
+	public function test_telegram_token_redacted_inside_api_url(): void {
+		$token = '123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw';
+		$out   = Redactor::text( 'POST https://api.telegram.org/bot' . $token . '/sendMessage failed' );
+		$this->assertStringNotContainsString( $token, $out );
+		$this->assertStringNotContainsString( 'AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw', $out );
+		$this->assertStringContainsString( 'api.telegram.org/bot[REDACTED]/sendMessage', $out );
+
+		$bare = Redactor::text( 'token ' . $token . ' leaked' );
+		$this->assertSame( 'token [REDACTED] leaked', $bare );
+	}
+
 	public function test_plain_text_survives(): void {
 		$this->assertSame( 'a normal message', Redactor::text( 'a normal message' ) );
 	}

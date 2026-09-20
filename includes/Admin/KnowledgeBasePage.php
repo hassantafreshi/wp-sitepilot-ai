@@ -19,7 +19,7 @@ final class KnowledgeBasePage {
 	/**
 	 * Grid template for the indexed-content table.
 	 */
-	private const COLS = '2.2fr 1fr 1fr .9fr 40px';
+	private const COLS = '2.2fr .9fr 1fr .8fr 1fr 84px';
 
 	public function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -132,7 +132,18 @@ final class KnowledgeBasePage {
 								<div class="sp-kb-coverage__row" data-sp-kb-coverage-row="<?php echo esc_attr( $slug ); ?>">
 									<div class="sp-kb-coverage__head">
 										<span><?php echo esc_html( (string) $type['label'] ); ?></span>
-										<span dir="ltr"><?php echo esc_html( sprintf( '%1$s / %2$s', number_format_i18n( $indexed ), number_format_i18n( $available ) ) ); ?></span>
+										<span><bdi>
+										<?php
+										echo esc_html(
+											sprintf(
+												/* translators: 1: indexed item count, 2: published item count. */
+												__( '%1$s of %2$s', 'ai-site-assistant-autopilot' ),
+												number_format_i18n( $indexed ),
+												number_format_i18n( $available )
+											)
+										);
+										?>
+										</bdi></span>
 									</div>
 									<div class="sp-kb-coverage__track" aria-hidden="true">
 										<span class="sp-kb-coverage__fill" style="width:<?php echo esc_attr( (string) $percent ); ?>%"></span>
@@ -177,7 +188,9 @@ final class KnowledgeBasePage {
 			<?php endif; ?>
 						</section>
 					</div>
+			<?php endif; ?>
 
+					<?php // Unanswered questions and saved answers also show before anything is indexed: a visitor can ask then, and a saved answer needs no index. ?>
 					<section id="sp-kb-gaps" class="sp-kb-gaps" data-sp-kb-gaps hidden>
 						<div class="sp-kb-gaps__head">
 							<div>
@@ -185,13 +198,36 @@ final class KnowledgeBasePage {
 									<h2 class="sp-kb-card__title"><?php esc_html_e( 'Questions your site could not answer', 'ai-site-assistant-autopilot' ); ?></h2>
 									<span id="sp-kb-gaps-count" class="sp-kb-gaps__count">0</span>
 								</div>
-								<p><?php esc_html_e( 'These are recorded content gaps. Dismiss one after you have published coverage for it.', 'ai-site-assistant-autopilot' ); ?></p>
+								<p><?php esc_html_e( 'Give a question a saved answer the assistant uses when it is asked again, or write a page about it in Content Studio. Dismiss a question once it is covered.', 'ai-site-assistant-autopilot' ); ?></p>
 							</div>
-							<button type="button" id="sp-kb-gaps-clear" class="sp-btn sp-btn--ghost sp-btn--xs"><?php esc_html_e( 'Clear all', 'ai-site-assistant-autopilot' ); ?></button>
+							<div class="sp-kb-gaps__tools">
+								<div class="sp-kb-window" role="group" aria-label="<?php esc_attr_e( 'When the question was last asked', 'ai-site-assistant-autopilot' ); ?>">
+									<button type="button" class="sp-kb-window__btn is-on" data-sp-kb-gaps-window="all" aria-pressed="true"><?php esc_html_e( 'All time', 'ai-site-assistant-autopilot' ); ?></button>
+									<button type="button" class="sp-kb-window__btn" data-sp-kb-gaps-window="7d" aria-pressed="false"><?php esc_html_e( 'Last 7 days', 'ai-site-assistant-autopilot' ); ?></button>
+								</div>
+								<button type="button" id="sp-kb-gaps-clear" class="sp-btn sp-btn--ghost sp-btn--xs"><?php esc_html_e( 'Clear all', 'ai-site-assistant-autopilot' ); ?></button>
+							</div>
 						</div>
 						<div id="sp-kb-gaps-list" class="sp-kb-gaps__list"></div>
+						<p id="sp-kb-gaps-empty" class="sp-kb-card__empty" hidden><?php esc_html_e( 'No unanswered questions have been recorded yet. When a visitor asks something your content does not cover, it appears here.', 'ai-site-assistant-autopilot' ); ?></p>
 					</section>
-			<?php endif; ?>
+
+					<section class="sp-kb-gaps sp-kb-answers" data-sp-kb-answers aria-labelledby="sp-kb-answers-title">
+						<div class="sp-kb-gaps__head">
+							<div>
+								<div class="sp-kb-gaps__title-row">
+									<h2 class="sp-kb-card__title" id="sp-kb-answers-title" tabindex="-1"><?php esc_html_e( 'Saved answers', 'ai-site-assistant-autopilot' ); ?></h2>
+									<span class="sp-kb-gaps__count" data-sp-kb-answers-count hidden>0</span>
+								</div>
+								<p><?php esc_html_e( 'When a visitor asks one of these questions, the assistant replies with your text and makes no AI request. Case, spacing and punctuation are ignored, but a question worded differently is not matched.', 'ai-site-assistant-autopilot' ); ?></p>
+							</div>
+							<button type="button" class="sp-btn sp-btn--ghost sp-btn--xs" data-sp-kb-answer-add aria-expanded="false"><?php esc_html_e( 'Add an answer', 'ai-site-assistant-autopilot' ); ?></button>
+						</div>
+						<div class="sp-kb-answers__new" data-sp-kb-answer-new hidden></div>
+						<div class="sp-kb-gaps__list" data-sp-kb-answers-list></div>
+						<p class="sp-kb-card__empty" data-sp-kb-answers-empty hidden><?php esc_html_e( 'No saved answers yet. Answer a question above, or add one for something visitors often ask.', 'ai-site-assistant-autopilot' ); ?></p>
+						<p class="sp-kb-card__empty sp-kb-answers__error" data-sp-kb-answers-error role="alert" hidden><?php esc_html_e( 'Saved answers could not be loaded. Reload the page to try again.', 'ai-site-assistant-autopilot' ); ?></p>
+					</section>
 				</section>
 		<?php endif; ?>
 
@@ -243,7 +279,7 @@ final class KnowledgeBasePage {
 								<h2><?php esc_html_e( 'Indexing queue', 'ai-site-assistant-autopilot' ); ?></h2>
 								<p><?php esc_html_e( 'The current indexing pass appears here while this browser tab remains open.', 'ai-site-assistant-autopilot' ); ?></p>
 							</div>
-							<span class="sp-kb-panel__note"><?php esc_html_e( 'Browser session only', 'ai-site-assistant-autopilot' ); ?></span>
+							<span class="sp-kb-panel__note" data-sp-kb-queue-scope="browser-session"><?php esc_html_e( 'Browser session only', 'ai-site-assistant-autopilot' ); ?></span>
 						</header>
 						<div class="sp-kb-queue-empty" data-sp-kb-queue-empty>
 							<div class="sp-kb-queue-empty__icon">
@@ -342,15 +378,23 @@ final class KnowledgeBasePage {
 					<div class="sp-tr sp-tr--head" style="--sp-cols:<?php echo esc_attr( self::COLS ); ?>">
 						<span><?php esc_html_e( 'Title', 'ai-site-assistant-autopilot' ); ?></span>
 						<span><?php esc_html_e( 'Type', 'ai-site-assistant-autopilot' ); ?></span>
+						<span><?php esc_html_e( 'Category', 'ai-site-assistant-autopilot' ); ?></span>
 						<span><?php esc_html_e( 'Status', 'ai-site-assistant-autopilot' ); ?></span>
-						<span><?php esc_html_e( 'Indexed', 'ai-site-assistant-autopilot' ); ?></span>
+						<span><?php esc_html_e( 'Last read', 'ai-site-assistant-autopilot' ); ?></span>
 						<span class="sp-sr"><?php esc_html_e( 'Actions', 'ai-site-assistant-autopilot' ); ?></span>
 					</div>
 					<div id="sp-kb-rows" data-cols="<?php echo esc_attr( self::COLS ); ?>">
 						<div class="sp-empty"><?php esc_html_e( 'Loading…', 'ai-site-assistant-autopilot' ); ?></div>
 					</div>
-					<div id="sp-kb-pagination" class="sp-row-wrap" style="padding:12px 18px;justify-content:center"></div>
+					<div id="sp-kb-pagination" class="sp-row-wrap sp-kb-pagination"></div>
 				</div>
+				<section class="sp-kb-danger" data-sp-kb-danger aria-labelledby="sp-kb-danger-title">
+					<div class="sp-kb-danger__body">
+						<h2 class="sp-kb-danger__title" id="sp-kb-danger-title"><?php esc_html_e( 'Start over', 'ai-site-assistant-autopilot' ); ?></h2>
+						<p><?php esc_html_e( 'Clears everything AutoPilot has read, then reads it again. Your posts and pages are not touched.', 'ai-site-assistant-autopilot' ); ?></p>
+					</div>
+					<button type="button" id="sp-kb-reindex" class="sp-btn sp-kb-danger__btn" <?php disabled( ! $configured ); ?>><?php esc_html_e( 'Clear and re-index', 'ai-site-assistant-autopilot' ); ?></button>
+				</section>
 		<?php endif; ?>
 
 				<!-- Pre-index picker -->
@@ -401,6 +445,7 @@ final class KnowledgeBasePage {
 		</div>
 		<?php
 		Ui::json_script( 'sp-kb-ctype-labels', $ct_labels );
+		Ui::json_script( 'sp-kb-type-labels', wp_list_pluck( $type_options, 'label', 'slug' ) );
 		Ui::json_script(
 			'sp-kb-i18n',
 			array(
@@ -410,8 +455,23 @@ final class KnowledgeBasePage {
 				'empty'          => __( 'No indexed content yet.', 'ai-site-assistant-autopilot' ),
 				'emptyHint'      => __( 'Use “Start Indexing” above to build your knowledge base.', 'ai-site-assistant-autopilot' ),
 				'loadFailed'     => __( 'Failed to load data.', 'ai-site-assistant-autopilot' ),
+				'readingIndex'   => __( 'Reading the index…', 'ai-site-assistant-autopilot' ),
+				'listFailed'     => __( 'The list could not be loaded', 'ai-site-assistant-autopilot' ),
+				'listFailedBody' => __( 'The request to your site failed. Nothing was removed from the index.', 'ai-site-assistant-autopilot' ),
+				'tryAgain'       => __( 'Try again', 'ai-site-assistant-autopilot' ),
 				'remove'         => __( 'Remove from knowledge base', 'ai-site-assistant-autopilot' ),
 				'confirmOne'     => __( 'Remove this item from the knowledge base?', 'ai-site-assistant-autopilot' ),
+				'removeBody'     => __( 'The page stays on your site. AutoPilot stops using it in answers until it is read again.', 'ai-site-assistant-autopilot' ),
+				'removeCta'      => __( 'Remove from index', 'ai-site-assistant-autopilot' ),
+				'removeShort'    => __( 'Remove', 'ai-site-assistant-autopilot' ),
+				/* translators: %s: title of the indexed item. */
+				'removeNamed'    => __( 'Remove “%s” from the index', 'ai-site-assistant-autopilot' ),
+				'previousPage'   => __( 'Previous page', 'ai-site-assistant-autopilot' ),
+				'nextPage'       => __( 'Next page', 'ai-site-assistant-autopilot' ),
+				'reindexBody'    => __( 'Everything read so far is cleared and read again from scratch. Answers may say they do not know until reading finishes. Your content is not touched.', 'ai-site-assistant-autopilot' ),
+				'reindexCta'     => __( 'Clear and re-index', 'ai-site-assistant-autopilot' ),
+				'gapsBody'       => __( 'The list of questions your site could not answer is emptied. New questions are recorded again as visitors ask them.', 'ai-site-assistant-autopilot' ),
+				'gapsCta'        => __( 'Clear the list', 'ai-site-assistant-autopilot' ),
 				'confirmAll'     => __( 'This will clear all indexed data and re-index everything. Continue?', 'ai-site-assistant-autopilot' ),
 				'confirmGaps'    => __( 'Clear all logged questions?', 'ai-site-assistant-autopilot' ),
 				'pickOneType'    => __( 'Please select at least one content type to index.', 'ai-site-assistant-autopilot' ),
@@ -428,6 +488,34 @@ final class KnowledgeBasePage {
 				'paused'         => __( 'Indexing paused.', 'ai-site-assistant-autopilot' ),
 				'resuming'       => __( 'Resuming the indexing pass…', 'ai-site-assistant-autopilot' ),
 				'dismiss'        => __( 'Dismiss', 'ai-site-assistant-autopilot' ),
+				'writeIt'        => __( 'Write it', 'ai-site-assistant-autopilot' ),
+				'openDraft'      => __( 'Open draft', 'ai-site-assistant-autopilot' ),
+				'draftReady'     => __( 'Draft ready', 'ai-site-assistant-autopilot' ),
+				'answerIt'       => __( 'Answer it', 'ai-site-assistant-autopilot' ),
+				'gapsEmpty7d'    => __( 'No unanswered questions were asked in the last 7 days.', 'ai-site-assistant-autopilot' ),
+				'answerQuestion' => __( 'Question visitors ask', 'ai-site-assistant-autopilot' ),
+				'answerLabel'    => __( 'Answer visitors get', 'ai-site-assistant-autopilot' ),
+				'answerHint'     => __( 'Plain text, up to 2,000 characters. The assistant sends it as written when this question is asked again.', 'ai-site-assistant-autopilot' ),
+				'answerSave'     => __( 'Save answer', 'ai-site-assistant-autopilot' ),
+				'cancel'         => __( 'Cancel', 'ai-site-assistant-autopilot' ),
+				'saving'         => __( 'Saving…', 'ai-site-assistant-autopilot' ),
+				'answerNeedText' => __( 'Write the answer first.', 'ai-site-assistant-autopilot' ),
+				'answerNeedAsk'  => __( 'Enter the question first.', 'ai-site-assistant-autopilot' ),
+				'answerFailed'   => __( 'Could not save the answer. Please try again.', 'ai-site-assistant-autopilot' ),
+				'answerSavedGap' => __( 'Answer saved. The question moved to Saved answers.', 'ai-site-assistant-autopilot' ),
+				'answerSaved'    => __( 'Answer saved.', 'ai-site-assistant-autopilot' ),
+				'edit'           => __( 'Edit', 'ai-site-assistant-autopilot' ),
+				'delete'         => __( 'Delete', 'ai-site-assistant-autopilot' ),
+				'deleteTitle'    => __( 'Delete this saved answer?', 'ai-site-assistant-autopilot' ),
+				'deleteBody'     => __( 'The assistant goes back to answering this question from your site content. You can save a new answer at any time.', 'ai-site-assistant-autopilot' ),
+				'deleteCta'      => __( 'Delete answer', 'ai-site-assistant-autopilot' ),
+				'deleted'        => __( 'Saved answer deleted.', 'ai-site-assistant-autopilot' ),
+				'deleteFailed'   => __( 'Could not delete the saved answer. Please try again.', 'ai-site-assistant-autopilot' ),
+				'usedNever'      => __( 'Not used yet', 'ai-site-assistant-autopilot' ),
+				/* translators: %s: how many times a saved answer was sent. */
+				'usedOne'        => _n( 'Used %s time', 'Used %s times', 1, 'ai-site-assistant-autopilot' ),
+				/* translators: %s: how many times a saved answer was sent. */
+				'usedMany'       => _n( 'Used %s time', 'Used %s times', 2, 'ai-site-assistant-autopilot' ),
 			)
 		);
 	}

@@ -1,5 +1,5 @@
 <?php
-/** Local WordPress checks for immutable Form Composer approval context. */
+/** Local WordPress checks for immutable Form Studio approval context. */
 
 declare(strict_types=1);
 

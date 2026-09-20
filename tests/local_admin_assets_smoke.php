@@ -20,23 +20,25 @@ wp_set_current_user( 1 );
 $routes = array(
 	AdminMenu::SLUG_SETUP        => array( 'setup-wizard.js' ),
 	AdminMenu::SLUG_HOME         => array(),
-	// Bare Content Studio opens the canonical Write tab; the retained Form
-	// Composer deep link is checked by the Content Studio navigation integration.
+	// Bare Content Studio opens the canonical Write tab; the retained legacy
+	// `mode=forms` deep link is checked by the Content Studio navigation
+	// integration. Form Studio (D-23) is its own top-level page below.
 	AdminMenu::SLUG_FORM_BUILDER => array( 'content-studio.js' ),
-	AdminMenu::SLUG_FORMS        => array(),
+	AdminMenu::SLUG_FORM_STUDIO  => array( 'content-studio.js' ),
+	AdminMenu::SLUG_FORMS        => array( 'native-forms.js' ),
 	AdminMenu::SLUG_HISTORY      => array(),
 	AdminMenu::SLUG_EFB          => array(),
 	AdminMenu::SLUG_CONNECTIONS  => array( 'connections.js' ),
 	AdminMenu::SLUG_CHAT         => array( 'chat.js', 'voice.js' ),
 	AdminMenu::SLUG_KB           => array( 'knowledge-base.js' ),
 	AdminMenu::SLUG_USAGE        => array( 'usage.js' ),
-	AdminMenu::SLUG_WIDGET       => array( 'widget-settings.js' ),
+	AdminMenu::SLUG_WIDGET       => array( 'widget-settings.js', 'handoff-inbox.js' ),
 	AdminMenu::SLUG_WC           => array( 'woocommerce.js' ),
 	AdminMenu::SLUG_WC_DASHBOARD => array( 'woocommerce.js' ),
 	AdminMenu::SLUG_SETTINGS     => array( 'settings.js' ),
 	AdminMenu::SLUG_LOGS         => array(),
 	AdminMenu::SLUG_INTEGRATIONS => array( 'integrations.js' ),
-	AdminMenu::SLUG_HANDOFFS     => array(),
+	AdminMenu::SLUG_HANDOFFS     => array( 'handoff-inbox.js' ),
 	AdminMenu::SLUG_CONVERSATIONS => array( 'answer-widget.js', 'answer-handoff.js', 'answer-voice.js' ),
 );
 

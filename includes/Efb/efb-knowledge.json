@@ -126,8 +126,8 @@
       "id": "multi_step",
       "scope": "form",
       "title": "Split the form into multiple steps",
-      "aliases": ["steps", "multi step", "wizard", "pages", "multi-step", "چند مرحله", "مرحله"],
-      "answer": "Add a new Step from the elements/palette; drag fields into each step. Each step becomes a page with Next/Previous buttons. Edit a step's name/icon via its green gear settings."
+      "aliases": ["steps", "multi step", "wizard", "pages", "multi-step", "progress bar", "steps style", "step style", "چند مرحله", "مرحله", "نوار پیشرفت", "سبک مراحل"],
+      "answer": "Add a new Step from the elements/palette; drag fields into each step. Each step becomes a page with Next/Previous buttons. Edit a step's name/icon via its green gear settings. In the form settings, \"Don't show icons & names of steps\" and \"Don't show progress bar\" hide those rows; while a row is shown you can pick its style: steps as Classic, Circles, Pills or Chevrons, and the progress bar as Classic, Bar, Segments or Ring. I can change these on the open form too; nothing is saved until you click Easy Form Builder's Save button."
     },
     {
       "id": "conditional_logic",

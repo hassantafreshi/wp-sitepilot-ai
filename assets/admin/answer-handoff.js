@@ -13,11 +13,14 @@
 
 	function strings() { return config.i18n || {}; }
 
+	// Labels come translated from PHP; the English fallbacks only cover a missing string.
+	function text( key, fallback ) { return strings()[ key ] || fallback; }
+
 	function state( enabled, configured ) {
-		if ( enabled && configured ) { return { key: 'ready', label: 'Ready' }; }
-		if ( enabled ) { return { key: 'needs-setup', label: 'Needs setup' }; }
-		if ( configured ) { return { key: 'paused', label: 'Paused' }; }
-		return { key: 'off', label: 'Not configured' };
+		if ( enabled && configured ) { return { key: 'ready', label: text( 'handoffReady', 'Ready' ) }; }
+		if ( enabled ) { return { key: 'needs-setup', label: text( 'handoffNeedsSetup', 'Needs setup' ) }; }
+		if ( configured ) { return { key: 'paused', label: text( 'handoffPaused', 'Paused' ) }; }
+		return { key: 'off', label: text( 'handoffNotConfigured', 'Not configured' ) };
 	}
 
 	function cardEnabled( card ) { return card.getAttribute( 'data-sp-handoff-enabled' ) === '1'; }
@@ -32,7 +35,7 @@
 	}
 
 	function editButton( card ) { return card.querySelector( '[data-sp-handoff-edit]' ); }
-	function defaultEditLabel( card ) { return cardEnabled( card ) || cardConfigured( card ) ? 'Edit' : 'Connect'; }
+	function defaultEditLabel( card ) { return cardEnabled( card ) || cardConfigured( card ) ? text( 'handoffEdit', 'Edit' ) : text( 'handoffConnect', 'Connect' ); }
 
 	function openCard( card, enableWhenSaved ) {
 		var form = card.querySelector( '[data-sp-handoff-form]' );
@@ -41,7 +44,7 @@
 		card.classList.add( 'is-open' );
 		if ( enableWhenSaved ) { card.setAttribute( 'data-sp-handoff-pending-enable', '1' ); }
 		var edit = editButton( card );
-		if ( edit ) { edit.textContent = 'Close'; }
+		if ( edit ) { edit.textContent = text( 'handoffClose', 'Close' ); }
 	}
 
 	function closeCard( card, reset, keepStatus ) {
@@ -80,15 +83,29 @@
 
 	function summary( card, channel ) {
 		var form = card.querySelector( '[data-sp-handoff-form]' );
-		if ( ! form || ! channel.configured ) { return 'Not set up yet'; }
+		if ( ! form || ! channel.configured ) { return text( 'handoffNotSetUp', 'Not set up yet' ); }
 		if ( channel.id === 'email' ) {
 			var recipient = form.elements.email_to ? form.elements.email_to.value.trim() : '';
-			return recipient || 'Uses the WordPress administration email';
+			return recipient || text( 'handoffEmailAdmin', 'Uses the WordPress administration email' );
 		}
 		if ( channel.id === 'telegram' ) {
-			return 'Credential stored securely; chat ' + ( form.elements.telegram_chat ? form.elements.telegram_chat.value.trim() : '' );
+			return text( 'handoffTelegramSummary', 'Credential stored securely; chat %s' ).replace( '%s', form.elements.telegram_chat ? form.elements.telegram_chat.value.trim() : '' );
 		}
-		return 'Credentials stored securely; sends to ' + ( form.elements.twilio_to ? form.elements.twilio_to.value.trim() : '' );
+		return text( 'handoffTwilioSummary', 'Credentials stored securely; sends to %s' ).replace( '%s', form.elements.twilio_to ? form.elements.twilio_to.value.trim() : '' );
+	}
+
+	// The inbox strip is rendered by the server; when availability changes in place, swap its state and text
+	// so the page never says visitors are not offered a person while a channel is ready, or the reverse.
+	function syncInboxStrip( available ) {
+		var strip = document.querySelector( '[data-sp-handoff-inbox-strip]' );
+		if ( ! strip ) { return; }
+		var next = available ? ( strip.getAttribute( 'data-count-state' ) || 'quiet' ) : 'unavailable';
+		strip.setAttribute( 'data-sp-handoff-inbox-strip', next );
+		[ 'is-waiting', 'is-quiet', 'is-unavailable' ].forEach( function ( className ) { strip.classList.remove( className ); } );
+		strip.classList.add( 'is-' + next );
+		var bodyNode = strip.querySelector( '.sp-answer-handoff-inbox__text' );
+		var body = strip.getAttribute( available ? 'data-body-ready' : 'data-body-unavailable' );
+		if ( bodyNode && body ) { bodyNode.textContent = body; }
 	}
 
 	function apply( card, result ) {
@@ -99,6 +116,7 @@
 		card.setAttribute( 'data-sp-handoff-enabled', enabled ? '1' : '0' );
 		card.setAttribute( 'data-sp-handoff-configured', configured ? '1' : '0' );
 		root.setAttribute( 'data-sp-handoff-available', result.handoff_available ? '1' : '0' );
+		syncInboxStrip( !! result.handoff_available );
 		[ 'is-ready', 'is-needs-setup', 'is-paused', 'is-off' ].forEach( function ( className ) { card.classList.remove( className ); } );
 		card.classList.add( 'is-' + visual.key );
 
@@ -166,7 +184,7 @@
 		var url = button.getAttribute( 'data-sp-handoff-test-url' );
 		if ( ! card || ! url || ! config.nonce || ! window.confirm( strings().handoffConnectionPrompt || 'This contacts the provider to validate the saved credential. Continue?' ) ) { return; }
 		setBusy( card, true );
-		setStatus( card, 'Checking connection...', 'busy' );
+		setStatus( card, text( 'handoffChecking', 'Checking connection...' ), 'busy' );
 		window.fetch( url, {
 			credentials: 'same-origin',
 			headers: { 'X-WP-Nonce': config.nonce }
@@ -176,7 +194,7 @@
 				return data;
 			} );
 		} ).then( function ( data ) {
-			setStatus( card, data.message || 'Connection verified.', 'saved' );
+			setStatus( card, data.message || text( 'handoffVerified', 'Connection verified.' ), 'saved' );
 		} ).catch( function ( error ) {
 			setStatus( card, error.message || strings().handoffConnectionFailed || 'Could not check the connection. Please try again.', 'error' );
 		} ).finally( function () {
@@ -231,7 +249,52 @@
 		if ( test && ! test.disabled ) { testConnection( test ); }
 	} );
 
+	// Which contact details the visitor's handoff card asks for. All four are sent together.
+	function saveDetails( form ) {
+		var status = form.querySelector( '[data-sp-handoff-details-status]' );
+		var button = form.querySelector( '[data-sp-handoff-details-save]' );
+		var fields = {};
+		[ 'name', 'email', 'phone', 'website' ].forEach( function ( key ) {
+			var checked = form.querySelector( 'input[name="' + key + '"]:checked' );
+			fields[ key ] = checked ? checked.value : 'off';
+		} );
+		function show( message, kind ) {
+			if ( ! status ) { return; }
+			status.textContent = message;
+			status.setAttribute( 'data-state', kind );
+		}
+		if ( ! config.restUrl || ! config.nonce ) {
+			show( strings().handoffDetailsFailed || 'Could not save the details. Please try again.', 'error' );
+			return;
+		}
+		if ( button ) { button.disabled = true; }
+		show( strings().handoffSaving || 'Saving...', 'busy' );
+		window.fetch( config.restUrl + 'handoff/visitor-fields?_locale=user', {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },
+			body: JSON.stringify( { fields: fields } )
+		} ).then( function ( response ) {
+			return response.json().catch( function () { return {}; } ).then( function ( data ) {
+				if ( ! response.ok || ! data.ok ) { throw new Error( data.message || '' ); }
+				return data;
+			} );
+		} ).then( function () {
+			show( strings().handoffDetailsSaved || 'Saved.', 'saved' );
+		} ).catch( function ( error ) {
+			show( error.message || strings().handoffDetailsFailed || 'Could not save the details. Please try again.', 'error' );
+		} ).finally( function () {
+			if ( button ) { button.disabled = false; }
+		} );
+	}
+
 	root.addEventListener( 'submit', function ( event ) {
+		var details = event.target.closest( '[data-sp-handoff-details-form]' );
+		if ( details ) {
+			event.preventDefault();
+			saveDetails( details );
+			return;
+		}
 		var form = event.target.closest( '[data-sp-handoff-form]' );
 		if ( ! form ) { return; }
 		event.preventDefault();

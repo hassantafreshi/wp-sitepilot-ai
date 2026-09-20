@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Admin;
 use AISAAutoPilot\Api\RestRoutes;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Support\HandoffEmail;
+use AISAAutoPilot\Support\HandoffInbox;
 use AISAAutoPilot\Support\HandoffTelegram;
 use AISAAutoPilot\Support\HandoffTwilio;
 
@@ -54,7 +55,8 @@ final class AnswerDeskHandoffPage {
 					<?php Ui::alert( 'warn', 'warning', esc_html__( 'Configure handoff channels here, but visitors cannot request a person until Answer Desk and its Widget are both enabled.', 'ai-site-assistant-autopilot' ) ); ?>
 				<?php endif; ?>
 					<div class="sp-answer-handoff">
-						<p class="sp-answer-handoff__intro"><?php esc_html_e( 'When a visitor asks for a person, the plugin sends the handoff to every enabled and configured channel below. It does not use an ordered fallback queue.', 'ai-site-assistant-autopilot' ); ?></p>
+						<p class="sp-answer-handoff__intro" data-sp-handoff-delivery-mode="fan-out"><?php esc_html_e( 'When a visitor asks for a person, the plugin sends the handoff to every enabled and configured channel below. It does not use an ordered fallback queue.', 'ai-site-assistant-autopilot' ); ?></p>
+							<?php $this->render_inbox_link(); ?>
 						<div class="sp-answer-handoff__cards">
 						<?php $this->render_email( $widget, $email ); ?>
 						<?php $this->render_telegram( $widget, $telegram ); ?>
@@ -62,10 +64,97 @@ final class AnswerDeskHandoffPage {
 						<?php $this->render_twilio( $widget, $twilio, $show_twilio ); ?>
 						</div>
 						<?php $this->render_add_channels( $show_twilio ); ?>
+						<?php $this->render_visitor_fields(); ?>
 					</div>
 				</div>
 			</section>
 			<?php Ui::overlays(); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Delivery state of each channel that has a real transport, shared with the handoff inbox.
+	 *
+	 * @return array<int, array{id:string,label:string,state:string,state_label:string}>
+	 */
+	public static function channel_states(): array {
+		$widget   = array_merge( Settings::widget_defaults(), (array) Settings::get( 'widget', array() ) );
+		$channels = array(
+			array( 'email', __( 'Email', 'ai-site-assistant-autopilot' ), ! empty( $widget['handoff_email_enabled'] ), ( new HandoffEmail() )->is_configured() ),
+			array( 'telegram', __( 'Telegram', 'ai-site-assistant-autopilot' ), ! empty( $widget['handoff_telegram_enabled'] ), ( new HandoffTelegram() )->is_configured() ),
+			array( 'twilio', __( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ), ! empty( $widget['handoff_twilio_enabled'] ), ( new HandoffTwilio() )->is_configured() ),
+		);
+		$states   = array();
+		foreach ( $channels as $channel ) {
+			list( $id, $label, $enabled, $configured ) = $channel;
+			$states[]                                  = array(
+				'id'          => $id,
+				'label'       => $label,
+				'state'       => substr( trim( self::state_class( $enabled, $configured ) ), 3 ),
+				'state_label' => self::state_label( $enabled, $configured ),
+			);
+		}
+		return $states;
+	}
+
+	/**
+	 * The strip into the handoff inbox: real new and delivery-failed counts from the inbox table, and
+	 * whether visitors are offered a person at all (a request is only taken when a channel is ready).
+	 */
+	private function render_inbox_link(): void {
+		$inbox       = new HandoffInbox();
+		$new         = $inbox->count_new();
+		$failed      = $inbox->count_failed();
+		$available   = Settings::answer_desk_handoff_available();
+		$count_state = $new + $failed > 0 ? 'waiting' : 'quiet';
+		$state       = $available ? $count_state : 'unavailable';
+
+		// Switching a channel on or off updates availability in place (answer-handoff.js), so both texts travel with the strip.
+		$ready_body       = 'waiting' === $count_state
+			? __( 'Each request stays in the inbox with its conversation. Set its status so your team knows who has it.', 'ai-site-assistant-autopilot' )
+			: __( 'The inbox keeps every earlier request with the conversation that led to it.', 'ai-site-assistant-autopilot' );
+		$unavailable_body = __( 'Visitors are not offered a person until handoff is on and at least one channel below is ready. Earlier requests stay in the inbox.', 'ai-site-assistant-autopilot' );
+		$body             = $available ? $ready_body : $unavailable_body;
+		?>
+		<div class="sp-answer-handoff-inbox is-<?php echo esc_attr( $state ); ?>" data-sp-handoff-inbox-strip="<?php echo esc_attr( $state ); ?>" data-count-state="<?php echo esc_attr( $count_state ); ?>" data-body-ready="<?php echo esc_attr( $ready_body ); ?>" data-body-unavailable="<?php echo esc_attr( $unavailable_body ); ?>">
+			<span class="sp-answer-handoff-inbox__icon" aria-hidden="true"><?php echo Ui::icon( 'headset', 19, 'currentColor', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
+			<div class="sp-answer-handoff-inbox__body">
+				<div class="sp-answer-handoff-inbox__title-row">
+					<strong class="sp-answer-handoff-inbox__title"><?php echo esc_html( $new + $failed > 0 ? __( 'Waiting for a person', 'ai-site-assistant-autopilot' ) : __( 'Nobody is waiting', 'ai-site-assistant-autopilot' ) ); ?></strong>
+					<?php if ( $new > 0 ) : ?>
+						<span class="sp-answer-handoff-inbox__pill" data-sp-handoff-strip-new="<?php echo esc_attr( (string) $new ); ?>">
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: number of handoff requests nobody has picked up yet. */
+								__( '%s new', 'ai-site-assistant-autopilot' ),
+								number_format_i18n( $new )
+							)
+						);
+						?>
+						</span>
+					<?php endif; ?>
+					<?php if ( $failed > 0 ) : ?>
+						<span class="sp-answer-handoff-inbox__pill is-failed" data-sp-handoff-strip-failed="<?php echo esc_attr( (string) $failed ); ?>">
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: number of handoff requests that no channel accepted. */
+								__( '%s delivery failed', 'ai-site-assistant-autopilot' ),
+								number_format_i18n( $failed )
+							)
+						);
+						?>
+						</span>
+					<?php endif; ?>
+				</div>
+				<p class="sp-answer-handoff-inbox__text"><?php echo esc_html( $body ); ?></p>
+			</div>
+			<a class="sp-answer-handoff-inbox__cta" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_HANDOFFS ) ); ?>" data-sp-handoff-inbox-link>
+				<?php esc_html_e( 'Open inbox', 'ai-site-assistant-autopilot' ); ?>
+				<?php echo Ui::icon( 'chevron', 14, 'currentColor', 2.3 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?>
+			</a>
 		</div>
 		<?php
 	}
@@ -163,7 +252,7 @@ final class AnswerDeskHandoffPage {
 			<div class="sp-answer-handoff-card__head">
 				<span class="sp-answer-handoff-card__icon" aria-hidden="true"><?php echo Ui::icon( 'phone', 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
 				<div class="sp-answer-handoff-card__body">
-					<div class="sp-answer-handoff-card__title"><strong><?php esc_html_e( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ); ?></strong><span class="sp-answer-handoff-state<?php echo $this->state_class( $enabled, $twilio->is_configured() ); ?>" data-sp-handoff-state><?php echo esc_html( $this->state_label( $enabled, $twilio->is_configured() ) ); ?></span></div>
+					<div class="sp-answer-handoff-card__title"><strong><?php esc_html_e( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ); ?></strong><span class="sp-answer-handoff-state<?php echo self::state_class( $enabled, $twilio->is_configured() ); ?>" data-sp-handoff-state><?php echo esc_html( self::state_label( $enabled, $twilio->is_configured() ) ); ?></span></div>
 					<p><?php esc_html_e( 'Sends a text message to the configured support number.', 'ai-site-assistant-autopilot' ); ?></p>
 					<span class="sp-answer-handoff-card__summary" data-sp-handoff-summary><?php echo esc_html( $summary ); ?></span>
 				</div>
@@ -234,6 +323,55 @@ final class AnswerDeskHandoffPage {
 		<?php
 	}
 
+	/**
+	 * The contact details the widget's handoff card asks a visitor for. Each detail is off, optional or
+	 * required, saved through `handoff/visitor-fields`; nothing is asked while every detail is off.
+	 */
+	private function render_visitor_fields(): void {
+		$fields  = Settings::handoff_fields();
+		$details = array(
+			'name'    => array( __( 'Name', 'ai-site-assistant-autopilot' ), __( 'So your team knows who they are talking to.', 'ai-site-assistant-autopilot' ) ),
+			'email'   => array( __( 'Email address', 'ai-site-assistant-autopilot' ), __( 'Lets your team reply by email from the inbox.', 'ai-site-assistant-autopilot' ) ),
+			'phone'   => array( __( 'Mobile number', 'ai-site-assistant-autopilot' ), __( 'Lets your team call or text the visitor back.', 'ai-site-assistant-autopilot' ) ),
+			'website' => array( __( 'Website address', 'ai-site-assistant-autopilot' ), __( 'Useful when visitors ask about their own site or business.', 'ai-site-assistant-autopilot' ) ),
+		);
+		$modes   = array(
+			'off'      => __( 'Off', 'ai-site-assistant-autopilot' ),
+			'optional' => __( 'Optional', 'ai-site-assistant-autopilot' ),
+			'required' => __( 'Required', 'ai-site-assistant-autopilot' ),
+		);
+		?>
+		<section class="sp-answer-handoff-details" aria-labelledby="sp-answer-handoff-details-title" data-sp-handoff-details>
+			<div class="sp-answer-handoff-details__head">
+				<h2 id="sp-answer-handoff-details-title"><?php esc_html_e( 'Details to ask for', 'ai-site-assistant-autopilot' ); ?></h2>
+				<p><?php esc_html_e( 'Before a visitor sends the conversation, the widget asks for the details you pick here. A required detail has to be filled in. When every detail is off, the visitor only sends the conversation.', 'ai-site-assistant-autopilot' ); ?></p>
+			</div>
+			<form class="sp-answer-handoff-details__form" data-sp-handoff-details-form novalidate>
+				<?php foreach ( $details as $key => $detail ) : ?>
+					<div class="sp-answer-handoff-detail" role="radiogroup" aria-labelledby="sp-handoff-detail-<?php echo esc_attr( $key ); ?>" aria-describedby="sp-handoff-detail-<?php echo esc_attr( $key ); ?>-hint" data-sp-handoff-detail="<?php echo esc_attr( $key ); ?>">
+						<div class="sp-answer-handoff-detail__text">
+							<strong id="sp-handoff-detail-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $detail[0] ); ?></strong>
+							<span id="sp-handoff-detail-<?php echo esc_attr( $key ); ?>-hint"><?php echo esc_html( $detail[1] ); ?></span>
+						</div>
+						<div class="sp-answer-handoff-seg">
+							<?php foreach ( $modes as $mode => $mode_label ) : ?>
+								<label class="sp-answer-handoff-seg__option">
+									<input type="radio" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $mode ); ?>"<?php checked( $fields[ $key ], $mode ); ?> />
+									<span><?php echo esc_html( $mode_label ); ?></span>
+								</label>
+							<?php endforeach; ?>
+						</div>
+					</div>
+				<?php endforeach; ?>
+				<div class="sp-answer-handoff-details__actions">
+					<button class="sp-btn sp-btn--r8" type="submit" data-sp-handoff-details-save><?php esc_html_e( 'Save details', 'ai-site-assistant-autopilot' ); ?></button>
+					<p class="sp-answer-handoff-form__status" data-sp-handoff-details-status role="status" aria-live="polite"></p>
+				</div>
+			</form>
+		</section>
+		<?php
+	}
+
 	private function card_start( string $id, string $title, string $description, string $summary, string $icon, bool $enabled, bool $configured ): void {
 		$toggle_label = sprintf(
 			/* translators: %s: human handoff channel name. */
@@ -245,7 +383,7 @@ final class AnswerDeskHandoffPage {
 			<div class="sp-answer-handoff-card__head">
 				<span class="sp-answer-handoff-card__icon" aria-hidden="true"><?php echo Ui::icon( $icon, 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
 				<div class="sp-answer-handoff-card__body">
-					<div class="sp-answer-handoff-card__title"><strong><?php echo esc_html( $title ); ?></strong><span class="sp-answer-handoff-state<?php echo $this->state_class( $enabled, $configured ); ?>" data-sp-handoff-state><?php echo esc_html( $this->state_label( $enabled, $configured ) ); ?></span></div>
+					<div class="sp-answer-handoff-card__title"><strong><?php echo esc_html( $title ); ?></strong><span class="sp-answer-handoff-state<?php echo self::state_class( $enabled, $configured ); ?>" data-sp-handoff-state><?php echo esc_html( self::state_label( $enabled, $configured ) ); ?></span></div>
 					<p><?php echo esc_html( $description ); ?></p>
 					<span class="sp-answer-handoff-card__summary" data-sp-handoff-summary><?php echo esc_html( $summary ); ?></span>
 				</div>
@@ -284,10 +422,10 @@ final class AnswerDeskHandoffPage {
 	}
 
 	private function card_class( bool $enabled, bool $configured ): string {
-		return ' ' . ltrim( $this->state_class( $enabled, $configured ), ' ' );
+		return ' ' . ltrim( self::state_class( $enabled, $configured ), ' ' );
 	}
 
-	private function state_class( bool $enabled, bool $configured ): string {
+	private static function state_class( bool $enabled, bool $configured ): string {
 		if ( $enabled && $configured ) {
 			return ' is-ready';
 		}
@@ -297,7 +435,7 @@ final class AnswerDeskHandoffPage {
 		return $configured ? ' is-paused' : ' is-off';
 	}
 
-	private function state_label( bool $enabled, bool $configured ): string {
+	private static function state_label( bool $enabled, bool $configured ): string {
 		if ( $enabled && $configured ) {
 			return __( 'Ready', 'ai-site-assistant-autopilot' );
 		}

@@ -37,10 +37,26 @@ if (${env:ProgramFiles(x86)}) {
 	$msgfmtCandidates += Join-Path ${env:ProgramFiles(x86)} 'Poedit\GettextTools\bin\msgfmt.exe'
 }
 $msgfmt = $msgfmtCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+# The MO that ships must be the one QA ran against, and scripts/compile-mo.php is
+# its only writer (WordPress' own POMO classes). So the PO is validated into a
+# throwaway file here instead of overwriting languages\*.mo: compiling with
+# msgfmt produced a different, hash-tabled MO and silently changed the worktree.
 if ( (Test-Path -LiteralPath $poFile) -and $msgfmt ) {
-	& $msgfmt --check --output-file $moFile $poFile
-	if ($LASTEXITCODE -ne 0) {
-		throw 'Unable to compile the Persian translation file.'
+	$moCheck = Join-Path ([System.IO.Path]::GetTempPath()) ('aisaautopilot-mo-check-' + [System.Guid]::NewGuid().ToString('N') + '.mo')
+	try {
+		& $msgfmt --check --output-file $moCheck $poFile
+		if ($LASTEXITCODE -ne 0) {
+			throw 'The Persian translation file does not compile.'
+		}
+	}
+	finally {
+		if (Test-Path -LiteralPath $moCheck) { Remove-Item -LiteralPath $moCheck -Force }
+	}
+	if (-not (Test-Path -LiteralPath $moFile)) {
+		throw "The compiled translation is missing: $moFile. Run scripts/compile-mo.php."
+	}
+	if ((Get-Item -LiteralPath $moFile).LastWriteTimeUtc -lt (Get-Item -LiteralPath $poFile).LastWriteTimeUtc) {
+		throw "The compiled translation is older than the PO file. Run scripts/compile-mo.php before building."
 	}
 }
 
@@ -49,10 +65,15 @@ $stage = Join-Path ([System.IO.Path]::GetTempPath()) "ai-site-assistant-autopilo
 $packageRoot = Join-Path $stage 'ai-site-assistant-autopilot'
 New-Item -ItemType Directory -Force -Path $packageRoot | Out-Null
 
-$excludedDirectories = @('.git', '.github', 'vendor', 'node_modules', 'tests', 'docs', 'scripts', 'dist', '.phpstan.cache', '.phpunit.cache')
+# 'test-artifacts' holds QA screenshots and gate logs written next to the source
+# by the agent tooling; '.claude' holds agent configuration. Neither belongs in a
+# release, and both are excluded here rather than deleted from the worktree.
+$excludedDirectories = @('.git', '.github', '.claude', 'vendor', 'node_modules', 'tests', 'docs', 'scripts', 'dist', 'test-artifacts', '.phpstan.cache', '.phpunit.cache')
 # Plugin Check rejects hidden files and any markdown in the plugin root other
 # than the ones WordPress.org expects, so those are excluded here too.
-$excludedFiles = @('composer.json', 'composer.lock', 'phpcs.xml.dist', 'phpstan.neon', 'phpunit.xml', 'phpunit.xml.dist', 'MANUAL-TESTING.md', 'PHASE_1_RELEASE_READINESS_FA.md', 'RELEASE_NOTES.md', 'README.md', 'SECURITY_HARDENING_1.0.3_FA.md', 'test_100_scenarios.php', '.gitignore', '.gitattributes', '.editorconfig')
+# 'handoff.md' is the session state file kept in the plugin root; without it here
+# the root allow-list below stops the build.
+$excludedFiles = @('composer.json', 'composer.lock', 'phpcs.xml.dist', 'phpstan.neon', 'phpunit.xml', 'phpunit.xml.dist', 'handoff.md', 'MANUAL-TESTING.md', 'PHASE_1_RELEASE_READINESS_FA.md', 'RELEASE_NOTES.md', 'README.md', 'SECURITY_HARDENING_1.0.3_FA.md', 'test_100_scenarios.php', '.gitignore', '.gitattributes', '.editorconfig')
 
 & robocopy $source $packageRoot /E /NFL /NDL /NJH /NJS /XD $excludedDirectories /XF $excludedFiles | Out-Null
 if ($LASTEXITCODE -gt 7) {
@@ -112,7 +133,7 @@ try {
 		throw "Release archive has unexpected files in the plugin root: $($unexpected -join ', ')"
 	}
 
-	$forbidden = $entries | Where-Object { $_ -match '(^|/)(vendor|node_modules|tests|docs|scripts|\.git)(/|$)' }
+	$forbidden = $entries | Where-Object { $_ -match '(^|/)(vendor|node_modules|tests|docs|scripts|dist|test-artifacts|\.git|\.github|\.claude|\.phpstan\.cache|\.phpunit\.cache)(/|$)' }
 	if ($forbidden) {
 		throw "Release archive contains development files: $($forbidden -join ', ')"
 	}
