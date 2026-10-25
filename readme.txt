@@ -1,5 +1,5 @@
 === AI Site Assistant AutoPilot ===
-Contributors: aisaautopilot
+Contributors: hassantafreshi
 Tags: ai, forms, form-builder, voice, email
 Requires at least: 6.2
 Tested up to: 7.1
