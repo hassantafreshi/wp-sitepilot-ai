@@ -215,14 +215,16 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 			);
 			$this->request_chat( $body );
 
-			return array(
-				'ok'      => true,
-				'code'    => 'connected',
-				'message' => __( 'Connection successful.', 'ai-site-assistant-autopilot' ),
-			);
+			return self::connected();
 		} catch ( ProviderException $e ) {
 			$message = $e->getMessage();
 			$code    = $e->error_code();
+
+			// A reasoning model can spend the whole ping allowance thinking and
+			// answer 200 with no text. The key, model and endpoint still worked.
+			if ( 'provider_empty_response' === $code ) {
+				return self::connected();
+			}
 
 			if ( 'provider_unreachable' === $code ) {
 				$message = sprintf(
@@ -383,6 +385,13 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 
 			return $this->request_chat( $body );
 		}
+		// The same models take their output ceiling as max_completion_tokens.
+		if ( 400 === $code && array_key_exists( 'max_tokens', $body ) && self::rejects_parameter( $decoded, 'max_tokens' ) ) {
+			$body['max_completion_tokens'] = $body['max_tokens'];
+			unset( $body['max_tokens'] );
+
+			return $this->request_chat( $body );
+		}
 
 		if ( 401 === $code || 403 === $code ) {
 			throw new ProviderException( 'provider_unauthorized', __( 'The AI provider rejected your API key.', 'ai-site-assistant-autopilot' ) );
@@ -478,6 +487,19 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 	 */
 	private function get_json( string $endpoint ) {
 		return $this->remote_json( 'GET', $endpoint, $this->auth_headers( $this->api_key ), null, min( 20, $this->timeout ) );
+	}
+
+	/**
+	 * The Test connection result once the provider has answered 200.
+	 *
+	 * @return array{ok:bool, code:string, message:string}
+	 */
+	public static function connected(): array {
+		return array(
+			'ok'      => true,
+			'code'    => 'connected',
+			'message' => __( 'Connection successful.', 'ai-site-assistant-autopilot' ),
+		);
 	}
 
 	/**

@@ -139,14 +139,16 @@ final class AnthropicProvider implements ProviderInterface, ModelCatalogInterfac
 		try {
 			$this->request_messages( '', 'ping', 16 );
 
-			return array(
-				'ok'      => true,
-				'code'    => 'connected',
-				'message' => __( 'Connection successful.', 'ai-site-assistant-autopilot' ),
-			);
+			return OpenAiCompatibleProvider::connected();
 		} catch ( ProviderException $e ) {
 			$message = $e->getMessage();
 			$code    = $e->error_code();
+
+			// Claude Opus 5 and Fable 5 always think, so a 16-token ping can end at
+			// max_tokens with no text. A 200 still proves the key and the model.
+			if ( 'provider_empty_response' === $code ) {
+				return OpenAiCompatibleProvider::connected();
+			}
 
 			if ( 'provider_unreachable' === $code ) {
 				$message = sprintf(

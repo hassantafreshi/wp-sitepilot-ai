@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Tests;
 
 use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Providers\AnthropicProvider;
 use AISAAutoPilot\Providers\OpenAiCompatibleProvider;
 use AISAAutoPilot\Providers\ProviderException;
 use PHPUnit\Framework\TestCase;
@@ -191,6 +192,96 @@ final class ProviderCatalogTest extends TestCase {
 			$this->assertSame( 'provider_error', $e->error_code() );
 		}
 		$this->assertCount( 1, $GLOBALS['aisaautopilot_test_http_requests'] );
+	}
+
+	/**
+	 * Test connection sends a tiny ping. A reasoning model can spend that whole
+	 * allowance thinking and answer 200 with no text; the key, model and
+	 * endpoint are still proven good, so that is a connection, not an error.
+	 */
+	public function test_health_check_counts_a_reply_spent_on_reasoning_as_connected(): void {
+		$GLOBALS['aisaautopilot_test_http_queue'] = array(
+			self::http(
+				200,
+				array(
+					'choices' => array(
+						array(
+							'message'       => array( 'content' => '' ),
+							'finish_reason' => 'length',
+						),
+					),
+				)
+			),
+		);
+
+		$result = ( new OpenAiCompatibleProvider( 'https://api.x.ai/v1', 'grok-4.20-0309-reasoning', 'xai-test' ) )->health_check();
+
+		$this->assertTrue( $result['ok'], (string) $result['message'] );
+		$this->assertSame( 'connected', $result['code'] );
+	}
+
+	public function test_health_check_moves_to_max_completion_tokens_when_max_tokens_is_rejected(): void {
+		$GLOBALS['aisaautopilot_test_http_queue'] = array(
+			self::http(
+				400,
+				array(
+					'error' => array(
+						'message' => "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+						'param'   => 'max_tokens',
+						'code'    => 'unsupported_parameter',
+					),
+				)
+			),
+			self::http(
+				200,
+				array(
+					'choices' => array(
+						array(
+							'message'       => array( 'content' => '' ),
+							'finish_reason' => 'length',
+						),
+					),
+				)
+			),
+		);
+
+		$result = ( new OpenAiCompatibleProvider( 'https://api.openai.com/v1', 'gpt-5.6-luna', 'sk-test', 0.2 ) )->health_check();
+
+		$this->assertTrue( $result['ok'], (string) $result['message'] );
+		$requests = $GLOBALS['aisaautopilot_test_http_requests'];
+		$this->assertCount( 2, $requests );
+		$first  = json_decode( $requests[0]['args']['body'], true );
+		$second = json_decode( $requests[1]['args']['body'], true );
+		$this->assertArrayHasKey( 'max_tokens', $first );
+		$this->assertArrayNotHasKey( 'max_tokens', $second );
+		$this->assertSame( $first['max_tokens'], $second['max_completion_tokens'] );
+	}
+
+	public function test_anthropic_health_check_counts_a_reply_spent_on_thinking_as_connected(): void {
+		// Claude Opus 5 and Fable 5 always think; a 16-token ping ends at max_tokens with no text.
+		$GLOBALS['aisaautopilot_test_http_queue'] = array(
+			self::http(
+				200,
+				array(
+					'content'     => array(
+						array(
+							'type'     => 'thinking',
+							'thinking' => '',
+						),
+					),
+					'stop_reason' => 'max_tokens',
+					'usage'       => array(
+						'input_tokens'  => 8,
+						'output_tokens' => 16,
+					),
+				)
+			),
+		);
+
+		$result = ( new AnthropicProvider( 'https://api.anthropic.com/v1', 'claude-opus-5', 'sk-ant-test' ) )->health_check();
+
+		$this->assertTrue( $result['ok'], (string) $result['message'] );
+		$this->assertSame( 'connected', $result['code'] );
 	}
 
 	/**
