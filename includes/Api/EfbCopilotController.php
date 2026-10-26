@@ -400,11 +400,11 @@ final class EfbCopilotController {
 
 			return $this->respond(
 				array(
-					'type'  => 'list',
-					'reply' => array() !== $explained
+					'type'   => 'list',
+					'reply'  => array() !== $explained
 						? ( '' !== $reply ? $reply : __( 'Here is what this form’s conditional logic does:', 'ai-site-assistant-autopilot' ) )
 						: __( 'This form has no conditional logic rules yet.', 'ai-site-assistant-autopilot' ),
-					'items' => array_map(
+					'items'  => array_map(
 						static fn ( string $line ): array => array(
 							'severity' => 'info',
 							'message'  => $line,
@@ -464,7 +464,13 @@ final class EfbCopilotController {
 			}
 
 			if ( array() === $ops ) {
-				// Never pretend success: explain what was rejected and why.
+				// Never pretend success: explain what was rejected and why. The model
+				// wrote its reply before anything was checked, so once every operation
+				// it proposed is refused that reply would announce a change never made.
+				if ( array() !== $dropped ) {
+					$reply = __( 'I did not change the form.', 'ai-site-assistant-autopilot' );
+				}
+
 				return $this->respond(
 					array(
 						'type'   => 'message',

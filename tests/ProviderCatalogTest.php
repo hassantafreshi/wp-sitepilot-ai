@@ -59,6 +59,30 @@ final class ProviderCatalogTest extends TestCase {
 		}
 	}
 
+	/**
+	 * WordPress.org rejects a plugin that sends data to a service its readme
+	 * does not name, so every preset needs its terms and privacy links there.
+	 */
+	public function test_readme_discloses_every_preset_with_terms_and_privacy_links(): void {
+		$readme = (string) file_get_contents( dirname( __DIR__ ) . '/readme.txt' );
+		$start  = strpos( $readme, '== External services ==' );
+		$this->assertNotFalse( $start );
+		$section = substr( $readme, (int) $start, (int) strpos( $readme, '**Telegram', (int) $start ) - (int) $start );
+
+		foreach ( Settings::presets() as $key => $preset ) {
+			if ( 'custom' === $key ) {
+				continue;
+			}
+			// "xAI (Grok)" is listed as "xAI Grok (terms, privacy)".
+			$name = trim( (string) preg_replace( '/\s*\(.*\)$/', '', (string) $preset['label'] ) );
+			$this->assertMatchesRegularExpression(
+				'/' . preg_quote( $name, '/' ) . '[^()\n]{0,20}\(https:\/\/\S+,\s+https:\/\/\S+\)/',
+				$section,
+				$key . ' is missing from readme.txt External services'
+			);
+		}
+	}
+
 	public function test_retired_and_wrong_model_ids_are_not_offered(): void {
 		$retired = array(
 			'deepseek'  => array( 'deepseek-chat', 'deepseek-reasoner', 'deepseek-v4-flash' ),

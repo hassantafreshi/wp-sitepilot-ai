@@ -42,8 +42,15 @@ so old bookmarks and deep links keep working.
 
 **Setup & Connection** — a four-step wizard: provider, API key and a real
 connection test, model chosen from the provider's live catalogue, and
-integrations. Fourteen provider presets plus a Custom OpenAI-compatible
-endpoint.
+integrations. Twenty-three provider presets plus a Custom OpenAI-compatible
+endpoint: OpenAI, Anthropic (native Messages API), Google Gemini, xAI Grok,
+DeepSeek, Qwen, Mistral AI, Cohere, Z.ai GLM, Groq, Cerebras, SambaNova Cloud,
+Perplexity (legacy), Azure OpenAI, and the gateways OpenRouter, Together AI,
+Fireworks AI, Hugging Face Inference Providers, NVIDIA NIM, AI/ML API, Novita
+AI, Eden AI and Clusy.io. Model lists were refreshed on 2026-10-26 from vendor
+SDKs and official documentation (T75); anything that could not be confirmed is
+listed in `docs/research/T75_MODEL_CATALOG_RESEARCH.md`. A reasoning model that rejects a
+custom `temperature` is retried once without it instead of failing.
 
 **Site Knowledge** — indexing of published WordPress content, an entries list
 with single delete and full re-index, an "Ask your knowledge base" console,
@@ -64,9 +71,40 @@ simple-product draft.
 history and CSV export; and forms described in text or voice, previewed field
 by field with a masked recipient, approved, then placed by shortcode.
 
-**Easy Form Builder Copilot** — a "Build with AI" button inside Easy Form
-Builder that creates and edits real EFB forms. Saving stays with EFB's own
-button, and the interface says so.
+**Easy Form Builder Copilot** — an "Ask AI Site Assistant" chat button inside
+Easy Form Builder that creates and edits real EFB forms. Saving stays with EFB's own
+button, and the interface says so. Checked against EFB 4.3.1 and its add-ons
+(T74):
+
+- *New form:* a preview before anything is written, with help text, a submit
+  button label, steps for long forms, and the exact notification recipients.
+  A consent checkbox links only to the site's own Privacy Policy page; any
+  address the AI writes is stripped. `notify_admin` fills in the site's admin
+  email and `confirm_to_respondent` binds the confirmation to the form's own
+  email field, exactly like EFB's contact template; the AI never sees or picks
+  an address.
+- *Field types:* eleven more types can be generated — mobile, rating, 5- and
+  10-point scales, yes/no, switch, terms checkbox, colour, drag-and-drop
+  upload, checklist with quantities and rating matrix — plus 31 aliases. EFB
+  reserves all eleven for its Free Plus and Pro plans, so on Free they are left
+  out with an upgrade note, as before; that includes the consent checkbox and
+  the review's one-click consent fix.
+- *Open form:* `rename_option` and `add_logic_rule` join the existing
+  operations. Every AI change gets its own Undo button that restores the canvas
+  to exactly how it was before that change.
+- *Conditional logic* (only when the Conditional Logic add-on is active):
+  show/hide a field or step, required/optional, jump to step. References are
+  resolved on the server against the open form, choices are stored by their
+  option id as EFB's own builder does, self-references and show-and-hide on
+  one target are refused, conflicts with existing rules are reported, and the
+  plan limits (Free Plus: 3 rules × 2 conditions) are enforced.
+- *Explain logic:* existing rules are explained in plain language on the
+  server, without an AI call.
+- *Review:* deterministic checks for missing or duplicate labels, choice
+  fields with fewer than two options, personal data without consent (with an
+  Apply button), too many required fields, long single-page forms and missing
+  spam protection (silent when reCAPTCHA or EFB's Form Security & Spam
+  Protection add-on is on).
 
 **Usage and cost** — per period and per context, with an optional monthly token
 budget that stops requests once it is reached.
@@ -115,6 +153,17 @@ Steps that need a real environment — a live provider key, real SMTP delivery, 
 real browser microphone and a real WooCommerce draft — are listed in
 `MANUAL-TESTING.md` and signed off by the site owner, not by automation.
 
+**Changed after the 21 September freeze.** The table above was measured on the
+frozen tree. T74 and T75 changed the code afterwards, so the ZIP, Plugin Check,
+clean-install and browser rows must be measured again before release (T22 to
+T25). Measured on the new tree on 2026-10-26, outside WordPress: PHPUnit 191
+tests / 1011 assertions, PHPStan 0, PHPCS 136 files with 0 errors and 0
+warnings, php-lint 241/241, `node --check` 47/47, and the offline T74 copilot
+browser check 65 PASS / 0 FAIL (`tests/efb_copilot_t74_offline_check.cjs`: the
+real `efb-copilot.js` against replies built by the real controller). The same
+T74 steps now run inside `efb_copilot_browser_matrix.cjs` on a real Easy Form
+Builder install; that run, and the Part 9 manual steps, are still to do.
+
 ## Known limitations in this release
 
 - The indexing queue keeps no persistent cursor: a pass lives only while the
@@ -134,6 +183,14 @@ real browser microphone and a real WooCommerce draft — are listed in
   report.
 - One Activity Log QA incident during development is disclosed in full in
   `docs/ACTIVITY_LOG_QA_INCIDENT_FA.md`.
+- Easy Form Builder copilot: payments, prices, login and registration forms,
+  add-on activation, reCAPTCHA keys and EFB's global settings are never set by
+  AI. Logic rules that calculate, write values, or drive notifications,
+  confirmations and webhooks are left to EFB's own screens. Notifications can
+  be switched on only when a new form is created. Fields cannot yet be moved,
+  Undo does not survive a page reload, and PDFs or images cannot be imported.
+  The full list, with the reason for each item, is in
+  `docs/EFB_AI_FORM_BUILDER_T74_T75_FA.md`.
 
 ### Plugin Check
 

@@ -19,10 +19,11 @@ anything. It never publishes on its own.
 Everything in this first version:
 
 * Overview screen with four tabs: Overview, Usage & Cost, Health and Activity Log.
-* Setup & Connection wizard: pick one of fourteen AI provider presets, or point
-  the Custom preset at any OpenAI-compatible endpoint. Save your own API key
-  encrypted, test the connection, and choose a model from the provider's live
-  catalogue.
+* Setup & Connection wizard: pick one of twenty-three AI provider presets,
+  including OpenAI, Anthropic Claude, Google Gemini, xAI Grok, DeepSeek, Qwen,
+  Mistral, Cohere and Z.ai GLM, or point the Custom preset at any
+  OpenAI-compatible endpoint. Save your own API key encrypted, test the
+  connection, and choose a model from the provider's live catalogue.
 * Integrations screen: one place to turn each capability on or off and see
   which ones this site can actually run.
 * Site Knowledge: index your published content, browse and re-index entries,
@@ -46,8 +47,18 @@ Everything in this first version:
 * Native AISAAutoPilot Forms: text, email, tel, textarea, select, radio and
   checkbox, up to 20 fields, validated server-side and delivered by
   wp_mail(). Visitor values are never stored in posts, meta, options or logs.
-* Easy Form Builder Copilot: a "Build with AI" button inside Easy Form Builder
-  that creates and edits real EFB forms. Saving stays with EFB's own button.
+* Easy Form Builder Copilot: an "Ask AI Site Assistant" chat button inside
+  Easy Form Builder that creates and edits real EFB forms. Saving stays with EFB's own button.
+  Describe a form and review a preview first: fields, help text, steps for
+  long forms, a consent checkbox linked to your own privacy page, and optional
+  email notifications to the site admin and a confirmation to the respondent.
+  Field types that Easy Form Builder reserves for its Free Plus or Pro plan,
+  such as the consent checkbox, are only added on those plans; on Free the
+  copilot names what it left out.
+  On an open form, ask it to add, rename or remove fields and choices, add
+  conditional-logic rules (with EFB's Conditional Logic add-on), explain the
+  rules already there, or review the form for missing labels, consent, spam
+  protection and length. Every change can be undone before you save.
 * Usage & cost tracking per period and per context, with an optional monthly
   token budget that stops requests once it is reached.
 * Activity log of plans, approvals and executions, with API keys and tokens
@@ -57,7 +68,10 @@ Everything in this first version:
   visitor panel and public forms declare their own text direction.
 
 Easy Form Builder is a separate, optional plugin. Use it for uploads,
-payments, conditional logic, calculations or multi-step flows.
+payments, conditional logic, calculations or multi-step flows. The copilot
+never configures payments, prices, login or registration forms, add-on
+activation or EFB's global settings; those stay in Easy Form Builder's own
+screens.
 
 == What deleting the plugin removes ==
 
@@ -123,13 +137,22 @@ request is made until you save a provider and an API key.
 
 You pick one provider in AI Site Assistant AutoPilot > Setup & Connection and supply your own
 API key. Requests are sent only when you generate a form or a draft, chat with
-the assistant, index knowledge, transcribe a voice message, or press "Test
-connection" / "Refresh from provider".
+the assistant or the Easy Form Builder copilot, index knowledge, transcribe a
+voice message, or press "Test connection" / "Refresh from provider".
 
 What is sent: the instruction you typed or dictated, the plugin's own system
 prompt, and — for the assistant and knowledge base — excerpts of the published,
-public content of your site. Your API key is sent as the request credential. No
-visitor form submissions are ever sent to an AI provider.
+public content of your site. Once you enable the visitor chat widget, a
+visitor's question, the previous few turns of that conversation and, if the
+visitor records one, the voice message to be transcribed are sent as well;
+the contact details a visitor types into a handoff request are not. When you use the Easy Form Builder copilot on an
+open form, the form's structure is sent as well: field ids, labels, types,
+choice texts, step titles, a plain-text summary of its conditional-logic
+rules, your Easy Form Builder plan, whether the Conditional Logic add-on is
+active, and the last few turns of that copilot conversation. Your API key is
+sent as the request credential. No visitor form submissions, no
+administrator email address and no privacy-page address are ever sent to an
+AI provider; the plugin adds those to an approved form itself.
 
 Supported providers, each with its own terms and privacy policy:
 OpenAI (https://openai.com/policies/terms-of-use,
@@ -138,17 +161,34 @@ Anthropic (https://www.anthropic.com/legal/consumer-terms,
 https://www.anthropic.com/legal/privacy),
 Google Gemini (https://ai.google.dev/gemini-api/terms,
 https://policies.google.com/privacy),
+xAI Grok (https://x.ai/legal/terms-of-service-enterprise,
+https://x.ai/legal/privacy-policy),
 DeepSeek (https://platform.deepseek.com/downloads/DeepSeek%20Terms%20of%20Service.html,
 https://platform.deepseek.com/downloads/DeepSeek%20Privacy%20Policy.html),
 Alibaba Cloud Model Studio / Qwen (https://www.alibabacloud.com/help/en/legal,
 https://www.alibabacloud.com/help/en/legal/latest/alibaba-cloud-international-website-privacy-policy),
 Mistral AI (https://mistral.ai/terms, https://mistral.ai/terms#privacy-policy),
+Cohere (https://cohere.com/terms-of-use, https://cohere.com/privacy),
+Z.ai GLM (https://docs.z.ai/legal-agreement/terms-of-use,
+https://docs.z.ai/legal-agreement/privacy-policy),
 Groq (https://groq.com/terms-of-sale/, https://groq.com/privacy-policy/),
+Cerebras (https://cloud.cerebras.ai/terms,
+https://www.cerebras.ai/privacy-policy),
+SambaNova Cloud (https://sambanova.ai/cloud-end-user-license-agreement,
+https://sambanova.ai/privacy-policy),
 Perplexity (https://www.perplexity.ai/hub/legal/terms-of-service,
 https://www.perplexity.ai/hub/legal/privacy-policy),
 Azure OpenAI (https://azure.microsoft.com/support/legal/,
 https://privacy.microsoft.com/privacystatement),
 OpenRouter (https://openrouter.ai/terms, https://openrouter.ai/privacy),
+Together AI (https://www.together.ai/terms-of-service,
+https://www.together.ai/privacy),
+Fireworks AI (https://fireworks.ai/terms-of-service,
+https://fireworks.ai/privacy-policy),
+Hugging Face Inference Providers (https://huggingface.co/terms-of-service,
+https://huggingface.co/privacy),
+NVIDIA NIM (https://assets.ngc.nvidia.com/products/api-catalog/legal/NVIDIA%20API%20Trial%20Terms%20of%20Service.pdf,
+https://www.nvidia.com/en-us/about-nvidia/privacy-policy/),
 AI/ML API (https://aimlapi.com/terms-and-conditions,
 https://aimlapi.com/privacy-policy),
 Novita AI (https://novita.ai/legal/terms-of-service,
@@ -156,6 +196,11 @@ https://novita.ai/legal/privacy-policy),
 Eden AI (https://www.edenai.co/terms-and-conditions,
 https://www.edenai.co/privacy-policy),
 Clusy.io (https://clusy.io/terms, https://clusy.io/privacy).
+Gateways (OpenRouter, Together AI, Fireworks AI, Hugging Face, AI/ML API,
+Novita AI, Eden AI and Clusy.io) may pass a request on to the vendor of the
+model you picked, whose own terms then apply as well. Some providers also offer
+regional endpoints (for example xAI's US-only or Eden AI's EU-only address);
+the request goes only to the base URL you saved.
 You may also point the "Custom" preset at any other OpenAI-compatible endpoint,
 in which case that endpoint's terms apply.
 
@@ -210,12 +255,36 @@ discards the visitor values.
 
 = Can I make a payment, upload, login or multi-step form? =
 
-No. Install and use Easy Form Builder for advanced form features.
+Not with the plugin's own native forms. Install Easy Form Builder for these.
+With it, the copilot can build multi-step forms and file uploads on any EFB
+plan, and drag-and-drop uploads, signatures, ratings, matrix questions and
+consent checkboxes on EFB's Free Plus or Pro plan. With EFB's Conditional Logic
+add-on it can also add show/hide rules. Payments, prices, login and registration forms are
+never set up by AI; configure them in Easy Form Builder yourself.
 
 = Can AI choose the email recipient? =
 
-No. The recipient is configured by an administrator in Advanced settings and is
-shown masked in the preview.
+No. For native forms, the recipient is configured by an administrator in
+Advanced settings and is shown masked in the preview. For Easy Form Builder
+forms, you can only switch notifications on: the plugin then fills in the
+site's admin email address itself, and a confirmation goes to the address the
+visitor types into the form's own email field. The AI never sees or picks an
+address.
+
+= Does the Easy Form Builder copilot save my form? =
+
+No. Each AI change is applied to the open builder so you can see it, has its
+own Undo button, and is saved only when you press Easy Form Builder's own Save
+button. A new form is created only after you approve its preview.
+
+= Which conditional-logic rules can the copilot add? =
+
+With EFB's Conditional Logic add-on active, it can show or hide a field or a
+step, make a field required or optional, or jump to a step, depending on
+other fields' answers. It refuses a rule that makes a field depend on itself or
+shows and hides the same target at once, warns you when a new rule fights an
+existing one, and respects your EFB plan's rule limits. Rules that calculate,
+write values or change notifications are left to you.
 
 = Can the plugin publish a post or a product by itself? =
 
@@ -242,6 +311,19 @@ editable text; nothing is sent until you press Send.
   answers.
 * Content Studio drafts, Form Studio forms, native email-only forms, and the
   Easy Form Builder copilot.
+* Easy Form Builder copilot: help text, steps for long forms, a consent
+  checkbox linked to the site's privacy page, optional admin and respondent
+  email notifications, eleven more field types on EFB's Free Plus or Pro plan
+  (mobile, rating, 5- and 10-point scales, yes/no, switch, terms checkbox,
+  colour, drag-and-drop upload, checklist and matrix), renaming choices, conditional-logic rules
+  with the Conditional Logic add-on, plain-language explanations of existing
+  rules, a form review that can add a missing consent checkbox in one click,
+  and Undo for every AI change.
+* Twenty-three provider presets, including new xAI Grok, Cohere, Z.ai GLM,
+  Cerebras, SambaNova, Together AI, Fireworks AI, Hugging Face and NVIDIA NIM
+  presets, and refreshed model lists for every provider.
+* Reasoning models that reject a custom temperature are retried once without
+  it instead of failing.
 * Usage and cost tracking with an optional monthly token budget.
 * Complete Persian translation and right-to-left layout.
 * Uninstall removes the plugin's tables, options and transients and leaves your

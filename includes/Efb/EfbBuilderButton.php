@@ -10,8 +10,8 @@ use AISAAutoPilot\Core\SiteLanguage;
 use AISAAutoPilot\Providers\ProviderManager;
 
 /**
- * Injects a floating "Build with AI" button + modal onto the Easy Form Builder
- * admin pages (page=Emsfb and page=Emsfb_create).
+ * Injects the floating "Ask AI Site Assistant" button and its chat panel onto
+ * the Easy Form Builder admin pages (page=Emsfb and page=Emsfb_create).
  */
 final class EfbBuilderButton {
 

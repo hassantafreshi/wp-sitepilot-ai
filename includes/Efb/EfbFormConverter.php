@@ -262,17 +262,17 @@ final class EfbFormConverter {
 	}
 
 	/**
-	 * An option or matrix row owned by `$parent`, in EFB's flat child shape.
+	 * An option or matrix row owned by `$owner`, in EFB's flat child shape.
 	 *
 	 * @param array<string,bool> $used
 	 * @return array<string,mixed>
 	 */
-	private function child( string $template, string $parent, int $n, string $value, array &$used ): array {
-		$id              = $this->unique_id( $parent . ( 'matrix_row' === $template ? '_r' : '_o' ) . $n, $used );
+	private function child( string $template, string $owner, int $n, string $value, array &$used ): array {
+		$id              = $this->unique_id( $owner . ( 'matrix_row' === $template ? '_r' : '_o' ) . $n, $used );
 		$child           = EfbFormModel::template( $template );
 		$child['id_']    = $id;
 		$child['dataId'] = $id . '-id';
-		$child['parent'] = $parent;
+		$child['parent'] = $owner;
 		$child['type']   = 'matrix_row' === $template ? 'r_matrix' : 'option';
 		$child['value']  = $value;
 		$child['id_op']  = $id;

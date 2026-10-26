@@ -79,7 +79,7 @@ final class EfbLogicRules {
 			if ( isset( $built['error'] ) ) {
 				return self::fail( $built['error'] );
 			}
-			$items[]                                = $built['item'];
+			$items[]                               = $built['item'];
 			$sources[ $built['item']['field_id'] ] = true;
 		}
 
@@ -296,8 +296,8 @@ final class EfbLogicRules {
 		if ( ! is_array( $raw ) ) {
 			return array( 'error' => 'action_not_an_object' );
 		}
-		$type = strtolower( trim( (string) ( $raw['action'] ?? ( $raw['type'] ?? '' ) ) ) );
-		$type = array(
+		$type   = strtolower( trim( (string) ( $raw['action'] ?? ( $raw['type'] ?? '' ) ) ) );
+		$type   = array(
 			'show'     => 'show_field',
 			'hide'     => 'hide_field',
 			'require'  => 'set_required',
@@ -369,10 +369,10 @@ final class EfbLogicRules {
 	 * @param array<int, array<string, mixed>> $steps
 	 */
 	private static function sentence( array $rule, array $fields, array $steps ): string {
-		$group     = is_array( $rule['conditions'] ?? null ) ? $rule['conditions'] : array();
-		$joiner    = 'OR' === ( $group['operator'] ?? 'AND' ) ? __( ' or ', 'ai-site-assistant-autopilot' ) : __( ' and ', 'ai-site-assistant-autopilot' );
-		$parts     = array();
-		$compares  = array(
+		$group    = is_array( $rule['conditions'] ?? null ) ? $rule['conditions'] : array();
+		$joiner   = 'OR' === ( $group['operator'] ?? 'AND' ) ? __( ' or ', 'ai-site-assistant-autopilot' ) : __( ' and ', 'ai-site-assistant-autopilot' );
+		$parts    = array();
+		$compares = array(
 			/* translators: 1: field label, 2: value. */
 			'is'           => __( '“%1$s” is “%2$s”', 'ai-site-assistant-autopilot' ),
 			/* translators: 1: field label, 2: value. */

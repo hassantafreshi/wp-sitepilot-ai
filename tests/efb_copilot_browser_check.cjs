@@ -4,6 +4,7 @@
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );
 const { chromium } = require( 'playwright-core' );
+const { fulfillScripted, runT74 } = require( './efb_copilot_t74_steps.cjs' );
 
 const baseUrl = ( process.env.AISAAUTOPILOT_BASE_URL || 'http://127.0.0.1/wp' ).replace( /\/$/, '' );
 const editUrl = process.env.AISAAUTOPILOT_BROWSER_EFB_URL || '';
@@ -93,8 +94,12 @@ async function login( page ) {
 		{ op: 'set_form_property', property: 'progress_style', value: 'ring' },
 		{ op: 'set_form_property', property: 'steps_style', value: 'zigzag' },
 	];
-	await page.route( '**/wp-json/aisaautopilot/v1/efb/chat**', ( route ) => {
+	// T74: scripted messages get the real controller's reply from efb_copilot_offline_server.php
+	// (no WordPress call, no provider). The site's EFB plan is read once the editor loads.
+	const t74Options = { efbPlan: 2, privacyUrl: baseUrl + '/privacy-policy/', privacyTitle: 'Privacy Policy' };
+	await page.route( '**/wp-json/aisaautopilot/v1/efb/chat**', async ( route ) => {
 		chatRequests.push( route.request().url() );
+		if ( await fulfillScripted( route, t74Options ) ) { return undefined; }
 		let body = {};
 		try { body = route.request().postDataJSON() || {}; } catch ( error ) { body = {}; }
 		if ( STYLE_COMMAND === body.message ) {
@@ -125,6 +130,7 @@ async function login( page ) {
 		check( await page.locator( '#aisaautopilot-efb-chat' ).isHidden(), 'Copilot starts as the mockup FAB state' );
 		const liveFieldIds = await page.evaluate( () => valj_efb.filter( ( item ) => item && item.type && ! [ 'form', 'step', 'option', 'r_matrix' ].includes( item.type ) ).map( ( item ) => String( item.id_ ) ) ); // eslint-disable-line no-undef
 		check( liveFieldIds.length === 3, 'real EFB state contains the three temporary form fields' );
+		t74Options.efbPlan = await page.evaluate( () => ( window.AISAAutoPilotEFB && window.AISAAutoPilotEFB.license && Number( window.AISAAutoPilotEFB.license.code ) ) || 2 );
 		// valj_efb is populated before EFB draws the canvas: wait for the first wrapper before counting.
 		if ( liveFieldIds.length ) {
 			await page.locator( '.efbField[data-id="' + liveFieldIds[ 0 ] + '-id"]' ).first().waitFor( { state: 'visible', timeout: 20000 } );
@@ -476,6 +482,10 @@ async function login( page ) {
 		check( hasEfbDialog ? ( efbDialogShown && 0 === popups.length ) : 1 === popups.length, hasEfbDialog ? 'the Pro CTA opens Easy Form Builder own upgrade dialog, with no external tab' : 'without the EFB dialog the Pro CTA falls back to the official pricing tab' );
 		await page.evaluate( () => { if ( 'function' === typeof state_modal_show_efb ) { state_modal_show_efb( 0 ); } } ); // eslint-disable-line no-undef
 		check( await chat.isVisible(), 'the Copilot panel is still open after the Pro dialog closes' );
+
+		// T74 on the real EFB canvas: add, rename, logic (when this site's add-on and plan allow
+		// it), explain, review with Apply, and Undo back to the fixture form.
+		await runT74( page, { check, label: 'T74', privacyUrl: t74Options.privacyUrl } );
 		const beforeReset = await page.locator( '#aisaautopilot-efb-messages .aisaautopilot-efb-msg' ).evaluateAll( ( nodes ) => nodes.map( ( node ) => ( node.classList.contains( 'aisaautopilot-efb-msg--ai' ) ? 'ai:' : 'user:' ) + String( node.textContent || '' ).trim().slice( 0, 60 ) ) );
 		console.log( 'MESSAGES_BEFORE_RESET ' + JSON.stringify( beforeReset ) );
 		await page.locator( '#aisaautopilot-efb-reset' ).click();
