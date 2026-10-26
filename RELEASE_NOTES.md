@@ -161,8 +161,23 @@ tests / 1011 assertions, PHPStan 0, PHPCS 136 files with 0 errors and 0
 warnings, php-lint 241/241, `node --check` 47/47, and the offline T74 copilot
 browser check 65 PASS / 0 FAIL (`tests/efb_copilot_t74_offline_check.cjs`: the
 real `efb-copilot.js` against replies built by the real controller). The same
-T74 steps now run inside `efb_copilot_browser_matrix.cjs` on a real Easy Form
-Builder install; that run, and the Part 9 manual steps, are still to do.
+T74 steps run inside `efb_copilot_browser_matrix.cjs` on a real Easy Form
+Builder install.
+
+On the same day the whole suite ran on a real site built in the cloud
+container: WordPress 7.1.3, MariaDB 10.11, PHP 8.3 and Easy Form Builder 4.3.1
+with its Conditional Logic and Human Shield add-ons. The EFB copilot matrix
+passed 184/0 on the Free plan and 204/0 on Free Plus with Conditional Logic, in
+`en_US` and `fa_IR`; the new end-to-end check (`efb_copilot_logic_e2e_check.cjs`:
+EFB's own Save, then the rule on the published form) passed 8/0; and all 75
+suites together gave 4444 PASS with one FAIL, the WooCommerce prerequisite, and
+no PHP notice in `debug.log`. That site differs from the owner's in four stated
+ways: a stub stands in for WordPress's Persian core language pack, three
+blocked third-party hosts get an empty reply from a shim outside the
+repository, the provider is a placeholder on a reserved `.invalid` host, and
+WooCommerce is not installed. The run found and fixed two defects: unlabelled
+rows on the Easy Form Builder details page, and eleven hidden admin pages
+without a title.
 
 ## Known limitations in this release
 
