@@ -191,9 +191,15 @@ Form Builder forms with a consent checkbox were rejected as an unsupported type
 (and the reply still said the form was built); Test connection failed on
 models that always think (Claude Opus 5, Fable 5) and could fail on reasoning
 models behind OpenAI-compatible endpoints; and a timing race in the release
-browser check. Plugin Check 2.1.0 on a trial build reports 0 errors and 13
-warnings from its new `AIProvider.DirectIntegration` check, which is an owner
-decision (D-35).
+browser check. Plugin Check 2.1.0 on a trial build first reported 0 errors and
+13 warnings from its new `AIProvider.DirectIntegration` check. Under owner
+decision D-35 the five files that were never hooked
+(`includes/Frontend/WidgetRenderer.php`, `assets/frontend/chat-widget.js|css`,
+`assets/admin/dashboard.js` and `includes/Voice/VoiceService.php`) were
+deleted, and the provider presets carry a documented suppression: they are
+bring-your-own-key defaults the administrator chooses, and the WordPress AI
+Client exists only from WordPress 7.0 while this plugin supports 6.2. Plugin
+Check 2.1.0 then reports no errors and no warnings.
 
 ## Known limitations in this release
 
@@ -205,10 +211,6 @@ decision (D-35).
   call. The widget and the admin screens both state this.
 - Visitor location, order-status lookups for visitors, and paid-tier features
   are not built.
-- `includes/Frontend/WidgetRenderer.php`, `assets/frontend/chat-widget.js|css`,
-  `assets/admin/dashboard.js` and `includes/Voice/VoiceService.php` are not
-  hooked anywhere. They ship but never run; removing them is a separate
-  decision.
 - Deliberate differences from the hi-fi mockups are listed, one by one, in
   `docs/MOCKUP_FEATURE_GAP_REPORT_FA.md` and in each package's execution
   report.

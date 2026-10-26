@@ -245,7 +245,7 @@
 | E-4 روی WooCommerce 11.2.1 | سبز: فقط یک draft؛ اجرای دوباره رد شد؛ درخواست مخرب فقط draft ساده پیشنهاد کرد |
 | اجرای کامل با WooCommerce و بستهٔ فارسی واقعی | **۷۵ مجموعه، ۴۳۹۹ PASS، ۰ FAIL** |
 | ZIP آزمایشی (اسکریپت خود مالک، robocopy ← rsync) | ۱۷۲ فایل، همهٔ بررسی‌های داخلی سبز |
-| Plugin Check 2.1.0، حالت new | **۰ error، ۱۳ warning** از check تازهٔ `AIProvider.DirectIntegration`؛ تصمیم D-35 |
+| Plugin Check 2.1.0، حالت new | ابتدا **۰ error، ۱۳ warning** از check تازهٔ `AIProvider.DirectIntegration`؛ پس از D-35 (الف): حذف پنج فایل B-10 و توضیح مستند برای پریست‌ها، **۰ error و ۰ warning** روی ZIP آزمایشی ۱۶۷ فایلی |
 
 **سه اشکال واقعی که فقط این مرحله نشان داد:**
 1. **جدی:** هر فرم تازه‌ای که مدل برایش چک‌باکس رضایت می‌گذاشت (همان چیزی که prompt خود T74 می‌خواهد) کاملاً رد می‌شد، چون `FormPlanValidator` نوع را lowercase می‌کرد و `trmCheckbox` را نمی‌شناخت؛ پاسخ هم «فرم را ساختم» می‌گفت. هر دو رفع شد و `EfbCopilotChatOfflineTest` آن را نگه می‌دارد.

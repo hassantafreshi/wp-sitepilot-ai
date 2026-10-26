@@ -17,7 +17,6 @@ use AISAAutoPilot\Api\PublicChatController;
 use AISAAutoPilot\Core\Plugin;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Frontend\ChatWidget;
-use AISAAutoPilot\Frontend\WidgetRenderer;
 
 wp_set_current_user( 1 );
 
@@ -74,7 +73,8 @@ $render_widget = static function (): string {
 try {
 	$check(
 		$has_callback( 'wp_footer', Plugin::class, 'render_widget' )
-		&& ! $has_callback( 'wp_footer', WidgetRenderer::class, 'render' ),
+		// The legacy launcher was deleted in B-10; it must never come back on wp_footer.
+		&& ! $has_callback( 'wp_footer', 'AISAAutoPilot\\Frontend\\WidgetRenderer', 'render' ),
 		'Plugin registers the configurable Answer Desk renderer and no incompatible second launcher'
 	);
 

@@ -50,6 +50,7 @@ final class Settings {
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function presets(): array {
+		// phpcs:disable PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Bring-your-own-key presets: each base URL only pre-fills the endpoint the administrator chooses, and no request is made until they save a key. The WordPress AI Client exists only from WordPress 7.0 while this plugin supports 6.2, and keys can already come from WordPress Connectors (see WpConnectors).
 		$presets = array(
 			'openai'      => array(
 				'label'      => 'OpenAI',
@@ -352,6 +353,7 @@ final class Settings {
 				'note'  => __( 'Any endpoint that implements POST /chat/completions. Paste the base URL up to but not including /chat/completions.', 'ai-site-assistant-autopilot' ),
 			),
 		);
+		// phpcs:enable PluginCheck.CodeAnalysis.AIProvider.DirectIntegration
 
 		foreach ( $presets as $key => $preset ) {
 			$presets[ $key ] = array_merge( self::PRESET_DEFAULTS, $preset );
