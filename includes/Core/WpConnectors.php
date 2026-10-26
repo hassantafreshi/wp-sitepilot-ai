@@ -59,7 +59,7 @@ final class WpConnectors {
 				'env_var_name'  => 'AISAAUTOPILOT_API_KEY',
 				'constant_name' => 'AISAAUTOPILOT_API_KEY',
 				'label'         => __( 'API Key', 'ai-site-assistant-autopilot' ),
-				'description'   => __( 'Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Clusy.io, or any OpenAI-compatible provider).', 'ai-site-assistant-autopilot' ),
+				'description'   => __( 'Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Kimi, MiniMax, or any OpenAI-compatible provider).', 'ai-site-assistant-autopilot' ),
 				'key_url'       => 'https://platform.deepseek.com/api_keys',
 			),
 		);

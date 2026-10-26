@@ -21,7 +21,7 @@ Everything in this first version:
 * Overview screen with four tabs: Overview, Usage & Cost, Health and Activity Log.
 * Setup & Connection wizard: pick one of twenty-three AI provider presets,
   including OpenAI, Anthropic Claude, Google Gemini, xAI Grok, DeepSeek, Qwen,
-  Mistral, Cohere and Z.ai GLM, or point the Custom preset at any
+  Mistral, Cohere, Z.ai GLM, Moonshot Kimi and MiniMax, or point the Custom preset at any
   OpenAI-compatible endpoint. Save your own API key encrypted, test the
   connection, and choose a model from the provider's live catalogue.
 * Integrations screen: one place to turn each capability on or off and see
@@ -171,13 +171,15 @@ Mistral AI (https://mistral.ai/terms, https://mistral.ai/terms#privacy-policy),
 Cohere (https://cohere.com/terms-of-use, https://cohere.com/privacy),
 Z.ai GLM (https://docs.z.ai/legal-agreement/terms-of-use,
 https://docs.z.ai/legal-agreement/privacy-policy),
+Moonshot AI Kimi (https://platform.kimi.ai/docs/agreement/modeluse,
+https://platform.kimi.ai/docs/agreement/userprivacy),
+MiniMax (https://platform.minimax.io/protocol/terms-of-service,
+https://platform.minimax.io/protocol/privacy-policy),
 Groq (https://groq.com/terms-of-sale/, https://groq.com/privacy-policy/),
 Cerebras (https://cloud.cerebras.ai/terms,
 https://www.cerebras.ai/privacy-policy),
 SambaNova Cloud (https://sambanova.ai/cloud-end-user-license-agreement,
 https://sambanova.ai/privacy-policy),
-Perplexity (https://www.perplexity.ai/hub/legal/terms-of-service,
-https://www.perplexity.ai/hub/legal/privacy-policy),
 Azure OpenAI (https://azure.microsoft.com/support/legal/,
 https://privacy.microsoft.com/privacystatement),
 OpenRouter (https://openrouter.ai/terms, https://openrouter.ai/privacy),
@@ -194,10 +196,9 @@ https://aimlapi.com/privacy-policy),
 Novita AI (https://novita.ai/legal/terms-of-service,
 https://novita.ai/legal/privacy-policy),
 Eden AI (https://www.edenai.co/terms-and-conditions,
-https://www.edenai.co/privacy-policy),
-Clusy.io (https://clusy.io/terms, https://clusy.io/privacy).
+https://www.edenai.co/privacy-policy).
 Gateways (OpenRouter, Together AI, Fireworks AI, Hugging Face, AI/ML API,
-Novita AI, Eden AI and Clusy.io) may pass a request on to the vendor of the
+Novita AI and Eden AI) may pass a request on to the vendor of the
 model you picked, whose own terms then apply as well. Some providers also offer
 regional endpoints (for example xAI's US-only or Eden AI's EU-only address);
 the request goes only to the base URL you saved.
@@ -320,10 +321,12 @@ editable text; nothing is sent until you press Send.
   rules, a form review that can add a missing consent checkbox in one click,
   and Undo for every AI change.
 * Twenty-three provider presets, including new xAI Grok, Cohere, Z.ai GLM,
-  Cerebras, SambaNova, Together AI, Fireworks AI, Hugging Face and NVIDIA NIM
-  presets, and refreshed model lists for every provider.
+  Moonshot Kimi, MiniMax, Cerebras, SambaNova, Together AI, Fireworks AI,
+  Hugging Face and NVIDIA NIM presets, and refreshed model lists for every
+  provider.
 * Reasoning models that reject a custom temperature are retried once without
-  it instead of failing.
+  it instead of failing, and the "think" block some models write inside their
+  reply is removed before the reply is used.
 * Usage and cost tracking with an optional monthly token budget.
 * Complete Persian translation and right-to-left layout.
 * Uninstall removes the plugin's tables, options and transients and leaves your

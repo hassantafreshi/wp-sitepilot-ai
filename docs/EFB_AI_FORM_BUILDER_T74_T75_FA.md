@@ -144,7 +144,7 @@
 
 | سرویس | پیش‌فرض | تغییر اصلی | سطح وارسی |
 |---|---|---|---|
-| OpenAI | `gpt-5.6-luna` (بدون تغییر) | افزوده: `gpt-6-astra`، `gpt-6.1-sol`، `gpt-6-luna`. حذف: `gpt-5.5-pro` (فقط Responses API)، و مدل‌های خاموش یا منسوخ: `gpt-5.3-chat-latest`، `gpt-4.1*`، `gpt-5.1`، `gpt-5.4-nano` | SDK `openai@7.43.0` |
+| OpenAI | `gpt-5.6-luna` (بدون تغییر) | افزوده: `gpt-6-astra`، `gpt-6.1-sol`، `gpt-6-luna`. حذف: `gpt-5.5-pro` (فقط Responses API)، و مدل‌های خاموش یا منسوخ: `gpt-5.3-chat-latest`، `gpt-4.1*`، `gpt-5.1`، `gpt-5.4-nano` ؛ ۲۰۲۶-۱۰-۲۶: `gpt-6.1-terra` (منتشرشده همان روز، در صفحهٔ مدل‌های OpenAI) | SDK `openai@7.43.0` |
 | Anthropic | `claude-sonnet-5-5` (پیش‌تر `claude-opus-5`) | افزوده: `claude-opus-5-5`، `claude-sonnet-5-5`، `claude-haiku-5-5`، `claude-fable-5-1`. حذف: `claude-opus-4-6` | SDK `@anthropic-ai/sdk@1.3.0` |
 | Google Gemini | `gemini-3.8-flash` | افزوده: `gemini-4-argon`. حذف: 3.7 Flash و 3.5 Flash (منسوخ) و 2.5 (برای کاربر تازه بسته) | صفحات رسمی Google؛ در دسترس بودن 4 Argon روی endpoint سازگار با OpenAI وارسی نشد |
 | **xAI (Grok)** — تازه | `grok-4.3` | `grok-4.7`، `grok-4.6`، `grok-4.5`، `grok-4.3`، `grok-4.20-0309-*`. بدون embeddings؛ endpoint آمریکا در یادداشت | SDK `xai-sdk 1.21.0`؛ `grok-4.7` فقط از docs.x.ai |
@@ -153,14 +153,16 @@
 | Mistral | `mistral-medium-3-5` | **همهٔ شناسه‌های قبلی slug صفحهٔ مستندات بودند، نه نام API**؛ با نام‌های `-latest` و `mistral-medium-3-5` جایگزین شدند | SDK `mistralai 3.5.0` |
 | Groq | `openai/gpt-oss-120b` | Llamaها برای پلن‌های غیر Enterprise بسته شدند | مستندات رسمی Groq و SDK |
 | **Cohere** — تازه | `command-a-plus-05-2026` | Compatibility API با embeddings | منبع مستندات Cohere |
-| **Z.ai (GLM)** — تازه | `glm-5.2` | endpoint چین در یادداشت | SDK `zai-sdk` |
+| **Z.ai (GLM)** — تازه | `glm-5.2` | endpoint چین در یادداشت؛ ۲۰۲۶-۱۰-۲۶: `glm-5.3`، `glm-5.3-flash` و `glm-5.3-flashx` اضافه شد | SDK `zai-sdk`، صفحهٔ قیمت docs.z.ai |
+| **Moonshot AI (Kimi)** — تازه | `kimi-k3` | `https://api.moonshot.ai/v1`؛ temperature ثابت (۱) ← retry بدون آن | مستندات platform.kimi.ai |
+| **MiniMax** — تازه | `MiniMax-M3.1-Flash` | `https://api.minimax.io/v1`؛ `<think>` داخل پاسخ M3/M2.x حذف می‌شود | مستندات platform.minimax.io |
 | **Cerebras** — تازه | `gpt-oss-120b` | — | SDK |
 | **SambaNova** — تازه | `gpt-oss-120b` | — | SDK |
 | **Together** — تازه | (Refresh) | — | SDK |
 | **Fireworks** — تازه | (Refresh) | — | SDK |
 | **Hugging Face** — تازه | `openai/gpt-oss-120b` | — | مستندات رسمی |
 | **NVIDIA NIM** — تازه | (Refresh) | — | اتصال‌دهندهٔ LangChain خود NVIDIA |
-| Perplexity | `sonar` | به legacy تغییر کرد: Sonar Chat Completions در ۲۰۲۶-۰۹-۲۷ پایان یافت | مستندات رسمی |
+| ~~Perplexity~~ | — | **حذف شد** (تصمیم مالک ۲۰۲۶-۱۰-۲۶): Sonar Chat Completions در ۲۰۲۶-۰۹-۲۷ پایان یافت | مستندات رسمی |
 | OpenRouter | `openai/gpt-6-luna` | slugهای تازه | صفحات openrouter.ai |
 
 **رفع اشکال واقعی هم‌زمان:** مدل‌های reasoning (GPT-5.x و GPT-6 و نسخه‌هایشان در gatewayها) فقط temperature پیش‌فرض را می‌پذیرند. افزونه همیشه `0.2` می‌فرستاد و هر درخواست با HTTP 400 شکست می‌خورد.
@@ -168,8 +170,8 @@
 - تست با کنترل منفی وارسی شد: با برداشتن رفع، همان خطای 400 تکرار می‌شود.
 
 **نیازمند تصمیم مالک:**
-1. **Clusy.io:** تحقیق API عمومی یا مدل `clusy-chat` پیدا نکرد؛ Clusy یک IDE برای Jupyter است. preset دست‌نخورده ماند؛ حذفش با تصمیم مالک.
-2. **Perplexity:** با برچسب legacy ماند تا تصمیم بر حذف.
+1. **Clusy.io:** تحقیق API عمومی یا مدل `clusy-chat` پیدا نکرد؛ Clusy یک IDE برای Jupyter است. **بسته شد ۲۰۲۶-۱۰-۲۶ — مالک: «هر دو حذف شود»؛ preset حذف شد.**
+2. **Perplexity:** **بسته شد ۲۰۲۶-۱۰-۲۶ — مالک: «هر دو حذف شود»؛ preset حذف شد.**
 3. **صدا:** OpenAI مدل‌های TTS را در ۲۰۲۷-۰۱-۰۶ و `whisper-1` و `gpt-4o-*-transcribe` را در ۲۰۲۷-۰۲-۲۶ خاموش می‌کند. جایگزین STT نام `gpt-transcribe` است. Groq Whisper (`whisper-large-v3-turbo`) همچنان فعال است. تغییر پیش‌فرض `voice_model` به تصمیم و تست صدای واقعی نیاز دارد.
 
 موارد وارسی‌نشده، با دلیل، در بخش «Unverified» گزارش خام T75 است. مهم‌ترین‌ها:

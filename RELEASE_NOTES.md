@@ -44,13 +44,17 @@ so old bookmarks and deep links keep working.
 connection test, model chosen from the provider's live catalogue, and
 integrations. Twenty-three provider presets plus a Custom OpenAI-compatible
 endpoint: OpenAI, Anthropic (native Messages API), Google Gemini, xAI Grok,
-DeepSeek, Qwen, Mistral AI, Cohere, Z.ai GLM, Groq, Cerebras, SambaNova Cloud,
-Perplexity (legacy), Azure OpenAI, and the gateways OpenRouter, Together AI,
-Fireworks AI, Hugging Face Inference Providers, NVIDIA NIM, AI/ML API, Novita
-AI, Eden AI and Clusy.io. Model lists were refreshed on 2026-10-26 from vendor
+DeepSeek, Qwen, Mistral AI, Cohere, Z.ai GLM, Moonshot AI (Kimi), MiniMax,
+Groq, Cerebras, SambaNova Cloud, Azure OpenAI, and the gateways OpenRouter,
+Together AI, Fireworks AI, Hugging Face Inference Providers, NVIDIA NIM, AI/ML
+API, Novita AI and Eden AI. Perplexity (its Chat Completions API ended on
+2026-09-27) and Clusy.io (no public API could be confirmed) were removed at the
+owner's request. Model lists were refreshed on 2026-10-26 from vendor
 SDKs and official documentation (T75); anything that could not be confirmed is
 listed in `docs/research/T75_MODEL_CATALOG_RESEARCH.md`. A reasoning model that rejects a
-custom `temperature` is retried once without it instead of failing.
+custom `temperature` is retried once without it instead of failing (this also
+covers Kimi's fixed temperature), and `<think>…</think>` reasoning that MiniMax
+and some open models write into the reply is stripped before it is used.
 
 **Site Knowledge** — indexing of published WordPress content, an entries list
 with single delete and full re-index, an "Ask your knowledge base" console,

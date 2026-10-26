@@ -15,7 +15,7 @@ use AISAAutoPilot\Usage\UsageTracker;
 
 /**
  * Talks directly to any OpenAI-compatible Chat Completions API
- * (OpenAI, Gemini, DeepSeek, Qwen, Mistral, Groq, Perplexity, Azure OpenAI,
+ * (OpenAI, Gemini, DeepSeek, Qwen, Mistral, Groq, Kimi, MiniMax, Azure OpenAI,
  * OpenRouter and the aggregator gateways, or a custom base URL).
  */
 final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogInterface {
@@ -427,6 +427,9 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 		}
 
 		$content = $decoded['choices'][0]['message']['content'] ?? null;
+		if ( is_string( $content ) ) {
+			$content = self::strip_thinking( $content );
+		}
 
 		if ( ! is_string( $content ) || '' === trim( $content ) ) {
 			throw new ProviderException( 'provider_empty_response', __( 'The AI provider returned an empty response.', 'ai-site-assistant-autopilot' ) );
@@ -525,7 +528,33 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 
 		return '' !== $message
 			&& false !== stripos( $message, $param )
-			&& 1 === preg_match( '/unsupported|not supported|does not support|only the default/i', $message );
+			&& 1 === preg_match( '/unsupported|not supported|does not support|only the default|only \S+ (?:is|are) allowed/i', $message );
+	}
+
+	/**
+	 * Drop the reasoning some models write into the reply itself.
+	 *
+	 * MiniMax M3/M2.x and several open reasoning models answer
+	 * "<think>…</think>answer"; a chat template that opens the block itself
+	 * leaves only the closing tag. Thinking with no end (the token limit hit
+	 * first) is not an answer, so it becomes an empty reply.
+	 */
+	public static function strip_thinking( string $content ): string {
+		if ( false === stripos( $content, '<think>' ) && false === stripos( $content, '</think>' ) ) {
+			return $content;
+		}
+
+		$content = (string) preg_replace( '#<think>.*?</think>#is', '', $content );
+		$close   = strripos( $content, '</think>' );
+		if ( false !== $close ) {
+			$content = substr( $content, $close + strlen( '</think>' ) );
+		}
+		$open = stripos( $content, '<think>' );
+		if ( false !== $open ) {
+			$content = substr( $content, 0, $open );
+		}
+
+		return trim( $content );
 	}
 
 	/**

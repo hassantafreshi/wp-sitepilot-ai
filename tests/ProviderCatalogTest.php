@@ -55,9 +55,14 @@ final class ProviderCatalogTest extends TestCase {
 		// Grok has no embeddings endpoint.
 		$this->assertSame( array(), $xai['embeddings'] );
 
-		foreach ( array( 'cohere', 'zai', 'cerebras', 'sambanova', 'together', 'fireworks', 'huggingface', 'nvidia' ) as $added ) {
+		foreach ( array( 'cohere', 'zai', 'moonshot', 'minimax', 'cerebras', 'sambanova', 'together', 'fireworks', 'huggingface', 'nvidia' ) as $added ) {
 			$this->assertArrayHasKey( $added, $presets, $added );
 		}
+		// Owner decision 2026-10-26: Perplexity's Chat Completions API is gone
+		// and Clusy.io has no public API.
+		$this->assertArrayNotHasKey( 'perplexity', $presets );
+		$this->assertArrayNotHasKey( 'clusy', $presets );
+		$this->assertCount( 24, $presets, 'twenty-three presets plus Custom, as the readme says' );
 	}
 
 	/**
@@ -192,6 +197,67 @@ final class ProviderCatalogTest extends TestCase {
 			$this->assertSame( 'provider_error', $e->error_code() );
 		}
 		$this->assertCount( 1, $GLOBALS['aisaautopilot_test_http_requests'] );
+	}
+
+	/** Kimi fixes temperature at 1 and words its refusal differently from OpenAI. */
+	public function test_a_fixed_temperature_refusal_from_kimi_is_retried_without_it(): void {
+		$GLOBALS['aisaautopilot_test_http_queue'] = array(
+			self::http(
+				400,
+				array(
+					'error' => array(
+						'message' => 'invalid temperature: only 1 is allowed for this model',
+						'type'    => 'invalid_request_error',
+					),
+				)
+			),
+			self::http( 200, array( 'choices' => array( array( 'message' => array( 'content' => 'Hello' ) ) ) ) ),
+		);
+
+		$result = ( new OpenAiCompatibleProvider( 'https://api.moonshot.ai/v1', 'kimi-k3', 'sk-test', 0.2 ) )->generate_text( 'system', 'user' );
+
+		$this->assertSame( 'Hello', $result['content'] );
+		$requests = $GLOBALS['aisaautopilot_test_http_requests'];
+		$this->assertCount( 2, $requests );
+		$this->assertArrayNotHasKey( 'temperature', json_decode( $requests[1]['args']['body'], true ) );
+	}
+
+	/**
+	 * MiniMax M3/M2.x and some open reasoning models put their thinking inside
+	 * the reply as <think>…</think>; only the answer after it is the reply.
+	 */
+	public function test_inline_thinking_is_removed_from_the_reply(): void {
+		$GLOBALS['aisaautopilot_test_http_queue'] = array(
+			self::http( 200, array( 'choices' => array( array( 'message' => array( 'content' => "<think>\nThe user wants a {\"form\"}.\n</think>\n\nHello" ) ) ) ) ),
+			self::http( 200, array( 'choices' => array( array( 'message' => array( 'content' => "<think>Plan {a} then {b}.</think>\n{\"action\":\"reply\",\"reply\":\"Hi\"}" ) ) ) ) ),
+			self::http( 200, array( 'choices' => array( array( 'message' => array( 'content' => "Thinking about it {x}.\n</think>\nDone" ) ) ) ) ),
+		);
+
+		$provider = new OpenAiCompatibleProvider( 'https://api.minimax.io/v1', 'MiniMax-M3', 'sk-test', 0.2 );
+
+		$this->assertSame( 'Hello', $provider->generate_text( 'system', 'user' )['content'] );
+		$this->assertSame(
+			array(
+				'action' => 'reply',
+				'reply'  => 'Hi',
+			),
+			$provider->generate_structured_output( 'system', 'user' )
+		);
+		// A template that opens the block itself leaves only the closing tag.
+		$this->assertSame( 'Done', $provider->generate_text( 'system', 'user' )['content'] );
+	}
+
+	public function test_a_reply_that_is_only_thinking_is_empty(): void {
+		$GLOBALS['aisaautopilot_test_http_queue'] = array(
+			self::http( 200, array( 'choices' => array( array( 'message' => array( 'content' => '<think>Still thinking when the limit hit' ) ) ) ) ),
+		);
+
+		try {
+			( new OpenAiCompatibleProvider( 'https://api.minimax.io/v1', 'MiniMax-M3', 'sk-test' ) )->generate_text( 'system', 'user' );
+			$this->fail( 'Unfinished thinking is not an answer.' );
+		} catch ( ProviderException $e ) {
+			$this->assertSame( 'provider_empty_response', $e->error_code() );
+		}
 	}
 
 	/**
