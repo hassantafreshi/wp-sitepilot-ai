@@ -81,12 +81,26 @@ $legacy_routes_registered = array_reduce(
 	true
 );
 
+// WordPress cannot derive a title for an empty-parent page: without one the browser tab
+// is blank and admin-header.php passes null to strip_tags() on every visit (PHP 8.1+).
+$legacy_routes_titled = array_reduce(
+	$legacy_slugs,
+	static function ( bool $carry, string $slug ): bool {
+		global $title;
+		$title = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- reset between simulated page loads.
+		do_action( 'load-' . get_plugin_page_hookname( $slug, '' ) );
+		return $carry && '' !== trim( (string) get_admin_page_title() );
+	},
+	true
+);
+
 $checks = array(
 	'admin-menu hook completed without PHP warnings' => array() === $warnings,
 	'visible sidebar exactly matches the D-23 8-page information architecture in order' => $expected_slugs === $visible_slugs,
 	'visible sidebar labels are present in the active locale' => 8 === count( $visible_titles ) && 8 === count( array_filter( $visible_titles ) ),
 	'legacy technical routes are hidden from the sidebar' => array() === array_intersect( $legacy_slugs, $visible_slugs ),
 	'legacy bookmark routes are registered as direct hidden pages' => $legacy_routes_registered,
+	'legacy bookmark routes have their own page title' => $legacy_routes_titled,
 );
 
 foreach ( $checks as $name => $passed ) {

@@ -83,28 +83,41 @@ final class AdminMenu {
 
 		// Legacy aliases deliberately use WordPress's empty-parent pattern. This
 		// keeps them out of the visible sidebar while registering the `admin.php`
-		// hook WordPress resolves for bookmarked direct URLs.
+		// hook WordPress resolves for bookmarked direct URLs. Each carries the
+		// heading its screen shows, because WordPress cannot derive a title for an
+		// empty-parent page.
 		$aliases = array(
-			array( self::SLUG_SETTINGS, $settings ),
-			array( self::SLUG_FORMS, new NativeFormsPage() ),
-			array( self::SLUG_HISTORY, new HistoryPage() ),
-			array( self::SLUG_CHAT, new ChatPage() ),
-			array( self::SLUG_EFB, new EasyFormBuilderPage() ),
-			array( self::SLUG_WC, new WooCommerceSettings() ),
+			array( self::SLUG_SETTINGS, $settings, __( 'Advanced settings', 'ai-site-assistant-autopilot' ) ),
+			array( self::SLUG_FORMS, new NativeFormsPage(), __( 'Your forms', 'ai-site-assistant-autopilot' ) ),
+			array( self::SLUG_HISTORY, new HistoryPage(), __( 'History', 'ai-site-assistant-autopilot' ) ),
+			array( self::SLUG_CHAT, new ChatPage(), __( 'Ask your knowledge base', 'ai-site-assistant-autopilot' ) ),
+			array( self::SLUG_EFB, new EasyFormBuilderPage(), __( 'Easy Form Builder copilot', 'ai-site-assistant-autopilot' ) ),
+			array( self::SLUG_WC, new WooCommerceSettings(), __( 'Store Copilot', 'ai-site-assistant-autopilot' ) ),
 			// These are Answer Desk sub-surfaces, not top-level navigation items.
-			array( self::SLUG_WIDGET, new ChatWidgetSettings() ),
-			array( self::SLUG_HANDOFFS, new HandoffInboxPage() ),
+			array( self::SLUG_WIDGET, new ChatWidgetSettings(), __( 'Widget', 'ai-site-assistant-autopilot' ) ),
+			array( self::SLUG_HANDOFFS, new HandoffInboxPage(), __( 'Human handoff', 'ai-site-assistant-autopilot' ) ),
 			// Overview tabs (D-23, 2026-09-17): Usage & Cost, Health and Activity
 			// Log used to be top-level pages; they are now hidden aliases owned by
 			// Overview, exactly like every other slug in this list. Their own URL,
 			// slug constant and page class are unchanged, so old bookmarks and
 			// enqueue mappings keep working.
-			array( self::SLUG_USAGE, new UsagePage() ),
-			array( self::SLUG_CONNECTIONS, new ConnectionsPage() ),
-			array( self::SLUG_LOGS, new LogsPage() ),
+			array( self::SLUG_USAGE, new UsagePage(), __( 'Usage & Cost', 'ai-site-assistant-autopilot' ) ),
+			array( self::SLUG_CONNECTIONS, new ConnectionsPage(), __( 'Health', 'ai-site-assistant-autopilot' ) ),
+			array( self::SLUG_LOGS, new LogsPage(), __( 'Activity Log', 'ai-site-assistant-autopilot' ) ),
 		);
 		foreach ( $aliases as $alias ) {
-			add_submenu_page( '', __( 'AutoPilot AI', 'ai-site-assistant-autopilot' ), __( 'AutoPilot AI', 'ai-site-assistant-autopilot' ), $cap, $alias[0], array( $alias[1], 'render' ) );
+			$hook = add_submenu_page( '', $alias[2], $alias[2], $cap, $alias[0], array( $alias[1], 'render' ) );
+			if ( is_string( $hook ) ) {
+				$page_title = $alias[2];
+				// Without it the browser tab is blank and admin-header.php passes
+				// null to strip_tags(), a deprecation on every visit since PHP 8.1.
+				add_action(
+					'load-' . $hook,
+					static function () use ( $page_title ): void {
+						$GLOBALS['title'] = $page_title; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress reads the screen title from this global.
+					}
+				);
+			}
 		}
 
 		add_filter( 'parent_file', array( $this, 'parent_file' ) );
