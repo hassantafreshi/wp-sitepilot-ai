@@ -193,7 +193,9 @@ async function checkOverviewTabs( page, viewport ) {
 		if ( '390' === viewport.name ) {
 			const rows = new Set( tabBoxes.map( ( r ) => Math.round( r.top ) ) );
 			const widths = tabBoxes.map( ( r ) => Math.round( r.width ) );
-			check( rows.size === 2 && Math.max( ...widths ) - Math.min( ...widths ) <= 1 && tabBoxes.every( ( r ) => r.height >= 44 ), tag + ' phone tab bar is a 2 x 2 grid of equal tabs with 44px targets (rows ' + rows.size + ', widths ' + widths.join( '/' ) + ', heights ' + tabBoxes.map( ( r ) => Math.round( r.height ) ).join( '/' ) + ')' );
+			// Sub-pixel positions put float noise on the rect (43.99998 for a 44px min-height); a real
+			// shortfall is at least one layout unit (1/64px), which this still catches.
+			check( rows.size === 2 && Math.max( ...widths ) - Math.min( ...widths ) <= 1 && tabBoxes.every( ( r ) => r.height > 44 - 1 / 64 ), tag + ' phone tab bar is a 2 x 2 grid of equal tabs with 44px targets (rows ' + rows.size + ', widths ' + widths.join( '/' ) + ', heights ' + tabBoxes.map( ( r ) => Math.round( r.height ) ).join( '/' ) + ')' );
 		}
 	}
 }
