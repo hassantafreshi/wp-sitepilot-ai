@@ -179,6 +179,22 @@ WooCommerce is not installed. The run found and fixed two defects: unlabelled
 rows on the Easy Form Builder details page, and eleven hidden admin pages
 without a title.
 
+A third pass used a real Claude key (Sonnet 5.5, about $0.70 in all) and a real
+WooCommerce 11.2.1. The provider test and live model list worked; fifteen real
+form-builder requests in English and Persian passed 19/19
+(`tests/efb_copilot_live_ai_check.php`); the copilot driven by a real model in
+the browser passed 8/8 (`tests/efb_copilot_live_ai_browser_check.cjs`); and a
+real Store Copilot approval created exactly one draft and nothing else. With
+WooCommerce and the real Persian language pack installed, all 75 suites gave
+4399 PASS and 0 FAIL. This pass found three more defects, all fixed: new Easy
+Form Builder forms with a consent checkbox were rejected as an unsupported type
+(and the reply still said the form was built); Test connection failed on
+models that always think (Claude Opus 5, Fable 5) and could fail on reasoning
+models behind OpenAI-compatible endpoints; and a timing race in the release
+browser check. Plugin Check 2.1.0 on a trial build reports 0 errors and 13
+warnings from its new `AIProvider.DirectIntegration` check, which is an owner
+decision (D-35).
+
 ## Known limitations in this release
 
 - The indexing queue keeps no persistent cursor: a pass lives only while the
