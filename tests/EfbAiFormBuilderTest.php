@@ -96,6 +96,28 @@ final class EfbAiFormBuilderTest extends TestCase {
 		$this->assertTrue( $result->plan['confirm_to_respondent'] );
 	}
 
+	/**
+	 * EFB names some types in camelCase. The validator lowercases what the model
+	 * wrote, so without mapping back every form with a consent checkbox was
+	 * rejected as "unsupported type (trmcheckbox)" — found with a real model.
+	 */
+	public function test_camel_case_efb_types_survive_validation(): void {
+		$result = $this->validator()->validate(
+			array(
+				'title'  => 'Contact',
+				'fields' => array(
+					array( 'type' => 'email', 'label' => 'Email' ),
+					array( 'type' => 'trmCheckbox', 'label' => 'Consent', 'required' => true, 'options' => array( 'I agree.' ) ),
+					array( 'type' => 'YESNO', 'label' => 'Newsletter?' ),
+					array( 'type' => 'chlcheckbox', 'label' => 'Order', 'options' => array( 'Tea', 'Coffee' ) ),
+				),
+			)
+		);
+
+		$this->assertTrue( $result->ok, implode( ' ', $result->errors ) );
+		$this->assertSame( array( 'email', 'trmCheckbox', 'yesNo', 'chlCheckBox' ), array_column( $result->plan['fields'], 'type' ) );
+	}
+
 	public function test_a_matrix_without_rows_is_rejected(): void {
 		$result = $this->validator()->validate(
 			array(

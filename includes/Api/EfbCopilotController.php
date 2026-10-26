@@ -537,10 +537,12 @@ final class EfbCopilotController {
 			$validator = $this->efb_validator();
 			$result    = $validator->validate( (array) $raw['form'] );
 			if ( ! $result->ok ) {
+				// The model's reply describes the form it meant to build; none was
+				// built, so that reply must not be shown as if one had been.
 				return $this->respond(
 					array(
 						'type'   => 'message',
-						'reply'  => '' !== $reply ? $reply : __( 'I could not build a safe form from that. Could you add a bit more detail?', 'ai-site-assistant-autopilot' ),
+						'reply'  => __( 'I could not build a safe form from that. Could you add a bit more detail?', 'ai-site-assistant-autopilot' ),
 						'errors' => $result->errors,
 					),
 					true

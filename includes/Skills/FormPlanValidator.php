@@ -23,6 +23,13 @@ final class FormPlanValidator {
 	private array $forbidden;
 	/** @var array<string,string> */
 	private array $aliases;
+	/**
+	 * Lowercased type => its exact name. Types are compared after lowercasing
+	 * what the model wrote, and EFB spells some in camelCase (trmCheckbox).
+	 *
+	 * @var array<string,string>
+	 */
+	private array $canonical = array();
 	private int $max_fields;
 
 	/**
@@ -48,6 +55,9 @@ final class FormPlanValidator {
 			'telephone' => 'tel',
 		);
 		$this->max_fields = $max_fields ?? FormPlanSchema::MAX_FIELDS;
+		foreach ( array_merge( $this->allowed, $this->option_required, $this->forbidden ) as $known ) {
+			$this->canonical[ strtolower( $known ) ] = $known;
+		}
 	}
 
 	public function validate( array $raw ): ValidationResult {
@@ -84,6 +94,7 @@ final class FormPlanValidator {
 
 			$type  = strtolower( trim( (string) ( $raw_field['type'] ?? '' ) ) );
 			$type  = $this->aliases[ $type ] ?? $type;
+			$type  = $this->canonical[ strtolower( $type ) ] ?? $type;
 			$label = $this->clean_text( (string) ( $raw_field['label'] ?? '' ), 120 );
 
 			if ( in_array( $type, $this->forbidden, true ) ) {
