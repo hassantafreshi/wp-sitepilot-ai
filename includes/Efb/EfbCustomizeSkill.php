@@ -14,7 +14,7 @@ use AISAAutoPilot\Providers\ProviderInterface;
  */
 final class EfbCustomizeSkill {
 
-	public const OPS     = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_step', 'remove_field', 'add_option', 'remove_option' );
+	public const OPS     = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_step', 'remove_field', 'add_option', 'remove_option', 'rename_option', 'add_logic_rule' );
 	private const PROPS  = array( 'label', 'required', 'placeholder', 'width', 'help' );
 	private const WIDTHS = array( 'full', 'half', 'third', 'quarter' );
 
@@ -59,13 +59,21 @@ final class EfbCustomizeSkill {
 	 * and honest chat replies ("signature is not supported"), so a failed action
 	 * never silently pretends to succeed.
 	 *
-	 * @param array<mixed> $ops
+	 * `add_logic_rule` is only accepted with `$context['logic']` true (EFB's
+	 * Conditional Logic add-on is active on the open form), within the EFB plan's
+	 * rule limits (`tier`, `existing_rules`), and is resolved against `$fields`
+	 * (with their options) and `$context['steps']`.
+	 *
+	 * @param array<mixed>                                                                    $ops
+	 * @param array<int, array<string, mixed>>                                                $fields
+	 * @param array{logic?:bool, steps?:array<int, mixed>, tier?:string, existing_rules?:int} $context
 	 * @return array{ops: array<int, array<string, mixed>>, dropped: array<int, array{op:string, reason:string}>}
 	 */
-	public static function validate_ops_verbose( array $ops, array $fields = array() ): array {
-		$out     = array();
-		$dropped = array();
-		$seen    = 0;
+	public static function validate_ops_verbose( array $ops, array $fields = array(), array $context = array() ): array {
+		$out         = array();
+		$dropped     = array();
+		$seen        = 0;
+		$added_rules = 0;
 
 		foreach ( $ops as $op ) {
 			++$seen;
@@ -259,7 +267,7 @@ final class EfbCustomizeSkill {
 					}
 					$width   = strtolower( (string) ( $f['width'] ?? 'full' ) );
 					$options = self::clean_options( $f['options'] ?? array() );
-					if ( in_array( $type, self::CHOICE, true ) && array() === $options ) {
+					if ( ( in_array( $type, self::CHOICE, true ) || in_array( $type, EfbFormModel::option_types(), true ) ) && array() === $options ) {
 						$dropped[] = array(
 							'op'     => $name,
 							'reason' => 'choice_needs_options:' . $type,
@@ -273,6 +281,7 @@ final class EfbCustomizeSkill {
 							'label'       => $label,
 							'required'    => self::to_bool( $f['required'] ?? false ),
 							'placeholder' => self::clean( (string) ( $f['placeholder'] ?? '' ), 120 ),
+							'help'        => self::clean( (string) ( $f['help'] ?? '' ), 200 ),
 							'width'       => in_array( $width, self::WIDTHS, true ) ? $width : 'full',
 							'options'     => $options,
 						),
@@ -336,6 +345,61 @@ final class EfbCustomizeSkill {
 						);
 					}
 					break;
+
+				case 'rename_option':
+					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
+					$from   = self::clean( (string) ( $op['from'] ?? '' ), 120 );
+					$to     = self::clean( (string) ( $op['value'] ?? ( $op['to'] ?? '' ) ), 120 );
+					if ( '' === $target || '' === $from || '' === $to || $from === $to ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => '' === $target ? 'missing_target' : ( $from === $to && '' !== $to ? 'no_change' : 'empty_value' ),
+						);
+						break;
+					}
+					$out[] = array(
+						'op'     => 'rename_option',
+						'target' => $target,
+						'from'   => $from,
+						'value'  => $to,
+					);
+					break;
+
+				case 'add_logic_rule':
+					if ( empty( $context['logic'] ) ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'logic_addon_inactive',
+						);
+						break;
+					}
+					$built = EfbLogicRules::build( $op['rule'] ?? null, $fields, is_array( $context['steps'] ?? null ) ? $context['steps'] : array() );
+					if ( empty( $built['ok'] ) || ! isset( $built['rule'] ) ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'invalid_logic_rule:' . (string) ( $built['error'] ?? 'unknown' ),
+						);
+						break;
+					}
+					$refusal = EfbLogicRules::plan_refusal(
+						(string) ( $context['tier'] ?? 'pro' ),
+						(int) ( $context['existing_rules'] ?? 0 ) + $added_rules,
+						count( $built['rule']['conditions']['items'] )
+					);
+					if ( '' !== $refusal ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => $refusal,
+						);
+						break;
+					}
+					++$added_rules;
+					$out[] = array(
+						'op'      => 'add_logic_rule',
+						'rule'    => $built['rule'],
+						'summary' => (string) ( $built['summary'] ?? '' ),
+					);
+					break;
 			}
 
 			// Stopping at the cap must be reported: the caller turns `dropped` into
@@ -378,6 +442,7 @@ final class EfbCustomizeSkill {
 				'- { "op": "remove_field", "target": "<field label or id>" }',
 				'- { "op": "add_option", "target": "<choice field label or id>", "value": "Option text" }',
 				'- { "op": "remove_option", "target": "<choice field label or id>", "value": "Option text" }',
+				'- { "op": "rename_option", "target": "<choice field label or id>", "from": "Current option text", "value": "New option text" }',
 				'',
 				'Rules:',
 				'- Only emit operations that clearly match the request. If nothing matches, return {"operations":[]}.',

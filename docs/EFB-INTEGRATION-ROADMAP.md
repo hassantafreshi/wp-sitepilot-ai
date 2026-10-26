@@ -2,6 +2,8 @@
 
 > Reviewed against AI Site Assistant AutoPilot and EFB 4.1.2 on 2026-07-22. This records verified
 > implementation status separately from manual WordPress/XAMPP verification.
+> 2026-10-26 (T74): re-checked against EFB 4.3.1 RC (`dev4`) and the add-ons in `vendores-efb`
+> (`main`). Full requirement list and status: `docs/EFB_AI_FORM_BUILDER_T74_T75_FA.md`.
 > `calculation`, `quiz`, and `ticketing` are explicitly out of scope.
 
 ## Ground truth
@@ -56,8 +58,17 @@
 
 The safe compact type set is: `text`, `textarea`, `email`, `tel`, `number`, `url`,
 `date`, `file`, `select`, `radio`, `checkbox`, `multiselect`, `heading`, and the
-EFB Pro electronic-signature field (`esign`).
+EFB Pro electronic-signature field (`esign`). T74 added the Pro types `mobile`,
+`rating`, `pointr5`, `pointr10`, `yesNo`, `switch`, `trmCheckbox` (consent, linked
+only to the site's own privacy policy page), `color`, `dadfile`, `chlCheckBox` and
+`table_matrix` (rows stored as `r_matrix` children).
 Payment, authentication, password, and registration fields are never generated.
+
+A designed form can also carry per-field help text, the submit-button text, and two
+notification switches: `notify_admin` writes the site admin email into the form's
+`email`, and `confirm_to_respondent` sets `sendEmail`/`email_to` to the form's own
+email field — the same shape as EFB's contact template. The AI never writes an
+address; the preview shows the recipient before approval.
 
 ### Customize an open form
 
@@ -68,6 +79,22 @@ length/date limits, file limits, selection limits, choice columns, and recorder
 settings. It can also change safe form settings such as confirmation text, button
 labels, button/background/text colours, tracking-code visibility, background, loading
 animation, and loading color.
+
+### Review, undo and conditional logic (T74)
+
+- "Review this form" runs deterministic checks (consent for personal data, spam
+  protection with Human Shield or reCAPTCHA, missing or duplicate labels, choice
+  fields with fewer than two options, too many required fields, long single pages)
+  and offers one-click fixes that go through the normal validation.
+- Every applied AI change gets an "Undo this change" button that restores the canvas
+  exactly as it was before that change.
+- With the Conditional Logic add-on (AdnSMF) active, `add_logic_rule` proposes
+  field-tab rules (show/hide field or step, required/optional, jump to step). Every
+  reference is resolved against the open form, choice conditions store the option
+  `id_`, self-referencing and contradictory rules are refused, conflicts with
+  existing rules are reported, and the add-on's own limits apply (Free: none; Free
+  Plus: 3 rules × 2 conditions; Pro: unlimited). Existing rules are explained in
+  plain language without calling the AI.
 
 ### Diagnostics
 
@@ -81,8 +108,10 @@ same trace id; it is never reported as a successful form change.
 
 The catalog grounds help answers for all implemented add-ons and settings, but does
 not automatically change global EFB settings, add-on activation, external credentials,
-SMTP recipients, payment/pricing configuration, raw HTML, URLs, conditional-logic
-rules, or submission data. These require the native EFB UI and explicit user approval.
+notification recipients on existing forms, captcha, payment/pricing configuration, raw
+HTML, URLs, notification/confirmation/webhook/pricing conditional rules, value-writing
+logic actions, or submission data. These require the native EFB UI and explicit user
+approval.
 
 **2026-09-15 update**: three of these — submission data (search/summarize/update/delete
 entries), payment/pricing configuration (read-only), and conditional-logic rules
@@ -98,12 +127,13 @@ integration to wrap at all) remain out of scope — see that plan's "قابلی�
 
 ## Follow-ups
 
-- Add a user-visible preview/diff and undo snapshot before applying editor changes.
+- ~~Add a user-visible preview/diff and undo snapshot before applying editor changes.~~
+  Undo per AI change shipped in T74; a selectable per-change diff is still open.
 - Manually test catalog-driven operations across desktop/mobile views and all supported
   EFB field families in XAMPP.
 - Add multi-step creation only after native step/amount ordering has browser coverage.
-- Do not start AI conditional-logic generation before the EFB execution plan's
-  conditional-logic hardening prerequisite is complete.
+- AI conditional logic is limited to field-tab `logic_rules` (T74). Notification,
+  confirmation and webhook rules stay out until EFB resolves their gating debt.
 - EFB Agent Abilities (S4.1, backlog B-09): entries, payment-settings-read, and
   logic-explain abilities exposed via WordPress Abilities API — see
   `docs/EFB_AGENT_ABILITIES_S4_1_AUDIT_AND_PLAN_FA.md`.

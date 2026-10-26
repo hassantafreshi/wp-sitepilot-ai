@@ -106,14 +106,14 @@
       "scope": "form",
       "title": "Turn on email notifications for submissions",
       "aliases": ["email", "notification", "send email", "notify", "email me", "get emails", "ایمیل", "اعلان", "نوتیفیکیشن"],
-      "answer": "Open the form settings and enable email notifications, then set the admin email address that should receive each new submission. (Email/SMTP must be configured in Easy Form Builder settings.)"
+      "answer": "Open the form settings and enable email notifications, then set the admin email address that should receive each new submission. (Email/SMTP must be configured in Easy Form Builder settings.) When I design a new form for you I can switch this on for the site admin address and send the visitor a confirmation copy; you see both in the preview before approving."
     },
     {
       "id": "captcha",
       "scope": "form",
       "title": "Add captcha / spam protection",
       "aliases": ["captcha", "recaptcha", "spam", "anti spam", "bot protection", "کپچا", "اسپم"],
-      "answer": "Open the form settings and enable captcha/spam protection. reCAPTCHA keys are configured in the main Easy Form Builder settings page."
+      "answer": "Activate the Form Security & Spam Protection add-on to protect every form on the site, or enable reCAPTCHA in this form's settings after adding your reCAPTCHA keys on the main Easy Form Builder settings page."
     },
     {
       "id": "submit_button",
@@ -134,7 +134,7 @@
       "scope": "form",
       "title": "Show/hide fields with conditional logic",
       "aliases": ["conditional", "logic", "show hide", "if then", "rules", "منطق شرطی", "شرطی", "نمایش مخفی"],
-      "answer": "Open the form's conditional logic (rules) panel and create a rule: choose a field + condition (is / greater than / …) and an action (show, hide, require, jump to step, …). Conditional logic is a Pro/add-on feature in Easy Form Builder."
+      "answer": "Open the form's Conditional Logic panel and create a rule: choose a field + condition (is / greater than / …) and an action (show, hide, require, jump to step, …). A field that a rule shows stays hidden until the rule matches. It needs the Conditional Logic add-on on Free Plus (up to 3 rules per form, 2 conditions each) or Pro (unlimited). With the add-on active you can also just tell me, e.g. \"show Company name only when Customer type is Business\", and I will add the rule for you to check and save."
     },
     {
       "id": "shortcode_embed",

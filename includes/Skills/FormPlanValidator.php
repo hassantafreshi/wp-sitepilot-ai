@@ -110,6 +110,8 @@ final class FormPlanValidator {
 				'label'       => $label,
 				'required'    => $this->to_bool( $raw_field['required'] ?? false ),
 				'placeholder' => $this->clean_text( (string) ( $raw_field['placeholder'] ?? '' ), 120 ),
+				// Short guidance shown under the field (EFB calls it the description).
+				'help'        => $this->clean_text( (string) ( $raw_field['help'] ?? ( $raw_field['description'] ?? '' ) ), 200 ),
 				'width'       => $this->normalize_width( (string) ( $raw_field['width'] ?? 'full' ) ),
 				'options'     => array(),
 				// Per-type settings (a date's earliest day, an upload's format…).
@@ -146,15 +148,18 @@ final class FormPlanValidator {
 		}
 
 		$plan = array(
-			'intent'               => 'create_form',
-			'title'                => $title,
-			'description'          => $this->clean_text( (string) ( $form['description'] ?? '' ), 300 ),
-			'fields'               => $fields,
-			'submit_button'        => $this->clean_text( (string) ( $form['submit_button'] ?? 'Submit' ), 40 ) ?: 'Submit',
-			'confirmation_message' => $this->clean_text( (string) ( $form['confirmation_message'] ?? 'Thank you. We received your submission.' ), 300 ),
-			'risk_level'           => $risk,
-			'notes'                => $this->clean_text( (string) ( $raw['notes'] ?? '' ), 300 ),
-			'requires_approval'    => true,
+			'intent'                => 'create_form',
+			'title'                 => $title,
+			'description'           => $this->clean_text( (string) ( $form['description'] ?? '' ), 300 ),
+			'fields'                => $fields,
+			'submit_button'         => $this->clean_text( (string) ( $form['submit_button'] ?? 'Submit' ), 40 ) ?: 'Submit',
+			'confirmation_message'  => $this->clean_text( (string) ( $form['confirmation_message'] ?? 'Thank you. We received your submission.' ), 300 ),
+			'risk_level'            => $risk,
+			'notes'                 => $this->clean_text( (string) ( $raw['notes'] ?? '' ), 300 ),
+			// Only switches: the recipient addresses are never taken from the AI.
+			'notify_admin'          => $this->to_bool( $form['notify_admin'] ?? ( $raw['notify_admin'] ?? false ) ),
+			'confirm_to_respondent' => $this->to_bool( $form['confirm_to_respondent'] ?? ( $raw['confirm_to_respondent'] ?? false ) ),
+			'requires_approval'     => true,
 		);
 
 		return ValidationResult::success( $plan );

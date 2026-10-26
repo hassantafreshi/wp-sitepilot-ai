@@ -7,8 +7,12 @@ namespace AISAAutoPilot\Efb;
  * Converts a validated, clean form plan into a real EFB `form_structer` array.
  *
  * Input plan (from FormPlanValidator, EFB-configured):
- *   [ 'title', 'description'?, 'confirmation_message'?, 'fields' => [
- *       ['key','type','label','required'(bool),'placeholder','options'(string[])], ... ] ]
+ *   [ 'title', 'description'?, 'submit_button'?, 'confirmation_message'?,
+ *     'notify_email'?, 'confirm_to_respondent'?, 'privacy_link'?, 'fields' => [
+ *       ['key','type','label','required'(bool),'placeholder','help','options'(string[])], ... ] ]
+ *
+ * `notify_email` and `privacy_link` are never AI output: the controller fills
+ * them from the site's own settings after validation.
  *
  * Output: flat array [ settings, step, field, option, option, field, ... ] matching EFB 4.x.
  * Pure PHP (no WordPress) so it is unit testable.
@@ -32,6 +36,10 @@ final class EfbFormConverter {
 			if ( '' !== $confirmation ) {
 				$settings['thank_you_message']['thankYou'] = $confirmation;
 			}
+		}
+		$submit = trim( (string) ( $plan['submit_button'] ?? '' ) );
+		if ( '' !== $submit ) {
+			$settings['button_single_text'] = $submit;
 		}
 
 		$step           = EfbFormModel::template( 'step' );
@@ -83,64 +91,17 @@ final class EfbFormConverter {
 				continue;
 			}
 
-			++$amount;
 			++$step_contents;
+			if ( ! isset( $field['privacy_link'] ) && isset( $plan['privacy_link'] ) ) {
+				$field['privacy_link'] = $plan['privacy_link'];
+			}
 
 			$key = $this->unique_id( (string) ( $field['key'] ?? ( $field['label'] ?? 'field' ) ), $used_ids );
-
-			if ( 'heading' === $type ) {
-				$heading = EfbFormModel::overrides( 'heading' );
-				unset( $heading['__replace__'] );
-				$heading['id_']    = $key;
-				$heading['dataId'] = $key . '-id';
-				$heading['value']  = (string) ( $field['label'] ?? 'Heading' );
-				$heading['amount'] = (string) $amount;
-				$heading['step']   = (string) $step_no;
-				$items[]           = $heading;
-				continue;
-			}
-
-			$el                = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
-			$el['id_']         = $key;
-			$el['dataId']      = $key . '-id';
-			$el['type']        = $type;
-			$el['name']        = (string) ( $field['label'] ?? '' );
-			$el['placeholder'] = (string) ( $field['placeholder'] ?? ( $field['label'] ?? '' ) );
-			$el['required']    = ! empty( $field['required'] ) ? '1' : '0';
-			$el['step']        = (string) $step_no;
-			$el['amount']      = (string) $amount;
-
-			// Desktop width from the optional width hint (mobile stays full-width).
-			$width_map  = EfbFormModel::width_map();
-			$width      = (string) ( $field['width'] ?? 'full' );
-			$el['size'] = $width_map[ $width ] ?? '100';
-
-			$options     = $field['options'] ?? array();
-			$has_options = is_array( $options ) && array() !== $options && in_array( $type, EfbFormModel::option_types(), true );
-			if ( $has_options ) {
-				$el = $this->apply_selection_cap( $el, count( $options ) );
-			}
-			$el = $this->apply_plan_settings( $el, $field, $type );
-
-			$items[] = $el;
-
-			if ( $has_options ) {
-				$n = 0;
-				foreach ( $options as $opt ) {
-					++$n;
-					++$amount;
-					$opt_id           = $this->unique_id( $key . '_o' . $n, $used_ids );
-					$option           = EfbFormModel::template( 'option' );
-					$option['id_']    = $opt_id;
-					$option['dataId'] = $opt_id . '-id';
-					$option['parent'] = $key;
-					$option['type']   = 'option';
-					$option['value']  = (string) $opt;
-					$option['id_op']  = $opt_id;
-					$option['step']   = (string) $step_no;
-					$option['amount'] = (string) $amount;
-					$items[]          = $option;
-				}
+			foreach ( $this->field_items( $field, $key, $used_ids ) as $item ) {
+				++$amount;
+				$item['step']   = (string) $step_no;
+				$item['amount'] = (string) $amount;
+				$items[]        = $item;
 			}
 		}
 
@@ -155,7 +116,7 @@ final class EfbFormConverter {
 			$items[0]['button_state'] = 'multi';
 		}
 
-		return $items;
+		return $this->apply_notifications( $items, $plan );
 	}
 
 	/**
@@ -163,7 +124,7 @@ final class EfbFormConverter {
 	 * chat adds a field to a live form. Amounts are left at "0" — the browser sets
 	 * them on insert. IDs are made unique against the provided existing IDs.
 	 *
-	 * @param array<string, mixed> $field        {type,label,required,placeholder,width,options}
+	 * @param array<string, mixed> $field        {type,label,required,placeholder,help,width,options,settings}
 	 * @param string[]             $existing_ids  IDs already present in the live form.
 	 * @return array<int, array<string, mixed>>
 	 */
@@ -173,59 +134,12 @@ final class EfbFormConverter {
 			$used[ (string) $id ] = true;
 		}
 
-		$type = (string) ( $field['type'] ?? 'text' );
-		$key  = $this->unique_id( (string) ( $field['label'] ?? 'field' ), $used );
-
-		if ( 'heading' === $type ) {
-			$h = EfbFormModel::overrides( 'heading' );
-			unset( $h['__replace__'] );
-			$h['id_']    = $key;
-			$h['dataId'] = $key . '-id';
-			$h['value']  = (string) ( $field['label'] ?? 'Heading' );
-			$h['amount'] = '0';
-			$h['step']   = '1';
-
-			return array( $h );
-		}
-
-		$el                = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
-		$el['id_']         = $key;
-		$el['dataId']      = $key . '-id';
-		$el['type']        = $type;
-		$el['name']        = (string) ( $field['label'] ?? '' );
-		$el['placeholder'] = (string) ( $field['placeholder'] ?? ( $field['label'] ?? '' ) );
-		$el['required']    = ! empty( $field['required'] ) ? '1' : '0';
-		$el['step']        = '1';
-		$el['amount']      = '0';
-
-		$width_map  = EfbFormModel::width_map();
-		$el['size'] = $width_map[ (string) ( $field['width'] ?? 'full' ) ] ?? '100';
-
-		$options     = $field['options'] ?? array();
-		$has_options = is_array( $options ) && array() !== $options && in_array( $type, EfbFormModel::option_types(), true );
-		if ( $has_options ) {
-			$el = $this->apply_selection_cap( $el, count( $options ) );
-		}
-		$el = $this->apply_plan_settings( $el, $field, $type );
-
-		$items = array( $el );
-
-		if ( $has_options ) {
-			$n = 0;
-			foreach ( $options as $opt ) {
-				++$n;
-				$oid              = $this->unique_id( $key . '_o' . $n, $used );
-				$option           = EfbFormModel::template( 'option' );
-				$option['id_']    = $oid;
-				$option['dataId'] = $oid . '-id';
-				$option['parent'] = $key;
-				$option['type']   = 'option';
-				$option['value']  = (string) $opt;
-				$option['id_op']  = $oid;
-				$option['step']   = '1';
-				$option['amount'] = '0';
-				$items[]          = $option;
-			}
+		$key   = $this->unique_id( (string) ( $field['label'] ?? 'field' ), $used );
+		$items = array();
+		foreach ( $this->field_items( $field, $key, $used ) as $item ) {
+			$item['step']   = '1';
+			$item['amount'] = '0';
+			$items[]        = $item;
 		}
 
 		return $items;
@@ -250,6 +164,148 @@ final class EfbFormConverter {
 		$step['amount']  = '0';
 
 		return $step;
+	}
+
+	/**
+	 * The consent sentence a terms checkbox shows, with the site's own privacy
+	 * page linked in EFB's [text](url) syntax.
+	 *
+	 * The AI never supplies a URL: any link or address it wrote is reduced to its
+	 * text, and only the controller-provided privacy page is linked.
+	 *
+	 * @param array{url?:string,label?:string}|mixed $privacy_link
+	 */
+	public static function consent_text( string $sentence, $privacy_link = array() ): string {
+		// [label](anything) keeps only the label; bare URLs go entirely.
+		$text = (string) preg_replace( '/\[([^\]]*)\]\([^)]*\)/u', '$1', $sentence );
+		$text = (string) preg_replace( '#\b(?:https?://|www\.)\S+#iu', '', $text );
+		$text = trim( (string) preg_replace( '/\s+/u', ' ', str_replace( array( '[', ']' ), '', $text ) ) );
+		if ( '' === $text ) {
+			$text = 'I agree to the privacy policy.';
+		}
+
+		$url   = is_array( $privacy_link ) ? trim( (string) ( $privacy_link['url'] ?? '' ) ) : '';
+		$label = is_array( $privacy_link ) ? trim( str_replace( array( '[', ']', '(', ')' ), '', (string) ( $privacy_link['label'] ?? '' ) ) ) : '';
+		if ( '' === $url || 1 !== preg_match( '#^https?://[^\s()\[\]]+$#i', $url ) ) {
+			return $text;
+		}
+
+		return sprintf( '%s ([%s](%s))', $text, '' !== $label ? $label : 'Privacy Policy', $url );
+	}
+
+	/**
+	 * The field object and its children, before step and amount are assigned.
+	 *
+	 * @param array<string,mixed> $field
+	 * @param array<string,bool>  $used
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function field_items( array $field, string $key, array &$used ): array {
+		$type = (string) ( $field['type'] ?? 'text' );
+
+		if ( 'heading' === $type ) {
+			$heading = EfbFormModel::overrides( 'heading' );
+			unset( $heading['__replace__'] );
+			$heading['id_']    = $key;
+			$heading['dataId'] = $key . '-id';
+			$heading['value']  = (string) ( $field['label'] ?? 'Heading' );
+
+			return array( $heading );
+		}
+
+		$el                = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
+		$el['id_']         = $key;
+		$el['dataId']      = $key . '-id';
+		$el['type']        = $type;
+		$el['name']        = (string) ( $field['label'] ?? '' );
+		$el['placeholder'] = (string) ( $field['placeholder'] ?? ( $field['label'] ?? '' ) );
+		$el['required']    = ! empty( $field['required'] ) ? '1' : '0';
+
+		$help = trim( (string) ( $field['help'] ?? '' ) );
+		if ( '' !== $help ) {
+			$el['message'] = $help;
+		}
+		// EFB's own palette flags every Pro element so its renderer can gate it.
+		if ( EfbFormModel::requires_pro_field( $type ) ) {
+			$el['pro'] = '1';
+		}
+
+		// Desktop width from the optional width hint (mobile stays full-width).
+		$width_map  = EfbFormModel::width_map();
+		$el['size'] = $width_map[ (string) ( $field['width'] ?? 'full' ) ] ?? '100';
+
+		$options = is_array( $field['options'] ?? null ) ? array_values( array_map( 'strval', $field['options'] ) ) : array();
+		if ( 'yesNo' === $type && 2 === count( $options ) ) {
+			$el['button_1_text'] = $options[0];
+			$el['button_2_text'] = $options[1];
+		}
+
+		$children = array();
+		if ( 'trmCheckbox' === $type ) {
+			$sentence   = '' !== ( $options[0] ?? '' ) ? $options[0] : (string) ( $field['label'] ?? '' );
+			$children[] = $this->child( 'option', $key, 1, self::consent_text( $sentence, $field['privacy_link'] ?? array() ), $used );
+		} elseif ( 'table_matrix' === $type ) {
+			$n = 0;
+			foreach ( $options as $row ) {
+				$children[] = $this->child( 'matrix_row', $key, ++$n, $row, $used );
+			}
+		} elseif ( array() !== $options && in_array( $type, EfbFormModel::option_types(), true ) ) {
+			$el = $this->apply_selection_cap( $el, count( $options ) );
+			$n  = 0;
+			foreach ( $options as $opt ) {
+				$children[] = $this->child( 'option', $key, ++$n, $opt, $used );
+			}
+		}
+		$el = $this->apply_plan_settings( $el, $field, $type );
+
+		return array_merge( array( $el ), $children );
+	}
+
+	/**
+	 * An option or matrix row owned by `$parent`, in EFB's flat child shape.
+	 *
+	 * @param array<string,bool> $used
+	 * @return array<string,mixed>
+	 */
+	private function child( string $template, string $parent, int $n, string $value, array &$used ): array {
+		$id              = $this->unique_id( $parent . ( 'matrix_row' === $template ? '_r' : '_o' ) . $n, $used );
+		$child           = EfbFormModel::template( $template );
+		$child['id_']    = $id;
+		$child['dataId'] = $id . '-id';
+		$child['parent'] = $parent;
+		$child['type']   = 'matrix_row' === $template ? 'r_matrix' : 'option';
+		$child['value']  = $value;
+		$child['id_op']  = $id;
+
+		return $child;
+	}
+
+	/**
+	 * Turn on the notifications the admin approved, exactly the way EFB's own
+	 * contact template does: the admin copy goes to the form's `email`, and the
+	 * respondent's copy to the address typed in the form's email field.
+	 *
+	 * @param array<int, array<string, mixed>> $items
+	 * @param array<string, mixed>             $plan
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function apply_notifications( array $items, array $plan ): array {
+		$admin = trim( (string) ( $plan['notify_email'] ?? '' ) );
+		if ( '' !== $admin && false !== filter_var( $admin, FILTER_VALIDATE_EMAIL ) ) {
+			$items[0]['email'] = $admin;
+		}
+
+		if ( ! empty( $plan['confirm_to_respondent'] ) ) {
+			foreach ( $items as $item ) {
+				if ( 'email' === ( $item['type'] ?? '' ) ) {
+					$items[0]['sendEmail'] = true;
+					$items[0]['email_to']  = (string) $item['id_'];
+					break;
+				}
+			}
+		}
+
+		return $items;
 	}
 
 	/**

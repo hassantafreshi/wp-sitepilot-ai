@@ -635,7 +635,9 @@ final class EfbCapabilityCatalogTest extends TestCase {
 	public function test_steps_row_and_progress_bar_settings_follow_efb_4_2(): void {
 		$catalog = EfbFormModel::capability_catalog();
 
-		$this->assertSame( '4.2.x', $catalog['efb_version_target'] );
+		// Re-checked against EFB 4.3.1 (dev4): the steps/progress builder and its
+		// public rendering did not change after 4.2.0.
+		$this->assertSame( '4.3.x', $catalog['efb_version_target'] );
 		$this->assertSame( '{prefix}emsfb_msg_', $catalog['storage']['submissions']['table'] );
 
 		// EFB stores "hide" under show_* keys: true hides the row or the bar.

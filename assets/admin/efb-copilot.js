@@ -134,8 +134,17 @@
 	function isFieldItem( it ) { return it && it.type && [ 'form', 'step', 'option', 'r_matrix' ].indexOf( it.type ) === -1; }
 	function liveFields() {
 		if ( ! hasLiveForm() ) { return []; }
-		return valj_efb.filter( isFieldItem ).map( function ( it ) { return { id: it.id_, label: it.name || it.value || it.id_, type: it.type }; } );
+		return valj_efb.filter( isFieldItem ).map( function ( it ) {
+			var options = valj_efb.filter( function ( o ) { return o && o.type === 'option' && o.parent === it.id_; } ).map( function ( o ) { return { id: String( o.id_ ), value: String( o.value || '' ) }; } );
+			return { id: it.id_, label: it.name || it.value || it.id_, type: it.type, required: it.required === true || it.required === 1 || it.required === '1', options: options };
+		} );
 	}
+	// EFB only loads its Conditional Logic runtime when the AdnSMF add-on is active.
+	function logicAddonActive() { return typeof efb_var !== 'undefined' && !! efb_var && !! efb_var.addons && Number( efb_var.addons.AdnSMF ) >= 1; }
+	function liveLogicRules() { return hasLiveForm() && Array.isArray( valj_efb[ 0 ].logic_rules ) ? valj_efb[ 0 ].logic_rules : []; }
+	// Human Shield (AdnHSH) is site-wide spam protection: active means every form is covered.
+	function spamShieldActive() { return typeof efb_var !== 'undefined' && !! efb_var && !! efb_var.addons && Number( efb_var.addons.AdnHSH ) >= 1; }
+	function liveCaptcha() { if ( ! hasLiveForm() ) { return null; } var c = valj_efb[ 0 ].captcha; return c === true || c === 1 || c === '1' || c === 'true'; }
 	function liveSteps() {
 		if ( typeof valj_efb === 'undefined' || ! Array.isArray( valj_efb ) ) { return []; }
 		return valj_efb.filter( function ( it ) { return it && it.type === 'step'; } ).map( function ( it ) {
@@ -282,6 +291,7 @@
 		invalid_or_duplicate_field_template: [ 'reasonInvalidFieldTemplate', 'the new field was invalid or its ID already exists' ],
 		target_is_not_a_choice_field: [ 'reasonNotChoiceField', 'options can only be added to a choice field' ],
 		option_not_found: [ 'reasonOptionNotFound', 'the option was not found' ],
+		logic_addon_inactive: [ 'reasonLogicAddonInactive', 'the Conditional Logic add-on is not active on this form' ],
 		unsupported_operation: [ 'reasonUnsupportedOperation', 'this change is not supported' ],
 		no_operation: [ 'reasonNoOperation', 'the reply contained no change to apply' ],
 		exception: [ 'reasonException', 'an unexpected error stopped this change' ],
@@ -319,7 +329,38 @@
 		if ( token.indexOf( 'colorDEfb-' ) === 0 && definition.style_path ) { setPath( target, definition.style_path, value ); }
 		return true;
 	}
-	function isChoiceField( field ) { return field && [ 'select', 'radio', 'checkbox', 'multiselect' ].indexOf( field.type ) !== -1; }
+	function isChoiceField( field ) { return field && [ 'select', 'radio', 'checkbox', 'multiselect', 'chlCheckBox', 'chlRadio' ].indexOf( field.type ) !== -1; }
+	function findOption( field, text ) {
+		var wanted = String( text ).toLowerCase();
+		return valj_efb.find( function ( it ) { return it && it.type === 'option' && it.parent === field.id_ && String( it.value ).toLowerCase() === wanted; } ) || null;
+	}
+	function addLogicRules( op, report, index ) {
+		if ( ! logicAddonActive() ) { failure( report, index, op, 'logic_addon_inactive' ); return; }
+		var rules = op.rule && typeof op.rule === 'object' ? [ op.rule ] : [];
+		if ( ! rules.length ) { failure( report, index, op, 'invalid_operation' ); return; }
+		var ids = {};
+		valj_efb.forEach( function ( it ) { if ( it && it.id_ !== undefined ) { ids[ String( it.id_ ) ] = true; } } );
+		// The server resolved every reference against this canvas; a stale reply
+		// (the field was removed since) must not leave a rule pointing at nothing.
+		for ( var r = 0; r < rules.length; r++ ) {
+			var rule = rules[ r ];
+			var items = rule && rule.conditions && Array.isArray( rule.conditions.items ) ? rule.conditions.items : [];
+			var acts = rule && Array.isArray( rule.actions ) ? rule.actions : [];
+			if ( ! items.length || ! acts.length ) { failure( report, index, op, 'invalid_operation' ); return; }
+			for ( var c = 0; c < items.length; c++ ) { if ( ! ids[ String( items[ c ].field_id ) ] ) { failure( report, index, op, 'field_not_found' ); return; } }
+			for ( var a = 0; a < acts.length; a++ ) { if ( ! ids[ String( acts[ a ].target ) ] ) { failure( report, index, op, 'field_not_found' ); return; } }
+		}
+		if ( ! Array.isArray( valj_efb[ 0 ].logic_rules ) ) { valj_efb[ 0 ].logic_rules = []; }
+		rules.forEach( function ( rule ) {
+			var exists = valj_efb[ 0 ].logic_rules.some( function ( it ) { return it && it.id === rule.id; } );
+			if ( ! exists ) { valj_efb[ 0 ].logic_rules.push( JSON.parse( JSON.stringify( rule ) ) ); }
+		} );
+		// The add-on's own saveRules() raises this flag whenever an enabled field rule exists.
+		valj_efb[ 0 ].logic = true;
+		report.applied.push( t( 'logicRuleAdded', 'Added the rule: %s', op.summary || rules[ 0 ].name || '' ) );
+		report.changed = true;
+		report.logic = true;
+	}
 	function addFieldItems( op, report, index, requestedStep ) {
 		var items = Array.isArray( op.items ) ? op.items : [];
 		if ( ! items.length ) { failure( report, index, op, 'field_template_missing' ); return; }
@@ -430,6 +471,12 @@
 					valj_efb.splice( lastIdx + 1, 0, opt ); report.applied.push( t( 'optionAdded', 'Added the option “%1$s” to “%2$s”', [ op.value, op.target ] ) ); report.changed = true;
 				}
 				else if ( op.op === 'remove_option' ) { var of = findField( op.target ); if ( ! of ) { failure( report, index, op, 'field_not_found' ); return; } var hadOption = valj_efb.some( function ( it ) { return it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase(); } ); if ( ! hadOption ) { failure( report, index, op, 'option_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return ! ( it.type === 'option' && it.parent === of.id_ && String( it.value ).toLowerCase() === String( op.value ).toLowerCase() ); } ); window.valj_efb = valj_efb; report.applied.push( t( 'optionRemoved', 'Removed the option “%1$s” from “%2$s”', [ op.value, op.target ] ) ); report.changed = true; }
+				else if ( op.op === 'rename_option' ) {
+					var nf = findField( op.target ); if ( ! nf ) { failure( report, index, op, 'field_not_found' ); return; }
+					var no = findOption( nf, op.from ); if ( ! no ) { failure( report, index, op, 'option_not_found' ); return; }
+					no.value = op.value; report.applied.push( t( 'optionRenamed', 'Renamed the option “%1$s” to “%2$s”', [ op.from, op.value ] ) ); report.changed = true;
+				}
+				else if ( op.op === 'add_logic_rule' ) { addLogicRules( op, report, index ); }
 				else { failure( report, index, op, 'unsupported_operation' ); }
 			} catch ( e ) { failure( report, index, op || {}, 'exception:' + String( e && e.message ? e.message : 'unknown' ).slice( 0, 120 ) ); }
 		} );
@@ -476,10 +523,24 @@
 		table.appendChild( el( 'thead', {}, [ el( 'tr', {}, [ el( 'th', { text: t( 'label', 'Label' ) } ), el( 'th', { text: t( 'type', 'Type' ) } ), el( 'th', { text: t( 'requiredShort', 'Req.' ) } ), el( 'th', { text: t( 'widthShort', 'W' ) } ) ] ) ] ) );
 		var tb = el( 'tbody' );
 		p.fields.forEach( function ( f ) {
-			tb.appendChild( el( 'tr', {}, [ el( 'td', { text: f.label } ), el( 'td', {}, [ el( 'code', { text: f.type } ) ] ), el( 'td', { text: f.required ? '✓' : '' } ), el( 'td', { text: ( WIDTH[ f.width ] || '100' ) + '%' } ) ] ) );
+			if ( f.type === 'steps' ) { tb.appendChild( el( 'tr', { class: 'aisaautopilot-efb-step-row' }, [ el( 'td', { colspan: '4', dir: 'auto', text: t( 'previewStep', 'New page: %s', f.label ) } ) ] ) ); return; }
+			var labelCell = el( 'td', { dir: 'auto' }, [ el( 'div', { text: f.label } ) ] );
+			if ( f.help ) { labelCell.appendChild( el( 'small', { class: 'aisaautopilot-efb-help', text: f.help } ) ); }
+			if ( f.options && f.options.length ) { labelCell.appendChild( el( 'small', { class: 'aisaautopilot-efb-help', text: f.options.join( ' · ' ) } ) ); }
+			tb.appendChild( el( 'tr', {}, [ labelCell, el( 'td', {}, [ el( 'code', { text: f.type } ) ] ), el( 'td', { text: f.required ? '✓' : '' } ), el( 'td', { text: ( WIDTH[ f.width ] || '100' ) + '%' } ) ] ) );
 		} );
 		table.appendChild( tb );
 		card.appendChild( table );
+		var facts = [];
+		if ( p.submit_button ) { facts.push( t( 'previewSubmit', 'Button: %s', p.submit_button ) ); }
+		if ( p.notifications && p.notifications.admin ) { facts.push( t( 'previewNotifyAdmin', 'Each submission is emailed to %s', p.notifications.admin ) ); }
+		if ( p.notifications && p.notifications.respondent ) { facts.push( t( 'previewNotifyRespondent', 'The person who fills it in gets a confirmation email' ) ); }
+		facts.forEach( function ( fact ) { card.appendChild( el( 'div', { class: 'aisaautopilot-efb-inline-note', dir: 'auto', text: fact } ) ); } );
+		if ( p.suggestions && p.suggestions.length ) {
+			var tips = el( 'ul', { class: 'aisaautopilot-efb-findings' } );
+			p.suggestions.forEach( function ( s ) { tips.appendChild( el( 'li', { class: 'aisaautopilot-efb-finding aisaautopilot-efb-finding--' + ( s.severity === 'warning' ? 'warning' : 'info' ), dir: 'auto', text: s.message } ) ); } );
+			card.appendChild( tips );
+		}
 		var approve = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--primary', text: t( 'approveCreate', 'Approve & create' ) } );
 		var discard = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', text: t( 'discard', 'Discard' ) } );
 		var note = el( 'span', { class: 'aisaautopilot-efb-inline-note' } );
@@ -517,6 +578,8 @@
 			history.push( { role: 'assistant', text: 'Asked user to open a form first.' } );
 			return;
 		}
+		// One snapshot per AI change, so Undo restores exactly the canvas before it.
+		var snapshot = JSON.parse( JSON.stringify( valj_efb ) );
 		var report = applyOps( data.operations || [] );
 		var box = el( 'div', {} );
 		box.appendChild( el( 'div', { text: data.reply || t( 'done', 'Done.' ) } ) );
@@ -541,9 +604,50 @@
 		box.appendChild( ul );
 		if ( ! refreshed.ok ) { box.appendChild( note( t( 'canvasRefreshFail', 'The Easy Form Builder canvas could not redraw, so the editor reloads now. Check the form before you save it; trace %s is in AI Site Assistant AutoPilot → Activity Log.', traceId ), 'render-failed' ) ); }
 		else { box.appendChild( note( t( 'appliedSaveNote', 'Applied to the canvas. Review it, then click Easy Form Builder’s green Save button to keep the changes.' ), 'save-ownership' ) ); }
+		if ( report.logic ) { box.appendChild( note( t( 'logicReviewNote', 'Open Conditional Logic to review the rule and test it in Preview before you save.' ), 'logic' ) ); }
+		if ( refreshed.ok ) { box.appendChild( undoButton( snapshot, traceId ) ); }
 		addAi( box );
 		history.push( { role: 'assistant', text: 'Applied: ' + report.applied.join( '; ' ) } );
 		if ( ! refreshed.ok ) { setTimeout( function () { window.location.reload(); }, 800 ); }
+	}
+	function undoButton( snapshot, traceId ) {
+		var wrap = el( 'div', { class: 'aisaautopilot-efb-actions' } );
+		var undo = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', 'data-sp-efb-undo': '1', text: t( 'undoChange', 'Undo this change' ) } );
+		undo.addEventListener( 'click', function () {
+			undo.disabled = true;
+			valj_efb = JSON.parse( JSON.stringify( snapshot ) );
+			window.valj_efb = valj_efb;
+			var refreshed = refreshDropzone();
+			updateSelection();
+			clientLog( traceId, refreshed.ok ? 'undo_completed' : 'undo_render_failed', refreshed.ok ? 'The AI change was undone on the canvas.' : 'Undo restored the structure but the renderer failed.', { failed: refreshed.ok ? [] : [ { reason: refreshed.reason || 'renderer_refresh_failed' } ] } );
+			wrap.appendChild( note( t( 'undone', 'Undone. The canvas is back to how it was before this change.' ), 'undone' ) );
+			history.push( { role: 'assistant', text: 'Undid the last change.' } );
+			if ( ! refreshed.ok ) { setTimeout( function () { window.location.reload(); }, 800 ); }
+		} );
+		wrap.appendChild( undo );
+		return wrap;
+	}
+	function renderList( data, traceId ) {
+		var box = el( 'div', {} );
+		if ( data.reply ) { box.appendChild( el( 'div', { dir: 'auto', text: data.reply } ) ); }
+		var list = el( 'ul', { class: 'aisaautopilot-efb-findings' } );
+		( data.items || [] ).forEach( function ( item ) {
+			var li = el( 'li', { class: 'aisaautopilot-efb-finding aisaautopilot-efb-finding--' + ( item.severity === 'warning' ? 'warning' : 'info' ), dir: 'auto' } );
+			li.appendChild( el( 'span', { text: item.message || '' } ) );
+			if ( Array.isArray( item.operations ) && item.operations.length && hasLiveForm() ) {
+				var apply = el( 'button', { type: 'button', class: 'aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', text: t( 'applySuggestion', 'Apply' ) } );
+				apply.addEventListener( 'click', function () {
+					apply.disabled = true;
+					renderOps( { operations: item.operations, reply: t( 'suggestionApplied', 'Applied the suggestion.' ) }, traceId );
+				} );
+				li.appendChild( apply );
+			}
+			list.appendChild( li );
+		} );
+		box.appendChild( list );
+		if ( data.errors && data.errors.length ) { box.appendChild( note( data.errors.join( ' ' ), 'server' ) ); }
+		addAi( box, true );
+		history.push( { role: 'assistant', text: ( data.reply || '' ) + ' ' + ( data.items || [] ).map( function ( i ) { return i.message; } ).join( ' | ' ) } );
 	}
 	function renderHelp( data ) {
 		var box = el( 'div', {} );
@@ -564,6 +668,7 @@
 		if ( data.type === 'preview' ) { return renderPreview( data ); }
 		if ( data.type === 'ops' ) { return renderOps( data, traceId ); }
 		if ( data.type === 'help' ) { return renderHelp( data ); }
+		if ( data.type === 'list' ) { return renderList( data, traceId ); }
 		return renderMessage( data );
 	}
 
@@ -585,7 +690,7 @@
 		var selected = selectedLiveField();
 		var selectedId = selected ? String( selected.id_ ) : '';
 		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, step_count: steps.length, selected_field: selectedId, field_ids: fields.map( function ( field ) { return field.id; } ) } );
-		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps, selected_field: selectedId } )
+		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps, selected_field: selectedId, logic_addon: logicAddonActive(), logic_rules: liveLogicRules(), captcha: liveCaptcha(), spam_shield: spamShieldActive() } )
 			.then( function ( res ) {
 				removeTyping(); busy = false; $( 'aisaautopilot-efb-send' ).disabled = false;
 				var data = res.data || { type: 'message', reply: t( 'genericError', 'Sorry, something went wrong.' ) };

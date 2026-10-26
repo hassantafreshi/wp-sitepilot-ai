@@ -146,6 +146,22 @@ final class EfbBuilderButton {
 					'optionAdded'                    => __( 'Added the option “%1$s” to “%2$s”', 'ai-site-assistant-autopilot' ),
 					/* translators: 1: option text, 2: field label or ID. */
 					'optionRemoved'                  => __( 'Removed the option “%1$s” from “%2$s”', 'ai-site-assistant-autopilot' ),
+					/* translators: 1: old option text, 2: new option text. */
+					'optionRenamed'                  => __( 'Renamed the option “%1$s” to “%2$s”', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: plain-language description of the rule. */
+					'logicRuleAdded'                 => __( 'Added the rule: %s', 'ai-site-assistant-autopilot' ),
+					'logicReviewNote'                => __( 'Open Conditional Logic to review the rule and test it in Preview before you save.', 'ai-site-assistant-autopilot' ),
+					'undoChange'                     => __( 'Undo this change', 'ai-site-assistant-autopilot' ),
+					'undone'                         => __( 'Undone. The canvas is back to how it was before this change.', 'ai-site-assistant-autopilot' ),
+					'applySuggestion'                => __( 'Apply', 'ai-site-assistant-autopilot' ),
+					'suggestionApplied'              => __( 'Applied the suggestion.', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: page title. */
+					'previewStep'                    => __( 'New page: %s', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: submit button text. */
+					'previewSubmit'                  => __( 'Button: %s', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: email address. */
+					'previewNotifyAdmin'             => __( 'Each submission is emailed to %s', 'ai-site-assistant-autopilot' ),
+					'previewNotifyRespondent'        => __( 'The person who fills it in gets a confirmation email', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: reason the change was not applied. */
 					'noChangeApplied'                => __( 'No change was applied: %s.', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: reason the change was not applied. */
@@ -165,6 +181,7 @@ final class EfbBuilderButton {
 					'reasonInvalidFieldTemplate'     => __( 'the new field was invalid or its ID already exists', 'ai-site-assistant-autopilot' ),
 					'reasonNotChoiceField'           => __( 'options can only be added to a choice field', 'ai-site-assistant-autopilot' ),
 					'reasonOptionNotFound'           => __( 'the option was not found', 'ai-site-assistant-autopilot' ),
+					'reasonLogicAddonInactive'       => __( 'the Conditional Logic add-on is not active on this form', 'ai-site-assistant-autopilot' ),
 					'reasonUnsupportedOperation'     => __( 'this change is not supported', 'ai-site-assistant-autopilot' ),
 					'reasonNoOperation'              => __( 'the reply contained no change to apply', 'ai-site-assistant-autopilot' ),
 					'reasonException'                => __( 'an unexpected error stopped this change', 'ai-site-assistant-autopilot' ),

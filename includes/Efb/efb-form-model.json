@@ -1,7 +1,7 @@
 {
-  "model_version": "1.1",
+  "model_version": "1.2",
   "efb_version_target": "4.x",
-  "note": "ai_capabilities is the compact catalog sent to the AI. templates hold the full EFB default properties (colors, width/mobile width, height, corner, per-type extras) applied locally by EfbFormConverter and are NEVER sent to the AI.",
+  "note": "ai_capabilities is the compact catalog sent to the AI. templates hold the full EFB default properties (colors, width/mobile width, height, corner, per-type extras) applied locally by EfbFormConverter and are NEVER sent to the AI. Pro-plan types are created with pro=\"1\", as EFB's own palette does.",
 
   "ai_capabilities": [
     { "type": "text",        "label": "Single-line text",   "needs_options": false },
@@ -18,6 +18,17 @@
     { "type": "multiselect", "label": "Multi-select (choose many)",  "needs_options": true },
     { "type": "heading",     "label": "Section heading (display only)", "needs_options": false },
     { "type": "esign",       "label": "Electronic signature",          "needs_options": false },
+    { "type": "mobile",      "label": "Mobile phone with country code", "needs_options": false },
+    { "type": "rating",      "label": "Star rating (1 to 5 stars)",    "needs_options": false },
+    { "type": "pointr5",     "label": "5-point score",                 "needs_options": false },
+    { "type": "pointr10",    "label": "NPS / 0-10 likelihood score",   "needs_options": false },
+    { "type": "yesNo",       "label": "Yes / No buttons (optional \"options\": exactly two button captions)", "needs_options": false },
+    { "type": "switch",      "label": "On / off switch",               "needs_options": false },
+    { "type": "trmCheckbox", "label": "Consent / terms checkbox (\"options\": one consent sentence)", "needs_options": false },
+    { "type": "color",       "label": "Color picker",                  "needs_options": false },
+    { "type": "dadfile",     "label": "Drag-and-drop file upload",     "needs_options": false },
+    { "type": "chlCheckBox", "label": "Checklist with a quantity box per option (order lists)", "needs_options": true },
+    { "type": "table_matrix", "label": "Rating matrix (each option is a statement rated 1 to 5)", "needs_options": true },
     { "type": "steps",       "label": "Step break (everything after it becomes the next page)", "needs_options": false }
   ],
 
@@ -37,7 +48,38 @@
     "upload": "file",
     "signature": "esign",
     "electronic_signature": "esign",
-    "e_signature": "esign"
+    "e_signature": "esign",
+    "mobile_phone": "mobile",
+    "cellphone": "mobile",
+    "stars": "rating",
+    "star_rating": "rating",
+    "five_point": "pointr5",
+    "likert_5": "pointr5",
+    "nps": "pointr10",
+    "net_promoter": "pointr10",
+    "net_promoter_score": "pointr10",
+    "yes_no": "yesNo",
+    "yesno": "yesNo",
+    "toggle": "switch",
+    "on_off": "switch",
+    "consent": "trmCheckbox",
+    "terms": "trmCheckbox",
+    "gdpr": "trmCheckbox",
+    "privacy_consent": "trmCheckbox",
+    "terms_checkbox": "trmCheckbox",
+    "colour": "color",
+    "color_picker": "color",
+    "drag_and_drop_upload": "dadfile",
+    "dropzone": "dadfile",
+    "quantity_checklist": "chlCheckBox",
+    "order_list": "chlCheckBox",
+    "matrix": "table_matrix",
+    "likert": "table_matrix",
+    "rating_matrix": "table_matrix",
+    "name": "text",
+    "full_name": "text",
+    "first_name": "text",
+    "last_name": "text"
   },
 
   "forbidden_types": [
@@ -155,6 +197,10 @@
       "checkbox":    { "corner": "efb-square", "checked_color": "#0d6efd" },
       "multiselect": { "corner": "efb-square", "maxSelect": "1", "minSelect": "0" },
       "esign":       { "elementId": "esign", "pro": "1", "icon": "bi-save", "icon_color": "text-white", "button_single_text": "Clear", "button_color": "btn-primary" },
+      "yesNo":       { "button_1_text": "Yes", "button_2_text": "No", "button_color": "btn-primary", "el_text_color": "text-white" },
+      "chlCheckBox": { "checked_color": "#0d6efd", "pholder_chl_value": "Qty" },
+      "dadfile":     { "file": "allformat", "value": "allformat", "max_fsize": "8", "message_text_size": "fs-7", "icon": "bi-cloud-arrow-up-fill", "icon_color": "text-pinkEfb", "button_color": "btn-primary" },
+      "trmCheckbox": { "checked_color": "#0d6efd" },
       "heading": {
         "__replace__": true,
         "id_": "",
@@ -169,6 +215,17 @@
         "el_align": "justify-content-start",
         "pro": ""
       }
+    },
+
+    "matrix_row": {
+      "id_": "",
+      "dataId": "",
+      "parent": "",
+      "type": "r_matrix",
+      "value": "",
+      "id_op": "",
+      "step": "1",
+      "amount": "0"
     },
 
     "option": {

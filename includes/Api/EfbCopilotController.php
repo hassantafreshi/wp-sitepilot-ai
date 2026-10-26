@@ -10,8 +10,10 @@ use AISAAutoPilot\Efb\EfbCustomizeSkill;
 use AISAAutoPilot\Efb\EfbFormConverter;
 use AISAAutoPilot\Efb\EfbLicense;
 use AISAAutoPilot\Efb\EfbFormModel;
+use AISAAutoPilot\Efb\EfbFormReview;
 use AISAAutoPilot\Efb\EfbFormSkill;
 use AISAAutoPilot\Efb\EfbKnowledge;
+use AISAAutoPilot\Efb\EfbLogicRules;
 use AISAAutoPilot\Execution\ActionStore;
 use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Providers\ProviderException;
@@ -82,7 +84,7 @@ final class EfbCopilotController {
 		// Build what this licence can actually render, and say plainly what a
 		// Free Plus or Pro licence would have added instead of failing outright.
 		$split = EfbFormModel::split_pro_fields( $result->plan, EfbLicense::has_pro_features() );
-		$plan  = $split['plan'];
+		$plan  = $this->finalize_plan( $split['plan'] );
 
 		if ( array() === ( $plan['fields'] ?? array() ) ) {
 			return $this->pro_required_response( $this->pro_blocked_from_fields( $split['pro_fields'] ) );
@@ -271,6 +273,13 @@ final class EfbCopilotController {
 		$history  = $this->clean_history( (array) $request->get_param( 'history' ) );
 		$selected = $this->selected_field( $request->get_param( 'selected_field' ), $fields );
 		$license  = EfbLicense::status();
+		// The browser reports whether EFB loaded its Conditional Logic add-on on
+		// this form; rules it proposes are still re-validated by EFB on Save.
+		$logic       = $has_form && (bool) $request->get_param( 'logic_addon' );
+		$logic_rules = $this->clean_logic_rules( $request->get_param( 'logic_rules' ) );
+		$captcha     = $request->get_param( 'captcha' );
+		$shield      = (bool) $request->get_param( 'spam_shield' );
+		$explained   = EfbLogicRules::explain( $logic_rules, $fields, $steps );
 		$this->logger->info(
 			'efb.chat.received',
 			'Chat request received.',
@@ -287,7 +296,19 @@ final class EfbCopilotController {
 		);
 
 		try {
-			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond( $message, $history, $has_form, $fields, $steps, $license, $selected );
+			$raw = ( new EfbChatSkill( $this->providers->make() ) )->respond(
+				$message,
+				$history,
+				$has_form,
+				$fields,
+				$steps,
+				$license,
+				$selected,
+				array(
+					'logic'       => $logic,
+					'logic_rules' => $explained,
+				)
+			);
 		} catch ( ProviderException $e ) {
 			$this->logger->error(
 				'efb.chat.provider_error',
@@ -360,8 +381,53 @@ final class EfbCopilotController {
 			);
 		}
 
+		if ( 'review' === $action && $has_form ) {
+			return $this->review_response(
+				$reply,
+				$fields,
+				array(
+					'steps'   => max( 1, count( $steps ) ),
+					'captcha' => null === $captcha ? null : (bool) $captcha,
+					'shield'  => $shield,
+				),
+				$steps,
+				$logic_rules
+			);
+		}
+
+		if ( 'explain_logic' === $action && $has_form ) {
+			$conflicts = EfbLogicRules::conflicts( $logic_rules );
+
+			return $this->respond(
+				array(
+					'type'  => 'list',
+					'reply' => array() !== $explained
+						? ( '' !== $reply ? $reply : __( 'Here is what this form’s conditional logic does:', 'ai-site-assistant-autopilot' ) )
+						: __( 'This form has no conditional logic rules yet.', 'ai-site-assistant-autopilot' ),
+					'items' => array_map(
+						static fn ( string $line ): array => array(
+							'severity' => 'info',
+							'message'  => $line,
+						),
+						$explained
+					),
+					'errors' => $this->conflict_notes( $conflicts, $fields ),
+				),
+				true
+			);
+		}
+
 		if ( 'customize' === $action ) {
-			$verbose = EfbCustomizeSkill::validate_ops_verbose( $normalized_ops, $fields );
+			$verbose = EfbCustomizeSkill::validate_ops_verbose(
+				$normalized_ops,
+				$fields,
+				array(
+					'logic'          => $logic,
+					'steps'          => $steps,
+					'tier'           => (string) $license['tier'],
+					'existing_rules' => count( $logic_rules ),
+				)
+			);
 			$ops     = $verbose['ops'];
 			$dropped = $verbose['dropped'];
 
@@ -427,6 +493,18 @@ final class EfbCopilotController {
 
 			$ops = $this->expand_add_fields( $ops, $fields );
 
+			// A new rule that drives a field the opposite way to an existing rule
+			// on the same condition is applied, but never silently.
+			$new_rules = array();
+			foreach ( $ops as $op ) {
+				if ( 'add_logic_rule' === ( $op['op'] ?? '' ) ) {
+					$new_rules[] = (array) $op['rule'];
+				}
+			}
+			if ( array() !== $new_rules ) {
+				$notes = array_merge( $notes, $this->conflict_notes( EfbLogicRules::conflicts( array_merge( $logic_rules, $new_rules ) ), $fields ) );
+			}
+
 			$this->logger->info(
 				'efb.chat.customize',
 				'Customize ops ready.',
@@ -463,7 +541,7 @@ final class EfbCopilotController {
 				);
 			}
 			$split = EfbFormModel::split_pro_fields( $result->plan, EfbLicense::has_pro_features() );
-			$plan  = $split['plan'];
+			$plan  = $this->finalize_plan( $split['plan'] );
 			if ( array() === ( $plan['fields'] ?? array() ) ) {
 				return $this->pro_required_response( $this->pro_blocked_from_fields( $split['pro_fields'] ) );
 			}
@@ -484,7 +562,7 @@ final class EfbCopilotController {
 				'type'      => 'preview',
 				'reply'     => '' !== $reply ? $reply : __( 'Here is the form I designed — review it and approve to create it.', 'ai-site-assistant-autopilot' ),
 				'action_id' => $action_id,
-				'preview'   => $this->build_preview( $plan, $name ),
+				'preview'   => $this->build_preview( $plan, $name, $shield ),
 			);
 
 			return $this->respond( $this->with_pro_upsell( $payload, $split['pro_fields'] ), true );
@@ -514,6 +592,9 @@ final class EfbCopilotController {
 
 		foreach ( $ops as &$op ) {
 			if ( 'add_field' === ( $op['op'] ?? '' ) && is_array( $op['field'] ?? null ) ) {
+				if ( 'trmCheckbox' === ( $op['field']['type'] ?? '' ) ) {
+					$op['field']['privacy_link'] = $this->privacy_link();
+				}
 				$items       = $converter->build_field( $op['field'], $existing );
 				$op['items'] = $items;
 				foreach ( $items as $item ) {
@@ -750,6 +831,18 @@ final class EfbCopilotController {
 				$definition = EfbFormModel::field_type( $type );
 				/* translators: %s: field name. */
 				$notes[] = sprintf( __( 'I can configure a "%s" field but not add one — drag it in from the Easy Form Builder palette, then ask me again.', 'ai-site-assistant-autopilot' ), (string) ( $definition['label'] ?? $type ) );
+			} elseif ( 'logic_addon_inactive' === $reason ) {
+				$notes[] = __( 'Conditional logic needs Easy Form Builder’s Conditional Logic add-on. Activate it under Easy Form Builder → Add-ons, reload this form and ask me again.', 'ai-site-assistant-autopilot' );
+			} elseif ( 'logic_needs_plan' === $reason ) {
+				$notes[] = __( 'Conditional logic rules need Easy Form Builder Free Plus or Pro.', 'ai-site-assistant-autopilot' );
+			} elseif ( str_starts_with( $reason, 'logic_rule_limit:' ) ) {
+				/* translators: %d: rule limit. */
+				$notes[] = sprintf( __( 'Easy Form Builder Free Plus allows %d conditional logic rules per form. Remove one or upgrade to Pro for more.', 'ai-site-assistant-autopilot' ), (int) substr( $reason, strlen( 'logic_rule_limit:' ) ) );
+			} elseif ( str_starts_with( $reason, 'logic_condition_limit:' ) ) {
+				/* translators: %d: condition limit. */
+				$notes[] = sprintf( __( 'Easy Form Builder Free Plus allows %d conditions per rule. Split the rule or upgrade to Pro.', 'ai-site-assistant-autopilot' ), (int) substr( $reason, strlen( 'logic_condition_limit:' ) ) );
+			} elseif ( str_starts_with( $reason, 'invalid_logic_rule:' ) ) {
+				$notes[] = $this->logic_rule_note( substr( $reason, strlen( 'invalid_logic_rule:' ) ) );
 			} elseif ( str_starts_with( $reason, 'operation_limit_reached:' ) ) {
 				$parts   = explode( ':', $reason );
 				$skipped = (int) ( $parts[2] ?? 0 );
@@ -763,6 +856,33 @@ final class EfbCopilotController {
 		}
 
 		return array_values( array_unique( $notes ) );
+	}
+
+	/**
+	 * Why a proposed rule was refused, in words the admin can act on.
+	 */
+	private function logic_rule_note( string $error ): string {
+		$parts  = explode( ':', $error );
+		$detail = (string) ( $parts[1] ?? '' );
+
+		switch ( $parts[0] ) {
+			case 'unknown_condition_field':
+			case 'unknown_action_target':
+				/* translators: %s: field name the AI referred to. */
+				return sprintf( __( 'I could not add that rule: this form has no field called “%s”.', 'ai-site-assistant-autopilot' ), $detail );
+			case 'unknown_option':
+				/* translators: %s: option text. */
+				return sprintf( __( 'I could not add that rule: “%s” is not one of that field’s options.', 'ai-site-assistant-autopilot' ), (string) ( $parts[2] ?? '' ) );
+			case 'unknown_step':
+				/* translators: %s: step name or number. */
+				return sprintf( __( 'I could not add that rule: this form has no step “%s”.', 'ai-site-assistant-autopilot' ), $detail );
+			case 'action_targets_its_own_condition':
+				return __( 'I could not add that rule: a field cannot show, hide or require itself.', 'ai-site-assistant-autopilot' );
+			case 'contradictory_actions':
+				return __( 'I could not add that rule: it would show and hide (or require and un-require) the same field at once.', 'ai-site-assistant-autopilot' );
+			default:
+				return __( 'I could not turn that into a valid conditional logic rule. Name the field, the answer and what should happen.', 'ai-site-assistant-autopilot' );
+		}
 	}
 
 	/**
@@ -797,21 +917,170 @@ final class EfbCopilotController {
 
 	/**
 	 * @param array<mixed> $raw
-	 * @return array<int, array{id:string,label:string,type:string}>
+	 * @return array<int, array{id:string,label:string,type:string,required:bool,options:array<int,array{id:string,value:string}>}>
 	 */
 	private function clean_fields( array $raw ): array {
 		$out = array();
-		foreach ( $raw as $f ) {
+		foreach ( array_slice( $raw, 0, 200 ) as $f ) {
 			if ( is_array( $f ) ) {
+				$options = array();
+				foreach ( array_slice( is_array( $f['options'] ?? null ) ? $f['options'] : array(), 0, 60 ) as $option ) {
+					if ( is_array( $option ) && '' !== (string) ( $option['id'] ?? '' ) ) {
+						$options[] = array(
+							'id'    => sanitize_text_field( (string) $option['id'] ),
+							'value' => mb_substr( sanitize_text_field( (string) ( $option['value'] ?? '' ) ), 0, 120 ),
+						);
+					}
+				}
 				$out[] = array(
-					'id'    => sanitize_text_field( (string) ( $f['id'] ?? '' ) ),
-					'label' => sanitize_text_field( (string) ( $f['label'] ?? '' ) ),
-					'type'  => sanitize_text_field( (string) ( $f['type'] ?? '' ) ),
+					'id'       => sanitize_text_field( (string) ( $f['id'] ?? '' ) ),
+					'label'    => sanitize_text_field( (string) ( $f['label'] ?? '' ) ),
+					'type'     => sanitize_text_field( (string) ( $f['type'] ?? '' ) ),
+					'required' => ! empty( $f['required'] ) && 'false' !== $f['required'],
+					'options'  => $options,
 				);
 			}
 		}
 
 		return $out;
+	}
+
+	/**
+	 * The open form's logic_rules as the browser read them: bounded and reduced
+	 * to scalars. They are only read (explained, checked for conflicts), never
+	 * written back from here.
+	 *
+	 * @param mixed $raw
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function clean_logic_rules( $raw ): array {
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+
+		$clean = static function ( $value, int $depth ) use ( &$clean ) {
+			if ( is_array( $value ) ) {
+				if ( $depth > 5 ) {
+					return array();
+				}
+				$out = array();
+				foreach ( array_slice( $value, 0, 40, true ) as $key => $item ) {
+					$out[ is_int( $key ) ? $key : sanitize_key( (string) $key ) ] = $clean( $item, $depth + 1 );
+				}
+
+				return $out;
+			}
+
+			return is_bool( $value ) ? $value : mb_substr( sanitize_text_field( (string) ( is_scalar( $value ) ? $value : '' ) ), 0, 160 );
+		};
+
+		return array_values( array_filter( (array) $clean( array_slice( $raw, 0, 30 ), 0 ), 'is_array' ) );
+	}
+
+	/**
+	 * Add what the server, not the AI, decides: the privacy page linked from a
+	 * consent checkbox and the address that receives admin notifications.
+	 *
+	 * @param array<string, mixed> $plan
+	 * @return array<string, mixed>
+	 */
+	private function finalize_plan( array $plan ): array {
+		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
+			if ( is_array( $field ) && 'trmCheckbox' === ( $field['type'] ?? '' ) ) {
+				$plan['privacy_link'] = $this->privacy_link();
+				break;
+			}
+		}
+
+		$admin                = sanitize_email( (string) get_option( 'admin_email', '' ) );
+		$plan['notify_email'] = ! empty( $plan['notify_admin'] ) && '' !== $admin && is_email( $admin ) ? $admin : '';
+
+		return $plan;
+	}
+
+	/**
+	 * The site's published privacy policy page, if it has one.
+	 *
+	 * @return array{url?:string,label?:string}
+	 */
+	private function privacy_link(): array {
+		$url = function_exists( 'get_privacy_policy_url' ) ? (string) get_privacy_policy_url() : '';
+		if ( '' === $url ) {
+			return array();
+		}
+		$page = (int) get_option( 'wp_page_for_privacy_policy', 0 );
+
+		return array(
+			'url'   => esc_url_raw( $url ),
+			'label' => $page > 0 ? wp_strip_all_tags( get_the_title( $page ) ) : '',
+		);
+	}
+
+	/**
+	 * "Review this form": deterministic checks plus ready-to-apply fixes. A fix
+	 * goes through the same validation and Pro gate as any chat edit.
+	 *
+	 * @param array<int, array<string, mixed>> $fields
+	 * @param array<string, mixed>             $context
+	 * @param array<int, array<string, mixed>> $steps
+	 * @param array<int, array<string, mixed>> $logic_rules
+	 */
+	private function review_response( string $reply, array $fields, array $context, array $steps, array $logic_rules ): WP_REST_Response {
+		$items = array();
+		foreach ( EfbFormReview::review( $fields, $context ) as $finding ) {
+			$item = array(
+				'code'     => $finding['code'],
+				'severity' => $finding['severity'],
+				'message'  => $finding['message'],
+			);
+			if ( isset( $finding['fix'] ) ) {
+				$fix = EfbCustomizeSkill::validate_ops_verbose( array( $finding['fix'] ), $fields )['ops'];
+				if ( array() !== $fix && array() === $this->blocked_customize_operations( $fix, $steps ) ) {
+					$item['operations'] = $this->expand_add_fields( $fix, $fields );
+				}
+			}
+			$items[] = $item;
+		}
+
+		foreach ( $this->conflict_notes( EfbLogicRules::conflicts( $logic_rules ), $fields ) as $note ) {
+			$items[] = array(
+				'code'     => 'logic_conflict',
+				'severity' => 'warning',
+				'message'  => $note,
+			);
+		}
+
+		return $this->respond(
+			array(
+				'type'  => 'list',
+				'reply' => array() !== $items
+					? ( '' !== $reply ? $reply : __( 'I checked the form. Here is what I would improve:', 'ai-site-assistant-autopilot' ) )
+					: __( 'I checked the form and found nothing to fix.', 'ai-site-assistant-autopilot' ),
+				'items' => $items,
+			),
+			true
+		);
+	}
+
+	/**
+	 * @param string[]                         $targets
+	 * @param array<int, array<string, mixed>> $fields
+	 * @return string[]
+	 */
+	private function conflict_notes( array $targets, array $fields ): array {
+		$notes = array();
+		foreach ( $targets as $target ) {
+			$label = $target;
+			foreach ( $fields as $field ) {
+				if ( (string) ( $field['id'] ?? '' ) === $target ) {
+					$label = (string) $field['label'];
+				}
+			}
+			/* translators: %s: field label. */
+			$notes[] = sprintf( __( 'Two rules on the same condition both show and hide (or require and un-require) “%s”; only the last one wins. Check the Conditional Logic panel.', 'ai-site-assistant-autopilot' ), $label );
+		}
+
+		return $notes;
 	}
 
 	/**
@@ -1013,7 +1282,11 @@ final class EfbCopilotController {
 	 * @param array<string, mixed> $plan
 	 * @return array<string, mixed>
 	 */
-	private function build_preview( array $plan, string $connector_name ): array {
+	private function build_preview( array $plan, string $connector_name, bool $shield = false ): array {
+		$fields    = (array) $plan['fields'];
+		$has_email = (bool) array_filter( $fields, static fn ( $f ): bool => is_array( $f ) && 'email' === ( $f['type'] ?? '' ) );
+		$steps     = 1 + count( array_filter( $fields, static fn ( $f ): bool => is_array( $f ) && in_array( $f['type'] ?? '', array( 'steps', 'step' ), true ) ) );
+
 		return array(
 			'title'                => $plan['title'],
 			'fields'               => array_map(
@@ -1023,15 +1296,36 @@ final class EfbCopilotController {
 						'type'     => $f['type'],
 						'required' => (bool) $f['required'],
 						'width'    => $f['width'] ?? 'full',
+						'help'     => (string) ( $f['help'] ?? '' ),
 						'options'  => $f['options'],
 					);
 				},
-				$plan['fields']
+				$fields
 			),
+			'submit_button'        => (string) ( $plan['submit_button'] ?? '' ),
 			'confirmation_message' => $plan['confirmation_message'] ?? '',
+			// Shown before approval so the admin sees exactly who will be emailed.
+			'notifications'        => array(
+				'admin'      => (string) ( $plan['notify_email'] ?? '' ),
+				'respondent' => ! empty( $plan['confirm_to_respondent'] ) && $has_email,
+			),
+			'steps'                => $steps,
+			'suggestions'          => array_map(
+				static fn ( array $finding ): array => array(
+					'severity' => $finding['severity'],
+					'message'  => $finding['message'],
+				),
+				EfbFormReview::review(
+					$fields,
+					array(
+						'steps'  => $steps,
+						'shield' => $shield,
+					)
+				)
+			),
 			'risk_level'           => $plan['risk_level'] ?? 'medium',
 			'connector'            => $connector_name,
-			'field_count'          => count( $plan['fields'] ),
+			'field_count'          => count( array_filter( $fields, static fn ( $f ): bool => is_array( $f ) && ! in_array( $f['type'] ?? '', array( 'steps', 'step' ), true ) ) ),
 		);
 	}
 
