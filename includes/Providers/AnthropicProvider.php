@@ -34,8 +34,9 @@ final class AnthropicProvider implements ProviderInterface, ModelCatalogInterfac
 	/**
 	 * Model families that still accept sampling parameters.
 	 *
-	 * Claude Opus 5, Opus 4.8, Opus 4.7, Sonnet 5 and Fable 5 reject
-	 * `temperature` with a 400, so it is omitted unless the chosen model is
+	 * Claude Opus 5.5, Opus 5, Opus 4.8, Opus 4.7, Sonnet 5 and Fable 5/5.1
+	 * reject `temperature` with a 400, and Sonnet 5.5 and Haiku 5.5 reject any
+	 * non-default value, so it is omitted unless the chosen model is
 	 * known to take it. Omitting it is always valid, which makes that the safe
 	 * default for a model name this list has never seen.
 	 *

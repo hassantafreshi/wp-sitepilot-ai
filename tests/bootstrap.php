@@ -234,8 +234,32 @@ if ( ! function_exists( 'wp_json_encode' ) ) {
 }
 
 if ( ! function_exists( 'wp_remote_post' ) ) {
+	/**
+	 * Fails like an offline host unless a test queued responses in
+	 * $GLOBALS['aisaautopilot_test_http_queue']; every call is recorded in
+	 * $GLOBALS['aisaautopilot_test_http_requests'] either way.
+	 */
 	function wp_remote_post( string $url, array $args = array() ) {
+		$GLOBALS['aisaautopilot_test_http_requests'][] = array(
+			'url'  => $url,
+			'args' => $args,
+		);
+		if ( ! empty( $GLOBALS['aisaautopilot_test_http_queue'] ) ) {
+			return array_shift( $GLOBALS['aisaautopilot_test_http_queue'] );
+		}
 		return new WP_Error( 'http_request_failed', 'HTTP requests are mocked in tests.' );
+	}
+}
+
+if ( ! function_exists( 'wp_remote_retrieve_response_code' ) ) {
+	function wp_remote_retrieve_response_code( $response ) {
+		return is_array( $response ) ? (int) ( $response['response']['code'] ?? 0 ) : '';
+	}
+}
+
+if ( ! function_exists( 'wp_remote_retrieve_body' ) ) {
+	function wp_remote_retrieve_body( $response ): string {
+		return is_array( $response ) ? (string) ( $response['body'] ?? '' ) : '';
 	}
 }
 

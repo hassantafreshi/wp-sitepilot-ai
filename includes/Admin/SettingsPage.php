@@ -36,7 +36,7 @@ final class SettingsPage {
 	private string $save_error = '';
 
 	/** The six services the Setup mockup lists as popular with WordPress sites. */
-	private const POPULAR_PROVIDERS = array( 'openai', 'anthropic', 'gemini', 'deepseek', 'openrouter', 'groq' );
+	private const POPULAR_PROVIDERS = array( 'openai', 'anthropic', 'gemini', 'xai', 'deepseek', 'openrouter', 'groq' );
 
 	/** Documented key prefixes, used only to explain a rejected key. */
 	private const KEY_PREFIXES = array(
@@ -48,6 +48,7 @@ final class SettingsPage {
 		'groq'       => 'gsk_',
 		'perplexity' => 'pplx-',
 		'qwen'       => 'sk-',
+		'xai'        => 'xai-',
 	);
 
 	/**
@@ -1217,20 +1218,29 @@ final class SettingsPage {
 		// Mockup trait lines where they are verifiable facts; neutral wording
 		// replaces marketing claims ("best", "lowest cost") nobody can check.
 		$traits = array(
-			'openai'     => __( 'Most widely supported', 'ai-site-assistant-autopilot' ),
-			'anthropic'  => __( 'Claude models', 'ai-site-assistant-autopilot' ),
-			'gemini'     => __( 'Generous free tier', 'ai-site-assistant-autopilot' ),
-			'deepseek'   => __( 'Reasoning focused', 'ai-site-assistant-autopilot' ),
-			'qwen'       => __( 'Alibaba Cloud models', 'ai-site-assistant-autopilot' ),
-			'mistral'    => __( 'EU-hosted', 'ai-site-assistant-autopilot' ),
-			'groq'       => __( 'Fast inference', 'ai-site-assistant-autopilot' ),
-			'openrouter' => __( 'One key, every vendor', 'ai-site-assistant-autopilot' ),
-			'perplexity' => __( 'Answers from live web', 'ai-site-assistant-autopilot' ),
-			'azure'      => __( 'Your own Azure deployments', 'ai-site-assistant-autopilot' ),
-			'aimlapi'    => __( '1000+ models, one key', 'ai-site-assistant-autopilot' ),
-			'novita'     => __( 'Open-weight models', 'ai-site-assistant-autopilot' ),
-			'edenai'     => __( 'Multi-vendor gateway', 'ai-site-assistant-autopilot' ),
-			'custom'     => __( 'Any OpenAI-compatible API', 'ai-site-assistant-autopilot' ),
+			'openai'      => __( 'Most widely supported', 'ai-site-assistant-autopilot' ),
+			'anthropic'   => __( 'Claude models', 'ai-site-assistant-autopilot' ),
+			'gemini'      => __( 'Generous free tier', 'ai-site-assistant-autopilot' ),
+			'deepseek'    => __( 'Reasoning focused', 'ai-site-assistant-autopilot' ),
+			'qwen'        => __( 'Alibaba Cloud models', 'ai-site-assistant-autopilot' ),
+			'mistral'     => __( 'EU-hosted', 'ai-site-assistant-autopilot' ),
+			'groq'        => __( 'Fast inference', 'ai-site-assistant-autopilot' ),
+			'openrouter'  => __( 'One key, every vendor', 'ai-site-assistant-autopilot' ),
+			'perplexity'  => __( 'Answers from live web', 'ai-site-assistant-autopilot' ),
+			'azure'       => __( 'Your own Azure deployments', 'ai-site-assistant-autopilot' ),
+			'xai'         => __( 'Grok models', 'ai-site-assistant-autopilot' ),
+			'cohere'      => __( 'Enterprise and multilingual', 'ai-site-assistant-autopilot' ),
+			'zai'         => __( 'GLM models', 'ai-site-assistant-autopilot' ),
+			'cerebras'    => __( 'Fast inference', 'ai-site-assistant-autopilot' ),
+			'sambanova'   => __( 'Fast inference', 'ai-site-assistant-autopilot' ),
+			'together'    => __( 'Open-weight models', 'ai-site-assistant-autopilot' ),
+			'fireworks'   => __( 'Open-weight models', 'ai-site-assistant-autopilot' ),
+			'huggingface' => __( 'Many inference providers, one token', 'ai-site-assistant-autopilot' ),
+			'nvidia'      => __( 'NVIDIA-hosted models', 'ai-site-assistant-autopilot' ),
+			'aimlapi'     => __( '1000+ models, one key', 'ai-site-assistant-autopilot' ),
+			'novita'      => __( 'Open-weight models', 'ai-site-assistant-autopilot' ),
+			'edenai'      => __( 'Multi-vendor gateway', 'ai-site-assistant-autopilot' ),
+			'custom'      => __( 'Any OpenAI-compatible API', 'ai-site-assistant-autopilot' ),
 		);
 
 		if ( isset( $traits[ $key ] ) ) {

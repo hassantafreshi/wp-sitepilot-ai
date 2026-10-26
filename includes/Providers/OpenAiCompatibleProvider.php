@@ -375,6 +375,15 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 			$decoded = array();
 		}
 
+		// Reasoning models (OpenAI GPT-5 and GPT-6, o-series and their gateway
+		// copies) accept only their default temperature and answer 400 to any
+		// other value. Drop it once and resend instead of failing every call.
+		if ( 400 === $code && array_key_exists( 'temperature', $body ) && self::rejects_parameter( $decoded, 'temperature' ) ) {
+			unset( $body['temperature'] );
+
+			return $this->request_chat( $body );
+		}
+
 		if ( 401 === $code || 403 === $code ) {
 			throw new ProviderException( 'provider_unauthorized', __( 'The AI provider rejected your API key.', 'ai-site-assistant-autopilot' ) );
 		}
@@ -469,6 +478,32 @@ final class OpenAiCompatibleProvider implements ProviderInterface, ModelCatalogI
 	 */
 	private function get_json( string $endpoint ) {
 		return $this->remote_json( 'GET', $endpoint, $this->auth_headers( $this->api_key ), null, min( 20, $this->timeout ) );
+	}
+
+	/**
+	 * Whether a 400 body says the model refuses one request parameter.
+	 *
+	 * OpenAI names it in `error.param`; gateways often only say so in the
+	 * message ("Unsupported value: 'temperature' does not support 0.2…"). A
+	 * message that merely mentions the parameter is not enough: it must also
+	 * say the value or parameter is unsupported.
+	 *
+	 * @param array<string, mixed> $decoded Decoded error body.
+	 */
+	public static function rejects_parameter( array $decoded, string $param ): bool {
+		$error = $decoded['error'] ?? array();
+		if ( is_array( $error ) && (string) ( $error['param'] ?? '' ) === $param ) {
+			return true;
+		}
+
+		$message = is_array( $error ) ? (string) ( $error['message'] ?? '' ) : ( is_string( $error ) ? $error : '' );
+		if ( '' === $message ) {
+			$message = is_string( $decoded['message'] ?? null ) ? $decoded['message'] : '';
+		}
+
+		return '' !== $message
+			&& false !== stripos( $message, $param )
+			&& 1 === preg_match( '/unsupported|not supported|does not support|only the default/i', $message );
 	}
 
 	/**

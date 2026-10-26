@@ -45,11 +45,20 @@ final class BrandMarks {
 	 * @var array<string, string>
 	 */
 	private const MONOGRAMS = array(
-		'groq'    => 'G',
-		'aimlapi' => 'A',
-		'novita'  => 'N',
-		'edenai'  => 'E',
-		'clusy'   => 'C',
+		'groq'        => 'G',
+		'aimlapi'     => 'A',
+		'novita'      => 'N',
+		'edenai'      => 'E',
+		'clusy'       => 'C',
+		'xai'         => 'X',
+		'cohere'      => 'C',
+		'zai'         => 'Z',
+		'cerebras'    => 'C',
+		'sambanova'   => 'S',
+		'together'    => 'T',
+		'fireworks'   => 'F',
+		'huggingface' => 'H',
+		'nvidia'      => 'N',
 	);
 
 	/**
