@@ -4,9 +4,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Site Assistant AutoPilot 1.0.4\n"
+"Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-09-19 06:02+0300\n"
+"POT-Creation-Date: 2026-10-26 23:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,14 +59,15 @@ msgstr ""
 #: includes/Admin/CopilotPage.php:282 includes/Admin/CopilotPage.php:402
 #: includes/Admin/HistoryPage.php:30 includes/Admin/HomePage.php:374
 #: includes/Admin/IntegrationsPage.php:114
-#: includes/Admin/IntegrationsPage.php:336 includes/Admin/SettingsPage.php:982
+#: includes/Admin/IntegrationsPage.php:336 includes/Admin/SettingsPage.php:983
 msgid "Content Studio"
 msgstr ""
 
 #: includes/Activity/ActivityTimeline.php:135
 #: includes/Activity/ActivityTimeline.php:145 includes/Admin/AdminMenu.php:69
-#: includes/Admin/HomePage.php:353 includes/Admin/IntegrationsPage.php:130
-#: includes/Admin/SettingsPage.php:950 includes/Admin/StoreCopilotPage.php:56
+#: includes/Admin/AdminMenu.php:95 includes/Admin/HomePage.php:353
+#: includes/Admin/IntegrationsPage.php:130 includes/Admin/SettingsPage.php:951
+#: includes/Admin/StoreCopilotPage.php:56
 msgid "Store Copilot"
 msgstr ""
 
@@ -78,12 +79,12 @@ msgstr ""
 #: includes/Activity/ActivityTimeline.php:148 includes/Admin/AdminMenu.php:60
 #: includes/Admin/HomePage.php:339 includes/Admin/IntegrationsPage.php:49
 #: includes/Admin/IntegrationsPage.php:290
-#: includes/Admin/KnowledgeBasePage.php:68 includes/Admin/SettingsPage.php:924
+#: includes/Admin/KnowledgeBasePage.php:68 includes/Admin/SettingsPage.php:925
 msgid "Site Knowledge"
 msgstr ""
 
 #: includes/Activity/ActivityTimeline.php:151 includes/Admin/AdminMenu.php:61
-#: includes/Admin/AdminMenu.php:120
+#: includes/Admin/AdminMenu.php:133
 #: includes/Admin/AnswerConversationsPage.php:52
 #: includes/Admin/AnswerConversationsPage.php:318
 #: includes/Admin/AnswerDeskHandoffPage.php:41
@@ -91,30 +92,30 @@ msgstr ""
 #: includes/Admin/AnswerDeskWidgetPage.php:55
 #: includes/Admin/HandoffInboxPage.php:36 includes/Admin/HomePage.php:346
 #: includes/Admin/IntegrationsPage.php:65
-#: includes/Admin/IntegrationsPage.php:301 includes/Admin/SettingsPage.php:937
+#: includes/Admin/IntegrationsPage.php:301 includes/Admin/SettingsPage.php:938
 #: includes/Frontend/ChatWidgetSettings.php:94
 msgid "Answer Desk"
 msgstr ""
 
 #: includes/Activity/ActivityTimeline.php:156 includes/Admin/HomePage.php:367
 #: includes/Admin/IntegrationsPage.php:95
-#: includes/Admin/IntegrationsPage.php:324 includes/Admin/SettingsPage.php:970
+#: includes/Admin/IntegrationsPage.php:324 includes/Admin/SettingsPage.php:971
 msgid "Easy Form Builder Copilot"
 msgstr ""
 
 #: includes/Activity/ActivityTimeline.php:159 includes/Admin/AdminMenu.php:76
 #: includes/Admin/CopilotPage.php:96 includes/Admin/HomePage.php:360
 #: includes/Admin/IntegrationsPage.php:81
-#: includes/Admin/IntegrationsPage.php:312 includes/Admin/SettingsPage.php:962
+#: includes/Admin/IntegrationsPage.php:312 includes/Admin/SettingsPage.php:963
 msgid "Form Studio"
 msgstr ""
 
-#: includes/Activity/ActivityTimeline.php:162
+#: includes/Activity/ActivityTimeline.php:162 includes/Admin/AdminMenu.php:104
 #: includes/Admin/OverviewNavigation.php:98 includes/Admin/UsagePage.php:42
 msgid "Usage & Cost"
 msgstr ""
 
-#: includes/Activity/ActivityTimeline.php:165
+#: includes/Activity/ActivityTimeline.php:165 includes/Admin/AdminMenu.php:105
 #: includes/Admin/ConnectionsPage.php:29
 #: includes/Admin/OverviewNavigation.php:99
 msgid "Health"
@@ -129,7 +130,7 @@ msgstr ""
 msgid "Open in WordPress"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:54 includes/Admin/AdminMenu.php:107
+#: includes/Admin/AdminMenu.php:54
 msgid "AutoPilot AI"
 msgstr ""
 
@@ -144,12 +145,49 @@ msgid "Setup & Connection"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:59 includes/Admin/IntegrationsPage.php:155
-#: includes/Admin/SettingsPage.php:509
+#: includes/Admin/SettingsPage.php:510
 msgid "Integrations"
 msgstr ""
 
+#: includes/Admin/AdminMenu.php:90 includes/Admin/SettingsPage.php:227
+msgid "Advanced settings"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:91 includes/Admin/NativeFormsPage.php:41
+#: includes/Admin/NativeFormsPage.php:92
+msgid "Your forms"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:92
+#: includes/Admin/ContentStudioNavigation.php:149
+#: includes/Admin/HistoryPage.php:46
+msgid "History"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:93 includes/Admin/ChatPage.php:51
+#: includes/Admin/KnowledgeBasePage.php:339
+msgid "Ask your knowledge base"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:94 includes/Admin/EasyFormBuilderPage.php:42
+msgid "Easy Form Builder copilot"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:97 includes/Admin/AnswerDeskNavigation.php:68
+msgid "Widget"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:98 includes/Admin/AnswerDeskNavigation.php:69
+msgid "Human handoff"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:106 includes/Admin/LogsPage.php:38
+#: includes/Admin/OverviewNavigation.php:100
+msgid "Activity Log"
+msgstr ""
+
 #. translators: %s: number of visitors whose handoff has not been picked up yet.
-#: includes/Admin/AdminMenu.php:127 includes/Admin/HandoffInboxPage.php:358
+#: includes/Admin/AdminMenu.php:140 includes/Admin/HandoffInboxPage.php:358
 #: includes/Admin/HandoffInboxPage.php:360
 #, php-format
 msgid "%s visitor waiting for a person"
@@ -157,399 +195,397 @@ msgid_plural "%s visitors waiting for a person"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/AdminMenu.php:232 includes/Admin/AdminMenu.php:277
+#: includes/Admin/AdminMenu.php:246 includes/Admin/AdminMenu.php:291
 #: includes/Admin/KnowledgeBasePage.php:490 includes/Admin/Ui.php:418
 #: includes/Frontend/ChatWidget.php:80
 msgid "Dismiss"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:233 includes/Admin/Ui.php:438
+#: includes/Admin/AdminMenu.php:247 includes/Admin/Ui.php:438
 msgid "Pause"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:234
+#: includes/Admin/AdminMenu.php:248
 msgid "Resume"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:235
+#: includes/Admin/AdminMenu.php:249
 #: includes/Admin/AnswerDeskHandoffPage.php:414
 #: includes/Admin/CopilotPage.php:231 includes/Admin/KnowledgeBasePage.php:437
 #: includes/Admin/KnowledgeBasePage.php:500 includes/Admin/UsagePage.php:92
 msgid "Cancel"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:236
+#: includes/Admin/AdminMenu.php:250
 msgid "Paused — nothing is running"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:237
+#: includes/Admin/AdminMenu.php:251
 msgid "{label} — {done} of {total} {unit}"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:238
+#: includes/Admin/AdminMenu.php:252
 msgid ""
 "About {seconds} seconds left · you can leave this page, it keeps running"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:278
+#: includes/Admin/AdminMenu.php:292
 msgid "Testing…"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:279
+#: includes/Admin/AdminMenu.php:293
 msgid "A short request was sent to the provider."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:280
+#: includes/Admin/AdminMenu.php:294
 msgid "Connection works"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:281
+#: includes/Admin/AdminMenu.php:295
 msgid "Valid response received. You can continue."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:282
+#: includes/Admin/AdminMenu.php:296
 msgid "Key or endpoint was rejected"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:283
+#: includes/Admin/AdminMenu.php:297
 msgid "Replace the key or check the custom endpoint."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:284 includes/Admin/ChatPage.php:286
-#: includes/Admin/CopilotPage.php:513 includes/Admin/SettingsPage.php:1188
+#: includes/Admin/AdminMenu.php:298 includes/Admin/ChatPage.php:286
+#: includes/Admin/CopilotPage.php:513 includes/Admin/SettingsPage.php:1189
 #: includes/Admin/StoreCopilotPage.php:96 includes/Efb/EfbBuilderButton.php:89
-#: includes/Frontend/WidgetRenderer.php:44
 msgid "Network error. Please try again."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:285
+#: includes/Admin/AdminMenu.php:299
 msgid "Sending test…"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:286
+#: includes/Admin/AdminMenu.php:300
 msgid "Test accepted."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:287
+#: includes/Admin/AdminMenu.php:301
 msgid "Test failed."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:288 includes/Admin/CopilotPage.php:496
+#: includes/Admin/AdminMenu.php:302 includes/Admin/CopilotPage.php:496
 #: includes/Admin/NativeFormsPage.php:137
 msgid "Copy"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:289
+#: includes/Admin/AdminMenu.php:303
 msgid "Copied"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:290
+#: includes/Admin/AdminMenu.php:304
 msgid "Shortcode copied. Paste it into any page or post."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:291
+#: includes/Admin/AdminMenu.php:305
 msgid "Could not copy. Select the shortcode and copy it yourself."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:292
+#: includes/Admin/AdminMenu.php:306
 msgid ""
 "No channel is enabled, so the handoff button stays hidden from visitors."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:293
+#: includes/Admin/AdminMenu.php:307
 #: includes/Frontend/ChatWidgetSettings.php:386
 msgid "That image is too large. Please use a PNG under 200 KB."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:294 includes/Admin/AdminMenu.php:297
-#: includes/Admin/AdminMenu.php:323 includes/Admin/UsagePage.php:152
+#: includes/Admin/AdminMenu.php:308 includes/Admin/AdminMenu.php:311
+#: includes/Admin/AdminMenu.php:337 includes/Admin/UsagePage.php:152
 msgid "Saving..."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:295 includes/Admin/AdminMenu.php:298
-#: includes/Admin/AdminMenu.php:324
+#: includes/Admin/AdminMenu.php:309 includes/Admin/AdminMenu.php:312
+#: includes/Admin/AdminMenu.php:338
 msgid "Saved."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:296
+#: includes/Admin/AdminMenu.php:310
 msgid "Could not save the Widget setting. Please try again."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:299
+#: includes/Admin/AdminMenu.php:313
 msgid "Could not save the handoff channel. Please try again."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:300
+#: includes/Admin/AdminMenu.php:314
 msgid "This contacts the provider to validate the saved credential. Continue?"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:301
+#: includes/Admin/AdminMenu.php:315
 msgid "Could not check the connection. Please try again."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:302
+#: includes/Admin/AdminMenu.php:316
 #: includes/Admin/AnswerDeskHandoffPage.php:440
 msgid "Ready"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:303
+#: includes/Admin/AdminMenu.php:317
 #: includes/Admin/AnswerDeskHandoffPage.php:443
 msgid "Needs setup"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:304 includes/Admin/AdminMenu.php:333
+#: includes/Admin/AdminMenu.php:318 includes/Admin/AdminMenu.php:347
 #: includes/Admin/AnswerDeskHandoffPage.php:445
 #: includes/Admin/AnswerDeskVoicePage.php:80
 msgid "Paused"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:305
+#: includes/Admin/AdminMenu.php:319
 #: includes/Admin/AnswerDeskHandoffPage.php:445
 #: includes/Admin/AnswerDeskVoicePage.php:27
 msgid "Not configured"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:306
+#: includes/Admin/AdminMenu.php:320
 #: includes/Admin/AnswerDeskHandoffPage.php:261
 #: includes/Admin/AnswerDeskHandoffPage.php:392
 #: includes/Admin/KnowledgeBasePage.php:507
 msgid "Edit"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:307
+#: includes/Admin/AdminMenu.php:321
 #: includes/Admin/AnswerDeskHandoffPage.php:392
 msgid "Connect"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:308 includes/Admin/HandoffInboxPage.php:180
+#: includes/Admin/AdminMenu.php:322 includes/Admin/HandoffInboxPage.php:180
 #: includes/Admin/HandoffInboxPage.php:202
 #: includes/Admin/IntegrationsPage.php:395
-#: includes/Efb/EfbBuilderButton.php:198
-#: includes/Frontend/WidgetRenderer.php:36
+#: includes/Efb/EfbBuilderButton.php:215
 msgid "Close"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:309
+#: includes/Admin/AdminMenu.php:323
 #: includes/Admin/AnswerDeskHandoffPage.php:207
 #: includes/Admin/AnswerDeskHandoffPage.php:249
 msgid "Not set up yet"
 msgstr ""
 
 #. translators: %s: WordPress administration email address.
-#: includes/Admin/AdminMenu.php:312
+#: includes/Admin/AdminMenu.php:326
 #: includes/Admin/AnswerDeskHandoffPage.php:171
 #, php-format
 msgid "Uses the WordPress administration email: %s"
 msgstr ""
 
 #. translators: %s: configured Telegram chat identifier.
-#: includes/Admin/AdminMenu.php:316
+#: includes/Admin/AdminMenu.php:330
 #: includes/Admin/AnswerDeskHandoffPage.php:204
 #, php-format
 msgid "Credential stored securely; chat %s"
 msgstr ""
 
 #. translators: %s: configured recipient phone number.
-#: includes/Admin/AdminMenu.php:318
+#: includes/Admin/AdminMenu.php:332
 #: includes/Admin/AnswerDeskHandoffPage.php:246
 #, php-format
 msgid "Credentials stored securely; sends to %s"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:319
+#: includes/Admin/AdminMenu.php:333
 msgid "Checking connection..."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:320
+#: includes/Admin/AdminMenu.php:334
 msgid "Connection verified."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:321
+#: includes/Admin/AdminMenu.php:335
 msgid "Saved. The handoff card asks for these details from now on."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:322
+#: includes/Admin/AdminMenu.php:336
 msgid "Could not save the details. Please try again."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:325
+#: includes/Admin/AdminMenu.php:339
 msgid "Could not save the voice settings. Please try again."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:326
+#: includes/Admin/AdminMenu.php:340
 msgid "Turn on transcribe + speak before playing a test phrase."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:327
+#: includes/Admin/AdminMenu.php:341
 msgid "Playing a test phrase locally..."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:328
+#: includes/Admin/AdminMenu.php:342
 msgid "Test phrase finished in this browser."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:329
+#: includes/Admin/AdminMenu.php:343
 msgid "Speech output is not available in this browser."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:330
+#: includes/Admin/AdminMenu.php:344
 msgid "This browser could not play the test phrase."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:332 includes/Admin/AnswerDeskVoicePage.php:80
+#: includes/Admin/AdminMenu.php:346 includes/Admin/AnswerDeskVoicePage.php:80
 #: includes/Admin/HomePage.php:347 includes/Admin/HomePage.php:354
 #: includes/Admin/HomePage.php:361 includes/Admin/HomePage.php:368
 #: includes/Admin/HomePage.php:375 includes/Admin/IntegrationsPage.php:67
 #: includes/Admin/IntegrationsPage.php:83
 #: includes/Admin/IntegrationsPage.php:100
 #: includes/Admin/IntegrationsPage.php:116
-#: includes/Admin/IntegrationsPage.php:135 includes/Admin/SettingsPage.php:1005
-#: includes/Admin/SettingsPage.php:1191
+#: includes/Admin/IntegrationsPage.php:135 includes/Admin/SettingsPage.php:1006
+#: includes/Admin/SettingsPage.php:1192
 msgid "On"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:334 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:348 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Uses the visitor’s browser speech engine. Off keeps voice input but shows "
 "the answer as text only."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:335 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:349 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Turn on transcribe + speak first; reply playback is unavailable while voice "
 "input is paused."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:336
+#: includes/Admin/AdminMenu.php:350
 msgid "This is a local AutoPilot voice test."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:337
+#: includes/Admin/AdminMenu.php:351
 msgid "Describe the draft first."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:338
+#: includes/Admin/AdminMenu.php:352
 msgid "Building a reviewable draft…"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:339 includes/Admin/CopilotPage.php:322
+#: includes/Admin/AdminMenu.php:353 includes/Admin/CopilotPage.php:322
 msgid "Write a draft"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:340
+#: includes/Admin/AdminMenu.php:354
 msgid "Writing…"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:341
+#: includes/Admin/AdminMenu.php:355
 msgid "Creating your WordPress draft…"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:342
+#: includes/Admin/AdminMenu.php:356
 msgid "Draft created. Review and publish it from WordPress when you are ready."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:343
+#: includes/Admin/AdminMenu.php:357
 msgid "Open draft in WordPress"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:344
+#: includes/Admin/AdminMenu.php:358
 #: includes/Content/ContentStudioReadModel.php:163
 msgid "Draft saved"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:345
+#: includes/Admin/AdminMenu.php:359
 msgid "Just now"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:346
+#: includes/Admin/AdminMenu.php:360
 msgid "Post"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:347 includes/Admin/KnowledgeBasePage.php:585
+#: includes/Admin/AdminMenu.php:361 includes/Admin/KnowledgeBasePage.php:585
 msgid "Page"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:348
+#: includes/Admin/AdminMenu.php:362
 #: includes/Content/ContentStudioReadModel.php:53
 #: includes/Content/ContentStudioReadModel.php:111
 msgid "Untitled draft"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:349
+#: includes/Admin/AdminMenu.php:363
 msgid "Choose a key-storage option to continue."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:350
+#: includes/Admin/AdminMenu.php:364
 msgid "Choose an AI service to continue."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:351
+#: includes/Admin/AdminMenu.php:365
 msgid "Test a working provider key and model before continuing."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:352
+#: includes/Admin/AdminMenu.php:366
 msgid "Enter or choose a model before continuing."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:353
+#: includes/Admin/AdminMenu.php:367
 msgid "Not tested yet"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:354
+#: includes/Admin/AdminMenu.php:368
 msgid "Run a short connection test before continuing."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:355 includes/Admin/SettingsPage.php:1143
+#: includes/Admin/AdminMenu.php:369 includes/Admin/SettingsPage.php:1144
 msgid "Add an API key"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:356 includes/Admin/SettingsPage.php:1144
+#: includes/Admin/AdminMenu.php:370 includes/Admin/SettingsPage.php:1145
 msgid "That key was rejected"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:357
+#: includes/Admin/AdminMenu.php:371
 msgid "Billing action required"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:358
+#: includes/Admin/AdminMenu.php:372
 msgid "Provider is rate limiting"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:359 includes/Admin/SettingsPage.php:1147
+#: includes/Admin/AdminMenu.php:373 includes/Admin/SettingsPage.php:1148
 msgid "Your server could not reach the provider"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:360 includes/Admin/SettingsPage.php:1148
+#: includes/Admin/AdminMenu.php:374 includes/Admin/SettingsPage.php:1149
 msgid "Wrong endpoint or model"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:361 includes/Admin/SettingsPage.php:1149
+#: includes/Admin/AdminMenu.php:375 includes/Admin/SettingsPage.php:1150
 msgid "Connection details are incomplete"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:362
+#: includes/Admin/AdminMenu.php:376
 msgid ""
 "The key works, but no models came back. Type a model name or enable model "
 "access with the provider."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:363 includes/Admin/SettingsPage.php:1182
+#: includes/Admin/AdminMenu.php:377 includes/Admin/SettingsPage.php:1183
 msgid "This provider does not publish a model list. Type its model name above."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:364
+#: includes/Admin/AdminMenu.php:378
 msgid "This choice uses the key saved in WordPress Connectors."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:365
+#: includes/Admin/AdminMenu.php:379
 msgid "Get a key from {provider}."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:366
+#: includes/Admin/AdminMenu.php:380
 msgid "This provider supports embeddings. "
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:367
+#: includes/Admin/AdminMenu.php:381
 msgid "This provider does not publish an embeddings endpoint. "
 msgstr ""
 
@@ -562,7 +598,7 @@ msgstr ""
 #: includes/Admin/HandoffInboxPage.php:27 includes/Admin/HistoryPage.php:19
 #: includes/Admin/HomePage.php:26 includes/Admin/KnowledgeBasePage.php:26
 #: includes/Admin/LogsPage.php:25 includes/Admin/NativeFormsPage.php:19
-#: includes/Admin/SettingsPage.php:173 includes/Admin/SettingsPage.php:191
+#: includes/Admin/SettingsPage.php:173 includes/Admin/SettingsPage.php:192
 #: includes/Admin/StoreCopilotPage.php:28
 #: includes/Frontend/ChatWidgetSettings.php:61
 msgid "You do not have permission to view this page."
@@ -960,8 +996,8 @@ msgstr ""
 #: includes/Admin/IntegrationsPage.php:83
 #: includes/Admin/IntegrationsPage.php:100
 #: includes/Admin/IntegrationsPage.php:116
-#: includes/Admin/IntegrationsPage.php:135 includes/Admin/SettingsPage.php:1005
-#: includes/Admin/SettingsPage.php:1192
+#: includes/Admin/IntegrationsPage.php:135 includes/Admin/SettingsPage.php:1006
+#: includes/Admin/SettingsPage.php:1193
 msgid "Off"
 msgstr ""
 
@@ -1000,7 +1036,7 @@ msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:416
 #: includes/Admin/CopilotPage.php:72 includes/Admin/CopilotPage.php:275
-#: includes/Admin/SettingsPage.php:713 includes/Admin/SettingsPage.php:1131
+#: includes/Admin/SettingsPage.php:714 includes/Admin/SettingsPage.php:1132
 msgid "Check connection"
 msgstr ""
 
@@ -1015,14 +1051,6 @@ msgstr ""
 
 #: includes/Admin/AnswerDeskNavigation.php:67 includes/Admin/ChatPage.php:66
 msgid "Conversations"
-msgstr ""
-
-#: includes/Admin/AnswerDeskNavigation.php:68
-msgid "Widget"
-msgstr ""
-
-#: includes/Admin/AnswerDeskNavigation.php:69
-msgid "Human handoff"
 msgstr ""
 
 #: includes/Admin/AnswerDeskNavigation.php:70
@@ -1187,7 +1215,7 @@ msgid "Sit in the bottom-right corner"
 msgstr ""
 
 #: includes/Admin/AnswerDeskWidgetPage.php:92
-#: includes/Admin/SettingsPage.php:772 includes/Admin/SettingsPage.php:830
+#: includes/Admin/SettingsPage.php:773 includes/Admin/SettingsPage.php:831
 msgid "Advanced"
 msgstr ""
 
@@ -1304,7 +1332,7 @@ msgstr ""
 msgid "Hidden on %s. Shown everywhere else."
 msgstr ""
 
-#: includes/Admin/ChatPage.php:39 includes/Frontend/WidgetRenderer.php:39
+#: includes/Admin/ChatPage.php:39
 msgid "What is this website about?"
 msgstr ""
 
@@ -1314,10 +1342,6 @@ msgstr ""
 
 #: includes/Admin/ChatPage.php:41
 msgid "What do you offer?"
-msgstr ""
-
-#: includes/Admin/ChatPage.php:51 includes/Admin/KnowledgeBasePage.php:339
-msgid "Ask your knowledge base"
 msgstr ""
 
 #: includes/Admin/ChatPage.php:52
@@ -1359,7 +1383,7 @@ msgid "Open Setup & Connection"
 msgstr ""
 
 #: includes/Admin/ChatPage.php:93 includes/Admin/ChatPage.php:114
-#: includes/Admin/SettingsPage.php:347
+#: includes/Admin/SettingsPage.php:348
 msgid "Open Site Knowledge"
 msgstr ""
 
@@ -1388,8 +1412,7 @@ msgid "Record a question"
 msgstr ""
 
 #: includes/Admin/ChatPage.php:151 includes/Core/Plugin.php:158
-#: includes/Efb/EfbBuilderButton.php:216 includes/Frontend/ChatWidget.php:164
-#: includes/Frontend/WidgetRenderer.php:50
+#: includes/Efb/EfbBuilderButton.php:233 includes/Frontend/ChatWidget.php:164
 msgid "Send"
 msgstr ""
 
@@ -1576,7 +1599,6 @@ msgid "Stop audio"
 msgstr ""
 
 #: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:171
-#: includes/Frontend/WidgetRenderer.php:52
 msgid "Stop recording"
 msgstr ""
 
@@ -1593,7 +1615,6 @@ msgid "Transcript ready — check it, then send. Nothing is sent on its own."
 msgstr ""
 
 #: includes/Admin/ChatPage.php:299 includes/Efb/EfbBuilderButton.php:95
-#: includes/Frontend/WidgetRenderer.php:47
 msgid "Voice transcription failed. Please try again."
 msgstr ""
 
@@ -1662,21 +1683,16 @@ msgstr ""
 msgid "Could not open the export stream."
 msgstr ""
 
-#: includes/Admin/ContentStudioNavigation.php:113
+#: includes/Admin/ContentStudioNavigation.php:114
 msgid "Content Studio sections"
 msgstr ""
 
-#: includes/Admin/ContentStudioNavigation.php:146
+#: includes/Admin/ContentStudioNavigation.php:147
 msgid "Write"
 msgstr ""
 
-#: includes/Admin/ContentStudioNavigation.php:147
-msgid "Templates"
-msgstr ""
-
 #: includes/Admin/ContentStudioNavigation.php:148
-#: includes/Admin/HistoryPage.php:46
-msgid "History"
+msgid "Templates"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:66
@@ -1946,7 +1962,7 @@ msgid ""
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:316 includes/Admin/CopilotPage.php:317
-#: includes/Admin/SettingsPage.php:215 includes/Admin/SettingsPage.php:352
+#: includes/Admin/SettingsPage.php:216 includes/Admin/SettingsPage.php:353
 #: includes/Frontend/ChatWidget.php:112
 #: includes/Frontend/ChatWidgetSettings.php:119
 msgid "Voice"
@@ -2354,10 +2370,6 @@ msgstr ""
 msgid "Microphone access was not granted. Please type the command."
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:42
-msgid "Easy Form Builder copilot"
-msgstr ""
-
 #: includes/Admin/EasyFormBuilderPage.php:43
 msgid ""
 "What the copilot may change in the form open in the Easy Form Builder "
@@ -2519,61 +2531,83 @@ msgstr ""
 msgid "Remove a choice"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:257
+#: includes/Admin/EasyFormBuilderPage.php:254
+msgid "Rename a choice; answers and logic that point at it stay linked"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:255
+msgid ""
+"Show, hide, require or skip to a field or step from another answer, when "
+"Easy Form Builder’s Conditional Logic add-on is active"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:259
 #: includes/Admin/NativeFormsPage.php:94
 #: includes/Frontend/FormShortcode.php:223
 msgid "Form"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:261
+#: includes/Admin/EasyFormBuilderPage.php:263
 msgid "Fields"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:265
+#: includes/Admin/EasyFormBuilderPage.php:267
 msgid "Choices"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:283
+#: includes/Admin/EasyFormBuilderPage.php:271
+msgid "Conditional logic"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:289
 msgid "Only in Easy Form Builder"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:290
+#: includes/Admin/EasyFormBuilderPage.php:296
 msgid "Never"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:306
+#: includes/Admin/EasyFormBuilderPage.php:312
 msgid "Easy Form Builder global settings"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:307
+#: includes/Admin/EasyFormBuilderPage.php:313
 msgid "Turning add-ons on or off"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:308
+#: includes/Admin/EasyFormBuilderPage.php:314
 msgid "Credentials and API keys"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:309
+#: includes/Admin/EasyFormBuilderPage.php:315
 msgid "Payment gateways and prices"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:310
+#: includes/Admin/EasyFormBuilderPage.php:316
 msgid "Raw HTML"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:311
+#: includes/Admin/EasyFormBuilderPage.php:317
 msgid "Links to addresses that are not allowed"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:312
-msgid "Conditional logic rules"
+#: includes/Admin/EasyFormBuilderPage.php:318
+msgid "Conditional rules for notifications, confirmations, webhooks and prices"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:313
+#: includes/Admin/EasyFormBuilderPage.php:319
+msgid "Logic that writes values or calculates"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:320
+msgid "Choosing who receives notifications"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:321
 msgid "Submitted entries"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:335
+#: includes/Admin/EasyFormBuilderPage.php:343
 msgid "A change was applied in the editor."
 msgstr ""
 
@@ -2842,7 +2876,7 @@ msgstr ""
 #: includes/Admin/HealthDiagnostics.php:170
 #: includes/Admin/HealthDiagnostics.php:180
 #: includes/Admin/HealthDiagnostics.php:190
-#: includes/Admin/HealthDiagnostics.php:199 includes/Admin/SettingsPage.php:702
+#: includes/Admin/HealthDiagnostics.php:199 includes/Admin/SettingsPage.php:703
 msgid "API key"
 msgstr ""
 
@@ -3297,7 +3331,7 @@ msgid "Review it"
 msgstr ""
 
 #: includes/Admin/HomePage.php:340 includes/Admin/IntegrationsPage.php:51
-#: includes/Admin/SettingsPage.php:838 includes/Admin/SettingsPage.php:1000
+#: includes/Admin/SettingsPage.php:839 includes/Admin/SettingsPage.php:1001
 msgid "Always on"
 msgstr ""
 
@@ -3305,7 +3339,7 @@ msgstr ""
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: includes/Admin/IntegrationsPage.php:50 includes/Admin/SettingsPage.php:926
+#: includes/Admin/IntegrationsPage.php:50 includes/Admin/SettingsPage.php:927
 msgid ""
 "Keeps answers grounded in your published site content and its cited sources."
 msgstr ""
@@ -3318,22 +3352,22 @@ msgstr ""
 msgid "Configure"
 msgstr ""
 
-#: includes/Admin/IntegrationsPage.php:66 includes/Admin/SettingsPage.php:939
+#: includes/Admin/IntegrationsPage.php:66 includes/Admin/SettingsPage.php:940
 msgid ""
 "Lets visitors ask grounded questions through the read-only public assistant."
 msgstr ""
 
-#: includes/Admin/IntegrationsPage.php:82 includes/Admin/SettingsPage.php:964
+#: includes/Admin/IntegrationsPage.php:82 includes/Admin/SettingsPage.php:965
 msgid ""
 "Creates reviewable native forms with email-only delivery and server-side "
 "validation."
 msgstr ""
 
-#: includes/Admin/IntegrationsPage.php:97 includes/Admin/SettingsPage.php:973
+#: includes/Admin/IntegrationsPage.php:97 includes/Admin/SettingsPage.php:974
 msgid "Adds an approved AI helper to a compatible Easy Form Builder editor."
 msgstr ""
 
-#: includes/Admin/IntegrationsPage.php:98 includes/Admin/SettingsPage.php:974
+#: includes/Admin/IntegrationsPage.php:98 includes/Admin/SettingsPage.php:975
 msgid ""
 "A compatible Easy Form Builder installation is required before this helper "
 "can run."
@@ -3343,18 +3377,18 @@ msgstr ""
 msgid "Needs Easy Form Builder"
 msgstr ""
 
-#: includes/Admin/IntegrationsPage.php:115 includes/Admin/SettingsPage.php:984
+#: includes/Admin/IntegrationsPage.php:115 includes/Admin/SettingsPage.php:985
 msgid ""
 "Creates reviewable WordPress page and post drafts; publishing always stays "
 "with you."
 msgstr ""
 
-#: includes/Admin/IntegrationsPage.php:132 includes/Admin/SettingsPage.php:953
+#: includes/Admin/IntegrationsPage.php:132 includes/Admin/SettingsPage.php:954
 msgid ""
 "Creates reviewed simple-product drafts and presents safe store insights."
 msgstr ""
 
-#: includes/Admin/IntegrationsPage.php:133 includes/Admin/SettingsPage.php:954
+#: includes/Admin/IntegrationsPage.php:133 includes/Admin/SettingsPage.php:955
 msgid ""
 "WooCommerce must be installed and active before Store Copilot can be used."
 msgstr ""
@@ -3569,7 +3603,7 @@ msgstr ""
 msgid "Locked"
 msgstr ""
 
-#: includes/Admin/IntegrationsPage.php:396 includes/Admin/SettingsPage.php:1103
+#: includes/Admin/IntegrationsPage.php:396 includes/Admin/SettingsPage.php:1104
 msgid "Done"
 msgstr ""
 
@@ -4142,7 +4176,7 @@ msgstr ""
 msgid "Product"
 msgstr ""
 
-#: includes/Admin/KnowledgeBasePage.php:583 includes/Admin/SettingsPage.php:267
+#: includes/Admin/KnowledgeBasePage.php:583 includes/Admin/SettingsPage.php:268
 msgid "Service"
 msgstr ""
 
@@ -4164,10 +4198,6 @@ msgstr ""
 
 #: includes/Admin/LogExport.php:77
 msgid "You do not have permission to export the activity log."
-msgstr ""
-
-#: includes/Admin/LogsPage.php:38 includes/Admin/OverviewNavigation.php:100
-msgid "Activity Log"
 msgstr ""
 
 #: includes/Admin/LogsPage.php:39
@@ -4198,10 +4228,6 @@ msgid "Show %s more event"
 msgid_plural "Show %s more events"
 msgstr[0] ""
 msgstr[1] ""
-
-#: includes/Admin/NativeFormsPage.php:41 includes/Admin/NativeFormsPage.php:92
-msgid "Your forms"
-msgstr ""
 
 #: includes/Admin/NativeFormsPage.php:42
 msgid ""
@@ -4292,965 +4318,958 @@ msgstr ""
 msgid "Overview sections"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:213 includes/Admin/SettingsPage.php:257
-#: includes/Admin/SettingsPage.php:506 includes/Admin/Ui.php:359
+#: includes/Admin/SettingsPage.php:214 includes/Admin/SettingsPage.php:258
+#: includes/Admin/SettingsPage.php:507 includes/Admin/Ui.php:359
 msgid "Connection"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:214 includes/Admin/SettingsPage.php:294
-#: includes/Admin/SettingsPage.php:803
+#: includes/Admin/SettingsPage.php:215 includes/Admin/SettingsPage.php:295
+#: includes/Admin/SettingsPage.php:804
 msgid "Semantic search"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:216 includes/Admin/SettingsPage.php:371
+#: includes/Admin/SettingsPage.php:217 includes/Admin/SettingsPage.php:372
 msgid "Forms and delivery"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:217 includes/Admin/SettingsPage.php:435
+#: includes/Admin/SettingsPage.php:218 includes/Admin/SettingsPage.php:436
 msgid "Public site assistant"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:226
-msgid "Advanced settings"
-msgstr ""
-
-#: includes/Admin/SettingsPage.php:227
+#: includes/Admin/SettingsPage.php:228
 msgid ""
 "Search, voice, forms and the public assistant. The AI service itself is set "
 "up in Setup & Connection."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:231
+#: includes/Admin/SettingsPage.php:232
 msgid "Back to Setup"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:240
+#: includes/Admin/SettingsPage.php:241
 #: includes/Frontend/ChatWidgetSettings.php:109
 msgid "Settings saved."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:245
+#: includes/Admin/SettingsPage.php:246
 msgid "On this page"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:258
+#: includes/Admin/SettingsPage.php:259
 msgid "Read-only"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:259
+#: includes/Admin/SettingsPage.php:260
 msgid "Open the setup wizard"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:261
+#: includes/Admin/SettingsPage.php:262
 msgid ""
 "Your service, model and key are set in the setup wizard, where the "
 "connection is checked before it can be saved. They cannot be edited here."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:263
+#: includes/Admin/SettingsPage.php:264
 msgid ""
 "No AI service is connected yet. Search, voice and form drafting need one, so "
 "connect it in Setup first."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:271 includes/Admin/SettingsPage.php:753
-#: includes/Admin/SettingsPage.php:758
+#: includes/Admin/SettingsPage.php:272 includes/Admin/SettingsPage.php:754
+#: includes/Admin/SettingsPage.php:759
 msgid "Model"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:275
+#: includes/Admin/SettingsPage.php:276
 msgid "Endpoint"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:279
+#: includes/Admin/SettingsPage.php:280
 msgid "Key stored in"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:283 includes/Admin/SettingsPage.php:780
+#: includes/Admin/SettingsPage.php:284 includes/Admin/SettingsPage.php:781
 msgid "Temperature"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:295
+#: includes/Admin/SettingsPage.php:296
 msgid ""
 "Finds answers by meaning, so a question in one language can match a page "
 "written in another. It needs a service with an embeddings endpoint."
 msgstr ""
 
 #. translators: %s: AI service name, such as DeepSeek.
-#: includes/Admin/SettingsPage.php:304
+#: includes/Admin/SettingsPage.php:305
 #, php-format
 msgid ""
 "%s has no embeddings endpoint. Add a separate endpoint and key below (for "
 "example OpenAI), or keep this off to match on keywords."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:313
+#: includes/Admin/SettingsPage.php:314
 msgid "Embedding model"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:322
+#: includes/Admin/SettingsPage.php:323
 msgid "Endpoint (optional)"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:324
+#: includes/Admin/SettingsPage.php:325
 msgid "Leave blank to use the same endpoint as your AI service."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:327
+#: includes/Admin/SettingsPage.php:328
 msgid "Key (optional)"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:328
+#: includes/Admin/SettingsPage.php:329
 msgid "Leave blank to reuse your key"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:328
+#: includes/Admin/SettingsPage.php:329
 msgid "Saved securely — enter a new key to replace it"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:332
+#: includes/Admin/SettingsPage.php:333
 msgid "Remove the saved embedding key"
 msgstr ""
 
 #. translators: 1: indexed items that have vectors, 2: all indexed items.
-#: includes/Admin/SettingsPage.php:341
+#: includes/Admin/SettingsPage.php:342
 #, php-format
 msgid "%1$s of %2$s indexed item has vectors."
 msgid_plural "%1$s of %2$s indexed items have vectors."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/SettingsPage.php:346
+#: includes/Admin/SettingsPage.php:347
 msgid "Re-index after turning this on to build the rest."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:355
+#: includes/Admin/SettingsPage.php:356
 msgid "Speech-to-text model"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:357
+#: includes/Admin/SettingsPage.php:358
 msgid ""
 "Audio is sent to your AI service only to transcribe it. AutoPilot does not "
 "store it."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:363
+#: includes/Admin/SettingsPage.php:364
 msgid "Read replies aloud"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:364
+#: includes/Admin/SettingsPage.php:365
 msgid ""
 "Uses the browser’s own voice in the site assistant and the Easy Form Builder "
 "copilot, where the browser supports it."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:375
+#: includes/Admin/SettingsPage.php:376
 msgid "AutoPilot Forms"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:376 includes/Admin/SettingsPage.php:383
+#: includes/Admin/SettingsPage.php:377 includes/Admin/SettingsPage.php:384
 msgid "Active"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:378
+#: includes/Admin/SettingsPage.php:379
 msgid "Built in. Simple forms whose submissions are emailed to you."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:383 includes/Admin/StoreCopilotPage.php:250
+#: includes/Admin/SettingsPage.php:384 includes/Admin/StoreCopilotPage.php:250
 msgid "Not active"
 msgstr ""
 
 #. translators: %s: Easy Form Builder version.
-#: includes/Admin/SettingsPage.php:391
+#: includes/Admin/SettingsPage.php:392
 #, php-format
 msgid "Version %s. Its forms open in its own editor."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:394
+#: includes/Admin/SettingsPage.php:395
 msgid ""
 "Install or activate Easy Form Builder 4.1 or newer for advanced fields, "
 "logic and multi-step forms."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:404
+#: includes/Admin/SettingsPage.php:405
 msgid "Prefer Easy Form Builder when it is available"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:405
+#: includes/Admin/SettingsPage.php:406
 msgid ""
 "New forms are created in Easy Form Builder while it is active. Simple native "
 "forms stay available."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:410
+#: includes/Admin/SettingsPage.php:411
 msgid "New forms start as"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:412
+#: includes/Admin/SettingsPage.php:413
 msgid "Draft (recommended)"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:413
+#: includes/Admin/SettingsPage.php:414
 msgid "Publish immediately"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:415
+#: includes/Admin/SettingsPage.php:416
 msgid "Publishing is a higher-risk action and always asks again."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:418
+#: includes/Admin/SettingsPage.php:419
 msgid "Send submissions to"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:420
+#: includes/Admin/SettingsPage.php:421
 msgid ""
 "Submissions are delivered only to this address and are not saved in "
 "WordPress. Leave blank to use the site administration email."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:424
+#: includes/Admin/SettingsPage.php:425
 msgid "Send a delivery test"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:427
+#: includes/Admin/SettingsPage.php:428
 msgid "The test goes to the saved address. Save first if you changed it."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:436
+#: includes/Admin/SettingsPage.php:437
 msgid ""
 "The same switch as Answer Desk in Integrations. Visitors can only ask; the "
 "assistant never edits your site, and requests are rate-limited."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:442 includes/Admin/SettingsPage.php:450
+#: includes/Admin/SettingsPage.php:443 includes/Admin/SettingsPage.php:451
 #: includes/Frontend/ChatWidgetSettings.php:348
 #: includes/Frontend/ChatWidgetSettings.php:369
 msgid "Save changes"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:446
+#: includes/Admin/SettingsPage.php:447
 #: includes/Frontend/ChatWidgetSettings.php:365
 msgid "Unsaved changes"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:448
+#: includes/Admin/SettingsPage.php:449
 msgid "Unsaved changes on this page"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:449 includes/Admin/StoreCopilotPage.php:212
+#: includes/Admin/SettingsPage.php:450 includes/Admin/StoreCopilotPage.php:212
 #: includes/Efb/EfbBuilderButton.php:86
 #: includes/Frontend/ChatWidgetSettings.php:368
 msgid "Discard"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:463
+#: includes/Admin/SettingsPage.php:464
 #: includes/Frontend/ChatWidgetSettings.php:383
 msgid "Discard your changes?"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:464
+#: includes/Admin/SettingsPage.php:465
 msgid "Advanced settings go back to their last saved values."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:465
+#: includes/Admin/SettingsPage.php:466
 #: includes/Frontend/ChatWidgetSettings.php:385
 msgid "Discard changes"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:507
+#: includes/Admin/SettingsPage.php:508
 msgid "AI service"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:508
+#: includes/Admin/SettingsPage.php:509
 msgid "Key & model"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:528
+#: includes/Admin/SettingsPage.php:529
 msgid "Set up AutoPilot AI"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:529
+#: includes/Admin/SettingsPage.php:530
 msgid "Four short steps. Everything after this is optional."
 msgstr ""
 
 #. translators: 1: current setup step, 2: number of setup steps.
-#: includes/Admin/SettingsPage.php:534
+#: includes/Admin/SettingsPage.php:535
 #, php-format
 msgid "Step %1$s of %2$s"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:547
+#: includes/Admin/SettingsPage.php:548
 msgid "Setup progress"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:563
+#: includes/Admin/SettingsPage.php:564
 msgid "Where should your API key live?"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:564
+#: includes/Admin/SettingsPage.php:565
 msgid ""
 "Both options keep the key on your own server. Pick the first one if you are "
 "not sure."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:572
+#: includes/Admin/SettingsPage.php:573
 msgid "Managed by AutoPilot"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:573 includes/Admin/SettingsPage.php:1177
-#: includes/Admin/SettingsPage.php:1199
+#: includes/Admin/SettingsPage.php:574 includes/Admin/SettingsPage.php:1178
+#: includes/Admin/SettingsPage.php:1200
 msgid "Recommended"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:575
+#: includes/Admin/SettingsPage.php:576
 msgid ""
 "You paste an API key once. We encrypt it in your database and only this "
 "plugin can read it."
 msgstr ""
 
 #. translators: %s: minimum WordPress version.
-#: includes/Admin/SettingsPage.php:580
+#: includes/Admin/SettingsPage.php:581
 #, php-format
 msgid "Works on WordPress %s and up"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:592
+#: includes/Admin/SettingsPage.php:593
 msgid "WordPress Connector"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:594
+#: includes/Admin/SettingsPage.php:595
 msgid "WP 7.0+"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:597
+#: includes/Admin/SettingsPage.php:598
 msgid ""
 "The key lives in Settings → Connectors, where WordPress shares it with any "
 "plugin you allow."
 msgstr ""
 
 #. translators: %s: the WordPress version this site runs.
-#: includes/Admin/SettingsPage.php:603
+#: includes/Admin/SettingsPage.php:604
 #, php-format
 msgid "Needs WordPress 7.0 — this site runs %s"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:609
+#: includes/Admin/SettingsPage.php:610
 msgid "A key is already saved in Settings → Connectors"
 msgstr ""
 
 #. translators: %s: the WordPress version this site runs.
-#: includes/Admin/SettingsPage.php:616
+#: includes/Admin/SettingsPage.php:617
 #, php-format
 msgid "Detected WordPress %s on this site"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:626
+#: includes/Admin/SettingsPage.php:627
 msgid ""
 "Save the provider key in Settings → Connectors first, then come back and "
 "check it here."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:627
+#: includes/Admin/SettingsPage.php:628
 msgid "Open Connectors"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:633
+#: includes/Admin/SettingsPage.php:634
 msgid "Which AI service will you use?"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:634
+#: includes/Admin/SettingsPage.php:635
 msgid ""
 "You need an account with one of them. Search by name, or pick a popular one "
 "below."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:637
+#: includes/Admin/SettingsPage.php:638
 msgid "Search AI services"
 msgstr ""
 
 #. translators: %s: number of AI services.
-#: includes/Admin/SettingsPage.php:643
+#: includes/Admin/SettingsPage.php:644
 #, php-format
 msgid "Search %s services — OpenAI, Claude, Gemini, DeepSeek…"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:647 includes/Admin/SettingsPage.php:1109
+#: includes/Admin/SettingsPage.php:648 includes/Admin/SettingsPage.php:1110
 msgid "Popular with WordPress sites"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:681
+#: includes/Admin/SettingsPage.php:682
 msgid "If it speaks the OpenAI API, add it as a custom endpoint."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:682
+#: includes/Admin/SettingsPage.php:683
 msgid "Use a custom endpoint"
 msgstr ""
 
 #. translators: %s: number of AI services.
-#: includes/Admin/SettingsPage.php:690
+#: includes/Admin/SettingsPage.php:691
 #, php-format
 msgid "See all %s services"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:697
+#: includes/Admin/SettingsPage.php:698
 msgid "Connect your key"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:704 includes/Admin/SettingsPage.php:1097
+#: includes/Admin/SettingsPage.php:705 includes/Admin/SettingsPage.php:1098
 msgid "Get a key"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:706
+#: includes/Admin/SettingsPage.php:707
 msgid "(opens in a new tab)"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:716 includes/Admin/SettingsPage.php:1127
+#: includes/Admin/SettingsPage.php:717 includes/Admin/SettingsPage.php:1128
 msgid "Nothing is saved until the check passes."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:718
+#: includes/Admin/SettingsPage.php:719
 msgid "Remove the saved vault key"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:722
+#: includes/Admin/SettingsPage.php:723
 msgid "API base URL"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:724
+#: includes/Admin/SettingsPage.php:725
 msgid ""
 "Paste the base URL only, up to /v1 — not the full path and not a trailing "
 "slash."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:726 includes/Admin/SettingsPage.php:1189
+#: includes/Admin/SettingsPage.php:727 includes/Admin/SettingsPage.php:1190
 msgid "Change the endpoint"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:732
+#: includes/Admin/SettingsPage.php:733
 msgid "Previously verified"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:733
+#: includes/Admin/SettingsPage.php:734
 msgid ""
 "The saved provider passed a previous connection check. Changing these values "
 "requires another test."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:735
+#: includes/Admin/SettingsPage.php:736
 msgid "Reaching the provider"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:736
+#: includes/Admin/SettingsPage.php:737
 msgid "Checking the key"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:737
+#: includes/Admin/SettingsPage.php:738
 msgid "Sending a one-word test"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:738
+#: includes/Admin/SettingsPage.php:739
 msgid "Listing available models"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:741
+#: includes/Admin/SettingsPage.php:742
 msgid "How to fix it"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:756
+#: includes/Admin/SettingsPage.php:757
 msgid "Chosen for you"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:761
+#: includes/Admin/SettingsPage.php:762
 msgid "Model name"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:764
+#: includes/Admin/SettingsPage.php:765
 msgid "Refresh from provider"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:773
+#: includes/Admin/SettingsPage.php:774
 msgid "Temperature, reply length, semantic search"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:784
+#: includes/Admin/SettingsPage.php:785
 msgid "Creative"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:784
+#: includes/Admin/SettingsPage.php:785
 msgid "Predictable"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:788
+#: includes/Admin/SettingsPage.php:789
 msgid "Not available yet"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:788
+#: includes/Admin/SettingsPage.php:789
 msgid "Reply length"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:790
+#: includes/Admin/SettingsPage.php:791
 msgid "Short"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:791
+#: includes/Admin/SettingsPage.php:792
 msgid "Standard"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:792
+#: includes/Admin/SettingsPage.php:793
 msgid "Long"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:794
+#: includes/Admin/SettingsPage.php:795
 msgid ""
 "Replies use the provider’s own length today. A per-reply cap needs a change "
 "to the provider requests, so this stays locked."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:804
+#: includes/Admin/SettingsPage.php:805
 msgid ""
 "Ranks your content by meaning instead of matching words. Needs a provider "
 "with an embeddings endpoint."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:810
+#: includes/Admin/SettingsPage.php:811
 msgid ""
 "Embedding provider, voice model and form delivery live in the full settings."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:811
+#: includes/Admin/SettingsPage.php:812
 msgid "Open advanced settings"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:818
+#: includes/Admin/SettingsPage.php:819
 msgid "Turn on what you need"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:819
+#: includes/Admin/SettingsPage.php:820
 msgid ""
 "We checked your site and pre-selected what fits. Change any of it later."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:831
+#: includes/Admin/SettingsPage.php:832
 msgid "Approval before publishing, spend cap"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:838
+#: includes/Admin/SettingsPage.php:839
 msgid "Ask me before publishing"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:839
+#: includes/Admin/SettingsPage.php:840
 msgid ""
 "AutoPilot drafts the change and waits for your approval instead of writing "
 "it live. This version cannot switch it off."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:845
+#: includes/Admin/SettingsPage.php:846
 msgid "Monthly spend cap"
 msgstr ""
 
 #. translators: %s: monthly token budget.
-#: includes/Admin/SettingsPage.php:850
+#: includes/Admin/SettingsPage.php:851
 #, php-format
 msgid "Pauses every AI feature once this month passes %s tokens."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:852
+#: includes/Admin/SettingsPage.php:853
 msgid "No cap is set, so AI features keep running all month."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:855
+#: includes/Admin/SettingsPage.php:856
 msgid "Set it in Usage & Cost"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:865
+#: includes/Admin/SettingsPage.php:866
 msgid "AutoPilot is live"
 msgstr ""
 
 #. translators: 1: AI provider label, 2: model ID, 3: number of enabled features, 4: comma-separated feature names.
-#: includes/Admin/SettingsPage.php:871
+#: includes/Admin/SettingsPage.php:872
 #, php-format
 msgid "%1$s is connected on %2$s. %3$s feature is on: %4$s."
 msgid_plural "%1$s is connected on %2$s. %3$s features are on: %4$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/SettingsPage.php:873
+#: includes/Admin/SettingsPage.php:874
 msgid "the recommended model"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:881
+#: includes/Admin/SettingsPage.php:882
 msgid "Open the dashboard"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:882
+#: includes/Admin/SettingsPage.php:883
 msgid "Review integrations"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:889
+#: includes/Admin/SettingsPage.php:890
 msgid "Back"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:894
+#: includes/Admin/SettingsPage.php:895
 msgid "Next"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:898
+#: includes/Admin/SettingsPage.php:899
 msgid "Finish setup"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:931
+#: includes/Admin/SettingsPage.php:932
 msgid "Re-read content automatically when it is published"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:944
+#: includes/Admin/SettingsPage.php:945
 msgid "Show the chat launcher to visitors"
 msgstr ""
 
 #. translators: %s: required plugin name.
-#: includes/Admin/SettingsPage.php:1003
+#: includes/Admin/SettingsPage.php:1004
 #, php-format
 msgid "Needs %s"
 msgstr ""
 
 #. translators: %s: required plugin name.
-#: includes/Admin/SettingsPage.php:1022
+#: includes/Admin/SettingsPage.php:1023
 #, php-format
 msgid "%s is not active on this site"
 msgstr ""
 
 #. translators: %s: required plugin name.
-#: includes/Admin/SettingsPage.php:1040
+#: includes/Admin/SettingsPage.php:1041
 #, php-format
 msgid "Install %s"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1096
+#: includes/Admin/SettingsPage.php:1097
 msgid "Other — type a model name"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1098
+#: includes/Admin/SettingsPage.php:1099
 msgid "Loading models…"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1099
+#: includes/Admin/SettingsPage.php:1100
 msgid "Saved model"
 msgstr ""
 
 #. translators: {step}: current step number.
-#: includes/Admin/SettingsPage.php:1102
+#: includes/Admin/SettingsPage.php:1103
 msgid "Step {step} of 4"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1104
+#: includes/Admin/SettingsPage.php:1105
 msgid "Pick one to continue"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1105
+#: includes/Admin/SettingsPage.php:1106
 msgid "Pick a service to continue"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1106
+#: includes/Admin/SettingsPage.php:1107
 msgid "Connect a working key to continue"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1107
+#: includes/Admin/SettingsPage.php:1108
 msgid "Choose a model to continue"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1108
+#: includes/Admin/SettingsPage.php:1109
 msgid "Check the connection with this model to continue"
 msgstr ""
 
 #. translators: {count}: number of AI services.
-#: includes/Admin/SettingsPage.php:1111
+#: includes/Admin/SettingsPage.php:1112
 msgid "All {count} services"
 msgstr ""
 
 #. translators: {count}: number of matching AI services.
-#: includes/Admin/SettingsPage.php:1113
+#: includes/Admin/SettingsPage.php:1114
 msgid "{count} matches"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1114
+#: includes/Admin/SettingsPage.php:1115
 msgid "1 match"
 msgstr ""
 
 #. translators: {count}: number of AI services.
-#: includes/Admin/SettingsPage.php:1116
+#: includes/Admin/SettingsPage.php:1117
 msgid "See all {count} services"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1117
+#: includes/Admin/SettingsPage.php:1118
 msgid "Show fewer"
 msgstr ""
 
 #. translators: {query}: what the administrator searched for.
-#: includes/Admin/SettingsPage.php:1119
+#: includes/Admin/SettingsPage.php:1120
 msgid "No service called “{query}”"
 msgstr ""
 
 #. translators: {provider}: AI service name.
-#: includes/Admin/SettingsPage.php:1121
+#: includes/Admin/SettingsPage.php:1122
 msgid "Connect your {provider} key"
 msgstr ""
 
 #. translators: {host}: provider API host name.
-#: includes/Admin/SettingsPage.php:1123
+#: includes/Admin/SettingsPage.php:1124
 msgid ""
 "We store it encrypted on this site and never send it anywhere except {host}."
 msgstr ""
 
 #. translators: {host}: provider API host name.
-#: includes/Admin/SettingsPage.php:1125
+#: includes/Admin/SettingsPage.php:1126
 msgid ""
 "The key stays in Settings → Connectors. AutoPilot sends it only to {host}."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1126
+#: includes/Admin/SettingsPage.php:1127
 msgid "your endpoint"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1128
+#: includes/Admin/SettingsPage.php:1129
 msgid "•••••••• saved — leave blank to keep it"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1129
+#: includes/Admin/SettingsPage.php:1130
 msgid "Paste your key"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1130
+#: includes/Admin/SettingsPage.php:1131
 msgid "This choice uses the key saved in Settings → Connectors."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1132
+#: includes/Admin/SettingsPage.php:1133
 msgid "Checking"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1133
+#: includes/Admin/SettingsPage.php:1134
 msgid "Check again"
 msgstr ""
 
 #. translators: {label}: name of the check that failed.
-#: includes/Admin/SettingsPage.php:1135
+#: includes/Admin/SettingsPage.php:1136
 msgid "{label} — failed"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1136
+#: includes/Admin/SettingsPage.php:1137
 msgid "Checking your key…"
 msgstr ""
 
 #. translators: {host}: provider API host name.
-#: includes/Admin/SettingsPage.php:1138
+#: includes/Admin/SettingsPage.php:1139
 msgid "A short test request is on its way to {host}."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1139
+#: includes/Admin/SettingsPage.php:1140
 msgid "Connected"
 msgstr ""
 
 #. translators: {count}: number of models the key can use.
-#: includes/Admin/SettingsPage.php:1141
+#: includes/Admin/SettingsPage.php:1142
 msgid "Your key works and {count} models are available on this account."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1142
+#: includes/Admin/SettingsPage.php:1143
 msgid ""
 "Your key works. This provider does not publish a model list, so type the "
 "model you want below."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1145
+#: includes/Admin/SettingsPage.php:1146
 msgid "The key is valid, the account is empty"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1146
+#: includes/Admin/SettingsPage.php:1147
 msgid "Too many requests right now"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1150
+#: includes/Admin/SettingsPage.php:1151
 msgid "The key works, but no models came back"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1151
+#: includes/Admin/SettingsPage.php:1152
 msgid "The check did not pass"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1152
+#: includes/Admin/SettingsPage.php:1153
 msgid "Paste the key from your provider dashboard, then check again."
 msgstr ""
 
 #. translators: 1: {provider} AI service name, 2: {prefix} documented key prefix.
-#: includes/Admin/SettingsPage.php:1154
+#: includes/Admin/SettingsPage.php:1155
 msgid ""
 "Keys for {provider} start with {prefix}. Copy the whole line, including that "
 "prefix, and make sure no space slipped in at the end."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1155
+#: includes/Admin/SettingsPage.php:1156
 msgid ""
 "Copy the key again from the provider dashboard — a trailing space is the "
 "usual cause."
 msgstr ""
 
 #. translators: {provider}: AI service name.
-#: includes/Admin/SettingsPage.php:1157
+#: includes/Admin/SettingsPage.php:1158
 msgid ""
 "Add credit in your {provider} billing page, then check again. Nothing is "
 "wrong with your setup."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1158
+#: includes/Admin/SettingsPage.php:1159
 msgid ""
 "Wait a moment and check again. New accounts often start on a low tier that a "
 "first payment lifts."
 msgstr ""
 
 #. translators: {host}: provider API host name.
-#: includes/Admin/SettingsPage.php:1160
+#: includes/Admin/SettingsPage.php:1161
 msgid ""
 "Usually a host firewall or WP_HTTP_BLOCK_EXTERNAL in wp-config.php. Ask your "
 "host to allow outbound HTTPS to {host}, or add it to WP_ACCESSIBLE_HOSTS."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1161
+#: includes/Admin/SettingsPage.php:1162
 msgid ""
 "Paste the base URL only, up to /v1 — not the full path and not a trailing "
 "slash. If the endpoint is right, pick a model this account can use."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1162
+#: includes/Admin/SettingsPage.php:1163
 msgid "Add the base URL and a model name, then check again."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1163
+#: includes/Admin/SettingsPage.php:1164
 msgid ""
 "Enable at least one chat model for this project in your provider dashboard, "
 "or type the model name by hand."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1164
+#: includes/Admin/SettingsPage.php:1165
 msgid "Paste it again"
 msgstr ""
 
 #. translators: {provider}: AI service name.
-#: includes/Admin/SettingsPage.php:1166
+#: includes/Admin/SettingsPage.php:1167
 msgid "Open {provider} keys"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1167
+#: includes/Admin/SettingsPage.php:1168
 msgid "Pick another service"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1168
+#: includes/Admin/SettingsPage.php:1169
 msgid "Retry"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1169
+#: includes/Admin/SettingsPage.php:1170
 msgid "Run the full network test"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1170
+#: includes/Admin/SettingsPage.php:1171
 msgid "Edit the endpoint"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1171
+#: includes/Admin/SettingsPage.php:1172
 msgid "Type a model name"
 msgstr ""
 
 #. translators: {count}: number of models.
-#: includes/Admin/SettingsPage.php:1174
+#: includes/Admin/SettingsPage.php:1175
 msgid "{count} models available — we picked the one that fits a WordPress site"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1175
+#: includes/Admin/SettingsPage.php:1176
 msgid ""
 "Models this service is known to offer. Refresh to read your account’s own "
 "list."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1176
+#: includes/Admin/SettingsPage.php:1177
 msgid ""
 "This service has no fixed list. Type the model or deployment name below."
 msgstr ""
 
 #. translators: {count}: number of models.
-#: includes/Admin/SettingsPage.php:1179
+#: includes/Admin/SettingsPage.php:1180
 msgid "Show all {count} models"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1180
+#: includes/Admin/SettingsPage.php:1181
 msgid "Show fewer models"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1181
+#: includes/Admin/SettingsPage.php:1182
 msgid ""
 "You picked a different model. Check the connection again to confirm this "
 "account can use it."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1183
+#: includes/Admin/SettingsPage.php:1184
 msgid ""
 "Low: the same question gets almost the same answer. Best for support replies."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1184
+#: includes/Admin/SettingsPage.php:1185
 msgid "Balanced: reliable for support, still varied enough for writing."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1185
+#: includes/Admin/SettingsPage.php:1186
 msgid "High: more inventive wording, and more likely to wander off."
 msgstr ""
 
 #. translators: {provider}: AI service name.
-#: includes/Admin/SettingsPage.php:1187
+#: includes/Admin/SettingsPage.php:1188
 msgid ""
 "{provider} has no embeddings endpoint. Add a separate embedding key in "
 "advanced settings, or leave semantic search off and AutoPilot matches on "
 "keywords."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1190
+#: includes/Admin/SettingsPage.php:1191
 msgid "Hide the endpoint"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1202
+#: includes/Admin/SettingsPage.php:1203
 msgid "One key, many models"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1219
+#: includes/Admin/SettingsPage.php:1220
 msgid "Most widely supported"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1220
+#: includes/Admin/SettingsPage.php:1221
 msgid "Claude models"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1221
+#: includes/Admin/SettingsPage.php:1222
 msgid "Generous free tier"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1222
+#: includes/Admin/SettingsPage.php:1223
 msgid "Reasoning focused"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1223
+#: includes/Admin/SettingsPage.php:1224
 msgid "Alibaba Cloud models"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1224
+#: includes/Admin/SettingsPage.php:1225
 msgid "EU-hosted"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1225
+#: includes/Admin/SettingsPage.php:1226 includes/Admin/SettingsPage.php:1234
+#: includes/Admin/SettingsPage.php:1235
 msgid "Fast inference"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1226
-msgid "One key, every vendor"
-msgstr ""
-
 #: includes/Admin/SettingsPage.php:1227
-msgid "Answers from live web"
+msgid "One key, every vendor"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:1228
@@ -5258,30 +5277,59 @@ msgid "Your own Azure deployments"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:1229
-msgid "1000+ models, one key"
+msgid "Grok models"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:1230
-msgid "Open-weight models"
+msgid "Enterprise and multilingual"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:1231
-msgid "Multi-vendor gateway"
+msgid "GLM models"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:1232
-msgid "Any OpenAI-compatible API"
+msgid "Kimi models"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:1233
+msgid "MiniMax models"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:1236 includes/Admin/SettingsPage.php:1237
+#: includes/Admin/SettingsPage.php:1241
+msgid "Open-weight models"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:1238
+msgid "Many inference providers, one token"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:1239
+msgid "NVIDIA-hosted models"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:1240
+msgid "1000+ models, one key"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:1242
+msgid "Multi-vendor gateway"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:1243
+msgid "Any OpenAI-compatible API"
+msgstr ""
+
+#: includes/Admin/SettingsPage.php:1251
 msgid "Provider gateway"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1241
+#: includes/Admin/SettingsPage.php:1252
 msgid "Direct provider endpoint"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:1344
+#: includes/Admin/SettingsPage.php:1355
 msgid "Test this exact provider, key and model before saving Setup."
 msgstr ""
 
@@ -6025,7 +6073,7 @@ msgstr ""
 
 #: includes/Api/ContentController.php:104
 #: includes/Api/CopilotController.php:138
-#: includes/Api/EfbCopilotController.php:170
+#: includes/Api/EfbCopilotController.php:172
 msgid "Missing action reference."
 msgstr ""
 
@@ -6038,25 +6086,25 @@ msgid "Form Studio is turned off in Integrations."
 msgstr ""
 
 #: includes/Api/CopilotController.php:45
-#: includes/Api/EfbCopilotController.php:43
+#: includes/Api/EfbCopilotController.php:45
 msgid "Please describe the form you want."
 msgstr ""
 
 #: includes/Api/CopilotController.php:48
-#: includes/Api/EfbCopilotController.php:46
+#: includes/Api/EfbCopilotController.php:48
 msgid "Your request is too long."
 msgstr ""
 
 #: includes/Api/CopilotController.php:53
-#: includes/Api/EfbCopilotController.php:50
-#: includes/Api/EfbCopilotController.php:260
-#: includes/Api/EfbCopilotController.php:921
+#: includes/Api/EfbCopilotController.php:52
+#: includes/Api/EfbCopilotController.php:262
+#: includes/Api/EfbCopilotController.php:1198
 msgid ""
 "Add your AI provider API key in AI Site Assistant AutoPilot → Settings first."
 msgstr ""
 
 #: includes/Api/CopilotController.php:73
-#: includes/Api/EfbCopilotController.php:73
+#: includes/Api/EfbCopilotController.php:75
 msgid "The form plan was not safe or complete."
 msgstr ""
 
@@ -6084,13 +6132,13 @@ msgstr ""
 msgid "%s models loaded from the provider."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:59
-#: includes/Api/EfbCopilotController.php:189
+#: includes/Api/EfbCopilotController.php:61
+#: includes/Api/EfbCopilotController.php:191
 #: includes/Connectors/EasyFormBuilderConnector.php:157
 msgid "Easy Form Builder is not active."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:138
+#: includes/Api/EfbCopilotController.php:140
 #, php-format
 msgid ""
 "I left out %s — that field needs Easy Form Builder Free Plus or Pro. "
@@ -6101,134 +6149,223 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Api/EfbCopilotController.php:175
+#: includes/Api/EfbCopilotController.php:177
 #: includes/Execution/ActionExecutor.php:37
 msgid "This proposal has expired. Please generate the form again."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:178
+#: includes/Api/EfbCopilotController.php:180
 #: includes/Execution/ActionExecutor.php:30
 #: includes/Execution/ActionExecutor.php:42
 msgid "You are not allowed to approve this action."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:181
+#: includes/Api/EfbCopilotController.php:183
 #: includes/Execution/ActionExecutor.php:45
 msgid "This proposal is already being processed or has already been used."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:184
+#: includes/Api/EfbCopilotController.php:186
 msgid "This approval does not belong to Easy Form Builder."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:206
+#: includes/Api/EfbCopilotController.php:208
 msgid "Creation failed."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:242
+#: includes/Api/EfbCopilotController.php:244
 msgid ""
 "Tell me what form you need, ask me to change the open form, or ask how to do "
 "something."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:251
+#: includes/Api/EfbCopilotController.php:253
 msgid "That message is a bit long — please shorten it."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:346
+#: includes/Api/EfbCopilotController.php:367
 msgid "Here are topics I can walk you through:"
 msgstr ""
 
 #: includes/Api/EfbCopilotController.php:405
+msgid "Here is what this form’s conditional logic does:"
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:406
+msgid "This form has no conditional logic rules yet."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:471
+msgid "I did not change the form."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:477
 msgid ""
 "I could not turn that into a change. Try e.g. \"add a mobile field\" or "
 "\"make Email required\"."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:442
+#: includes/Api/EfbCopilotController.php:526
 msgid "Done — applying your change."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:459
+#: includes/Api/EfbCopilotController.php:545
 msgid ""
 "I could not build a safe form from that. Could you add a bit more detail?"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:485
+#: includes/Api/EfbCopilotController.php:571
 msgid "Here is the form I designed — review it and approve to create it."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:497
+#: includes/Api/EfbCopilotController.php:583
 msgid "How can I help with your form?"
 msgstr ""
 
 #. translators: %s: field type.
-#: includes/Api/EfbCopilotController.php:745
+#: includes/Api/EfbCopilotController.php:834
 #, php-format
 msgid "Field type \"%s\" is not supported in Easy Form Builder."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:747
+#: includes/Api/EfbCopilotController.php:836
 msgid "A choice field needs at least one option — tell me the options."
 msgstr ""
 
 #. translators: %s: field name.
-#: includes/Api/EfbCopilotController.php:752
+#: includes/Api/EfbCopilotController.php:841
 #, php-format
 msgid ""
 "I can configure a \"%s\" field but not add one — drag it in from the Easy "
 "Form Builder palette, then ask me again."
 msgstr ""
 
+#: includes/Api/EfbCopilotController.php:843
+msgid ""
+"Conditional logic needs Easy Form Builder’s Conditional Logic add-on. "
+"Activate it under Easy Form Builder → Add-ons, reload this form and ask me "
+"again."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:845
+msgid "Conditional logic rules need Easy Form Builder Free Plus or Pro."
+msgstr ""
+
+#. translators: %d: rule limit.
+#: includes/Api/EfbCopilotController.php:848
+#, php-format
+msgid ""
+"Easy Form Builder Free Plus allows %d conditional logic rules per form. "
+"Remove one or upgrade to Pro for more."
+msgstr ""
+
+#. translators: %d: condition limit.
+#: includes/Api/EfbCopilotController.php:851
+#, php-format
+msgid ""
+"Easy Form Builder Free Plus allows %d conditions per rule. Split the rule or "
+"upgrade to Pro."
+msgstr ""
+
 #. translators: 1: number of applied operations, 2: number of skipped operations.
-#: includes/Api/EfbCopilotController.php:758
+#: includes/Api/EfbCopilotController.php:859
 #, php-format
 msgid ""
 "That was too many changes at once: I applied the first %1$d and skipped "
 "%2$d. Ask again for the rest."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:778
+#. translators: %s: field name the AI referred to.
+#: includes/Api/EfbCopilotController.php:880
+#, php-format
+msgid "I could not add that rule: this form has no field called “%s”."
+msgstr ""
+
+#. translators: %s: option text.
+#: includes/Api/EfbCopilotController.php:883
+#, php-format
+msgid "I could not add that rule: “%s” is not one of that field’s options."
+msgstr ""
+
+#. translators: %s: step name or number.
+#: includes/Api/EfbCopilotController.php:886
+#, php-format
+msgid "I could not add that rule: this form has no step “%s”."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:888
+msgid "I could not add that rule: a field cannot show, hide or require itself."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:890
+msgid ""
+"I could not add that rule: it would show and hide (or require and un-"
+"require) the same field at once."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:892
+msgid ""
+"I could not turn that into a valid conditional logic rule. Name the field, "
+"the answer and what should happen."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:906
 msgid ""
 "Easy Form Builder Free supports up to two steps. Upgrade to add more steps."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:780
+#: includes/Api/EfbCopilotController.php:908
 msgid ""
 "The mobile layout settings are part of the Pro version of Easy Form Builder."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:782
+#: includes/Api/EfbCopilotController.php:910
 msgid "This field is available in the Pro version of Easy Form Builder."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:885
+#: includes/Api/EfbCopilotController.php:1065
+msgid "I checked the form. Here is what I would improve:"
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:1066
+msgid "I checked the form and found nothing to fix."
+msgstr ""
+
+#. translators: %s: field label.
+#: includes/Api/EfbCopilotController.php:1088
+#, php-format
+msgid ""
+"Two rules on the same condition both show and hide (or require and un-"
+"require) “%s”; only the last one wins. Check the Conditional Logic panel."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:1162
 msgid "Ask a question, e.g. \"how do I make a field required?\""
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:893
+#: includes/Api/EfbCopilotController.php:1170
 msgid "I could not match that exactly. Try one of these topics:"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:918
+#: includes/Api/EfbCopilotController.php:1195
 msgid "Type what you want to change."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:943
+#: includes/Api/EfbCopilotController.php:1220
 msgid ""
 "I could not turn that into a change. Try being more specific, e.g. \"make "
 "Email required\" or \"rename the form to Contact us\"."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:970
+#: includes/Api/EfbCopilotController.php:1247
 msgid "Invalid save request."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:976
+#: includes/Api/EfbCopilotController.php:1253
 msgid "Unsafe content rejected."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:997
+#: includes/Api/EfbCopilotController.php:1274
 msgid "Could not save the form."
 msgstr ""
 
@@ -6905,7 +7042,7 @@ msgstr ""
 msgid "Could not send. Please try again."
 msgstr ""
 
-#: includes/Core/Plugin.php:166 includes/Frontend/WidgetRenderer.php:43
+#: includes/Core/Plugin.php:166
 msgid "Sorry, I could not answer that."
 msgstr ""
 
@@ -6957,7 +7094,7 @@ msgstr ""
 msgid "Listening… tap the mic again to stop"
 msgstr ""
 
-#: includes/Core/Plugin.php:184 includes/Frontend/WidgetRenderer.php:53
+#: includes/Core/Plugin.php:184
 msgid "Listening…"
 msgstr ""
 
@@ -6972,97 +7109,170 @@ msgid ""
 "provider below."
 msgstr ""
 
-#: includes/Core/Settings.php:118
+#: includes/Core/Settings.php:116
 msgid ""
 "Uses Google’s OpenAI-compatible endpoint, so the same key works for chat and "
 "embeddings."
 msgstr ""
 
-#: includes/Core/Settings.php:148
+#: includes/Core/Settings.php:131
 msgid ""
-"Mainland-China accounts use https://dashscope.aliyuncs.com/compatible-mode/"
-"v1 instead."
+"xAI has no embeddings endpoint, so semantic search needs a separate "
+"embedding provider. Use https://us.api.x.ai/v1 to keep inference in the "
+"United States."
+msgstr ""
+
+#: includes/Core/Settings.php:142
+msgid ""
+"deepseek-chat and deepseek-reasoner were retired; deepseek-flash replaces "
+"them."
+msgstr ""
+
+#: includes/Core/Settings.php:163
+msgid ""
+"A key only works in its own region: mainland-China accounts use https://"
+"dashscope.aliyuncs.com/compatible-mode/v1 and US accounts https://dashscope-"
+"us.aliyuncs.com/compatible-mode/v1."
 msgstr ""
 
 #: includes/Core/Settings.php:184
 msgid ""
-"Groq is very fast but has no embeddings endpoint — pick a separate embedding "
-"provider for semantic search."
+"The -latest names move to newer models over time; pick a dated name when "
+"behaviour must stay fixed."
 msgstr ""
 
-#: includes/Core/Settings.php:197
+#: includes/Core/Settings.php:204
 msgid ""
-"Perplexity answers from live web search. Its OpenAI-compatible Sonar "
-"endpoint is scheduled to retire on 27 September 2026 in favour of the Agent "
-"API, so treat this provider as short-term."
+"Uses Cohere’s OpenAI Compatibility API. It may not answer the model-list "
+"request, so pick or type the model name."
 msgstr ""
 
-#: includes/Core/Settings.php:205
+#: includes/Core/Settings.php:218
+msgid ""
+"Mainland-China accounts (Zhipu BigModel) use https://open.bigmodel.cn/api/"
+"paas/v4 instead."
+msgstr ""
+
+#: includes/Core/Settings.php:233
+msgid ""
+"Kimi models use a fixed temperature, so AISAAutoPilot drops its own setting "
+"for them. Mainland-China accounts use https://api.moonshot.cn/v1. No "
+"embeddings endpoint."
+msgstr ""
+
+#: includes/Core/Settings.php:248
+msgid ""
+"Mainland-China accounts use https://api.minimaxi.com/v1. No embeddings "
+"endpoint on this API."
+msgstr ""
+
+#: includes/Core/Settings.php:260
+msgid ""
+"Groq is very fast but has no embeddings endpoint — pick a separate embedding "
+"provider for semantic search. Its Llama models now need an Enterprise plan."
+msgstr ""
+
+#: includes/Core/Settings.php:270
+msgid ""
+"Very fast open-model inference. Use “Refresh from provider” to load every "
+"model your key can use. No embeddings endpoint."
+msgstr ""
+
+#: includes/Core/Settings.php:280
+msgid ""
+"Open-model inference. Use “Refresh from provider” to load the current list."
+msgstr ""
+
+#: includes/Core/Settings.php:288
 msgid ""
 "Replace YOUR-RESOURCE with your Azure resource name. The model is your "
 "deployment name, so pick it from your Azure portal rather than a fixed list."
 msgstr ""
 
-#: includes/Core/Settings.php:222
+#: includes/Core/Settings.php:304
 msgid ""
 "One key for many vendors. Use “Refresh from provider” to pull OpenRouter’s "
 "current catalogue."
 msgstr ""
 
-#: includes/Core/Settings.php:230
+#: includes/Core/Settings.php:312
+msgid ""
+"Open-model cloud with chat, embeddings and speech. Use “Refresh from "
+"provider” to load the current list."
+msgstr ""
+
+#: includes/Core/Settings.php:320
+msgid ""
+"Model names look like accounts/fireworks/models/<name>. Use “Refresh from "
+"provider” to load them."
+msgstr ""
+
+#: includes/Core/Settings.php:331
+msgid ""
+"Needs a fine-grained token allowed to “Make calls to Inference Providers”. "
+"Chat only — no embeddings on this endpoint."
+msgstr ""
+
+#: includes/Core/Settings.php:339
+msgid ""
+"Hosted NVIDIA NIM endpoints. Use “Refresh from provider” to load the current "
+"list."
+msgstr ""
+
+#: includes/Core/Settings.php:347
 msgid ""
 "Aggregator with 1000+ models behind one key. Use “Refresh from provider” to "
 "load the current list."
 msgstr ""
 
-#: includes/Core/Settings.php:238
+#: includes/Core/Settings.php:355
 msgid ""
 "Open-model inference cloud. Use “Refresh from provider” to load the current "
 "list."
 msgstr ""
 
-#: includes/Core/Settings.php:246
+#: includes/Core/Settings.php:363
 msgid ""
 "Multi-provider gateway. Model names are vendor-prefixed — use “Refresh from "
-"provider” to load them."
+"provider” to load them. EU-only routing: https://api.eu.edenai.run/v3."
 msgstr ""
 
-#: includes/Core/Settings.php:257
+#: includes/Core/Settings.php:366
 msgid "Custom (OpenAI-compatible)"
 msgstr ""
 
-#: includes/Core/Settings.php:259
+#: includes/Core/Settings.php:368
 msgid ""
 "Any endpoint that implements POST /chat/completions. Paste the base URL up "
 "to but not including /chat/completions."
 msgstr ""
 
-#: includes/Core/Settings.php:299
+#: includes/Core/Settings.php:409
 msgid "Direct providers"
 msgstr ""
 
-#: includes/Core/Settings.php:300
+#: includes/Core/Settings.php:410
 msgid "Gateways & aggregators"
 msgstr ""
 
-#: includes/Core/Settings.php:301
+#: includes/Core/Settings.php:411
 msgid "Custom endpoint"
 msgstr ""
 
-#: includes/Core/Settings.php:568 includes/Core/WpConnectors.php:53
-#: includes/Core/WpConnectors.php:96 includes/Frontend/WidgetRenderer.php:34
+#: includes/Core/Settings.php:678 includes/Core/WpConnectors.php:53
+#: includes/Core/WpConnectors.php:96
 msgid "AI Site Assistant AutoPilot"
 msgstr ""
 
-#: includes/Core/Settings.php:569
+#: includes/Core/Settings.php:679
 msgid "AI Assistant"
 msgstr ""
 
-#: includes/Core/Settings.php:570
+#: includes/Core/Settings.php:680
 msgid "Hi! How can I help you?"
 msgstr ""
 
-#: includes/Core/Settings.php:571
+#: includes/Core/Settings.php:681
 msgid "This conversation may be recorded to help our support team."
 msgstr ""
 
@@ -7078,8 +7288,8 @@ msgstr ""
 
 #: includes/Core/WpConnectors.php:62
 msgid ""
-"Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Clusy.io, or any "
-"OpenAI-compatible provider)."
+"Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Kimi, MiniMax, or "
+"any OpenAI-compatible provider)."
 msgstr ""
 
 #: includes/Core/WpConnectors.php:97
@@ -7099,7 +7309,7 @@ msgstr ""
 msgid "No API key configured"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:62 includes/Efb/EfbBuilderButton.php:193
+#: includes/Efb/EfbBuilderButton.php:62 includes/Efb/EfbBuilderButton.php:210
 msgid "Editing the current form"
 msgstr ""
 
@@ -7396,26 +7606,82 @@ msgstr ""
 msgid "Removed the option “%1$s” from “%2$s”"
 msgstr ""
 
-#. translators: %s: reason the change was not applied.
+#. translators: 1: old option text, 2: new option text.
 #: includes/Efb/EfbBuilderButton.php:150
+#, php-format
+msgid "Renamed the option “%1$s” to “%2$s”"
+msgstr ""
+
+#. translators: %s: plain-language description of the rule.
+#: includes/Efb/EfbBuilderButton.php:152
+#, php-format
+msgid "Added the rule: %s"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:153
+msgid ""
+"Open Conditional Logic to review the rule and test it in Preview before you "
+"save."
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:154
+msgid "Undo this change"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:155
+msgid "Undone. The canvas is back to how it was before this change."
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:156
+msgid "Apply"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:157
+msgid "Applied the suggestion."
+msgstr ""
+
+#. translators: %s: page title.
+#: includes/Efb/EfbBuilderButton.php:159
+#, php-format
+msgid "New page: %s"
+msgstr ""
+
+#. translators: %s: submit button text.
+#: includes/Efb/EfbBuilderButton.php:161
+#, php-format
+msgid "Button: %s"
+msgstr ""
+
+#. translators: %s: email address.
+#: includes/Efb/EfbBuilderButton.php:163
+#, php-format
+msgid "Each submission is emailed to %s"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:164
+msgid "The person who fills it in gets a confirmation email"
+msgstr ""
+
+#. translators: %s: reason the change was not applied.
+#: includes/Efb/EfbBuilderButton.php:166
 #, php-format
 msgid "No change was applied: %s."
 msgstr ""
 
 #. translators: %s: reason the change was not applied.
-#: includes/Efb/EfbBuilderButton.php:152
+#: includes/Efb/EfbBuilderButton.php:168
 #, php-format
 msgid "Not applied: %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:153
+#: includes/Efb/EfbBuilderButton.php:169
 msgid ""
 "Applied to the canvas. Review it, then click Easy Form Builder’s green Save "
 "button to keep the changes."
 msgstr ""
 
 #. translators: %s: trace ID to look up in the Activity Log.
-#: includes/Efb/EfbBuilderButton.php:155
+#: includes/Efb/EfbBuilderButton.php:171
 #, php-format
 msgid ""
 "The Easy Form Builder canvas could not redraw, so the editor reloads now. "
@@ -7423,113 +7689,313 @@ msgid ""
 "AutoPilot → Activity Log."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:156
+#: includes/Efb/EfbBuilderButton.php:172
 msgid "the operation was malformed"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:157
+#: includes/Efb/EfbBuilderButton.php:173
 msgid "the field was not found in this form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:158
+#: includes/Efb/EfbBuilderButton.php:174
 msgid "that field setting cannot be changed here"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:159
+#: includes/Efb/EfbBuilderButton.php:175
 msgid "that setting is not available for this field type"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:160
+#: includes/Efb/EfbBuilderButton.php:176
 msgid "the colour or setting value is not valid"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:161
+#: includes/Efb/EfbBuilderButton.php:177
 msgid "that form setting is not available"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:162
+#: includes/Efb/EfbBuilderButton.php:178
 msgid "Easy Form Builder does not accept that value"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:163
+#: includes/Efb/EfbBuilderButton.php:179
 msgid "the step template was missing from the reply"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:164
+#: includes/Efb/EfbBuilderButton.php:180
 msgid "the field template was missing from the reply"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:165
+#: includes/Efb/EfbBuilderButton.php:181
 msgid "the new field was invalid or its ID already exists"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:166
+#: includes/Efb/EfbBuilderButton.php:182
 msgid "options can only be added to a choice field"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:167
+#: includes/Efb/EfbBuilderButton.php:183
 msgid "the option was not found"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:168
-msgid "this change is not supported"
-msgstr ""
-
-#: includes/Efb/EfbBuilderButton.php:169
-msgid "the reply contained no change to apply"
-msgstr ""
-
-#: includes/Efb/EfbBuilderButton.php:170
-msgid "an unexpected error stopped this change"
-msgstr ""
-
-#: includes/Efb/EfbBuilderButton.php:171
-msgid "the Easy Form Builder canvas could not redraw"
-msgstr ""
-
-#: includes/Efb/EfbBuilderButton.php:172
-msgid "this change could not be applied"
-msgstr ""
-
-#: includes/Efb/EfbBuilderButton.php:183
-msgid "Chat with AI Site Assistant AutoPilot"
+#: includes/Efb/EfbBuilderButton.php:184
+msgid "the Conditional Logic add-on is not active on this form"
 msgstr ""
 
 #: includes/Efb/EfbBuilderButton.php:185
-msgid "Ask AI Site Assistant"
+msgid "this change is not supported"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:186
+msgid "the reply contained no change to apply"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:187
+msgid "an unexpected error stopped this change"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:188
+msgid "the Easy Form Builder canvas could not redraw"
 msgstr ""
 
 #: includes/Efb/EfbBuilderButton.php:189
+msgid "this change could not be applied"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:200
+msgid "Chat with AI Site Assistant AutoPilot"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:202
+msgid "Ask AI Site Assistant"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:206
 msgid "AI Site Assistant AutoPilot chat"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:193
+#: includes/Efb/EfbBuilderButton.php:210
 msgid "AI Site Assistant"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:196
+#: includes/Efb/EfbBuilderButton.php:213
 msgid "Start voice input"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:197
-#: includes/Frontend/WidgetRenderer.php:35
+#: includes/Efb/EfbBuilderButton.php:214
 msgid "New chat"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:205
+#: includes/Efb/EfbBuilderButton.php:222
 msgid "Clear"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:214
+#: includes/Efb/EfbBuilderButton.php:231
 msgid "Ask about this form…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:214
+#: includes/Efb/EfbBuilderButton.php:231
 msgid "Message AI Site Assistant"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:215
+#: includes/Efb/EfbBuilderButton.php:232
 msgid "Speak a message"
+msgstr ""
+
+#. translators: %s: field type.
+#: includes/Efb/EfbFormReview.php:64
+#, php-format
+msgid ""
+"A %s field has no visible label. Screen readers and your submission exports "
+"need one; a placeholder is not a label."
+msgstr ""
+
+#. translators: %s: field label.
+#: includes/Efb/EfbFormReview.php:76
+#, php-format
+msgid ""
+"“%s” offers fewer than two choices, so the visitor has nothing to choose "
+"between."
+msgstr ""
+
+#. translators: %s: repeated field label.
+#: includes/Efb/EfbFormReview.php:87
+#, php-format
+msgid ""
+"Two fields are both called “%s”. Answers become impossible to tell apart in "
+"emails and exports."
+msgstr ""
+
+#: includes/Efb/EfbFormReview.php:96
+msgid ""
+"This form collects personal data but asks for no consent. Add a required "
+"consent checkbox that links to your privacy policy."
+msgstr ""
+
+#: includes/Efb/EfbFormReview.php:101
+msgid "Consent"
+msgstr ""
+
+#: includes/Efb/EfbFormReview.php:103
+msgid "I agree that my details are stored and used to answer this request."
+msgstr ""
+
+#. translators: 1: required field count, 2: total field count.
+#: includes/Efb/EfbFormReview.php:120
+#, php-format
+msgid ""
+"%1$d of %2$d questions are required. Every compulsory field costs "
+"completions; keep only the ones you truly need."
+msgstr ""
+
+#. translators: %d: number of questions.
+#: includes/Efb/EfbFormReview.php:130
+#, php-format
+msgid ""
+"%d questions on one page is a lot. Ask me to split it into steps so it feels "
+"shorter."
+msgstr ""
+
+#: includes/Efb/EfbFormReview.php:140
+msgid ""
+"Public forms attract spam. Activate Easy Form Builder’s Form Security & Spam "
+"Protection add-on, or add reCAPTCHA keys in Easy Form Builder → Settings and "
+"turn on reCAPTCHA for this form."
+msgstr ""
+
+#. translators: %s: rule description.
+#: includes/Efb/EfbLogicRules.php:179
+#, php-format
+msgid "(off) %s"
+msgstr ""
+
+#: includes/Efb/EfbLogicRules.php:373
+msgid " and "
+msgstr ""
+
+#: includes/Efb/EfbLogicRules.php:373
+msgid " or "
+msgstr ""
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:377
+#, php-format
+msgid "“%1$s” is “%2$s”"
+msgstr ""
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:379
+#, php-format
+msgid "“%1$s” is not “%2$s”"
+msgstr ""
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:381
+#, php-format
+msgid "“%1$s” contains “%2$s”"
+msgstr ""
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:383
+#, php-format
+msgid "“%1$s” does not contain “%2$s”"
+msgstr ""
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:385
+#, php-format
+msgid "“%1$s” is more than %2$s"
+msgstr ""
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:387
+#, php-format
+msgid "“%1$s” is at least %2$s"
+msgstr ""
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:389
+#, php-format
+msgid "“%1$s” is less than %2$s"
+msgstr ""
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:391
+#, php-format
+msgid "“%1$s” is at most %2$s"
+msgstr ""
+
+#. translators: %1$s: field label.
+#: includes/Efb/EfbLogicRules.php:393
+#, php-format
+msgid "“%1$s” is empty"
+msgstr ""
+
+#. translators: %1$s: field label.
+#: includes/Efb/EfbLogicRules.php:395
+#, php-format
+msgid "“%1$s” is answered"
+msgstr ""
+
+#: includes/Efb/EfbLogicRules.php:399
+msgid "(a nested group)"
+msgstr ""
+
+#. translators: %s: field label.
+#: includes/Efb/EfbLogicRules.php:414
+#, php-format
+msgid "show “%s”"
+msgstr ""
+
+#. translators: %s: field label.
+#: includes/Efb/EfbLogicRules.php:416
+#, php-format
+msgid "hide “%s”"
+msgstr ""
+
+#. translators: %s: field label.
+#: includes/Efb/EfbLogicRules.php:418
+#, php-format
+msgid "make “%s” required"
+msgstr ""
+
+#. translators: %s: field label.
+#: includes/Efb/EfbLogicRules.php:420
+#, php-format
+msgid "make “%s” optional"
+msgstr ""
+
+#. translators: %s: step name.
+#: includes/Efb/EfbLogicRules.php:422
+#, php-format
+msgid "show step “%s”"
+msgstr ""
+
+#. translators: %s: step name.
+#: includes/Efb/EfbLogicRules.php:424
+#, php-format
+msgid "hide step “%s”"
+msgstr ""
+
+#. translators: %s: step name.
+#: includes/Efb/EfbLogicRules.php:426
+#, php-format
+msgid "jump to step “%s”"
+msgstr ""
+
+#. translators: 1: action name, 2: target.
+#: includes/Efb/EfbLogicRules.php:438
+#, php-format
+msgid "%1$s “%2$s”"
+msgstr ""
+
+#: includes/Efb/EfbLogicRules.php:442
+msgid ", "
+msgstr ""
+
+#. translators: 1: conditions, 2: actions.
+#: includes/Efb/EfbLogicRules.php:442
+#, php-format
+msgid "If %1$s, %2$s."
 msgstr ""
 
 #: includes/Execution/ActionExecutor.php:50
@@ -7595,7 +8061,7 @@ msgstr ""
 msgid "Scroll to latest message"
 msgstr ""
 
-#: includes/Frontend/ChatWidget.php:156 includes/Frontend/WidgetRenderer.php:49
+#: includes/Frontend/ChatWidget.php:156
 msgid "Write a message…"
 msgstr ""
 
@@ -8168,117 +8634,76 @@ msgstr ""
 msgid "We could not process your submission. Please try again."
 msgstr ""
 
-#: includes/Frontend/WidgetRenderer.php:33
-msgid "Ask AI Site Assistant AutoPilot"
-msgstr ""
-
-#: includes/Frontend/WidgetRenderer.php:37
-msgid "Hi! I can answer questions about this website."
-msgstr ""
-
-#: includes/Frontend/WidgetRenderer.php:40
-msgid "How can I contact you?"
-msgstr ""
-
-#: includes/Frontend/WidgetRenderer.php:41
-msgid "What services do you offer?"
-msgstr ""
-
-#: includes/Frontend/WidgetRenderer.php:45
-msgid "Voice recording is not supported by this browser."
-msgstr ""
-
-#: includes/Frontend/WidgetRenderer.php:46
-msgid "The recording is empty or too large. Please try a shorter message."
-msgstr ""
-
-#: includes/Frontend/WidgetRenderer.php:48
-msgid "Microphone permission was denied. You can type your question instead."
-msgstr ""
-
-#: includes/Frontend/WidgetRenderer.php:51
-msgid "Speak your question"
-msgstr ""
-
-#: includes/Frontend/WidgetRenderer.php:54
-msgid "Your transcript is ready. Review it, then send."
-msgstr ""
-
-#: includes/Providers/AnthropicProvider.php:111
+#: includes/Providers/AnthropicProvider.php:112
 msgid ""
 "Anthropic does not provide embeddings. Set an embedding base URL, model and "
 "key (for example OpenAI) in Settings to use semantic search."
 msgstr ""
 
-#: includes/Providers/AnthropicProvider.php:127
+#: includes/Providers/AnthropicProvider.php:128
 #: includes/Providers/OpenAiCompatibleProvider.php:194
 msgid "No API key is set."
 msgstr ""
 
-#: includes/Providers/AnthropicProvider.php:134
+#: includes/Providers/AnthropicProvider.php:135
 #: includes/Providers/OpenAiCompatibleProvider.php:201
 msgid "Base URL and model are required."
 msgstr ""
 
-#: includes/Providers/AnthropicProvider.php:144
-#: includes/Providers/OpenAiCompatibleProvider.php:221
-msgid "Connection successful."
-msgstr ""
-
 #. translators: 1: original error message, 2: base URL
-#: includes/Providers/AnthropicProvider.php:153
-#: includes/Providers/OpenAiCompatibleProvider.php:230
+#: includes/Providers/AnthropicProvider.php:156
+#: includes/Providers/OpenAiCompatibleProvider.php:232
 #, php-format
 msgid ""
 "Could not reach the AI provider (%1$s). Check the base URL (%2$s) and your "
 "network connection."
 msgstr ""
 
-#: includes/Providers/AnthropicProvider.php:216
+#: includes/Providers/AnthropicProvider.php:219
 msgid "Anthropic declined this request. Please rephrase it and try again."
 msgstr ""
 
-#: includes/Providers/AnthropicProvider.php:221
-#: includes/Providers/OpenAiCompatibleProvider.php:414
+#: includes/Providers/AnthropicProvider.php:224
+#: includes/Providers/OpenAiCompatibleProvider.php:435
 msgid "The AI provider returned an empty response."
 msgstr ""
 
 #. translators: 1: error details
-#: includes/Providers/AnthropicProvider.php:255
-#: includes/Providers/OpenAiCompatibleProvider.php:270
-#: includes/Providers/OpenAiCompatibleProvider.php:365
+#: includes/Providers/AnthropicProvider.php:258
+#: includes/Providers/OpenAiCompatibleProvider.php:272
+#: includes/Providers/OpenAiCompatibleProvider.php:367
 #, php-format
 msgid ""
 "Could not reach the AI provider (%1$s). Check the base URL and your "
 "connection."
 msgstr ""
 
-#: includes/Providers/AnthropicProvider.php:267
-#: includes/Providers/OpenAiCompatibleProvider.php:278
-#: includes/Providers/OpenAiCompatibleProvider.php:379
+#: includes/Providers/AnthropicProvider.php:270
+#: includes/Providers/OpenAiCompatibleProvider.php:280
+#: includes/Providers/OpenAiCompatibleProvider.php:397
 msgid "The AI provider rejected your API key."
 msgstr ""
 
-#: includes/Providers/AnthropicProvider.php:270
-#: includes/Providers/OpenAiCompatibleProvider.php:393
+#: includes/Providers/AnthropicProvider.php:273
+#: includes/Providers/OpenAiCompatibleProvider.php:411
 msgid "The AI provider requires an active billing account or available credit."
 msgstr ""
 
-#: includes/Providers/AnthropicProvider.php:273
+#: includes/Providers/AnthropicProvider.php:276
 msgid ""
 "The selected endpoint or model was not found. Check the base URL and model "
 "name."
 msgstr ""
 
-#: includes/Providers/AnthropicProvider.php:276
-#: includes/Providers/OpenAiCompatibleProvider.php:396
+#: includes/Providers/AnthropicProvider.php:279
+#: includes/Providers/OpenAiCompatibleProvider.php:414
 msgid "The AI provider is rate-limiting requests. Please try again shortly."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: includes/Providers/AnthropicProvider.php:279
-#: includes/Providers/OpenAiCompatibleProvider.php:284
-#: includes/Providers/OpenAiCompatibleProvider.php:407
+#: includes/Providers/AnthropicProvider.php:282
+#: includes/Providers/OpenAiCompatibleProvider.php:286
+#: includes/Providers/OpenAiCompatibleProvider.php:425
 #, php-format
 msgid "The AI provider returned an error (HTTP %d)."
 msgstr ""
@@ -8316,36 +8741,40 @@ msgid "The embedding provider returned no vector."
 msgstr ""
 
 #. translators: 1: provider error message, 2: model name
-#: includes/Providers/OpenAiCompatibleProvider.php:237
+#: includes/Providers/OpenAiCompatibleProvider.php:239
 #, php-format
 msgid ""
 "The model \"%2$s\" was not found or is not available on this provider: %1$s"
 msgstr ""
 
-#: includes/Providers/OpenAiCompatibleProvider.php:281
+#: includes/Providers/OpenAiCompatibleProvider.php:283
 msgid ""
 "This provider does not publish a model list. Type the model name instead."
 msgstr ""
 
 #. translators: 1: provider error message
-#: includes/Providers/OpenAiCompatibleProvider.php:386
+#: includes/Providers/OpenAiCompatibleProvider.php:404
 #, php-format
 msgid "Model not found: %1$s"
 msgstr ""
 
-#: includes/Providers/OpenAiCompatibleProvider.php:389
+#: includes/Providers/OpenAiCompatibleProvider.php:407
 msgid ""
 "The selected model was not found. Check the model name or pick a different "
 "one."
 msgstr ""
 
 #. translators: 1: HTTP status code, 2: provider error message
-#: includes/Providers/OpenAiCompatibleProvider.php:403
+#: includes/Providers/OpenAiCompatibleProvider.php:421
 #, php-format
 msgid "The AI provider returned an error (HTTP %1$d): %2$s"
 msgstr ""
 
-#: includes/Providers/OpenAiCompatibleProvider.php:503
+#: includes/Providers/OpenAiCompatibleProvider.php:504
+msgid "Connection successful."
+msgstr ""
+
+#: includes/Providers/OpenAiCompatibleProvider.php:589
 msgid ""
 "The AI did not return a valid structured result. Please simplify your "
 "request and try again."
@@ -8393,7 +8822,7 @@ msgstr ""
 msgid "The provider URL is not allowed."
 msgstr ""
 
-#: includes/Providers/UsageCappedProvider.php:66
+#: includes/Providers/UsageCappedProvider.php:67
 msgid "The local AI usage cap has been reached."
 msgstr ""
 
@@ -8497,28 +8926,6 @@ msgstr ""
 #: includes/Usage/UsageTracker.php:214
 #, php-format
 msgid "AI credit alert: Only %1$d%% remaining (%2$s tokens left)."
-msgstr ""
-
-#: includes/Voice/VoiceService.php:44
-msgid "AI provider is not configured for speech recognition."
-msgstr ""
-
-#: includes/Voice/VoiceService.php:49
-msgid "Invalid or oversized audio data."
-msgstr ""
-
-#: includes/Voice/VoiceService.php:79
-msgid "Speech recognition service unreachable."
-msgstr ""
-
-#: includes/Voice/VoiceService.php:87
-msgid "STT API key rejected. Check your provider key in Settings."
-msgstr ""
-
-#. translators: %d: HTTP response code.
-#: includes/Voice/VoiceService.php:93
-#, php-format
-msgid "Speech recognition failed (HTTP %d)."
 msgstr ""
 
 #: includes/Voice/VoiceTranscriber.php:82

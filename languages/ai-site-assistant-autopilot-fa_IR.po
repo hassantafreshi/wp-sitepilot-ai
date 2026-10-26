@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Site Assistant AutoPilot 0.6.0\n"
+"Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-09-19 06:02+0300\n"
-"PO-Revision-Date: 2026-07-23 12:00+0330\n"
+"POT-Creation-Date: 2026-10-26 23:24+0000\n"
+"PO-Revision-Date: 2026-10-26 23:30+0000\n"
 "Last-Translator: AI Site Assistant AutoPilot <info@aisaautopilot.ai>\n"
 "Language-Team: Persian <fa@li.org>\n"
 "Language: fa_IR\n"
@@ -56,14 +56,15 @@ msgstr "ثبت‌شده"
 #: includes/Admin/CopilotPage.php:282 includes/Admin/CopilotPage.php:402
 #: includes/Admin/HistoryPage.php:30 includes/Admin/HomePage.php:374
 #: includes/Admin/IntegrationsPage.php:114
-#: includes/Admin/IntegrationsPage.php:336 includes/Admin/SettingsPage.php:982
+#: includes/Admin/IntegrationsPage.php:336 includes/Admin/SettingsPage.php:983
 msgid "Content Studio"
 msgstr "استودیوی محتوا"
 
 #: includes/Activity/ActivityTimeline.php:135
 #: includes/Activity/ActivityTimeline.php:145 includes/Admin/AdminMenu.php:69
-#: includes/Admin/HomePage.php:353 includes/Admin/IntegrationsPage.php:130
-#: includes/Admin/SettingsPage.php:950 includes/Admin/StoreCopilotPage.php:56
+#: includes/Admin/AdminMenu.php:95 includes/Admin/HomePage.php:353
+#: includes/Admin/IntegrationsPage.php:130 includes/Admin/SettingsPage.php:951
+#: includes/Admin/StoreCopilotPage.php:56
 msgid "Store Copilot"
 msgstr "دستیار فروشگاه"
 
@@ -75,12 +76,12 @@ msgstr "AutoPilot"
 #: includes/Activity/ActivityTimeline.php:148 includes/Admin/AdminMenu.php:60
 #: includes/Admin/HomePage.php:339 includes/Admin/IntegrationsPage.php:49
 #: includes/Admin/IntegrationsPage.php:290
-#: includes/Admin/KnowledgeBasePage.php:68 includes/Admin/SettingsPage.php:924
+#: includes/Admin/KnowledgeBasePage.php:68 includes/Admin/SettingsPage.php:925
 msgid "Site Knowledge"
 msgstr "دانش سایت"
 
 #: includes/Activity/ActivityTimeline.php:151 includes/Admin/AdminMenu.php:61
-#: includes/Admin/AdminMenu.php:120
+#: includes/Admin/AdminMenu.php:133
 #: includes/Admin/AnswerConversationsPage.php:52
 #: includes/Admin/AnswerConversationsPage.php:318
 #: includes/Admin/AnswerDeskHandoffPage.php:41
@@ -88,14 +89,14 @@ msgstr "دانش سایت"
 #: includes/Admin/AnswerDeskWidgetPage.php:55
 #: includes/Admin/HandoffInboxPage.php:36 includes/Admin/HomePage.php:346
 #: includes/Admin/IntegrationsPage.php:65
-#: includes/Admin/IntegrationsPage.php:301 includes/Admin/SettingsPage.php:937
+#: includes/Admin/IntegrationsPage.php:301 includes/Admin/SettingsPage.php:938
 #: includes/Frontend/ChatWidgetSettings.php:94
 msgid "Answer Desk"
 msgstr "میز پاسخ‌گویی"
 
 #: includes/Activity/ActivityTimeline.php:156 includes/Admin/HomePage.php:367
 #: includes/Admin/IntegrationsPage.php:95
-#: includes/Admin/IntegrationsPage.php:324 includes/Admin/SettingsPage.php:970
+#: includes/Admin/IntegrationsPage.php:324 includes/Admin/SettingsPage.php:971
 msgid "Easy Form Builder Copilot"
 msgstr "دستیار Easy Form Builder"
 
@@ -103,16 +104,16 @@ msgstr "دستیار Easy Form Builder"
 #: includes/Activity/ActivityTimeline.php:159 includes/Admin/AdminMenu.php:76
 #: includes/Admin/CopilotPage.php:96 includes/Admin/HomePage.php:360
 #: includes/Admin/IntegrationsPage.php:81
-#: includes/Admin/IntegrationsPage.php:312 includes/Admin/SettingsPage.php:962
+#: includes/Admin/IntegrationsPage.php:312 includes/Admin/SettingsPage.php:963
 msgid "Form Studio"
 msgstr "استودیوی فرم"
 
-#: includes/Activity/ActivityTimeline.php:162
+#: includes/Activity/ActivityTimeline.php:162 includes/Admin/AdminMenu.php:104
 #: includes/Admin/OverviewNavigation.php:98 includes/Admin/UsagePage.php:42
 msgid "Usage & Cost"
 msgstr "مصرف و هزینه"
 
-#: includes/Activity/ActivityTimeline.php:165
+#: includes/Activity/ActivityTimeline.php:165 includes/Admin/AdminMenu.php:105
 #: includes/Admin/ConnectionsPage.php:29
 #: includes/Admin/OverviewNavigation.php:99
 msgid "Health"
@@ -127,7 +128,7 @@ msgstr "باز کردن پیش‌نویس"
 msgid "Open in WordPress"
 msgstr "باز کردن در وردپرس"
 
-#: includes/Admin/AdminMenu.php:54 includes/Admin/AdminMenu.php:107
+#: includes/Admin/AdminMenu.php:54
 msgid "AutoPilot AI"
 msgstr "AutoPilot AI"
 
@@ -142,12 +143,50 @@ msgid "Setup & Connection"
 msgstr "راه‌اندازی و اتصال"
 
 #: includes/Admin/AdminMenu.php:59 includes/Admin/IntegrationsPage.php:155
-#: includes/Admin/SettingsPage.php:509
+#: includes/Admin/SettingsPage.php:510
 msgid "Integrations"
 msgstr "یکپارچه‌سازی‌ها"
 
-#. translators: %s: number of visitors whose handoff has not been picked up yet.
-#: includes/Admin/AdminMenu.php:127 includes/Admin/HandoffInboxPage.php:358
+#: includes/Admin/AdminMenu.php:90 includes/Admin/SettingsPage.php:227
+msgid "Advanced settings"
+msgstr "تنظیمات پیشرفته"
+
+#: includes/Admin/AdminMenu.php:91 includes/Admin/NativeFormsPage.php:41
+#: includes/Admin/NativeFormsPage.php:92
+msgid "Your forms"
+msgstr "فرم‌های شما"
+
+#: includes/Admin/AdminMenu.php:92
+#: includes/Admin/ContentStudioNavigation.php:149
+#: includes/Admin/HistoryPage.php:46
+msgid "History"
+msgstr "تاریخچه"
+
+#: includes/Admin/AdminMenu.php:93 includes/Admin/ChatPage.php:51
+#: includes/Admin/KnowledgeBasePage.php:339
+msgid "Ask your knowledge base"
+msgstr "از دانش سایت بپرسید"
+
+#: includes/Admin/AdminMenu.php:94 includes/Admin/EasyFormBuilderPage.php:42
+msgid "Easy Form Builder copilot"
+msgstr "دستیار Easy Form Builder"
+
+#: includes/Admin/AdminMenu.php:97 includes/Admin/AnswerDeskNavigation.php:68
+msgid "Widget"
+msgstr "ویجت"
+
+#: includes/Admin/AdminMenu.php:98 includes/Admin/AnswerDeskNavigation.php:69
+msgid "Human handoff"
+msgstr "انتقال به انسان"
+
+#: includes/Admin/AdminMenu.php:106 includes/Admin/LogsPage.php:38
+#: includes/Admin/OverviewNavigation.php:100
+msgid "Activity Log"
+msgstr "لاگ فعالیت"
+
+#. translators: %s: number of visitors whose handoff has not been picked up
+#. yet.
+#: includes/Admin/AdminMenu.php:140 includes/Admin/HandoffInboxPage.php:358
 #: includes/Admin/HandoffInboxPage.php:360
 #, php-format
 msgid "%s visitor waiting for a person"
@@ -155,262 +194,260 @@ msgid_plural "%s visitors waiting for a person"
 msgstr[0] "%s بازدیدکننده منتظر پاسخ یک فرد است"
 msgstr[1] "%s بازدیدکننده منتظر پاسخ یک فرد هستند"
 
-#: includes/Admin/AdminMenu.php:232 includes/Admin/AdminMenu.php:277
+#: includes/Admin/AdminMenu.php:246 includes/Admin/AdminMenu.php:291
 #: includes/Admin/KnowledgeBasePage.php:490 includes/Admin/Ui.php:418
 #: includes/Frontend/ChatWidget.php:80
 msgid "Dismiss"
 msgstr "نادیده بگیر"
 
-#: includes/Admin/AdminMenu.php:233 includes/Admin/Ui.php:438
+#: includes/Admin/AdminMenu.php:247 includes/Admin/Ui.php:438
 msgid "Pause"
 msgstr "توقف موقت"
 
-#: includes/Admin/AdminMenu.php:234
+#: includes/Admin/AdminMenu.php:248
 msgid "Resume"
 msgstr "ادامه"
 
-#: includes/Admin/AdminMenu.php:235
+#: includes/Admin/AdminMenu.php:249
 #: includes/Admin/AnswerDeskHandoffPage.php:414
 #: includes/Admin/CopilotPage.php:231 includes/Admin/KnowledgeBasePage.php:437
 #: includes/Admin/KnowledgeBasePage.php:500 includes/Admin/UsagePage.php:92
 msgid "Cancel"
 msgstr "انصراف"
 
-#: includes/Admin/AdminMenu.php:236
+#: includes/Admin/AdminMenu.php:250
 msgid "Paused — nothing is running"
 msgstr "متوقف — هیچ کاری در حال اجرا نیست"
 
-#: includes/Admin/AdminMenu.php:237
+#: includes/Admin/AdminMenu.php:251
 msgid "{label} — {done} of {total} {unit}"
 msgstr "{label} — {done} از {total} {unit}"
 
-#: includes/Admin/AdminMenu.php:238
+#: includes/Admin/AdminMenu.php:252
 msgid ""
 "About {seconds} seconds left · you can leave this page, it keeps running"
 msgstr ""
 "حدود {seconds} ثانیه مانده · می‌توانید از این صفحه بروید، کار ادامه پیدا می‌کند"
 
-#: includes/Admin/AdminMenu.php:278
+#: includes/Admin/AdminMenu.php:292
 msgid "Testing…"
 msgstr "در حال آزمایش…"
 
-#: includes/Admin/AdminMenu.php:279
+#: includes/Admin/AdminMenu.php:293
 msgid "A short request was sent to the provider."
 msgstr "یک درخواست کوتاه به ارائه‌دهنده فرستاده شد."
 
-#: includes/Admin/AdminMenu.php:280
+#: includes/Admin/AdminMenu.php:294
 msgid "Connection works"
 msgstr "اتصال برقرار است"
 
-#: includes/Admin/AdminMenu.php:281
+#: includes/Admin/AdminMenu.php:295
 msgid "Valid response received. You can continue."
 msgstr "پاسخ معتبر دریافت شد. می‌توانید ادامه دهید."
 
-#: includes/Admin/AdminMenu.php:282
+#: includes/Admin/AdminMenu.php:296
 msgid "Key or endpoint was rejected"
 msgstr "کلید یا endpoint پذیرفته نشد"
 
-#: includes/Admin/AdminMenu.php:283
+#: includes/Admin/AdminMenu.php:297
 msgid "Replace the key or check the custom endpoint."
 msgstr "کلید را جایگزین کنید یا endpoint سفارشی را بررسی کنید."
 
-#: includes/Admin/AdminMenu.php:284 includes/Admin/ChatPage.php:286
-#: includes/Admin/CopilotPage.php:513 includes/Admin/SettingsPage.php:1188
+#: includes/Admin/AdminMenu.php:298 includes/Admin/ChatPage.php:286
+#: includes/Admin/CopilotPage.php:513 includes/Admin/SettingsPage.php:1189
 #: includes/Admin/StoreCopilotPage.php:96 includes/Efb/EfbBuilderButton.php:89
-#: includes/Frontend/WidgetRenderer.php:44
 msgid "Network error. Please try again."
 msgstr "خطای شبکه. لطفاً دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:285
+#: includes/Admin/AdminMenu.php:299
 msgid "Sending test…"
 msgstr "در حال ارسال آزمون…"
 
-#: includes/Admin/AdminMenu.php:286
+#: includes/Admin/AdminMenu.php:300
 msgid "Test accepted."
 msgstr "آزمون پذیرفته شد."
 
-#: includes/Admin/AdminMenu.php:287
+#: includes/Admin/AdminMenu.php:301
 msgid "Test failed."
 msgstr "آزمون ناموفق بود."
 
-#: includes/Admin/AdminMenu.php:288 includes/Admin/CopilotPage.php:496
+#: includes/Admin/AdminMenu.php:302 includes/Admin/CopilotPage.php:496
 #: includes/Admin/NativeFormsPage.php:137
 msgid "Copy"
 msgstr "کپی"
 
-#: includes/Admin/AdminMenu.php:289
+#: includes/Admin/AdminMenu.php:303
 msgid "Copied"
 msgstr "کپی شد"
 
-#: includes/Admin/AdminMenu.php:290
+#: includes/Admin/AdminMenu.php:304
 msgid "Shortcode copied. Paste it into any page or post."
 msgstr "شورت‌کد کپی شد. آن را در هر برگه یا نوشته‌ای بچسبانید."
 
-#: includes/Admin/AdminMenu.php:291
+#: includes/Admin/AdminMenu.php:305
 msgid "Could not copy. Select the shortcode and copy it yourself."
 msgstr "کپی نشد. شورت‌کد را انتخاب و خودتان کپی کنید."
 
-#: includes/Admin/AdminMenu.php:292
+#: includes/Admin/AdminMenu.php:306
 msgid ""
 "No channel is enabled, so the handoff button stays hidden from visitors."
 msgstr ""
 "هیچ کانالی فعال نیست، پس دکمهٔ انتقال برای بازدیدکننده نمایش داده نمی‌شود."
 
-#: includes/Admin/AdminMenu.php:293
+#: includes/Admin/AdminMenu.php:307
 #: includes/Frontend/ChatWidgetSettings.php:386
 msgid "That image is too large. Please use a PNG under 200 KB."
 msgstr "این تصویر خیلی بزرگ است. لطفاً یک PNG کمتر از ۲۰۰ کیلوبایت انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:294 includes/Admin/AdminMenu.php:297
-#: includes/Admin/AdminMenu.php:323 includes/Admin/UsagePage.php:152
+#: includes/Admin/AdminMenu.php:308 includes/Admin/AdminMenu.php:311
+#: includes/Admin/AdminMenu.php:337 includes/Admin/UsagePage.php:152
 msgid "Saving..."
 msgstr "در حال ذخیره..."
 
-#: includes/Admin/AdminMenu.php:295 includes/Admin/AdminMenu.php:298
-#: includes/Admin/AdminMenu.php:324
+#: includes/Admin/AdminMenu.php:309 includes/Admin/AdminMenu.php:312
+#: includes/Admin/AdminMenu.php:338
 msgid "Saved."
 msgstr "ذخیره شد."
 
-#: includes/Admin/AdminMenu.php:296
+#: includes/Admin/AdminMenu.php:310
 msgid "Could not save the Widget setting. Please try again."
 msgstr "تنظیم ویجت ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:299
+#: includes/Admin/AdminMenu.php:313
 msgid "Could not save the handoff channel. Please try again."
 msgstr "کانال انتقال به انسان ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:300
+#: includes/Admin/AdminMenu.php:314
 msgid "This contacts the provider to validate the saved credential. Continue?"
 msgstr ""
 "برای بررسی اطلاعات ورود ذخیره‌شده با سرویس‌دهنده تماس گرفته می‌شود. ادامه "
 "می‌دهید؟"
 
-#: includes/Admin/AdminMenu.php:301
+#: includes/Admin/AdminMenu.php:315
 msgid "Could not check the connection. Please try again."
 msgstr "اتصال بررسی نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:302
+#: includes/Admin/AdminMenu.php:316
 #: includes/Admin/AnswerDeskHandoffPage.php:440
 msgid "Ready"
 msgstr "آماده"
 
-#: includes/Admin/AdminMenu.php:303
+#: includes/Admin/AdminMenu.php:317
 #: includes/Admin/AnswerDeskHandoffPage.php:443
 msgid "Needs setup"
 msgstr "نیازمند تنظیم"
 
-#: includes/Admin/AdminMenu.php:304 includes/Admin/AdminMenu.php:333
+#: includes/Admin/AdminMenu.php:318 includes/Admin/AdminMenu.php:347
 #: includes/Admin/AnswerDeskHandoffPage.php:445
 #: includes/Admin/AnswerDeskVoicePage.php:80
 msgid "Paused"
 msgstr "متوقف"
 
-#: includes/Admin/AdminMenu.php:305
+#: includes/Admin/AdminMenu.php:319
 #: includes/Admin/AnswerDeskHandoffPage.php:445
 #: includes/Admin/AnswerDeskVoicePage.php:27
 msgid "Not configured"
 msgstr "تنظیم نشده"
 
-#: includes/Admin/AdminMenu.php:306
+#: includes/Admin/AdminMenu.php:320
 #: includes/Admin/AnswerDeskHandoffPage.php:261
 #: includes/Admin/AnswerDeskHandoffPage.php:392
 #: includes/Admin/KnowledgeBasePage.php:507
 msgid "Edit"
 msgstr "ویرایش"
 
-#: includes/Admin/AdminMenu.php:307
+#: includes/Admin/AdminMenu.php:321
 #: includes/Admin/AnswerDeskHandoffPage.php:392
 msgid "Connect"
 msgstr "اتصال"
 
-#: includes/Admin/AdminMenu.php:308 includes/Admin/HandoffInboxPage.php:180
+#: includes/Admin/AdminMenu.php:322 includes/Admin/HandoffInboxPage.php:180
 #: includes/Admin/HandoffInboxPage.php:202
 #: includes/Admin/IntegrationsPage.php:395
-#: includes/Efb/EfbBuilderButton.php:198
-#: includes/Frontend/WidgetRenderer.php:36
+#: includes/Efb/EfbBuilderButton.php:215
 msgid "Close"
 msgstr "بستن"
 
-#: includes/Admin/AdminMenu.php:309
+#: includes/Admin/AdminMenu.php:323
 #: includes/Admin/AnswerDeskHandoffPage.php:207
 #: includes/Admin/AnswerDeskHandoffPage.php:249
 msgid "Not set up yet"
 msgstr "هنوز تنظیم نشده"
 
 #. translators: %s: WordPress administration email address.
-#: includes/Admin/AdminMenu.php:312
+#: includes/Admin/AdminMenu.php:326
 #: includes/Admin/AnswerDeskHandoffPage.php:171
 #, php-format
 msgid "Uses the WordPress administration email: %s"
 msgstr "از ایمیل مدیریت وردپرس استفاده می‌شود: %s"
 
 #. translators: %s: configured Telegram chat identifier.
-#: includes/Admin/AdminMenu.php:316
+#: includes/Admin/AdminMenu.php:330
 #: includes/Admin/AnswerDeskHandoffPage.php:204
 #, php-format
 msgid "Credential stored securely; chat %s"
 msgstr "اطلاعات ورود امن ذخیره شده است؛ گفت‌وگو %s"
 
 #. translators: %s: configured recipient phone number.
-#: includes/Admin/AdminMenu.php:318
+#: includes/Admin/AdminMenu.php:332
 #: includes/Admin/AnswerDeskHandoffPage.php:246
 #, php-format
 msgid "Credentials stored securely; sends to %s"
 msgstr "اطلاعات ورود امن ذخیره شده است؛ ارسال به %s"
 
-#: includes/Admin/AdminMenu.php:319
+#: includes/Admin/AdminMenu.php:333
 msgid "Checking connection..."
 msgstr "در حال بررسی اتصال..."
 
-#: includes/Admin/AdminMenu.php:320
+#: includes/Admin/AdminMenu.php:334
 msgid "Connection verified."
 msgstr "اتصال تأیید شد."
 
-#: includes/Admin/AdminMenu.php:321
+#: includes/Admin/AdminMenu.php:335
 msgid "Saved. The handoff card asks for these details from now on."
 msgstr "ذخیره شد. از این پس کارت انتقال این اطلاعات را می‌پرسد."
 
-#: includes/Admin/AdminMenu.php:322
+#: includes/Admin/AdminMenu.php:336
 msgid "Could not save the details. Please try again."
 msgstr "اطلاعات ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:325
+#: includes/Admin/AdminMenu.php:339
 msgid "Could not save the voice settings. Please try again."
 msgstr "تنظیمات صدا ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:326
+#: includes/Admin/AdminMenu.php:340
 msgid "Turn on transcribe + speak before playing a test phrase."
 msgstr "پیش از پخش عبارت آزمایشی، «رونویسی + گفتار» را روشن کنید."
 
-#: includes/Admin/AdminMenu.php:327
+#: includes/Admin/AdminMenu.php:341
 msgid "Playing a test phrase locally..."
 msgstr "در حال پخش عبارت آزمایشی در همین مرورگر..."
 
-#: includes/Admin/AdminMenu.php:328
+#: includes/Admin/AdminMenu.php:342
 msgid "Test phrase finished in this browser."
 msgstr "پخش عبارت آزمایشی در این مرورگر تمام شد."
 
-#: includes/Admin/AdminMenu.php:329
+#: includes/Admin/AdminMenu.php:343
 msgid "Speech output is not available in this browser."
 msgstr "خروجی گفتار در این مرورگر در دسترس نیست."
 
-#: includes/Admin/AdminMenu.php:330
+#: includes/Admin/AdminMenu.php:344
 msgid "This browser could not play the test phrase."
 msgstr "این مرورگر نتوانست عبارت آزمایشی را پخش کند."
 
-#: includes/Admin/AdminMenu.php:332 includes/Admin/AnswerDeskVoicePage.php:80
+#: includes/Admin/AdminMenu.php:346 includes/Admin/AnswerDeskVoicePage.php:80
 #: includes/Admin/HomePage.php:347 includes/Admin/HomePage.php:354
 #: includes/Admin/HomePage.php:361 includes/Admin/HomePage.php:368
 #: includes/Admin/HomePage.php:375 includes/Admin/IntegrationsPage.php:67
 #: includes/Admin/IntegrationsPage.php:83
 #: includes/Admin/IntegrationsPage.php:100
 #: includes/Admin/IntegrationsPage.php:116
-#: includes/Admin/IntegrationsPage.php:135 includes/Admin/SettingsPage.php:1005
-#: includes/Admin/SettingsPage.php:1191
+#: includes/Admin/IntegrationsPage.php:135 includes/Admin/SettingsPage.php:1006
+#: includes/Admin/SettingsPage.php:1192
 msgid "On"
 msgstr "روشن"
 
-#: includes/Admin/AdminMenu.php:334 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:348 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Uses the visitor’s browser speech engine. Off keeps voice input but shows "
 "the answer as text only."
@@ -418,7 +455,7 @@ msgstr ""
 "از موتور گفتار مرورگر بازدیدکننده استفاده می‌کند. در حالت خاموش، ورودی صوتی "
 "می‌ماند اما پاسخ فقط به‌صورت متن نمایش داده می‌شود."
 
-#: includes/Admin/AdminMenu.php:335 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:349 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Turn on transcribe + speak first; reply playback is unavailable while voice "
 "input is paused."
@@ -426,115 +463,115 @@ msgstr ""
 "اول «رونویسی + گفتار» را روشن کنید؛ تا ورودی صوتی متوقف است، پخش پاسخ در "
 "دسترس نیست."
 
-#: includes/Admin/AdminMenu.php:336
+#: includes/Admin/AdminMenu.php:350
 msgid "This is a local AutoPilot voice test."
 msgstr "این یک آزمون صدای محلی AutoPilot است."
 
-#: includes/Admin/AdminMenu.php:337
+#: includes/Admin/AdminMenu.php:351
 msgid "Describe the draft first."
 msgstr "اول پیش‌نویس را توصیف کنید."
 
-#: includes/Admin/AdminMenu.php:338
+#: includes/Admin/AdminMenu.php:352
 msgid "Building a reviewable draft…"
 msgstr "در حال ساخت پیش‌نویسی برای بازبینی…"
 
-#: includes/Admin/AdminMenu.php:339 includes/Admin/CopilotPage.php:322
+#: includes/Admin/AdminMenu.php:353 includes/Admin/CopilotPage.php:322
 msgid "Write a draft"
 msgstr "نوشتن پیش‌نویس"
 
-#: includes/Admin/AdminMenu.php:340
+#: includes/Admin/AdminMenu.php:354
 msgid "Writing…"
 msgstr "در حال نوشتن…"
 
-#: includes/Admin/AdminMenu.php:341
+#: includes/Admin/AdminMenu.php:355
 msgid "Creating your WordPress draft…"
 msgstr "در حال ساخت پیش‌نویس وردپرس…"
 
-#: includes/Admin/AdminMenu.php:342
+#: includes/Admin/AdminMenu.php:356
 msgid "Draft created. Review and publish it from WordPress when you are ready."
 msgstr ""
 "پیش‌نویس ساخته شد. هر وقت آماده بودید آن را در وردپرس بازبینی و منتشر کنید."
 
-#: includes/Admin/AdminMenu.php:343
+#: includes/Admin/AdminMenu.php:357
 msgid "Open draft in WordPress"
 msgstr "باز کردن پیش‌نویس در وردپرس"
 
-#: includes/Admin/AdminMenu.php:344
+#: includes/Admin/AdminMenu.php:358
 #: includes/Content/ContentStudioReadModel.php:163
 msgid "Draft saved"
 msgstr "پیش‌نویس ذخیره شد"
 
-#: includes/Admin/AdminMenu.php:345
+#: includes/Admin/AdminMenu.php:359
 msgid "Just now"
 msgstr "همین حالا"
 
-#: includes/Admin/AdminMenu.php:346
+#: includes/Admin/AdminMenu.php:360
 msgid "Post"
 msgstr "نوشته"
 
-#: includes/Admin/AdminMenu.php:347 includes/Admin/KnowledgeBasePage.php:585
+#: includes/Admin/AdminMenu.php:361 includes/Admin/KnowledgeBasePage.php:585
 msgid "Page"
 msgstr "برگه"
 
-#: includes/Admin/AdminMenu.php:348
+#: includes/Admin/AdminMenu.php:362
 #: includes/Content/ContentStudioReadModel.php:53
 #: includes/Content/ContentStudioReadModel.php:111
 msgid "Untitled draft"
 msgstr "پیش‌نویس بدون عنوان"
 
-#: includes/Admin/AdminMenu.php:349
+#: includes/Admin/AdminMenu.php:363
 msgid "Choose a key-storage option to continue."
 msgstr "برای ادامه، محل نگهداری کلید را انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:350
+#: includes/Admin/AdminMenu.php:364
 msgid "Choose an AI service to continue."
 msgstr "برای ادامه، یک سرویس هوش مصنوعی انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:351
+#: includes/Admin/AdminMenu.php:365
 msgid "Test a working provider key and model before continuing."
 msgstr "پیش از ادامه، یک کلید و مدل سالم را آزمایش کنید."
 
-#: includes/Admin/AdminMenu.php:352
+#: includes/Admin/AdminMenu.php:366
 msgid "Enter or choose a model before continuing."
 msgstr "پیش از ادامه، مدل را وارد یا انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:353
+#: includes/Admin/AdminMenu.php:367
 msgid "Not tested yet"
 msgstr "هنوز آزمایش نشده"
 
-#: includes/Admin/AdminMenu.php:354
+#: includes/Admin/AdminMenu.php:368
 msgid "Run a short connection test before continuing."
 msgstr "پیش از ادامه، یک آزمون کوتاه اتصال اجرا کنید."
 
-#: includes/Admin/AdminMenu.php:355 includes/Admin/SettingsPage.php:1143
+#: includes/Admin/AdminMenu.php:369 includes/Admin/SettingsPage.php:1144
 msgid "Add an API key"
 msgstr "یک کلید API اضافه کنید"
 
-#: includes/Admin/AdminMenu.php:356 includes/Admin/SettingsPage.php:1144
+#: includes/Admin/AdminMenu.php:370 includes/Admin/SettingsPage.php:1145
 msgid "That key was rejected"
 msgstr "این کلید پذیرفته نشد"
 
-#: includes/Admin/AdminMenu.php:357
+#: includes/Admin/AdminMenu.php:371
 msgid "Billing action required"
 msgstr "نیاز به اقدام در صورت‌حساب"
 
-#: includes/Admin/AdminMenu.php:358
+#: includes/Admin/AdminMenu.php:372
 msgid "Provider is rate limiting"
 msgstr "سرویس‌دهنده درخواست‌ها را محدود کرده است"
 
-#: includes/Admin/AdminMenu.php:359 includes/Admin/SettingsPage.php:1147
+#: includes/Admin/AdminMenu.php:373 includes/Admin/SettingsPage.php:1148
 msgid "Your server could not reach the provider"
 msgstr "سرور شما به سرویس‌دهنده دسترسی پیدا نکرد"
 
-#: includes/Admin/AdminMenu.php:360 includes/Admin/SettingsPage.php:1148
+#: includes/Admin/AdminMenu.php:374 includes/Admin/SettingsPage.php:1149
 msgid "Wrong endpoint or model"
 msgstr "آدرس یا مدل نادرست است"
 
-#: includes/Admin/AdminMenu.php:361 includes/Admin/SettingsPage.php:1149
+#: includes/Admin/AdminMenu.php:375 includes/Admin/SettingsPage.php:1150
 msgid "Connection details are incomplete"
 msgstr "اطلاعات اتصال کامل نیست"
 
-#: includes/Admin/AdminMenu.php:362
+#: includes/Admin/AdminMenu.php:376
 msgid ""
 "The key works, but no models came back. Type a model name or enable model "
 "access with the provider."
@@ -542,23 +579,23 @@ msgstr ""
 "کلید کار می‌کند اما هیچ مدلی برنگشت. نام مدل را بنویسید یا دسترسی به مدل را "
 "نزد سرویس‌دهنده فعال کنید."
 
-#: includes/Admin/AdminMenu.php:363 includes/Admin/SettingsPage.php:1182
+#: includes/Admin/AdminMenu.php:377 includes/Admin/SettingsPage.php:1183
 msgid "This provider does not publish a model list. Type its model name above."
 msgstr "این سرویس‌دهنده فهرست مدل منتشر نمی‌کند. نام مدل را بالا بنویسید."
 
-#: includes/Admin/AdminMenu.php:364
+#: includes/Admin/AdminMenu.php:378
 msgid "This choice uses the key saved in WordPress Connectors."
 msgstr "این گزینه از کلید ذخیره‌شده در Connectors وردپرس استفاده می‌کند."
 
-#: includes/Admin/AdminMenu.php:365
+#: includes/Admin/AdminMenu.php:379
 msgid "Get a key from {provider}."
 msgstr "از {provider} کلید بگیرید."
 
-#: includes/Admin/AdminMenu.php:366
+#: includes/Admin/AdminMenu.php:380
 msgid "This provider supports embeddings. "
 msgstr "این سرویس‌دهنده از Embedding پشتیبانی می‌کند. "
 
-#: includes/Admin/AdminMenu.php:367
+#: includes/Admin/AdminMenu.php:381
 msgid "This provider does not publish an embeddings endpoint. "
 msgstr "این سرویس‌دهنده نقطهٔ دسترسی Embedding ندارد. "
 
@@ -571,7 +608,7 @@ msgstr "این سرویس‌دهنده نقطهٔ دسترسی Embedding ندا�
 #: includes/Admin/HandoffInboxPage.php:27 includes/Admin/HistoryPage.php:19
 #: includes/Admin/HomePage.php:26 includes/Admin/KnowledgeBasePage.php:26
 #: includes/Admin/LogsPage.php:25 includes/Admin/NativeFormsPage.php:19
-#: includes/Admin/SettingsPage.php:173 includes/Admin/SettingsPage.php:191
+#: includes/Admin/SettingsPage.php:173 includes/Admin/SettingsPage.php:192
 #: includes/Admin/StoreCopilotPage.php:28
 #: includes/Frontend/ChatWidgetSettings.php:61
 msgid "You do not have permission to view this page."
@@ -996,8 +1033,8 @@ msgstr "نشانی وب‌سایت"
 #: includes/Admin/IntegrationsPage.php:83
 #: includes/Admin/IntegrationsPage.php:100
 #: includes/Admin/IntegrationsPage.php:116
-#: includes/Admin/IntegrationsPage.php:135 includes/Admin/SettingsPage.php:1005
-#: includes/Admin/SettingsPage.php:1192
+#: includes/Admin/IntegrationsPage.php:135 includes/Admin/SettingsPage.php:1006
+#: includes/Admin/SettingsPage.php:1193
 msgid "Off"
 msgstr "خاموش"
 
@@ -1039,7 +1076,7 @@ msgstr "ذخیرهٔ پیکربندی"
 
 #: includes/Admin/AnswerDeskHandoffPage.php:416
 #: includes/Admin/CopilotPage.php:72 includes/Admin/CopilotPage.php:275
-#: includes/Admin/SettingsPage.php:713 includes/Admin/SettingsPage.php:1131
+#: includes/Admin/SettingsPage.php:714 includes/Admin/SettingsPage.php:1132
 msgid "Check connection"
 msgstr "بررسی اتصال"
 
@@ -1057,14 +1094,6 @@ msgstr "بخش‌های میز پاسخ‌گویی"
 #: includes/Admin/AnswerDeskNavigation.php:67 includes/Admin/ChatPage.php:66
 msgid "Conversations"
 msgstr "گفت‌وگوها"
-
-#: includes/Admin/AnswerDeskNavigation.php:68
-msgid "Widget"
-msgstr "ویجت"
-
-#: includes/Admin/AnswerDeskNavigation.php:69
-msgid "Human handoff"
-msgstr "انتقال به انسان"
 
 #: includes/Admin/AnswerDeskNavigation.php:70
 msgid "Real-time voice"
@@ -1248,7 +1277,7 @@ msgid "Sit in the bottom-right corner"
 msgstr "قرار گرفتن در گوشهٔ پایین سمت راست"
 
 #: includes/Admin/AnswerDeskWidgetPage.php:92
-#: includes/Admin/SettingsPage.php:772 includes/Admin/SettingsPage.php:830
+#: includes/Admin/SettingsPage.php:773 includes/Admin/SettingsPage.php:831
 msgid "Advanced"
 msgstr "پیشرفته"
 
@@ -1373,7 +1402,7 @@ msgstr ""
 msgid "Hidden on %s. Shown everywhere else."
 msgstr "پنهان در %s. در بقیهٔ جاها دیده می‌شود."
 
-#: includes/Admin/ChatPage.php:39 includes/Frontend/WidgetRenderer.php:39
+#: includes/Admin/ChatPage.php:39
 msgid "What is this website about?"
 msgstr "این وب‌سایت درباره چیست؟"
 
@@ -1384,10 +1413,6 @@ msgstr "چطور می‌توانم با شما در تماس باشم؟"
 #: includes/Admin/ChatPage.php:41
 msgid "What do you offer?"
 msgstr "چه چیزهایی ارائه می‌دهید؟"
-
-#: includes/Admin/ChatPage.php:51 includes/Admin/KnowledgeBasePage.php:339
-msgid "Ask your knowledge base"
-msgstr "از دانش سایت بپرسید"
 
 #: includes/Admin/ChatPage.php:52
 msgid ""
@@ -1430,7 +1455,7 @@ msgid "Open Setup & Connection"
 msgstr "باز کردن راه‌اندازی و اتصال"
 
 #: includes/Admin/ChatPage.php:93 includes/Admin/ChatPage.php:114
-#: includes/Admin/SettingsPage.php:347
+#: includes/Admin/SettingsPage.php:348
 msgid "Open Site Knowledge"
 msgstr "باز کردن دانش سایت"
 
@@ -1459,8 +1484,7 @@ msgid "Record a question"
 msgstr "ضبط سؤال"
 
 #: includes/Admin/ChatPage.php:151 includes/Core/Plugin.php:158
-#: includes/Efb/EfbBuilderButton.php:216 includes/Frontend/ChatWidget.php:164
-#: includes/Frontend/WidgetRenderer.php:50
+#: includes/Efb/EfbBuilderButton.php:233 includes/Frontend/ChatWidget.php:164
 msgid "Send"
 msgstr "ارسال"
 
@@ -1664,7 +1688,6 @@ msgid "Stop audio"
 msgstr "توقف صدا"
 
 #: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:171
-#: includes/Frontend/WidgetRenderer.php:52
 msgid "Stop recording"
 msgstr "توقف ضبط"
 
@@ -1682,7 +1705,6 @@ msgstr ""
 "متن آماده است — بررسی‌اش کنید، سپس ارسال کنید. هیچ چیزی خودکار ارسال نمی‌شود."
 
 #: includes/Admin/ChatPage.php:299 includes/Efb/EfbBuilderButton.php:95
-#: includes/Frontend/WidgetRenderer.php:47
 msgid "Voice transcription failed. Please try again."
 msgstr "تبدیل گفتار به متن ناموفق بود. لطفاً دوباره تلاش کنید."
 
@@ -1753,22 +1775,17 @@ msgstr "اجازهٔ خروجی گرفتن از تاریخچهٔ استودیو�
 msgid "Could not open the export stream."
 msgstr "جریان خروجی باز نشد."
 
-#: includes/Admin/ContentStudioNavigation.php:113
+#: includes/Admin/ContentStudioNavigation.php:114
 msgid "Content Studio sections"
 msgstr "بخش‌های استودیوی محتوا"
 
-#: includes/Admin/ContentStudioNavigation.php:146
+#: includes/Admin/ContentStudioNavigation.php:147
 msgid "Write"
 msgstr "نوشتن"
 
-#: includes/Admin/ContentStudioNavigation.php:147
+#: includes/Admin/ContentStudioNavigation.php:148
 msgid "Templates"
 msgstr "الگوها"
-
-#: includes/Admin/ContentStudioNavigation.php:148
-#: includes/Admin/HistoryPage.php:46
-msgid "History"
-msgstr "تاریخچه"
 
 #: includes/Admin/CopilotPage.php:66
 msgid "Form Studio is turned off"
@@ -2052,7 +2069,7 @@ msgstr ""
 "فروشگاه، حدود ۹۰۰ کلمه…"
 
 #: includes/Admin/CopilotPage.php:316 includes/Admin/CopilotPage.php:317
-#: includes/Admin/SettingsPage.php:215 includes/Admin/SettingsPage.php:352
+#: includes/Admin/SettingsPage.php:216 includes/Admin/SettingsPage.php:353
 #: includes/Frontend/ChatWidget.php:112
 #: includes/Frontend/ChatWidgetSettings.php:119
 msgid "Voice"
@@ -2478,10 +2495,6 @@ msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند.
 msgid "Microphone access was not granted. Please type the command."
 msgstr "دسترسی به میکروفون داده نشد. لطفاً فرمان را تایپ کنید."
 
-#: includes/Admin/EasyFormBuilderPage.php:42
-msgid "Easy Form Builder copilot"
-msgstr "دستیار Easy Form Builder"
-
 #: includes/Admin/EasyFormBuilderPage.php:43
 msgid ""
 "What the copilot may change in the form open in the Easy Form Builder "
@@ -2651,61 +2664,86 @@ msgstr "افزودن گزینه به select، radio یا checkbox"
 msgid "Remove a choice"
 msgstr "حذف یک گزینه"
 
-#: includes/Admin/EasyFormBuilderPage.php:257
+#: includes/Admin/EasyFormBuilderPage.php:254
+msgid "Rename a choice; answers and logic that point at it stay linked"
+msgstr ""
+"تغییر نام یک گزینه؛ پاسخ‌ها و منطقی که به آن اشاره می‌کنند پیوسته می‌مانند"
+
+#: includes/Admin/EasyFormBuilderPage.php:255
+msgid ""
+"Show, hide, require or skip to a field or step from another answer, when "
+"Easy Form Builder’s Conditional Logic add-on is active"
+msgstr ""
+"نمایش، پنهان کردن، الزامی کردن یا پرش به یک فیلد یا مرحله بر اساس پاسخی "
+"دیگر، وقتی افزونهٔ جانبی «منطق شرطی» Easy Form Builder فعال است"
+
+#: includes/Admin/EasyFormBuilderPage.php:259
 #: includes/Admin/NativeFormsPage.php:94
 #: includes/Frontend/FormShortcode.php:223
 msgid "Form"
 msgstr "فرم"
 
-#: includes/Admin/EasyFormBuilderPage.php:261
+#: includes/Admin/EasyFormBuilderPage.php:263
 msgid "Fields"
 msgstr "فیلدها"
 
-#: includes/Admin/EasyFormBuilderPage.php:265
+#: includes/Admin/EasyFormBuilderPage.php:267
 msgid "Choices"
 msgstr "گزینه‌ها"
 
-#: includes/Admin/EasyFormBuilderPage.php:283
+#: includes/Admin/EasyFormBuilderPage.php:271
+msgid "Conditional logic"
+msgstr "منطق شرطی"
+
+#: includes/Admin/EasyFormBuilderPage.php:289
 msgid "Only in Easy Form Builder"
 msgstr "فقط در Easy Form Builder"
 
-#: includes/Admin/EasyFormBuilderPage.php:290
+#: includes/Admin/EasyFormBuilderPage.php:296
 msgid "Never"
 msgstr "هرگز"
 
-#: includes/Admin/EasyFormBuilderPage.php:306
+#: includes/Admin/EasyFormBuilderPage.php:312
 msgid "Easy Form Builder global settings"
 msgstr "تنظیمات سراسری Easy Form Builder"
 
-#: includes/Admin/EasyFormBuilderPage.php:307
+#: includes/Admin/EasyFormBuilderPage.php:313
 msgid "Turning add-ons on or off"
 msgstr "روشن یا خاموش کردن افزونه‌های جانبی"
 
-#: includes/Admin/EasyFormBuilderPage.php:308
+#: includes/Admin/EasyFormBuilderPage.php:314
 msgid "Credentials and API keys"
 msgstr "اطلاعات ورود و کلیدهای API"
 
-#: includes/Admin/EasyFormBuilderPage.php:309
+#: includes/Admin/EasyFormBuilderPage.php:315
 msgid "Payment gateways and prices"
 msgstr "درگاه‌های پرداخت و قیمت‌ها"
 
-#: includes/Admin/EasyFormBuilderPage.php:310
+#: includes/Admin/EasyFormBuilderPage.php:316
 msgid "Raw HTML"
 msgstr "HTML خام"
 
-#: includes/Admin/EasyFormBuilderPage.php:311
+#: includes/Admin/EasyFormBuilderPage.php:317
 msgid "Links to addresses that are not allowed"
 msgstr "پیوند به نشانی‌های غیرمجاز"
 
-#: includes/Admin/EasyFormBuilderPage.php:312
-msgid "Conditional logic rules"
-msgstr "قواعد منطق شرطی"
+#: includes/Admin/EasyFormBuilderPage.php:318
+msgid "Conditional rules for notifications, confirmations, webhooks and prices"
+msgstr "قاعده‌های شرطی برای اعلان‌ها، تأییدیه‌ها، وب‌هوک‌ها و قیمت‌ها"
 
-#: includes/Admin/EasyFormBuilderPage.php:313
+#: includes/Admin/EasyFormBuilderPage.php:319
+msgid "Logic that writes values or calculates"
+msgstr "منطقی که مقدار می‌نویسد یا محاسبه می‌کند"
+
+#: includes/Admin/EasyFormBuilderPage.php:320
+msgid "Choosing who receives notifications"
+msgstr "انتخاب گیرندگان اعلان‌ها"
+
+#: includes/Admin/EasyFormBuilderPage.php:321
 msgid "Submitted entries"
 msgstr "پاسخ‌های ارسال‌شده"
 
-#: includes/Admin/EasyFormBuilderPage.php:335
+#: includes/Admin/EasyFormBuilderPage.php:343
 msgid "A change was applied in the editor."
 msgstr "یک تغییر در ویرایشگر اعمال شد."
 
@@ -2967,7 +3005,8 @@ msgstr ""
 msgid "Not checked"
 msgstr "بررسی‌نشده"
 
-#. translators: 1: measured health-check latency in milliseconds, 2: local check timestamp.
+#. translators: 1: measured health-check latency in milliseconds, 2: local
+#. check timestamp.
 #: includes/Admin/HealthDiagnostics.php:133
 #, php-format
 msgid "The saved provider responded in %1$d ms on %2$s."
@@ -2990,7 +3029,7 @@ msgstr "خوب"
 #: includes/Admin/HealthDiagnostics.php:170
 #: includes/Admin/HealthDiagnostics.php:180
 #: includes/Admin/HealthDiagnostics.php:190
-#: includes/Admin/HealthDiagnostics.php:199 includes/Admin/SettingsPage.php:702
+#: includes/Admin/HealthDiagnostics.php:199 includes/Admin/SettingsPage.php:703
 msgid "API key"
 msgstr "کلید API"
 
@@ -3092,7 +3131,8 @@ msgstr "خاموش. جست‌وجوی دانش به رتبه‌بندی با ک�
 msgid "No Knowledge Base entries have been indexed yet."
 msgstr "هنوز هیچ مطلبی در دانش سایت نمایه نشده است."
 
-#. translators: 1: vector count, 2: indexed-entry count, 3: embedding model identifier.
+#. translators: 1: vector count, 2: indexed-entry count, 3: embedding model
+#. identifier.
 #: includes/Admin/HealthDiagnostics.php:306
 #, php-format
 msgid "%1$s of %2$s indexed entries have vectors for %3$s."
@@ -3144,7 +3184,8 @@ msgstr "به‌روز بودن نمایه"
 msgid "There are no published posts or pages in the current index scope."
 msgstr "در محدودهٔ فعلی نمایه هیچ نوشته یا برگهٔ منتشرشده‌ای نیست."
 
-#. translators: 1: indexed current-scope count, 2: total current-scope count, 3: remaining/pending count.
+#. translators: 1: indexed current-scope count, 2: total current-scope count,
+#. 3: remaining/pending count.
 #: includes/Admin/HealthDiagnostics.php:413
 #, php-format
 msgid "%1$s of %2$s current sources are indexed; %3$s still need attention."
@@ -3476,7 +3517,7 @@ msgid "Review it"
 msgstr "بازبینی"
 
 #: includes/Admin/HomePage.php:340 includes/Admin/IntegrationsPage.php:51
-#: includes/Admin/SettingsPage.php:838 includes/Admin/SettingsPage.php:1000
+#: includes/Admin/SettingsPage.php:839 includes/Admin/SettingsPage.php:1001
 msgid "Always on"
 msgstr "همیشه روشن"
 
@@ -3484,7 +3525,7 @@ msgstr "همیشه روشن"
 msgid "You do not have permission to access this page."
 msgstr "اجازهٔ دسترسی به این صفحه را ندارید."
 
-#: includes/Admin/IntegrationsPage.php:50 includes/Admin/SettingsPage.php:926
+#: includes/Admin/IntegrationsPage.php:50 includes/Admin/SettingsPage.php:927
 msgid ""
 "Keeps answers grounded in your published site content and its cited sources."
 msgstr "پاسخ‌ها را بر پایهٔ محتوای منتشرشدهٔ سایت و منابع ذکرشده نگه می‌دارد."
@@ -3497,13 +3538,13 @@ msgstr "پاسخ‌ها را بر پایهٔ محتوای منتشرشدهٔ س�
 msgid "Configure"
 msgstr "پیکربندی"
 
-#: includes/Admin/IntegrationsPage.php:66 includes/Admin/SettingsPage.php:939
+#: includes/Admin/IntegrationsPage.php:66 includes/Admin/SettingsPage.php:940
 msgid ""
 "Lets visitors ask grounded questions through the read-only public assistant."
 msgstr ""
 "بازدیدکنندگان می‌توانند از طریق دستیار عمومی فقط‌خواندنی، سؤال‌های مستند بپرسند."
 
-#: includes/Admin/IntegrationsPage.php:82 includes/Admin/SettingsPage.php:964
+#: includes/Admin/IntegrationsPage.php:82 includes/Admin/SettingsPage.php:965
 msgid ""
 "Creates reviewable native forms with email-only delivery and server-side "
 "validation."
@@ -3511,13 +3552,13 @@ msgstr ""
 "فرم‌های داخلی قابل بازبینی با ارسال فقط از طریق ایمیل و اعتبارسنجی سمت سرور "
 "می‌سازد."
 
-#: includes/Admin/IntegrationsPage.php:97 includes/Admin/SettingsPage.php:973
+#: includes/Admin/IntegrationsPage.php:97 includes/Admin/SettingsPage.php:974
 msgid "Adds an approved AI helper to a compatible Easy Form Builder editor."
 msgstr ""
 "یک دستیار هوش مصنوعی تأییدشده به ویرایشگر سازگار Easy Form Builder اضافه "
 "می‌کند."
 
-#: includes/Admin/IntegrationsPage.php:98 includes/Admin/SettingsPage.php:974
+#: includes/Admin/IntegrationsPage.php:98 includes/Admin/SettingsPage.php:975
 msgid ""
 "A compatible Easy Form Builder installation is required before this helper "
 "can run."
@@ -3527,7 +3568,7 @@ msgstr "برای اجرای این دستیار، نصب سازگار Easy Form 
 msgid "Needs Easy Form Builder"
 msgstr "نیازمند Easy Form Builder"
 
-#: includes/Admin/IntegrationsPage.php:115 includes/Admin/SettingsPage.php:984
+#: includes/Admin/IntegrationsPage.php:115 includes/Admin/SettingsPage.php:985
 msgid ""
 "Creates reviewable WordPress page and post drafts; publishing always stays "
 "with you."
@@ -3535,13 +3576,13 @@ msgstr ""
 "پیش‌نویس‌های قابل بازبینی برای برگه و نوشتهٔ وردپرس می‌سازد؛ انتشار همیشه با "
 "شماست."
 
-#: includes/Admin/IntegrationsPage.php:132 includes/Admin/SettingsPage.php:953
+#: includes/Admin/IntegrationsPage.php:132 includes/Admin/SettingsPage.php:954
 msgid ""
 "Creates reviewed simple-product drafts and presents safe store insights."
 msgstr ""
 "پیش‌نویس محصول ساده با بازبینی می‌سازد و اطلاعات امن فروشگاه را نشان می‌دهد."
 
-#: includes/Admin/IntegrationsPage.php:133 includes/Admin/SettingsPage.php:954
+#: includes/Admin/IntegrationsPage.php:133 includes/Admin/SettingsPage.php:955
 msgid ""
 "WooCommerce must be installed and active before Store Copilot can be used."
 msgstr "برای استفاده از دستیار فروشگاه، ووکامرس باید نصب و فعال باشد."
@@ -3765,7 +3806,7 @@ msgstr "بستن پنجره"
 msgid "Locked"
 msgstr "قفل"
 
-#: includes/Admin/IntegrationsPage.php:396 includes/Admin/SettingsPage.php:1103
+#: includes/Admin/IntegrationsPage.php:396 includes/Admin/SettingsPage.php:1104
 msgid "Done"
 msgstr "انجام شد"
 
@@ -4380,7 +4421,7 @@ msgstr "آموزش / راهنما"
 msgid "Product"
 msgstr "ویرایش محصول"
 
-#: includes/Admin/KnowledgeBasePage.php:583 includes/Admin/SettingsPage.php:267
+#: includes/Admin/KnowledgeBasePage.php:583 includes/Admin/SettingsPage.php:268
 msgid "Service"
 msgstr "خدمت"
 
@@ -4403,10 +4444,6 @@ msgstr "سایر"
 #: includes/Admin/LogExport.php:77
 msgid "You do not have permission to export the activity log."
 msgstr "اجازهٔ خروجی گرفتن از لاگ فعالیت را ندارید."
-
-#: includes/Admin/LogsPage.php:38 includes/Admin/OverviewNavigation.php:100
-msgid "Activity Log"
-msgstr "لاگ فعالیت"
 
 #: includes/Admin/LogsPage.php:39
 msgid ""
@@ -4438,10 +4475,6 @@ msgid "Show %s more event"
 msgid_plural "Show %s more events"
 msgstr[0] "نمایش %s رویداد دیگر"
 msgstr[1] "نمایش %s رویداد دیگر"
-
-#: includes/Admin/NativeFormsPage.php:41 includes/Admin/NativeFormsPage.php:92
-msgid "Your forms"
-msgstr "فرم‌های شما"
 
 #: includes/Admin/NativeFormsPage.php:42
 msgid ""
@@ -4538,29 +4571,25 @@ msgstr ""
 msgid "Overview sections"
 msgstr "بخش‌های نمای کلی"
 
-#: includes/Admin/SettingsPage.php:213 includes/Admin/SettingsPage.php:257
-#: includes/Admin/SettingsPage.php:506 includes/Admin/Ui.php:359
+#: includes/Admin/SettingsPage.php:214 includes/Admin/SettingsPage.php:258
+#: includes/Admin/SettingsPage.php:507 includes/Admin/Ui.php:359
 msgid "Connection"
 msgstr "اتصال"
 
-#: includes/Admin/SettingsPage.php:214 includes/Admin/SettingsPage.php:294
-#: includes/Admin/SettingsPage.php:803
+#: includes/Admin/SettingsPage.php:215 includes/Admin/SettingsPage.php:295
+#: includes/Admin/SettingsPage.php:804
 msgid "Semantic search"
 msgstr "جست‌وجوی معنایی"
 
-#: includes/Admin/SettingsPage.php:216 includes/Admin/SettingsPage.php:371
+#: includes/Admin/SettingsPage.php:217 includes/Admin/SettingsPage.php:372
 msgid "Forms and delivery"
 msgstr "فرم‌ها و تحویل"
 
-#: includes/Admin/SettingsPage.php:217 includes/Admin/SettingsPage.php:435
+#: includes/Admin/SettingsPage.php:218 includes/Admin/SettingsPage.php:436
 msgid "Public site assistant"
 msgstr "دستیار عمومی سایت"
 
-#: includes/Admin/SettingsPage.php:226
-msgid "Advanced settings"
-msgstr "تنظیمات پیشرفته"
-
-#: includes/Admin/SettingsPage.php:227
+#: includes/Admin/SettingsPage.php:228
 msgid ""
 "Search, voice, forms and the public assistant. The AI service itself is set "
 "up in Setup & Connection."
@@ -4568,28 +4597,28 @@ msgstr ""
 "جست‌وجو، صدا، فرم‌ها و دستیار عمومی. خودِ سرویس هوش مصنوعی در «راه‌اندازی و "
 "اتصال» تنظیم می‌شود."
 
-#: includes/Admin/SettingsPage.php:231
+#: includes/Admin/SettingsPage.php:232
 msgid "Back to Setup"
 msgstr "بازگشت به راه‌اندازی"
 
-#: includes/Admin/SettingsPage.php:240
+#: includes/Admin/SettingsPage.php:241
 #: includes/Frontend/ChatWidgetSettings.php:109
 msgid "Settings saved."
 msgstr "تنظیمات ذخیره شد."
 
-#: includes/Admin/SettingsPage.php:245
+#: includes/Admin/SettingsPage.php:246
 msgid "On this page"
 msgstr "در این صفحه"
 
-#: includes/Admin/SettingsPage.php:258
+#: includes/Admin/SettingsPage.php:259
 msgid "Read-only"
 msgstr "فقط‌خواندنی"
 
-#: includes/Admin/SettingsPage.php:259
+#: includes/Admin/SettingsPage.php:260
 msgid "Open the setup wizard"
 msgstr "باز کردن راه‌اندازی گام‌به‌گام"
 
-#: includes/Admin/SettingsPage.php:261
+#: includes/Admin/SettingsPage.php:262
 msgid ""
 "Your service, model and key are set in the setup wizard, where the "
 "connection is checked before it can be saved. They cannot be edited here."
@@ -4597,7 +4626,7 @@ msgstr ""
 "سرویس، مدل و کلید در راه‌اندازی گام‌به‌گام تنظیم می‌شوند و اتصال پیش از ذخیره "
 "بررسی می‌شود. این موارد اینجا ویرایش نمی‌شوند."
 
-#: includes/Admin/SettingsPage.php:263
+#: includes/Admin/SettingsPage.php:264
 msgid ""
 "No AI service is connected yet. Search, voice and form drafting need one, so "
 "connect it in Setup first."
@@ -4605,24 +4634,24 @@ msgstr ""
 "هنوز هیچ سرویس هوش مصنوعی متصل نیست. جست‌وجو، صدا و پیش‌نویس فرم به آن نیاز "
 "دارند؛ ابتدا آن را در راه‌اندازی متصل کنید."
 
-#: includes/Admin/SettingsPage.php:271 includes/Admin/SettingsPage.php:753
-#: includes/Admin/SettingsPage.php:758
+#: includes/Admin/SettingsPage.php:272 includes/Admin/SettingsPage.php:754
+#: includes/Admin/SettingsPage.php:759
 msgid "Model"
 msgstr "مدل"
 
-#: includes/Admin/SettingsPage.php:275
+#: includes/Admin/SettingsPage.php:276
 msgid "Endpoint"
 msgstr "نقطهٔ اتصال"
 
-#: includes/Admin/SettingsPage.php:279
+#: includes/Admin/SettingsPage.php:280
 msgid "Key stored in"
 msgstr "محل نگهداری کلید"
 
-#: includes/Admin/SettingsPage.php:283 includes/Admin/SettingsPage.php:780
+#: includes/Admin/SettingsPage.php:284 includes/Admin/SettingsPage.php:781
 msgid "Temperature"
 msgstr "دما (Temperature)"
 
-#: includes/Admin/SettingsPage.php:295
+#: includes/Admin/SettingsPage.php:296
 msgid ""
 "Finds answers by meaning, so a question in one language can match a page "
 "written in another. It needs a service with an embeddings endpoint."
@@ -4631,7 +4660,7 @@ msgstr ""
 "زبان دیگر هم‌خوان شود. به سرویسی با نقطهٔ اتصال embeddings نیاز دارد."
 
 #. translators: %s: AI service name, such as DeepSeek.
-#: includes/Admin/SettingsPage.php:304
+#: includes/Admin/SettingsPage.php:305
 #, php-format
 msgid ""
 "%s has no embeddings endpoint. Add a separate endpoint and key below (for "
@@ -4641,51 +4670,51 @@ msgstr ""
 "کنید (برای نمونه OpenAI)، یا این گزینه را خاموش نگه دارید تا بر اساس "
 "کلیدواژه جست‌وجو شود."
 
-#: includes/Admin/SettingsPage.php:313
+#: includes/Admin/SettingsPage.php:314
 msgid "Embedding model"
 msgstr "مدل embedding"
 
-#: includes/Admin/SettingsPage.php:322
+#: includes/Admin/SettingsPage.php:323
 msgid "Endpoint (optional)"
 msgstr "نقطهٔ اتصال (اختیاری)"
 
-#: includes/Admin/SettingsPage.php:324
+#: includes/Admin/SettingsPage.php:325
 msgid "Leave blank to use the same endpoint as your AI service."
 msgstr "برای استفاده از همان نقطهٔ اتصال سرویس هوش مصنوعی، خالی بگذارید."
 
-#: includes/Admin/SettingsPage.php:327
+#: includes/Admin/SettingsPage.php:328
 msgid "Key (optional)"
 msgstr "کلید (اختیاری)"
 
-#: includes/Admin/SettingsPage.php:328
+#: includes/Admin/SettingsPage.php:329
 msgid "Leave blank to reuse your key"
 msgstr "برای استفادهٔ دوباره از کلید فعلی، خالی بگذارید"
 
-#: includes/Admin/SettingsPage.php:328
+#: includes/Admin/SettingsPage.php:329
 msgid "Saved securely — enter a new key to replace it"
 msgstr "به‌صورت امن ذخیره شده — برای جایگزینی، کلید تازه وارد کنید"
 
-#: includes/Admin/SettingsPage.php:332
+#: includes/Admin/SettingsPage.php:333
 msgid "Remove the saved embedding key"
 msgstr "حذف کلید embedding ذخیره‌شده"
 
 #. translators: 1: indexed items that have vectors, 2: all indexed items.
-#: includes/Admin/SettingsPage.php:341
+#: includes/Admin/SettingsPage.php:342
 #, php-format
 msgid "%1$s of %2$s indexed item has vectors."
 msgid_plural "%1$s of %2$s indexed items have vectors."
 msgstr[0] "%1$s از %2$s مورد ایندکس‌شده بردار دارد."
 msgstr[1] "%1$s از %2$s مورد ایندکس‌شده بردار دارند."
 
-#: includes/Admin/SettingsPage.php:346
+#: includes/Admin/SettingsPage.php:347
 msgid "Re-index after turning this on to build the rest."
 msgstr "پس از روشن کردن، دوباره ایندکس کنید تا بقیه ساخته شوند."
 
-#: includes/Admin/SettingsPage.php:355
+#: includes/Admin/SettingsPage.php:356
 msgid "Speech-to-text model"
 msgstr "مدل تبدیل گفتار به متن"
 
-#: includes/Admin/SettingsPage.php:357
+#: includes/Admin/SettingsPage.php:358
 msgid ""
 "Audio is sent to your AI service only to transcribe it. AutoPilot does not "
 "store it."
@@ -4693,11 +4722,11 @@ msgstr ""
 "صدا فقط برای تبدیل به متن به سرویس هوش مصنوعی فرستاده می‌شود. AutoPilot آن را "
 "ذخیره نمی‌کند."
 
-#: includes/Admin/SettingsPage.php:363
+#: includes/Admin/SettingsPage.php:364
 msgid "Read replies aloud"
 msgstr "خواندن پاسخ‌ها با صدای بلند"
 
-#: includes/Admin/SettingsPage.php:364
+#: includes/Admin/SettingsPage.php:365
 msgid ""
 "Uses the browser’s own voice in the site assistant and the Easy Form Builder "
 "copilot, where the browser supports it."
@@ -4705,29 +4734,29 @@ msgstr ""
 "در دستیار سایت و دستیار Easy Form Builder از صدای خود مرورگر استفاده می‌کند، "
 "هر جا که مرورگر پشتیبانی کند."
 
-#: includes/Admin/SettingsPage.php:375
+#: includes/Admin/SettingsPage.php:376
 msgid "AutoPilot Forms"
 msgstr "فرم‌های AutoPilot"
 
-#: includes/Admin/SettingsPage.php:376 includes/Admin/SettingsPage.php:383
+#: includes/Admin/SettingsPage.php:377 includes/Admin/SettingsPage.php:384
 msgid "Active"
 msgstr "فعال"
 
-#: includes/Admin/SettingsPage.php:378
+#: includes/Admin/SettingsPage.php:379
 msgid "Built in. Simple forms whose submissions are emailed to you."
 msgstr "داخلی. فرم‌های ساده‌ای که پاسخ‌هایشان برای شما ایمیل می‌شود."
 
-#: includes/Admin/SettingsPage.php:383 includes/Admin/StoreCopilotPage.php:250
+#: includes/Admin/SettingsPage.php:384 includes/Admin/StoreCopilotPage.php:250
 msgid "Not active"
 msgstr "فعال نیست"
 
 #. translators: %s: Easy Form Builder version.
-#: includes/Admin/SettingsPage.php:391
+#: includes/Admin/SettingsPage.php:392
 #, php-format
 msgid "Version %s. Its forms open in its own editor."
 msgstr "نسخهٔ %s. فرم‌هایش در ویرایشگر خودش باز می‌شوند."
 
-#: includes/Admin/SettingsPage.php:394
+#: includes/Admin/SettingsPage.php:395
 msgid ""
 "Install or activate Easy Form Builder 4.1 or newer for advanced fields, "
 "logic and multi-step forms."
@@ -4735,11 +4764,11 @@ msgstr ""
 "برای فیلدهای پیشرفته، منطق شرطی و فرم‌های چندمرحله‌ای، Easy Form Builder نسخهٔ "
 "۴٫۱ یا جدیدتر را نصب یا فعال کنید."
 
-#: includes/Admin/SettingsPage.php:404
+#: includes/Admin/SettingsPage.php:405
 msgid "Prefer Easy Form Builder when it is available"
 msgstr "ترجیح Easy Form Builder وقتی در دسترس است"
 
-#: includes/Admin/SettingsPage.php:405
+#: includes/Admin/SettingsPage.php:406
 msgid ""
 "New forms are created in Easy Form Builder while it is active. Simple native "
 "forms stay available."
@@ -4747,27 +4776,27 @@ msgstr ""
 "تا وقتی Easy Form Builder فعال است، فرم‌های تازه در آن ساخته می‌شوند. فرم‌های "
 "سادهٔ داخلی همچنان در دسترس‌اند."
 
-#: includes/Admin/SettingsPage.php:410
+#: includes/Admin/SettingsPage.php:411
 msgid "New forms start as"
 msgstr "فرم‌های تازه با این وضعیت شروع می‌شوند"
 
-#: includes/Admin/SettingsPage.php:412
+#: includes/Admin/SettingsPage.php:413
 msgid "Draft (recommended)"
 msgstr "پیش‌نویس (پیشنهادی)"
 
-#: includes/Admin/SettingsPage.php:413
+#: includes/Admin/SettingsPage.php:414
 msgid "Publish immediately"
 msgstr "انتشار فوری"
 
-#: includes/Admin/SettingsPage.php:415
+#: includes/Admin/SettingsPage.php:416
 msgid "Publishing is a higher-risk action and always asks again."
 msgstr "انتشار اقدامی پرریسک‌تر است و همیشه دوباره تأیید می‌خواهد."
 
-#: includes/Admin/SettingsPage.php:418
+#: includes/Admin/SettingsPage.php:419
 msgid "Send submissions to"
 msgstr "ارسال پاسخ‌ها به"
 
-#: includes/Admin/SettingsPage.php:420
+#: includes/Admin/SettingsPage.php:421
 msgid ""
 "Submissions are delivered only to this address and are not saved in "
 "WordPress. Leave blank to use the site administration email."
@@ -4775,17 +4804,17 @@ msgstr ""
 "پاسخ‌ها فقط به این نشانی تحویل داده می‌شوند و در وردپرس ذخیره نمی‌شوند. برای "
 "استفاده از ایمیل مدیریت سایت، خالی بگذارید."
 
-#: includes/Admin/SettingsPage.php:424
+#: includes/Admin/SettingsPage.php:425
 msgid "Send a delivery test"
 msgstr "ارسال آزمون تحویل"
 
-#: includes/Admin/SettingsPage.php:427
+#: includes/Admin/SettingsPage.php:428
 msgid "The test goes to the saved address. Save first if you changed it."
 msgstr ""
 "آزمون به نشانی ذخیره‌شده فرستاده می‌شود. اگر آن را تغییر داده‌اید، اول ذخیره "
 "کنید."
 
-#: includes/Admin/SettingsPage.php:436
+#: includes/Admin/SettingsPage.php:437
 msgid ""
 "The same switch as Answer Desk in Integrations. Visitors can only ask; the "
 "assistant never edits your site, and requests are rate-limited."
@@ -4793,72 +4822,72 @@ msgstr ""
 "همان کلید «میز پاسخ‌گویی» در یکپارچه‌سازی‌ها. بازدیدکنندگان فقط می‌توانند "
 "بپرسند؛ دستیار هرگز سایت شما را ویرایش نمی‌کند و تعداد درخواست‌ها محدود است."
 
-#: includes/Admin/SettingsPage.php:442 includes/Admin/SettingsPage.php:450
+#: includes/Admin/SettingsPage.php:443 includes/Admin/SettingsPage.php:451
 #: includes/Frontend/ChatWidgetSettings.php:348
 #: includes/Frontend/ChatWidgetSettings.php:369
 msgid "Save changes"
 msgstr "ذخیرهٔ تغییرات"
 
-#: includes/Admin/SettingsPage.php:446
+#: includes/Admin/SettingsPage.php:447
 #: includes/Frontend/ChatWidgetSettings.php:365
 msgid "Unsaved changes"
 msgstr "تغییرات ذخیره‌نشده"
 
-#: includes/Admin/SettingsPage.php:448
+#: includes/Admin/SettingsPage.php:449
 msgid "Unsaved changes on this page"
 msgstr "تغییرهای ذخیره‌نشده در این صفحه"
 
-#: includes/Admin/SettingsPage.php:449 includes/Admin/StoreCopilotPage.php:212
+#: includes/Admin/SettingsPage.php:450 includes/Admin/StoreCopilotPage.php:212
 #: includes/Efb/EfbBuilderButton.php:86
 #: includes/Frontend/ChatWidgetSettings.php:368
 msgid "Discard"
 msgstr "رد کردن"
 
-#: includes/Admin/SettingsPage.php:463
+#: includes/Admin/SettingsPage.php:464
 #: includes/Frontend/ChatWidgetSettings.php:383
 msgid "Discard your changes?"
 msgstr "تغییرات کنار گذاشته شوند؟"
 
-#: includes/Admin/SettingsPage.php:464
+#: includes/Admin/SettingsPage.php:465
 msgid "Advanced settings go back to their last saved values."
 msgstr "تنظیمات پیشرفته به آخرین مقادیر ذخیره‌شده برمی‌گردند."
 
-#: includes/Admin/SettingsPage.php:465
+#: includes/Admin/SettingsPage.php:466
 #: includes/Frontend/ChatWidgetSettings.php:385
 msgid "Discard changes"
 msgstr "کنار گذاشتن تغییرات"
 
-#: includes/Admin/SettingsPage.php:507
+#: includes/Admin/SettingsPage.php:508
 msgid "AI service"
 msgstr "سرویس هوش مصنوعی"
 
-#: includes/Admin/SettingsPage.php:508
+#: includes/Admin/SettingsPage.php:509
 msgid "Key & model"
 msgstr "کلید و مدل"
 
-#: includes/Admin/SettingsPage.php:528
+#: includes/Admin/SettingsPage.php:529
 msgid "Set up AutoPilot AI"
 msgstr "راه‌اندازی AutoPilot AI"
 
-#: includes/Admin/SettingsPage.php:529
+#: includes/Admin/SettingsPage.php:530
 msgid "Four short steps. Everything after this is optional."
 msgstr "چهار گام کوتاه. هر چیز بعد از آن اختیاری است."
 
 #. translators: 1: current setup step, 2: number of setup steps.
-#: includes/Admin/SettingsPage.php:534
+#: includes/Admin/SettingsPage.php:535
 #, php-format
 msgid "Step %1$s of %2$s"
 msgstr "گام %1$s از %2$s"
 
-#: includes/Admin/SettingsPage.php:547
+#: includes/Admin/SettingsPage.php:548
 msgid "Setup progress"
 msgstr "پیشرفت راه‌اندازی"
 
-#: includes/Admin/SettingsPage.php:563
+#: includes/Admin/SettingsPage.php:564
 msgid "Where should your API key live?"
 msgstr "کلید API کجا نگهداری شود؟"
 
-#: includes/Admin/SettingsPage.php:564
+#: includes/Admin/SettingsPage.php:565
 msgid ""
 "Both options keep the key on your own server. Pick the first one if you are "
 "not sure."
@@ -4866,16 +4895,16 @@ msgstr ""
 "هر دو گزینه کلید را روی سرور خود شما نگه می‌دارند. اگر مطمئن نیستید، گزینهٔ "
 "اول را انتخاب کنید."
 
-#: includes/Admin/SettingsPage.php:572
+#: includes/Admin/SettingsPage.php:573
 msgid "Managed by AutoPilot"
 msgstr "مدیریت با AutoPilot"
 
-#: includes/Admin/SettingsPage.php:573 includes/Admin/SettingsPage.php:1177
-#: includes/Admin/SettingsPage.php:1199
+#: includes/Admin/SettingsPage.php:574 includes/Admin/SettingsPage.php:1178
+#: includes/Admin/SettingsPage.php:1200
 msgid "Recommended"
 msgstr "پیشنهادی"
 
-#: includes/Admin/SettingsPage.php:575
+#: includes/Admin/SettingsPage.php:576
 msgid ""
 "You paste an API key once. We encrypt it in your database and only this "
 "plugin can read it."
@@ -4884,20 +4913,20 @@ msgstr ""
 "همین افزونه می‌تواند آن را بخواند."
 
 #. translators: %s: minimum WordPress version.
-#: includes/Admin/SettingsPage.php:580
+#: includes/Admin/SettingsPage.php:581
 #, php-format
 msgid "Works on WordPress %s and up"
 msgstr "روی وردپرس %s و بالاتر کار می‌کند"
 
-#: includes/Admin/SettingsPage.php:592
+#: includes/Admin/SettingsPage.php:593
 msgid "WordPress Connector"
 msgstr "Connector وردپرس"
 
-#: includes/Admin/SettingsPage.php:594
+#: includes/Admin/SettingsPage.php:595
 msgid "WP 7.0+"
 msgstr "وردپرس ۷+"
 
-#: includes/Admin/SettingsPage.php:597
+#: includes/Admin/SettingsPage.php:598
 msgid ""
 "The key lives in Settings → Connectors, where WordPress shares it with any "
 "plugin you allow."
@@ -4906,22 +4935,22 @@ msgstr ""
 "اجازه می‌دهید به اشتراک می‌گذارد."
 
 #. translators: %s: the WordPress version this site runs.
-#: includes/Admin/SettingsPage.php:603
+#: includes/Admin/SettingsPage.php:604
 #, php-format
 msgid "Needs WordPress 7.0 — this site runs %s"
 msgstr "نیازمند وردپرس ۷٫۰ — این سایت نسخهٔ %s است"
 
-#: includes/Admin/SettingsPage.php:609
+#: includes/Admin/SettingsPage.php:610
 msgid "A key is already saved in Settings → Connectors"
 msgstr "یک کلید از قبل در «تنظیمات ← Connectors» ذخیره شده است"
 
 #. translators: %s: the WordPress version this site runs.
-#: includes/Admin/SettingsPage.php:616
+#: includes/Admin/SettingsPage.php:617
 #, php-format
 msgid "Detected WordPress %s on this site"
 msgstr "وردپرس %s روی این سایت شناسایی شد"
 
-#: includes/Admin/SettingsPage.php:626
+#: includes/Admin/SettingsPage.php:627
 msgid ""
 "Save the provider key in Settings → Connectors first, then come back and "
 "check it here."
@@ -4929,15 +4958,15 @@ msgstr ""
 "اول کلید سرویس‌دهنده را در «تنظیمات ← Connectors» ذخیره کنید، سپس برگردید و "
 "اینجا بررسی‌اش کنید."
 
-#: includes/Admin/SettingsPage.php:627
+#: includes/Admin/SettingsPage.php:628
 msgid "Open Connectors"
 msgstr "باز کردن Connectors"
 
-#: includes/Admin/SettingsPage.php:633
+#: includes/Admin/SettingsPage.php:634
 msgid "Which AI service will you use?"
 msgstr "از کدام سرویس هوش مصنوعی استفاده می‌کنید؟"
 
-#: includes/Admin/SettingsPage.php:634
+#: includes/Admin/SettingsPage.php:635
 msgid ""
 "You need an account with one of them. Search by name, or pick a popular one "
 "below."
@@ -4945,74 +4974,74 @@ msgstr ""
 "به یک حساب در یکی از آن‌ها نیاز دارید. با نام جست‌وجو کنید یا یکی از گزینه‌های "
 "پرکاربرد زیر را انتخاب کنید."
 
-#: includes/Admin/SettingsPage.php:637
+#: includes/Admin/SettingsPage.php:638
 msgid "Search AI services"
 msgstr "جست‌وجوی سرویس‌های هوش مصنوعی"
 
 #. translators: %s: number of AI services.
-#: includes/Admin/SettingsPage.php:643
+#: includes/Admin/SettingsPage.php:644
 #, php-format
 msgid "Search %s services — OpenAI, Claude, Gemini, DeepSeek…"
 msgstr "جست‌وجو در %s سرویس — OpenAI، Claude، Gemini، DeepSeek…"
 
-#: includes/Admin/SettingsPage.php:647 includes/Admin/SettingsPage.php:1109
+#: includes/Admin/SettingsPage.php:648 includes/Admin/SettingsPage.php:1110
 msgid "Popular with WordPress sites"
 msgstr "پرکاربرد در سایت‌های وردپرسی"
 
-#: includes/Admin/SettingsPage.php:681
+#: includes/Admin/SettingsPage.php:682
 msgid "If it speaks the OpenAI API, add it as a custom endpoint."
 msgstr ""
 "اگر با API سازگار با OpenAI کار می‌کند، آن را به‌عنوان آدرس سفارشی اضافه کنید."
 
-#: includes/Admin/SettingsPage.php:682
+#: includes/Admin/SettingsPage.php:683
 msgid "Use a custom endpoint"
 msgstr "استفاده از آدرس سفارشی"
 
 #. translators: %s: number of AI services.
-#: includes/Admin/SettingsPage.php:690
+#: includes/Admin/SettingsPage.php:691
 #, php-format
 msgid "See all %s services"
 msgstr "دیدن همهٔ %s سرویس"
 
-#: includes/Admin/SettingsPage.php:697
+#: includes/Admin/SettingsPage.php:698
 msgid "Connect your key"
 msgstr "کلید خود را وصل کنید"
 
-#: includes/Admin/SettingsPage.php:704 includes/Admin/SettingsPage.php:1097
+#: includes/Admin/SettingsPage.php:705 includes/Admin/SettingsPage.php:1098
 msgid "Get a key"
 msgstr "دریافت کلید"
 
-#: includes/Admin/SettingsPage.php:706
+#: includes/Admin/SettingsPage.php:707
 msgid "(opens in a new tab)"
 msgstr "(در زبانهٔ تازه باز می‌شود)"
 
-#: includes/Admin/SettingsPage.php:716 includes/Admin/SettingsPage.php:1127
+#: includes/Admin/SettingsPage.php:717 includes/Admin/SettingsPage.php:1128
 msgid "Nothing is saved until the check passes."
 msgstr "تا وقتی بررسی موفق نشود، چیزی ذخیره نمی‌شود."
 
-#: includes/Admin/SettingsPage.php:718
+#: includes/Admin/SettingsPage.php:719
 msgid "Remove the saved vault key"
 msgstr "حذف کلید ذخیره‌شده در گاوصندوق"
 
-#: includes/Admin/SettingsPage.php:722
+#: includes/Admin/SettingsPage.php:723
 msgid "API base URL"
 msgstr "نشانی پایهٔ API"
 
-#: includes/Admin/SettingsPage.php:724
+#: includes/Admin/SettingsPage.php:725
 msgid ""
 "Paste the base URL only, up to /v1 — not the full path and not a trailing "
 "slash."
 msgstr "فقط نشانی پایه را تا ‎/v1‎ وارد کنید — نه مسیر کامل و نه اسلش پایانی."
 
-#: includes/Admin/SettingsPage.php:726 includes/Admin/SettingsPage.php:1189
+#: includes/Admin/SettingsPage.php:727 includes/Admin/SettingsPage.php:1190
 msgid "Change the endpoint"
 msgstr "تغییر آدرس"
 
-#: includes/Admin/SettingsPage.php:732
+#: includes/Admin/SettingsPage.php:733
 msgid "Previously verified"
 msgstr "قبلاً تأیید شده"
 
-#: includes/Admin/SettingsPage.php:733
+#: includes/Admin/SettingsPage.php:734
 msgid ""
 "The saved provider passed a previous connection check. Changing these values "
 "requires another test."
@@ -5020,71 +5049,71 @@ msgstr ""
 "سرویس‌دهندهٔ ذخیره‌شده قبلاً بررسی اتصال را با موفقیت گذرانده است. تغییر این "
 "مقادیر آزمون دوباره لازم دارد."
 
-#: includes/Admin/SettingsPage.php:735
+#: includes/Admin/SettingsPage.php:736
 msgid "Reaching the provider"
 msgstr "دسترسی به سرویس‌دهنده"
 
-#: includes/Admin/SettingsPage.php:736
+#: includes/Admin/SettingsPage.php:737
 msgid "Checking the key"
 msgstr "بررسی کلید"
 
-#: includes/Admin/SettingsPage.php:737
+#: includes/Admin/SettingsPage.php:738
 msgid "Sending a one-word test"
 msgstr "ارسال آزمون یک‌کلمه‌ای"
 
-#: includes/Admin/SettingsPage.php:738
+#: includes/Admin/SettingsPage.php:739
 msgid "Listing available models"
 msgstr "دریافت فهرست مدل‌ها"
 
-#: includes/Admin/SettingsPage.php:741
+#: includes/Admin/SettingsPage.php:742
 msgid "How to fix it"
 msgstr "راه رفع مشکل"
 
-#: includes/Admin/SettingsPage.php:756
+#: includes/Admin/SettingsPage.php:757
 msgid "Chosen for you"
 msgstr "برای شما انتخاب شده"
 
-#: includes/Admin/SettingsPage.php:761
+#: includes/Admin/SettingsPage.php:762
 msgid "Model name"
 msgstr "نام مدل"
 
-#: includes/Admin/SettingsPage.php:764
+#: includes/Admin/SettingsPage.php:765
 msgid "Refresh from provider"
 msgstr "تازه‌سازی از سرویس‌دهنده"
 
-#: includes/Admin/SettingsPage.php:773
+#: includes/Admin/SettingsPage.php:774
 msgid "Temperature, reply length, semantic search"
 msgstr "دما، طول پاسخ، جست‌وجوی معنایی"
 
-#: includes/Admin/SettingsPage.php:784
+#: includes/Admin/SettingsPage.php:785
 msgid "Creative"
 msgstr "خلاق"
 
-#: includes/Admin/SettingsPage.php:784
+#: includes/Admin/SettingsPage.php:785
 msgid "Predictable"
 msgstr "قابل پیش‌بینی"
 
-#: includes/Admin/SettingsPage.php:788
+#: includes/Admin/SettingsPage.php:789
 msgid "Not available yet"
 msgstr "هنوز در دسترس نیست"
 
-#: includes/Admin/SettingsPage.php:788
+#: includes/Admin/SettingsPage.php:789
 msgid "Reply length"
 msgstr "طول پاسخ"
 
-#: includes/Admin/SettingsPage.php:790
+#: includes/Admin/SettingsPage.php:791
 msgid "Short"
 msgstr "کوتاه"
 
-#: includes/Admin/SettingsPage.php:791
+#: includes/Admin/SettingsPage.php:792
 msgid "Standard"
 msgstr "استاندارد"
 
-#: includes/Admin/SettingsPage.php:792
+#: includes/Admin/SettingsPage.php:793
 msgid "Long"
 msgstr "بلند"
 
-#: includes/Admin/SettingsPage.php:794
+#: includes/Admin/SettingsPage.php:795
 msgid ""
 "Replies use the provider’s own length today. A per-reply cap needs a change "
 "to the provider requests, so this stays locked."
@@ -5092,7 +5121,7 @@ msgstr ""
 "پاسخ‌ها اکنون طول پیش‌فرض سرویس‌دهنده را دارند. سقف طول برای هر پاسخ به تغییر "
 "در درخواست‌ها نیاز دارد، پس این گزینه قفل می‌ماند."
 
-#: includes/Admin/SettingsPage.php:804
+#: includes/Admin/SettingsPage.php:805
 msgid ""
 "Ranks your content by meaning instead of matching words. Needs a provider "
 "with an embeddings endpoint."
@@ -5100,35 +5129,35 @@ msgstr ""
 "محتوای شما را بر اساس معنا رتبه‌بندی می‌کند، نه تطبیق کلمه‌ها. به سرویس‌دهنده‌ای "
 "با Embedding نیاز دارد."
 
-#: includes/Admin/SettingsPage.php:810
+#: includes/Admin/SettingsPage.php:811
 msgid ""
 "Embedding provider, voice model and form delivery live in the full settings."
 msgstr "سرویس‌دهندهٔ Embedding، مدل صدا و ارسال فرم در تنظیمات کامل قرار دارند."
 
-#: includes/Admin/SettingsPage.php:811
+#: includes/Admin/SettingsPage.php:812
 msgid "Open advanced settings"
 msgstr "باز کردن تنظیمات پیشرفته"
 
-#: includes/Admin/SettingsPage.php:818
+#: includes/Admin/SettingsPage.php:819
 msgid "Turn on what you need"
 msgstr "آنچه لازم دارید را روشن کنید"
 
-#: includes/Admin/SettingsPage.php:819
+#: includes/Admin/SettingsPage.php:820
 msgid ""
 "We checked your site and pre-selected what fits. Change any of it later."
 msgstr ""
 "سایت شما را بررسی کردیم و گزینه‌های مناسب را از پیش انتخاب کردیم. هر کدام را "
 "بعداً می‌توانید تغییر دهید."
 
-#: includes/Admin/SettingsPage.php:831
+#: includes/Admin/SettingsPage.php:832
 msgid "Approval before publishing, spend cap"
 msgstr "تأیید پیش از انتشار، سقف هزینه"
 
-#: includes/Admin/SettingsPage.php:838
+#: includes/Admin/SettingsPage.php:839
 msgid "Ask me before publishing"
 msgstr "پیش از انتشار از من بپرس"
 
-#: includes/Admin/SettingsPage.php:839
+#: includes/Admin/SettingsPage.php:840
 msgid ""
 "AutoPilot drafts the change and waits for your approval instead of writing "
 "it live. This version cannot switch it off."
@@ -5136,159 +5165,160 @@ msgstr ""
 "AutoPilot تغییر را به‌صورت پیش‌نویس آماده می‌کند و به‌جای انتشار مستقیم منتظر "
 "تأیید شما می‌ماند. این نسخه امکان خاموش کردن آن را ندارد."
 
-#: includes/Admin/SettingsPage.php:845
+#: includes/Admin/SettingsPage.php:846
 msgid "Monthly spend cap"
 msgstr "سقف هزینهٔ ماهانه"
 
 #. translators: %s: monthly token budget.
-#: includes/Admin/SettingsPage.php:850
+#: includes/Admin/SettingsPage.php:851
 #, php-format
 msgid "Pauses every AI feature once this month passes %s tokens."
 msgstr ""
 "وقتی مصرف این ماه از %s توکن بگذرد، همهٔ قابلیت‌های هوش مصنوعی متوقف می‌شوند."
 
-#: includes/Admin/SettingsPage.php:852
+#: includes/Admin/SettingsPage.php:853
 msgid "No cap is set, so AI features keep running all month."
 msgstr "سقفی تعیین نشده، بنابراین قابلیت‌های هوش مصنوعی تمام ماه کار می‌کنند."
 
-#: includes/Admin/SettingsPage.php:855
+#: includes/Admin/SettingsPage.php:856
 msgid "Set it in Usage & Cost"
 msgstr "در «مصرف و هزینه» تنظیم کنید"
 
-#: includes/Admin/SettingsPage.php:865
+#: includes/Admin/SettingsPage.php:866
 msgid "AutoPilot is live"
 msgstr "AutoPilot فعال شد"
 
-#. translators: 1: AI provider label, 2: model ID, 3: number of enabled features, 4: comma-separated feature names.
-#: includes/Admin/SettingsPage.php:871
+#. translators: 1: AI provider label, 2: model ID, 3: number of enabled
+#. features, 4: comma-separated feature names.
+#: includes/Admin/SettingsPage.php:872
 #, php-format
 msgid "%1$s is connected on %2$s. %3$s feature is on: %4$s."
 msgid_plural "%1$s is connected on %2$s. %3$s features are on: %4$s."
 msgstr[0] "%1$s با مدل %2$s وصل است. %3$s قابلیت روشن است: %4$s."
 msgstr[1] "%1$s با مدل %2$s وصل است. %3$s قابلیت روشن است: %4$s."
 
-#: includes/Admin/SettingsPage.php:873
+#: includes/Admin/SettingsPage.php:874
 msgid "the recommended model"
 msgstr "مدل پیشنهادی"
 
-#: includes/Admin/SettingsPage.php:881
+#: includes/Admin/SettingsPage.php:882
 msgid "Open the dashboard"
 msgstr "باز کردن داشبورد"
 
-#: includes/Admin/SettingsPage.php:882
+#: includes/Admin/SettingsPage.php:883
 msgid "Review integrations"
 msgstr "بازبینی یکپارچه‌سازی‌ها"
 
-#: includes/Admin/SettingsPage.php:889
+#: includes/Admin/SettingsPage.php:890
 msgid "Back"
 msgstr "قبلی"
 
-#: includes/Admin/SettingsPage.php:894
+#: includes/Admin/SettingsPage.php:895
 msgid "Next"
 msgstr "بعدی"
 
-#: includes/Admin/SettingsPage.php:898
+#: includes/Admin/SettingsPage.php:899
 msgid "Finish setup"
 msgstr "پایان راه‌اندازی"
 
-#: includes/Admin/SettingsPage.php:931
+#: includes/Admin/SettingsPage.php:932
 msgid "Re-read content automatically when it is published"
 msgstr "خواندن دوبارهٔ خودکار محتوا هنگام انتشار"
 
-#: includes/Admin/SettingsPage.php:944
+#: includes/Admin/SettingsPage.php:945
 msgid "Show the chat launcher to visitors"
 msgstr "نمایش دکمهٔ گفت‌وگو به بازدیدکنندگان"
 
 #. translators: %s: required plugin name.
-#: includes/Admin/SettingsPage.php:1003
+#: includes/Admin/SettingsPage.php:1004
 #, php-format
 msgid "Needs %s"
 msgstr "نیازمند %s"
 
 #. translators: %s: required plugin name.
-#: includes/Admin/SettingsPage.php:1022
+#: includes/Admin/SettingsPage.php:1023
 #, php-format
 msgid "%s is not active on this site"
 msgstr "%s روی این سایت فعال نیست"
 
 #. translators: %s: required plugin name.
-#: includes/Admin/SettingsPage.php:1040
+#: includes/Admin/SettingsPage.php:1041
 #, php-format
 msgid "Install %s"
 msgstr "نصب %s"
 
-#: includes/Admin/SettingsPage.php:1096
+#: includes/Admin/SettingsPage.php:1097
 msgid "Other — type a model name"
 msgstr "دیگر — نام مدل را بنویسید"
 
-#: includes/Admin/SettingsPage.php:1098
+#: includes/Admin/SettingsPage.php:1099
 msgid "Loading models…"
 msgstr "در حال بارگذاری مدل‌ها…"
 
-#: includes/Admin/SettingsPage.php:1099
+#: includes/Admin/SettingsPage.php:1100
 msgid "Saved model"
 msgstr "مدل ذخیره‌شده"
 
 #. translators: {step}: current step number.
-#: includes/Admin/SettingsPage.php:1102
+#: includes/Admin/SettingsPage.php:1103
 msgid "Step {step} of 4"
 msgstr "گام {step} از ۴"
 
-#: includes/Admin/SettingsPage.php:1104
+#: includes/Admin/SettingsPage.php:1105
 msgid "Pick one to continue"
 msgstr "برای ادامه یکی را انتخاب کنید"
 
-#: includes/Admin/SettingsPage.php:1105
+#: includes/Admin/SettingsPage.php:1106
 msgid "Pick a service to continue"
 msgstr "برای ادامه یک سرویس انتخاب کنید"
 
-#: includes/Admin/SettingsPage.php:1106
+#: includes/Admin/SettingsPage.php:1107
 msgid "Connect a working key to continue"
 msgstr "برای ادامه یک کلید سالم وصل کنید"
 
-#: includes/Admin/SettingsPage.php:1107
+#: includes/Admin/SettingsPage.php:1108
 msgid "Choose a model to continue"
 msgstr "برای ادامه یک مدل انتخاب کنید"
 
-#: includes/Admin/SettingsPage.php:1108
+#: includes/Admin/SettingsPage.php:1109
 msgid "Check the connection with this model to continue"
 msgstr "برای ادامه، اتصال را با این مدل بررسی کنید"
 
 #. translators: {count}: number of AI services.
-#: includes/Admin/SettingsPage.php:1111
+#: includes/Admin/SettingsPage.php:1112
 msgid "All {count} services"
 msgstr "همهٔ {count} سرویس"
 
 #. translators: {count}: number of matching AI services.
-#: includes/Admin/SettingsPage.php:1113
+#: includes/Admin/SettingsPage.php:1114
 msgid "{count} matches"
 msgstr "{count} نتیجه"
 
-#: includes/Admin/SettingsPage.php:1114
+#: includes/Admin/SettingsPage.php:1115
 msgid "1 match"
 msgstr "۱ نتیجه"
 
 #. translators: {count}: number of AI services.
-#: includes/Admin/SettingsPage.php:1116
+#: includes/Admin/SettingsPage.php:1117
 msgid "See all {count} services"
 msgstr "دیدن همهٔ {count} سرویس"
 
-#: includes/Admin/SettingsPage.php:1117
+#: includes/Admin/SettingsPage.php:1118
 msgid "Show fewer"
 msgstr "نمایش کمتر"
 
 #. translators: {query}: what the administrator searched for.
-#: includes/Admin/SettingsPage.php:1119
+#: includes/Admin/SettingsPage.php:1120
 msgid "No service called “{query}”"
 msgstr "سرویسی با نام «{query}» پیدا نشد"
 
 #. translators: {provider}: AI service name.
-#: includes/Admin/SettingsPage.php:1121
+#: includes/Admin/SettingsPage.php:1122
 msgid "Connect your {provider} key"
 msgstr "کلید {provider} خود را وصل کنید"
 
 #. translators: {host}: provider API host name.
-#: includes/Admin/SettingsPage.php:1123
+#: includes/Admin/SettingsPage.php:1124
 msgid ""
 "We store it encrypted on this site and never send it anywhere except {host}."
 msgstr ""
@@ -5296,60 +5326,60 @@ msgstr ""
 "نمی‌فرستیم."
 
 #. translators: {host}: provider API host name.
-#: includes/Admin/SettingsPage.php:1125
+#: includes/Admin/SettingsPage.php:1126
 msgid ""
 "The key stays in Settings → Connectors. AutoPilot sends it only to {host}."
 msgstr ""
 "کلید در «تنظیمات ← Connectors» می‌ماند. AutoPilot آن را فقط به {host} می‌فرستد."
 
-#: includes/Admin/SettingsPage.php:1126
+#: includes/Admin/SettingsPage.php:1127
 msgid "your endpoint"
 msgstr "آدرس شما"
 
-#: includes/Admin/SettingsPage.php:1128
+#: includes/Admin/SettingsPage.php:1129
 msgid "•••••••• saved — leave blank to keep it"
 msgstr "•••••••• ذخیره شده — برای حفظ آن خالی بگذارید"
 
-#: includes/Admin/SettingsPage.php:1129
+#: includes/Admin/SettingsPage.php:1130
 msgid "Paste your key"
 msgstr "کلید خود را وارد کنید"
 
-#: includes/Admin/SettingsPage.php:1130
+#: includes/Admin/SettingsPage.php:1131
 msgid "This choice uses the key saved in Settings → Connectors."
 msgstr "این گزینه از کلید ذخیره‌شده در «تنظیمات ← Connectors» استفاده می‌کند."
 
-#: includes/Admin/SettingsPage.php:1132
+#: includes/Admin/SettingsPage.php:1133
 msgid "Checking"
 msgstr "در حال بررسی"
 
-#: includes/Admin/SettingsPage.php:1133
+#: includes/Admin/SettingsPage.php:1134
 msgid "Check again"
 msgstr "بررسی دوباره"
 
 #. translators: {label}: name of the check that failed.
-#: includes/Admin/SettingsPage.php:1135
+#: includes/Admin/SettingsPage.php:1136
 msgid "{label} — failed"
 msgstr "{label} — ناموفق"
 
-#: includes/Admin/SettingsPage.php:1136
+#: includes/Admin/SettingsPage.php:1137
 msgid "Checking your key…"
 msgstr "در حال بررسی کلید…"
 
 #. translators: {host}: provider API host name.
-#: includes/Admin/SettingsPage.php:1138
+#: includes/Admin/SettingsPage.php:1139
 msgid "A short test request is on its way to {host}."
 msgstr "یک درخواست آزمایشی کوتاه به {host} فرستاده شد."
 
-#: includes/Admin/SettingsPage.php:1139
+#: includes/Admin/SettingsPage.php:1140
 msgid "Connected"
 msgstr "وصل شد"
 
 #. translators: {count}: number of models the key can use.
-#: includes/Admin/SettingsPage.php:1141
+#: includes/Admin/SettingsPage.php:1142
 msgid "Your key works and {count} models are available on this account."
 msgstr "کلید شما کار می‌کند و {count} مدل در این حساب در دسترس است."
 
-#: includes/Admin/SettingsPage.php:1142
+#: includes/Admin/SettingsPage.php:1143
 msgid ""
 "Your key works. This provider does not publish a model list, so type the "
 "model you want below."
@@ -5357,28 +5387,29 @@ msgstr ""
 "کلید شما کار می‌کند. این سرویس‌دهنده فهرست مدل منتشر نمی‌کند؛ نام مدل موردنظر "
 "را پایین بنویسید."
 
-#: includes/Admin/SettingsPage.php:1145
+#: includes/Admin/SettingsPage.php:1146
 msgid "The key is valid, the account is empty"
 msgstr "کلید معتبر است، اما حساب اعتبار ندارد"
 
-#: includes/Admin/SettingsPage.php:1146
+#: includes/Admin/SettingsPage.php:1147
 msgid "Too many requests right now"
 msgstr "در حال حاضر درخواست‌ها بیش از حد است"
 
-#: includes/Admin/SettingsPage.php:1150
+#: includes/Admin/SettingsPage.php:1151
 msgid "The key works, but no models came back"
 msgstr "کلید کار می‌کند، اما هیچ مدلی برنگشت"
 
-#: includes/Admin/SettingsPage.php:1151
+#: includes/Admin/SettingsPage.php:1152
 msgid "The check did not pass"
 msgstr "بررسی موفق نبود"
 
-#: includes/Admin/SettingsPage.php:1152
+#: includes/Admin/SettingsPage.php:1153
 msgid "Paste the key from your provider dashboard, then check again."
 msgstr "کلید را از داشبورد سرویس‌دهنده کپی کنید و دوباره بررسی کنید."
 
-#. translators: 1: {provider} AI service name, 2: {prefix} documented key prefix.
-#: includes/Admin/SettingsPage.php:1154
+#. translators: 1: {provider} AI service name, 2: {prefix} documented key
+#. prefix.
+#: includes/Admin/SettingsPage.php:1155
 msgid ""
 "Keys for {provider} start with {prefix}. Copy the whole line, including that "
 "prefix, and make sure no space slipped in at the end."
@@ -5386,7 +5417,7 @@ msgstr ""
 "کلیدهای {provider} با {prefix} شروع می‌شوند. کل خط را همراه همین پیشوند کپی "
 "کنید و مطمئن شوید فاصله‌ای در انتها نمانده است."
 
-#: includes/Admin/SettingsPage.php:1155
+#: includes/Admin/SettingsPage.php:1156
 msgid ""
 "Copy the key again from the provider dashboard — a trailing space is the "
 "usual cause."
@@ -5395,7 +5426,7 @@ msgstr ""
 "انتها علت مشکل است."
 
 #. translators: {provider}: AI service name.
-#: includes/Admin/SettingsPage.php:1157
+#: includes/Admin/SettingsPage.php:1158
 msgid ""
 "Add credit in your {provider} billing page, then check again. Nothing is "
 "wrong with your setup."
@@ -5403,7 +5434,7 @@ msgstr ""
 "در صفحهٔ صورت‌حساب {provider} اعتبار اضافه کنید و دوباره بررسی کنید. تنظیمات "
 "شما مشکلی ندارد."
 
-#: includes/Admin/SettingsPage.php:1158
+#: includes/Admin/SettingsPage.php:1159
 msgid ""
 "Wait a moment and check again. New accounts often start on a low tier that a "
 "first payment lifts."
@@ -5412,7 +5443,7 @@ msgstr ""
 "می‌شوند که با اولین پرداخت بالا می‌رود."
 
 #. translators: {host}: provider API host name.
-#: includes/Admin/SettingsPage.php:1160
+#: includes/Admin/SettingsPage.php:1161
 msgid ""
 "Usually a host firewall or WP_HTTP_BLOCK_EXTERNAL in wp-config.php. Ask your "
 "host to allow outbound HTTPS to {host}, or add it to WP_ACCESSIBLE_HOSTS."
@@ -5421,7 +5452,7 @@ msgstr ""
 "از میزبان بخواهید اتصال HTTPS خروجی به {host} را مجاز کند یا آن را به "
 "WP_ACCESSIBLE_HOSTS اضافه کنید."
 
-#: includes/Admin/SettingsPage.php:1161
+#: includes/Admin/SettingsPage.php:1162
 msgid ""
 "Paste the base URL only, up to /v1 — not the full path and not a trailing "
 "slash. If the endpoint is right, pick a model this account can use."
@@ -5429,11 +5460,11 @@ msgstr ""
 "فقط نشانی پایه را تا ‎/v1‎ وارد کنید — نه مسیر کامل و نه اسلش پایانی. اگر آدرس "
 "درست است، مدلی انتخاب کنید که این حساب به آن دسترسی دارد."
 
-#: includes/Admin/SettingsPage.php:1162
+#: includes/Admin/SettingsPage.php:1163
 msgid "Add the base URL and a model name, then check again."
 msgstr "نشانی پایه و نام مدل را وارد کنید و دوباره بررسی کنید."
 
-#: includes/Admin/SettingsPage.php:1163
+#: includes/Admin/SettingsPage.php:1164
 msgid ""
 "Enable at least one chat model for this project in your provider dashboard, "
 "or type the model name by hand."
@@ -5441,41 +5472,41 @@ msgstr ""
 "در داشبورد سرویس‌دهنده دست‌کم یک مدل گفت‌وگو برای این پروژه فعال کنید یا نام "
 "مدل را دستی بنویسید."
 
-#: includes/Admin/SettingsPage.php:1164
+#: includes/Admin/SettingsPage.php:1165
 msgid "Paste it again"
 msgstr "دوباره وارد کنید"
 
 #. translators: {provider}: AI service name.
-#: includes/Admin/SettingsPage.php:1166
+#: includes/Admin/SettingsPage.php:1167
 msgid "Open {provider} keys"
 msgstr "باز کردن کلیدهای {provider}"
 
-#: includes/Admin/SettingsPage.php:1167
+#: includes/Admin/SettingsPage.php:1168
 msgid "Pick another service"
 msgstr "انتخاب سرویس دیگر"
 
-#: includes/Admin/SettingsPage.php:1168
+#: includes/Admin/SettingsPage.php:1169
 msgid "Retry"
 msgstr "تلاش دوباره"
 
-#: includes/Admin/SettingsPage.php:1169
+#: includes/Admin/SettingsPage.php:1170
 msgid "Run the full network test"
 msgstr "اجرای آزمون کامل شبکه"
 
-#: includes/Admin/SettingsPage.php:1170
+#: includes/Admin/SettingsPage.php:1171
 msgid "Edit the endpoint"
 msgstr "ویرایش آدرس"
 
-#: includes/Admin/SettingsPage.php:1171
+#: includes/Admin/SettingsPage.php:1172
 msgid "Type a model name"
 msgstr "نوشتن نام مدل"
 
 #. translators: {count}: number of models.
-#: includes/Admin/SettingsPage.php:1174
+#: includes/Admin/SettingsPage.php:1175
 msgid "{count} models available — we picked the one that fits a WordPress site"
 msgstr "{count} مدل در دسترس است — مناسب‌ترین را برای سایت وردپرسی انتخاب کردیم"
 
-#: includes/Admin/SettingsPage.php:1175
+#: includes/Admin/SettingsPage.php:1176
 msgid ""
 "Models this service is known to offer. Refresh to read your account’s own "
 "list."
@@ -5483,21 +5514,21 @@ msgstr ""
 "مدل‌هایی که این سرویس معمولاً ارائه می‌دهد. برای دیدن فهرست حساب خودتان، "
 "تازه‌سازی کنید."
 
-#: includes/Admin/SettingsPage.php:1176
+#: includes/Admin/SettingsPage.php:1177
 msgid ""
 "This service has no fixed list. Type the model or deployment name below."
 msgstr "این سرویس فهرست ثابتی ندارد. نام مدل یا استقرار را پایین بنویسید."
 
 #. translators: {count}: number of models.
-#: includes/Admin/SettingsPage.php:1179
+#: includes/Admin/SettingsPage.php:1180
 msgid "Show all {count} models"
 msgstr "نمایش همهٔ {count} مدل"
 
-#: includes/Admin/SettingsPage.php:1180
+#: includes/Admin/SettingsPage.php:1181
 msgid "Show fewer models"
 msgstr "نمایش مدل‌های کمتر"
 
-#: includes/Admin/SettingsPage.php:1181
+#: includes/Admin/SettingsPage.php:1182
 msgid ""
 "You picked a different model. Check the connection again to confirm this "
 "account can use it."
@@ -5505,23 +5536,23 @@ msgstr ""
 "مدل دیگری انتخاب کردید. اتصال را دوباره بررسی کنید تا مطمئن شوید این حساب به "
 "آن دسترسی دارد."
 
-#: includes/Admin/SettingsPage.php:1183
+#: includes/Admin/SettingsPage.php:1184
 msgid ""
 "Low: the same question gets almost the same answer. Best for support replies."
 msgstr ""
 "کم: یک سؤال تقریباً همیشه همان پاسخ را می‌گیرد. بهترین گزینه برای پاسخ‌های "
 "پشتیبانی."
 
-#: includes/Admin/SettingsPage.php:1184
+#: includes/Admin/SettingsPage.php:1185
 msgid "Balanced: reliable for support, still varied enough for writing."
 msgstr "متعادل: برای پشتیبانی قابل اعتماد و برای نوشتن به‌اندازهٔ کافی متنوع."
 
-#: includes/Admin/SettingsPage.php:1185
+#: includes/Admin/SettingsPage.php:1186
 msgid "High: more inventive wording, and more likely to wander off."
 msgstr "زیاد: عبارت‌پردازی خلاقانه‌تر، با احتمال بیشتر دور شدن از موضوع."
 
 #. translators: {provider}: AI service name.
-#: includes/Admin/SettingsPage.php:1187
+#: includes/Admin/SettingsPage.php:1188
 msgid ""
 "{provider} has no embeddings endpoint. Add a separate embedding key in "
 "advanced settings, or leave semantic search off and AutoPilot matches on "
@@ -5531,79 +5562,105 @@ msgstr ""
 "جداگانه اضافه کنید یا جست‌وجوی معنایی را خاموش بگذارید تا AutoPilot با "
 "کلیدواژه جست‌وجو کند."
 
-#: includes/Admin/SettingsPage.php:1190
+#: includes/Admin/SettingsPage.php:1191
 msgid "Hide the endpoint"
 msgstr "پنهان کردن آدرس"
 
-#: includes/Admin/SettingsPage.php:1202
+#: includes/Admin/SettingsPage.php:1203
 msgid "One key, many models"
 msgstr "یک کلید، مدل‌های فراوان"
 
-#: includes/Admin/SettingsPage.php:1219
+#: includes/Admin/SettingsPage.php:1220
 msgid "Most widely supported"
 msgstr "پرپشتیبانی‌ترین"
 
-#: includes/Admin/SettingsPage.php:1220
+#: includes/Admin/SettingsPage.php:1221
 msgid "Claude models"
 msgstr "مدل‌های Claude"
 
-#: includes/Admin/SettingsPage.php:1221
+#: includes/Admin/SettingsPage.php:1222
 msgid "Generous free tier"
 msgstr "سطح رایگان سخاوتمندانه"
 
-#: includes/Admin/SettingsPage.php:1222
+#: includes/Admin/SettingsPage.php:1223
 msgid "Reasoning focused"
 msgstr "متمرکز بر استدلال"
 
-#: includes/Admin/SettingsPage.php:1223
+#: includes/Admin/SettingsPage.php:1224
 msgid "Alibaba Cloud models"
 msgstr "مدل‌های Alibaba Cloud"
 
-#: includes/Admin/SettingsPage.php:1224
+#: includes/Admin/SettingsPage.php:1225
 msgid "EU-hosted"
 msgstr "میزبانی در اتحادیهٔ اروپا"
 
-#: includes/Admin/SettingsPage.php:1225
+#: includes/Admin/SettingsPage.php:1226 includes/Admin/SettingsPage.php:1234
+#: includes/Admin/SettingsPage.php:1235
 msgid "Fast inference"
 msgstr "پاسخ‌دهی سریع"
 
-#: includes/Admin/SettingsPage.php:1226
+#: includes/Admin/SettingsPage.php:1227
 msgid "One key, every vendor"
 msgstr "یک کلید برای همهٔ سرویس‌ها"
-
-#: includes/Admin/SettingsPage.php:1227
-msgid "Answers from live web"
-msgstr "پاسخ از وب زنده"
 
 #: includes/Admin/SettingsPage.php:1228
 msgid "Your own Azure deployments"
 msgstr "استقرارهای Azure خود شما"
 
 #: includes/Admin/SettingsPage.php:1229
-msgid "1000+ models, one key"
-msgstr "بیش از ۱۰۰۰ مدل با یک کلید"
+msgid "Grok models"
+msgstr "مدل‌های Grok"
 
 #: includes/Admin/SettingsPage.php:1230
+msgid "Enterprise and multilingual"
+msgstr "سازمانی و چندزبانه"
+
+#: includes/Admin/SettingsPage.php:1231
+msgid "GLM models"
+msgstr "مدل‌های GLM"
+
+#: includes/Admin/SettingsPage.php:1232
+msgid "Kimi models"
+msgstr "مدل‌های Kimi"
+
+#: includes/Admin/SettingsPage.php:1233
+msgid "MiniMax models"
+msgstr "مدل‌های MiniMax"
+
+#: includes/Admin/SettingsPage.php:1236 includes/Admin/SettingsPage.php:1237
+#: includes/Admin/SettingsPage.php:1241
 msgid "Open-weight models"
 msgstr "مدل‌های با وزن باز"
 
-#: includes/Admin/SettingsPage.php:1231
+#: includes/Admin/SettingsPage.php:1238
+msgid "Many inference providers, one token"
+msgstr "سرویس‌دهنده‌های پاسخ‌دهی فراوان، یک توکن"
+
+#: includes/Admin/SettingsPage.php:1239
+msgid "NVIDIA-hosted models"
+msgstr "مدل‌های میزبانی‌شده در NVIDIA"
+
+#: includes/Admin/SettingsPage.php:1240
+msgid "1000+ models, one key"
+msgstr "بیش از ۱۰۰۰ مدل با یک کلید"
+
+#: includes/Admin/SettingsPage.php:1242
 msgid "Multi-vendor gateway"
 msgstr "درگاه چندسرویسه"
 
-#: includes/Admin/SettingsPage.php:1232
+#: includes/Admin/SettingsPage.php:1243
 msgid "Any OpenAI-compatible API"
 msgstr "هر API سازگار با OpenAI"
 
-#: includes/Admin/SettingsPage.php:1240
+#: includes/Admin/SettingsPage.php:1251
 msgid "Provider gateway"
 msgstr "درگاه سرویس‌دهنده"
 
-#: includes/Admin/SettingsPage.php:1241
+#: includes/Admin/SettingsPage.php:1252
 msgid "Direct provider endpoint"
 msgstr "آدرس مستقیم سرویس‌دهنده"
 
-#: includes/Admin/SettingsPage.php:1344
+#: includes/Admin/SettingsPage.php:1355
 msgid "Test this exact provider, key and model before saving Setup."
 msgstr "پیش از ذخیرهٔ راه‌اندازی، همین سرویس‌دهنده، کلید و مدل را آزمایش کنید."
 
@@ -6389,7 +6446,7 @@ msgstr "پیشنهاد محتوا امن یا کامل نبود."
 
 #: includes/Api/ContentController.php:104
 #: includes/Api/CopilotController.php:138
-#: includes/Api/EfbCopilotController.php:170
+#: includes/Api/EfbCopilotController.php:172
 msgid "Missing action reference."
 msgstr "ارجاع اقدام موجود نیست."
 
@@ -6402,19 +6459,19 @@ msgid "Form Studio is turned off in Integrations."
 msgstr "استودیوی فرم در یکپارچه‌سازی‌ها خاموش است."
 
 #: includes/Api/CopilotController.php:45
-#: includes/Api/EfbCopilotController.php:43
+#: includes/Api/EfbCopilotController.php:45
 msgid "Please describe the form you want."
 msgstr "لطفاً فرمی را که می‌خواهید توضیح دهید."
 
 #: includes/Api/CopilotController.php:48
-#: includes/Api/EfbCopilotController.php:46
+#: includes/Api/EfbCopilotController.php:48
 msgid "Your request is too long."
 msgstr "درخواست پشتیبانی ارسال شد."
 
 #: includes/Api/CopilotController.php:53
-#: includes/Api/EfbCopilotController.php:50
-#: includes/Api/EfbCopilotController.php:260
-#: includes/Api/EfbCopilotController.php:921
+#: includes/Api/EfbCopilotController.php:52
+#: includes/Api/EfbCopilotController.php:262
+#: includes/Api/EfbCopilotController.php:1198
 msgid ""
 "Add your AI provider API key in AI Site Assistant AutoPilot → Settings first."
 msgstr ""
@@ -6422,7 +6479,7 @@ msgstr ""
 "وارد کنید."
 
 #: includes/Api/CopilotController.php:73
-#: includes/Api/EfbCopilotController.php:73
+#: includes/Api/EfbCopilotController.php:75
 msgid "The form plan was not safe or complete."
 msgstr "طرح فرم امن یا کامل نبود."
 
@@ -6452,13 +6509,13 @@ msgstr "این سرویس‌دهنده فهرست مدل‌ها را منتشر 
 msgid "%s models loaded from the provider."
 msgstr "%s مدل از سرویس‌دهنده بارگذاری شد."
 
-#: includes/Api/EfbCopilotController.php:59
-#: includes/Api/EfbCopilotController.php:189
+#: includes/Api/EfbCopilotController.php:61
+#: includes/Api/EfbCopilotController.php:191
 #: includes/Connectors/EasyFormBuilderConnector.php:157
 msgid "Easy Form Builder is not active."
 msgstr "Easy Form Builder فعال نیست."
 
-#: includes/Api/EfbCopilotController.php:138
+#: includes/Api/EfbCopilotController.php:140
 #, php-format
 msgid ""
 "I left out %s — that field needs Easy Form Builder Free Plus or Pro. "
@@ -6473,31 +6530,31 @@ msgstr[1] ""
 "%s را کنار گذاشتم — آن فیلدها به Easy Form Builder Free Plus یا Pro نیاز "
 "دارند. بقیه آماده است."
 
-#: includes/Api/EfbCopilotController.php:175
+#: includes/Api/EfbCopilotController.php:177
 #: includes/Execution/ActionExecutor.php:37
 msgid "This proposal has expired. Please generate the form again."
 msgstr "این پیشنهاد منقضی شده است. لطفاً فرم را دوباره بسازید."
 
-#: includes/Api/EfbCopilotController.php:178
+#: includes/Api/EfbCopilotController.php:180
 #: includes/Execution/ActionExecutor.php:30
 #: includes/Execution/ActionExecutor.php:42
 msgid "You are not allowed to approve this action."
 msgstr "شما اجازهٔ تأیید این اقدام را ندارید."
 
-#: includes/Api/EfbCopilotController.php:181
+#: includes/Api/EfbCopilotController.php:183
 #: includes/Execution/ActionExecutor.php:45
 msgid "This proposal is already being processed or has already been used."
 msgstr "این پیشنهاد در حال پردازش است یا قبلاً استفاده شده است."
 
-#: includes/Api/EfbCopilotController.php:184
+#: includes/Api/EfbCopilotController.php:186
 msgid "This approval does not belong to Easy Form Builder."
 msgstr "این تأیید متعلق به Easy Form Builder نیست."
 
-#: includes/Api/EfbCopilotController.php:206
+#: includes/Api/EfbCopilotController.php:208
 msgid "Creation failed."
 msgstr "ساخت ناموفق بود."
 
-#: includes/Api/EfbCopilotController.php:242
+#: includes/Api/EfbCopilotController.php:244
 msgid ""
 "Tell me what form you need, ask me to change the open form, or ask how to do "
 "something."
@@ -6505,15 +6562,27 @@ msgstr ""
 "بگویید چه فرمی می‌خواهید، از من بخواهید فرم باز را تغییر دهم، یا بپرسید چطور "
 "کاری را انجام دهید."
 
-#: includes/Api/EfbCopilotController.php:251
+#: includes/Api/EfbCopilotController.php:253
 msgid "That message is a bit long — please shorten it."
 msgstr "این پیام کمی طولانی است — لطفاً کوتاهش کنید."
 
-#: includes/Api/EfbCopilotController.php:346
+#: includes/Api/EfbCopilotController.php:367
 msgid "Here are topics I can walk you through:"
 msgstr "این موضوع‌ها را می‌توانم قدم‌به‌قدم راهنمایی کنم:"
 
 #: includes/Api/EfbCopilotController.php:405
+msgid "Here is what this form’s conditional logic does:"
+msgstr "منطق شرطی این فرم این کارها را انجام می‌دهد:"
+
+#: includes/Api/EfbCopilotController.php:406
+msgid "This form has no conditional logic rules yet."
+msgstr "این فرم هنوز هیچ قاعدهٔ منطق شرطی ندارد."
+
+#: includes/Api/EfbCopilotController.php:471
+msgid "I did not change the form."
+msgstr "فرم را تغییر ندادم."
+
+#: includes/Api/EfbCopilotController.php:477
 msgid ""
 "I could not turn that into a change. Try e.g. \"add a mobile field\" or "
 "\"make Email required\"."
@@ -6521,35 +6590,35 @@ msgstr ""
 "نتوانستم آن را به تغییر تبدیل کنم. مثلاً امتحان کنید «یک فیلد موبایل اضافه "
 "کن» یا «ایمیل را الزامی کن»."
 
-#: includes/Api/EfbCopilotController.php:442
+#: includes/Api/EfbCopilotController.php:526
 msgid "Done — applying your change."
 msgstr "انجام شد — در حال اعمال تغییر شما."
 
-#: includes/Api/EfbCopilotController.php:459
+#: includes/Api/EfbCopilotController.php:545
 msgid ""
 "I could not build a safe form from that. Could you add a bit more detail?"
 msgstr "نتوانستم از آن یک فرم امن بسازم. می‌توانید کمی جزئیات بیشتر بدهید؟"
 
-#: includes/Api/EfbCopilotController.php:485
+#: includes/Api/EfbCopilotController.php:571
 msgid "Here is the form I designed — review it and approve to create it."
 msgstr "این فرمی است که طراحی کردم — بررسی کنید و برای ساخت، تأیید بزنید."
 
-#: includes/Api/EfbCopilotController.php:497
+#: includes/Api/EfbCopilotController.php:583
 msgid "How can I help with your form?"
 msgstr "چطور می‌توانم در ساخت فرم کمکتان کنم؟"
 
 #. translators: %s: field type.
-#: includes/Api/EfbCopilotController.php:745
+#: includes/Api/EfbCopilotController.php:834
 #, php-format
 msgid "Field type \"%s\" is not supported in Easy Form Builder."
 msgstr "نوع فیلد «%s» در Easy Form Builder پشتیبانی نمی‌شود."
 
-#: includes/Api/EfbCopilotController.php:747
+#: includes/Api/EfbCopilotController.php:836
 msgid "A choice field needs at least one option — tell me the options."
 msgstr "فیلد انتخابی حداقل به یک گزینه نیاز دارد — گزینه‌ها را بگویید."
 
 #. translators: %s: field name.
-#: includes/Api/EfbCopilotController.php:752
+#: includes/Api/EfbCopilotController.php:841
 #, php-format
 msgid ""
 "I can configure a \"%s\" field but not add one — drag it in from the Easy "
@@ -6558,8 +6627,44 @@ msgstr ""
 "می‌توانم فیلد «%s» را پیکربندی کنم اما نمی‌توانم آن را اضافه کنم — آن را از "
 "پالت Easy Form Builder بکشید و دوباره از من بخواهید."
 
-#. translators: 1: number of applied operations, 2: number of skipped operations.
-#: includes/Api/EfbCopilotController.php:758
+#: includes/Api/EfbCopilotController.php:843
+msgid ""
+"Conditional logic needs Easy Form Builder’s Conditional Logic add-on. "
+"Activate it under Easy Form Builder → Add-ons, reload this form and ask me "
+"again."
+msgstr ""
+"منطق شرطی به افزونهٔ جانبی «منطق شرطی» Easy Form Builder نیاز دارد. آن را در "
+"Easy Form Builder ← افزونه‌های جانبی فعال کنید، این فرم را دوباره بارگذاری "
+"کنید و دوباره از من بخواهید."
+
+#: includes/Api/EfbCopilotController.php:845
+msgid "Conditional logic rules need Easy Form Builder Free Plus or Pro."
+msgstr ""
+"قاعده‌های منطق شرطی به Easy Form Builder نسخهٔ Free Plus یا Pro نیاز دارند."
+
+#. translators: %d: rule limit.
+#: includes/Api/EfbCopilotController.php:848
+#, php-format
+msgid ""
+"Easy Form Builder Free Plus allows %d conditional logic rules per form. "
+"Remove one or upgrade to Pro for more."
+msgstr ""
+"Easy Form Builder نسخهٔ Free Plus در هر فرم %d قاعدهٔ منطق شرطی را مجاز "
+"می‌داند. یکی را حذف کنید یا برای قاعده‌های بیشتر به Pro ارتقا دهید."
+
+#. translators: %d: condition limit.
+#: includes/Api/EfbCopilotController.php:851
+#, php-format
+msgid ""
+"Easy Form Builder Free Plus allows %d conditions per rule. Split the rule or "
+"upgrade to Pro."
+msgstr ""
+"Easy Form Builder نسخهٔ Free Plus در هر قاعده %d شرط را مجاز می‌داند. قاعده را "
+"به چند قاعده تقسیم کنید یا به Pro ارتقا دهید."
+
+#. translators: 1: number of applied operations, 2: number of skipped
+#. operations.
+#: includes/Api/EfbCopilotController.php:859
 #, php-format
 msgid ""
 "That was too many changes at once: I applied the first %1$d and skipped "
@@ -6568,35 +6673,94 @@ msgstr ""
 "تغییرها یک‌باره زیاد بود: %1$d مورد اول را اعمال کردم و %2$d مورد را رد کردم. "
 "برای بقیه دوباره درخواست دهید."
 
-#: includes/Api/EfbCopilotController.php:778
+#. translators: %s: field name the AI referred to.
+#: includes/Api/EfbCopilotController.php:880
+#, php-format
+msgid "I could not add that rule: this form has no field called “%s”."
+msgstr "نتوانستم آن قاعده را اضافه کنم: این فرم فیلدی به نام «%s» ندارد."
+
+#. translators: %s: option text.
+#: includes/Api/EfbCopilotController.php:883
+#, php-format
+msgid "I could not add that rule: “%s” is not one of that field’s options."
+msgstr "نتوانستم آن قاعده را اضافه کنم: «%s» یکی از گزینه‌های آن فیلد نیست."
+
+#. translators: %s: step name or number.
+#: includes/Api/EfbCopilotController.php:886
+#, php-format
+msgid "I could not add that rule: this form has no step “%s”."
+msgstr "نتوانستم آن قاعده را اضافه کنم: این فرم مرحلهٔ «%s» را ندارد."
+
+#: includes/Api/EfbCopilotController.php:888
+msgid "I could not add that rule: a field cannot show, hide or require itself."
+msgstr ""
+"نتوانستم آن قاعده را اضافه کنم: یک فیلد نمی‌تواند خودش را نمایش دهد، پنهان "
+"کند یا الزامی کند."
+
+#: includes/Api/EfbCopilotController.php:890
+msgid ""
+"I could not add that rule: it would show and hide (or require and un-"
+"require) the same field at once."
+msgstr ""
+"نتوانستم آن قاعده را اضافه کنم: یک فیلد را هم‌زمان نمایش می‌داد و پنهان می‌کرد "
+"(یا الزامی و اختیاری می‌کرد)."
+
+#: includes/Api/EfbCopilotController.php:892
+msgid ""
+"I could not turn that into a valid conditional logic rule. Name the field, "
+"the answer and what should happen."
+msgstr ""
+"نتوانستم آن را به یک قاعدهٔ معتبر منطق شرطی تبدیل کنم. نام فیلد، پاسخ و کاری "
+"را که باید انجام شود بگویید."
+
+#: includes/Api/EfbCopilotController.php:906
 msgid ""
 "Easy Form Builder Free supports up to two steps. Upgrade to add more steps."
 msgstr ""
 "نسخهٔ رایگان Easy Form Builder حداکثر دو مرحله را پشتیبانی می‌کند. برای مراحل "
 "بیشتر ارتقا دهید."
 
-#: includes/Api/EfbCopilotController.php:780
+#: includes/Api/EfbCopilotController.php:908
 msgid ""
 "The mobile layout settings are part of the Pro version of Easy Form Builder."
 msgstr "تنظیمات چیدمان موبایل بخشی از نسخهٔ Pro در Easy Form Builder است."
 
-#: includes/Api/EfbCopilotController.php:782
+#: includes/Api/EfbCopilotController.php:910
 msgid "This field is available in the Pro version of Easy Form Builder."
 msgstr "این فیلد در نسخهٔ Pro از Easy Form Builder در دسترس است."
 
-#: includes/Api/EfbCopilotController.php:885
+#: includes/Api/EfbCopilotController.php:1065
+msgid "I checked the form. Here is what I would improve:"
+msgstr "فرم را بررسی کردم. این موارد را بهتر می‌کنم:"
+
+#: includes/Api/EfbCopilotController.php:1066
+msgid "I checked the form and found nothing to fix."
+msgstr "فرم را بررسی کردم و چیزی برای اصلاح پیدا نکردم."
+
+#. translators: %s: field label.
+#: includes/Api/EfbCopilotController.php:1088
+#, php-format
+msgid ""
+"Two rules on the same condition both show and hide (or require and un-"
+"require) “%s”; only the last one wins. Check the Conditional Logic panel."
+msgstr ""
+"دو قاعده با یک شرط یکسان، «%s» را هم نمایش می‌دهند و هم پنهان می‌کنند (یا هم "
+"الزامی و هم اختیاری می‌کنند)؛ فقط آخری اثر دارد. پنل «منطق شرطی» را بررسی "
+"کنید."
+
+#: includes/Api/EfbCopilotController.php:1162
 msgid "Ask a question, e.g. \"how do I make a field required?\""
 msgstr "سؤالی بپرسید، مثلاً «چطور یک فیلد را الزامی کنم؟»"
 
-#: includes/Api/EfbCopilotController.php:893
+#: includes/Api/EfbCopilotController.php:1170
 msgid "I could not match that exactly. Try one of these topics:"
 msgstr "دقیقاً موردی مطابق پیدا نکردم. یکی از این موضوع‌ها را امتحان کنید:"
 
-#: includes/Api/EfbCopilotController.php:918
+#: includes/Api/EfbCopilotController.php:1195
 msgid "Type what you want to change."
 msgstr "بنویسید چه چیزی را می‌خواهید تغییر دهید."
 
-#: includes/Api/EfbCopilotController.php:943
+#: includes/Api/EfbCopilotController.php:1220
 msgid ""
 "I could not turn that into a change. Try being more specific, e.g. \"make "
 "Email required\" or \"rename the form to Contact us\"."
@@ -6604,15 +6768,15 @@ msgstr ""
 "نتوانستم آن را به تغییر تبدیل کنم. دقیق‌تر بگویید، مثلاً «ایمیل را الزامی کن» "
 "یا «نام فرم را به تماس با ما تغییر بده»."
 
-#: includes/Api/EfbCopilotController.php:970
+#: includes/Api/EfbCopilotController.php:1247
 msgid "Invalid save request."
 msgstr "درخواست ذخیره نامعتبر است."
 
-#: includes/Api/EfbCopilotController.php:976
+#: includes/Api/EfbCopilotController.php:1253
 msgid "Unsafe content rejected."
 msgstr "محتوای ناامن رد شد."
 
-#: includes/Api/EfbCopilotController.php:997
+#: includes/Api/EfbCopilotController.php:1274
 msgid "Could not save the form."
 msgstr "فرم ذخیره نشد."
 
@@ -6715,7 +6879,8 @@ msgstr "دانش‌نامه خالی است. لطفاً ابتدا محتوای 
 msgid "The AI provider could not answer this question. Please try again."
 msgstr "سرویس‌دهندهٔ هوش مصنوعی نتوانست به این سؤال پاسخ دهد. دوباره تلاش کنید."
 
-#. translators: %s: a question a site visitor asked that the site could not answer.
+#. translators: %s: a question a site visitor asked that the site could not
+#. answer.
 #: includes/Api/KnowledgeBaseController.php:187
 #, php-format
 msgid "Write a help article that answers this question from a site visitor: %s"
@@ -6918,7 +7083,8 @@ msgstr "نوع فیلد «%s» در Easy Form Builder پشتیبانی نمی‌
 msgid "The form could not be saved into Easy Form Builder."
 msgstr "فرم در Easy Form Builder ذخیره نشد."
 
-#. translators: 1: detected Easy Form Builder version, 2: minimum supported version.
+#. translators: 1: detected Easy Form Builder version, 2: minimum supported
+#. version.
 #: includes/Connectors/EasyFormBuilderConnector.php:160
 #, php-format
 msgid ""
@@ -7323,7 +7489,7 @@ msgstr "ارسال شد — با شما تماس می‌گیریم."
 msgid "Could not send. Please try again."
 msgstr "ارسال نشد. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:166 includes/Frontend/WidgetRenderer.php:43
+#: includes/Core/Plugin.php:166
 msgid "Sorry, I could not answer that."
 msgstr "متأسفم، نتوانستم به آن پاسخ دهم."
 
@@ -7377,7 +7543,7 @@ msgstr "دستیار در حال نوشتن پاسخ است"
 msgid "Listening… tap the mic again to stop"
 msgstr "در حال شنیدن… برای توقف دوباره روی میکروفن بزنید"
 
-#: includes/Core/Plugin.php:184 includes/Frontend/WidgetRenderer.php:53
+#: includes/Core/Plugin.php:184
 msgid "Listening…"
 msgstr "در حال گوش دادن..."
 
@@ -7395,7 +7561,7 @@ msgstr ""
 "بومی آن را پشتیبانی می‌کند. این سرویس نقطهٔ پایانی Embeddings ندارد، بنابراین "
 "جست‌وجوی معنایی به یک سرویس‌دهندهٔ Embedding جداگانه در پایین نیاز دارد."
 
-#: includes/Core/Settings.php:118
+#: includes/Core/Settings.php:116
 msgid ""
 "Uses Google’s OpenAI-compatible endpoint, so the same key works for chat and "
 "embeddings."
@@ -7403,33 +7569,101 @@ msgstr ""
 "از نقطهٔ پایانی سازگار با OpenAI گوگل استفاده می‌کند، بنابراین یک کلید هم برای "
 "گفت‌وگو و هم برای Embeddings کار می‌کند."
 
-#: includes/Core/Settings.php:148
+#: includes/Core/Settings.php:131
 msgid ""
-"Mainland-China accounts use https://dashscope.aliyuncs.com/compatible-mode/"
-"v1 instead."
+"xAI has no embeddings endpoint, so semantic search needs a separate "
+"embedding provider. Use https://us.api.x.ai/v1 to keep inference in the "
+"United States."
 msgstr ""
-"حساب‌های چین به‌جای آن از https://dashscope.aliyuncs.com/compatible-mode/v1 "
-"استفاده می‌کنند."
+"xAI نقطهٔ پایانی Embedding ندارد، پس جست‌وجوی معنایی به یک سرویس‌دهندهٔ "
+"Embedding جداگانه نیاز دارد. برای اینکه پردازش فقط در ایالات متحده انجام شود "
+"از ‎https://us.api.x.ai/v1‎ استفاده کنید."
+
+#: includes/Core/Settings.php:142
+msgid ""
+"deepseek-chat and deepseek-reasoner were retired; deepseek-flash replaces "
+"them."
+msgstr ""
+"deepseek-chat و deepseek-reasoner بازنشسته شدند؛ deepseek-flash جایگزین آن‌ها "
+"است."
+
+#: includes/Core/Settings.php:163
+msgid ""
+"A key only works in its own region: mainland-China accounts use https://"
+"dashscope.aliyuncs.com/compatible-mode/v1 and US accounts https://dashscope-"
+"us.aliyuncs.com/compatible-mode/v1."
+msgstr ""
+"هر کلید فقط در منطقهٔ خودش کار می‌کند: حساب‌های سرزمین اصلی چین از ‎https://"
+"dashscope.aliyuncs.com/compatible-mode/v1‎ و حساب‌های آمریکا از ‎https://"
+"dashscope-us.aliyuncs.com/compatible-mode/v1‎ استفاده می‌کنند."
 
 #: includes/Core/Settings.php:184
 msgid ""
-"Groq is very fast but has no embeddings endpoint — pick a separate embedding "
-"provider for semantic search."
+"The -latest names move to newer models over time; pick a dated name when "
+"behaviour must stay fixed."
 msgstr ""
-"Groq بسیار سریع است اما نقطهٔ پایانی Embeddings ندارد — برای جست‌وجوی معنایی "
-"یک سرویس‌دهندهٔ Embedding جداگانه انتخاب کنید."
+"نام‌های ‎-latest‎ به‌مرور به مدل‌های تازه‌تر اشاره می‌کنند؛ اگر رفتار باید ثابت "
+"بماند، نامی تاریخ‌دار انتخاب کنید."
 
-#: includes/Core/Settings.php:197
+#: includes/Core/Settings.php:204
 msgid ""
-"Perplexity answers from live web search. Its OpenAI-compatible Sonar "
-"endpoint is scheduled to retire on 27 September 2026 in favour of the Agent "
-"API, so treat this provider as short-term."
+"Uses Cohere’s OpenAI Compatibility API. It may not answer the model-list "
+"request, so pick or type the model name."
 msgstr ""
-"Perplexity بر پایهٔ جست‌وجوی زندهٔ وب پاسخ می‌دهد. نقطهٔ پایانی سازگار با OpenAI "
-"آن (Sonar) قرار است در ۲۷ سپتامبر ۲۰۲۶ به‌نفع Agent API بازنشسته شود، پس این "
-"سرویس‌دهنده را کوتاه‌مدت در نظر بگیرید."
+"از OpenAI Compatibility API شرکت Cohere استفاده می‌کند. ممکن است به درخواست "
+"فهرست مدل‌ها پاسخ ندهد؛ پس نام مدل را انتخاب کنید یا بنویسید."
 
-#: includes/Core/Settings.php:205
+#: includes/Core/Settings.php:218
+msgid ""
+"Mainland-China accounts (Zhipu BigModel) use https://open.bigmodel.cn/api/"
+"paas/v4 instead."
+msgstr ""
+"حساب‌های سرزمین اصلی چین (Zhipu BigModel) به‌جای آن از ‎https://open.bigmodel."
+"cn/api/paas/v4‎ استفاده می‌کنند."
+
+#: includes/Core/Settings.php:233
+msgid ""
+"Kimi models use a fixed temperature, so AISAAutoPilot drops its own setting "
+"for them. Mainland-China accounts use https://api.moonshot.cn/v1. No "
+"embeddings endpoint."
+msgstr ""
+"مدل‌های Kimi دمای ثابت دارند، پس AISAAutoPilot تنظیم دمای خودش را برای آن‌ها "
+"نمی‌فرستد. حساب‌های سرزمین اصلی چین از ‎https://api.moonshot.cn/v1‎ استفاده "
+"می‌کنند. نقطهٔ پایانی Embedding ندارد."
+
+#: includes/Core/Settings.php:248
+msgid ""
+"Mainland-China accounts use https://api.minimaxi.com/v1. No embeddings "
+"endpoint on this API."
+msgstr ""
+"حساب‌های سرزمین اصلی چین از ‎https://api.minimaxi.com/v1‎ استفاده می‌کنند. این "
+"API نقطهٔ پایانی Embedding ندارد."
+
+#: includes/Core/Settings.php:260
+msgid ""
+"Groq is very fast but has no embeddings endpoint — pick a separate embedding "
+"provider for semantic search. Its Llama models now need an Enterprise plan."
+msgstr ""
+"Groq بسیار سریع است اما نقطهٔ پایانی Embedding ندارد — برای جست‌وجوی معنایی یک "
+"سرویس‌دهندهٔ Embedding جداگانه انتخاب کنید. مدل‌های Llama آن اکنون به طرح "
+"Enterprise نیاز دارند."
+
+#: includes/Core/Settings.php:270
+msgid ""
+"Very fast open-model inference. Use “Refresh from provider” to load every "
+"model your key can use. No embeddings endpoint."
+msgstr ""
+"پاسخ‌دهی بسیار سریع با مدل‌های باز. با «تازه‌سازی از سرویس‌دهنده» همهٔ مدل‌هایی را "
+"که کلید شما می‌تواند استفاده کند بارگذاری کنید. نقطهٔ پایانی Embedding ندارد."
+
+#: includes/Core/Settings.php:280
+msgid ""
+"Open-model inference. Use “Refresh from provider” to load the current list."
+msgstr ""
+"پاسخ‌دهی با مدل‌های باز. برای بارگذاری فهرست فعلی از «تازه‌سازی از سرویس‌دهنده» "
+"استفاده کنید."
+
+#: includes/Core/Settings.php:288
 msgid ""
 "Replace YOUR-RESOURCE with your Azure resource name. The model is your "
 "deployment name, so pick it from your Azure portal rather than a fixed list."
@@ -7437,7 +7671,7 @@ msgstr ""
 "به‌جای YOUR-RESOURCE نام منبع Azure خود را بگذارید. مدل همان نام Deployment "
 "شماست، پس آن را از پورتال Azure بردارید نه از یک فهرست ثابت."
 
-#: includes/Core/Settings.php:222
+#: includes/Core/Settings.php:304
 msgid ""
 "One key for many vendors. Use “Refresh from provider” to pull OpenRouter’s "
 "current catalogue."
@@ -7445,7 +7679,39 @@ msgstr ""
 "یک کلید برای سازندگان متعدد. برای دریافت فهرست فعلی OpenRouter از «تازه‌سازی "
 "از سرویس‌دهنده» استفاده کنید."
 
-#: includes/Core/Settings.php:230
+#: includes/Core/Settings.php:312
+msgid ""
+"Open-model cloud with chat, embeddings and speech. Use “Refresh from "
+"provider” to load the current list."
+msgstr ""
+"ابر مدل‌های باز با گفت‌وگو، Embedding و گفتار. برای بارگذاری فهرست فعلی از "
+"«تازه‌سازی از سرویس‌دهنده» استفاده کنید."
+
+#: includes/Core/Settings.php:320
+msgid ""
+"Model names look like accounts/fireworks/models/<name>. Use “Refresh from "
+"provider” to load them."
+msgstr ""
+"نام مدل‌ها شبیه ‎accounts/fireworks/models/<name>‎ است. برای بارگذاری آن‌ها از "
+"«تازه‌سازی از سرویس‌دهنده» استفاده کنید."
+
+#: includes/Core/Settings.php:331
+msgid ""
+"Needs a fine-grained token allowed to “Make calls to Inference Providers”. "
+"Chat only — no embeddings on this endpoint."
+msgstr ""
+"به یک توکن fine-grained با مجوز «Make calls to Inference Providers» نیاز "
+"دارد. فقط گفت‌وگو — این نقطهٔ پایانی Embedding ندارد."
+
+#: includes/Core/Settings.php:339
+msgid ""
+"Hosted NVIDIA NIM endpoints. Use “Refresh from provider” to load the current "
+"list."
+msgstr ""
+"نقطه‌های پایانی میزبانی‌شدهٔ NVIDIA NIM. برای بارگذاری فهرست فعلی از «تازه‌سازی "
+"از سرویس‌دهنده» استفاده کنید."
+
+#: includes/Core/Settings.php:347
 msgid ""
 "Aggregator with 1000+ models behind one key. Use “Refresh from provider” to "
 "load the current list."
@@ -7453,7 +7719,7 @@ msgstr ""
 "تجمیع‌کننده با بیش از ۱۰۰۰ مدل پشت یک کلید. برای بارگذاری فهرست فعلی از "
 "«تازه‌سازی از سرویس‌دهنده» استفاده کنید."
 
-#: includes/Core/Settings.php:238
+#: includes/Core/Settings.php:355
 msgid ""
 "Open-model inference cloud. Use “Refresh from provider” to load the current "
 "list."
@@ -7461,19 +7727,20 @@ msgstr ""
 "ابر اجرای مدل‌های متن‌باز. برای بارگذاری فهرست فعلی از «تازه‌سازی از "
 "سرویس‌دهنده» استفاده کنید."
 
-#: includes/Core/Settings.php:246
+#: includes/Core/Settings.php:363
 msgid ""
 "Multi-provider gateway. Model names are vendor-prefixed — use “Refresh from "
-"provider” to load them."
+"provider” to load them. EU-only routing: https://api.eu.edenai.run/v3."
 msgstr ""
-"درگاه چندسرویسی. نام مدل‌ها پیشوند سازنده دارد — برای بارگذاری آن‌ها از "
-"«تازه‌سازی از سرویس‌دهنده» استفاده کنید."
+"درگاه چندسرویسه. نام مدل‌ها با نام سازنده شروع می‌شود — برای بارگذاری آن‌ها از "
+"«تازه‌سازی از سرویس‌دهنده» استفاده کنید. مسیریابی فقط در اتحادیهٔ اروپا: "
+"‎https://api.eu.edenai.run/v3‎."
 
-#: includes/Core/Settings.php:257
+#: includes/Core/Settings.php:366
 msgid "Custom (OpenAI-compatible)"
 msgstr "سفارشی (سازگار با OpenAI)"
 
-#: includes/Core/Settings.php:259
+#: includes/Core/Settings.php:368
 msgid ""
 "Any endpoint that implements POST /chat/completions. Paste the base URL up "
 "to but not including /chat/completions."
@@ -7481,32 +7748,32 @@ msgstr ""
 "هر نقطهٔ پایانی که POST /chat/completions را پیاده‌سازی کند. نشانی پایه را تا "
 "پیش از /chat/completions وارد کنید."
 
-#: includes/Core/Settings.php:299
+#: includes/Core/Settings.php:409
 msgid "Direct providers"
 msgstr "سرویس‌دهنده‌های مستقیم"
 
-#: includes/Core/Settings.php:300
+#: includes/Core/Settings.php:410
 msgid "Gateways & aggregators"
 msgstr "درگاه‌ها و تجمیع‌کننده‌ها"
 
-#: includes/Core/Settings.php:301
+#: includes/Core/Settings.php:411
 msgid "Custom endpoint"
 msgstr "endpoint سفارشی"
 
-#: includes/Core/Settings.php:568 includes/Core/WpConnectors.php:53
-#: includes/Core/WpConnectors.php:96 includes/Frontend/WidgetRenderer.php:34
+#: includes/Core/Settings.php:678 includes/Core/WpConnectors.php:53
+#: includes/Core/WpConnectors.php:96
 msgid "AI Site Assistant AutoPilot"
 msgstr "AI Site Assistant AutoPilot"
 
-#: includes/Core/Settings.php:569
+#: includes/Core/Settings.php:679
 msgid "AI Assistant"
 msgstr "دستیار AI"
 
-#: includes/Core/Settings.php:570
+#: includes/Core/Settings.php:680
 msgid "Hi! How can I help you?"
 msgstr "سلام! چطور می‌توانم کمکتان کنم؟"
 
-#: includes/Core/Settings.php:571
+#: includes/Core/Settings.php:681
 msgid "This conversation may be recorded to help our support team."
 msgstr "این گفت‌وگو ممکن است برای کمک به تیم پشتیبانی ما ثبت شود."
 
@@ -7522,11 +7789,11 @@ msgstr "کلید API"
 
 #: includes/Core/WpConnectors.php:62
 msgid ""
-"Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Clusy.io, or any "
-"OpenAI-compatible provider)."
+"Enter your AI provider API key (DeepSeek, OpenAI, Qwen, Kimi, MiniMax, or "
+"any OpenAI-compatible provider)."
 msgstr ""
-"کلید API ارائه‌دهندهٔ AI خود را وارد کنید (DeepSeek، OpenAI، Qwen، Clusy.io یا "
-"هر ارائه‌دهندهٔ سازگار با OpenAI)."
+"کلید API سرویس‌دهندهٔ هوش مصنوعی خود را وارد کنید (DeepSeek، OpenAI، Qwen، "
+"Kimi، MiniMax یا هر سرویس‌دهندهٔ سازگار با OpenAI)."
 
 #: includes/Core/WpConnectors.php:97
 msgid ""
@@ -7548,7 +7815,7 @@ msgid "No API key configured"
 msgstr "کلید API پیکربندی نشده است"
 
 # EFB Copilot specialist shell.
-#: includes/Efb/EfbBuilderButton.php:62 includes/Efb/EfbBuilderButton.php:193
+#: includes/Efb/EfbBuilderButton.php:62 includes/Efb/EfbBuilderButton.php:210
 msgid "Editing the current form"
 msgstr "در حال ویرایش فرم فعلی"
 
@@ -7803,7 +8070,8 @@ msgstr "یک‌چهارم"
 msgid "Set the help text of “%s”"
 msgstr "متن راهنمای «%s» تنظیم شد"
 
-#. translators: 1: Easy Form Builder setting key, such as button color, 2: field label or ID.
+#. translators: 1: Easy Form Builder setting key, such as button color, 2:
+#. field label or ID.
 #: includes/Efb/EfbBuilderButton.php:133
 #, php-format
 msgid "Updated %1$s for “%2$s”"
@@ -7855,19 +8123,77 @@ msgstr "گزینهٔ «%1$s» به «%2$s» اضافه شد"
 msgid "Removed the option “%1$s” from “%2$s”"
 msgstr "گزینهٔ «%1$s» از «%2$s» حذف شد"
 
-#. translators: %s: reason the change was not applied.
+#. translators: 1: old option text, 2: new option text.
 #: includes/Efb/EfbBuilderButton.php:150
+#, php-format
+msgid "Renamed the option “%1$s” to “%2$s”"
+msgstr "نام گزینهٔ «%1$s» به «%2$s» تغییر کرد"
+
+#. translators: %s: plain-language description of the rule.
+#: includes/Efb/EfbBuilderButton.php:152
+#, php-format
+msgid "Added the rule: %s"
+msgstr "قاعده اضافه شد: %s"
+
+#: includes/Efb/EfbBuilderButton.php:153
+msgid ""
+"Open Conditional Logic to review the rule and test it in Preview before you "
+"save."
+msgstr ""
+"پیش از ذخیره، «منطق شرطی» را باز کنید تا قاعده را بازبینی کنید و آن را در "
+"پیش‌نمایش بیازمایید."
+
+#: includes/Efb/EfbBuilderButton.php:154
+msgid "Undo this change"
+msgstr "واگرد این تغییر"
+
+#: includes/Efb/EfbBuilderButton.php:155
+msgid "Undone. The canvas is back to how it was before this change."
+msgstr "واگرد شد. بوم به حالت پیش از این تغییر برگشت."
+
+#: includes/Efb/EfbBuilderButton.php:156
+msgid "Apply"
+msgstr "اعمال"
+
+#: includes/Efb/EfbBuilderButton.php:157
+msgid "Applied the suggestion."
+msgstr "پیشنهاد اعمال شد."
+
+#. translators: %s: page title.
+#: includes/Efb/EfbBuilderButton.php:159
+#, php-format
+msgid "New page: %s"
+msgstr "صفحهٔ تازه: %s"
+
+#. translators: %s: submit button text.
+#: includes/Efb/EfbBuilderButton.php:161
+#, php-format
+msgid "Button: %s"
+msgstr "دکمه: %s"
+
+#. translators: %s: email address.
+#: includes/Efb/EfbBuilderButton.php:163
+#, php-format
+msgid "Each submission is emailed to %s"
+msgstr "هر ارسال به %s ایمیل می‌شود"
+
+#: includes/Efb/EfbBuilderButton.php:164
+msgid "The person who fills it in gets a confirmation email"
+msgstr "کسی که فرم را پر می‌کند ایمیل تأیید دریافت می‌کند"
+
+#. translators: %s: reason the change was not applied.
+#: includes/Efb/EfbBuilderButton.php:166
 #, php-format
 msgid "No change was applied: %s."
 msgstr "هیچ تغییری اعمال نشد: %s."
 
 #. translators: %s: reason the change was not applied.
-#: includes/Efb/EfbBuilderButton.php:152
+#: includes/Efb/EfbBuilderButton.php:168
 #, php-format
 msgid "Not applied: %s"
 msgstr "اعمال نشد: %s"
 
-#: includes/Efb/EfbBuilderButton.php:153
+#: includes/Efb/EfbBuilderButton.php:169
 msgid ""
 "Applied to the canvas. Review it, then click Easy Form Builder’s green Save "
 "button to keep the changes."
@@ -7876,7 +8202,7 @@ msgstr ""
 "ذخیرهٔ Easy Form Builder را بزنید."
 
 #. translators: %s: trace ID to look up in the Activity Log.
-#: includes/Efb/EfbBuilderButton.php:155
+#: includes/Efb/EfbBuilderButton.php:171
 #, php-format
 msgid ""
 "The Easy Form Builder canvas could not redraw, so the editor reloads now. "
@@ -7887,114 +8213,327 @@ msgstr ""
 "می‌شود. پیش از ذخیره، فرم را بررسی کنید؛ ردیاب %s در AI Site Assistant "
 "AutoPilot ← لاگ فعالیت است."
 
-#: includes/Efb/EfbBuilderButton.php:156
+#: includes/Efb/EfbBuilderButton.php:172
 msgid "the operation was malformed"
 msgstr "ساختار عملیات نادرست بود"
 
-#: includes/Efb/EfbBuilderButton.php:157
+#: includes/Efb/EfbBuilderButton.php:173
 msgid "the field was not found in this form"
 msgstr "فیلد در این فرم پیدا نشد"
 
-#: includes/Efb/EfbBuilderButton.php:158
+#: includes/Efb/EfbBuilderButton.php:174
 msgid "that field setting cannot be changed here"
 msgstr "این تنظیم فیلد از اینجا تغییر نمی‌کند"
 
-#: includes/Efb/EfbBuilderButton.php:159
+#: includes/Efb/EfbBuilderButton.php:175
 msgid "that setting is not available for this field type"
 msgstr "این تنظیم برای این نوع فیلد در دسترس نیست"
 
-#: includes/Efb/EfbBuilderButton.php:160
+#: includes/Efb/EfbBuilderButton.php:176
 msgid "the colour or setting value is not valid"
 msgstr "مقدار رنگ یا تنظیم معتبر نیست"
 
-#: includes/Efb/EfbBuilderButton.php:161
+#: includes/Efb/EfbBuilderButton.php:177
 msgid "that form setting is not available"
 msgstr "این تنظیم فرم در دسترس نیست"
 
-#: includes/Efb/EfbBuilderButton.php:162
+#: includes/Efb/EfbBuilderButton.php:178
 msgid "Easy Form Builder does not accept that value"
 msgstr "Easy Form Builder این مقدار را نمی‌پذیرد"
 
-#: includes/Efb/EfbBuilderButton.php:163
+#: includes/Efb/EfbBuilderButton.php:179
 msgid "the step template was missing from the reply"
 msgstr "الگوی مرحله در پاسخ نبود"
 
-#: includes/Efb/EfbBuilderButton.php:164
+#: includes/Efb/EfbBuilderButton.php:180
 msgid "the field template was missing from the reply"
 msgstr "الگوی فیلد در پاسخ نبود"
 
-#: includes/Efb/EfbBuilderButton.php:165
+#: includes/Efb/EfbBuilderButton.php:181
 msgid "the new field was invalid or its ID already exists"
 msgstr "فیلد تازه نامعتبر بود یا شناسهٔ آن از قبل وجود دارد"
 
-#: includes/Efb/EfbBuilderButton.php:166
+#: includes/Efb/EfbBuilderButton.php:182
 msgid "options can only be added to a choice field"
 msgstr "گزینه فقط به فیلد انتخابی اضافه می‌شود"
 
-#: includes/Efb/EfbBuilderButton.php:167
+#: includes/Efb/EfbBuilderButton.php:183
 msgid "the option was not found"
 msgstr "گزینه پیدا نشد"
 
-#: includes/Efb/EfbBuilderButton.php:168
+#: includes/Efb/EfbBuilderButton.php:184
+msgid "the Conditional Logic add-on is not active on this form"
+msgstr "افزونهٔ جانبی «منطق شرطی» روی این فرم فعال نیست"
+
+#: includes/Efb/EfbBuilderButton.php:185
 msgid "this change is not supported"
 msgstr "این تغییر پشتیبانی نمی‌شود"
 
-#: includes/Efb/EfbBuilderButton.php:169
+#: includes/Efb/EfbBuilderButton.php:186
 msgid "the reply contained no change to apply"
 msgstr "پاسخ هیچ تغییری برای اعمال نداشت"
 
-#: includes/Efb/EfbBuilderButton.php:170
+#: includes/Efb/EfbBuilderButton.php:187
 msgid "an unexpected error stopped this change"
 msgstr "خطای پیش‌بینی‌نشده‌ای این تغییر را متوقف کرد"
 
-#: includes/Efb/EfbBuilderButton.php:171
+#: includes/Efb/EfbBuilderButton.php:188
 msgid "the Easy Form Builder canvas could not redraw"
 msgstr "بوم Easy Form Builder دوباره رسم نشد"
 
-#: includes/Efb/EfbBuilderButton.php:172
+#: includes/Efb/EfbBuilderButton.php:189
 msgid "this change could not be applied"
 msgstr "این تغییر اعمال نشد"
 
-#: includes/Efb/EfbBuilderButton.php:183
+#: includes/Efb/EfbBuilderButton.php:200
 msgid "Chat with AI Site Assistant AutoPilot"
 msgstr "گفتگو با AI Site Assistant AutoPilot"
 
-#: includes/Efb/EfbBuilderButton.php:185
+#: includes/Efb/EfbBuilderButton.php:202
 msgid "Ask AI Site Assistant"
 msgstr "از دستیار هوشمند سایت بپرسید"
 
-#: includes/Efb/EfbBuilderButton.php:189
+#: includes/Efb/EfbBuilderButton.php:206
 msgid "AI Site Assistant AutoPilot chat"
 msgstr "گفتگوی AI Site Assistant AutoPilot"
 
-#: includes/Efb/EfbBuilderButton.php:193
+#: includes/Efb/EfbBuilderButton.php:210
 msgid "AI Site Assistant"
 msgstr "دستیار هوشمند سایت"
 
-#: includes/Efb/EfbBuilderButton.php:196
+#: includes/Efb/EfbBuilderButton.php:213
 msgid "Start voice input"
 msgstr "شروع ورودی صوتی"
 
-#: includes/Efb/EfbBuilderButton.php:197
-#: includes/Frontend/WidgetRenderer.php:35
+#: includes/Efb/EfbBuilderButton.php:214
 msgid "New chat"
 msgstr "گفت‌وگوی تازه"
 
-#: includes/Efb/EfbBuilderButton.php:205
+#: includes/Efb/EfbBuilderButton.php:222
 msgid "Clear"
 msgstr "پاک کردن"
 
-#: includes/Efb/EfbBuilderButton.php:214
+#: includes/Efb/EfbBuilderButton.php:231
 msgid "Ask about this form…"
 msgstr "دربارهٔ این فرم بپرسید…"
 
-#: includes/Efb/EfbBuilderButton.php:214
+#: includes/Efb/EfbBuilderButton.php:231
 msgid "Message AI Site Assistant"
 msgstr "پیام به دستیار هوشمند سایت"
 
-#: includes/Efb/EfbBuilderButton.php:215
+#: includes/Efb/EfbBuilderButton.php:232
 msgid "Speak a message"
 msgstr "پیام را بگویید"
+
+#. translators: %s: field type.
+#: includes/Efb/EfbFormReview.php:64
+#, php-format
+msgid ""
+"A %s field has no visible label. Screen readers and your submission exports "
+"need one; a placeholder is not a label."
+msgstr ""
+"یک فیلد %s برچسب قابل‌مشاهده ندارد. صفحه‌خوان‌ها و خروجی ارسال‌های شما به برچسب "
+"نیاز دارند؛ متن راهنما (placeholder) برچسب نیست."
+
+#. translators: %s: field label.
+#: includes/Efb/EfbFormReview.php:76
+#, php-format
+msgid ""
+"“%s” offers fewer than two choices, so the visitor has nothing to choose "
+"between."
+msgstr "«%s» کمتر از دو گزینه دارد، پس بازدیدکننده چیزی برای انتخاب ندارد."
+
+#. translators: %s: repeated field label.
+#: includes/Efb/EfbFormReview.php:87
+#, php-format
+msgid ""
+"Two fields are both called “%s”. Answers become impossible to tell apart in "
+"emails and exports."
+msgstr ""
+"دو فیلد هر دو «%s» نام دارند. پاسخ‌ها در ایمیل‌ها و خروجی‌ها از هم قابل‌تشخیص "
+"نیستند."
+
+#: includes/Efb/EfbFormReview.php:96
+msgid ""
+"This form collects personal data but asks for no consent. Add a required "
+"consent checkbox that links to your privacy policy."
+msgstr ""
+"این فرم داده‌های شخصی جمع می‌کند اما رضایتی نمی‌گیرد. یک کادر انتخاب الزامی "
+"رضایت با پیوند به سیاست حریم خصوصی اضافه کنید."
+
+#: includes/Efb/EfbFormReview.php:101
+msgid "Consent"
+msgstr "رضایت"
+
+#: includes/Efb/EfbFormReview.php:103
+msgid "I agree that my details are stored and used to answer this request."
+msgstr "موافقم که اطلاعاتم برای پاسخ به این درخواست ذخیره و استفاده شود."
+
+#. translators: 1: required field count, 2: total field count.
+#: includes/Efb/EfbFormReview.php:120
+#, php-format
+msgid ""
+"%1$d of %2$d questions are required. Every compulsory field costs "
+"completions; keep only the ones you truly need."
+msgstr ""
+"%1$d از %2$d پرسش الزامی است. هر فیلد اجباری شمار تکمیل‌ها را کم می‌کند؛ فقط "
+"آن‌هایی را نگه دارید که واقعاً لازم دارید."
+
+#. translators: %d: number of questions.
+#: includes/Efb/EfbFormReview.php:130
+#, php-format
+msgid ""
+"%d questions on one page is a lot. Ask me to split it into steps so it feels "
+"shorter."
+msgstr ""
+"%d پرسش در یک صفحه زیاد است. از من بخواهید آن را به چند مرحله تقسیم کنم تا "
+"کوتاه‌تر به نظر برسد."
+
+#: includes/Efb/EfbFormReview.php:140
+msgid ""
+"Public forms attract spam. Activate Easy Form Builder’s Form Security & Spam "
+"Protection add-on, or add reCAPTCHA keys in Easy Form Builder → Settings and "
+"turn on reCAPTCHA for this form."
+msgstr ""
+"فرم‌های عمومی اسپم جذب می‌کنند. افزونهٔ جانبی «امنیت فرم و محافظت در برابر "
+"اسپم» Easy Form Builder را فعال کنید، یا کلیدهای reCAPTCHA را در Easy Form "
+"Builder ← تنظیمات اضافه کنید و reCAPTCHA را برای این فرم روشن کنید."
+
+#. translators: %s: rule description.
+#: includes/Efb/EfbLogicRules.php:179
+#, php-format
+msgid "(off) %s"
+msgstr "(خاموش) %s"
+
+#: includes/Efb/EfbLogicRules.php:373
+msgid " and "
+msgstr " و "
+
+#: includes/Efb/EfbLogicRules.php:373
+msgid " or "
+msgstr " یا "
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:377
+#, php-format
+msgid "“%1$s” is “%2$s”"
+msgstr "«%1$s» برابر «%2$s» است"
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:379
+#, php-format
+msgid "“%1$s” is not “%2$s”"
+msgstr "«%1$s» برابر «%2$s» نیست"
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:381
+#, php-format
+msgid "“%1$s” contains “%2$s”"
+msgstr "«%1$s» شامل «%2$s» است"
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:383
+#, php-format
+msgid "“%1$s” does not contain “%2$s”"
+msgstr "«%1$s» شامل «%2$s» نیست"
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:385
+#, php-format
+msgid "“%1$s” is more than %2$s"
+msgstr "«%1$s» بیشتر از %2$s است"
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:387
+#, php-format
+msgid "“%1$s” is at least %2$s"
+msgstr "«%1$s» دست‌کم %2$s است"
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:389
+#, php-format
+msgid "“%1$s” is less than %2$s"
+msgstr "«%1$s» کمتر از %2$s است"
+
+#. translators: 1: field label, 2: value.
+#: includes/Efb/EfbLogicRules.php:391
+#, php-format
+msgid "“%1$s” is at most %2$s"
+msgstr "«%1$s» حداکثر %2$s است"
+
+#. translators: %1$s: field label.
+#: includes/Efb/EfbLogicRules.php:393
+#, php-format
+msgid "“%1$s” is empty"
+msgstr "«%1$s» خالی است"
+
+#. translators: %1$s: field label.
+#: includes/Efb/EfbLogicRules.php:395
+#, php-format
+msgid "“%1$s” is answered"
+msgstr "«%1$s» پاسخ داده شده است"
+
+#: includes/Efb/EfbLogicRules.php:399
+msgid "(a nested group)"
+msgstr "(یک گروه تودرتو)"
+
+#. translators: %s: field label.
+#: includes/Efb/EfbLogicRules.php:414
+#, php-format
+msgid "show “%s”"
+msgstr "«%s» نمایش داده شود"
+
+#. translators: %s: field label.
+#: includes/Efb/EfbLogicRules.php:416
+#, php-format
+msgid "hide “%s”"
+msgstr "«%s» پنهان شود"
+
+#. translators: %s: field label.
+#: includes/Efb/EfbLogicRules.php:418
+#, php-format
+msgid "make “%s” required"
+msgstr "«%s» الزامی شود"
+
+#. translators: %s: field label.
+#: includes/Efb/EfbLogicRules.php:420
+#, php-format
+msgid "make “%s” optional"
+msgstr "«%s» اختیاری شود"
+
+#. translators: %s: step name.
+#: includes/Efb/EfbLogicRules.php:422
+#, php-format
+msgid "show step “%s”"
+msgstr "مرحلهٔ «%s» نمایش داده شود"
+
+#. translators: %s: step name.
+#: includes/Efb/EfbLogicRules.php:424
+#, php-format
+msgid "hide step “%s”"
+msgstr "مرحلهٔ «%s» پنهان شود"
+
+#. translators: %s: step name.
+#: includes/Efb/EfbLogicRules.php:426
+#, php-format
+msgid "jump to step “%s”"
+msgstr "به مرحلهٔ «%s» برود"
+
+#. translators: 1: action name, 2: target.
+#: includes/Efb/EfbLogicRules.php:438
+#, php-format
+msgid "%1$s “%2$s”"
+msgstr "%1$s «%2$s»"
+
+#: includes/Efb/EfbLogicRules.php:442
+msgid ", "
+msgstr "، "
+
+#. translators: 1: conditions, 2: actions.
+#: includes/Efb/EfbLogicRules.php:442
+#, php-format
+msgid "If %1$s, %2$s."
+msgstr "اگر %1$s، %2$s."
 
 #: includes/Execution/ActionExecutor.php:50
 msgid "This approval does not belong to this product surface."
@@ -8061,7 +8600,7 @@ msgstr "پرسش‌های پیشنهادی"
 msgid "Scroll to latest message"
 msgstr "رفتن به آخرین پیام"
 
-#: includes/Frontend/ChatWidget.php:156 includes/Frontend/WidgetRenderer.php:49
+#: includes/Frontend/ChatWidget.php:156
 msgid "Write a message…"
 msgstr "پیامی بنویسید…"
 
@@ -8671,43 +9210,7 @@ msgstr "ارسال فرم شما ممکن نشد. لطفاً بعداً دوبا
 msgid "We could not process your submission. Please try again."
 msgstr "پردازش ارسال شما ممکن نشد. لطفاً دوباره تلاش کنید."
 
-#: includes/Frontend/WidgetRenderer.php:33
-msgid "Ask AI Site Assistant AutoPilot"
-msgstr "از AI Site Assistant AutoPilot بپرسید"
-
-#: includes/Frontend/WidgetRenderer.php:37
-msgid "Hi! I can answer questions about this website."
-msgstr "سلام! می‌توانم به پرسش‌های شما دربارهٔ این وب‌سایت پاسخ دهم."
-
-#: includes/Frontend/WidgetRenderer.php:40
-msgid "How can I contact you?"
-msgstr "چطور می‌توانیم با شما تماس بگیریم؟"
-
-#: includes/Frontend/WidgetRenderer.php:41
-msgid "What services do you offer?"
-msgstr "چه خدماتی ارائه می‌دهید؟"
-
-#: includes/Frontend/WidgetRenderer.php:45
-msgid "Voice recording is not supported by this browser."
-msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند."
-
-#: includes/Frontend/WidgetRenderer.php:46
-msgid "The recording is empty or too large. Please try a shorter message."
-msgstr "ضبط خالی یا بیش از حد بزرگ است. لطفاً پیام کوتاه‌تری بگویید."
-
-#: includes/Frontend/WidgetRenderer.php:48
-msgid "Microphone permission was denied. You can type your question instead."
-msgstr "اجازهٔ دسترسی به میکروفون داده نشد. می‌توانید پرسشتان را تایپ کنید."
-
-#: includes/Frontend/WidgetRenderer.php:51
-msgid "Speak your question"
-msgstr "سؤال خود را بگویید"
-
-#: includes/Frontend/WidgetRenderer.php:54
-msgid "Your transcript is ready. Review it, then send."
-msgstr "متن پیاده‌شده آماده است. بررسی کنید و سپس بفرستید."
-
-#: includes/Providers/AnthropicProvider.php:111
+#: includes/Providers/AnthropicProvider.php:112
 msgid ""
 "Anthropic does not provide embeddings. Set an embedding base URL, model and "
 "key (for example OpenAI) in Settings to use semantic search."
@@ -8715,24 +9218,19 @@ msgstr ""
 "Anthropic سرویس Embeddings ندارد. برای استفاده از جست‌وجوی معنایی، در تنظیمات "
 "یک نشانی پایه، مدل و کلید Embedding (برای نمونه OpenAI) تعیین کنید."
 
-#: includes/Providers/AnthropicProvider.php:127
+#: includes/Providers/AnthropicProvider.php:128
 #: includes/Providers/OpenAiCompatibleProvider.php:194
 msgid "No API key is set."
 msgstr "کلید API پیکربندی نشده است."
 
-#: includes/Providers/AnthropicProvider.php:134
+#: includes/Providers/AnthropicProvider.php:135
 #: includes/Providers/OpenAiCompatibleProvider.php:201
 msgid "Base URL and model are required."
 msgstr "آدرس پایه و مدل الزامی هستند."
 
-#: includes/Providers/AnthropicProvider.php:144
-#: includes/Providers/OpenAiCompatibleProvider.php:221
-msgid "Connection successful."
-msgstr "اتصال موفقیت‌آمیز بود."
-
 #. translators: 1: original error message, 2: base URL
-#: includes/Providers/AnthropicProvider.php:153
-#: includes/Providers/OpenAiCompatibleProvider.php:230
+#: includes/Providers/AnthropicProvider.php:156
+#: includes/Providers/OpenAiCompatibleProvider.php:232
 #, php-format
 msgid ""
 "Could not reach the AI provider (%1$s). Check the base URL (%2$s) and your "
@@ -8741,21 +9239,21 @@ msgstr ""
 "دسترسی به سرویس‌دهندهٔ هوش مصنوعی ممکن نشد (%1$s). نشانی پایه (%2$s) و اتصال "
 "شبکه را بررسی کنید."
 
-#: includes/Providers/AnthropicProvider.php:216
+#: includes/Providers/AnthropicProvider.php:219
 msgid "Anthropic declined this request. Please rephrase it and try again."
 msgstr ""
 "Anthropic این درخواست را نپذیرفت. لطفاً آن را بازنویسی کنید و دوباره تلاش "
 "کنید."
 
-#: includes/Providers/AnthropicProvider.php:221
-#: includes/Providers/OpenAiCompatibleProvider.php:414
+#: includes/Providers/AnthropicProvider.php:224
+#: includes/Providers/OpenAiCompatibleProvider.php:435
 msgid "The AI provider returned an empty response."
 msgstr "ارائه‌دهندهٔ AI پاسخ خالی برگرداند."
 
 #. translators: 1: error details
-#: includes/Providers/AnthropicProvider.php:255
-#: includes/Providers/OpenAiCompatibleProvider.php:270
-#: includes/Providers/OpenAiCompatibleProvider.php:365
+#: includes/Providers/AnthropicProvider.php:258
+#: includes/Providers/OpenAiCompatibleProvider.php:272
+#: includes/Providers/OpenAiCompatibleProvider.php:367
 #, php-format
 msgid ""
 "Could not reach the AI provider (%1$s). Check the base URL and your "
@@ -8764,33 +9262,33 @@ msgstr ""
 "دسترسی به سرویس‌دهندهٔ هوش مصنوعی ممکن نشد (%1$s). نشانی پایه و اتصال را بررسی "
 "کنید."
 
-#: includes/Providers/AnthropicProvider.php:267
-#: includes/Providers/OpenAiCompatibleProvider.php:278
-#: includes/Providers/OpenAiCompatibleProvider.php:379
+#: includes/Providers/AnthropicProvider.php:270
+#: includes/Providers/OpenAiCompatibleProvider.php:280
+#: includes/Providers/OpenAiCompatibleProvider.php:397
 msgid "The AI provider rejected your API key."
 msgstr "ارائه‌دهندهٔ AI کلید API شما را نپذیرفت."
 
-#: includes/Providers/AnthropicProvider.php:270
-#: includes/Providers/OpenAiCompatibleProvider.php:393
+#: includes/Providers/AnthropicProvider.php:273
+#: includes/Providers/OpenAiCompatibleProvider.php:411
 msgid "The AI provider requires an active billing account or available credit."
 msgstr "سرویس‌دهندهٔ هوش مصنوعی به حساب پرداخت فعال یا اعتبار نیاز دارد."
 
-#: includes/Providers/AnthropicProvider.php:273
+#: includes/Providers/AnthropicProvider.php:276
 msgid ""
 "The selected endpoint or model was not found. Check the base URL and model "
 "name."
 msgstr "آدرس یا مدل انتخاب‌شده پیدا نشد. نشانی پایه و نام مدل را بررسی کنید."
 
-#: includes/Providers/AnthropicProvider.php:276
-#: includes/Providers/OpenAiCompatibleProvider.php:396
+#: includes/Providers/AnthropicProvider.php:279
+#: includes/Providers/OpenAiCompatibleProvider.php:414
 msgid "The AI provider is rate-limiting requests. Please try again shortly."
 msgstr ""
 "ارائه‌دهندهٔ AI درخواست‌ها را محدود کرده است. لطفاً کمی بعد دوباره تلاش کنید."
 
 #. translators: %d: HTTP status code.
-#: includes/Providers/AnthropicProvider.php:279
-#: includes/Providers/OpenAiCompatibleProvider.php:284
-#: includes/Providers/OpenAiCompatibleProvider.php:407
+#: includes/Providers/AnthropicProvider.php:282
+#: includes/Providers/OpenAiCompatibleProvider.php:286
+#: includes/Providers/OpenAiCompatibleProvider.php:425
 #, php-format
 msgid "The AI provider returned an error (HTTP %d)."
 msgstr "ارائه‌دهندهٔ AI خطا برگرداند (HTTP %d)."
@@ -8831,24 +9329,24 @@ msgid "The embedding provider returned no vector."
 msgstr "ارائه‌دهندهٔ embedding هیچ برداری برنگرداند."
 
 #. translators: 1: provider error message, 2: model name
-#: includes/Providers/OpenAiCompatibleProvider.php:237
+#: includes/Providers/OpenAiCompatibleProvider.php:239
 #, php-format
 msgid ""
 "The model \"%2$s\" was not found or is not available on this provider: %1$s"
 msgstr "مدل «%2$s» پیدا نشد یا روی این سرویس‌دهنده در دسترس نیست: %1$s"
 
-#: includes/Providers/OpenAiCompatibleProvider.php:281
+#: includes/Providers/OpenAiCompatibleProvider.php:283
 msgid ""
 "This provider does not publish a model list. Type the model name instead."
 msgstr "این سرویس‌دهنده فهرست مدل‌ها را منتشر نمی‌کند. نام مدل را دستی وارد کنید."
 
 #. translators: 1: provider error message
-#: includes/Providers/OpenAiCompatibleProvider.php:386
+#: includes/Providers/OpenAiCompatibleProvider.php:404
 #, php-format
 msgid "Model not found: %1$s"
 msgstr "مدل پیدا نشد: %1$s"
 
-#: includes/Providers/OpenAiCompatibleProvider.php:389
+#: includes/Providers/OpenAiCompatibleProvider.php:407
 msgid ""
 "The selected model was not found. Check the model name or pick a different "
 "one."
@@ -8856,12 +9354,16 @@ msgstr ""
 "مدل انتخاب‌شده پیدا نشد. نام مدل را بررسی کنید یا مدل دیگری انتخاب کنید."
 
 #. translators: 1: HTTP status code, 2: provider error message
-#: includes/Providers/OpenAiCompatibleProvider.php:403
+#: includes/Providers/OpenAiCompatibleProvider.php:421
 #, php-format
 msgid "The AI provider returned an error (HTTP %1$d): %2$s"
 msgstr "سرویس‌دهندهٔ هوش مصنوعی خطا برگرداند (HTTP %1$d): %2$s"
 
-#: includes/Providers/OpenAiCompatibleProvider.php:503
+#: includes/Providers/OpenAiCompatibleProvider.php:504
+msgid "Connection successful."
+msgstr "اتصال موفقیت‌آمیز بود."
+
+#: includes/Providers/OpenAiCompatibleProvider.php:589
 msgid ""
 "The AI did not return a valid structured result. Please simplify your "
 "request and try again."
@@ -8926,7 +9428,7 @@ msgstr ""
 msgid "The provider URL is not allowed."
 msgstr "آدرس ارائه‌دهنده مجاز نیست."
 
-#: includes/Providers/UsageCappedProvider.php:66
+#: includes/Providers/UsageCappedProvider.php:67
 msgid "The local AI usage cap has been reached."
 msgstr "سقف مصرف هوش مصنوعی پر شده است."
 
@@ -9037,30 +9539,6 @@ msgstr "پاسخ غیرمنتظره (HTTP "
 #, php-format
 msgid "AI credit alert: Only %1$d%% remaining (%2$s tokens left)."
 msgstr "هشدار اعتبار AI: تنها %1$d%% باقی مانده (%2$s توکن)."
-
-#: includes/Voice/VoiceService.php:44
-msgid "AI provider is not configured for speech recognition."
-msgstr "سرویس‌دهندهٔ هوش مصنوعی برای تشخیص گفتار پیکربندی نشده است."
-
-#: includes/Voice/VoiceService.php:49
-msgid "Invalid or oversized audio data."
-msgstr "دادهٔ صوتی نامعتبر یا بیش از حد بزرگ است."
-
-#: includes/Voice/VoiceService.php:79
-msgid "Speech recognition service unreachable."
-msgstr "سرویس تشخیص گفتار در دسترس نیست."
-
-#: includes/Voice/VoiceService.php:87
-msgid "STT API key rejected. Check your provider key in Settings."
-msgstr ""
-"کلید API تبدیل گفتار به متن پذیرفته نشد. کلید ارائه‌دهنده را در تنظیمات بررسی "
-"کنید."
-
-#. translators: %d: HTTP response code.
-#: includes/Voice/VoiceService.php:93
-#, php-format
-msgid "Speech recognition failed (HTTP %d)."
-msgstr "تشخیص گفتار ناموفق بود (HTTP %d)."
 
 #: includes/Voice/VoiceTranscriber.php:82
 msgid "The audio recording is invalid, too large, or too long."
