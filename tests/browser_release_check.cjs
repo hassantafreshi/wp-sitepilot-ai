@@ -3691,8 +3691,13 @@ async function efbDetailsHealthy( page ) {
 		await page.goto( baseUrl + '/wp-login.php', { waitUntil: 'domcontentloaded', timeout: 20000 } );
 		await page.locator( '#user_login' ).fill( username );
 		await page.locator( '#user_pass' ).fill( password );
-		await page.locator( '#wp-submit' ).click();
-		await page.waitForTimeout( 700 );
+		// Wait for the login POST to finish navigating (to wp-admin, the admin-email
+		// reminder, or the login page with an error). A fixed 700ms pause read a
+		// still-loading login form as rejected credentials on a slow first admin page.
+		await Promise.all( [
+			page.waitForNavigation( { waitUntil: 'domcontentloaded', timeout: 60000 } ).catch( () => {} ),
+			page.locator( '#wp-submit' ).click(),
+		] );
 		const remindLater = page.locator( 'a[href*="action=confirm_admin_email"][href*="remind_me_later"]' );
 		if ( await remindLater.count() ) {
 			console.log( 'DISMISS WordPress admin-email reminder for temporary QA user' );

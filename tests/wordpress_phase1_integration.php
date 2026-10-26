@@ -63,8 +63,12 @@ try {
 	$check( class_exists( NativeFormConnector::class ), 'candidate plugin booted' );
 	$check( post_type_exists( NativeFormConnector::POST_TYPE ), 'native form post type registered' );
 
+	// wp-admin/menu.php creates these before admin_menu runs; other plugins'
+	// callbacks (WooCommerce's remove_menu_page()) expect them to exist.
+	global $menu, $submenu;
+	$menu    = is_array( $menu ) ? $menu : array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the admin menu this CLI test builds.
+	$submenu = is_array( $submenu ) ? $submenu : array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the admin menu this CLI test builds.
 	do_action( 'admin_menu' );
-	global $submenu;
 	$visible_menu_slugs = array_map(
 		static fn( array $item ): string => (string) ( $item[2] ?? '' ),
 		(array) ( $submenu[ AdminMenu::SLUG_HOME ] ?? array() )
