@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 $wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\\xampp\\htdocs\\wp';
 require $wp_root . '/wp-load.php';
+// The cleanup calls wp_delete_user(), which a plain wp-load.php does not load.
+require_once ABSPATH . 'wp-admin/includes/user.php';
 
 use AISAAutoPilot\Core\Settings;
 

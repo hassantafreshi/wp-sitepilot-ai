@@ -251,6 +251,8 @@ final class EasyFormBuilderPage {
 			'remove_field'       => array( 'fields', __( 'Remove a field and its settings', 'ai-site-assistant-autopilot' ), $checked ),
 			'add_option'         => array( 'choices', __( 'Add a choice to a select, radio or checkbox', 'ai-site-assistant-autopilot' ), $allowed ),
 			'remove_option'      => array( 'choices', __( 'Remove a choice', 'ai-site-assistant-autopilot' ), $checked ),
+			'rename_option'      => array( 'choices', __( 'Rename a choice; answers and logic that point at it stay linked', 'ai-site-assistant-autopilot' ), $checked ),
+			'add_logic_rule'     => array( 'logic', __( 'Show, hide, require or skip to a field or step from another answer, when Easy Form Builder’s Conditional Logic add-on is active', 'ai-site-assistant-autopilot' ), $checked ),
 		);
 		$groups  = array(
 			'form'    => array(
@@ -263,6 +265,10 @@ final class EasyFormBuilderPage {
 			),
 			'choices' => array(
 				'title' => __( 'Choices', 'ai-site-assistant-autopilot' ),
+				'rows'  => array(),
+			),
+			'logic'   => array(
+				'title' => __( 'Conditional logic', 'ai-site-assistant-autopilot' ),
 				'rows'  => array(),
 			),
 		);
@@ -303,14 +309,16 @@ final class EasyFormBuilderPage {
 
 	private function blocked_label( string $item ): string {
 		$labels = array(
-			'global settings'                         => __( 'Easy Form Builder global settings', 'ai-site-assistant-autopilot' ),
-			'add-on activation'                       => __( 'Turning add-ons on or off', 'ai-site-assistant-autopilot' ),
-			'credentials and API keys'                => __( 'Credentials and API keys', 'ai-site-assistant-autopilot' ),
-			'payment gateway and price configuration' => __( 'Payment gateways and prices', 'ai-site-assistant-autopilot' ),
-			'raw HTML'                                => __( 'Raw HTML', 'ai-site-assistant-autopilot' ),
-			'unallowlisted URLs'                      => __( 'Links to addresses that are not allowed', 'ai-site-assistant-autopilot' ),
-			'conditional-logic rules'                 => __( 'Conditional logic rules', 'ai-site-assistant-autopilot' ),
-			'submission data'                         => __( 'Submitted entries', 'ai-site-assistant-autopilot' ),
+			'global settings'                              => __( 'Easy Form Builder global settings', 'ai-site-assistant-autopilot' ),
+			'add-on activation'                            => __( 'Turning add-ons on or off', 'ai-site-assistant-autopilot' ),
+			'credentials and API keys'                     => __( 'Credentials and API keys', 'ai-site-assistant-autopilot' ),
+			'payment gateway and price configuration'      => __( 'Payment gateways and prices', 'ai-site-assistant-autopilot' ),
+			'raw HTML'                                     => __( 'Raw HTML', 'ai-site-assistant-autopilot' ),
+			'unallowlisted URLs'                           => __( 'Links to addresses that are not allowed', 'ai-site-assistant-autopilot' ),
+			'notification, confirmation, webhook and pricing conditional rules' => __( 'Conditional rules for notifications, confirmations, webhooks and prices', 'ai-site-assistant-autopilot' ),
+			'logic actions that write values or calculate' => __( 'Logic that writes values or calculates', 'ai-site-assistant-autopilot' ),
+			'notification recipients chosen by AI'         => __( 'Choosing who receives notifications', 'ai-site-assistant-autopilot' ),
+			'submission data'                              => __( 'Submitted entries', 'ai-site-assistant-autopilot' ),
 		);
 
 		return $labels[ $item ] ?? $item;

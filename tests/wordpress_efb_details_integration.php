@@ -62,6 +62,19 @@ try {
 			$check( false, 'Operation ' . $op . ' is listed' );
 		}
 	}
+	// A new operation without a label once rendered as an untitled group of blank rows.
+	preg_match_all( '/<span class="sp-efbx-row__label">([^<]*)<\/span>/', $html, $row_labels );
+	preg_match_all( '/<h3 class="sp-efbx-group">([^<]*)<\/h3>/', $html, $group_titles );
+	$check(
+		array() !== $row_labels[1] && array() === array_filter( $row_labels[1], static fn( string $label ): bool => '' === trim( $label ) )
+			&& array() !== $group_titles[1] && array() === array_filter( $group_titles[1], static fn( string $title ): bool => '' === trim( $title ) ),
+		'Every listed operation has a label and every group a title'
+	);
+	$raw_blocked = array_filter(
+		(array) ( $catalog['safe_ai_contract']['blocked'] ?? array() ),
+		static fn( $item ): bool => in_array( esc_html( (string) $item ), $row_labels[1], true )
+	);
+	$check( array() === $raw_blocked, 'Every area the catalog refuses has its own translatable label, not the raw catalog key' . ( $raw_blocked ? ': ' . implode( ', ', $raw_blocked ) : '' ) );
 	$check( $blocked > 0 && $blocked === substr_count( $html, 'data-sp-efb-blocked' ), 'Every area the catalog refuses is listed as never' );
 	$check( false !== strpos( $html, 'Nothing applied yet.' ), 'Without an applied change the page says so honestly' );
 	if ( $ready ) {

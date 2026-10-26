@@ -1,12 +1,15 @@
 <?php
 /**
  * Creates/removes the exact Easy Form Builder record used by browser QA.
+ *
+ * `publish` puts the prepared form on a page for a visitor check and prints the
+ * logic EFB stored for it; `restore` removes that page with the form.
  */
 declare(strict_types=1);
 
 $mode = $argv[1] ?? 'prepare';
-if ( ! in_array( $mode, array( 'prepare', 'restore' ), true ) ) {
-	fwrite( STDERR, "Usage: php local_efb_copilot_browser_fixture.php prepare|restore\n" );
+if ( ! in_array( $mode, array( 'prepare', 'publish', 'restore' ), true ) ) {
+	fwrite( STDERR, "Usage: php local_efb_copilot_browser_fixture.php prepare|publish|restore\n" );
 	exit( 64 );
 }
 
@@ -18,6 +21,7 @@ use AISAAutoPilot\Core\Settings;
 
 const AISAAUTOPILOT_EFB_FIXTURE_OPTION = 'aisaautopilot_efb_copilot_browser_fixture';
 const AISAAUTOPILOT_EFB_FIXTURE_NAME   = 'AISAAutoPilot EFB Copilot browser QA';
+const AISAAUTOPILOT_EFB_FIXTURE_PAGE   = 'AISAAutoPilot EFB Copilot logic QA';
 
 $restore = static function (): void {
 	$record = get_option( AISAAUTOPILOT_EFB_FIXTURE_OPTION, null );
@@ -28,6 +32,12 @@ $restore = static function (): void {
 	}
 	if ( ! is_array( $record ) || ! array_key_exists( 'had_settings', $record ) ) {
 		throw new RuntimeException( 'EFB Copilot fixture snapshot is invalid; live settings were left untouched.' );
+	}
+
+	// Delete only the page `publish` created, recognised by id and title.
+	$page_id = absint( $record['page_id'] ?? 0 );
+	if ( $page_id > 0 && AISAAUTOPILOT_EFB_FIXTURE_PAGE === get_the_title( $page_id ) ) {
+		wp_delete_post( $page_id, true );
 	}
 
 	global $wpdb;
@@ -54,6 +64,46 @@ $restore = static function (): void {
 if ( 'restore' === $mode ) {
 	$restore();
 	echo "EFB Copilot browser fixture removed.\n";
+	exit( 0 );
+}
+
+if ( 'publish' === $mode ) {
+	$record  = get_option( AISAAUTOPILOT_EFB_FIXTURE_OPTION, null );
+	$form_id = is_array( $record ) ? absint( $record['form_id'] ?? 0 ) : 0;
+	if ( $form_id <= 0 ) {
+		fwrite( STDERR, "Run prepare first.\n" );
+		exit( 1 );
+	}
+
+	global $wpdb;
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$stored    = (string) $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $form_id ) );
+	$structure = json_decode( $stored, true );
+	if ( ! is_array( $structure ) ) {
+		$structure = json_decode( stripslashes( $stored ), true );
+	}
+
+	$page_id = absint( $record['page_id'] ?? 0 );
+	if ( $page_id <= 0 ) {
+		$page_id = (int) wp_insert_post(
+			array(
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => AISAAUTOPILOT_EFB_FIXTURE_PAGE,
+				'post_content' => '[EMS_Form_Builder id=' . $form_id . ']',
+			)
+		);
+		$record['page_id'] = $page_id;
+		update_option( AISAAUTOPILOT_EFB_FIXTURE_OPTION, $record, false );
+	}
+
+	echo wp_json_encode(
+		array(
+			'page_url'    => get_permalink( $page_id ),
+			'logic'       => is_array( $structure ) ? ( $structure[0]['logic'] ?? null ) : null,
+			'logic_rules' => is_array( $structure ) ? ( $structure[0]['logic_rules'] ?? array() ) : array(),
+		)
+	) . PHP_EOL;
 	exit( 0 );
 }
 

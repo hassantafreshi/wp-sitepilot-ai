@@ -222,10 +222,16 @@ async function login( page ) {
 		check( pluginRequests.length === requestsBeforeNewline, 'Shift+Enter sends nothing' );
 		await composer.fill( '' );
 
+		// Fields are clicked at their inline-start corner, where the label begins. A fixed
+		// left corner lands under the open Copilot panel in RTL, which sits on the left there.
+		const fieldCorner = async ( locator ) => {
+			const box = await locator.boundingBox();
+			return { x: expectRtl && box ? Math.max( 8, box.width - 8 ) : 8, y: 8 };
+		};
 		const field = page.locator( '.efbField[data-id="' + liveFieldIds[ 0 ] + '-id"]' ).first();
 		const fieldDataId = await field.getAttribute( 'data-id' );
 		const selectedId = String( fieldDataId ).slice( 0, -3 );
-		await field.click( { position: { x: 8, y: 8 } } );
+		await field.click( { position: await fieldCorner( field ) } );
 		check( await page.locator( '#aisaautopilot-efb-selection' ).isVisible(), 'clicking a real EFB field opens the selected-field banner' );
 		check( await field.evaluate( ( element ) => element.classList.contains( 'aisaautopilot-efb-field-selected' ) ), 'selected real field receives the visual selection state' );
 		const bannerLabel = ( await page.locator( '#aisaautopilot-efb-selection-label' ).innerText() ).trim();
@@ -290,12 +296,13 @@ async function login( page ) {
 		if ( liveFieldIds.length > 1 ) {
 			const otherId = liveFieldIds[ 1 ];
 			const otherLabel = await page.evaluate( ( id ) => { const item = valj_efb.find( ( entry ) => String( entry.id_ ) === id ); return item ? String( item.name || item.value || item.id_ ) : ''; }, otherId ); // eslint-disable-line no-undef
-			await page.locator( '.efbField[data-id="' + otherId + '-id"]' ).first().click( { position: { x: 8, y: 8 } } );
+			const otherField = page.locator( '.efbField[data-id="' + otherId + '-id"]' ).first();
+			await otherField.click( { position: await fieldCorner( otherField ) } );
 			const introTexts = await fieldIntros.allInnerTexts();
 			console.log( 'FIELD_INTROS ' + JSON.stringify( introTexts.map( ( item ) => item.trim().slice( 0, 60 ) ) ) );
 			check( 2 === introTexts.length && introTexts[ 1 ].includes( otherLabel ), 'selecting a different field announces the new context by name' );
 		}
-		await field.click( { position: { x: 8, y: 8 } } );
+		await field.click( { position: await fieldCorner( field ) } );
 
 		const requestPromise = page.waitForRequest( ( request ) => request.url().includes( '/efb/chat' ) && request.method() === 'POST' );
 		let logResponsesSeen = 0;

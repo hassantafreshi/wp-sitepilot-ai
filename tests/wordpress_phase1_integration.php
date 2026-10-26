@@ -188,6 +188,8 @@ try {
 	$voice_response = ( new VoiceController() )->transcribe_chat( new \WP_REST_Request( 'POST' ) );
 	$voice_data = $voice_response->get_data();
 	$check( 400 === $voice_response->get_status() && 'invalid_audio' === ( $voice_data['code'] ?? '' ), 'admin voice endpoint rejects missing audio before contacting an AI provider' );
+	// wp_tempnam() lives in wp-admin/includes/file.php, which a plain wp-load.php does not load.
+	require_once ABSPATH . 'wp-admin/includes/file.php';
 	$voice_tmp = wp_tempnam( 'aisaautopilot-voice-contract' );
 	file_put_contents( $voice_tmp, 'a' );
 	$check( 'audio_too_long' === VoiceTranscriber::validate_file( array( 'tmp_name' => $voice_tmp, 'size' => 1, 'type' => 'audio/webm' ), 45001 ), 'voice contract caps recordings at 45 seconds' );

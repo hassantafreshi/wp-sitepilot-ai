@@ -8,7 +8,8 @@
  */
 declare(strict_types=1);
 
-require 'C:\\xampp\\htdocs\\wp\\wp-load.php';
+$wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\\xampp\\htdocs\\wp';
+require $wp_root . '/wp-load.php';
 
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Frontend\FormShortcode;
