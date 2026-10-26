@@ -68,8 +68,10 @@ function html( page, logic ) {
 }
 
 ( async () => {
+	// Same browser default as the other XAMPP checks; elsewhere Playwright's own Chromium.
 	const launch = {};
-	if ( process.env.AISAAUTOPILOT_CHROME ) { launch.executablePath = process.env.AISAAUTOPILOT_CHROME; }
+	const chrome = process.env.AISAAUTOPILOT_CHROME || ( 'win32' === process.platform ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '' );
+	if ( chrome ) { launch.executablePath = chrome; }
 	const browser = await playwright.chromium.launch( launch );
 	try {
 		for ( const scenario of SCENARIOS ) {
