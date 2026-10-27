@@ -125,7 +125,7 @@ fixtureهای بدون matrix با پرچم‌های env مستقیم کنار `
 
 `Tested up to` در `readme.txt` برابر بالاترین major.minor واقعاً آزموده است — اکنون **7.1**؛ سایت محلی 7.1.2-alpha است و شمارهٔ alpha نوشته نمی‌شود.
 
-`readme.txt` علاوه بر توضیح و changelog دو بخش الزامی دارد: `== External services ==` که هر درخواست بیرونی را نام می‌برد (۱۴ provider AI و endpoint سفارشی، Telegram، Twilio و **webfontهای Google Fonts در صفحه‌های مدیریت**)، و `== What deleting the plugin removes ==` که با جدول `## حذف افزونه` در `DATA_MODEL_FA.md` یکی است. `RELEASE_NOTES.md` همان فهرست را با اعداد گیت‌ها دارد و `MANUAL-TESTING.md` آن را به‌صورت گام دستی Part 12 می‌آزماید.
+`readme.txt` علاوه بر توضیح و changelog دو بخش الزامی دارد: `== External services ==` که هر درخواست بیرونی را نام می‌برد (۱۴ provider AI و endpoint سفارشی، Telegram، Twilio، WhatsApp Business، Slack، Signal و **webfontهای Google Fonts در صفحه‌های مدیریت**)، و `== What deleting the plugin removes ==` که با جدول `## حذف افزونه` در `DATA_MODEL_FA.md` یکی است. `RELEASE_NOTES.md` همان فهرست را با اعداد گیت‌ها دارد و `MANUAL-TESTING.md` آن را به‌صورت گام دستی Part 12 می‌آزماید.
 
 ## ساخت نسخهٔ انتشار
 

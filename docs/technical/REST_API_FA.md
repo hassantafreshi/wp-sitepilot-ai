@@ -91,6 +91,7 @@
 | `/voice/admin-settings` | POST | `can_manage` | کنترل‌های واقعی صدای مرورگر |
 | `/widget/test/telegram` | GET | `can_manage` | بررسی توکن ربات با `getMe`، بدون ارسال پیام انتقال |
 | `/widget/test/twilio` | GET | `can_manage` | بررسی اعتبار حساب Twilio، بدون ارسال پیامک انتقال |
+| `/widget/test/{whatsapp\|slack\|signal}` | POST | `can_manage` | بررسی WhatsApp (نام شمارهٔ کسب‌وکار، بدون ارسال)، Signal (حساب‌های سرور، بدون ارسال) یا Slack (یک خط بررسی در کانال). POST چون بررسی Slack چیزی منتشر می‌کند |
 | `/widget/conversations` | GET | `can_manage` | فهرست گفت‌وگوهای ثبت‌شدهٔ ویجت |
 | `/widget/conversations/{id}` | GET | `can_manage` | یک گفت‌وگوی ثبت‌شده |
 | `/handoffs` | GET | `can_manage` | فهرست صندوق انتقال (`limit`، `offset`، و `archived` برای فهرست بایگانی‌شده‌ها) |

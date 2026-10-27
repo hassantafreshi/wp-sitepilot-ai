@@ -11,7 +11,7 @@ final class Redactor {
 	private const REPLACEMENT = '[REDACTED]';
 
 	/** @var string[] Sensitive array keys (case-insensitive). */
-	private const SECRET_KEYS = array( 'authorization', 'api_key', 'apikey', 'key', 'provider_key', 'password', 'token', 'secret', 'sid', 'account_sid', 'auth_token', 'bot_token' );
+	private const SECRET_KEYS = array( 'authorization', 'api_key', 'apikey', 'key', 'provider_key', 'password', 'token', 'secret', 'sid', 'account_sid', 'auth_token', 'bot_token', 'access_token', 'webhook', 'webhook_url' );
 
 	public static function text( string $value ): string {
 		// Bearer / sk- style keys and Authorization headers.
@@ -23,6 +23,10 @@ final class Redactor {
 			// where no word boundary precedes the digits.
 			'/(?<![0-9])\d{6,}:[A-Za-z0-9_-]{16,}\b/',
 			'/\b(?:AC|SK)[a-zA-Z0-9]{24,}\b/',
+			// Slack incoming-webhook URLs: the path is the credential.
+			'#hooks\.slack(?:-gov)?\.com/services/[A-Za-z0-9/_-]+#i',
+			// Meta (WhatsApp Cloud API) access tokens.
+			'/\bEAA[A-Za-z0-9]{20,}\b/',
 		);
 
 		return (string) preg_replace( $patterns, self::REPLACEMENT, $value );

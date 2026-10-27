@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Api;
 
 use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Support\HandoffSignal;
+use AISAAutoPilot\Support\HandoffSlack;
 
 /**
  * Restricted, channel-scoped updates for the Answer Desk Human handoff tab.
@@ -19,6 +21,21 @@ final class AdminHandoffSettingsController {
 		'email'    => 'handoff_email_enabled',
 		'telegram' => 'handoff_telegram_enabled',
 		'twilio'   => 'handoff_twilio_enabled',
+		'whatsapp' => 'handoff_whatsapp_enabled',
+		'slack'    => 'handoff_slack_enabled',
+		'signal'   => 'handoff_signal_enabled',
+	);
+
+	/** The encrypted credential(s) of each channel, as sent by the form => stored key. */
+	private const SECRET_FIELDS = array(
+		'telegram' => array( 'telegram_token' => 'handoff_telegram_token' ),
+		'twilio'   => array(
+			'twilio_sid'   => 'handoff_twilio_sid',
+			'twilio_token' => 'handoff_twilio_token',
+		),
+		'whatsapp' => array( 'whatsapp_token' => 'handoff_whatsapp_token' ),
+		'slack'    => array( 'slack_webhook' => 'handoff_slack_webhook' ),
+		'signal'   => array( 'signal_token' => 'handoff_signal_token' ),
 	);
 
 	public function update( \WP_REST_Request $request ): \WP_REST_Response {
@@ -43,12 +60,24 @@ final class AdminHandoffSettingsController {
 			self::ENABLE_KEYS[ $channel ] => $enabled,
 		);
 
-		if ( 'email' === $channel ) {
-			$error = $this->email_update( $request, $update );
-		} elseif ( 'telegram' === $channel ) {
-			$error = $this->telegram_update( $request, $update );
-		} else {
-			$error = $this->twilio_update( $request, $update );
+		switch ( $channel ) {
+			case 'email':
+				$error = $this->email_update( $request, $update );
+				break;
+			case 'telegram':
+				$error = $this->telegram_update( $request, $update );
+				break;
+			case 'twilio':
+				$error = $this->twilio_update( $request, $update );
+				break;
+			case 'whatsapp':
+				$error = $this->whatsapp_update( $request, $update );
+				break;
+			case 'slack':
+				$error = $this->slack_update( $request );
+				break;
+			default:
+				$error = $this->signal_update( $request, $update );
 		}
 
 		if ( null !== $error ) {
@@ -140,7 +169,7 @@ final class AdminHandoffSettingsController {
 		}
 
 		$update['handoff_telegram_chat'] = $this->text( $request->get_param( 'telegram_chat' ), 120 );
-		return $this->update_secret( $request, 'telegram_token', 'handoff_telegram_token' );
+		return $this->update_secrets( $request, 'telegram' );
 	}
 
 	/**
@@ -158,12 +187,101 @@ final class AdminHandoffSettingsController {
 
 		$update['handoff_twilio_from'] = $this->text( $request->get_param( 'twilio_from' ), 64 );
 		$update['handoff_twilio_to']   = $this->text( $request->get_param( 'twilio_to' ), 64 );
-		$error                         = $this->update_secret( $request, 'twilio_sid', 'handoff_twilio_sid' );
-		if ( null !== $error ) {
-			return $error;
+		return $this->update_secrets( $request, 'twilio' );
+	}
+
+	/**
+	 * @param array<string, mixed> $update
+	 */
+	private function whatsapp_update( \WP_REST_Request $request, array &$update ): ?\WP_REST_Response {
+		foreach ( array( 'whatsapp_phone_id', 'whatsapp_to' ) as $field ) {
+			if ( ! $request->has_param( $field ) ) {
+				return $this->error(
+					'handoff_whatsapp_number_missing',
+					__( 'The phone number ID and the number to send to are both required.', 'ai-site-assistant-autopilot' )
+				);
+			}
 		}
 
-		return $this->update_secret( $request, 'twilio_token', 'handoff_twilio_token' );
+		$phone_id = $this->text( $request->get_param( 'whatsapp_phone_id' ), 32 );
+		$to       = $this->text( $request->get_param( 'whatsapp_to' ), 32 );
+		$template = strtolower( $this->text( $request->get_param( 'whatsapp_template' ), 512 ) );
+		$language = $this->text( $request->get_param( 'whatsapp_language' ), 16 );
+		if ( ( '' !== $phone_id && ! ctype_digit( $phone_id ) )
+			|| ( '' !== $to && ! preg_match( '/^\+?[0-9][0-9 ()-]{6,24}$/', $to ) ) ) {
+			return $this->error(
+				'handoff_whatsapp_number_invalid',
+				__( 'Use the numeric phone number ID from Meta, and the number to send to in international format.', 'ai-site-assistant-autopilot' )
+			);
+		}
+		if ( ( '' !== $template && ! preg_match( '/^[a-z0-9_]+$/', $template ) )
+			|| ( '' !== $language && ! preg_match( '/^[a-z]{2,3}(?:_[A-Za-z]{2,4})?$/', $language ) ) ) {
+			return $this->error(
+				'handoff_whatsapp_template_invalid',
+				__( 'A template name has lowercase letters, digits and underscores; a language looks like en_US or fa.', 'ai-site-assistant-autopilot' )
+			);
+		}
+
+		$update['handoff_whatsapp_phone_id'] = $phone_id;
+		$update['handoff_whatsapp_to']       = $to;
+		$update['handoff_whatsapp_template'] = $template;
+		$update['handoff_whatsapp_language'] = '' !== $language ? $language : 'en_US';
+		return $this->update_secrets( $request, 'whatsapp' );
+	}
+
+	private function slack_update( \WP_REST_Request $request ): ?\WP_REST_Response {
+		$url = trim( (string) $request->get_param( 'slack_webhook' ) );
+		if ( '' !== $url && ! rest_sanitize_boolean( $request->get_param( 'clear_slack_webhook' ) ) && ! HandoffSlack::is_webhook_url( $url ) ) {
+			return $this->error(
+				'handoff_slack_webhook_invalid',
+				__( 'Paste the incoming webhook URL Slack gave you; it starts with https://hooks.slack.com/services/.', 'ai-site-assistant-autopilot' )
+			);
+		}
+
+		return $this->update_secrets( $request, 'slack' );
+	}
+
+	/**
+	 * @param array<string, mixed> $update
+	 */
+	private function signal_update( \WP_REST_Request $request, array &$update ): ?\WP_REST_Response {
+		foreach ( array( 'signal_url', 'signal_from', 'signal_to' ) as $field ) {
+			if ( ! $request->has_param( $field ) ) {
+				return $this->error(
+					'handoff_signal_field_missing',
+					__( 'The Signal API address, the sending number and the recipient are all required.', 'ai-site-assistant-autopilot' )
+				);
+			}
+		}
+
+		$url  = esc_url_raw( trim( (string) $request->get_param( 'signal_url' ) ), array( 'http', 'https' ) );
+		$from = (string) preg_replace( '/[\s()-]+/', '', $this->text( $request->get_param( 'signal_from' ), 32 ) );
+		$to   = $this->text( $request->get_param( 'signal_to' ), 160 );
+		$to   = str_starts_with( $to, 'group.' ) ? $to : (string) preg_replace( '/[\s()-]+/', '', $to );
+		if ( ( '' !== $url && ! HandoffSignal::is_server_url( $url ) )
+			|| ( '' !== $from && ! HandoffSignal::is_number( $from ) )
+			|| ( '' !== $to && ! HandoffSignal::is_recipient( $to ) ) ) {
+			return $this->error(
+				'handoff_signal_field_invalid',
+				__( 'Use the Signal API address (http or https), numbers in international format such as +15550194471, and for a group its "group." ID.', 'ai-site-assistant-autopilot' )
+			);
+		}
+
+		$update['handoff_signal_url']  = untrailingslashit( $url );
+		$update['handoff_signal_from'] = $from;
+		$update['handoff_signal_to']   = $to;
+		return $this->update_secrets( $request, 'signal' );
+	}
+
+	private function update_secrets( \WP_REST_Request $request, string $channel ): ?\WP_REST_Response {
+		foreach ( self::SECRET_FIELDS[ $channel ] as $field => $key ) {
+			$error = $this->update_secret( $request, $field, $key );
+			if ( null !== $error ) {
+				return $error;
+			}
+		}
+
+		return null;
 	}
 
 	private function update_secret( \WP_REST_Request $request, string $field, string $key ): ?\WP_REST_Response {
@@ -192,22 +310,13 @@ final class AdminHandoffSettingsController {
 
 	/** @param array<string, mixed> $widget */
 	private function has_ready_channel( array $widget ): bool {
-		$email = sanitize_email( (string) ( $widget['handoff_email_to'] ?? get_option( 'admin_email', '' ) ) );
-		if ( ! empty( $widget['handoff_email_enabled'] ) && '' !== $email && is_email( $email ) ) {
-			return true;
+		foreach ( self::ENABLE_KEYS as $channel => $enable_key ) {
+			if ( ! empty( $widget[ $enable_key ] ) && Settings::handoff_channel_ready( $channel, $widget ) ) {
+				return true;
+			}
 		}
 
-		if ( ! empty( $widget['handoff_telegram_enabled'] )
-			&& Settings::has_handoff_secret( 'handoff_telegram_token' )
-			&& '' !== trim( (string) ( $widget['handoff_telegram_chat'] ?? '' ) ) ) {
-			return true;
-		}
-
-		return ! empty( $widget['handoff_twilio_enabled'] )
-			&& Settings::has_handoff_secret( 'handoff_twilio_sid' )
-			&& Settings::has_handoff_secret( 'handoff_twilio_token' )
-			&& '' !== trim( (string) ( $widget['handoff_twilio_from'] ?? '' ) )
-			&& '' !== trim( (string) ( $widget['handoff_twilio_to'] ?? '' ) );
+		return false;
 	}
 
 	/**
@@ -215,35 +324,22 @@ final class AdminHandoffSettingsController {
 	 * @return array<string, mixed>
 	 */
 	private function channel_response( string $channel, array $widget ): array {
-		$enabled = ! empty( $widget[ self::ENABLE_KEYS[ $channel ] ] );
-		if ( 'email' === $channel ) {
-			$recipient = sanitize_email( (string) ( $widget['handoff_email_to'] ?? get_option( 'admin_email', '' ) ) );
-			return array(
-				'id'         => $channel,
-				'enabled'    => $enabled,
-				'configured' => '' !== $recipient && is_email( $recipient ),
-			);
-		}
-
-		if ( 'telegram' === $channel ) {
-			return array(
-				'id'         => $channel,
-				'enabled'    => $enabled,
-				'configured' => Settings::has_handoff_secret( 'handoff_telegram_token' ) && '' !== trim( (string) ( $widget['handoff_telegram_chat'] ?? '' ) ),
-				'has_secret' => Settings::has_handoff_secret( 'handoff_telegram_token' ),
-			);
-		}
-
-		return array(
+		$response = array(
 			'id'         => $channel,
-			'enabled'    => $enabled,
-			'configured' => Settings::has_handoff_secret( 'handoff_twilio_sid' )
-				&& Settings::has_handoff_secret( 'handoff_twilio_token' )
-				&& '' !== trim( (string) ( $widget['handoff_twilio_from'] ?? '' ) )
-				&& '' !== trim( (string) ( $widget['handoff_twilio_to'] ?? '' ) ),
-			'has_sid'    => Settings::has_handoff_secret( 'handoff_twilio_sid' ),
-			'has_token'  => Settings::has_handoff_secret( 'handoff_twilio_token' ),
+			'enabled'    => ! empty( $widget[ self::ENABLE_KEYS[ $channel ] ] ),
+			'configured' => Settings::handoff_channel_ready( $channel, $widget ),
 		);
+		// Which credentials are saved, never the credentials themselves.
+		foreach ( self::SECRET_FIELDS[ $channel ] ?? array() as $field => $key ) {
+			$response[ 'has_' . substr( $field, strlen( $channel ) + 1 ) ] = Settings::has_handoff_secret( $key );
+		}
+		// Kept from earlier releases: Telegram reported its token as has_secret.
+		if ( 'telegram' === $channel ) {
+			$response['has_secret'] = $response['has_token'];
+			unset( $response['has_token'] );
+		}
+
+		return $response;
 	}
 
 	private function text( $value, int $limit ): string {

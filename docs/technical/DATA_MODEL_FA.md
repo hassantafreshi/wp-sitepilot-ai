@@ -11,7 +11,7 @@
 | `aisaautopilot_settings` | تنظیمات عمومی (`Settings::defaults()`) و زیرآرایهٔ `widget` (`Settings::widget_defaults()`) | `Settings::all()` کلیدهای اسرار handoff را از `widget` حذف می‌کند. `Settings::update()` کلیدهای ارسال‌شده را روی مقدار موجود ادغام می‌کند. |
 | `aisaautopilot_provider_key` | کلید provider، رمزشده با `KeyVault` | فقط جایگزین یا حذف می‌شود و هرگز خوانده و نمایش داده نمی‌شود. |
 | `aisaautopilot_embedding_key` | کلید جدای embeddings، رمزشده | اختیاری است. خالی یعنی استفاده از کلید اصلی (جز Anthropic). |
-| `aisaautopilot_handoff_secrets` | توکن Telegram، SID و توکن Twilio | جدا از تنظیمات عمومی نگهداری می‌شوند. |
+| `aisaautopilot_handoff_secrets` | توکن Telegram، SID و توکن Twilio، توکن دسترسی WhatsApp، نشانی webhook اسلک، توکن اختیاری Signal | جدا از تنظیمات عمومی و رمزشده نگهداری می‌شوند. |
 | `aisaautopilot_wp_connector_key` | جایگاه کلید در Connectors API وردپرس 7 | با `key_management = wp_connectors` |
 | `aisaautopilot_provider_verified` | زمان آخرین آزمون موفق همان پیکربندی ذخیره‌شده | با تغییر provider، endpoint، مدل، کلید یا روش نگهداری پاک می‌شود. |
 
@@ -41,7 +41,7 @@
 - **صدا:** `voice_enabled`، `voice_auto` (پیش‌فرض `false` از T08)
 - **بازبینی پیش‌فرض‌ها:** `defaults_revision` (عدد صحیح، اکنون 2). `Settings::migrate_widget_defaults()` در boot فقط وقتی این نشان کمتر از 2 است مقدارهای قدیمیِ انتخاب‌نشده را جابه‌جا می‌کند: `auto_open` 5 به 0، `window_width` 380 به 392 و `window_height` 550 به 624. option تازه‌ای نمی‌سازد؛ حذف در uninstall همراه خود `aisaautopilot_settings` است.
 - **ثبت گفت‌وگو:** `conversation_logging_enabled`، `conversation_notice`
-- **انتقال به انسان:** `handoff_enabled`، `handoff_text`، `handoff_hook`، `handoff_email_*`، `handoff_telegram_*`، `handoff_twilio_*`، `handoff_fields` (کلیدهای `name`، `email`، `phone`، `website` با مقدار `off`، `optional` یا `required`؛ پیش‌فرض همه `off`)
+- **انتقال به انسان:** `handoff_enabled`، `handoff_text`، `handoff_hook`، `handoff_email_*`، `handoff_telegram_*`، `handoff_twilio_*`، `handoff_whatsapp_*` (`enabled`، `phone_id`، `to`، `template`، `language` با پیش‌فرض `en_US`)، `handoff_slack_enabled`، `handoff_signal_*` (`enabled`، `url`، `from`، `to`)، `handoff_fields` (کلیدهای `name`، `email`، `phone`، `website` با مقدار `off`، `optional` یا `required`؛ پیش‌فرض همه `off`)
 - **کلیدهای بازنشسته (F-12، ۲۰۲۶-۰۹-۱۸):** دوازده کلید از طرح نخست ویجت در `Settings::WIDGET_RETIRED_DEFAULTS` جمع شده‌اند. هیچ کدی آن‌ها را نمی‌خواند و هیچ فرمی نمی‌نویسد؛ فقط چون `Settings::update()` روی هر سایتی که یک‌بار ذخیره کرده آن‌ها را نوشته است، در پیش‌فرض‌ها می‌مانند و با خود `aisaautopilot_settings` در uninstall حذف می‌شوند. به آن‌ها سیم‌کشی نشود: شش تای اول کار یک کنترل زنده را تکرار می‌کنند و دو کنترل برای یک کار مدیر را گیج می‌کند.
 
   | کلید بازنشسته | کنترل زنده‌ای که همین کار را می‌کند |

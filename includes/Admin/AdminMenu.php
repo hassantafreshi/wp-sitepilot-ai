@@ -330,6 +330,12 @@ final class AdminMenu {
 			'handoffTelegramSummary'     => __( 'Credential stored securely; chat %s', 'ai-site-assistant-autopilot' ),
 			/* translators: %s: configured recipient phone number. */
 			'handoffTwilioSummary'       => __( 'Credentials stored securely; sends to %s', 'ai-site-assistant-autopilot' ),
+			/* translators: %s: recipient WhatsApp number. */
+			'handoffWhatsappSummary'     => __( 'Token stored securely; sends to %s', 'ai-site-assistant-autopilot' ),
+			'handoffSlackSummary'        => __( 'Webhook stored securely', 'ai-site-assistant-autopilot' ),
+			/* translators: %s: Signal recipient (a phone number or a group). */
+			'handoffSignalSummary'       => __( 'Sends to %s', 'ai-site-assistant-autopilot' ),
+			'handoffSignalGroup'         => __( 'a Signal group', 'ai-site-assistant-autopilot' ),
 			'handoffChecking'            => __( 'Checking connection...', 'ai-site-assistant-autopilot' ),
 			'handoffVerified'            => __( 'Connection verified.', 'ai-site-assistant-autopilot' ),
 			'handoffDetailsSaved'        => __( 'Saved. The handoff card asks for these details from now on.', 'ai-site-assistant-autopilot' ),

@@ -39,6 +39,15 @@ class HandoffService {
 					return $this->try_telegram( $summary );},
 				'twilio'   => function () use ( $summary, $pdf_url ) {
 					return $this->try_twilio( $summary, $pdf_url );},
+				'whatsapp' => function () use ( $summary ) {
+					return $this->try_channel( 'whatsapp', new HandoffWhatsApp(), $summary );
+				},
+				'slack'    => function () use ( $summary ) {
+					return $this->try_channel( 'slack', new HandoffSlack(), $summary );
+				},
+				'signal'   => function () use ( $summary ) {
+					return $this->try_channel( 'signal', new HandoffSignal(), $summary );
+				},
 			);
 
 			foreach ( $channels as $key => $fn ) {
@@ -77,7 +86,7 @@ class HandoffService {
 	}
 
 	/**
-	 * The details a visitor left, one per line, for Telegram and SMS. Each channel escapes for its own format.
+	 * The details a visitor left, one per line, for the chat and SMS channels. Each channel escapes for its own format.
 	 *
 	 * @param array{name:string,email:string,phone:string,website:string} $contact
 	 */
@@ -156,6 +165,30 @@ class HandoffService {
 				'reason'  => 'Twilio not configured.',
 			);}
 		return $tw->send( $text, $pdf_url );
+	}
+
+	/**
+	 * A channel that takes the plain-text summary: skipped unless switched on and set up.
+	 *
+	 * @param HandoffWhatsApp|HandoffSlack|HandoffSignal $sender
+	 */
+	private function try_channel( string $channel, $sender, string $text ): array {
+		if ( ! $this->channel_enabled( 'handoff_' . $channel . '_enabled' ) ) {
+			return array(
+				'ok'      => false,
+				'skipped' => true,
+				'reason'  => ucfirst( $channel ) . ' delivery disabled.',
+			);
+		}
+		if ( ! $sender->is_configured() ) {
+			return array(
+				'ok'      => false,
+				'skipped' => true,
+				'reason'  => ucfirst( $channel ) . ' not configured.',
+			);
+		}
+
+		return $sender->send( $text );
 	}
 
 	private function channel_enabled( string $key ): bool {

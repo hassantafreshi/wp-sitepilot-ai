@@ -79,12 +79,17 @@ try {
 		false !== strpos( $markup, 'data-sp-handoff-channel="email"' )
 		&& false !== strpos( $markup, 'data-sp-handoff-channel="telegram"' )
 		&& false !== strpos( $markup, 'data-sp-handoff-channel="twilio"' )
-		&& false !== strpos( $markup, 'data-sp-handoff-unsupported="whatsapp"' )
-		&& false !== strpos( $markup, 'data-sp-handoff-unsupported="slack"' )
+		&& false !== strpos( $markup, 'data-sp-handoff-channel="whatsapp"' )
+		&& false !== strpos( $markup, 'data-sp-handoff-channel="slack"' )
+		&& false !== strpos( $markup, 'data-sp-handoff-channel="signal"' )
+		&& false !== strpos( $markup, 'data-sp-handoff-add="slack"' )
+		&& false !== strpos( $markup, 'data-sp-handoff-add="signal"' )
+		&& false === strpos( $markup, 'data-sp-handoff-unsupported="whatsapp"' )
+		&& false === strpos( $markup, 'data-sp-handoff-unsupported="slack"' )
 		&& false !== strpos( $markup, 'data-sp-handoff-unsupported="discord"' )
 		&& false !== strpos( $markup, 'data-sp-handoff-unsupported="webhook"' )
 		&& false !== strpos( $markup, 'Add another channel' ),
-		'Channel cards mirror the mockup while unsupported transports are visibly locked rather than presented as live'
+		'Every delivered channel has a card (WhatsApp shown, Slack and Signal under "Add another channel"), while unsupported transports stay visibly locked'
 	);
 	$check(
 		false !== strpos( $markup, 'When a visitor asks for a person, the plugin sends the handoff to every enabled and configured channel below.' )

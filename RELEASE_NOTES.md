@@ -88,7 +88,12 @@ answers were right, against 2 of 8. Details are in
 full-screen modes, a customiser for colours, icons, greeting, suggested
 questions and the pages it appears on, conversation logging with a privacy
 notice, a human-handoff card with configurable contact details, and a handoff
-inbox in wp-admin with optional email, Telegram or Twilio delivery.
+inbox in wp-admin with optional email, Telegram, WhatsApp Business (Meta's
+Cloud API, with an approved message template so a request can always start the
+chat), SMS or WhatsApp through Twilio, Slack (incoming webhook) or Signal
+(through a signal-cli REST API server the site owner runs) delivery. Every
+credential is stored encrypted, and each channel has a "Check connection"
+button; only Slack's posts a line, because a webhook cannot be read.
 
 **Store Copilot** — read-only WooCommerce insight and a single reviewed
 simple-product draft.

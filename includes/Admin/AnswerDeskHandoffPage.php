@@ -7,8 +7,11 @@ use AISAAutoPilot\Api\RestRoutes;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Support\HandoffEmail;
 use AISAAutoPilot\Support\HandoffInbox;
+use AISAAutoPilot\Support\HandoffSignal;
+use AISAAutoPilot\Support\HandoffSlack;
 use AISAAutoPilot\Support\HandoffTelegram;
 use AISAAutoPilot\Support\HandoffTwilio;
+use AISAAutoPilot\Support\HandoffWhatsApp;
 
 /**
  * Mockup-aligned Human handoff configuration within the Answer Desk route.
@@ -30,7 +33,15 @@ final class AnswerDeskHandoffPage {
 		$twilio      = new HandoffTwilio();
 		$integration = ! empty( Settings::get( 'public_assistant_enabled', false ) );
 		$widget_on   = ! empty( $widget['enabled'] );
-		$show_twilio = ! empty( $widget['handoff_twilio_enabled'] ) || $twilio->is_configured();
+		$whatsapp    = new HandoffWhatsApp();
+		$slack       = new HandoffSlack();
+		$signal      = new HandoffSignal();
+		// Channels most sites do not use stay folded under "Add another channel" until set up.
+		$shown = array(
+			'twilio' => ! empty( $widget['handoff_twilio_enabled'] ) || $twilio->is_configured(),
+			'slack'  => ! empty( $widget['handoff_slack_enabled'] ) || $slack->is_configured(),
+			'signal' => ! empty( $widget['handoff_signal_enabled'] ) || $signal->is_configured(),
+		);
 
 		Ui::grad_defs();
 		?>
@@ -60,10 +71,12 @@ final class AnswerDeskHandoffPage {
 						<div class="sp-answer-handoff__cards">
 						<?php $this->render_email( $widget, $email ); ?>
 						<?php $this->render_telegram( $widget, $telegram ); ?>
-						<?php $this->render_whatsapp_locked(); ?>
-						<?php $this->render_twilio( $widget, $twilio, $show_twilio ); ?>
+						<?php $this->render_whatsapp( $widget, $whatsapp ); ?>
+						<?php $this->render_twilio( $widget, $twilio, $shown['twilio'] ); ?>
+						<?php $this->render_slack( $widget, $slack, $shown['slack'] ); ?>
+						<?php $this->render_signal( $widget, $signal, $shown['signal'] ); ?>
 						</div>
-						<?php $this->render_add_channels( $show_twilio ); ?>
+						<?php $this->render_add_channels( $shown ); ?>
 						<?php $this->render_visitor_fields(); ?>
 					</div>
 				</div>
@@ -83,7 +96,10 @@ final class AnswerDeskHandoffPage {
 		$channels = array(
 			array( 'email', __( 'Email', 'ai-site-assistant-autopilot' ), ! empty( $widget['handoff_email_enabled'] ), ( new HandoffEmail() )->is_configured() ),
 			array( 'telegram', __( 'Telegram', 'ai-site-assistant-autopilot' ), ! empty( $widget['handoff_telegram_enabled'] ), ( new HandoffTelegram() )->is_configured() ),
+			array( 'whatsapp', __( 'WhatsApp Business', 'ai-site-assistant-autopilot' ), ! empty( $widget['handoff_whatsapp_enabled'] ), ( new HandoffWhatsApp() )->is_configured() ),
 			array( 'twilio', __( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ), ! empty( $widget['handoff_twilio_enabled'] ), ( new HandoffTwilio() )->is_configured() ),
+			array( 'slack', __( 'Slack', 'ai-site-assistant-autopilot' ), ! empty( $widget['handoff_slack_enabled'] ), ( new HandoffSlack() )->is_configured() ),
+			array( 'signal', __( 'Signal', 'ai-site-assistant-autopilot' ), ! empty( $widget['handoff_signal_enabled'] ), ( new HandoffSignal() )->is_configured() ),
 		);
 		$states   = array();
 		foreach ( $channels as $channel ) {
@@ -247,21 +263,18 @@ final class AnswerDeskHandoffPage {
 				$to
 			)
 			: __( 'Not set up yet', 'ai-site-assistant-autopilot' );
+
+		$this->card_start(
+			'twilio',
+			__( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ),
+			__( 'Sends a text message to the configured support number.', 'ai-site-assistant-autopilot' ),
+			$summary,
+			'phone',
+			$enabled,
+			$twilio->is_configured(),
+			! $show
+		);
 		?>
-		<article class="sp-answer-handoff-card<?php echo esc_attr( $this->card_class( $enabled, $twilio->is_configured() ) ); ?>" data-sp-handoff-card data-sp-handoff-channel="twilio" data-sp-handoff-enabled="<?php echo $enabled ? '1' : '0'; ?>" data-sp-handoff-configured="<?php echo $twilio->is_configured() ? '1' : '0'; ?>"<?php echo $show ? '' : ' hidden'; ?>>
-			<div class="sp-answer-handoff-card__head">
-				<span class="sp-answer-handoff-card__icon" aria-hidden="true"><?php echo Ui::icon( 'phone', 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
-				<div class="sp-answer-handoff-card__body">
-					<div class="sp-answer-handoff-card__title"><strong><?php esc_html_e( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ); ?></strong><span class="sp-answer-handoff-state<?php echo esc_attr( self::state_class( $enabled, $twilio->is_configured() ) ); ?>" data-sp-handoff-state><?php echo esc_html( self::state_label( $enabled, $twilio->is_configured() ) ); ?></span></div>
-					<p><?php esc_html_e( 'Sends a text message to the configured support number.', 'ai-site-assistant-autopilot' ); ?></p>
-					<span class="sp-answer-handoff-card__summary" data-sp-handoff-summary><?php echo esc_html( $summary ); ?></span>
-				</div>
-				<div class="sp-answer-handoff-card__actions">
-					<button class="sp-answer-widget-switch<?php echo $enabled ? ' is-on' : ''; ?>" type="button" role="switch" aria-checked="<?php echo $enabled ? 'true' : 'false'; ?>" data-sp-handoff-toggle aria-label="<?php esc_attr_e( 'Toggle SMS handoff', 'ai-site-assistant-autopilot' ); ?>"><span aria-hidden="true"></span></button>
-					<button class="sp-btn sp-btn--ghost sp-btn--r8 sp-answer-handoff-edit" type="button" data-sp-handoff-edit><?php esc_html_e( 'Edit', 'ai-site-assistant-autopilot' ); ?></button>
-				</div>
-			</div>
-			<form class="sp-answer-handoff-card__form" data-sp-handoff-form hidden>
 				<div class="sp-answer-handoff-fields">
 					<label class="sp-answer-handoff-field">
 						<span><?php esc_html_e( 'Account SID', 'ai-site-assistant-autopilot' ); ?> <em><?php esc_html_e( 'Stored encrypted', 'ai-site-assistant-autopilot' ); ?></em></span>
@@ -286,39 +299,165 @@ final class AnswerDeskHandoffPage {
 						<input class="sp-input sp-input--sm sp-mono" type="text" dir="ltr" name="twilio_to" value="<?php echo esc_attr( $to ); ?>" placeholder="+1 555 019 4471" />
 					</label>
 				</div>
-				<?php $this->card_actions( 'twilio', $twilio->is_configured() ); ?>
-			</form>
-		</article>
 		<?php
+		$this->card_end( 'twilio', $twilio->is_configured() );
 	}
 
-	private function render_whatsapp_locked(): void {
+	/** @param array<string, mixed> $widget */
+	private function render_whatsapp( array $widget, HandoffWhatsApp $whatsapp ): void {
+		$enabled   = ! empty( $widget['handoff_whatsapp_enabled'] );
+		$has_token = Settings::has_handoff_secret( 'handoff_whatsapp_token' );
+		$to        = (string) ( $widget['handoff_whatsapp_to'] ?? '' );
+		$template  = (string) ( $widget['handoff_whatsapp_template'] ?? '' );
+		$summary   = $whatsapp->is_configured()
+			? sprintf(
+				/* translators: %s: recipient WhatsApp number. */
+				__( 'Token stored securely; sends to %s', 'ai-site-assistant-autopilot' ),
+				$to
+			)
+			: __( 'Not set up yet', 'ai-site-assistant-autopilot' );
+
+		$this->card_start(
+			'whatsapp',
+			__( 'WhatsApp Business', 'ai-site-assistant-autopilot' ),
+			__( 'Your WhatsApp Business number sends the handoff to a team member’s WhatsApp, through Meta’s Cloud API.', 'ai-site-assistant-autopilot' ),
+			$summary,
+			'phone',
+			$enabled,
+			$whatsapp->is_configured()
+		);
 		?>
-		<article class="sp-answer-handoff-card sp-answer-handoff-card--locked" data-sp-handoff-unsupported="whatsapp">
-			<div class="sp-answer-handoff-card__head">
-				<span class="sp-answer-handoff-card__icon" aria-hidden="true"><?php echo Ui::icon( 'phone', 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
-				<div class="sp-answer-handoff-card__body">
-					<div class="sp-answer-handoff-card__title"><strong><?php esc_html_e( 'WhatsApp', 'ai-site-assistant-autopilot' ); ?></strong><span class="sp-answer-handoff-state is-off"><?php esc_html_e( 'Not available', 'ai-site-assistant-autopilot' ); ?></span></div>
-					<p><?php esc_html_e( 'Reply from a WhatsApp Business number.', 'ai-site-assistant-autopilot' ); ?></p>
-					<span class="sp-answer-handoff-card__summary"><?php esc_html_e( 'This build has no WhatsApp delivery transport yet.', 'ai-site-assistant-autopilot' ); ?></span>
-				</div>
-				<span class="sp-answer-handoff-lock"><?php echo Ui::icon( 'lock', 15, 'currentColor', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?><?php esc_html_e( 'Planned', 'ai-site-assistant-autopilot' ); ?></span>
+			<div class="sp-answer-handoff-fields">
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Access token', 'ai-site-assistant-autopilot' ); ?> <em><?php esc_html_e( 'Stored encrypted', 'ai-site-assistant-autopilot' ); ?></em></span>
+					<input class="sp-input sp-input--sm sp-mono" type="password" autocomplete="new-password" name="whatsapp_token" value="" placeholder="<?php echo esc_attr( $has_token ? __( 'Saved securely - enter a new token to replace it', 'ai-site-assistant-autopilot' ) : 'EAAG...' ); ?>" />
+				<?php if ( $has_token ) : ?>
+					<label class="sp-answer-handoff-clear"><input type="checkbox" name="clear_whatsapp_token" value="1" /> <?php esc_html_e( 'Remove saved token', 'ai-site-assistant-autopilot' ); ?></label>
+				<?php endif; ?>
+					<small><?php esc_html_e( 'A permanent token of a system user with the whatsapp_business_messaging permission (Meta Business Settings).', 'ai-site-assistant-autopilot' ); ?></small>
+				</label>
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Phone number ID', 'ai-site-assistant-autopilot' ); ?></span>
+					<input class="sp-input sp-input--sm sp-mono" type="text" inputmode="numeric" dir="ltr" name="whatsapp_phone_id" value="<?php echo esc_attr( (string) ( $widget['handoff_whatsapp_phone_id'] ?? '' ) ); ?>" placeholder="106540352242922" />
+					<small><?php esc_html_e( 'Shown under WhatsApp > API Setup in your Meta app; it is not the phone number itself.', 'ai-site-assistant-autopilot' ); ?></small>
+				</label>
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Send to', 'ai-site-assistant-autopilot' ); ?></span>
+					<input class="sp-input sp-input--sm sp-mono" type="text" dir="ltr" name="whatsapp_to" value="<?php echo esc_attr( $to ); ?>" placeholder="+1 555 019 4471" />
+				</label>
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Message template', 'ai-site-assistant-autopilot' ); ?></span>
+					<input class="sp-input sp-input--sm sp-mono" type="text" dir="ltr" name="whatsapp_template" value="<?php echo esc_attr( $template ); ?>" placeholder="support_handoff" />
+					<small><?php esc_html_e( 'Recommended. WhatsApp only lets a business start a chat with an approved template: create a Utility template whose body has one variable, {{1}}, which receives the request. Without a template, messages arrive only within 24 hours of the recipient writing to your business number.', 'ai-site-assistant-autopilot' ); ?></small>
+				</label>
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Template language', 'ai-site-assistant-autopilot' ); ?></span>
+					<input class="sp-input sp-input--sm sp-mono" type="text" dir="ltr" name="whatsapp_language" value="<?php echo esc_attr( (string) ( $widget['handoff_whatsapp_language'] ?? 'en_US' ) ); ?>" placeholder="en_US" />
+				</label>
 			</div>
-		</article>
 		<?php
+		$this->card_end( 'whatsapp', $whatsapp->is_configured() );
 	}
 
-	private function render_add_channels( bool $show_twilio ): void {
+	/** @param array<string, mixed> $widget */
+	private function render_slack( array $widget, HandoffSlack $slack, bool $show ): void {
+		$enabled = ! empty( $widget['handoff_slack_enabled'] );
+		$has_url = Settings::has_handoff_secret( 'handoff_slack_webhook' );
+		$this->card_start(
+			'slack',
+			__( 'Slack', 'ai-site-assistant-autopilot' ),
+			__( 'Posts the handoff to one Slack channel through an incoming webhook.', 'ai-site-assistant-autopilot' ),
+			$slack->is_configured() ? __( 'Webhook stored securely', 'ai-site-assistant-autopilot' ) : __( 'Not set up yet', 'ai-site-assistant-autopilot' ),
+			'chat',
+			$enabled,
+			$slack->is_configured(),
+			! $show
+		);
+		?>
+			<div class="sp-answer-handoff-fields">
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Incoming webhook URL', 'ai-site-assistant-autopilot' ); ?> <em><?php esc_html_e( 'Stored encrypted', 'ai-site-assistant-autopilot' ); ?></em></span>
+					<input class="sp-input sp-input--sm sp-mono" type="password" autocomplete="new-password" dir="ltr" name="slack_webhook" value="" placeholder="<?php echo esc_attr( $has_url ? __( 'Saved securely - enter a new URL to replace it', 'ai-site-assistant-autopilot' ) : 'https://hooks.slack.com/services/...' ); ?>" />
+				<?php if ( $has_url ) : ?>
+					<label class="sp-answer-handoff-clear"><input type="checkbox" name="clear_slack_webhook" value="1" /> <?php esc_html_e( 'Remove saved webhook', 'ai-site-assistant-autopilot' ); ?></label>
+				<?php endif; ?>
+					<small><?php esc_html_e( 'Create it in a Slack app under Incoming Webhooks and pick the channel. Anyone with this URL can post to that channel.', 'ai-site-assistant-autopilot' ); ?></small>
+				</label>
+			</div>
+		<?php
+		$this->card_end( 'slack', $slack->is_configured(), __( 'Slack has no read-only check, so Check connection posts one short line to the channel.', 'ai-site-assistant-autopilot' ) );
+	}
+
+	/** @param array<string, mixed> $widget */
+	private function render_signal( array $widget, HandoffSignal $signal, bool $show ): void {
+		$enabled   = ! empty( $widget['handoff_signal_enabled'] );
+		$has_token = Settings::has_handoff_secret( 'handoff_signal_token' );
+		$to        = (string) ( $widget['handoff_signal_to'] ?? '' );
+		$summary   = $signal->is_configured()
+			? sprintf(
+				/* translators: %s: Signal recipient (a phone number or a group). */
+				__( 'Sends to %s', 'ai-site-assistant-autopilot' ),
+				str_starts_with( $to, 'group.' ) ? __( 'a Signal group', 'ai-site-assistant-autopilot' ) : $to
+			)
+			: __( 'Not set up yet', 'ai-site-assistant-autopilot' );
+
+		$this->card_start(
+			'signal',
+			__( 'Signal', 'ai-site-assistant-autopilot' ),
+			__( 'Sends the handoff to a Signal number or group through a signal-cli REST API server you run.', 'ai-site-assistant-autopilot' ),
+			$summary,
+			'chat',
+			$enabled,
+			$signal->is_configured(),
+			! $show
+		);
+		?>
+			<div class="sp-answer-handoff-fields">
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Signal API address', 'ai-site-assistant-autopilot' ); ?></span>
+					<input class="sp-input sp-input--sm sp-mono" type="url" dir="ltr" name="signal_url" value="<?php echo esc_attr( (string) ( $widget['handoff_signal_url'] ?? '' ) ); ?>" placeholder="http://127.0.0.1:8080" />
+					<small><?php esc_html_e( 'Signal has no official API for businesses. Run the open-source signal-cli-rest-api (Docker) on a server you control and register or link a Signal number on it.', 'ai-site-assistant-autopilot' ); ?></small>
+				</label>
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Send from', 'ai-site-assistant-autopilot' ); ?></span>
+					<input class="sp-input sp-input--sm sp-mono" type="text" dir="ltr" name="signal_from" value="<?php echo esc_attr( (string) ( $widget['handoff_signal_from'] ?? '' ) ); ?>" placeholder="+15550000000" />
+				</label>
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Send to', 'ai-site-assistant-autopilot' ); ?></span>
+					<input class="sp-input sp-input--sm sp-mono" type="text" dir="ltr" name="signal_to" value="<?php echo esc_attr( $to ); ?>" placeholder="+15550194471" />
+					<small><?php esc_html_e( 'A number in international format, or a group ID starting with group.', 'ai-site-assistant-autopilot' ); ?></small>
+				</label>
+				<label class="sp-answer-handoff-field">
+					<span><?php esc_html_e( 'Access token (optional)', 'ai-site-assistant-autopilot' ); ?> <em><?php esc_html_e( 'Stored encrypted', 'ai-site-assistant-autopilot' ); ?></em></span>
+					<input class="sp-input sp-input--sm sp-mono" type="password" autocomplete="new-password" name="signal_token" value="" placeholder="<?php echo esc_attr( $has_token ? __( 'Saved securely - enter a new token to replace it', 'ai-site-assistant-autopilot' ) : '' ); ?>" />
+				<?php if ( $has_token ) : ?>
+					<label class="sp-answer-handoff-clear"><input type="checkbox" name="clear_signal_token" value="1" /> <?php esc_html_e( 'Remove saved token', 'ai-site-assistant-autopilot' ); ?></label>
+				<?php endif; ?>
+					<small><?php esc_html_e( 'Sent as a Bearer token, for a server behind a proxy that checks one.', 'ai-site-assistant-autopilot' ); ?></small>
+				</label>
+			</div>
+		<?php
+		$this->card_end( 'signal', $signal->is_configured() );
+	}
+
+	/** @param array<string, bool> $shown Which optional channels already have a card on the page. */
+	private function render_add_channels( array $shown ): void {
+		$choices = array(
+			'twilio' => array( __( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ), 'phone' ),
+			'slack'  => array( __( 'Slack', 'ai-site-assistant-autopilot' ), 'chat' ),
+			'signal' => array( __( 'Signal', 'ai-site-assistant-autopilot' ), 'chat' ),
+		);
 		?>
 		<section class="sp-answer-handoff-add" aria-labelledby="sp-answer-handoff-add-title">
 			<h2 id="sp-answer-handoff-add-title"><?php esc_html_e( 'Add another channel', 'ai-site-assistant-autopilot' ); ?></h2>
 			<div class="sp-answer-handoff-add__choices">
-				<button type="button" data-sp-handoff-add="twilio"<?php echo $show_twilio ? ' hidden' : ''; ?>><?php echo Ui::icon( 'phone', 15, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?><span><?php esc_html_e( 'SMS (Twilio)', 'ai-site-assistant-autopilot' ); ?></span><?php echo Ui::icon( 'plus', 12, 'currentColor', 2.4 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></button>
-				<button type="button" disabled data-sp-handoff-unsupported="slack"><?php echo Ui::icon( 'chat', 15, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?><span><?php esc_html_e( 'Slack', 'ai-site-assistant-autopilot' ); ?></span><?php echo Ui::icon( 'lock', 12, 'currentColor', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></button>
+			<?php foreach ( $choices as $channel => $choice ) : ?>
+				<button type="button" data-sp-handoff-add="<?php echo esc_attr( $channel ); ?>"<?php echo empty( $shown[ $channel ] ) ? '' : ' hidden'; ?>><?php echo Ui::icon( $choice[1], 15, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?><span><?php echo esc_html( $choice[0] ); ?></span><?php echo Ui::icon( 'plus', 12, 'currentColor', 2.4 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></button>
+			<?php endforeach; ?>
 				<button type="button" disabled data-sp-handoff-unsupported="discord"><?php echo Ui::icon( 'chat', 15, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?><span><?php esc_html_e( 'Discord', 'ai-site-assistant-autopilot' ); ?></span><?php echo Ui::icon( 'lock', 12, 'currentColor', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></button>
 				<button type="button" disabled data-sp-handoff-unsupported="webhook"><?php echo Ui::icon( 'plug', 15, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?><span><?php esc_html_e( 'Custom webhook', 'ai-site-assistant-autopilot' ); ?></span><?php echo Ui::icon( 'lock', 12, 'currentColor', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></button>
 			</div>
-			<p><?php esc_html_e( 'This build supports Email, Telegram and SMS through Twilio. Unsupported channels stay locked instead of collecting credentials that cannot be delivered.', 'ai-site-assistant-autopilot' ); ?></p>
+			<p><?php esc_html_e( 'This build delivers by Email, Telegram, WhatsApp Business, SMS through Twilio, Slack and Signal. Unsupported channels stay locked instead of collecting credentials that cannot be delivered.', 'ai-site-assistant-autopilot' ); ?></p>
 		</section>
 		<?php
 	}
@@ -372,14 +511,14 @@ final class AnswerDeskHandoffPage {
 		<?php
 	}
 
-	private function card_start( string $id, string $title, string $description, string $summary, string $icon, bool $enabled, bool $configured ): void {
+	private function card_start( string $id, string $title, string $description, string $summary, string $icon, bool $enabled, bool $configured, bool $hidden = false ): void {
 		$toggle_label = sprintf(
 			/* translators: %s: human handoff channel name. */
 			__( 'Toggle %s handoff', 'ai-site-assistant-autopilot' ),
 			$title
 		);
 		?>
-		<article class="sp-answer-handoff-card<?php echo esc_attr( $this->card_class( $enabled, $configured ) ); ?>" data-sp-handoff-card data-sp-handoff-channel="<?php echo esc_attr( $id ); ?>" data-sp-handoff-enabled="<?php echo $enabled ? '1' : '0'; ?>" data-sp-handoff-configured="<?php echo $configured ? '1' : '0'; ?>">
+		<article class="sp-answer-handoff-card<?php echo esc_attr( $this->card_class( $enabled, $configured ) ); ?>" data-sp-handoff-card data-sp-handoff-channel="<?php echo esc_attr( $id ); ?>" data-sp-handoff-enabled="<?php echo $enabled ? '1' : '0'; ?>" data-sp-handoff-configured="<?php echo $configured ? '1' : '0'; ?>"<?php echo $hidden ? ' hidden' : ''; ?>>
 			<div class="sp-answer-handoff-card__head">
 				<span class="sp-answer-handoff-card__icon" aria-hidden="true"><?php echo Ui::icon( $icon, 19, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
 				<div class="sp-answer-handoff-card__body">
@@ -396,27 +535,27 @@ final class AnswerDeskHandoffPage {
 		<?php
 	}
 
-	private function card_end( string $channel, bool $can_test ): void {
+	private function card_end( string $channel, bool $can_test, string $check_note = '' ): void {
 		?>
-			<?php $this->card_actions( $channel, $can_test ); ?>
+			<?php $this->card_actions( $channel, $can_test, $check_note ); ?>
 			</form>
 		</article>
 		<?php
 	}
 
-	private function card_actions( string $channel, bool $can_test ): void {
-		$test_url = 'telegram' === $channel
-			? rest_url( RestRoutes::NAMESPACE . '/widget/test/telegram' )
-			: ( 'twilio' === $channel ? rest_url( RestRoutes::NAMESPACE . '/widget/test/twilio' ) : '' );
+	private function card_actions( string $channel, bool $can_test, string $check_note = '' ): void {
+		// Telegram and Twilio have read-only GET checks; the newer channels share one POST route.
+		$test_method = in_array( $channel, array( 'telegram', 'twilio' ), true ) ? 'GET' : 'POST';
+		$test_url    = 'email' === $channel ? '' : rest_url( RestRoutes::NAMESPACE . '/widget/test/' . $channel );
 		?>
 		<div class="sp-answer-handoff-form__actions">
 			<button class="sp-btn sp-btn--r8" type="submit" data-sp-handoff-save><?php esc_html_e( 'Save configuration', 'ai-site-assistant-autopilot' ); ?></button>
 			<button class="sp-btn sp-btn--ghost sp-btn--r8" type="button" data-sp-handoff-cancel><?php esc_html_e( 'Cancel', 'ai-site-assistant-autopilot' ); ?></button>
 		<?php if ( '' !== $test_url ) : ?>
-			<button class="sp-answer-handoff-test" type="button" data-sp-handoff-test data-sp-handoff-test-url="<?php echo esc_url( $test_url ); ?>"<?php disabled( ! $can_test ); ?>><?php echo Ui::icon( 'send', 14, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?><?php esc_html_e( 'Check connection', 'ai-site-assistant-autopilot' ); ?></button>
+			<button class="sp-answer-handoff-test" type="button" data-sp-handoff-test data-sp-handoff-test-url="<?php echo esc_url( $test_url ); ?>" data-sp-handoff-test-method="<?php echo esc_attr( $test_method ); ?>"<?php disabled( ! $can_test ); ?>><?php echo Ui::icon( 'send', 14, 'currentColor', 1.8 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?><?php esc_html_e( 'Check connection', 'ai-site-assistant-autopilot' ); ?></button>
 		<?php endif; ?>
 		</div>
-		<p class="sp-answer-handoff-form__note"><?php esc_html_e( 'A connection check contacts the provider but does not send a visitor handoff.', 'ai-site-assistant-autopilot' ); ?></p>
+		<p class="sp-answer-handoff-form__note"><?php echo esc_html( '' !== $check_note ? $check_note : __( 'A connection check contacts the provider but does not send a visitor handoff.', 'ai-site-assistant-autopilot' ) ); ?></p>
 		<p class="sp-answer-handoff-form__status" data-sp-handoff-status role="status" aria-live="polite"></p>
 		<?php
 	}

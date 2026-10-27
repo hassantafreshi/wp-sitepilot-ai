@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-10-27 13:56+0000\n"
+"POT-Creation-Date: 2026-10-27 21:37+0000\n"
 "PO-Revision-Date: 2026-10-26 23:30+0000\n"
 "Last-Translator: AI Site Assistant AutoPilot <info@aisaautopilot.ai>\n"
 "Language-Team: Persian <fa@li.org>\n"
@@ -85,7 +85,7 @@ msgstr "دانش سایت"
 #: includes/Admin/AdminMenu.php:133
 #: includes/Admin/AnswerConversationsPage.php:52
 #: includes/Admin/AnswerConversationsPage.php:318
-#: includes/Admin/AnswerDeskHandoffPage.php:41
+#: includes/Admin/AnswerDeskHandoffPage.php:52
 #: includes/Admin/AnswerDeskVoicePage.php:40
 #: includes/Admin/AnswerDeskWidgetPage.php:55
 #: includes/Admin/HandoffInboxPage.php:36 includes/Admin/HomePage.php:346
@@ -210,7 +210,7 @@ msgid "Resume"
 msgstr "ادامه"
 
 #: includes/Admin/AdminMenu.php:249
-#: includes/Admin/AnswerDeskHandoffPage.php:414
+#: includes/Admin/AnswerDeskHandoffPage.php:553
 #: includes/Admin/CopilotPage.php:231 includes/Admin/KnowledgeBasePage.php:437
 #: includes/Admin/KnowledgeBasePage.php:500 includes/Admin/UsagePage.php:92
 msgid "Cancel"
@@ -301,12 +301,12 @@ msgid "That image is too large. Please use a PNG under 200 KB."
 msgstr "این تصویر خیلی بزرگ است. لطفاً یک PNG کمتر از ۲۰۰ کیلوبایت انتخاب کنید."
 
 #: includes/Admin/AdminMenu.php:308 includes/Admin/AdminMenu.php:311
-#: includes/Admin/AdminMenu.php:337 includes/Admin/UsagePage.php:152
+#: includes/Admin/AdminMenu.php:343 includes/Admin/UsagePage.php:152
 msgid "Saving..."
 msgstr "در حال ذخیره..."
 
 #: includes/Admin/AdminMenu.php:309 includes/Admin/AdminMenu.php:312
-#: includes/Admin/AdminMenu.php:338
+#: includes/Admin/AdminMenu.php:344
 msgid "Saved."
 msgstr "ذخیره شد."
 
@@ -329,36 +329,35 @@ msgid "Could not check the connection. Please try again."
 msgstr "اتصال بررسی نشد. دوباره تلاش کنید."
 
 #: includes/Admin/AdminMenu.php:316
-#: includes/Admin/AnswerDeskHandoffPage.php:440
+#: includes/Admin/AnswerDeskHandoffPage.php:579
 msgid "Ready"
 msgstr "آماده"
 
 #: includes/Admin/AdminMenu.php:317
-#: includes/Admin/AnswerDeskHandoffPage.php:443
+#: includes/Admin/AnswerDeskHandoffPage.php:582
 msgid "Needs setup"
 msgstr "نیازمند تنظیم"
 
-#: includes/Admin/AdminMenu.php:318 includes/Admin/AdminMenu.php:347
-#: includes/Admin/AnswerDeskHandoffPage.php:445
+#: includes/Admin/AdminMenu.php:318 includes/Admin/AdminMenu.php:353
+#: includes/Admin/AnswerDeskHandoffPage.php:584
 #: includes/Admin/AnswerDeskVoicePage.php:80
 msgid "Paused"
 msgstr "متوقف"
 
 #: includes/Admin/AdminMenu.php:319
-#: includes/Admin/AnswerDeskHandoffPage.php:445
+#: includes/Admin/AnswerDeskHandoffPage.php:584
 #: includes/Admin/AnswerDeskVoicePage.php:27
 msgid "Not configured"
 msgstr "تنظیم نشده"
 
 #: includes/Admin/AdminMenu.php:320
-#: includes/Admin/AnswerDeskHandoffPage.php:261
-#: includes/Admin/AnswerDeskHandoffPage.php:392
+#: includes/Admin/AnswerDeskHandoffPage.php:531
 #: includes/Admin/KnowledgeBasePage.php:507
 msgid "Edit"
 msgstr "ویرایش"
 
 #: includes/Admin/AdminMenu.php:321
-#: includes/Admin/AnswerDeskHandoffPage.php:392
+#: includes/Admin/AnswerDeskHandoffPage.php:531
 msgid "Connect"
 msgstr "اتصال"
 
@@ -370,73 +369,100 @@ msgid "Close"
 msgstr "بستن"
 
 #: includes/Admin/AdminMenu.php:323
-#: includes/Admin/AnswerDeskHandoffPage.php:207
-#: includes/Admin/AnswerDeskHandoffPage.php:249
+#: includes/Admin/AnswerDeskHandoffPage.php:223
+#: includes/Admin/AnswerDeskHandoffPage.php:265
+#: includes/Admin/AnswerDeskHandoffPage.php:318
+#: includes/Admin/AnswerDeskHandoffPage.php:370
+#: includes/Admin/AnswerDeskHandoffPage.php:402
 msgid "Not set up yet"
 msgstr "هنوز تنظیم نشده"
 
 #. translators: %s: WordPress administration email address.
 #: includes/Admin/AdminMenu.php:326
-#: includes/Admin/AnswerDeskHandoffPage.php:171
+#: includes/Admin/AnswerDeskHandoffPage.php:187
 #, php-format
 msgid "Uses the WordPress administration email: %s"
 msgstr "از ایمیل مدیریت وردپرس استفاده می‌شود: %s"
 
 #. translators: %s: configured Telegram chat identifier.
 #: includes/Admin/AdminMenu.php:330
-#: includes/Admin/AnswerDeskHandoffPage.php:204
+#: includes/Admin/AnswerDeskHandoffPage.php:220
 #, php-format
 msgid "Credential stored securely; chat %s"
 msgstr "اطلاعات ورود امن ذخیره شده است؛ گفت‌وگو %s"
 
 #. translators: %s: configured recipient phone number.
 #: includes/Admin/AdminMenu.php:332
-#: includes/Admin/AnswerDeskHandoffPage.php:246
+#: includes/Admin/AnswerDeskHandoffPage.php:262
 #, php-format
 msgid "Credentials stored securely; sends to %s"
 msgstr "اطلاعات ورود امن ذخیره شده است؛ ارسال به %s"
 
-#: includes/Admin/AdminMenu.php:333
+#. translators: %s: recipient WhatsApp number.
+#: includes/Admin/AdminMenu.php:334
+#: includes/Admin/AnswerDeskHandoffPage.php:315
+#, php-format
+msgid "Token stored securely; sends to %s"
+msgstr "توکن امن ذخیره شده است؛ ارسال به %s"
+
+#: includes/Admin/AdminMenu.php:335
+#: includes/Admin/AnswerDeskHandoffPage.php:370
+msgid "Webhook stored securely"
+msgstr "وب‌هوک امن ذخیره شده است"
+
+#. translators: %s: Signal recipient (a phone number or a group).
+#: includes/Admin/AdminMenu.php:337
+#: includes/Admin/AnswerDeskHandoffPage.php:399
+#, php-format
+msgid "Sends to %s"
+msgstr "ارسال به %s"
+
+#: includes/Admin/AdminMenu.php:338
+#: includes/Admin/AnswerDeskHandoffPage.php:400
+msgid "a Signal group"
+msgstr "یک گروه سیگنال"
+
+#: includes/Admin/AdminMenu.php:339
 msgid "Checking connection..."
 msgstr "در حال بررسی اتصال..."
 
-#: includes/Admin/AdminMenu.php:334
+#: includes/Admin/AdminMenu.php:340
 msgid "Connection verified."
 msgstr "اتصال تأیید شد."
 
-#: includes/Admin/AdminMenu.php:335
+#: includes/Admin/AdminMenu.php:341
 msgid "Saved. The handoff card asks for these details from now on."
 msgstr "ذخیره شد. از این پس کارت انتقال این اطلاعات را می‌پرسد."
 
-#: includes/Admin/AdminMenu.php:336
+#: includes/Admin/AdminMenu.php:342
 msgid "Could not save the details. Please try again."
 msgstr "اطلاعات ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:339
+#: includes/Admin/AdminMenu.php:345
 msgid "Could not save the voice settings. Please try again."
 msgstr "تنظیمات صدا ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:340
+#: includes/Admin/AdminMenu.php:346
 msgid "Turn on transcribe + speak before playing a test phrase."
 msgstr "پیش از پخش عبارت آزمایشی، «رونویسی + گفتار» را روشن کنید."
 
-#: includes/Admin/AdminMenu.php:341
+#: includes/Admin/AdminMenu.php:347
 msgid "Playing a test phrase locally..."
 msgstr "در حال پخش عبارت آزمایشی در همین مرورگر..."
 
-#: includes/Admin/AdminMenu.php:342
+#: includes/Admin/AdminMenu.php:348
 msgid "Test phrase finished in this browser."
 msgstr "پخش عبارت آزمایشی در این مرورگر تمام شد."
 
-#: includes/Admin/AdminMenu.php:343
+#: includes/Admin/AdminMenu.php:349
 msgid "Speech output is not available in this browser."
 msgstr "خروجی گفتار در این مرورگر در دسترس نیست."
 
-#: includes/Admin/AdminMenu.php:344
+#: includes/Admin/AdminMenu.php:350
 msgid "This browser could not play the test phrase."
 msgstr "این مرورگر نتوانست عبارت آزمایشی را پخش کند."
 
-#: includes/Admin/AdminMenu.php:346 includes/Admin/AnswerDeskVoicePage.php:80
+#: includes/Admin/AdminMenu.php:352 includes/Admin/AnswerDeskVoicePage.php:80
 #: includes/Admin/HomePage.php:347 includes/Admin/HomePage.php:354
 #: includes/Admin/HomePage.php:361 includes/Admin/HomePage.php:368
 #: includes/Admin/HomePage.php:375 includes/Admin/IntegrationsPage.php:67
@@ -448,7 +474,7 @@ msgstr "این مرورگر نتوانست عبارت آزمایشی را پخش
 msgid "On"
 msgstr "روشن"
 
-#: includes/Admin/AdminMenu.php:348 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:354 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Uses the visitor’s browser speech engine. Off keeps voice input but shows "
 "the answer as text only."
@@ -456,7 +482,7 @@ msgstr ""
 "از موتور گفتار مرورگر بازدیدکننده استفاده می‌کند. در حالت خاموش، ورودی صوتی "
 "می‌ماند اما پاسخ فقط به‌صورت متن نمایش داده می‌شود."
 
-#: includes/Admin/AdminMenu.php:349 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:355 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Turn on transcribe + speak first; reply playback is unavailable while voice "
 "input is paused."
@@ -464,115 +490,115 @@ msgstr ""
 "اول «رونویسی + گفتار» را روشن کنید؛ تا ورودی صوتی متوقف است، پخش پاسخ در "
 "دسترس نیست."
 
-#: includes/Admin/AdminMenu.php:350
+#: includes/Admin/AdminMenu.php:356
 msgid "This is a local AutoPilot voice test."
 msgstr "این یک آزمون صدای محلی AutoPilot است."
 
-#: includes/Admin/AdminMenu.php:351
+#: includes/Admin/AdminMenu.php:357
 msgid "Describe the draft first."
 msgstr "اول پیش‌نویس را توصیف کنید."
 
-#: includes/Admin/AdminMenu.php:352
+#: includes/Admin/AdminMenu.php:358
 msgid "Building a reviewable draft…"
 msgstr "در حال ساخت پیش‌نویسی برای بازبینی…"
 
-#: includes/Admin/AdminMenu.php:353 includes/Admin/CopilotPage.php:322
+#: includes/Admin/AdminMenu.php:359 includes/Admin/CopilotPage.php:322
 msgid "Write a draft"
 msgstr "نوشتن پیش‌نویس"
 
-#: includes/Admin/AdminMenu.php:354
+#: includes/Admin/AdminMenu.php:360
 msgid "Writing…"
 msgstr "در حال نوشتن…"
 
-#: includes/Admin/AdminMenu.php:355
+#: includes/Admin/AdminMenu.php:361
 msgid "Creating your WordPress draft…"
 msgstr "در حال ساخت پیش‌نویس وردپرس…"
 
-#: includes/Admin/AdminMenu.php:356
+#: includes/Admin/AdminMenu.php:362
 msgid "Draft created. Review and publish it from WordPress when you are ready."
 msgstr ""
 "پیش‌نویس ساخته شد. هر وقت آماده بودید آن را در وردپرس بازبینی و منتشر کنید."
 
-#: includes/Admin/AdminMenu.php:357
+#: includes/Admin/AdminMenu.php:363
 msgid "Open draft in WordPress"
 msgstr "باز کردن پیش‌نویس در وردپرس"
 
-#: includes/Admin/AdminMenu.php:358
+#: includes/Admin/AdminMenu.php:364
 #: includes/Content/ContentStudioReadModel.php:163
 msgid "Draft saved"
 msgstr "پیش‌نویس ذخیره شد"
 
-#: includes/Admin/AdminMenu.php:359
+#: includes/Admin/AdminMenu.php:365
 msgid "Just now"
 msgstr "همین حالا"
 
-#: includes/Admin/AdminMenu.php:360
+#: includes/Admin/AdminMenu.php:366
 msgid "Post"
 msgstr "نوشته"
 
-#: includes/Admin/AdminMenu.php:361 includes/Admin/KnowledgeBasePage.php:585
+#: includes/Admin/AdminMenu.php:367 includes/Admin/KnowledgeBasePage.php:585
 msgid "Page"
 msgstr "برگه"
 
-#: includes/Admin/AdminMenu.php:362
+#: includes/Admin/AdminMenu.php:368
 #: includes/Content/ContentStudioReadModel.php:53
 #: includes/Content/ContentStudioReadModel.php:111
 msgid "Untitled draft"
 msgstr "پیش‌نویس بدون عنوان"
 
-#: includes/Admin/AdminMenu.php:363
+#: includes/Admin/AdminMenu.php:369
 msgid "Choose a key-storage option to continue."
 msgstr "برای ادامه، محل نگهداری کلید را انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:364
+#: includes/Admin/AdminMenu.php:370
 msgid "Choose an AI service to continue."
 msgstr "برای ادامه، یک سرویس هوش مصنوعی انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:365
+#: includes/Admin/AdminMenu.php:371
 msgid "Test a working provider key and model before continuing."
 msgstr "پیش از ادامه، یک کلید و مدل سالم را آزمایش کنید."
 
-#: includes/Admin/AdminMenu.php:366
+#: includes/Admin/AdminMenu.php:372
 msgid "Enter or choose a model before continuing."
 msgstr "پیش از ادامه، مدل را وارد یا انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:367
+#: includes/Admin/AdminMenu.php:373
 msgid "Not tested yet"
 msgstr "هنوز آزمایش نشده"
 
-#: includes/Admin/AdminMenu.php:368
+#: includes/Admin/AdminMenu.php:374
 msgid "Run a short connection test before continuing."
 msgstr "پیش از ادامه، یک آزمون کوتاه اتصال اجرا کنید."
 
-#: includes/Admin/AdminMenu.php:369 includes/Admin/SettingsPage.php:1144
+#: includes/Admin/AdminMenu.php:375 includes/Admin/SettingsPage.php:1144
 msgid "Add an API key"
 msgstr "یک کلید API اضافه کنید"
 
-#: includes/Admin/AdminMenu.php:370 includes/Admin/SettingsPage.php:1145
+#: includes/Admin/AdminMenu.php:376 includes/Admin/SettingsPage.php:1145
 msgid "That key was rejected"
 msgstr "این کلید پذیرفته نشد"
 
-#: includes/Admin/AdminMenu.php:371
+#: includes/Admin/AdminMenu.php:377
 msgid "Billing action required"
 msgstr "نیاز به اقدام در صورت‌حساب"
 
-#: includes/Admin/AdminMenu.php:372
+#: includes/Admin/AdminMenu.php:378
 msgid "Provider is rate limiting"
 msgstr "سرویس‌دهنده درخواست‌ها را محدود کرده است"
 
-#: includes/Admin/AdminMenu.php:373 includes/Admin/SettingsPage.php:1148
+#: includes/Admin/AdminMenu.php:379 includes/Admin/SettingsPage.php:1148
 msgid "Your server could not reach the provider"
 msgstr "سرور شما به سرویس‌دهنده دسترسی پیدا نکرد"
 
-#: includes/Admin/AdminMenu.php:374 includes/Admin/SettingsPage.php:1149
+#: includes/Admin/AdminMenu.php:380 includes/Admin/SettingsPage.php:1149
 msgid "Wrong endpoint or model"
 msgstr "آدرس یا مدل نادرست است"
 
-#: includes/Admin/AdminMenu.php:375 includes/Admin/SettingsPage.php:1150
+#: includes/Admin/AdminMenu.php:381 includes/Admin/SettingsPage.php:1150
 msgid "Connection details are incomplete"
 msgstr "اطلاعات اتصال کامل نیست"
 
-#: includes/Admin/AdminMenu.php:376
+#: includes/Admin/AdminMenu.php:382
 msgid ""
 "The key works, but no models came back. Type a model name or enable model "
 "access with the provider."
@@ -580,28 +606,28 @@ msgstr ""
 "کلید کار می‌کند اما هیچ مدلی برنگشت. نام مدل را بنویسید یا دسترسی به مدل را "
 "نزد سرویس‌دهنده فعال کنید."
 
-#: includes/Admin/AdminMenu.php:377 includes/Admin/SettingsPage.php:1183
+#: includes/Admin/AdminMenu.php:383 includes/Admin/SettingsPage.php:1183
 msgid "This provider does not publish a model list. Type its model name above."
 msgstr "این سرویس‌دهنده فهرست مدل منتشر نمی‌کند. نام مدل را بالا بنویسید."
 
-#: includes/Admin/AdminMenu.php:378
+#: includes/Admin/AdminMenu.php:384
 msgid "This choice uses the key saved in WordPress Connectors."
 msgstr "این گزینه از کلید ذخیره‌شده در Connectors وردپرس استفاده می‌کند."
 
-#: includes/Admin/AdminMenu.php:379
+#: includes/Admin/AdminMenu.php:385
 msgid "Get a key from {provider}."
 msgstr "از {provider} کلید بگیرید."
 
-#: includes/Admin/AdminMenu.php:380
+#: includes/Admin/AdminMenu.php:386
 msgid "This provider supports embeddings. "
 msgstr "این سرویس‌دهنده از Embedding پشتیبانی می‌کند. "
 
-#: includes/Admin/AdminMenu.php:381
+#: includes/Admin/AdminMenu.php:387
 msgid "This provider does not publish an embeddings endpoint. "
 msgstr "این سرویس‌دهنده نقطهٔ دسترسی Embedding ندارد. "
 
 #: includes/Admin/AnswerConversationsPage.php:40
-#: includes/Admin/AnswerDeskHandoffPage.php:24
+#: includes/Admin/AnswerDeskHandoffPage.php:27
 #: includes/Admin/AnswerDeskVoicePage.php:19
 #: includes/Admin/AnswerDeskWidgetPage.php:18 includes/Admin/ChatPage.php:22
 #: includes/Admin/ConnectionsPage.php:17 includes/Admin/CopilotPage.php:23
@@ -616,7 +642,7 @@ msgid "You do not have permission to view this page."
 msgstr "شما اجازه مشاهده این صفحه را ندارید."
 
 #: includes/Admin/AnswerConversationsPage.php:53
-#: includes/Admin/AnswerDeskHandoffPage.php:42
+#: includes/Admin/AnswerDeskHandoffPage.php:53
 #: includes/Admin/AnswerDeskVoicePage.php:41
 #: includes/Admin/AnswerDeskWidgetPage.php:56
 #: includes/Admin/HandoffInboxPage.php:37
@@ -625,7 +651,7 @@ msgid "The support chat on your site, and every conversation it handled."
 msgstr "گفت‌وگوی پشتیبانی سایت شما و همهٔ گفت‌وگوهایی که پاسخ داده است."
 
 #: includes/Admin/AnswerConversationsPage.php:57
-#: includes/Admin/AnswerDeskHandoffPage.php:46
+#: includes/Admin/AnswerDeskHandoffPage.php:57
 #: includes/Admin/AnswerDeskVoicePage.php:45
 #: includes/Admin/AnswerDeskWidgetPage.php:60
 msgid "Widget settings"
@@ -788,7 +814,7 @@ msgstr "مشاهدهٔ کمبودهای محتوا"
 msgid "Configure handoff"
 msgstr "تنظیم انتقال به انسان"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:55
+#: includes/Admin/AnswerDeskHandoffPage.php:66
 msgid ""
 "Configure handoff channels here, but visitors cannot request a person until "
 "Answer Desk and its Widget are both enabled."
@@ -796,7 +822,7 @@ msgstr ""
 "کانال‌های انتقال به انسان را اینجا تنظیم کنید؛ اما تا میز پاسخ‌گویی و ویجت آن "
 "هر دو روشن نباشند، بازدیدکنندگان نمی‌توانند درخواست گفت‌وگو با انسان بدهند."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:58
+#: includes/Admin/AnswerDeskHandoffPage.php:69
 msgid ""
 "When a visitor asks for a person, the plugin sends the handoff to every "
 "enabled and configured channel below. It does not use an ordered fallback "
@@ -805,24 +831,41 @@ msgstr ""
 "وقتی بازدیدکننده‌ای درخواست گفت‌وگو با انسان می‌دهد، افزونه آن را به همهٔ "
 "کانال‌های روشن و تنظیم‌شدهٔ زیر می‌فرستد و از صف پشتیبان ترتیبی استفاده نمی‌کند."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:84
-#: includes/Admin/AnswerDeskHandoffPage.php:177
+#: includes/Admin/AnswerDeskHandoffPage.php:97
+#: includes/Admin/AnswerDeskHandoffPage.php:193
 #: includes/Admin/HandoffInboxPage.php:319 includes/Support/HandoffEmail.php:61
 msgid "Email"
 msgstr "ایمیل"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:85
-#: includes/Admin/AnswerDeskHandoffPage.php:211
+#: includes/Admin/AnswerDeskHandoffPage.php:98
+#: includes/Admin/AnswerDeskHandoffPage.php:227
 msgid "Telegram"
 msgstr "تلگرام"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:86
-#: includes/Admin/AnswerDeskHandoffPage.php:255
-#: includes/Admin/AnswerDeskHandoffPage.php:316
+#: includes/Admin/AnswerDeskHandoffPage.php:99
+#: includes/Admin/AnswerDeskHandoffPage.php:322
+msgid "WhatsApp Business"
+msgstr "واتس‌اپ بیزینس"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:100
+#: includes/Admin/AnswerDeskHandoffPage.php:269
+#: includes/Admin/AnswerDeskHandoffPage.php:446
 msgid "SMS (Twilio)"
 msgstr "پیامک (Twilio)"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:115
+#: includes/Admin/AnswerDeskHandoffPage.php:101
+#: includes/Admin/AnswerDeskHandoffPage.php:368
+#: includes/Admin/AnswerDeskHandoffPage.php:447
+msgid "Slack"
+msgstr "Slack"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:102
+#: includes/Admin/AnswerDeskHandoffPage.php:406
+#: includes/Admin/AnswerDeskHandoffPage.php:448
+msgid "Signal"
+msgstr "سیگنال"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:131
 msgid ""
 "Each request stays in the inbox with its conversation. Set its status so "
 "your team knows who has it."
@@ -830,12 +873,12 @@ msgstr ""
 "هر درخواست همراه گفت‌وگویش در صندوق می‌ماند. وضعیت آن را تعیین کنید تا تیمتان "
 "بداند پیگیری‌اش با چه کسی است."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:116
+#: includes/Admin/AnswerDeskHandoffPage.php:132
 msgid ""
 "The inbox keeps every earlier request with the conversation that led to it."
 msgstr "صندوق هر درخواست قبلی را همراه گفت‌وگویی که به آن انجامید نگه می‌دارد."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:117
+#: includes/Admin/AnswerDeskHandoffPage.php:133
 msgid ""
 "Visitors are not offered a person until handoff is on and at least one "
 "channel below is ready. Earlier requests stay in the inbox."
@@ -844,18 +887,18 @@ msgstr ""
 "به بازدیدکنندگان گزینهٔ گفت‌وگو با یک فرد نشان داده نمی‌شود. درخواست‌های قبلی در "
 "صندوق می‌مانند."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:124
+#: includes/Admin/AnswerDeskHandoffPage.php:140
 msgid "Nobody is waiting"
 msgstr "کسی در انتظار نیست"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:124
+#: includes/Admin/AnswerDeskHandoffPage.php:140
 #: includes/Admin/HandoffInboxPage.php:88
 msgid "Waiting for a person"
 msgstr "در انتظار یک فرد"
 
 #. translators: %s: number of handoff requests nobody has picked up yet.
 #. translators: %s: number of threads nobody has picked up yet.
-#: includes/Admin/AnswerDeskHandoffPage.php:131
+#: includes/Admin/AnswerDeskHandoffPage.php:147
 #: includes/Admin/HandoffInboxPage.php:94
 #: includes/Admin/HandoffInboxPage.php:317
 #, php-format
@@ -863,171 +906,275 @@ msgid "%s new"
 msgstr "%s تازه"
 
 #. translators: %s: number of handoff requests that no channel accepted.
-#: includes/Admin/AnswerDeskHandoffPage.php:144
+#: includes/Admin/AnswerDeskHandoffPage.php:160
 #, php-format
 msgid "%s delivery failed"
 msgstr "%s ارسال ناموفق"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:155
+#: includes/Admin/AnswerDeskHandoffPage.php:171
 msgid "Open inbox"
 msgstr "باز کردن صندوق"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:178
+#: includes/Admin/AnswerDeskHandoffPage.php:194
 msgid "A copy of the conversation arrives in a support inbox."
 msgstr "یک نسخه از گفت‌وگو به صندوق پشتیبانی می‌رسد."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:187
-#: includes/Admin/AnswerDeskHandoffPage.php:285
+#: includes/Admin/AnswerDeskHandoffPage.php:203
+#: includes/Admin/AnswerDeskHandoffPage.php:298
+#: includes/Admin/AnswerDeskHandoffPage.php:345
+#: includes/Admin/AnswerDeskHandoffPage.php:426
 msgid "Send to"
 msgstr "ارسال به"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:189
+#: includes/Admin/AnswerDeskHandoffPage.php:205
 msgid "Leave empty to use the WordPress administration email."
 msgstr "برای استفاده از ایمیل مدیریت وردپرس خالی بگذارید."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:212
+#: includes/Admin/AnswerDeskHandoffPage.php:228
 msgid "Checks the configured bot and routes the handoff to one chat or group."
 msgstr "بات تنظیم‌شده را بررسی می‌کند و انتقال را به یک گفت‌وگو یا گروه می‌فرستد."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:221
+#: includes/Admin/AnswerDeskHandoffPage.php:237
 msgid "Bot token"
 msgstr "توکن ربات"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:221
-#: includes/Admin/AnswerDeskHandoffPage.php:267
-#: includes/Admin/AnswerDeskHandoffPage.php:274
+#: includes/Admin/AnswerDeskHandoffPage.php:237
+#: includes/Admin/AnswerDeskHandoffPage.php:280
+#: includes/Admin/AnswerDeskHandoffPage.php:287
+#: includes/Admin/AnswerDeskHandoffPage.php:332
+#: includes/Admin/AnswerDeskHandoffPage.php:379
+#: includes/Admin/AnswerDeskHandoffPage.php:431
 msgid "Stored encrypted"
 msgstr "رمزنگاری‌شده ذخیره شده"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:222
-#: includes/Admin/AnswerDeskHandoffPage.php:275
+#: includes/Admin/AnswerDeskHandoffPage.php:238
+#: includes/Admin/AnswerDeskHandoffPage.php:288
+#: includes/Admin/AnswerDeskHandoffPage.php:333
+#: includes/Admin/AnswerDeskHandoffPage.php:432
 msgid "Saved securely - enter a new token to replace it"
 msgstr "امن ذخیره شده — برای جایگزینی، توکن تازه وارد کنید"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:224
-#: includes/Admin/AnswerDeskHandoffPage.php:277
+#: includes/Admin/AnswerDeskHandoffPage.php:240
+#: includes/Admin/AnswerDeskHandoffPage.php:290
+#: includes/Admin/AnswerDeskHandoffPage.php:335
+#: includes/Admin/AnswerDeskHandoffPage.php:434
 msgid "Remove saved token"
 msgstr "حذف توکن ذخیره‌شده"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:228
+#: includes/Admin/AnswerDeskHandoffPage.php:244
 msgid "Chat ID"
 msgstr "شناسهٔ چت"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:230
+#: includes/Admin/AnswerDeskHandoffPage.php:246
 msgid "Use the ID for the person, chat or group that should receive handoffs."
 msgstr ""
 "شناسهٔ فرد، گفت‌وگو یا گروهی را که باید درخواست‌ها را دریافت کند وارد کنید."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:256
+#: includes/Admin/AnswerDeskHandoffPage.php:270
 msgid "Sends a text message to the configured support number."
 msgstr "یک پیامک به شمارهٔ پشتیبانی تنظیم‌شده می‌فرستد."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:260
-msgid "Toggle SMS handoff"
-msgstr "روشن/خاموش کردن انتقال با پیامک"
-
-#: includes/Admin/AnswerDeskHandoffPage.php:267
+#: includes/Admin/AnswerDeskHandoffPage.php:280
 msgid "Account SID"
 msgstr "شناسهٔ حساب (Account SID)"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:268
+#: includes/Admin/AnswerDeskHandoffPage.php:281
 msgid "Saved securely - enter a new SID to replace it"
 msgstr "امن ذخیره شده — برای جایگزینی، SID تازه وارد کنید"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:270
+#: includes/Admin/AnswerDeskHandoffPage.php:283
 msgid "Remove saved SID"
 msgstr "حذف SID ذخیره‌شده"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:274
+#: includes/Admin/AnswerDeskHandoffPage.php:287
 msgid "Auth token"
 msgstr "توکن احراز هویت (Auth token)"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:281
+#: includes/Admin/AnswerDeskHandoffPage.php:294
 msgid "From number"
 msgstr "شمارهٔ فرستنده"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:301
-#: includes/Admin/AnswerDeskVoicePage.php:75
-msgid "Not available"
-msgstr "در دسترس نیست"
+#: includes/Admin/AnswerDeskHandoffPage.php:323
+msgid ""
+"Your WhatsApp Business number sends the handoff to a team member’s WhatsApp, "
+"through Meta’s Cloud API."
+msgstr ""
+"شمارهٔ واتس‌اپ بیزینس شما درخواست را از طریق Cloud API متا به واتس‌اپ یکی از "
+"همکاران می‌فرستد."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:301
-msgid "WhatsApp"
-msgstr "واتس‌اپ"
+#: includes/Admin/AnswerDeskHandoffPage.php:332
+msgid "Access token"
+msgstr "توکن دسترسی (Access token)"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:302
-msgid "Reply from a WhatsApp Business number."
-msgstr "پاسخ از شمارهٔ واتس‌اپ بیزینس."
+#: includes/Admin/AnswerDeskHandoffPage.php:337
+msgid ""
+"A permanent token of a system user with the whatsapp_business_messaging "
+"permission (Meta Business Settings)."
+msgstr ""
+"توکن دائمی یک کاربر سیستمی با مجوز whatsapp_business_messaging (در Meta "
+"Business Settings)."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:303
-msgid "This build has no WhatsApp delivery transport yet."
-msgstr "این نسخه هنوز روش ارسال واتس‌اپ ندارد."
+#: includes/Admin/AnswerDeskHandoffPage.php:340
+msgid "Phone number ID"
+msgstr "شناسهٔ شماره تلفن (Phone number ID)"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:305
-msgid "Planned"
-msgstr "برنامه‌ریزی‌شده"
+#: includes/Admin/AnswerDeskHandoffPage.php:342
+msgid ""
+"Shown under WhatsApp > API Setup in your Meta app; it is not the phone "
+"number itself."
+msgstr ""
+"در اپ متای شما زیر WhatsApp > API Setup نشان داده می‌شود؛ خود شماره تلفن نیست."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:314
+#: includes/Admin/AnswerDeskHandoffPage.php:349
+msgid "Message template"
+msgstr "قالب پیام"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:351
+msgid ""
+"Recommended. WhatsApp only lets a business start a chat with an approved "
+"template: create a Utility template whose body has one variable, {{1}}, "
+"which receives the request. Without a template, messages arrive only within "
+"24 hours of the recipient writing to your business number."
+msgstr ""
+"توصیه می‌شود. واتس‌اپ فقط با قالب تأییدشده اجازه می‌دهد کسب‌وکار گفت‌وگو را شروع "
+"کند: یک قالب از دستهٔ Utility بسازید که متنش یک متغیر، {{1}}، داشته باشد تا "
+"درخواست در آن قرار بگیرد. بدون قالب، پیام فقط تا ۲۴ ساعت پس از آخرین پیام "
+"گیرنده به شمارهٔ کسب‌وکار شما می‌رسد."
+
+#: includes/Admin/AnswerDeskHandoffPage.php:354
+msgid "Template language"
+msgstr "زبان قالب"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:369
+msgid "Posts the handoff to one Slack channel through an incoming webhook."
+msgstr "درخواست را با یک incoming webhook در یک کانال اسلک منتشر می‌کند."
+
+#: includes/Admin/AnswerDeskHandoffPage.php:379
+msgid "Incoming webhook URL"
+msgstr "نشانی incoming webhook"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:380
+msgid "Saved securely - enter a new URL to replace it"
+msgstr "امن ذخیره شده — برای جایگزینی، نشانی تازه وارد کنید"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:382
+msgid "Remove saved webhook"
+msgstr "حذف وب‌هوک ذخیره‌شده"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:384
+msgid ""
+"Create it in a Slack app under Incoming Webhooks and pick the channel. "
+"Anyone with this URL can post to that channel."
+msgstr ""
+"آن را در یک اپ اسلک زیر Incoming Webhooks بسازید و کانال را انتخاب کنید. هر "
+"کس این نشانی را داشته باشد می‌تواند در آن کانال پیام بگذارد."
+
+#: includes/Admin/AnswerDeskHandoffPage.php:388
+msgid ""
+"Slack has no read-only check, so Check connection posts one short line to "
+"the channel."
+msgstr ""
+"اسلک راه بررسی فقط‌خواندنی ندارد، پس «بررسی اتصال» یک خط کوتاه در کانال منتشر "
+"می‌کند."
+
+#: includes/Admin/AnswerDeskHandoffPage.php:407
+msgid ""
+"Sends the handoff to a Signal number or group through a signal-cli REST API "
+"server you run."
+msgstr ""
+"درخواست را از طریق سرور signal-cli REST API که خودتان اجرا می‌کنید به یک "
+"شماره یا گروه سیگنال می‌فرستد."
+
+#: includes/Admin/AnswerDeskHandoffPage.php:417
+msgid "Signal API address"
+msgstr "نشانی Signal API"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:419
+msgid ""
+"Signal has no official API for businesses. Run the open-source signal-cli-"
+"rest-api (Docker) on a server you control and register or link a Signal "
+"number on it."
+msgstr ""
+"سیگنال API رسمی برای کسب‌وکارها ندارد. signal-cli-rest-api متن‌باز (Docker) را "
+"روی سروری که در اختیار دارید اجرا کنید و یک شمارهٔ سیگنال را روی آن ثبت یا "
+"متصل کنید."
+
+#: includes/Admin/AnswerDeskHandoffPage.php:422
+msgid "Send from"
+msgstr "ارسال از"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:428
+msgid "A number in international format, or a group ID starting with group."
+msgstr "شماره‌ای با قالب بین‌المللی، یا شناسهٔ گروهی که با group. شروع می‌شود."
+
+#: includes/Admin/AnswerDeskHandoffPage.php:431
+msgid "Access token (optional)"
+msgstr "توکن دسترسی (اختیاری)"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:436
+msgid "Sent as a Bearer token, for a server behind a proxy that checks one."
+msgstr ""
+"به‌صورت Bearer token فرستاده می‌شود، برای سروری که پشت پراکسی‌ای است که آن را "
+"بررسی می‌کند."
+
+#: includes/Admin/AnswerDeskHandoffPage.php:452
 msgid "Add another channel"
 msgstr "افزودن کانال دیگر"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:317
-msgid "Slack"
-msgstr "Slack"
-
-#: includes/Admin/AnswerDeskHandoffPage.php:318
+#: includes/Admin/AnswerDeskHandoffPage.php:457
 msgid "Discord"
 msgstr "Discord"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:319
+#: includes/Admin/AnswerDeskHandoffPage.php:458
 msgid "Custom webhook"
 msgstr "وب‌هوک سفارشی"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:321
+#: includes/Admin/AnswerDeskHandoffPage.php:460
 msgid ""
-"This build supports Email, Telegram and SMS through Twilio. Unsupported "
-"channels stay locked instead of collecting credentials that cannot be "
-"delivered."
+"This build delivers by Email, Telegram, WhatsApp Business, SMS through "
+"Twilio, Slack and Signal. Unsupported channels stay locked instead of "
+"collecting credentials that cannot be delivered."
 msgstr ""
-"این نسخه از ایمیل، تلگرام و پیامک از طریق Twilio پشتیبانی می‌کند. کانال‌های "
-"پشتیبانی‌نشده قفل می‌مانند تا اطلاعات ورودی جمع نشود که قابل ارسال نیست."
+"این نسخه از طریق ایمیل، تلگرام، واتس‌اپ بیزینس، پیامک با Twilio، اسلک و "
+"سیگنال تحویل می‌دهد. کانال‌های پشتیبانی‌نشده قفل می‌مانند تا اطلاعات ورودی جمع "
+"نشود که نمی‌توان با آن تحویل داد."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:333
+#: includes/Admin/AnswerDeskHandoffPage.php:472
 msgid "Name"
 msgstr "نام"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:333
+#: includes/Admin/AnswerDeskHandoffPage.php:472
 msgid "So your team knows who they are talking to."
 msgstr "تا تیم شما بداند با چه کسی صحبت می‌کند."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:334
+#: includes/Admin/AnswerDeskHandoffPage.php:473
 #: includes/Frontend/ChatWidget.php:266
 msgid "Email address"
 msgstr "نشانی ایمیل"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:334
+#: includes/Admin/AnswerDeskHandoffPage.php:473
 msgid "Lets your team reply by email from the inbox."
 msgstr "تیم شما می‌تواند از صندوق با ایمیل پاسخ دهد."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:335
+#: includes/Admin/AnswerDeskHandoffPage.php:474
 msgid "Lets your team call or text the visitor back."
 msgstr "تیم شما می‌تواند به بازدیدکننده زنگ بزند یا پیامک بدهد."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:335
+#: includes/Admin/AnswerDeskHandoffPage.php:474
 #: includes/Frontend/ChatWidget.php:267
 msgid "Mobile number"
 msgstr "شمارهٔ موبایل"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:336
+#: includes/Admin/AnswerDeskHandoffPage.php:475
 msgid "Useful when visitors ask about their own site or business."
 msgstr "وقتی بازدیدکننده دربارهٔ سایت یا کسب‌وکار خودش می‌پرسد، به کار می‌آید."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:336
+#: includes/Admin/AnswerDeskHandoffPage.php:475
 #: includes/Frontend/ChatWidget.php:268
 msgid "Website address"
 msgstr "نشانی وب‌سایت"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:339 includes/Admin/HomePage.php:347
+#: includes/Admin/AnswerDeskHandoffPage.php:478 includes/Admin/HomePage.php:347
 #: includes/Admin/HomePage.php:354 includes/Admin/HomePage.php:361
 #: includes/Admin/HomePage.php:368 includes/Admin/HomePage.php:375
 #: includes/Admin/IntegrationsPage.php:67
@@ -1039,19 +1186,19 @@ msgstr "نشانی وب‌سایت"
 msgid "Off"
 msgstr "خاموش"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:340
+#: includes/Admin/AnswerDeskHandoffPage.php:479
 msgid "Optional"
 msgstr "اختیاری"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:341
+#: includes/Admin/AnswerDeskHandoffPage.php:480
 msgid "Required"
 msgstr "الزامی"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:346
+#: includes/Admin/AnswerDeskHandoffPage.php:485
 msgid "Details to ask for"
 msgstr "اطلاعاتی که پرسیده می‌شود"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:347
+#: includes/Admin/AnswerDeskHandoffPage.php:486
 msgid ""
 "Before a visitor sends the conversation, the widget asks for the details you "
 "pick here. A required detail has to be filled in. When every detail is off, "
@@ -1061,27 +1208,27 @@ msgstr ""
 "می‌کنید از او می‌خواهد. پر کردن موارد الزامی لازم است. اگر همهٔ موارد خاموش "
 "باشند، بازدیدکننده فقط گفت‌وگو را می‌فرستد."
 
-#: includes/Admin/AnswerDeskHandoffPage.php:367
+#: includes/Admin/AnswerDeskHandoffPage.php:506
 msgid "Save details"
 msgstr "ذخیرهٔ اطلاعات"
 
 #. translators: %s: human handoff channel name.
-#: includes/Admin/AnswerDeskHandoffPage.php:378
+#: includes/Admin/AnswerDeskHandoffPage.php:517
 #, php-format
 msgid "Toggle %s handoff"
 msgstr "روشن/خاموش کردن انتقال %s"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:413
+#: includes/Admin/AnswerDeskHandoffPage.php:552
 msgid "Save configuration"
 msgstr "ذخیرهٔ پیکربندی"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:416
+#: includes/Admin/AnswerDeskHandoffPage.php:555
 #: includes/Admin/CopilotPage.php:72 includes/Admin/CopilotPage.php:275
 #: includes/Admin/SettingsPage.php:714 includes/Admin/SettingsPage.php:1132
 msgid "Check connection"
 msgstr "بررسی اتصال"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:419
+#: includes/Admin/AnswerDeskHandoffPage.php:558
 msgid ""
 "A connection check contacts the provider but does not send a visitor handoff."
 msgstr ""
@@ -1156,6 +1303,10 @@ msgstr ""
 #: includes/Admin/AnswerDeskVoicePage.php:74
 msgid "Realtime stream"
 msgstr "جریان هم‌زمان"
+
+#: includes/Admin/AnswerDeskVoicePage.php:75
+msgid "Not available"
+msgstr "در دسترس نیست"
 
 #: includes/Admin/AnswerDeskVoicePage.php:79
 msgid ""
@@ -6284,42 +6435,84 @@ msgid_plural "%s tokens"
 msgstr[0] "%s توکن"
 msgstr[1] "%s توکن"
 
-#: includes/Api/AdminHandoffSettingsController.php:29
+#: includes/Api/AdminHandoffSettingsController.php:46
+#: includes/Api/ChatWidgetController.php:282
 msgid "Choose a supported handoff channel."
 msgstr "یک کانال پشتیبانی‌شدهٔ انتقال به انسان انتخاب کنید."
 
-#: includes/Api/AdminHandoffSettingsController.php:36
+#: includes/Api/AdminHandoffSettingsController.php:53
 msgid "The channel status is required."
 msgstr "وضعیت کانال الزامی است."
 
-#: includes/Api/AdminHandoffSettingsController.php:83
+#: includes/Api/AdminHandoffSettingsController.php:112
 msgid "Choose Off, Optional or Required for each detail."
 msgstr "برای هر مورد یکی از «خاموش»، «اختیاری» یا «الزامی» را انتخاب کنید."
 
-#: includes/Api/AdminHandoffSettingsController.php:114
+#: includes/Api/AdminHandoffSettingsController.php:143
 msgid "The email recipient is required."
 msgstr "گیرندهٔ ایمیل الزامی است."
 
-#: includes/Api/AdminHandoffSettingsController.php:123
+#: includes/Api/AdminHandoffSettingsController.php:152
 msgid ""
 "Enter a valid email recipient or leave it empty to use the WordPress "
 "administration email."
 msgstr ""
 "یک ایمیل معتبر وارد کنید یا برای استفاده از ایمیل مدیریت وردپرس خالی بگذارید."
 
-#: includes/Api/AdminHandoffSettingsController.php:138
+#: includes/Api/AdminHandoffSettingsController.php:167
 msgid "The Telegram chat ID is required."
 msgstr "شناسهٔ گفت‌وگوی تلگرام الزامی است."
 
-#: includes/Api/AdminHandoffSettingsController.php:154
+#: includes/Api/AdminHandoffSettingsController.php:183
 msgid "Both Twilio phone numbers are required."
 msgstr "هر دو شمارهٔ تلفن Twilio الزامی است."
 
-#: includes/Api/AdminHandoffSettingsController.php:173
+#: includes/Api/AdminHandoffSettingsController.php:201
+msgid "The phone number ID and the number to send to are both required."
+msgstr "شناسهٔ شماره تلفن و شمارهٔ گیرنده هر دو لازم‌اند."
+
+#: includes/Api/AdminHandoffSettingsController.php:214
+msgid ""
+"Use the numeric phone number ID from Meta, and the number to send to in "
+"international format."
+msgstr ""
+"شناسهٔ عددی شماره تلفن را از متا وارد کنید، و شمارهٔ گیرنده را با قالب "
+"بین‌المللی."
+
+#: includes/Api/AdminHandoffSettingsController.php:221
+msgid ""
+"A template name has lowercase letters, digits and underscores; a language "
+"looks like en_US or fa."
+msgstr ""
+"نام قالب فقط حروف کوچک لاتین، رقم و زیرخط دارد؛ زبان شبیه en_US یا fa است."
+
+#: includes/Api/AdminHandoffSettingsController.php:237
+msgid ""
+"Paste the incoming webhook URL Slack gave you; it starts with https://hooks."
+"slack.com/services/."
+msgstr ""
+"نشانی incoming webhook را که اسلک به شما داده بچسبانید؛ با https://hooks."
+"slack.com/services/ شروع می‌شود."
+
+#: includes/Api/AdminHandoffSettingsController.php:252
+msgid ""
+"The Signal API address, the sending number and the recipient are all "
+"required."
+msgstr "نشانی Signal API، شمارهٔ فرستنده و گیرنده همه لازم‌اند."
+
+#: includes/Api/AdminHandoffSettingsController.php:266
+msgid ""
+"Use the Signal API address (http or https), numbers in international format "
+"such as +15550194471, and for a group its \"group.\" ID."
+msgstr ""
+"نشانی Signal API (http یا https)، شماره‌ها با قالب بین‌المللی مانند "
+"‎+989121234567‎، و برای گروه شناسهٔ «group.» آن را وارد کنید."
+
+#: includes/Api/AdminHandoffSettingsController.php:291
 msgid "Could not remove the saved credential."
 msgstr "اطلاعات ورود ذخیره‌شده حذف نشد."
 
-#: includes/Api/AdminHandoffSettingsController.php:186
+#: includes/Api/AdminHandoffSettingsController.php:304
 msgid "Could not store the credential securely. Please try again."
 msgstr "اطلاعات ورود به‌صورت امن ذخیره نشد. دوباره تلاش کنید."
 
@@ -7579,7 +7772,7 @@ msgstr "در حال گوش دادن..."
 msgid "Please fill this in."
 msgstr "لطفاً این را پر کنید."
 
-#: includes/Core/Settings.php:97
+#: includes/Core/Settings.php:103
 msgid ""
 "Anthropic speaks its own Messages API, which AISAAutoPilot handles natively. "
 "It has no embeddings endpoint, so semantic search needs a separate embedding "
@@ -7589,7 +7782,7 @@ msgstr ""
 "بومی آن را پشتیبانی می‌کند. این سرویس نقطهٔ پایانی Embeddings ندارد، بنابراین "
 "جست‌وجوی معنایی به یک سرویس‌دهندهٔ Embedding جداگانه در پایین نیاز دارد."
 
-#: includes/Core/Settings.php:116
+#: includes/Core/Settings.php:122
 msgid ""
 "Uses Google’s OpenAI-compatible endpoint, so the same key works for chat and "
 "embeddings."
@@ -7597,7 +7790,7 @@ msgstr ""
 "از نقطهٔ پایانی سازگار با OpenAI گوگل استفاده می‌کند، بنابراین یک کلید هم برای "
 "گفت‌وگو و هم برای Embeddings کار می‌کند."
 
-#: includes/Core/Settings.php:131
+#: includes/Core/Settings.php:137
 msgid ""
 "xAI has no embeddings endpoint, so semantic search needs a separate "
 "embedding provider. Use https://us.api.x.ai/v1 to keep inference in the "
@@ -7607,7 +7800,7 @@ msgstr ""
 "Embedding جداگانه نیاز دارد. برای اینکه پردازش فقط در ایالات متحده انجام شود "
 "از ‎https://us.api.x.ai/v1‎ استفاده کنید."
 
-#: includes/Core/Settings.php:142
+#: includes/Core/Settings.php:148
 msgid ""
 "deepseek-chat and deepseek-reasoner were retired; deepseek-flash replaces "
 "them."
@@ -7615,7 +7808,7 @@ msgstr ""
 "deepseek-chat و deepseek-reasoner بازنشسته شدند؛ deepseek-flash جایگزین آن‌ها "
 "است."
 
-#: includes/Core/Settings.php:163
+#: includes/Core/Settings.php:169
 msgid ""
 "A key only works in its own region: mainland-China accounts use https://"
 "dashscope.aliyuncs.com/compatible-mode/v1 and US accounts https://dashscope-"
@@ -7625,7 +7818,7 @@ msgstr ""
 "dashscope.aliyuncs.com/compatible-mode/v1‎ و حساب‌های آمریکا از ‎https://"
 "dashscope-us.aliyuncs.com/compatible-mode/v1‎ استفاده می‌کنند."
 
-#: includes/Core/Settings.php:184
+#: includes/Core/Settings.php:190
 msgid ""
 "The -latest names move to newer models over time; pick a dated name when "
 "behaviour must stay fixed."
@@ -7633,7 +7826,7 @@ msgstr ""
 "نام‌های ‎-latest‎ به‌مرور به مدل‌های تازه‌تر اشاره می‌کنند؛ اگر رفتار باید ثابت "
 "بماند، نامی تاریخ‌دار انتخاب کنید."
 
-#: includes/Core/Settings.php:204
+#: includes/Core/Settings.php:210
 msgid ""
 "Uses Cohere’s OpenAI Compatibility API. It may not answer the model-list "
 "request, so pick or type the model name."
@@ -7641,7 +7834,7 @@ msgstr ""
 "از OpenAI Compatibility API شرکت Cohere استفاده می‌کند. ممکن است به درخواست "
 "فهرست مدل‌ها پاسخ ندهد؛ پس نام مدل را انتخاب کنید یا بنویسید."
 
-#: includes/Core/Settings.php:218
+#: includes/Core/Settings.php:224
 msgid ""
 "Mainland-China accounts (Zhipu BigModel) use https://open.bigmodel.cn/api/"
 "paas/v4 instead."
@@ -7649,7 +7842,7 @@ msgstr ""
 "حساب‌های سرزمین اصلی چین (Zhipu BigModel) به‌جای آن از ‎https://open.bigmodel."
 "cn/api/paas/v4‎ استفاده می‌کنند."
 
-#: includes/Core/Settings.php:233
+#: includes/Core/Settings.php:239
 msgid ""
 "Kimi models use a fixed temperature, so AISAAutoPilot drops its own setting "
 "for them. Mainland-China accounts use https://api.moonshot.cn/v1. No "
@@ -7659,7 +7852,7 @@ msgstr ""
 "نمی‌فرستد. حساب‌های سرزمین اصلی چین از ‎https://api.moonshot.cn/v1‎ استفاده "
 "می‌کنند. نقطهٔ پایانی Embedding ندارد."
 
-#: includes/Core/Settings.php:248
+#: includes/Core/Settings.php:254
 msgid ""
 "Mainland-China accounts use https://api.minimaxi.com/v1. No embeddings "
 "endpoint on this API."
@@ -7667,7 +7860,7 @@ msgstr ""
 "حساب‌های سرزمین اصلی چین از ‎https://api.minimaxi.com/v1‎ استفاده می‌کنند. این "
 "API نقطهٔ پایانی Embedding ندارد."
 
-#: includes/Core/Settings.php:260
+#: includes/Core/Settings.php:266
 msgid ""
 "Groq is very fast but has no embeddings endpoint — pick a separate embedding "
 "provider for semantic search. Its Llama models now need an Enterprise plan."
@@ -7676,7 +7869,7 @@ msgstr ""
 "سرویس‌دهندهٔ Embedding جداگانه انتخاب کنید. مدل‌های Llama آن اکنون به طرح "
 "Enterprise نیاز دارند."
 
-#: includes/Core/Settings.php:270
+#: includes/Core/Settings.php:276
 msgid ""
 "Very fast open-model inference. Use “Refresh from provider” to load every "
 "model your key can use. No embeddings endpoint."
@@ -7684,14 +7877,14 @@ msgstr ""
 "پاسخ‌دهی بسیار سریع با مدل‌های باز. با «تازه‌سازی از سرویس‌دهنده» همهٔ مدل‌هایی را "
 "که کلید شما می‌تواند استفاده کند بارگذاری کنید. نقطهٔ پایانی Embedding ندارد."
 
-#: includes/Core/Settings.php:280
+#: includes/Core/Settings.php:286
 msgid ""
 "Open-model inference. Use “Refresh from provider” to load the current list."
 msgstr ""
 "پاسخ‌دهی با مدل‌های باز. برای بارگذاری فهرست فعلی از «تازه‌سازی از سرویس‌دهنده» "
 "استفاده کنید."
 
-#: includes/Core/Settings.php:288
+#: includes/Core/Settings.php:294
 msgid ""
 "Replace YOUR-RESOURCE with your Azure resource name. The model is your "
 "deployment name, so pick it from your Azure portal rather than a fixed list."
@@ -7699,7 +7892,7 @@ msgstr ""
 "به‌جای YOUR-RESOURCE نام منبع Azure خود را بگذارید. مدل همان نام Deployment "
 "شماست، پس آن را از پورتال Azure بردارید نه از یک فهرست ثابت."
 
-#: includes/Core/Settings.php:304
+#: includes/Core/Settings.php:310
 msgid ""
 "One key for many vendors. Use “Refresh from provider” to pull OpenRouter’s "
 "current catalogue."
@@ -7707,7 +7900,7 @@ msgstr ""
 "یک کلید برای سازندگان متعدد. برای دریافت فهرست فعلی OpenRouter از «تازه‌سازی "
 "از سرویس‌دهنده» استفاده کنید."
 
-#: includes/Core/Settings.php:312
+#: includes/Core/Settings.php:318
 msgid ""
 "Open-model cloud with chat, embeddings and speech. Use “Refresh from "
 "provider” to load the current list."
@@ -7715,7 +7908,7 @@ msgstr ""
 "ابر مدل‌های باز با گفت‌وگو، Embedding و گفتار. برای بارگذاری فهرست فعلی از "
 "«تازه‌سازی از سرویس‌دهنده» استفاده کنید."
 
-#: includes/Core/Settings.php:320
+#: includes/Core/Settings.php:326
 msgid ""
 "Model names look like accounts/fireworks/models/<name>. Use “Refresh from "
 "provider” to load them."
@@ -7723,7 +7916,7 @@ msgstr ""
 "نام مدل‌ها شبیه ‎accounts/fireworks/models/<name>‎ است. برای بارگذاری آن‌ها از "
 "«تازه‌سازی از سرویس‌دهنده» استفاده کنید."
 
-#: includes/Core/Settings.php:331
+#: includes/Core/Settings.php:337
 msgid ""
 "Needs a fine-grained token allowed to “Make calls to Inference Providers”. "
 "Chat only — no embeddings on this endpoint."
@@ -7731,7 +7924,7 @@ msgstr ""
 "به یک توکن fine-grained با مجوز «Make calls to Inference Providers» نیاز "
 "دارد. فقط گفت‌وگو — این نقطهٔ پایانی Embedding ندارد."
 
-#: includes/Core/Settings.php:339
+#: includes/Core/Settings.php:345
 msgid ""
 "Hosted NVIDIA NIM endpoints. Use “Refresh from provider” to load the current "
 "list."
@@ -7739,7 +7932,7 @@ msgstr ""
 "نقطه‌های پایانی میزبانی‌شدهٔ NVIDIA NIM. برای بارگذاری فهرست فعلی از «تازه‌سازی "
 "از سرویس‌دهنده» استفاده کنید."
 
-#: includes/Core/Settings.php:347
+#: includes/Core/Settings.php:353
 msgid ""
 "Aggregator with 1000+ models behind one key. Use “Refresh from provider” to "
 "load the current list."
@@ -7747,7 +7940,7 @@ msgstr ""
 "تجمیع‌کننده با بیش از ۱۰۰۰ مدل پشت یک کلید. برای بارگذاری فهرست فعلی از "
 "«تازه‌سازی از سرویس‌دهنده» استفاده کنید."
 
-#: includes/Core/Settings.php:355
+#: includes/Core/Settings.php:361
 msgid ""
 "Open-model inference cloud. Use “Refresh from provider” to load the current "
 "list."
@@ -7755,7 +7948,7 @@ msgstr ""
 "ابر اجرای مدل‌های متن‌باز. برای بارگذاری فهرست فعلی از «تازه‌سازی از "
 "سرویس‌دهنده» استفاده کنید."
 
-#: includes/Core/Settings.php:363
+#: includes/Core/Settings.php:369
 msgid ""
 "Multi-provider gateway. Model names are vendor-prefixed — use “Refresh from "
 "provider” to load them. EU-only routing: https://api.eu.edenai.run/v3."
@@ -7764,11 +7957,11 @@ msgstr ""
 "«تازه‌سازی از سرویس‌دهنده» استفاده کنید. مسیریابی فقط در اتحادیهٔ اروپا: "
 "‎https://api.eu.edenai.run/v3‎."
 
-#: includes/Core/Settings.php:366
+#: includes/Core/Settings.php:372
 msgid "Custom (OpenAI-compatible)"
 msgstr "سفارشی (سازگار با OpenAI)"
 
-#: includes/Core/Settings.php:368
+#: includes/Core/Settings.php:374
 msgid ""
 "Any endpoint that implements POST /chat/completions. Paste the base URL up "
 "to but not including /chat/completions."
@@ -7776,32 +7969,32 @@ msgstr ""
 "هر نقطهٔ پایانی که POST /chat/completions را پیاده‌سازی کند. نشانی پایه را تا "
 "پیش از /chat/completions وارد کنید."
 
-#: includes/Core/Settings.php:409
+#: includes/Core/Settings.php:415
 msgid "Direct providers"
 msgstr "سرویس‌دهنده‌های مستقیم"
 
-#: includes/Core/Settings.php:410
+#: includes/Core/Settings.php:416
 msgid "Gateways & aggregators"
 msgstr "درگاه‌ها و تجمیع‌کننده‌ها"
 
-#: includes/Core/Settings.php:411
+#: includes/Core/Settings.php:417
 msgid "Custom endpoint"
 msgstr "endpoint سفارشی"
 
-#: includes/Core/Settings.php:681 includes/Core/WpConnectors.php:53
+#: includes/Core/Settings.php:699 includes/Core/WpConnectors.php:53
 #: includes/Core/WpConnectors.php:96
 msgid "AI Site Assistant AutoPilot"
 msgstr "AI Site Assistant AutoPilot"
 
-#: includes/Core/Settings.php:682
+#: includes/Core/Settings.php:700
 msgid "AI Assistant"
 msgstr "دستیار AI"
 
-#: includes/Core/Settings.php:683
+#: includes/Core/Settings.php:701
 msgid "Hi! How can I help you?"
 msgstr "سلام! چطور می‌توانم کمکتان کنم؟"
 
-#: includes/Core/Settings.php:684
+#: includes/Core/Settings.php:702
 msgid "This conversation may be recorded to help our support team."
 msgstr "این گفت‌وگو ممکن است برای کمک به تیم پشتیبانی ما ثبت شود."
 
@@ -9548,6 +9741,77 @@ msgstr "موجودی باید یک عدد صحیح نامنفی باشد."
 msgid "Categories must be an array of IDs."
 msgstr "دسته‌بندی‌ها باید آرایه‌ای از شناسه‌ها باشند."
 
+#: includes/Support/HandoffSignal.php:130
+msgid "Enter the Signal API address and the sending number first."
+msgstr "ابتدا نشانی Signal API و شمارهٔ فرستنده را وارد کنید."
+
+#: includes/Support/HandoffSignal.php:138
+#: includes/Support/HandoffTelegram.php:290
+#: includes/Support/HandoffWhatsApp.php:169
+msgid "Network error: "
+msgstr "خطای شبکه: "
+
+#: includes/Support/HandoffSignal.php:145
+msgid "The Signal API refused the access token."
+msgstr "Signal API توکن دسترسی را نپذیرفت."
+
+#. translators: %s: Signal phone number.
+#: includes/Support/HandoffSignal.php:160
+#, php-format
+msgid "The Signal API answered, but %s is not registered or linked on it."
+msgstr "Signal API پاسخ داد، اما %s روی آن ثبت یا متصل نشده است."
+
+#. translators: %s: Signal phone number.
+#: includes/Support/HandoffSignal.php:170
+#, php-format
+msgid "Connected. The Signal API can send from %s."
+msgstr "متصل شد. Signal API می‌تواند از %s پیام بفرستد."
+
+#. translators: 1: HTTP status code, 2: error text from the Signal API.
+#: includes/Support/HandoffSignal.php:211
+#, php-format
+msgid "The Signal API returned an error (HTTP %1$d): %2$s"
+msgstr "Signal API خطا برگرداند (HTTP %1$d): %2$s"
+
+#. translators: %d: HTTP status code.
+#: includes/Support/HandoffSignal.php:213
+#, php-format
+msgid "The Signal API returned an error (HTTP %d)."
+msgstr "Signal API خطا برگرداند (HTTP %d)."
+
+#: includes/Support/HandoffSlack.php:95
+msgid "Enter a Slack incoming webhook URL first."
+msgstr "ابتدا نشانی incoming webhook اسلک را وارد کنید."
+
+#. translators: %s: site name.
+#: includes/Support/HandoffSlack.php:103
+#, php-format
+msgid ""
+"Connection check from %s: visitor handoff requests will arrive in this "
+"channel."
+msgstr ""
+"بررسی اتصال از %s: درخواست‌های انتقال بازدیدکنندگان در این کانال می‌رسند."
+
+#: includes/Support/HandoffSlack.php:111
+msgid "Connection verified. A check message was posted to the channel."
+msgstr "اتصال تأیید شد. یک پیام بررسی در کانال منتشر شد."
+
+#. translators: %s: Slack's error code, for example channel_is_archived.
+#: includes/Support/HandoffSlack.php:145
+#, php-format
+msgid ""
+"Slack refused the webhook (%s). It may have been removed, or its channel "
+"archived: create a new webhook."
+msgstr ""
+"اسلک وب‌هوک را نپذیرفت (%s). شاید حذف شده یا کانالش بایگانی شده باشد: وب‌هوک "
+"تازه‌ای بسازید."
+
+#. translators: 1: HTTP status code, 2: Slack's error code.
+#: includes/Support/HandoffSlack.php:147
+#, php-format
+msgid "Slack returned an error (HTTP %1$d): %2$s"
+msgstr "اسلک خطا برگرداند (HTTP %1$d): %2$s"
+
 #: includes/Support/HandoffTelegram.php:77
 msgid "Telegram not configured."
 msgstr "تلگرام پیکربندی نشده است."
@@ -9572,27 +9836,85 @@ msgstr "تلگرام: چت یافت نشد. شناسه چت را بررسی کن
 msgid "Telegram is temporarily rate-limiting delivery."
 msgstr "تلگرام موقتاً تحویل پیام را محدود کرده است."
 
-#: includes/Support/HandoffTelegram.php:306
+#: includes/Support/HandoffTelegram.php:274
 msgid "No bot token configured."
 msgstr "توکن ربات پیکربندی نشده است."
 
-#: includes/Support/HandoffTelegram.php:322
-msgid "Network error: "
-msgstr "خطای شبکه: "
-
 #. translators: %s: bot username
-#: includes/Support/HandoffTelegram.php:335
+#: includes/Support/HandoffTelegram.php:303
 #, php-format
 msgid "Connected as @%s"
 msgstr "متصل به عنوان @%s"
 
-#: includes/Support/HandoffTelegram.php:344
+#: includes/Support/HandoffTelegram.php:312
 msgid "Invalid bot token."
 msgstr "توکن ربات نامعتبر است."
 
-#: includes/Support/HandoffTelegram.php:350
+#: includes/Support/HandoffTelegram.php:318
 msgid "Unexpected response (HTTP "
 msgstr "پاسخ غیرمنتظره (HTTP "
+
+#: includes/Support/HandoffWhatsApp.php:153
+msgid "Enter the phone number ID and access token first."
+msgstr "ابتدا شناسهٔ شماره تلفن و توکن دسترسی را وارد کنید."
+
+#. translators: 1: WhatsApp Business display name, 2: its phone number.
+#: includes/Support/HandoffWhatsApp.php:180
+#, php-format
+msgid "Connected as %1$s (%2$s)"
+msgstr "متصل به عنوان %1$s (%2$s)"
+
+#: includes/Support/HandoffWhatsApp.php:252
+msgid ""
+"WhatsApp rejected the access token. It may have expired: create a permanent "
+"system-user token in Meta Business Settings."
+msgstr ""
+"واتس‌اپ توکن دسترسی را نپذیرفت. شاید منقضی شده باشد: در Meta Business "
+"Settings یک توکن دائمی کاربر سیستمی بسازید."
+
+#: includes/Support/HandoffWhatsApp.php:254
+msgid ""
+"WhatsApp only delivers a plain message within 24 hours of the recipient "
+"writing to your business number. Add an approved message template so "
+"handoffs always arrive."
+msgstr ""
+"واتس‌اپ پیام ساده را فقط تا ۲۴ ساعت پس از آخرین پیام گیرنده به شمارهٔ کسب‌وکار "
+"شما تحویل می‌دهد. یک قالب پیام تأییدشده اضافه کنید تا درخواست‌ها همیشه برسند."
+
+#: includes/Support/HandoffWhatsApp.php:256
+msgid ""
+"The message template must have exactly one variable ({{1}}) in its body."
+msgstr "متن قالب پیام باید دقیقاً یک متغیر ({{1}}) داشته باشد."
+
+#: includes/Support/HandoffWhatsApp.php:258
+msgid "WhatsApp has no approved template with this name and language."
+msgstr "واتس‌اپ قالب تأییدشده‌ای با این نام و زبان ندارد."
+
+#: includes/Support/HandoffWhatsApp.php:260
+msgid ""
+"This recipient is not on the allowed list of your WhatsApp test number. Add "
+"it in Meta, or use a live business number."
+msgstr ""
+"این گیرنده در فهرست مجاز شمارهٔ آزمایشی واتس‌اپ شما نیست. آن را در متا اضافه "
+"کنید یا از شمارهٔ واقعی کسب‌وکار استفاده کنید."
+
+#: includes/Support/HandoffWhatsApp.php:262
+msgid ""
+"WhatsApp did not accept the phone number ID or recipient number. Check both."
+msgstr ""
+"واتس‌اپ شناسهٔ شماره تلفن یا شمارهٔ گیرنده را نپذیرفت. هر دو را بررسی کنید."
+
+#. translators: 1: HTTP status code, 2: error text from WhatsApp.
+#: includes/Support/HandoffWhatsApp.php:267
+#, php-format
+msgid "WhatsApp returned an error (HTTP %1$d): %2$s"
+msgstr "واتس‌اپ خطا برگرداند (HTTP %1$d): %2$s"
+
+#. translators: %d: HTTP status code.
+#: includes/Support/HandoffWhatsApp.php:269
+#, php-format
+msgid "WhatsApp returned an error (HTTP %d)."
+msgstr "واتس‌اپ خطا برگرداند (HTTP %d)."
 
 #. translators: 1: remaining percentage, 2: remaining tokens.
 #: includes/Usage/UsageTracker.php:214

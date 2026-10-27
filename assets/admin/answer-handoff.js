@@ -91,6 +91,16 @@
 		if ( channel.id === 'telegram' ) {
 			return text( 'handoffTelegramSummary', 'Credential stored securely; chat %s' ).replace( '%s', form.elements.telegram_chat ? form.elements.telegram_chat.value.trim() : '' );
 		}
+		if ( channel.id === 'whatsapp' ) {
+			return text( 'handoffWhatsappSummary', 'Token stored securely; sends to %s' ).replace( '%s', form.elements.whatsapp_to ? form.elements.whatsapp_to.value.trim() : '' );
+		}
+		if ( channel.id === 'slack' ) {
+			return text( 'handoffSlackSummary', 'Webhook stored securely' );
+		}
+		if ( channel.id === 'signal' ) {
+			var recipient = form.elements.signal_to ? form.elements.signal_to.value.trim() : '';
+			return text( 'handoffSignalSummary', 'Sends to %s' ).replace( '%s', recipient.indexOf( 'group.' ) === 0 ? text( 'handoffSignalGroup', 'a Signal group' ) : recipient );
+		}
 		return text( 'handoffTwilioSummary', 'Credentials stored securely; sends to %s' ).replace( '%s', form.elements.twilio_to ? form.elements.twilio_to.value.trim() : '' );
 	}
 
@@ -186,6 +196,8 @@
 		setBusy( card, true );
 		setStatus( card, text( 'handoffChecking', 'Checking connection...' ), 'busy' );
 		window.fetch( url, {
+			// Telegram and Twilio checks are read-only GETs; the Slack check posts a line, so the newer channels use POST.
+			method: button.getAttribute( 'data-sp-handoff-test-method' ) === 'POST' ? 'POST' : 'GET',
 			credentials: 'same-origin',
 			headers: { 'X-WP-Nonce': config.nonce }
 		} ).then( function ( response ) {
@@ -234,13 +246,13 @@
 			return;
 		}
 
-		var add = event.target.closest( '[data-sp-handoff-add="twilio"]' );
+		var add = event.target.closest( '[data-sp-handoff-add]' );
 		if ( add ) {
-			var twilio = root.querySelector( '[data-sp-handoff-card][data-sp-handoff-channel="twilio"]' );
-			if ( twilio ) {
-				twilio.hidden = false;
+			var added = root.querySelector( '[data-sp-handoff-card][data-sp-handoff-channel="' + add.getAttribute( 'data-sp-handoff-add' ) + '"]' );
+			if ( added ) {
+				added.hidden = false;
 				add.hidden = true;
-				openCard( twilio, true );
+				openCard( added, true );
 			}
 			return;
 		}

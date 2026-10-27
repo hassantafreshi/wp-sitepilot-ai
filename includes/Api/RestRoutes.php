@@ -721,6 +721,16 @@ final class RestRoutes {
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/widget/test/(?P<channel>whatsapp|slack|signal)',
+			array(
+				// POST: the Slack check posts a line to the channel, so it is not a safe GET.
+				'methods'             => 'POST',
+				'callback'            => array( $widget, 'test_channel' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
 	}
 
 	public function can_manage(): bool {

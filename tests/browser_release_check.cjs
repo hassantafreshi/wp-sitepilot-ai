@@ -652,12 +652,18 @@ async function answerHandoffHealthy( page ) {
 	const email = page.locator( '[data-sp-handoff-card][data-sp-handoff-channel="email"]' );
 	const telegram = page.locator( '[data-sp-handoff-card][data-sp-handoff-channel="telegram"]' );
 	const twilio = page.locator( '[data-sp-handoff-card][data-sp-handoff-channel="twilio"]' );
+	const whatsapp = page.locator( '[data-sp-handoff-card][data-sp-handoff-channel="whatsapp"]' );
+	const slack = page.locator( '[data-sp-handoff-card][data-sp-handoff-channel="slack"]' );
+	const signal = page.locator( '[data-sp-handoff-card][data-sp-handoff-channel="signal"]' );
 	check(
 		await email.count() === 1
 		&& await telegram.count() === 1
 		&& await twilio.count() === 1
-		&& await page.locator( '[data-sp-handoff-unsupported="whatsapp"]' ).count() === 1
-		&& await page.locator( '[data-sp-handoff-unsupported="slack"]' ).count() === 1
+		&& await whatsapp.count() === 1
+		&& await slack.count() === 1
+		&& await signal.count() === 1
+		&& await page.locator( '[data-sp-handoff-unsupported="whatsapp"]' ).count() === 0
+		&& await page.locator( '[data-sp-handoff-unsupported="slack"]' ).count() === 0
 		&& await page.locator( '[data-sp-handoff-unsupported="discord"]' ).count() === 1
 		&& await page.locator( '[data-sp-handoff-unsupported="webhook"]' ).count() === 1,
 		'Answer Desk Human handoff shows real channel cards and locks unsupported mockup transports'
@@ -837,6 +843,18 @@ async function answerHandoffHealthy( page ) {
 	const addSms = page.locator( '[data-sp-handoff-add="twilio"]' );
 	await addSms.click();
 	check( await twilio.isVisible() && await twilio.locator( '[data-sp-handoff-form]' ).isVisible(), 'Answer Desk Human handoff reveals the real SMS transport only when an administrator adds it' );
+	check( await whatsapp.isVisible(), 'Answer Desk Human handoff shows the WhatsApp Business card without adding it' );
+	for ( const [ added, name ] of [ [ slack, 'Slack' ], [ signal, 'Signal' ] ] ) {
+		const id = await added.getAttribute( 'data-sp-handoff-channel' );
+		const wasHidden = await added.isHidden();
+		await page.locator( '[data-sp-handoff-add="' + id + '"]' ).click();
+		check(
+			wasHidden && await added.isVisible() && await added.locator( '[data-sp-handoff-form]' ).isVisible()
+			&& await page.locator( '[data-sp-handoff-add="' + id + '"]' ).isHidden(),
+			'Answer Desk Human handoff reveals the ' + name + ' card, open for setup, only when an administrator adds it'
+		);
+		await added.locator( '[data-sp-handoff-cancel]' ).click();
+	}
 	const desktopOverflow = await page.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
 	check( !desktopOverflow, 'Answer Desk Human handoff has no desktop horizontal overflow' );
 	const desktopBounds = await page.locator( '.sp-answer-handoff' ).evaluate( ( element ) => {
@@ -2495,11 +2513,11 @@ async function handoffInboxHealthy( page ) {
 		);
 		check(
 			6 === await root.locator( '[data-sp-handoff-filter]' ).count()
-			&& 3 === await root.locator( '[data-sp-handoff-channel-state]' ).count()
+			&& 6 === await root.locator( '[data-sp-handoff-channel-state]' ).count()
 			&& await root.locator( '[data-sp-handoff-new-badge]' ).isVisible()
 			&& await item( ids.archived ).isHidden()
 			&& await root.locator( '[data-sp-handoff-archive-resolved]' ).isVisible(),
-			'Handoff inbox shows All, four status filters and Archived, the new-thread badge, Archive resolved and the three real delivery channels, with archived threads hidden'
+			'Handoff inbox shows All, four status filters and Archived, the new-thread badge, Archive resolved and the six real delivery channels, with archived threads hidden'
 		);
 		check( 0 === pluginRequests.length, 'Opening the inbox sends no plugin REST request' );
 

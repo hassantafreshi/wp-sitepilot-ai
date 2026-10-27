@@ -120,13 +120,21 @@ hookهای ویجت همیشه ثبت می‌شوند و این دروازه‌�
      تا 2026-09-16 متن پیش از ذخیره encode می‌شد. به همین دلیل Telegram آن را دوبار escape می‌کرد (`&amp;lt;`) و `wp_strip_all_tags` در ایمیل بقیهٔ متن بعد از `<` را حذف می‌کرد. ردیف‌های قدیمی همان entityها را دارند و در صندوق به‌صورت `&lt;` دیده می‌شوند. مهاجرتی برایشان نوشته نشده است.
 4. **ارسال:** `HandoffService::handoff( $messages, $contact )` پیام را به **همهٔ** کانال‌های فعال و پیکربندی‌شده می‌فرستد. صف ترتیبی هنوز وجود ندارد (T37).
    - ایمیل بخش اطلاعات تماس را با `HandoffEmail::build_contact_html()` نشان می‌دهد. وقتی بازدیدکننده ایمیل گذاشته باشد، سرآیند `Reply-To` دارد تا پاسخ به همان ایمیل مستقیم به او برسد.
-   - Telegram و پیامک خط‌های «Name»، «Email»، «Mobile» و «Website» را فقط برای موردهای پرشده دارند؛ در غیر این صورت «Contact: not provided».
+   - Telegram، پیامک، WhatsApp، Slack و Signal خط‌های «Name»، «Email»، «Mobile» و «Website» را فقط برای موردهای پرشده دارند؛ در غیر این صورت «Contact: not provided».
+   - پیام بلند با `HandoffText::split()` بر اساس نویسه (نه بایت) و بین خط‌ها بریده می‌شود. پیش از این Telegram و Twilio با `str_split` بایتی می‌بریدند و خط فارسی بلند وسط حرف شکسته می‌شد.
 
    | کانال | روش ارسال |
    |---|---|
    | ایمیل | `HandoffEmail` با `wp_mail` به `handoff_email_to` یا ایمیل مدیریت |
-   | Telegram | `HandoffTelegram` با Bot API و تقسیم پیام بلند |
-   | پیامک | `HandoffTwilio` با Twilio |
+   | Telegram | `HandoffTelegram` با Bot API و تقسیم پیام بلند (۴۰۹۶ نویسه) |
+   | پیامک یا WhatsApp از Twilio | `HandoffTwilio` با Twilio (۱۶۰۰ نویسه) |
+   | WhatsApp Business | `HandoffWhatsApp` با Cloud API متا (`graph.facebook.com/v26.0/{phone_id}/messages`، نسخه با filter `aisaautopilot_whatsapp_graph_version`). با `handoff_whatsapp_template`، یک پیام template با یک متغیر body که خلاصهٔ یک‌خطی (`HandoffText::one_line()`، حداکثر ۹۰۰ نویسه) است؛ بی‌قالب، پیام text در تکه‌های ۴۰۹۶ نویسه‌ای که فقط در پنجرهٔ ۲۴ ساعته تحویل می‌شود. خطاهای 190، 131047، 132000، 132001، 131030 و 100 به راه‌حل ترجمه می‌شوند. |
+   | Slack | `HandoffSlack` با incoming webhook (`text` با escape کردن `&`، `<` و `>` تا بازدیدکننده نتواند `@channel` بزند یا پیوند بسازد؛ تکه‌های ۳۵۰۰ نویسه‌ای). فقط `https://hooks.slack.com/services/…` یا `hooks.slack-gov.com` پذیرفته می‌شود. |
+   | Signal | `HandoffSignal` با `POST {url}/v2/send` سرور signal-cli-rest-api مالک (`number`، `recipients`، `message`؛ تکه‌های ۲۰۰۰ نویسه‌ای). گیرنده شماره با `+` یا `group.…` است. |
+
+   - **آمادگی هر کانال** فقط از `Settings::handoff_channel_ready( $channel, $widget )` می‌آید و `answer_desk_handoff_available()`، `AdminHandoffSettingsController` و صفحه همه همان را به کار می‌برند. پیش‌تر ایمیلِ بی‌گیرنده در صفحه «Ready» بود (ارسال به ایمیل مدیریت) ولی در این بررسی «آماده نیست» حساب می‌شد؛ اکنون هر دو ایمیل مدیریت را حساب می‌کنند.
+   - **بررسی اتصال:** Telegram و Twilio با GET (`/widget/test/telegram|twilio`)؛ سه کانال تازه با `POST /widget/test/{whatsapp|slack|signal}`. بررسی WhatsApp نام نمایشی شمارهٔ کسب‌وکار را می‌خواند، بررسی Signal فهرست `/v1/accounts` را با شمارهٔ فرستنده مقایسه می‌کند، و بررسی Slack یک خط در کانال منتشر می‌کند چون webhook راه خواندن ندارد.
+   - **صفحه:** کارت WhatsApp Business همیشه دیده می‌شود. Twilio، Slack و Signal تا روشن یا پیکربندی نشده‌اند زیر «Add another channel» می‌مانند. Discord و Custom webhook قفل‌اند.
 
 5. **ثبت:** نتیجه در `HandoffInbox::record()` (همراه `visitor_phone` و `visitor_website`) با وضعیت `new` (دست‌کم یک کانال پذیرفت) یا `failed` ذخیره می‌شود. پاسخ به بازدیدکننده شناسهٔ `reference` دارد.
 6. **صندوق:** مدیر درخواست را در `aisaautopilot-handoffs` یا tab انتقال صفحهٔ پیشرفتهٔ ویجت می‌بیند:

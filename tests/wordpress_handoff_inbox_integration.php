@@ -126,8 +126,8 @@ try {
 		false !== strpos( $html, 'data-sp-handoff-inbox-list' )
 		&& 6 === substr_count( $html, 'data-sp-handoff-filter=' )
 		&& false !== strpos( $html, 'data-sp-handoff-filter="archived"' )
-		&& 3 === substr_count( $html, 'data-sp-handoff-channel-state=' ),
-		'Inbox renders All, four status filters, Archived and the three real delivery channels'
+		&& 6 === substr_count( $html, 'data-sp-handoff-channel-state=' ),
+		'Inbox renders All, four status filters, Archived and the six real delivery channels'
 	);
 	$check(
 		false !== strpos( $html, 'data-sp-handoff-archive>' )
@@ -241,9 +241,9 @@ try {
 
 	$states = AnswerDeskHandoffPage::channel_states();
 	$check(
-		array( 'email', 'telegram', 'twilio' ) === array_column( $states, 'id' )
+		array( 'email', 'telegram', 'whatsapp', 'twilio', 'slack', 'signal' ) === array_column( $states, 'id' )
 		&& array() === array_diff( array_column( $states, 'state' ), array( 'ready', 'needs-setup', 'paused', 'off' ) ),
-		'Channel states cover the three real transports with known state names'
+		'Channel states cover the six real transports with known state names'
 	);
 
 	if ( switch_to_locale( 'fa_IR' ) ) {

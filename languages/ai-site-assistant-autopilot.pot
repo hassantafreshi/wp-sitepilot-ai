@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-10-27 19:58+0000\n"
+"POT-Creation-Date: 2026-10-27 21:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,7 +87,7 @@ msgstr ""
 #: includes/Admin/AdminMenu.php:133
 #: includes/Admin/AnswerConversationsPage.php:52
 #: includes/Admin/AnswerConversationsPage.php:318
-#: includes/Admin/AnswerDeskHandoffPage.php:41
+#: includes/Admin/AnswerDeskHandoffPage.php:52
 #: includes/Admin/AnswerDeskVoicePage.php:40
 #: includes/Admin/AnswerDeskWidgetPage.php:55
 #: includes/Admin/HandoffInboxPage.php:36 includes/Admin/HomePage.php:346
@@ -210,7 +210,7 @@ msgid "Resume"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:249
-#: includes/Admin/AnswerDeskHandoffPage.php:414
+#: includes/Admin/AnswerDeskHandoffPage.php:553
 #: includes/Admin/CopilotPage.php:231 includes/Admin/KnowledgeBasePage.php:437
 #: includes/Admin/KnowledgeBasePage.php:500 includes/Admin/UsagePage.php:92
 msgid "Cancel"
@@ -299,12 +299,12 @@ msgid "That image is too large. Please use a PNG under 200 KB."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:308 includes/Admin/AdminMenu.php:311
-#: includes/Admin/AdminMenu.php:337 includes/Admin/UsagePage.php:152
+#: includes/Admin/AdminMenu.php:343 includes/Admin/UsagePage.php:152
 msgid "Saving..."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:309 includes/Admin/AdminMenu.php:312
-#: includes/Admin/AdminMenu.php:338
+#: includes/Admin/AdminMenu.php:344
 msgid "Saved."
 msgstr ""
 
@@ -325,36 +325,35 @@ msgid "Could not check the connection. Please try again."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:316
-#: includes/Admin/AnswerDeskHandoffPage.php:440
+#: includes/Admin/AnswerDeskHandoffPage.php:579
 msgid "Ready"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:317
-#: includes/Admin/AnswerDeskHandoffPage.php:443
+#: includes/Admin/AnswerDeskHandoffPage.php:582
 msgid "Needs setup"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:318 includes/Admin/AdminMenu.php:347
-#: includes/Admin/AnswerDeskHandoffPage.php:445
+#: includes/Admin/AdminMenu.php:318 includes/Admin/AdminMenu.php:353
+#: includes/Admin/AnswerDeskHandoffPage.php:584
 #: includes/Admin/AnswerDeskVoicePage.php:80
 msgid "Paused"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:319
-#: includes/Admin/AnswerDeskHandoffPage.php:445
+#: includes/Admin/AnswerDeskHandoffPage.php:584
 #: includes/Admin/AnswerDeskVoicePage.php:27
 msgid "Not configured"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:320
-#: includes/Admin/AnswerDeskHandoffPage.php:261
-#: includes/Admin/AnswerDeskHandoffPage.php:392
+#: includes/Admin/AnswerDeskHandoffPage.php:531
 #: includes/Admin/KnowledgeBasePage.php:507
 msgid "Edit"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:321
-#: includes/Admin/AnswerDeskHandoffPage.php:392
+#: includes/Admin/AnswerDeskHandoffPage.php:531
 msgid "Connect"
 msgstr ""
 
@@ -366,73 +365,100 @@ msgid "Close"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:323
-#: includes/Admin/AnswerDeskHandoffPage.php:207
-#: includes/Admin/AnswerDeskHandoffPage.php:249
+#: includes/Admin/AnswerDeskHandoffPage.php:223
+#: includes/Admin/AnswerDeskHandoffPage.php:265
+#: includes/Admin/AnswerDeskHandoffPage.php:318
+#: includes/Admin/AnswerDeskHandoffPage.php:370
+#: includes/Admin/AnswerDeskHandoffPage.php:402
 msgid "Not set up yet"
 msgstr ""
 
 #. translators: %s: WordPress administration email address.
 #: includes/Admin/AdminMenu.php:326
-#: includes/Admin/AnswerDeskHandoffPage.php:171
+#: includes/Admin/AnswerDeskHandoffPage.php:187
 #, php-format
 msgid "Uses the WordPress administration email: %s"
 msgstr ""
 
 #. translators: %s: configured Telegram chat identifier.
 #: includes/Admin/AdminMenu.php:330
-#: includes/Admin/AnswerDeskHandoffPage.php:204
+#: includes/Admin/AnswerDeskHandoffPage.php:220
 #, php-format
 msgid "Credential stored securely; chat %s"
 msgstr ""
 
 #. translators: %s: configured recipient phone number.
 #: includes/Admin/AdminMenu.php:332
-#: includes/Admin/AnswerDeskHandoffPage.php:246
+#: includes/Admin/AnswerDeskHandoffPage.php:262
 #, php-format
 msgid "Credentials stored securely; sends to %s"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:333
-msgid "Checking connection..."
-msgstr ""
-
+#. translators: %s: recipient WhatsApp number.
 #: includes/Admin/AdminMenu.php:334
-msgid "Connection verified."
+#: includes/Admin/AnswerDeskHandoffPage.php:315
+#, php-format
+msgid "Token stored securely; sends to %s"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:335
-msgid "Saved. The handoff card asks for these details from now on."
+#: includes/Admin/AnswerDeskHandoffPage.php:370
+msgid "Webhook stored securely"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:336
-msgid "Could not save the details. Please try again."
+#. translators: %s: Signal recipient (a phone number or a group).
+#: includes/Admin/AdminMenu.php:337
+#: includes/Admin/AnswerDeskHandoffPage.php:399
+#, php-format
+msgid "Sends to %s"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:338
+#: includes/Admin/AnswerDeskHandoffPage.php:400
+msgid "a Signal group"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:339
-msgid "Could not save the voice settings. Please try again."
+msgid "Checking connection..."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:340
-msgid "Turn on transcribe + speak before playing a test phrase."
+msgid "Connection verified."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:341
-msgid "Playing a test phrase locally..."
+msgid "Saved. The handoff card asks for these details from now on."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:342
+msgid "Could not save the details. Please try again."
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:345
+msgid "Could not save the voice settings. Please try again."
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:346
+msgid "Turn on transcribe + speak before playing a test phrase."
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:347
+msgid "Playing a test phrase locally..."
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:348
 msgid "Test phrase finished in this browser."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:343
+#: includes/Admin/AdminMenu.php:349
 msgid "Speech output is not available in this browser."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:344
+#: includes/Admin/AdminMenu.php:350
 msgid "This browser could not play the test phrase."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:346 includes/Admin/AnswerDeskVoicePage.php:80
+#: includes/Admin/AdminMenu.php:352 includes/Admin/AnswerDeskVoicePage.php:80
 #: includes/Admin/HomePage.php:347 includes/Admin/HomePage.php:354
 #: includes/Admin/HomePage.php:361 includes/Admin/HomePage.php:368
 #: includes/Admin/HomePage.php:375 includes/Admin/IntegrationsPage.php:67
@@ -444,153 +470,153 @@ msgstr ""
 msgid "On"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:348 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:354 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Uses the visitor’s browser speech engine. Off keeps voice input but shows "
 "the answer as text only."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:349 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:355 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Turn on transcribe + speak first; reply playback is unavailable while voice "
 "input is paused."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:350
+#: includes/Admin/AdminMenu.php:356
 msgid "This is a local AutoPilot voice test."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:351
+#: includes/Admin/AdminMenu.php:357
 msgid "Describe the draft first."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:352
+#: includes/Admin/AdminMenu.php:358
 msgid "Building a reviewable draft…"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:353 includes/Admin/CopilotPage.php:322
+#: includes/Admin/AdminMenu.php:359 includes/Admin/CopilotPage.php:322
 msgid "Write a draft"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:354
+#: includes/Admin/AdminMenu.php:360
 msgid "Writing…"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:355
+#: includes/Admin/AdminMenu.php:361
 msgid "Creating your WordPress draft…"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:356
+#: includes/Admin/AdminMenu.php:362
 msgid "Draft created. Review and publish it from WordPress when you are ready."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:357
+#: includes/Admin/AdminMenu.php:363
 msgid "Open draft in WordPress"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:358
+#: includes/Admin/AdminMenu.php:364
 #: includes/Content/ContentStudioReadModel.php:163
 msgid "Draft saved"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:359
+#: includes/Admin/AdminMenu.php:365
 msgid "Just now"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:360
+#: includes/Admin/AdminMenu.php:366
 msgid "Post"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:361 includes/Admin/KnowledgeBasePage.php:585
+#: includes/Admin/AdminMenu.php:367 includes/Admin/KnowledgeBasePage.php:585
 msgid "Page"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:362
+#: includes/Admin/AdminMenu.php:368
 #: includes/Content/ContentStudioReadModel.php:53
 #: includes/Content/ContentStudioReadModel.php:111
 msgid "Untitled draft"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:363
+#: includes/Admin/AdminMenu.php:369
 msgid "Choose a key-storage option to continue."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:364
+#: includes/Admin/AdminMenu.php:370
 msgid "Choose an AI service to continue."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:365
+#: includes/Admin/AdminMenu.php:371
 msgid "Test a working provider key and model before continuing."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:366
+#: includes/Admin/AdminMenu.php:372
 msgid "Enter or choose a model before continuing."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:367
+#: includes/Admin/AdminMenu.php:373
 msgid "Not tested yet"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:368
+#: includes/Admin/AdminMenu.php:374
 msgid "Run a short connection test before continuing."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:369 includes/Admin/SettingsPage.php:1144
+#: includes/Admin/AdminMenu.php:375 includes/Admin/SettingsPage.php:1144
 msgid "Add an API key"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:370 includes/Admin/SettingsPage.php:1145
+#: includes/Admin/AdminMenu.php:376 includes/Admin/SettingsPage.php:1145
 msgid "That key was rejected"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:371
+#: includes/Admin/AdminMenu.php:377
 msgid "Billing action required"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:372
+#: includes/Admin/AdminMenu.php:378
 msgid "Provider is rate limiting"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:373 includes/Admin/SettingsPage.php:1148
+#: includes/Admin/AdminMenu.php:379 includes/Admin/SettingsPage.php:1148
 msgid "Your server could not reach the provider"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:374 includes/Admin/SettingsPage.php:1149
+#: includes/Admin/AdminMenu.php:380 includes/Admin/SettingsPage.php:1149
 msgid "Wrong endpoint or model"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:375 includes/Admin/SettingsPage.php:1150
+#: includes/Admin/AdminMenu.php:381 includes/Admin/SettingsPage.php:1150
 msgid "Connection details are incomplete"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:376
+#: includes/Admin/AdminMenu.php:382
 msgid ""
 "The key works, but no models came back. Type a model name or enable model "
 "access with the provider."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:377 includes/Admin/SettingsPage.php:1183
+#: includes/Admin/AdminMenu.php:383 includes/Admin/SettingsPage.php:1183
 msgid "This provider does not publish a model list. Type its model name above."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:378
+#: includes/Admin/AdminMenu.php:384
 msgid "This choice uses the key saved in WordPress Connectors."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:379
+#: includes/Admin/AdminMenu.php:385
 msgid "Get a key from {provider}."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:380
+#: includes/Admin/AdminMenu.php:386
 msgid "This provider supports embeddings. "
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:381
+#: includes/Admin/AdminMenu.php:387
 msgid "This provider does not publish an embeddings endpoint. "
 msgstr ""
 
 #: includes/Admin/AnswerConversationsPage.php:40
-#: includes/Admin/AnswerDeskHandoffPage.php:24
+#: includes/Admin/AnswerDeskHandoffPage.php:27
 #: includes/Admin/AnswerDeskVoicePage.php:19
 #: includes/Admin/AnswerDeskWidgetPage.php:18 includes/Admin/ChatPage.php:22
 #: includes/Admin/ConnectionsPage.php:17 includes/Admin/CopilotPage.php:23
@@ -605,7 +631,7 @@ msgid "You do not have permission to view this page."
 msgstr ""
 
 #: includes/Admin/AnswerConversationsPage.php:53
-#: includes/Admin/AnswerDeskHandoffPage.php:42
+#: includes/Admin/AnswerDeskHandoffPage.php:53
 #: includes/Admin/AnswerDeskVoicePage.php:41
 #: includes/Admin/AnswerDeskWidgetPage.php:56
 #: includes/Admin/HandoffInboxPage.php:37
@@ -614,7 +640,7 @@ msgid "The support chat on your site, and every conversation it handled."
 msgstr ""
 
 #: includes/Admin/AnswerConversationsPage.php:57
-#: includes/Admin/AnswerDeskHandoffPage.php:46
+#: includes/Admin/AnswerDeskHandoffPage.php:57
 #: includes/Admin/AnswerDeskVoicePage.php:45
 #: includes/Admin/AnswerDeskWidgetPage.php:60
 msgid "Widget settings"
@@ -762,65 +788,82 @@ msgstr ""
 msgid "Configure handoff"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:55
+#: includes/Admin/AnswerDeskHandoffPage.php:66
 msgid ""
 "Configure handoff channels here, but visitors cannot request a person until "
 "Answer Desk and its Widget are both enabled."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:58
+#: includes/Admin/AnswerDeskHandoffPage.php:69
 msgid ""
 "When a visitor asks for a person, the plugin sends the handoff to every "
 "enabled and configured channel below. It does not use an ordered fallback "
 "queue."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:84
-#: includes/Admin/AnswerDeskHandoffPage.php:177
+#: includes/Admin/AnswerDeskHandoffPage.php:97
+#: includes/Admin/AnswerDeskHandoffPage.php:193
 #: includes/Admin/HandoffInboxPage.php:319 includes/Support/HandoffEmail.php:61
 msgid "Email"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:85
-#: includes/Admin/AnswerDeskHandoffPage.php:211
+#: includes/Admin/AnswerDeskHandoffPage.php:98
+#: includes/Admin/AnswerDeskHandoffPage.php:227
 msgid "Telegram"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:86
-#: includes/Admin/AnswerDeskHandoffPage.php:255
-#: includes/Admin/AnswerDeskHandoffPage.php:316
+#: includes/Admin/AnswerDeskHandoffPage.php:99
+#: includes/Admin/AnswerDeskHandoffPage.php:322
+msgid "WhatsApp Business"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:100
+#: includes/Admin/AnswerDeskHandoffPage.php:269
+#: includes/Admin/AnswerDeskHandoffPage.php:446
 msgid "SMS (Twilio)"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:115
+#: includes/Admin/AnswerDeskHandoffPage.php:101
+#: includes/Admin/AnswerDeskHandoffPage.php:368
+#: includes/Admin/AnswerDeskHandoffPage.php:447
+msgid "Slack"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:102
+#: includes/Admin/AnswerDeskHandoffPage.php:406
+#: includes/Admin/AnswerDeskHandoffPage.php:448
+msgid "Signal"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:131
 msgid ""
 "Each request stays in the inbox with its conversation. Set its status so "
 "your team knows who has it."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:116
+#: includes/Admin/AnswerDeskHandoffPage.php:132
 msgid ""
 "The inbox keeps every earlier request with the conversation that led to it."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:117
+#: includes/Admin/AnswerDeskHandoffPage.php:133
 msgid ""
 "Visitors are not offered a person until handoff is on and at least one "
 "channel below is ready. Earlier requests stay in the inbox."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:124
+#: includes/Admin/AnswerDeskHandoffPage.php:140
 msgid "Nobody is waiting"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:124
+#: includes/Admin/AnswerDeskHandoffPage.php:140
 #: includes/Admin/HandoffInboxPage.php:88
 msgid "Waiting for a person"
 msgstr ""
 
 #. translators: %s: number of handoff requests nobody has picked up yet.
 #. translators: %s: number of threads nobody has picked up yet.
-#: includes/Admin/AnswerDeskHandoffPage.php:131
+#: includes/Admin/AnswerDeskHandoffPage.php:147
 #: includes/Admin/HandoffInboxPage.php:94
 #: includes/Admin/HandoffInboxPage.php:317
 #, php-format
@@ -828,168 +871,251 @@ msgid "%s new"
 msgstr ""
 
 #. translators: %s: number of handoff requests that no channel accepted.
-#: includes/Admin/AnswerDeskHandoffPage.php:144
+#: includes/Admin/AnswerDeskHandoffPage.php:160
 #, php-format
 msgid "%s delivery failed"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:155
+#: includes/Admin/AnswerDeskHandoffPage.php:171
 msgid "Open inbox"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:178
+#: includes/Admin/AnswerDeskHandoffPage.php:194
 msgid "A copy of the conversation arrives in a support inbox."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:187
-#: includes/Admin/AnswerDeskHandoffPage.php:285
+#: includes/Admin/AnswerDeskHandoffPage.php:203
+#: includes/Admin/AnswerDeskHandoffPage.php:298
+#: includes/Admin/AnswerDeskHandoffPage.php:345
+#: includes/Admin/AnswerDeskHandoffPage.php:426
 msgid "Send to"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:189
+#: includes/Admin/AnswerDeskHandoffPage.php:205
 msgid "Leave empty to use the WordPress administration email."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:212
+#: includes/Admin/AnswerDeskHandoffPage.php:228
 msgid "Checks the configured bot and routes the handoff to one chat or group."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:221
+#: includes/Admin/AnswerDeskHandoffPage.php:237
 msgid "Bot token"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:221
-#: includes/Admin/AnswerDeskHandoffPage.php:267
-#: includes/Admin/AnswerDeskHandoffPage.php:274
+#: includes/Admin/AnswerDeskHandoffPage.php:237
+#: includes/Admin/AnswerDeskHandoffPage.php:280
+#: includes/Admin/AnswerDeskHandoffPage.php:287
+#: includes/Admin/AnswerDeskHandoffPage.php:332
+#: includes/Admin/AnswerDeskHandoffPage.php:379
+#: includes/Admin/AnswerDeskHandoffPage.php:431
 msgid "Stored encrypted"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:222
-#: includes/Admin/AnswerDeskHandoffPage.php:275
+#: includes/Admin/AnswerDeskHandoffPage.php:238
+#: includes/Admin/AnswerDeskHandoffPage.php:288
+#: includes/Admin/AnswerDeskHandoffPage.php:333
+#: includes/Admin/AnswerDeskHandoffPage.php:432
 msgid "Saved securely - enter a new token to replace it"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:224
-#: includes/Admin/AnswerDeskHandoffPage.php:277
+#: includes/Admin/AnswerDeskHandoffPage.php:240
+#: includes/Admin/AnswerDeskHandoffPage.php:290
+#: includes/Admin/AnswerDeskHandoffPage.php:335
+#: includes/Admin/AnswerDeskHandoffPage.php:434
 msgid "Remove saved token"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:228
+#: includes/Admin/AnswerDeskHandoffPage.php:244
 msgid "Chat ID"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:230
+#: includes/Admin/AnswerDeskHandoffPage.php:246
 msgid "Use the ID for the person, chat or group that should receive handoffs."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:256
+#: includes/Admin/AnswerDeskHandoffPage.php:270
 msgid "Sends a text message to the configured support number."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:260
-msgid "Toggle SMS handoff"
-msgstr ""
-
-#: includes/Admin/AnswerDeskHandoffPage.php:267
+#: includes/Admin/AnswerDeskHandoffPage.php:280
 msgid "Account SID"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:268
+#: includes/Admin/AnswerDeskHandoffPage.php:281
 msgid "Saved securely - enter a new SID to replace it"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:270
+#: includes/Admin/AnswerDeskHandoffPage.php:283
 msgid "Remove saved SID"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:274
+#: includes/Admin/AnswerDeskHandoffPage.php:287
 msgid "Auth token"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:281
+#: includes/Admin/AnswerDeskHandoffPage.php:294
 msgid "From number"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:301
-#: includes/Admin/AnswerDeskVoicePage.php:75
-msgid "Not available"
+#: includes/Admin/AnswerDeskHandoffPage.php:323
+msgid ""
+"Your WhatsApp Business number sends the handoff to a team member’s WhatsApp, "
+"through Meta’s Cloud API."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:301
-msgid "WhatsApp"
+#: includes/Admin/AnswerDeskHandoffPage.php:332
+msgid "Access token"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:302
-msgid "Reply from a WhatsApp Business number."
+#: includes/Admin/AnswerDeskHandoffPage.php:337
+msgid ""
+"A permanent token of a system user with the whatsapp_business_messaging "
+"permission (Meta Business Settings)."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:303
-msgid "This build has no WhatsApp delivery transport yet."
+#: includes/Admin/AnswerDeskHandoffPage.php:340
+msgid "Phone number ID"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:305
-msgid "Planned"
+#: includes/Admin/AnswerDeskHandoffPage.php:342
+msgid ""
+"Shown under WhatsApp > API Setup in your Meta app; it is not the phone "
+"number itself."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:314
+#: includes/Admin/AnswerDeskHandoffPage.php:349
+msgid "Message template"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:351
+msgid ""
+"Recommended. WhatsApp only lets a business start a chat with an approved "
+"template: create a Utility template whose body has one variable, {{1}}, "
+"which receives the request. Without a template, messages arrive only within "
+"24 hours of the recipient writing to your business number."
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:354
+msgid "Template language"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:369
+msgid "Posts the handoff to one Slack channel through an incoming webhook."
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:379
+msgid "Incoming webhook URL"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:380
+msgid "Saved securely - enter a new URL to replace it"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:382
+msgid "Remove saved webhook"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:384
+msgid ""
+"Create it in a Slack app under Incoming Webhooks and pick the channel. "
+"Anyone with this URL can post to that channel."
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:388
+msgid ""
+"Slack has no read-only check, so Check connection posts one short line to "
+"the channel."
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:407
+msgid ""
+"Sends the handoff to a Signal number or group through a signal-cli REST API "
+"server you run."
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:417
+msgid "Signal API address"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:419
+msgid ""
+"Signal has no official API for businesses. Run the open-source signal-cli-"
+"rest-api (Docker) on a server you control and register or link a Signal "
+"number on it."
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:422
+msgid "Send from"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:428
+msgid "A number in international format, or a group ID starting with group."
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:431
+msgid "Access token (optional)"
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:436
+msgid "Sent as a Bearer token, for a server behind a proxy that checks one."
+msgstr ""
+
+#: includes/Admin/AnswerDeskHandoffPage.php:452
 msgid "Add another channel"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:317
-msgid "Slack"
-msgstr ""
-
-#: includes/Admin/AnswerDeskHandoffPage.php:318
+#: includes/Admin/AnswerDeskHandoffPage.php:457
 msgid "Discord"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:319
+#: includes/Admin/AnswerDeskHandoffPage.php:458
 msgid "Custom webhook"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:321
+#: includes/Admin/AnswerDeskHandoffPage.php:460
 msgid ""
-"This build supports Email, Telegram and SMS through Twilio. Unsupported "
-"channels stay locked instead of collecting credentials that cannot be "
-"delivered."
+"This build delivers by Email, Telegram, WhatsApp Business, SMS through "
+"Twilio, Slack and Signal. Unsupported channels stay locked instead of "
+"collecting credentials that cannot be delivered."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:333
+#: includes/Admin/AnswerDeskHandoffPage.php:472
 msgid "Name"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:333
+#: includes/Admin/AnswerDeskHandoffPage.php:472
 msgid "So your team knows who they are talking to."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:334
+#: includes/Admin/AnswerDeskHandoffPage.php:473
 #: includes/Frontend/ChatWidget.php:266
 msgid "Email address"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:334
+#: includes/Admin/AnswerDeskHandoffPage.php:473
 msgid "Lets your team reply by email from the inbox."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:335
+#: includes/Admin/AnswerDeskHandoffPage.php:474
 msgid "Lets your team call or text the visitor back."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:335
+#: includes/Admin/AnswerDeskHandoffPage.php:474
 #: includes/Frontend/ChatWidget.php:267
 msgid "Mobile number"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:336
+#: includes/Admin/AnswerDeskHandoffPage.php:475
 msgid "Useful when visitors ask about their own site or business."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:336
+#: includes/Admin/AnswerDeskHandoffPage.php:475
 #: includes/Frontend/ChatWidget.php:268
 msgid "Website address"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:339 includes/Admin/HomePage.php:347
+#: includes/Admin/AnswerDeskHandoffPage.php:478 includes/Admin/HomePage.php:347
 #: includes/Admin/HomePage.php:354 includes/Admin/HomePage.php:361
 #: includes/Admin/HomePage.php:368 includes/Admin/HomePage.php:375
 #: includes/Admin/IntegrationsPage.php:67
@@ -1001,46 +1127,46 @@ msgstr ""
 msgid "Off"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:340
+#: includes/Admin/AnswerDeskHandoffPage.php:479
 msgid "Optional"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:341
+#: includes/Admin/AnswerDeskHandoffPage.php:480
 msgid "Required"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:346
+#: includes/Admin/AnswerDeskHandoffPage.php:485
 msgid "Details to ask for"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:347
+#: includes/Admin/AnswerDeskHandoffPage.php:486
 msgid ""
 "Before a visitor sends the conversation, the widget asks for the details you "
 "pick here. A required detail has to be filled in. When every detail is off, "
 "the visitor only sends the conversation."
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:367
+#: includes/Admin/AnswerDeskHandoffPage.php:506
 msgid "Save details"
 msgstr ""
 
 #. translators: %s: human handoff channel name.
-#: includes/Admin/AnswerDeskHandoffPage.php:378
+#: includes/Admin/AnswerDeskHandoffPage.php:517
 #, php-format
 msgid "Toggle %s handoff"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:413
+#: includes/Admin/AnswerDeskHandoffPage.php:552
 msgid "Save configuration"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:416
+#: includes/Admin/AnswerDeskHandoffPage.php:555
 #: includes/Admin/CopilotPage.php:72 includes/Admin/CopilotPage.php:275
 #: includes/Admin/SettingsPage.php:714 includes/Admin/SettingsPage.php:1132
 msgid "Check connection"
 msgstr ""
 
-#: includes/Admin/AnswerDeskHandoffPage.php:419
+#: includes/Admin/AnswerDeskHandoffPage.php:558
 msgid ""
 "A connection check contacts the provider but does not send a visitor handoff."
 msgstr ""
@@ -1105,6 +1231,10 @@ msgstr ""
 
 #: includes/Admin/AnswerDeskVoicePage.php:74
 msgid "Realtime stream"
+msgstr ""
+
+#: includes/Admin/AnswerDeskVoicePage.php:75
+msgid "Not available"
 msgstr ""
 
 #: includes/Admin/AnswerDeskVoicePage.php:79
@@ -5916,41 +6046,76 @@ msgid_plural "%s tokens"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Api/AdminHandoffSettingsController.php:29
+#: includes/Api/AdminHandoffSettingsController.php:46
+#: includes/Api/ChatWidgetController.php:282
 msgid "Choose a supported handoff channel."
 msgstr ""
 
-#: includes/Api/AdminHandoffSettingsController.php:36
+#: includes/Api/AdminHandoffSettingsController.php:53
 msgid "The channel status is required."
 msgstr ""
 
-#: includes/Api/AdminHandoffSettingsController.php:83
+#: includes/Api/AdminHandoffSettingsController.php:112
 msgid "Choose Off, Optional or Required for each detail."
 msgstr ""
 
-#: includes/Api/AdminHandoffSettingsController.php:114
+#: includes/Api/AdminHandoffSettingsController.php:143
 msgid "The email recipient is required."
 msgstr ""
 
-#: includes/Api/AdminHandoffSettingsController.php:123
+#: includes/Api/AdminHandoffSettingsController.php:152
 msgid ""
 "Enter a valid email recipient or leave it empty to use the WordPress "
 "administration email."
 msgstr ""
 
-#: includes/Api/AdminHandoffSettingsController.php:138
+#: includes/Api/AdminHandoffSettingsController.php:167
 msgid "The Telegram chat ID is required."
 msgstr ""
 
-#: includes/Api/AdminHandoffSettingsController.php:154
+#: includes/Api/AdminHandoffSettingsController.php:183
 msgid "Both Twilio phone numbers are required."
 msgstr ""
 
-#: includes/Api/AdminHandoffSettingsController.php:173
+#: includes/Api/AdminHandoffSettingsController.php:201
+msgid "The phone number ID and the number to send to are both required."
+msgstr ""
+
+#: includes/Api/AdminHandoffSettingsController.php:214
+msgid ""
+"Use the numeric phone number ID from Meta, and the number to send to in "
+"international format."
+msgstr ""
+
+#: includes/Api/AdminHandoffSettingsController.php:221
+msgid ""
+"A template name has lowercase letters, digits and underscores; a language "
+"looks like en_US or fa."
+msgstr ""
+
+#: includes/Api/AdminHandoffSettingsController.php:237
+msgid ""
+"Paste the incoming webhook URL Slack gave you; it starts with https://hooks."
+"slack.com/services/."
+msgstr ""
+
+#: includes/Api/AdminHandoffSettingsController.php:252
+msgid ""
+"The Signal API address, the sending number and the recipient are all "
+"required."
+msgstr ""
+
+#: includes/Api/AdminHandoffSettingsController.php:266
+msgid ""
+"Use the Signal API address (http or https), numbers in international format "
+"such as +15550194471, and for a group its \"group.\" ID."
+msgstr ""
+
+#: includes/Api/AdminHandoffSettingsController.php:291
 msgid "Could not remove the saved credential."
 msgstr ""
 
-#: includes/Api/AdminHandoffSettingsController.php:186
+#: includes/Api/AdminHandoffSettingsController.php:304
 msgid "Could not store the credential securely. Please try again."
 msgstr ""
 
@@ -7131,177 +7296,177 @@ msgstr ""
 msgid "Please fill this in."
 msgstr ""
 
-#: includes/Core/Settings.php:97
+#: includes/Core/Settings.php:103
 msgid ""
 "Anthropic speaks its own Messages API, which AISAAutoPilot handles natively. "
 "It has no embeddings endpoint, so semantic search needs a separate embedding "
 "provider below."
 msgstr ""
 
-#: includes/Core/Settings.php:116
+#: includes/Core/Settings.php:122
 msgid ""
 "Uses Google’s OpenAI-compatible endpoint, so the same key works for chat and "
 "embeddings."
 msgstr ""
 
-#: includes/Core/Settings.php:131
+#: includes/Core/Settings.php:137
 msgid ""
 "xAI has no embeddings endpoint, so semantic search needs a separate "
 "embedding provider. Use https://us.api.x.ai/v1 to keep inference in the "
 "United States."
 msgstr ""
 
-#: includes/Core/Settings.php:142
+#: includes/Core/Settings.php:148
 msgid ""
 "deepseek-chat and deepseek-reasoner were retired; deepseek-flash replaces "
 "them."
 msgstr ""
 
-#: includes/Core/Settings.php:163
+#: includes/Core/Settings.php:169
 msgid ""
 "A key only works in its own region: mainland-China accounts use https://"
 "dashscope.aliyuncs.com/compatible-mode/v1 and US accounts https://dashscope-"
 "us.aliyuncs.com/compatible-mode/v1."
 msgstr ""
 
-#: includes/Core/Settings.php:184
+#: includes/Core/Settings.php:190
 msgid ""
 "The -latest names move to newer models over time; pick a dated name when "
 "behaviour must stay fixed."
 msgstr ""
 
-#: includes/Core/Settings.php:204
+#: includes/Core/Settings.php:210
 msgid ""
 "Uses Cohere’s OpenAI Compatibility API. It may not answer the model-list "
 "request, so pick or type the model name."
 msgstr ""
 
-#: includes/Core/Settings.php:218
+#: includes/Core/Settings.php:224
 msgid ""
 "Mainland-China accounts (Zhipu BigModel) use https://open.bigmodel.cn/api/"
 "paas/v4 instead."
 msgstr ""
 
-#: includes/Core/Settings.php:233
+#: includes/Core/Settings.php:239
 msgid ""
 "Kimi models use a fixed temperature, so AISAAutoPilot drops its own setting "
 "for them. Mainland-China accounts use https://api.moonshot.cn/v1. No "
 "embeddings endpoint."
 msgstr ""
 
-#: includes/Core/Settings.php:248
+#: includes/Core/Settings.php:254
 msgid ""
 "Mainland-China accounts use https://api.minimaxi.com/v1. No embeddings "
 "endpoint on this API."
 msgstr ""
 
-#: includes/Core/Settings.php:260
+#: includes/Core/Settings.php:266
 msgid ""
 "Groq is very fast but has no embeddings endpoint — pick a separate embedding "
 "provider for semantic search. Its Llama models now need an Enterprise plan."
 msgstr ""
 
-#: includes/Core/Settings.php:270
+#: includes/Core/Settings.php:276
 msgid ""
 "Very fast open-model inference. Use “Refresh from provider” to load every "
 "model your key can use. No embeddings endpoint."
 msgstr ""
 
-#: includes/Core/Settings.php:280
+#: includes/Core/Settings.php:286
 msgid ""
 "Open-model inference. Use “Refresh from provider” to load the current list."
 msgstr ""
 
-#: includes/Core/Settings.php:288
+#: includes/Core/Settings.php:294
 msgid ""
 "Replace YOUR-RESOURCE with your Azure resource name. The model is your "
 "deployment name, so pick it from your Azure portal rather than a fixed list."
 msgstr ""
 
-#: includes/Core/Settings.php:304
+#: includes/Core/Settings.php:310
 msgid ""
 "One key for many vendors. Use “Refresh from provider” to pull OpenRouter’s "
 "current catalogue."
 msgstr ""
 
-#: includes/Core/Settings.php:312
+#: includes/Core/Settings.php:318
 msgid ""
 "Open-model cloud with chat, embeddings and speech. Use “Refresh from "
 "provider” to load the current list."
 msgstr ""
 
-#: includes/Core/Settings.php:320
+#: includes/Core/Settings.php:326
 msgid ""
 "Model names look like accounts/fireworks/models/<name>. Use “Refresh from "
 "provider” to load them."
 msgstr ""
 
-#: includes/Core/Settings.php:331
+#: includes/Core/Settings.php:337
 msgid ""
 "Needs a fine-grained token allowed to “Make calls to Inference Providers”. "
 "Chat only — no embeddings on this endpoint."
 msgstr ""
 
-#: includes/Core/Settings.php:339
+#: includes/Core/Settings.php:345
 msgid ""
 "Hosted NVIDIA NIM endpoints. Use “Refresh from provider” to load the current "
 "list."
 msgstr ""
 
-#: includes/Core/Settings.php:347
+#: includes/Core/Settings.php:353
 msgid ""
 "Aggregator with 1000+ models behind one key. Use “Refresh from provider” to "
 "load the current list."
 msgstr ""
 
-#: includes/Core/Settings.php:355
+#: includes/Core/Settings.php:361
 msgid ""
 "Open-model inference cloud. Use “Refresh from provider” to load the current "
 "list."
 msgstr ""
 
-#: includes/Core/Settings.php:363
+#: includes/Core/Settings.php:369
 msgid ""
 "Multi-provider gateway. Model names are vendor-prefixed — use “Refresh from "
 "provider” to load them. EU-only routing: https://api.eu.edenai.run/v3."
 msgstr ""
 
-#: includes/Core/Settings.php:366
+#: includes/Core/Settings.php:372
 msgid "Custom (OpenAI-compatible)"
 msgstr ""
 
-#: includes/Core/Settings.php:368
+#: includes/Core/Settings.php:374
 msgid ""
 "Any endpoint that implements POST /chat/completions. Paste the base URL up "
 "to but not including /chat/completions."
 msgstr ""
 
-#: includes/Core/Settings.php:409
+#: includes/Core/Settings.php:415
 msgid "Direct providers"
 msgstr ""
 
-#: includes/Core/Settings.php:410
+#: includes/Core/Settings.php:416
 msgid "Gateways & aggregators"
 msgstr ""
 
-#: includes/Core/Settings.php:411
+#: includes/Core/Settings.php:417
 msgid "Custom endpoint"
 msgstr ""
 
-#: includes/Core/Settings.php:681 includes/Core/WpConnectors.php:53
+#: includes/Core/Settings.php:699 includes/Core/WpConnectors.php:53
 #: includes/Core/WpConnectors.php:96
 msgid "AI Site Assistant AutoPilot"
 msgstr ""
 
-#: includes/Core/Settings.php:682
+#: includes/Core/Settings.php:700
 msgid "AI Assistant"
 msgstr ""
 
-#: includes/Core/Settings.php:683
+#: includes/Core/Settings.php:701
 msgid "Hi! How can I help you?"
 msgstr ""
 
-#: includes/Core/Settings.php:684
+#: includes/Core/Settings.php:702
 msgid "This conversation may be recorded to help our support team."
 msgstr ""
 
@@ -8935,6 +9100,74 @@ msgstr ""
 msgid "Categories must be an array of IDs."
 msgstr ""
 
+#: includes/Support/HandoffSignal.php:130
+msgid "Enter the Signal API address and the sending number first."
+msgstr ""
+
+#: includes/Support/HandoffSignal.php:138
+#: includes/Support/HandoffTelegram.php:290
+#: includes/Support/HandoffWhatsApp.php:169
+msgid "Network error: "
+msgstr ""
+
+#: includes/Support/HandoffSignal.php:145
+msgid "The Signal API refused the access token."
+msgstr ""
+
+#. translators: %s: Signal phone number.
+#: includes/Support/HandoffSignal.php:160
+#, php-format
+msgid "The Signal API answered, but %s is not registered or linked on it."
+msgstr ""
+
+#. translators: %s: Signal phone number.
+#: includes/Support/HandoffSignal.php:170
+#, php-format
+msgid "Connected. The Signal API can send from %s."
+msgstr ""
+
+#. translators: 1: HTTP status code, 2: error text from the Signal API.
+#: includes/Support/HandoffSignal.php:211
+#, php-format
+msgid "The Signal API returned an error (HTTP %1$d): %2$s"
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: includes/Support/HandoffSignal.php:213
+#, php-format
+msgid "The Signal API returned an error (HTTP %d)."
+msgstr ""
+
+#: includes/Support/HandoffSlack.php:95
+msgid "Enter a Slack incoming webhook URL first."
+msgstr ""
+
+#. translators: %s: site name.
+#: includes/Support/HandoffSlack.php:103
+#, php-format
+msgid ""
+"Connection check from %s: visitor handoff requests will arrive in this "
+"channel."
+msgstr ""
+
+#: includes/Support/HandoffSlack.php:111
+msgid "Connection verified. A check message was posted to the channel."
+msgstr ""
+
+#. translators: %s: Slack's error code, for example channel_is_archived.
+#: includes/Support/HandoffSlack.php:145
+#, php-format
+msgid ""
+"Slack refused the webhook (%s). It may have been removed, or its channel "
+"archived: create a new webhook."
+msgstr ""
+
+#. translators: 1: HTTP status code, 2: Slack's error code.
+#: includes/Support/HandoffSlack.php:147
+#, php-format
+msgid "Slack returned an error (HTTP %1$d): %2$s"
+msgstr ""
+
 #: includes/Support/HandoffTelegram.php:77
 msgid "Telegram not configured."
 msgstr ""
@@ -8959,26 +9192,77 @@ msgstr ""
 msgid "Telegram is temporarily rate-limiting delivery."
 msgstr ""
 
-#: includes/Support/HandoffTelegram.php:306
+#: includes/Support/HandoffTelegram.php:274
 msgid "No bot token configured."
 msgstr ""
 
-#: includes/Support/HandoffTelegram.php:322
-msgid "Network error: "
-msgstr ""
-
 #. translators: %s: bot username
-#: includes/Support/HandoffTelegram.php:335
+#: includes/Support/HandoffTelegram.php:303
 #, php-format
 msgid "Connected as @%s"
 msgstr ""
 
-#: includes/Support/HandoffTelegram.php:344
+#: includes/Support/HandoffTelegram.php:312
 msgid "Invalid bot token."
 msgstr ""
 
-#: includes/Support/HandoffTelegram.php:350
+#: includes/Support/HandoffTelegram.php:318
 msgid "Unexpected response (HTTP "
+msgstr ""
+
+#: includes/Support/HandoffWhatsApp.php:153
+msgid "Enter the phone number ID and access token first."
+msgstr ""
+
+#. translators: 1: WhatsApp Business display name, 2: its phone number.
+#: includes/Support/HandoffWhatsApp.php:180
+#, php-format
+msgid "Connected as %1$s (%2$s)"
+msgstr ""
+
+#: includes/Support/HandoffWhatsApp.php:252
+msgid ""
+"WhatsApp rejected the access token. It may have expired: create a permanent "
+"system-user token in Meta Business Settings."
+msgstr ""
+
+#: includes/Support/HandoffWhatsApp.php:254
+msgid ""
+"WhatsApp only delivers a plain message within 24 hours of the recipient "
+"writing to your business number. Add an approved message template so "
+"handoffs always arrive."
+msgstr ""
+
+#: includes/Support/HandoffWhatsApp.php:256
+msgid ""
+"The message template must have exactly one variable ({{1}}) in its body."
+msgstr ""
+
+#: includes/Support/HandoffWhatsApp.php:258
+msgid "WhatsApp has no approved template with this name and language."
+msgstr ""
+
+#: includes/Support/HandoffWhatsApp.php:260
+msgid ""
+"This recipient is not on the allowed list of your WhatsApp test number. Add "
+"it in Meta, or use a live business number."
+msgstr ""
+
+#: includes/Support/HandoffWhatsApp.php:262
+msgid ""
+"WhatsApp did not accept the phone number ID or recipient number. Check both."
+msgstr ""
+
+#. translators: 1: HTTP status code, 2: error text from WhatsApp.
+#: includes/Support/HandoffWhatsApp.php:267
+#, php-format
+msgid "WhatsApp returned an error (HTTP %1$d): %2$s"
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: includes/Support/HandoffWhatsApp.php:269
+#, php-format
+msgid "WhatsApp returned an error (HTTP %d)."
 msgstr ""
 
 #. translators: 1: remaining percentage, 2: remaining tokens.

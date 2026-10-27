@@ -267,6 +267,27 @@ final class ChatWidgetController {
 		return new \WP_REST_Response( array_merge( array( 'ok' => $result['ok'] ), $result ) );
 	}
 
+	/** Connection check for WhatsApp (reads the business number), Slack (posts a check line) or Signal (lists sender numbers). */
+	public function test_channel( \WP_REST_Request $request ): \WP_REST_Response {
+		$senders = array(
+			'whatsapp' => \AISAAutoPilot\Support\HandoffWhatsApp::class,
+			'slack'    => \AISAAutoPilot\Support\HandoffSlack::class,
+			'signal'   => \AISAAutoPilot\Support\HandoffSignal::class,
+		);
+		$channel = (string) $request->get_param( 'channel' );
+		if ( ! isset( $senders[ $channel ] ) ) {
+			return new \WP_REST_Response(
+				array(
+					'ok'      => false,
+					'message' => __( 'Choose a supported handoff channel.', 'ai-site-assistant-autopilot' ),
+				),
+				400
+			);
+		}
+		$result = ( new $senders[ $channel ]() )->test_connection();
+		return new \WP_REST_Response( array_merge( array( 'ok' => $result['ok'] ), $result ) );
+	}
+
 	private function is_enabled(): bool {
 		return Settings::answer_desk_enabled();
 	}

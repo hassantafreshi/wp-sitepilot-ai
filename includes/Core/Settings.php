@@ -14,7 +14,13 @@ final class Settings {
 		'handoff_telegram_token',
 		'handoff_twilio_sid',
 		'handoff_twilio_token',
+		'handoff_whatsapp_token',
+		'handoff_slack_webhook',
+		'handoff_signal_token',
 	);
+
+	/** Every handoff delivery channel, in the order the settings page shows them. */
+	public const HANDOFF_CHANNELS = array( 'email', 'telegram', 'whatsapp', 'twilio', 'slack', 'signal' );
 
 	/**
 	 * Every field a preset may carry, with the value assumed when it is omitted.
@@ -567,10 +573,22 @@ final class Settings {
 			'handoff_email_enabled'        => true,
 			'handoff_telegram_enabled'     => false,
 			'handoff_twilio_enabled'       => false,
+			'handoff_whatsapp_enabled'     => false,
+			'handoff_slack_enabled'        => false,
+			'handoff_signal_enabled'       => false,
 			'handoff_email_to'             => '',
 			'handoff_telegram_chat'        => '',
 			'handoff_twilio_from'          => '',
 			'handoff_twilio_to'            => '',
+			// WhatsApp Cloud API: the business number's ID, the team member's number, and an optional approved template.
+			'handoff_whatsapp_phone_id'    => '',
+			'handoff_whatsapp_to'          => '',
+			'handoff_whatsapp_template'    => '',
+			'handoff_whatsapp_language'    => 'en_US',
+			// Signal through the owner's signal-cli REST API server.
+			'handoff_signal_url'           => '',
+			'handoff_signal_from'          => '',
+			'handoff_signal_to'            => '',
 			'handoff_fields'               => array_fill_keys( self::HANDOFF_FIELD_KEYS, 'off' ),
 			// When the assistant finds no answer: 'message' (the text below, or the built-in one) or 'handoff'.
 			'not_found_action'             => 'message',
@@ -744,18 +762,48 @@ final class Settings {
 			return false;
 		}
 
-		$email        = sanitize_email( (string) ( $widget['handoff_email_to'] ?? get_option( 'admin_email', '' ) ) );
-		$has_email    = ! empty( $widget['handoff_email_enabled'] ) && '' !== $email && is_email( $email );
-		$has_telegram = ! empty( $widget['handoff_telegram_enabled'] )
-			&& self::has_handoff_secret( 'handoff_telegram_token' )
-			&& '' !== trim( (string) ( $widget['handoff_telegram_chat'] ?? '' ) );
-		$has_twilio   = ! empty( $widget['handoff_twilio_enabled'] )
-			&& self::has_handoff_secret( 'handoff_twilio_sid' )
-			&& self::has_handoff_secret( 'handoff_twilio_token' )
-			&& '' !== trim( (string) ( $widget['handoff_twilio_from'] ?? '' ) )
-			&& '' !== trim( (string) ( $widget['handoff_twilio_to'] ?? '' ) );
+		foreach ( self::HANDOFF_CHANNELS as $channel ) {
+			if ( ! empty( $widget[ 'handoff_' . $channel . '_enabled' ] ) && self::handoff_channel_ready( $channel, $widget ) ) {
+				return true;
+			}
+		}
 
-		return $has_email || $has_telegram || $has_twilio;
+		return false;
+	}
+
+	/**
+	 * Whether a handoff channel has everything it needs to deliver, switched on or not.
+	 * The one rule the widget, the settings page and its REST endpoint all use.
+	 *
+	 * @param array<string, mixed> $widget Widget settings.
+	 */
+	public static function handoff_channel_ready( string $channel, array $widget ): bool {
+		$value = static fn( string $key ): string => trim( (string) ( $widget[ $key ] ?? '' ) );
+		switch ( $channel ) {
+			case 'email':
+				$email = sanitize_email( (string) ( $widget['handoff_email_to'] ?? '' ) );
+				$email = '' !== $email ? $email : sanitize_email( (string) get_option( 'admin_email', '' ) );
+				return '' !== $email && (bool) is_email( $email );
+			case 'telegram':
+				return self::has_handoff_secret( 'handoff_telegram_token' ) && '' !== $value( 'handoff_telegram_chat' );
+			case 'twilio':
+				return self::has_handoff_secret( 'handoff_twilio_sid' )
+					&& self::has_handoff_secret( 'handoff_twilio_token' )
+					&& '' !== $value( 'handoff_twilio_from' )
+					&& '' !== $value( 'handoff_twilio_to' );
+			case 'whatsapp':
+				return self::has_handoff_secret( 'handoff_whatsapp_token' )
+					&& '' !== $value( 'handoff_whatsapp_phone_id' )
+					&& '' !== $value( 'handoff_whatsapp_to' );
+			case 'slack':
+				return \AISAAutoPilot\Support\HandoffSlack::is_webhook_url( self::get_handoff_secret( 'handoff_slack_webhook' ) );
+			case 'signal':
+				return \AISAAutoPilot\Support\HandoffSignal::is_server_url( $value( 'handoff_signal_url' ) )
+					&& \AISAAutoPilot\Support\HandoffSignal::is_number( $value( 'handoff_signal_from' ) )
+					&& \AISAAutoPilot\Support\HandoffSignal::is_recipient( $value( 'handoff_signal_to' ) );
+		}
+
+		return false;
 	}
 
 	/**

@@ -248,39 +248,7 @@ class HandoffTelegram {
 	 * @return array<int, string>
 	 */
 	public function split_message( string $text ): array {
-		if ( mb_strlen( $text ) <= self::MAX_LENGTH ) {
-			return array( $text );
-		}
-
-		$chunks  = array();
-		$lines   = explode( "\n", $text );
-		$current = '';
-
-		foreach ( $lines as $line ) {
-			// If a single line exceeds the limit, hard-split it.
-			if ( mb_strlen( $line ) > self::MAX_LENGTH ) {
-				if ( '' !== $current ) {
-					$chunks[] = $current;
-					$current  = '';
-				}
-				$chunks = array_merge( $chunks, str_split( $line, self::MAX_LENGTH ) );
-				continue;
-			}
-
-			$candidate = '' === $current ? $line : $current . "\n" . $line;
-			if ( mb_strlen( $candidate ) > self::MAX_LENGTH ) {
-				$chunks[] = $current;
-				$current  = $line;
-			} else {
-				$current = $candidate;
-			}
-		}
-
-		if ( '' !== $current ) {
-			$chunks[] = $current;
-		}
-
-		return $chunks;
+		return HandoffText::split( $text, self::MAX_LENGTH );
 	}
 
 	private function format_message( string $text, string $format ): string {

@@ -34,7 +34,9 @@ Everything in this first version:
   full-screen modes, conversation history, a customiser for colours, icons,
   greeting and suggested questions, and a rule for which pages it appears on.
 * Human handoff: a visitor can ask for a person. The request reaches an inbox
-  in wp-admin, and optionally email, Telegram or WhatsApp/SMS through Twilio.
+  in wp-admin, and optionally email, Telegram, WhatsApp Business (Meta's Cloud
+  API), SMS or WhatsApp through Twilio, Slack, or Signal (through a
+  signal-cli REST API server you run).
 * Voice input that is transcript-first: speech becomes editable text in the
   message box and is never sent by itself.
 * Store Copilot for WooCommerce: read-only store insight, plus creation of a
@@ -228,6 +230,32 @@ handoff message and the numbers you configured are sent to api.twilio.com.
 Terms: https://www.twilio.com/legal/tos, privacy:
 https://www.twilio.com/legal/privacy
 
+**WhatsApp Business through Meta's Cloud API (optional)**
+
+Only if you enable WhatsApp Business handoff and enter an access token, a phone
+number ID and a recipient. The handoff message (the visitor's request and the
+details they left), the recipient number and, if you set one, your message
+template's name are sent to graph.facebook.com. "Check connection" reads your
+business number's display name and sends nothing. Terms:
+https://www.whatsapp.com/legal/business-terms, privacy:
+https://www.whatsapp.com/legal/privacy-policy
+
+**Slack (optional)**
+
+Only if you enable Slack handoff and enter an incoming webhook URL. The handoff
+message is posted to hooks.slack.com, into the channel the webhook belongs to;
+"Check connection" posts one short line there. Terms:
+https://slack.com/terms-of-service, privacy:
+https://slack.com/trust/privacy/privacy-policy
+
+**Signal (optional, through your own server)**
+
+Only if you enable Signal handoff. The handoff message, the sending number and
+the recipient are sent to the signal-cli REST API address you enter, which is a
+server you run; that server delivers it through Signal. "Check connection" asks
+the server which numbers it can send from. Signal's terms and privacy policy:
+https://signal.org/legal/
+
 **Google Fonts (admin screens only)**
 
 The plugin's admin screens load the Plus Jakarta Sans and JetBrains Mono
@@ -316,7 +344,8 @@ editable text; nothing is sent until you press Send.
   Activity Log as tabs), Setup & Connection, Integrations, Site Knowledge,
   Answer Desk, Store Copilot, Content Studio and Form Studio.
 * Visitor chat widget with panel and full-screen modes, human handoff by inbox,
-  email, Telegram or Twilio, and transcript-first voice input.
+  email, Telegram, WhatsApp Business, Twilio, Slack or Signal, and
+  transcript-first voice input.
 * Site Knowledge with indexing, an ask console, unanswered questions and saved
   answers. Pages are split into passages and searched by their words on your
   own server, with Persian, Arabic and English spellings folded together, so
