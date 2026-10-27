@@ -80,7 +80,9 @@ uninstall.php, which removes exactly this:
 
 Database tables (dropped):
 
-* {prefix}aisaautopilot_kb - the knowledge index.
+* {prefix}aisaautopilot_kb - the knowledge index (one row per page).
+* {prefix}aisaautopilot_kb_chunks - the passages each page is split into.
+* {prefix}aisaautopilot_kb_terms - the search terms of those passages.
 * {prefix}aisaautopilot_chats - administrator conversations.
 * {prefix}aisaautopilot_widget_chats - visitor conversations.
 * {prefix}aisaautopilot_handoffs - handoff requests, including the contact
@@ -93,6 +95,7 @@ aisaautopilot_setup_step, aisaautopilot_logs, aisaautopilot_usage_log,
 aisaautopilot_usage_totals, aisaautopilot_monthly_budget,
 aisaautopilot_kb_gaps, aisaautopilot_kb_saved_answers,
 aisaautopilot_kb_answer_cache, aisaautopilot_kb_version,
+aisaautopilot_kb_index_format, aisaautopilot_kb_rebuild,
 aisaautopilot_usage_period, aisaautopilot_usage_period_contexts,
 aisaautopilot_usage_daily, aisaautopilot_usage_historical_totals,
 aisaautopilot_usage_historical_log, aisaautopilot_usage_period_archive,
@@ -113,7 +116,8 @@ site uses a persistent object cache, transients are held there instead of in
 the options table; they are not reachable from the uninstall hook and expire on
 their own.
 
-The scheduled indexing job (aisaautopilot_index_post) is unscheduled.
+The scheduled indexing jobs (aisaautopilot_index_post and
+aisaautopilot_kb_rebuild) are unscheduled.
 
 Kept on purpose, because it is your content:
 
@@ -137,12 +141,17 @@ request is made until you save a provider and an API key.
 
 You pick one provider in AI Site Assistant AutoPilot > Setup & Connection and supply your own
 API key. Requests are sent only when you generate a form or a draft, chat with
-the assistant or the Easy Form Builder copilot, index knowledge, transcribe a
-voice message, or press "Test connection" / "Refresh from provider".
+the assistant or the Easy Form Builder copilot, transcribe a voice message, or
+press "Test connection" / "Refresh from provider". Indexing your content is
+done on your own server and sends nothing, unless you switch on semantic search:
+then each page's title and opening lines are sent once to your embedding
+provider. A question nothing on your site relates to is answered "not found"
+without any request.
 
 What is sent: the instruction you typed or dictated, the plugin's own system
-prompt, and — for the assistant and knowledge base — excerpts of the published,
-public content of your site. Once you enable the visitor chat widget, a
+prompt, and — for the assistant and knowledge base — the passages of your
+published, public content that match the question. Password-protected and
+private content is never indexed, so it is never sent. Once you enable the visitor chat widget, a
 visitor's question, the previous few turns of that conversation and, if the
 visitor records one, the voice message to be transcribed are sent as well;
 the contact details a visitor types into a handoff request are not. When you use the Easy Form Builder copilot on an
@@ -309,7 +318,13 @@ editable text; nothing is sent until you press Send.
 * Visitor chat widget with panel and full-screen modes, human handoff by inbox,
   email, Telegram or Twilio, and transcript-first voice input.
 * Site Knowledge with indexing, an ask console, unanswered questions and saved
-  answers.
+  answers. Pages are split into passages and searched by their words on your
+  own server, with Persian, Arabic and English spellings folded together, so
+  indexing needs no AI request and the assistant reads the exact lines that
+  answer a question, including WooCommerce prices and stock. A question with
+  nothing related on the site is answered "not found" without an AI request,
+  and you choose what visitors then see: a message (yours or the built-in one)
+  or an offer to connect to a person. Follow-up questions keep their subject.
 * Content Studio drafts, Form Studio forms, native email-only forms, and the
   Easy Form Builder copilot.
 * Easy Form Builder copilot: help text, steps for long forms, a consent

@@ -45,6 +45,7 @@ final class ChatWidgetSettings {
 		'handoff_text'        => 40,
 		'handoff_hook'        => 120,
 		'conversation_notice' => 240,
+		'not_found_message'   => 300,
 	);
 
 	/** Text fields that keep their previous value instead of being saved empty. */
@@ -312,6 +313,32 @@ final class ChatWidgetSettings {
 							</label>
 						</div>
 						<a class="sp-wz-link" href="<?php echo esc_url( AnswerDeskNavigation::url( AnswerDeskNavigation::TAB_HANDOFF ) ); ?>"><?php esc_html_e( 'Set up handoff channels', 'ai-site-assistant-autopilot' ); ?></a>
+					</section>
+
+					<section class="sp-wz-card" id="answer-desk-not-found" aria-labelledby="sp-wz-not-found-title">
+						<h2 class="sp-wz-card__title" id="sp-wz-not-found-title"><?php esc_html_e( 'When there is no answer', 'ai-site-assistant-autopilot' ); ?></h2>
+						<p class="sp-wz-card__text"><?php esc_html_e( 'What visitors see when nothing on your site answers their question.', 'ai-site-assistant-autopilot' ); ?></p>
+						<?php $not_found_handoff = 'handoff' === ( $w['not_found_action'] ?? 'message' ); ?>
+						<div class="sp-wz-card__grid">
+							<fieldset class="sp-wz-field">
+								<legend class="sp-wz-field__label"><?php esc_html_e( 'Then', 'ai-site-assistant-autopilot' ); ?></legend>
+								<div class="sp-wz-choices sp-wz-choices--2" data-sp-radio-group="not-found">
+									<label class="sp-wz-choice<?php echo $not_found_handoff ? '' : ' is-on'; ?>">
+										<input type="radio" class="sp-sr" name="widget[not_found_action]" value="message" <?php checked( ! $not_found_handoff ); ?> />
+										<span><?php esc_html_e( 'Show a message', 'ai-site-assistant-autopilot' ); ?></span>
+									</label>
+									<label class="sp-wz-choice<?php echo $not_found_handoff ? ' is-on' : ''; ?>">
+										<input type="radio" class="sp-sr" name="widget[not_found_action]" value="handoff" <?php checked( $not_found_handoff ); ?> />
+										<span><?php esc_html_e( 'Offer to connect to a person', 'ai-site-assistant-autopilot' ); ?></span>
+									</label>
+								</div>
+							</fieldset>
+							<label class="sp-wz-field">
+								<span class="sp-wz-field__label"><?php esc_html_e( 'Message', 'ai-site-assistant-autopilot' ); ?></span>
+								<input type="text" class="sp-input sp-input--sm" name="widget[not_found_message]" maxlength="300" aria-describedby="sp-wz-not-found-help" value="<?php echo esc_attr( (string) ( $w['not_found_message'] ?? '' ) ); ?>" placeholder="<?php echo esc_attr( \AISAAutoPilot\Chat\ChatEngine::default_not_found_message( false ) ); ?>" />
+								<span class="sp-wz-field__help" id="sp-wz-not-found-help"><?php esc_html_e( 'Leave it empty to use the built-in text. Connecting to a person needs a ready handoff channel; without one, the message is shown.', 'ai-site-assistant-autopilot' ); ?></span>
+							</label>
+						</div>
 					</section>
 
 					<section class="sp-wz-card" id="answer-desk-privacy" aria-labelledby="sp-wz-privacy-title">
@@ -820,6 +847,9 @@ final class ChatWidgetSettings {
 		}
 		if ( array_key_exists( 'auto_open', $raw ) ) {
 			$parsed['auto_open'] = min( self::AUTO_OPEN_MAX, absint( $raw['auto_open'] ) );
+		}
+		if ( array_key_exists( 'not_found_action', $raw ) ) {
+			$parsed['not_found_action'] = 'handoff' === $raw['not_found_action'] ? 'handoff' : 'message';
 		}
 		foreach ( array(
 			'panel_radius'  => array( 0, 28 ),

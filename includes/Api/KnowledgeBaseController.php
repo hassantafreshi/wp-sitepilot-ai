@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Api;
 
 use AISAAutoPilot\Admin\ContentStudioNavigation;
+use AISAAutoPilot\Chat\ChatEngine;
 use AISAAutoPilot\Content\ContentIndexer;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Content\KbGaps;
+use AISAAutoPilot\Content\KnowledgeSearch;
 use AISAAutoPilot\Content\SavedAnswers;
 use AISAAutoPilot\Providers\ProviderException;
 use AISAAutoPilot\Providers\ProviderManager;
@@ -48,7 +50,8 @@ final class KnowledgeBaseController {
 	 * POST /kb/truncate — Clear all KB entries (before full re-index).
 	 */
 	public function truncate( \WP_REST_Request $request ): \WP_REST_Response {
-		if ( ( new UsageTracker() )->is_exhausted() ) {
+		// Indexing text makes no AI request; only semantic search's embeddings count against the cap.
+		if ( ( new ProviderManager() )->embeddings_enabled() && ( new UsageTracker() )->is_exhausted() ) {
 			return $this->respond(
 				array(
 					'message' => __( 'The local AI usage cap has been reached. Raise or reset the token cap before starting a full re-index so existing knowledge is not cleared without a replacement pass.', 'ai-site-assistant-autopilot' ),
@@ -132,8 +135,24 @@ final class KnowledgeBaseController {
 			return $this->respond( array( 'message' => __( 'AI provider is not configured.', 'ai-site-assistant-autopilot' ) ), false, 400, 'not_configured' );
 		}
 
-		$kb      = new KnowledgeBase();
-		$context = $kb->get_context_for_ai( 50, 12000 );
+		$kb     = new KnowledgeBase();
+		$search = ( new KnowledgeSearch( null, $kb ) )->retrieve( $question );
+		if ( in_array( $search['reason'], array( 'not_ready', 'empty_index' ), true ) ) {
+			// The passage index is still being built: the post summaries are the best there is.
+			$context = $kb->get_context_for_ai( 50, 12000 );
+		} elseif ( ! $search['found'] ) {
+			// Nothing on the site relates to the question, so no AI request is made.
+			return $this->respond(
+				array(
+					'answer' => ChatEngine::default_not_found_message( false ),
+					'usage'  => array(),
+					'status' => 'not_found',
+				),
+				true
+			);
+		} else {
+			$context = $search['context'];
+		}
 
 		if ( '' === $context ) {
 			return $this->respond(
@@ -149,6 +168,7 @@ final class KnowledgeBaseController {
 		$system_prompt = "You are AI Site Assistant AutoPilot, a helpful assistant for a WordPress website.\n"
 			. "Answer the user's question based ONLY on the website content provided below.\n"
 			. "If the answer is not in the content, say so honestly.\n"
+			. "Quote exact figures (prices, times, dates, amounts) as written.\n"
 			. "Respond in the same language as the user's question.\n"
 			. "Be concise, helpful, and accurate.\n\n"
 			. "Website content:\n" . $context;

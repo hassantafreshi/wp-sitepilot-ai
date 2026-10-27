@@ -139,6 +139,40 @@ try {
 	);
 	$check( false === $widget()['conversation_logging_enabled'] && 'top-left' === $widget()['position'], 'The explicit off value turns recording off without touching anything else' );
 
+	$check(
+		false !== strpos( $html, 'id="answer-desk-not-found"' )
+		&& false !== strpos( $html, 'data-sp-radio-group="not-found"' )
+		&& 1 === preg_match( '/name="widget\[not_found_action\]" value="message"\s+checked/', $html )
+		&& false !== strpos( $html, 'name="widget[not_found_message]" maxlength="300"' ),
+		'The "When there is no answer" card offers a message (chosen by default) or a handoff, and a message field'
+	);
+	$render(
+		array(
+			'_wpnonce' => wp_create_nonce( 'sp_widget_save' ),
+			'widget'   => array(
+				'not_found_action'  => 'handoff',
+				'not_found_message' => '  ' . str_repeat( 'b', 400 ),
+			),
+		)
+	);
+	$check(
+		'handoff' === $widget()['not_found_action'] && 300 === mb_strlen( (string) $widget()['not_found_message'] ) && 'top-left' === $widget()['position'],
+		'The "not found" choice is stored and its message is trimmed and capped at 300 characters'
+	);
+	$render(
+		array(
+			'_wpnonce' => wp_create_nonce( 'sp_widget_save' ),
+			'widget'   => array(
+				'not_found_action'  => 'escalate-everything',
+				'not_found_message' => '',
+			),
+		)
+	);
+	$check(
+		'message' === $widget()['not_found_action'] && '' === $widget()['not_found_message'],
+		'An unknown "not found" choice falls back to the message, and an empty message means the built-in text'
+	);
+
 	$render(
 		array(
 			'_wpnonce' => 'not-a-valid-nonce',

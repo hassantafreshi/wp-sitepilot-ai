@@ -5,6 +5,7 @@ namespace AISAAutoPilot\Core;
 
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Content\KnowledgeBase;
+use AISAAutoPilot\Content\KnowledgeIndex;
 use AISAAutoPilot\Chat\ConversationManager;
 use AISAAutoPilot\Support\HandoffInbox;
 use AISAAutoPilot\Chat\VisitorConversationStore;
@@ -39,9 +40,10 @@ final class Activator {
 			add_option( Settings::OPTION, Settings::defaults() );
 		}
 
-		// Create the Knowledge Base table.
+		// Create the Knowledge Base tables: posts, and their searchable passages.
 		$kb = new KnowledgeBase();
 		$kb->create_table();
+		( new KnowledgeIndex() )->create_tables();
 
 		// Create the Conversations table.
 		$chat = new ConversationManager();

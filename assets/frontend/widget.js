@@ -27,6 +27,10 @@
 	var NO_RETRY = ['rate_limited', 'usage_cap_reached', 'question_too_long', 'empty', 'widget_disabled'];
 
 	var convId = null;
+	// The last few answered turns, sent with each question so a follow-up keeps its subject.
+	// Kept in memory only: a page load starts a fresh conversation.
+	var turns = [];
+	var MAX_TURNS = 6;
 	var isOpen = false;
 	var isFull = false;
 	var isRecording = false;
@@ -515,7 +519,7 @@
 
 		abortCtl = window.AbortController ? new AbortController() : null;
 
-		api('widget/ask', { question: text, conversation_id: convId }, abortCtl ? abortCtl.signal : undefined)
+		api('widget/ask', { question: text, conversation_id: convId, history: turns.slice(-MAX_TURNS) }, abortCtl ? abortCtl.signal : undefined)
 			.then(function (data) {
 				hideTyping();
 				setBusy(false);
@@ -525,6 +529,8 @@
 				// text of its own (the 400 "empty" reply once did) and must not be read as one.
 				if (data && data.ok && data.answer) {
 					convId = data.conversation_id || convId;
+					turns.push({ role: 'user', text: text.slice(0, 1200) }, { role: 'assistant', text: String(data.answer).slice(0, 1200) });
+					if (turns.length > MAX_TURNS) turns = turns.slice(-MAX_TURNS);
 					var shown = addMessage('assistant', data.answer, data.sources);
 					// The engine named the topics the question could mean: offer them as prefills.
 					if (shown && Array.isArray(data.clarify_options) && data.clarify_options.length) {

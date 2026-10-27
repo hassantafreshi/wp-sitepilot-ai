@@ -6,7 +6,9 @@ namespace AISAAutoPilot\Content;
 /**
  * Knowledge Base storage layer.
  *
- * Manages the custom DB table that holds AI-summarised site content.
+ * Manages the post-level table of indexed site content (title, opening lines,
+ * keywords) shown in the admin screens. Search reads the passage index in
+ * KnowledgeIndex.
  * All queries use $wpdb->prepare() — no raw interpolation.
  */
 final class KnowledgeBase {
@@ -185,11 +187,13 @@ final class KnowledgeBase {
 		$table  = $this->table();
 		$result = $this->db->delete( $table, array( 'post_id' => $post_id ), array( '%d' ) );
 
-		if ( false !== $result ) {
+		// Only a real removal changes what the assistant can answer.
+		if ( is_int( $result ) && $result > 0 ) {
 			\AISAAutoPilot\Content\KbCache::bump_version();
+			return true;
 		}
 
-		return false !== $result;
+		return false;
 	}
 
 	/**
@@ -537,6 +541,10 @@ final class KnowledgeBase {
 	public function truncate(): void {
 		$table = $this->table();
 		$this->db->query( "TRUNCATE TABLE {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$index = new KnowledgeIndex( $this->db );
+		if ( $index->tables_exist() ) {
+			$index->truncate();
+		}
 		\AISAAutoPilot\Content\KbCache::bump_version();
 	}
 

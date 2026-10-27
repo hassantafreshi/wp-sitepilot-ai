@@ -110,8 +110,10 @@
 - [ ] **4.1** **Site Knowledge → Overview**.
   **Expected:** شمار محتوای منتشرشده و ایندکس‌شده. بدون provider، «Asking is locked» علت واقعی را
   می‌گوید و composer و میکروفن قفل‌اند.
-- [ ] **4.2 (محیط واقعی)** ایندکس را اجرا کنید.
-  **Expected:** پیشرفت واقعی؛ پس از پایان، شمار ایندکس بالا می‌رود.
+- [ ] **4.2** ایندکس را اجرا کنید (provider لازم نیست).
+  **Expected:** پیشرفت واقعی و سریع؛ هر سطر «Indexed "…" (N passages).» می‌گوید؛ برگهٔ رمزدار
+  «Password-protected or private: not indexed…» می‌گوید؛ پس از پایان، شمار ایندکس بالا می‌رود.
+  بدون روشن بودن semantic search هیچ درخواستی به provider نمی‌رود (Usage & Cost تغییری نمی‌کند).
 - [ ] **4.3** تب **Queue**.
   **Expected:** صریح می‌گوید این نسخه صف پایدار، فهرست retry و مکان‌نما نگه نمی‌دارد.
 - [ ] **4.4** تب **Collections** و **Sources**.
@@ -121,6 +123,15 @@
   کامل هر دو confirm می‌خواهند و می‌گویند دقیقاً چه چیزی عوض می‌شود.
 - [ ] **4.6 (محیط واقعی)** کنسول **Ask your knowledge base**: یک پرسش از محتوای سایت بپرسید.
   **Expected:** پاسخ با منبع‌های عمومی. پرسش بی‌پاسخ به کارت «Unanswered questions» می‌رود.
+- [ ] **4.6b (محیط واقعی)** در ویجت سایت قیمت یک محصول WooCommerce را بپرسید، سپس «و موجودی‌اش؟»
+  یا «and is it in stock?».
+  **Expected:** قیمت دقیقاً همان عدد فروشگاه است و منبع همان محصول است؛ پرسش دوم بدون تکرار نام
+  محصول به همان محصول پاسخ می‌دهد.
+- [ ] **4.6c** در ویجت پرسشی کاملاً بی‌ربط بپرسید («Do you rent submarines?»). سپس در **Answer Desk →
+  Widget → When there is no answer** پیام خودتان را بنویسید و دوباره بپرسید؛ بعد «Offer to connect
+  to a person» را انتخاب کنید (با یک کانال انتقال آماده) و دوباره بپرسید.
+  **Expected:** بار اول متن پیش‌فرض «پیدا نشد»؛ بار دوم پیام شما؛ بار سوم پیشنهاد اتصال به انسان با
+  کارت handoff. در هیچ‌کدام Usage & Cost درخواست تازه‌ای نشان نمی‌دهد.
 - [ ] **4.7** روی یک پرسش بی‌پاسخ **Write it** بزنید.
   **Expected:** Content Studio با همان brief باز می‌شود و خط «Drafting an answer to» را نشان می‌دهد.
 - [ ] **4.8** یک **Saved answer** بنویسید، ویرایش و سپس حذف کنید.
@@ -341,10 +352,10 @@
 
   | چه چیزی | جزئیات |
   |---|---|
-  | جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats`، `{prefix}aisaautopilot_handoffs` |
-  | optionها | ۲۷ option نام‌دار `aisaautopilot_*` (تنظیمات، کلیدهای رمزشده، اسرار انتقال، لاگ، مصرف و سقف، پرسش‌های بی‌پاسخ و پاسخ‌های ذخیره‌شده، مهر schema، نشان مهاجرت)، هر قفل `aisaautopilot_action_claim_*`، و در پایان جاروی هر ردیف باقی‌ماندهٔ `aisaautopilot_*` |
+  | جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_kb_chunks`، `{prefix}aisaautopilot_kb_terms`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats`، `{prefix}aisaautopilot_handoffs` |
+  | optionها | ۲۹ option نام‌دار `aisaautopilot_*` (تنظیمات، کلیدهای رمزشده، اسرار انتقال، لاگ، مصرف و سقف، پرسش‌های بی‌پاسخ و پاسخ‌های ذخیره‌شده، قالب ایندکس و مکان‌نمای بازسازی آن، مهر schema، نشان مهاجرت)، هر قفل `aisaautopilot_action_claim_*`، و در پایان جاروی هر ردیف باقی‌ماندهٔ `aisaautopilot_*` |
   | transientها | شمارنده‌های محدودیت نرخ، پیش‌نمایش ۱۵ دقیقه‌ای، رکورد آزمون provider و فاصلهٔ آزمون تحویل، با پیشوند `_transient_aisaautopilot_*` |
-  | cron | `aisaautopilot_index_post` از زمان‌بندی درمی‌آید |
+  | cron | `aisaautopilot_index_post` و `aisaautopilot_kb_rebuild` از زمان‌بندی درمی‌آیند |
 
   **باید عمداً مانده باشد:**
 

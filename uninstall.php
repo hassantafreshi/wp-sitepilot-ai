@@ -23,6 +23,8 @@ delete_option( 'aisaautopilot_kb_gaps' );
 delete_option( 'aisaautopilot_kb_saved_answers' );
 delete_option( 'aisaautopilot_kb_answer_cache' );
 delete_option( 'aisaautopilot_kb_version' );
+delete_option( 'aisaautopilot_kb_index_format' );
+delete_option( 'aisaautopilot_kb_rebuild' );
 delete_option( 'aisaautopilot_usage_period' );
 delete_option( 'aisaautopilot_usage_period_contexts' );
 delete_option( 'aisaautopilot_usage_daily' );
@@ -49,6 +51,8 @@ global $wpdb;
  */
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aisaautopilot_kb" );
+$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aisaautopilot_kb_chunks" );
+$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aisaautopilot_kb_terms" );
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aisaautopilot_chats" );
 // Visitor conversations and handoff requests hold visitors' messages and contact details.
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aisaautopilot_widget_chats" );
@@ -78,3 +82,4 @@ $wpdb->query(
 $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $wpdb->esc_like( 'aisaautopilot_' ) . '%' ) );
 // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 wp_clear_scheduled_hook( 'aisaautopilot_index_post' );
+wp_clear_scheduled_hook( 'aisaautopilot_kb_rebuild' );

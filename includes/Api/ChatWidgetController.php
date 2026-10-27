@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Api;
 
 use AISAAutoPilot\Chat\ChatEngine;
+use AISAAutoPilot\Chat\ConversationHistory;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Security\RateLimiter;
@@ -93,7 +94,9 @@ final class ChatWidgetController {
 		}
 
 		try {
-			$result = ( new ChatEngine( new KnowledgeBase() ) )->ask( $question );
+			// The widget's last few turns, so a follow-up keeps its subject. Nothing is stored here.
+			$history = ConversationHistory::context( ConversationHistory::clean( $request->get_param( 'history' ) ), $question );
+			$result  = ( new ChatEngine( new KnowledgeBase() ) )->ask( $question, $history );
 			if ( 'usage_cap_reached' === (string) ( $result['status'] ?? '' ) ) {
 				return new \WP_REST_Response(
 					array(

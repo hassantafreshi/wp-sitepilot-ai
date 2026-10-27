@@ -572,6 +572,9 @@ final class Settings {
 			'handoff_twilio_from'          => '',
 			'handoff_twilio_to'            => '',
 			'handoff_fields'               => array_fill_keys( self::HANDOFF_FIELD_KEYS, 'off' ),
+			// When the assistant finds no answer: 'message' (the text below, or the built-in one) or 'handoff'.
+			'not_found_action'             => 'message',
+			'not_found_message'            => '',
 			// 'all' shows the widget everywhere; 'exclude' hides it where widget_exclusions() matches.
 			'widget_visibility'            => 'all',
 			'exclude_types'                => array(),

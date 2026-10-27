@@ -19,7 +19,9 @@ use AISAAutoPilot\Api\CopilotController;
 use AISAAutoPilot\Api\KnowledgeBaseController;
 use AISAAutoPilot\Api\PublicChatController;
 use AISAAutoPilot\Chat\ConversationManager;
+use AISAAutoPilot\Content\ContentIndexer;
 use AISAAutoPilot\Content\KnowledgeBase;
+use AISAAutoPilot\Content\KnowledgeIndex;
 use AISAAutoPilot\Core\Settings;
 
 $missing = new stdClass();
@@ -120,31 +122,22 @@ try {
 		false
 	);
 
+	// A published page the assistant can find, so every chat path reaches the point where it
+	// would ask the model. Indexing it is text only and makes no provider request.
 	$fixture_post_id = wp_insert_post(
 		array(
 			'post_title'   => 'Usage cap response fixture',
-			'post_content' => 'A temporary knowledge record for the cap response test.',
-			'post_status'  => 'draft',
+			'post_content' => 'This usage cap response fixture exists only to give the chat engine context during the usage-cap test.',
+			'post_status'  => 'publish',
 		),
 		true
 	);
 	if ( is_wp_error( $fixture_post_id ) || $fixture_post_id <= 0 ) {
 		throw new RuntimeException( 'Could not create the local usage-cap fixture post.' );
 	}
-	if ( ! $kb->upsert(
-		array(
-			'post_id'      => $fixture_post_id,
-			'post_type'    => 'post',
-			'title'        => 'Usage cap response fixture',
-			'summary'      => 'This record exists only to give the chat engine context during the usage-cap test.',
-			'keywords'     => 'usage cap fixture',
-			'category'     => 'test',
-			'content_type' => 'article',
-			'content_hash' => hash( 'sha256', 'usage-cap-response-' . $fixture_post_id ),
-			'token_count'  => 20,
-		)
-	) ) {
-		throw new RuntimeException( 'Could not create the local usage-cap KB fixture.' );
+	wp_clear_scheduled_hook( 'aisaautopilot_index_post', array( (int) $fixture_post_id ) );
+	if ( 'indexed' !== ( ( new ContentIndexer() )->index_single( (int) $fixture_post_id )['status'] ?? '' ) ) {
+		throw new RuntimeException( 'Could not index the local usage-cap KB fixture.' );
 	}
 
 	$provider_filter = static function ( $preempt, array $args, string $url ) use ( &$provider_attempts ) {
@@ -195,7 +188,9 @@ try {
 		$conversation->delete( $conversation_id );
 	}
 	if ( $fixture_post_id > 0 ) {
+		wp_clear_scheduled_hook( 'aisaautopilot_index_post', array( (int) $fixture_post_id ) );
 		$kb->delete_by_post_id( $fixture_post_id );
+		( new KnowledgeIndex() )->delete_post( (int) $fixture_post_id );
 		wp_delete_post( $fixture_post_id, true );
 	}
 	foreach ( $rate_keys as $key ) {

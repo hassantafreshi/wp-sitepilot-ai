@@ -6,9 +6,11 @@ namespace AISAAutoPilot\Chat;
 use AISAAutoPilot\Content\KbCache;
 use AISAAutoPilot\Content\KbGaps;
 use AISAAutoPilot\Content\KnowledgeBase;
+use AISAAutoPilot\Content\KnowledgeSearch;
 use AISAAutoPilot\Content\SavedAnswers;
 use AISAAutoPilot\Content\VectorSearch;
 use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Core\SiteLanguage;
 use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Providers\ProviderException;
 use AISAAutoPilot\Providers\ProviderManager;
@@ -96,21 +98,14 @@ final class ChatEngine {
 		}
 
 		try {
-			// 2) Retrieve context — semantic (embeddings) when available, else recency.
-			$built   = $this->retrieve( $question );
+			// 2) Find the passages that answer the question. Nothing related on the site: no AI request.
+			$built   = $this->retrieve( $question, $history );
 			$context = $built['context'];
 			$map     = $built['map'];
 
 			if ( '' === trim( $context ) ) {
-				$gap = $this->offer_handoff();
 				( new KbGaps() )->record( $question, '', 'no_context' );
-				return $this->result(
-					$this->not_found_message( $gap ),
-					array(),
-					'not_found',
-					array(),
-					$gap
-				);
+				return $this->not_found_result( $question );
 			}
 
 			// 3) Ask the model for a structured decision (answer / clarify / not found).
@@ -159,12 +154,34 @@ final class ChatEngine {
 	/**
 	 * Build the numbered context + reference map for a question.
 	 *
-	 * Prefers semantic (embeddings) retrieval — top-K most relevant entries —
-	 * and falls back to recency-based context when embeddings are off/unavailable.
+	 * Searches the passage index for the question (and, for a follow-up, the previous
+	 * question). Only while that index has not been built yet, right after an update,
+	 * it falls back to the older post-level context so the assistant keeps answering.
+	 *
+	 * @return array{context:string, map:array<int,array{post_id:int,title:string,score?:float}>}
+	 */
+	private function retrieve( string $question, string $history = '' ): array {
+		try {
+			$found = ( new KnowledgeSearch( null, $this->kb, $this->logger ) )->retrieve( $question, self::last_user_turn( $history ) );
+			if ( ! in_array( $found['reason'], array( 'not_ready', 'empty_index' ), true ) ) {
+				return array(
+					'context' => $found['context'],
+					'map'     => $found['map'],
+				);
+			}
+		} catch ( \Throwable $e ) {
+			$this->logger->error( 'chat_retrieve', $e->getMessage() );
+		}
+
+		return $this->legacy_retrieve( $question );
+	}
+
+	/**
+	 * Post-level context, used only until the passage index exists.
 	 *
 	 * @return array{context:string, map:array<int,array{post_id:int,title:string}>}
 	 */
-	private function retrieve( string $question ): array {
+	private function legacy_retrieve( string $question ): array {
 		try {
 			$vector = new VectorSearch( $this->kb );
 			if ( $vector->is_ready() ) {
@@ -177,8 +194,21 @@ final class ChatEngine {
 			$this->logger->error( 'chat_retrieve', $e->getMessage() );
 		}
 
-		// Fallback: most-recent indexed content.
 		return $this->kb->get_context_with_refs( self::MAX_SOURCES, self::MAX_CONTEXT_CHARS );
+	}
+
+	/**
+	 * The last thing the visitor said before this message, from "User: …" history lines.
+	 */
+	public static function last_user_turn( string $history ): string {
+		$last = '';
+		foreach ( preg_split( '/\R/u', $history ) ?: array() as $line ) {
+			if ( preg_match( '/^\s*(?:User|Visitor)\s*:\s*(.+)$/u', $line, $m ) ) {
+				$last = trim( $m[1] );
+			}
+		}
+
+		return $last;
 	}
 
 	/**
@@ -211,24 +241,14 @@ final class ChatEngine {
 		}
 
 		if ( 'not_found' === $status || '' === $answer ) {
-			$gap = $this->offer_handoff();
 			( new KbGaps() )->record( $question, '', 'model_not_found' );
 
-			$message = '' !== $answer ? $answer : $this->not_found_message( $gap );
-			if ( $gap && '' !== $answer ) {
-				$message .= "\n\n" . $this->handoff_line();
-			}
-
-			return $this->result( $message, array(), 'not_found', array(), $gap );
+			// The model's own short note is already in the visitor's language.
+			return $this->not_found_result( $question, $answer );
 		}
 
-		// Answered.
+		// Answered. Only the passages the model actually used are shown as sources.
 		$sources = $this->map_sources( $decision, $map );
-
-		if ( empty( $sources ) ) {
-			// Model answered but cited nothing — best-effort keyword fallback.
-			$sources = $this->fallback_sources( $question );
-		}
 
 		// Cache stand-alone answers so the next identical question skips retrieval.
 		if ( ! $is_followup ) {
@@ -247,16 +267,12 @@ final class ChatEngine {
 	private function finalise_plain( string $question, array $plain, array $map, KbCache $cache, bool $is_followup ): array {
 		$answer  = trim( (string) ( $plain['content'] ?? '' ) );
 		$sources = $this->parse_inline_sources( $answer, $map );
-		if ( empty( $sources ) ) {
-			$sources = $this->fallback_sources( $question );
-		}
 		// Strip a trailing "SOURCES: ..." line if the model added one.
 		$answer = trim( (string) preg_replace( '/\n*\s*SOURCES:\s*[^\n]*\s*$/i', '', $answer ) );
 
 		if ( '' === $answer ) {
 			( new KbGaps() )->record( $question, '', 'empty_answer' );
-			$gap = $this->offer_handoff();
-			return $this->result( $this->not_found_message( $gap ), array(), 'not_found', array(), $gap );
+			return $this->not_found_result( $question );
 		}
 
 		if ( empty( $sources ) ) {
@@ -297,7 +313,7 @@ final class ChatEngine {
 				'post_id'   => $pid,
 				'title'     => $map[ $n ]['title'],
 				'url'       => (string) get_permalink( $pid ),
-				'relevance' => 1.0,
+				'relevance' => (float) ( $map[ $n ]['score'] ?? 1.0 ),
 			);
 		}
 
@@ -322,38 +338,17 @@ final class ChatEngine {
 		return $this->map_sources( array( 'sources' => $nums[0] ), $map );
 	}
 
-	/**
-	 * Keyword-search fallback for sources when the model cites none.
-	 *
-	 * @return array<int,array{post_id:int,title:string,url:string,relevance:float}>
-	 */
-	private function fallback_sources( string $question ): array {
-		$results = $this->kb->search( $question, 3 );
-		$sources = array();
-		foreach ( $results as $r ) {
-			$pid       = (int) $r['post_id'];
-			$sources[] = array(
-				'post_id'   => $pid,
-				'title'     => html_entity_decode( $r['title'] ?? '', ENT_QUOTES, 'UTF-8' ),
-				'url'       => (string) get_permalink( $pid ),
-				'relevance' => round( (float) ( $r['relevance'] ?? 1.0 ), 2 ),
-			);
-		}
-
-		return $sources;
-	}
-
 	private function build_system_prompt( string $context ): string {
 		return 'You are AISAAutoPilot, a warm, knowledgeable support specialist for this website. '
 			. "You speak like a helpful human expert — friendly, clear and genuinely useful — never robotic.\n\n"
-			. "You are given numbered KNOWLEDGE entries drawn from the site's own content. "
+			. "You are given numbered KNOWLEDGE passages quoted from the site's own pages (title › section, then the text). "
 			. "Decide how to respond and reply with a JSON object using EXACTLY these keys:\n"
 			. '- "status": one of "answered", "clarify", "not_found".' . "\n"
 			. '- "answer": your reply text in Markdown (see writing rules). For "clarify", a short friendly question. For "not_found", a brief honest note.' . "\n"
 			. '- "clarify_options": array of short labels (max 5) naming the distinct topics the user might mean. Only for status "clarify"; otherwise [].' . "\n"
-			. '- "sources": array of the KNOWLEDGE entry numbers you actually used (e.g. [1,3]). [] if none.' . "\n\n"
+			. '- "sources": array of the KNOWLEDGE passage numbers you actually used (e.g. [1,3]). [] if none.' . "\n\n"
 			. "Decision rules:\n"
-			. "- Use \"answered\" when the knowledge clearly covers the question. Base the answer ONLY on the knowledge; never invent specifics.\n"
+			. "- Use \"answered\" when the knowledge clearly covers the question. Base the answer ONLY on the knowledge; never invent specifics. Quote exact figures (prices, times, dates, amounts) as written.\n"
 			. "- Use \"clarify\" when the question could refer to several DIFFERENT pages/topics — briefly ask which one they mean and list them in clarify_options.\n"
 			. "- Use \"not_found\" only when nothing in the knowledge is relevant. Don't force an answer.\n\n"
 			. "Writing rules for \"answer\":\n"
@@ -387,23 +382,58 @@ final class ChatEngine {
 	}
 
 	/**
-	 * Whether a human handoff is enabled and has at least one configured channel.
+	 * The answer when nothing on the site answers the question, as the site owner set it:
+	 * a message (their own text, else the model's note, else the built-in text), or an
+	 * offer to connect to a person. The offer needs a ready handoff channel; without one
+	 * the message is shown.
+	 *
+	 * @param string $model_note The model's own "not found" note, when it wrote one.
+	 * @return array<string,mixed>
 	 */
-	private function offer_handoff(): bool {
-		return Settings::answer_desk_handoff_available();
+	private function not_found_result( string $question, string $model_note = '' ): array {
+		$widget  = (array) Settings::get( 'widget', array() );
+		$handoff = 'handoff' === ( $widget['not_found_action'] ?? 'message' ) && Settings::answer_desk_handoff_available();
+		$custom  = trim( (string) ( $widget['not_found_message'] ?? '' ) );
+
+		if ( '' !== $custom ) {
+			$message = $custom;
+		} elseif ( '' !== $model_note ) {
+			$message = $handoff ? $model_note . "\n\n" . self::in_visitor_language( $question, array( self::class, 'handoff_line' ) ) : $model_note;
+		} else {
+			$message = self::in_visitor_language( $question, static fn(): string => self::default_not_found_message( $handoff ) );
+		}
+
+		return $this->result( $message, array(), 'not_found', array(), $handoff );
 	}
 
-	private function not_found_message( bool $handoff ): string {
+	/**
+	 * A built-in text in the visitor's language when they write in another script than the
+	 * site's and WordPress has that language installed; otherwise in the site's language.
+	 *
+	 * @param callable(): string $text
+	 */
+	private static function in_visitor_language( string $question, callable $text ): string {
+		$locale = function_exists( 'switch_to_locale' ) ? SiteLanguage::visitor_locale( $question, SiteLanguage::site() ) : '';
+		if ( '' === $locale || ! switch_to_locale( $locale ) ) {
+			return $text();
+		}
+		$message = $text();
+		restore_previous_locale();
+
+		return $message;
+	}
+
+	public static function handoff_line(): string {
+		return __( 'Would you like me to connect you with a member of our team?', 'ai-site-assistant-autopilot' );
+	}
+
+	public static function default_not_found_message( bool $handoff ): string {
 		$base = __( "I looked through the site's content but couldn't find a clear answer to that yet.", 'ai-site-assistant-autopilot' );
 		if ( $handoff ) {
-			return $base . "\n\n" . $this->handoff_line();
+			return $base . "\n\n" . self::handoff_line();
 		}
 
 		return $base . ' ' . __( 'Could you try rephrasing, or asking about something else?', 'ai-site-assistant-autopilot' );
-	}
-
-	private function handoff_line(): string {
-		return __( 'Would you like me to connect you with a member of our team?', 'ai-site-assistant-autopilot' );
 	}
 
 	/**

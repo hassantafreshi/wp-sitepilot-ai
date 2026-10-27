@@ -51,11 +51,11 @@
 | `/chat/delete` | POST | `can_manage` | حذف گفت‌وگوی همان کاربر (`id`) |
 | `/chat/voice/transcribe` | POST | `can_manage` | تبدیل گفتار کنسول. متن فقط در composer قرار می‌گیرد. |
 | `/kb/index/batch` | POST | `can_manage` | پردازش یک دستهٔ ایندکس با offset. در سقف مصرف، توقف قابل‌ادامه برمی‌گرداند. |
-| `/kb/truncate` | POST | `can_manage` | پاک کردن همهٔ مدخل‌ها پیش از بازایندکس کامل |
+| `/kb/truncate` | POST | `can_manage` | پاک کردن همهٔ مدخل‌ها و پاره‌ها پیش از بازایندکس کامل. 429 `usage_cap_reached` فقط وقتی semantic search روشن و سقف پر است |
 | `/kb/list` | GET | `can_manage` | فهرست صفحه‌بندی‌شده با جست‌وجو و فیلتر |
 | `/kb/stats` | GET | `can_manage` | آمار دانش سایت |
 | `/kb/delete` | POST | `can_manage` | حذف یک مدخل |
-| `/kb/chat` | POST | `can_manage` | پرسش RAG بدون گفت‌وگوی ذخیره‌شده |
+| `/kb/chat` | POST | `can_manage` | پرسش RAG بدون گفت‌وگوی ذخیره‌شده، روی پاره‌های `KnowledgeSearch`. اگر هیچ پاره‌ای مرتبط نباشد، `ok: true` با `status: not_found` و بدون درخواست AI |
 | `/kb/gaps` | GET | `can_manage` | پرسش‌های بی‌پاسخ. `window` برابر `all` (پیش‌فرض) یا `7d`. هر مورد `reason`، `reason_label`، `asked_label`، `draft` و `write_url` دارد؛ پاسخ `total` و `window` هم دارد. |
 | `/kb/gaps/dismiss` | POST | `can_manage` | کنار گذاشتن یک پرسش با `hash`، یا همه وقتی hash خالی است |
 | `/kb/answers` | GET | `can_manage` | پاسخ‌های ذخیره‌شده (`items`، `limit`) |
@@ -79,7 +79,7 @@
 | مسیر | متد | مجوز | کاربرد |
 |---|---|---|---|
 | `/widget/settings` | GET | عمومی | تنظیمات زمان اجرای ویجت، بدون اسرار. از T10 خود `widget.js` آن را صدا نمی‌زند (همین داده‌ها در `AISAAutoPilotWidget` هستند)؛ route برای سازگاری حفظ شده است. |
-| `/widget/ask` | POST | عمومی | پرسش بازدیدکننده. rate limit دارد و از `ChatEngine` عبور می‌کند. موفقیت: `ok: true` به‌اضافهٔ `answer`، `sources`، `status`، `clarify_options`، `handoff_offer` و در صورت logging `conversation_id`. هر رد (403 `widget_disabled`، 400 `empty` و `question_too_long`، 429 `rate_limited` و `usage_cap_reached`، 503 `assistant_unavailable`) `ok: false`، `code` و `message` دارد و هرگز `answer` ندارد؛ 400 `empty` تا T10 کلید `answer` داشت. |
+| `/widget/ask` | POST | عمومی | پرسش بازدیدکننده. rate limit دارد و از `ChatEngine` عبور می‌کند. `history` اختیاری: آخرین ۶ نوبت `{role, text}` (هر کدام تا ۱۲۰۰ نویسه)، فقط برای پرسش پیگیر، و ذخیره نمی‌شود. موفقیت: `ok: true` به‌اضافهٔ `answer`، `sources`، `status`، `clarify_options`، `handoff_offer` و در صورت logging `conversation_id`. هر رد (403 `widget_disabled`، 400 `empty` و `question_too_long`، 429 `rate_limited` و `usage_cap_reached`، 503 `assistant_unavailable`) `ok: false`، `code` و `message` دارد و هرگز `answer` ندارد؛ 400 `empty` تا T10 کلید `answer` داشت. |
 | `/widget/conversation` | POST | عمومی | افزودن نوبت به گفت‌وگوی ثبت‌شده، فقط وقتی ثبت گفت‌وگو روشن است |
 | `/widget/handoff` | POST | عمومی | درخواست انتقال به انسان. به کانال‌های آماده fan-out می‌شود و در صندوق با وضعیت `new` یا `failed` ثبت می‌شود. `name`، `email`، `phone` و `website` فقط وقتی خوانده می‌شوند که در `handoff_fields` روشن باشند. خطاها: `missing_contact` و `invalid_name`، `invalid_email`، `invalid_phone` یا `invalid_website` (400، با `fields`). |
 | `/widget/handoff/status` | GET | عمومی | آیا انتقال اکنون در دسترس است |

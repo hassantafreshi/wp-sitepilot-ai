@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-10-26 23:24+0000\n"
+"POT-Creation-Date: 2026-10-27 19:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,7 +93,7 @@ msgstr ""
 #: includes/Admin/HandoffInboxPage.php:36 includes/Admin/HomePage.php:346
 #: includes/Admin/IntegrationsPage.php:65
 #: includes/Admin/IntegrationsPage.php:301 includes/Admin/SettingsPage.php:938
-#: includes/Frontend/ChatWidgetSettings.php:94
+#: includes/Frontend/ChatWidgetSettings.php:95
 msgid "Answer Desk"
 msgstr ""
 
@@ -294,7 +294,7 @@ msgid ""
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:307
-#: includes/Frontend/ChatWidgetSettings.php:386
+#: includes/Frontend/ChatWidgetSettings.php:413
 msgid "That image is too large. Please use a PNG under 200 KB."
 msgstr ""
 
@@ -600,7 +600,7 @@ msgstr ""
 #: includes/Admin/LogsPage.php:25 includes/Admin/NativeFormsPage.php:19
 #: includes/Admin/SettingsPage.php:173 includes/Admin/SettingsPage.php:192
 #: includes/Admin/StoreCopilotPage.php:28
-#: includes/Frontend/ChatWidgetSettings.php:61
+#: includes/Frontend/ChatWidgetSettings.php:62
 msgid "You do not have permission to view this page."
 msgstr ""
 
@@ -609,7 +609,7 @@ msgstr ""
 #: includes/Admin/AnswerDeskVoicePage.php:41
 #: includes/Admin/AnswerDeskWidgetPage.php:56
 #: includes/Admin/HandoffInboxPage.php:37
-#: includes/Frontend/ChatWidgetSettings.php:95
+#: includes/Frontend/ChatWidgetSettings.php:96
 msgid "The support chat on your site, and every conversation it handled."
 msgstr ""
 
@@ -1220,7 +1220,7 @@ msgid "Advanced"
 msgstr ""
 
 #: includes/Admin/AnswerDeskWidgetPage.php:99
-#: includes/Frontend/ChatWidgetSettings.php:432
+#: includes/Frontend/ChatWidgetSettings.php:459
 msgid "Pages where the chat appears"
 msgstr ""
 
@@ -1272,7 +1272,7 @@ msgid "Selecting a colour saves it immediately and updates this preview."
 msgstr ""
 
 #: includes/Admin/AnswerDeskWidgetPage.php:141
-#: includes/Frontend/ChatWidgetSettings.php:354
+#: includes/Frontend/ChatWidgetSettings.php:381
 msgid "Live preview"
 msgstr ""
 
@@ -1964,7 +1964,7 @@ msgstr ""
 #: includes/Admin/CopilotPage.php:316 includes/Admin/CopilotPage.php:317
 #: includes/Admin/SettingsPage.php:216 includes/Admin/SettingsPage.php:353
 #: includes/Frontend/ChatWidget.php:112
-#: includes/Frontend/ChatWidgetSettings.php:119
+#: includes/Frontend/ChatWidgetSettings.php:120
 msgid "Voice"
 msgstr ""
 
@@ -1989,7 +1989,7 @@ msgid "Draft only"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:343 includes/Admin/KnowledgeBasePage.php:379
-#: includes/Frontend/ChatWidgetSettings.php:205
+#: includes/Frontend/ChatWidgetSettings.php:206
 msgid "Title"
 msgstr ""
 
@@ -2114,12 +2114,12 @@ msgid "Structure details"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:454
-#: includes/Frontend/ChatWidgetSettings.php:356
+#: includes/Frontend/ChatWidgetSettings.php:383
 msgid "Desktop"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:455 includes/Admin/HandoffInboxPage.php:320
-#: includes/Frontend/ChatWidgetSettings.php:357
+#: includes/Frontend/ChatWidgetSettings.php:384
 #: includes/Support/HandoffEmail.php:62
 msgid "Mobile"
 msgstr ""
@@ -3898,12 +3898,12 @@ msgid ""
 msgstr ""
 
 #: includes/Admin/KnowledgeBasePage.php:407
-#: includes/Frontend/ChatWidgetSettings.php:450
+#: includes/Frontend/ChatWidgetSettings.php:477
 msgid "Content types"
 msgstr ""
 
 #: includes/Admin/KnowledgeBasePage.php:419
-#: includes/Frontend/ChatWidgetSettings.php:464
+#: includes/Frontend/ChatWidgetSettings.php:491
 msgid "Post categories"
 msgstr ""
 
@@ -4124,7 +4124,7 @@ msgid "Delete answer"
 msgstr ""
 
 #: includes/Admin/KnowledgeBasePage.php:512
-#: includes/Api/KnowledgeBaseController.php:268
+#: includes/Api/KnowledgeBaseController.php:288
 msgid "Saved answer deleted."
 msgstr ""
 
@@ -4279,7 +4279,7 @@ msgid "Updated"
 msgstr ""
 
 #: includes/Admin/NativeFormsPage.php:109
-#: includes/Frontend/ChatWidgetSettings.php:399
+#: includes/Frontend/ChatWidgetSettings.php:426
 msgid "(no title)"
 msgstr ""
 
@@ -4347,7 +4347,7 @@ msgid "Back to Setup"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:241
-#: includes/Frontend/ChatWidgetSettings.php:109
+#: includes/Frontend/ChatWidgetSettings.php:110
 msgid "Settings saved."
 msgstr ""
 
@@ -4545,13 +4545,13 @@ msgid ""
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:443 includes/Admin/SettingsPage.php:451
-#: includes/Frontend/ChatWidgetSettings.php:348
-#: includes/Frontend/ChatWidgetSettings.php:369
+#: includes/Frontend/ChatWidgetSettings.php:375
+#: includes/Frontend/ChatWidgetSettings.php:396
 msgid "Save changes"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:447
-#: includes/Frontend/ChatWidgetSettings.php:365
+#: includes/Frontend/ChatWidgetSettings.php:392
 msgid "Unsaved changes"
 msgstr ""
 
@@ -4561,12 +4561,12 @@ msgstr ""
 
 #: includes/Admin/SettingsPage.php:450 includes/Admin/StoreCopilotPage.php:212
 #: includes/Efb/EfbBuilderButton.php:86
-#: includes/Frontend/ChatWidgetSettings.php:368
+#: includes/Frontend/ChatWidgetSettings.php:395
 msgid "Discard"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:464
-#: includes/Frontend/ChatWidgetSettings.php:383
+#: includes/Frontend/ChatWidgetSettings.php:410
 msgid "Discard your changes?"
 msgstr ""
 
@@ -4575,7 +4575,7 @@ msgid "Advanced settings go back to their last saved values."
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:466
-#: includes/Frontend/ChatWidgetSettings.php:385
+#: includes/Frontend/ChatWidgetSettings.php:412
 msgid "Discard changes"
 msgstr ""
 
@@ -5979,66 +5979,66 @@ msgstr ""
 msgid "Conversation not found."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:55
-#: includes/Api/ChatWidgetController.php:146
+#: includes/Api/ChatWidgetController.php:56
+#: includes/Api/ChatWidgetController.php:149
 msgid "The assistant widget is disabled."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:69
-#: includes/Api/KnowledgeBaseController.php:127
+#: includes/Api/ChatWidgetController.php:70
+#: includes/Api/KnowledgeBaseController.php:130
 msgid "Please enter a question."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:79
+#: includes/Api/ChatWidgetController.php:80
 msgid "Please shorten your message and try again."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:89
+#: includes/Api/ChatWidgetController.php:90
 msgid "Please wait before sending another message."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:122
+#: includes/Api/ChatWidgetController.php:125
 #: includes/Api/PublicChatController.php:38
 msgid "The assistant is temporarily unavailable. Please try again later."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:156
+#: includes/Api/ChatWidgetController.php:159
 msgid "Human handoff is not enabled."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:166
+#: includes/Api/ChatWidgetController.php:169
 msgid "Please wait before requesting another handoff."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:186
+#: includes/Api/ChatWidgetController.php:189
 msgid "Please enter your name."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:187 includes/Core/Plugin.php:186
+#: includes/Api/ChatWidgetController.php:190 includes/Core/Plugin.php:186
 msgid "Please provide a valid email address."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:188 includes/Core/Plugin.php:187
+#: includes/Api/ChatWidgetController.php:191 includes/Core/Plugin.php:187
 msgid "Please enter a valid mobile number."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:189 includes/Core/Plugin.php:188
+#: includes/Api/ChatWidgetController.php:192 includes/Core/Plugin.php:188
 msgid "Please enter a valid website address."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:206
+#: includes/Api/ChatWidgetController.php:209
 msgid "Please fill in the required details."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:217
+#: includes/Api/ChatWidgetController.php:220
 msgid "No messages to send."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:240
+#: includes/Api/ChatWidgetController.php:243
 msgid "Your request has been sent to the support team."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:241
+#: includes/Api/ChatWidgetController.php:244
 msgid "We could not send the request. Please try again later."
 msgstr ""
 
@@ -6417,108 +6417,108 @@ msgstr ""
 msgid "Could not update the handoff status."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:54
+#: includes/Api/KnowledgeBaseController.php:57
 msgid ""
 "The local AI usage cap has been reached. Raise or reset the token cap before "
 "starting a full re-index so existing knowledge is not cleared without a "
 "replacement pass."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:65
+#: includes/Api/KnowledgeBaseController.php:68
 msgid "Knowledge base cleared."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:109
+#: includes/Api/KnowledgeBaseController.php:112
 msgid "Invalid post ID."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:116
+#: includes/Api/KnowledgeBaseController.php:119
 msgid "Entry not found."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:116
+#: includes/Api/KnowledgeBaseController.php:119
 msgid "Entry removed."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:132
+#: includes/Api/KnowledgeBaseController.php:135
 #: includes/Connectors/WooCommerceContentSkill.php:62
 #: includes/Connectors/WooCommerceContentSkill.php:160
 #: includes/Connectors/WooCommerceContentSkill.php:234
 msgid "AI provider is not configured."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:141
+#: includes/Api/KnowledgeBaseController.php:160
 msgid "The knowledge base is empty. Please index your content first."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:171
+#: includes/Api/KnowledgeBaseController.php:191
 msgid "The AI provider could not answer this question. Please try again."
 msgstr ""
 
 #. translators: %s: a question a site visitor asked that the site could not answer.
-#: includes/Api/KnowledgeBaseController.php:187
+#: includes/Api/KnowledgeBaseController.php:207
 #, php-format
 msgid "Write a help article that answers this question from a site visitor: %s"
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:229
+#: includes/Api/KnowledgeBaseController.php:249
 msgid "This question is no longer in the list. Reload the page and try again."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:237
+#: includes/Api/KnowledgeBaseController.php:257
 msgid "Enter the question visitors ask."
 msgstr ""
 
 #. translators: %s: maximum number of characters in a saved answer.
-#: includes/Api/KnowledgeBaseController.php:239
+#: includes/Api/KnowledgeBaseController.php:259
 #, php-format
 msgid "Write an answer of up to %s characters."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:240
+#: includes/Api/KnowledgeBaseController.php:260
 msgid "Another saved answer already covers this question."
 msgstr ""
 
 #. translators: %s: maximum number of saved answers.
-#: includes/Api/KnowledgeBaseController.php:242
+#: includes/Api/KnowledgeBaseController.php:262
 #, php-format
 msgid "You can keep up to %s saved answers. Delete one before adding another."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:244
+#: includes/Api/KnowledgeBaseController.php:264
 msgid "Could not save the answer."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:266
+#: includes/Api/KnowledgeBaseController.php:286
 msgid "This saved answer no longer exists."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:284
+#: includes/Api/KnowledgeBaseController.php:304
 msgid "Updated."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:304
+#: includes/Api/KnowledgeBaseController.php:324
 msgid "Enter a whole-number token cap between 0 and 1,000,000,000."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:316
+#: includes/Api/KnowledgeBaseController.php:336
 msgid "Budget updated."
 msgstr ""
 
-#: includes/Api/KnowledgeBaseController.php:360
+#: includes/Api/KnowledgeBaseController.php:380
 msgid "Usage data reset."
 msgstr ""
 
-#: includes/Api/PublicChatController.php:20
+#: includes/Api/PublicChatController.php:21
 #: includes/Api/PublicChatController.php:44
 msgid "The site assistant is not enabled."
 msgstr ""
 
-#: includes/Api/PublicChatController.php:23
+#: includes/Api/PublicChatController.php:24
 msgid "Too many messages. Please try again later."
 msgstr ""
 
-#: includes/Api/PublicChatController.php:27
+#: includes/Api/PublicChatController.php:28
 msgid "Please enter a question of up to 1,500 characters."
 msgstr ""
 
@@ -6601,31 +6601,31 @@ msgstr ""
 msgid "WooCommerce is not active."
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:79 includes/Content/ContentIndexer.php:141
+#: includes/Chat/ChatEngine.php:81
 msgid "AI provider is not configured. Please add your API key in Settings."
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:144 includes/Chat/ChatEngine.php:152
+#: includes/Chat/ChatEngine.php:139 includes/Chat/ChatEngine.php:147
 msgid "An error occurred while processing your question. Please try again."
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:207
+#: includes/Chat/ChatEngine.php:237
 msgid ""
 "I found a few different things that could match. Which one did you mean?"
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:397
+#: includes/Chat/ChatEngine.php:427
+msgid "Would you like me to connect you with a member of our team?"
+msgstr ""
+
+#: includes/Chat/ChatEngine.php:431
 msgid ""
 "I looked through the site's content but couldn't find a clear answer to that "
 "yet."
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:402
+#: includes/Chat/ChatEngine.php:436
 msgid "Could you try rephrasing, or asking about something else?"
-msgstr ""
-
-#: includes/Chat/ChatEngine.php:406
-msgid "Would you like me to connect you with a member of our team?"
 msgstr ""
 
 #: includes/Connectors/EasyFormBuilderConnector.php:42
@@ -6853,7 +6853,6 @@ msgid "WooCommerce AI draft creation is not available for this account."
 msgstr ""
 
 #: includes/Connectors/WooCommerceProductSkill.php:37
-#: includes/Content/ContentIndexer.php:321
 msgid "AI provider not configured."
 msgstr ""
 
@@ -6893,56 +6892,50 @@ msgstr ""
 msgid "Product draft created. Review it in WooCommerce before publishing."
 msgstr ""
 
-#: includes/Content/ContentIndexer.php:173
-msgid "Added semantic embedding."
+#: includes/Content/ContentIndexer.php:162
+msgid "Unexpected error during indexing."
 msgstr ""
 
-#: includes/Content/ContentIndexer.php:180
-msgid "Unchanged — skipped."
+#: includes/Content/ContentIndexer.php:198
+msgid "Post not found or not published."
 msgstr ""
 
-#. translators: %s: post title.
-#: includes/Content/ContentIndexer.php:216
-#, php-format
-msgid "Indexed \"%s\" successfully."
+#: includes/Content/ContentIndexer.php:205
+msgid "Post type is not indexable."
 msgstr ""
 
 #. translators: 1: post title, 2: error message.
-#: includes/Content/ContentIndexer.php:236
+#: includes/Content/ContentIndexer.php:330
 #, php-format
 msgid "Failed to index \"%1$s\": %2$s"
 msgstr ""
 
-#: includes/Content/ContentIndexer.php:249
-msgid "Unexpected error during indexing."
-msgstr ""
-
-#: includes/Content/ContentIndexer.php:292
+#: includes/Content/ContentIndexer.php:335
 msgid ""
-"The local AI usage cap has been reached. Raise or reset the token cap in "
-"Usage & Cost, then resume this indexing pass."
+"Password-protected or private: not indexed, so the assistant never quotes it."
 msgstr ""
 
-#: includes/Content/ContentIndexer.php:306
-msgid "Post not found or not published."
-msgstr ""
-
-#: includes/Content/ContentIndexer.php:313
-msgid "Post type is not indexable."
-msgstr ""
-
-#: includes/Content/ContentIndexer.php:328
-msgid ""
-"The local AI usage cap has been reached. Raise or reset the token cap before "
-"indexing this content."
+#: includes/Content/ContentIndexer.php:337
+msgid "Unchanged — skipped."
 msgstr ""
 
 #: includes/Content/ContentIndexer.php:339
-msgid "Content unchanged."
+msgid "Added semantic embedding."
 msgstr ""
 
-#: includes/Content/ContentIndexer.php:370
-msgid "Content indexed successfully."
+#. translators: 1: post title, 2: number of passages.
+#: includes/Content/ContentIndexer.php:343
+#, php-format
+msgid "Indexed \"%1$s\" (%2$d passage)."
+msgid_plural "Indexed \"%1$s\" (%2$d passages)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Content/ContentIndexer.php:379
+#: includes/Content/ContentIndexer.php:414
+msgid ""
+"The local AI usage cap has been reached. Raise or reset the token cap in "
+"Usage & Cost, then resume this indexing pass."
 msgstr ""
 
 #: includes/Content/ContentStudioReadModel.php:120
@@ -7004,11 +6997,47 @@ msgstr ""
 msgid "Recorded before reasons were kept."
 msgstr ""
 
-#: includes/Core/Activator.php:21
-msgid "AI Site Assistant AutoPilot requires PHP 8.1 or higher."
+#. translators: %s: product price as shown in the shop.
+#: includes/Content/KnowledgeExtractor.php:135
+#, php-format
+msgid "Price: %s"
+msgstr ""
+
+#. translators: 1: stock status label, 2: number of items in stock.
+#: includes/Content/KnowledgeExtractor.php:143
+#, php-format
+msgid "%1$s (%2$d available)"
+msgstr ""
+
+#. translators: %s: stock status, e.g. "In stock" or "Out of stock".
+#: includes/Content/KnowledgeExtractor.php:146
+#, php-format
+msgid "Availability: %s"
+msgstr ""
+
+#. translators: %s: product SKU.
+#: includes/Content/KnowledgeExtractor.php:150
+#, php-format
+msgid "SKU: %s"
+msgstr ""
+
+#. translators: 1: weight, 2: weight unit.
+#: includes/Content/KnowledgeExtractor.php:165
+#, php-format
+msgid "Shipping weight: %1$s %2$s"
+msgstr ""
+
+#. translators: %s: comma-separated product categories.
+#: includes/Content/KnowledgeExtractor.php:170
+#, php-format
+msgid "Categories: %s"
 msgstr ""
 
 #: includes/Core/Activator.php:22
+msgid "AI Site Assistant AutoPilot requires PHP 8.1 or higher."
+msgstr ""
+
+#: includes/Core/Activator.php:23
 msgid "Plugin activation error"
 msgstr ""
 
@@ -7259,20 +7288,20 @@ msgstr ""
 msgid "Custom endpoint"
 msgstr ""
 
-#: includes/Core/Settings.php:678 includes/Core/WpConnectors.php:53
+#: includes/Core/Settings.php:681 includes/Core/WpConnectors.php:53
 #: includes/Core/WpConnectors.php:96
 msgid "AI Site Assistant AutoPilot"
 msgstr ""
 
-#: includes/Core/Settings.php:679
+#: includes/Core/Settings.php:682
 msgid "AI Assistant"
 msgstr ""
 
-#: includes/Core/Settings.php:680
+#: includes/Core/Settings.php:683
 msgid "Hi! How can I help you?"
 msgstr ""
 
-#: includes/Core/Settings.php:681
+#: includes/Core/Settings.php:684
 msgid "This conversation may be recorded to help our support team."
 msgstr ""
 
@@ -8035,8 +8064,8 @@ msgid "WordPress could not create the draft."
 msgstr ""
 
 #: includes/Frontend/ChatWidget.php:42 includes/Frontend/ChatWidget.php:52
-#: includes/Frontend/ChatWidgetSettings.php:307
-#: includes/Frontend/ChatWidgetSettings.php:690
+#: includes/Frontend/ChatWidgetSettings.php:308
+#: includes/Frontend/ChatWidgetSettings.php:717
 msgid "Talk to a human"
 msgstr ""
 
@@ -8053,7 +8082,7 @@ msgid "Minimise chat"
 msgstr ""
 
 #: includes/Frontend/ChatWidget.php:135
-#: includes/Frontend/ChatWidgetSettings.php:230
+#: includes/Frontend/ChatWidgetSettings.php:231
 msgid "Suggested questions"
 msgstr ""
 
@@ -8121,465 +8150,495 @@ msgstr ""
 msgid "Your name"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:99
+#: includes/Frontend/ChatWidgetSettings.php:100
 msgid "Back to Widget"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:114
+#: includes/Frontend/ChatWidgetSettings.php:115
 msgid "Customise the widget"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:115
+#: includes/Frontend/ChatWidgetSettings.php:116
 msgid ""
 "How the chat looks, which pages it appears on, what it says first and "
 "whether conversations are recorded. The on/off switch, voice and human "
 "handoff have their own tabs."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:117
+#: includes/Frontend/ChatWidgetSettings.php:118
 msgid "Related Answer Desk settings"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:118
+#: includes/Frontend/ChatWidgetSettings.php:119
 msgid "Show or hide the widget"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:120
+#: includes/Frontend/ChatWidgetSettings.php:121
 msgid "Human handoff channels"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:129
+#: includes/Frontend/ChatWidgetSettings.php:130
 msgid "Where it sits and how it looks"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:132
+#: includes/Frontend/ChatWidgetSettings.php:133
 msgid "Position"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:143
+#: includes/Frontend/ChatWidgetSettings.php:144
 msgid "Theme"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:147
+#: includes/Frontend/ChatWidgetSettings.php:148
 msgid "Light"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:151
+#: includes/Frontend/ChatWidgetSettings.php:152
 msgid "Dark"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:162
+#: includes/Frontend/ChatWidgetSettings.php:163
 msgid "Colours"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:163
+#: includes/Frontend/ChatWidgetSettings.php:164
 msgid "Reset to brand colour"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:165
+#: includes/Frontend/ChatWidgetSettings.php:166
 msgid "Pick a brand colour, then adjust any single part."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:166
+#: includes/Frontend/ChatWidgetSettings.php:167
 msgid "Brand colour"
 msgstr ""
 
 #. translators: %s: hex colour such as #202a8d.
-#: includes/Frontend/ChatWidgetSettings.php:169
+#: includes/Frontend/ChatWidgetSettings.php:170
 #, php-format
 msgid "Use %s as the brand colour"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:175
+#: includes/Frontend/ChatWidgetSettings.php:176
 msgid "Other colour"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:180
-#: includes/Frontend/ChatWidgetSettings.php:185
+#: includes/Frontend/ChatWidgetSettings.php:181
+#: includes/Frontend/ChatWidgetSettings.php:186
 msgid "Every part follows the brand colour."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:180
-#: includes/Frontend/ChatWidgetSettings.php:184
+#: includes/Frontend/ChatWidgetSettings.php:181
+#: includes/Frontend/ChatWidgetSettings.php:185
 msgid ""
 "Some parts use their own colour. Reset to follow the brand colour again."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:202
+#: includes/Frontend/ChatWidgetSettings.php:203
 msgid "Header text and icons"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:209
+#: includes/Frontend/ChatWidgetSettings.php:210
 msgid "Subtitle"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:215
+#: includes/Frontend/ChatWidgetSettings.php:216
 msgid "Beside the header title"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:215
+#: includes/Frontend/ChatWidgetSettings.php:216
 msgid "Header icon"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:216
+#: includes/Frontend/ChatWidgetSettings.php:217
 msgid "The mic button"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:216
+#: includes/Frontend/ChatWidgetSettings.php:217
 msgid "Voice icon"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:217
+#: includes/Frontend/ChatWidgetSettings.php:218
 msgid "Handoff icon"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:217
+#: includes/Frontend/ChatWidgetSettings.php:218
 msgid "The talk-to-human button"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:220
+#: includes/Frontend/ChatWidgetSettings.php:221
 msgid ""
 "PNG, JPEG, WebP or SVG up to 200 KB. Remove an image to use the built-in "
 "icon again."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:224
+#: includes/Frontend/ChatWidgetSettings.php:225
 msgid "What visitors see first"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:226
+#: includes/Frontend/ChatWidgetSettings.php:227
 msgid "Greeting"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:232
+#: includes/Frontend/ChatWidgetSettings.php:233
 msgid ""
 "Do you ship to my city?\n"
 "What are your opening hours?\n"
 "How do I return an item?"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:234
+#: includes/Frontend/ChatWidgetSettings.php:235
 msgid ""
 "One per line, up to four. Shown as one-tap buttons before the visitor types "
 "— the fastest way to a useful first answer."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:237
+#: includes/Frontend/ChatWidgetSettings.php:238
 msgid "Open the chat by itself"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:244
+#: includes/Frontend/ChatWidgetSettings.php:245
 msgid "Never — show a short hint beside the button"
 msgstr ""
 
 #. translators: %d: number of seconds after the page loads.
-#: includes/Frontend/ChatWidgetSettings.php:246
+#: includes/Frontend/ChatWidgetSettings.php:247
 #, php-format
 msgid "After %d second"
 msgid_plural "After %d seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Frontend/ChatWidgetSettings.php:252
+#: includes/Frontend/ChatWidgetSettings.php:253
 msgid ""
 "Counted from each page load. On phones the open chat covers the whole "
 "screen, so most sites leave this off."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:257
+#: includes/Frontend/ChatWidgetSettings.php:258
 msgid "Corners and the floating button"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:261
+#: includes/Frontend/ChatWidgetSettings.php:262
 msgid "Panel corners"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:268
+#: includes/Frontend/ChatWidgetSettings.php:269
 msgid "Message corners"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:275
+#: includes/Frontend/ChatWidgetSettings.php:276
 msgid "Button shape"
 msgstr ""
 
 #. translators: %d: corner radius in pixels.
-#: includes/Frontend/ChatWidgetSettings.php:289
+#: includes/Frontend/ChatWidgetSettings.php:290
 #, php-format
 msgid "Custom (%dpx)"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:297
+#: includes/Frontend/ChatWidgetSettings.php:298
 msgid "Floating button icon"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:297
+#: includes/Frontend/ChatWidgetSettings.php:298
 msgid "Replaces the chat bubble on the button"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:302
+#: includes/Frontend/ChatWidgetSettings.php:303
 msgid "Talk to a person button"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:303
+#: includes/Frontend/ChatWidgetSettings.php:304
 msgid "Visitors see this button only while Human handoff has a ready channel."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:306
+#: includes/Frontend/ChatWidgetSettings.php:307
 msgid "Button text"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:310
+#: includes/Frontend/ChatWidgetSettings.php:311
 msgid "Text above the button"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:314
+#: includes/Frontend/ChatWidgetSettings.php:315
 msgid "Set up handoff channels"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:318
+#: includes/Frontend/ChatWidgetSettings.php:319
+msgid "When there is no answer"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:320
+msgid "What visitors see when nothing on your site answers their question."
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:324
+msgid "Then"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:328
+msgid "Show a message"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:332
+msgid "Offer to connect to a person"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:337
+msgid "Message"
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:339
+msgid ""
+"Leave it empty to use the built-in text. Connecting to a person needs a "
+"ready handoff channel; without one, the message is shown."
+msgstr ""
+
+#: includes/Frontend/ChatWidgetSettings.php:345
 msgid "Recording and privacy"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:319
+#: includes/Frontend/ChatWidgetSettings.php:346
 msgid ""
 "Decide whether visitor conversations are kept, and what visitors are told."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:324
+#: includes/Frontend/ChatWidgetSettings.php:351
 msgid "Record visitor conversations"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:325
-#: includes/Frontend/ChatWidgetSettings.php:330
+#: includes/Frontend/ChatWidgetSettings.php:352
+#: includes/Frontend/ChatWidgetSettings.php:357
 msgid ""
 "Conversations are not kept. Questions your content could not answer are "
 "still listed as content gaps, without who asked."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:325
-#: includes/Frontend/ChatWidgetSettings.php:329
+#: includes/Frontend/ChatWidgetSettings.php:352
+#: includes/Frontend/ChatWidgetSettings.php:356
 msgid ""
 "Recorded conversations appear under Conversations with the pages each answer "
 "used."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:337
+#: includes/Frontend/ChatWidgetSettings.php:364
 msgid "What visitors are told"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:339
+#: includes/Frontend/ChatWidgetSettings.php:366
 msgid ""
 "Shown above the message box while recording is on. Make sure it matches your "
 "privacy policy."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:343
+#: includes/Frontend/ChatWidgetSettings.php:370
 msgid ""
 "When a visitor asks for a person, that conversation is kept in the handoff "
 "inbox so your team can reply — even while recording is off."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:355
+#: includes/Frontend/ChatWidgetSettings.php:382
 msgid "Preview size"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:361
+#: includes/Frontend/ChatWidgetSettings.php:388
 msgid "Preview only. Visitors see changes after you save."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:367
+#: includes/Frontend/ChatWidgetSettings.php:394
 msgid "Unsaved widget changes — visitors still see the saved version"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:384
+#: includes/Frontend/ChatWidgetSettings.php:411
 msgid ""
 "The widget goes back to its last saved settings. Nothing is sent to visitors."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:387
+#: includes/Frontend/ChatWidgetSettings.php:414
 msgid "Searching…"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:388
+#: includes/Frontend/ChatWidgetSettings.php:415
 msgid "Choose an entry to hide the chat on it."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:389
+#: includes/Frontend/ChatWidgetSettings.php:416
 msgid "No published page, post or product has that title."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:390
+#: includes/Frontend/ChatWidgetSettings.php:417
 msgid "Search is not available right now. Try again."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:391
+#: includes/Frontend/ChatWidgetSettings.php:418
 msgid "Hide here"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:392
+#: includes/Frontend/ChatWidgetSettings.php:419
 msgid "Hidden"
 msgstr ""
 
 #. translators: %s: title of a page, post or product.
-#: includes/Frontend/ChatWidgetSettings.php:394
+#: includes/Frontend/ChatWidgetSettings.php:421
 #, php-format
 msgid "%s added. Save changes to apply it."
 msgstr ""
 
 #. translators: %s: title of a page, post or product.
-#: includes/Frontend/ChatWidgetSettings.php:396
-#: includes/Frontend/ChatWidgetSettings.php:489
+#: includes/Frontend/ChatWidgetSettings.php:423
+#: includes/Frontend/ChatWidgetSettings.php:516
 #, php-format
 msgid "Show the chat again on %s"
 msgstr ""
 
 #. translators: %d: the most single entries the chat can be hidden on.
-#: includes/Frontend/ChatWidgetSettings.php:398
+#: includes/Frontend/ChatWidgetSettings.php:425
 #, php-format
 msgid "You can hide the chat on up to %d single entries."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:433
+#: includes/Frontend/ChatWidgetSettings.php:460
 msgid ""
 "Hide the chat where it gets in the way, such as checkout or a page that "
 "already has its own contact form."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:435
+#: includes/Frontend/ChatWidgetSettings.php:462
 msgid "Show the chat on"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:439
+#: includes/Frontend/ChatWidgetSettings.php:466
 msgid "Every page"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:443
+#: includes/Frontend/ChatWidgetSettings.php:470
 msgid "Every page except the ones below"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:447
+#: includes/Frontend/ChatWidgetSettings.php:474
 msgid "Nothing is chosen below yet, so the chat still shows on every page."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:460
+#: includes/Frontend/ChatWidgetSettings.php:487
 msgid ""
 "Hides the chat on every item of a ticked type and on that type’s archive "
 "page."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:474
+#: includes/Frontend/ChatWidgetSettings.php:501
 msgid ""
 "Hides the chat on posts filed in a ticked category and on that category’s "
 "own page."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:478
+#: includes/Frontend/ChatWidgetSettings.php:505
 msgid "Single pages, posts or products"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:479
+#: includes/Frontend/ChatWidgetSettings.php:506
 msgid "Search by title"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:483
+#: includes/Frontend/ChatWidgetSettings.php:510
 msgid "The chat is hidden on"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:493
+#: includes/Frontend/ChatWidgetSettings.php:520
 msgid "No single entry is chosen."
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:496
+#: includes/Frontend/ChatWidgetSettings.php:523
 msgid "The same rules apply to the [aisaautopilot_chat] shortcode."
 msgstr ""
 
 #. translators: %d: numeric ID of a page or post that has no title.
-#: includes/Frontend/ChatWidgetSettings.php:548
+#: includes/Frontend/ChatWidgetSettings.php:575
 #, php-format
 msgid "(no title) #%d"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:677
+#: includes/Frontend/ChatWidgetSettings.php:704
 msgid "Do you ship to Shiraz?"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:706
+#: includes/Frontend/ChatWidgetSettings.php:733
 msgid "Type your message…"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:727
+#: includes/Frontend/ChatWidgetSettings.php:754
 msgid "Bottom Left"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:729
+#: includes/Frontend/ChatWidgetSettings.php:756
 msgid "Top Right"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:731
+#: includes/Frontend/ChatWidgetSettings.php:758
 msgid "Top Left"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:733
+#: includes/Frontend/ChatWidgetSettings.php:760
 msgid "Bottom Right"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:740
+#: includes/Frontend/ChatWidgetSettings.php:767
 msgid "Rounded"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:742
+#: includes/Frontend/ChatWidgetSettings.php:769
 msgid "Square"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:744
+#: includes/Frontend/ChatWidgetSettings.php:771
 msgid "Circle"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:753
+#: includes/Frontend/ChatWidgetSettings.php:780
 msgid "Header from"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:754
+#: includes/Frontend/ChatWidgetSettings.php:781
 msgid "Header to"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:755
+#: includes/Frontend/ChatWidgetSettings.php:782
 msgid "User bubble"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:756
+#: includes/Frontend/ChatWidgetSettings.php:783
 msgid "Assistant bubble"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:757
+#: includes/Frontend/ChatWidgetSettings.php:784
 msgid "Assistant text"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:758
+#: includes/Frontend/ChatWidgetSettings.php:785
 msgid "Panel background"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:759
+#: includes/Frontend/ChatWidgetSettings.php:786
 msgid "Messages background"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:760
+#: includes/Frontend/ChatWidgetSettings.php:787
 msgid "Border"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:761
+#: includes/Frontend/ChatWidgetSettings.php:788
 msgid "Input background"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:762
+#: includes/Frontend/ChatWidgetSettings.php:789
 msgid "Send button"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:763
+#: includes/Frontend/ChatWidgetSettings.php:790
 msgid "Handoff button"
 msgstr ""
 
-#: includes/Frontend/ChatWidgetSettings.php:764
+#: includes/Frontend/ChatWidgetSettings.php:791
 msgid "Floating button"
 msgstr ""
 

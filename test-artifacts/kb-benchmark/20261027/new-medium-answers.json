@@ -1,0 +1,81 @@
+{
+    "label": "new-medium",
+    "rows": [
+        {
+            "q": "What time do you open on Saturday?",
+            "fact": "9:30",
+            "status": "answered",
+            "answer": "We're open on **Saturday from 9:30 to 14:00** at our roastery café on Lindenstraße. We're closed on Sundays and public holidays, so Saturday morning is a great time to pop in.",
+            "correct": true,
+            "sources": [
+                "Opening hours"
+            ]
+        },
+        {
+            "q": "How much coffee should I use for a French press?",
+            "fact": "60 g",
+            "status": "answered",
+            "answer": "For a French press, use **60 g of coffee per litre of water**. Pair that with a coarse grind and water that's just off the boil.\n\n1. Measure out your coffee at 60 g per litre.\n2. Add a coarse grind and pour in the hot water.\n3. Steep for **four minutes**.\n4. Break the crust, skim off the foam.\n5. Press slowly.\n\nThis method gives you a full-bodied cup with natural oils.",
+            "correct": true,
+            "sources": [
+                "The complete home brewing guide"
+            ]
+        },
+        {
+            "q": "What is the price of the Ethiopia Yirgacheffe?",
+            "fact": "14.50",
+            "status": "answered",
+            "answer": "The **Ethiopia Yirgacheffe** is priced at **$14.50** and is currently in stock. It's a light roast, sold in a 250 g bag.",
+            "correct": true,
+            "sources": [
+                "Ethiopia Yirgacheffe"
+            ]
+        },
+        {
+            "q": "هزینه ارسال چقدر است؟",
+            "fact": "۴۵ هزار تومان",
+            "status": "answered",
+            "answer": "هزینهٔ ارسال پستی سفارش‌ها **۴۵ هزار تومان** است.\n\nاما اگر مبلغ سفارش شما **بالای ۸۰۰ هزار تومان** باشد، ارسال **رایگان** است.\n\nهمچنین زمان تحویل بسته به شهر فرق می‌کند:\n\n- **تهران:** ۱ تا ۲ روز کاری\n- **سایر شهرها:** ۳ تا ۵ روز کاری",
+            "correct": true,
+            "sources": [
+                "ارسال به سراسر ایران"
+            ]
+        },
+        {
+            "q": "میتونم اشتراکم رو موقتا متوقف کنم؟",
+            "fact": "۸ هفته",
+            "status": "answered",
+            "answer": "بله، می‌توانید اشتراک قهوه‌تان را **تا ۸ هفته** متوقف کنید. اگر بخواهید کاملاً لغوش کنید، هر زمان می‌توانید این کار را از **حساب کاربری** خود انجام دهید.",
+            "correct": true,
+            "sources": [
+                "اشتراک ماهانهٔ قهوه"
+            ]
+        },
+        {
+            "q": "قيمت قهوه كلمبيا چقدر است؟",
+            "fact": "14.90",
+            "status": "answered",
+            "answer": "قیمت **قهوه کلمبیا سوپریمو** برابر است با **$14.90** و در حال حاضر موجود است.\n\nاگر بخواهید، می‌توانم درباره طعم یا درجه برشته این قهوه هم برایتان توضیح بدهم.",
+            "correct": true,
+            "sources": [
+                "قهوه کلمبیا سوپریمو"
+            ]
+        },
+        {
+            "q": "Do you sell pizza?",
+            "fact": "",
+            "status": "not_found",
+            "answer": "I looked through the site's content but couldn't find a clear answer to that yet. Could you try rephrasing, or asking about something else?",
+            "correct": true,
+            "sources": []
+        },
+        {
+            "q": "Is there a staff discount code?",
+            "fact": "",
+            "status": "not_found",
+            "answer": "I looked through the site's content but couldn't find a clear answer to that yet. Could you try rephrasing, or asking about something else?",
+            "correct": true,
+            "sources": []
+        }
+    ]
+}

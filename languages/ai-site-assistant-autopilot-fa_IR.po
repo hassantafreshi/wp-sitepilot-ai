@@ -1,8 +1,9 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-10-26 23:24+0000\n"
+"POT-Creation-Date: 2026-10-27 13:56+0000\n"
 "PO-Revision-Date: 2026-10-26 23:30+0000\n"
 "Last-Translator: AI Site Assistant AutoPilot <info@aisaautopilot.ai>\n"
 "Language-Team: Persian <fa@li.org>\n"
@@ -90,7 +91,7 @@ msgstr "دانش سایت"
 #: includes/Admin/HandoffInboxPage.php:36 includes/Admin/HomePage.php:346
 #: includes/Admin/IntegrationsPage.php:65
 #: includes/Admin/IntegrationsPage.php:301 includes/Admin/SettingsPage.php:938
-#: includes/Frontend/ChatWidgetSettings.php:94
+#: includes/Frontend/ChatWidgetSettings.php:95
 msgid "Answer Desk"
 msgstr "میز پاسخ‌گویی"
 
@@ -295,7 +296,7 @@ msgstr ""
 "هیچ کانالی فعال نیست، پس دکمهٔ انتقال برای بازدیدکننده نمایش داده نمی‌شود."
 
 #: includes/Admin/AdminMenu.php:307
-#: includes/Frontend/ChatWidgetSettings.php:386
+#: includes/Frontend/ChatWidgetSettings.php:413
 msgid "That image is too large. Please use a PNG under 200 KB."
 msgstr "این تصویر خیلی بزرگ است. لطفاً یک PNG کمتر از ۲۰۰ کیلوبایت انتخاب کنید."
 
@@ -610,7 +611,7 @@ msgstr "این سرویس‌دهنده نقطهٔ دسترسی Embedding ندا�
 #: includes/Admin/LogsPage.php:25 includes/Admin/NativeFormsPage.php:19
 #: includes/Admin/SettingsPage.php:173 includes/Admin/SettingsPage.php:192
 #: includes/Admin/StoreCopilotPage.php:28
-#: includes/Frontend/ChatWidgetSettings.php:61
+#: includes/Frontend/ChatWidgetSettings.php:62
 msgid "You do not have permission to view this page."
 msgstr "شما اجازه مشاهده این صفحه را ندارید."
 
@@ -619,7 +620,7 @@ msgstr "شما اجازه مشاهده این صفحه را ندارید."
 #: includes/Admin/AnswerDeskVoicePage.php:41
 #: includes/Admin/AnswerDeskWidgetPage.php:56
 #: includes/Admin/HandoffInboxPage.php:37
-#: includes/Frontend/ChatWidgetSettings.php:95
+#: includes/Frontend/ChatWidgetSettings.php:96
 msgid "The support chat on your site, and every conversation it handled."
 msgstr "گفت‌وگوی پشتیبانی سایت شما و همهٔ گفت‌وگوهایی که پاسخ داده است."
 
@@ -1282,7 +1283,7 @@ msgid "Advanced"
 msgstr "پیشرفته"
 
 #: includes/Admin/AnswerDeskWidgetPage.php:99
-#: includes/Frontend/ChatWidgetSettings.php:432
+#: includes/Frontend/ChatWidgetSettings.php:459
 msgid "Pages where the chat appears"
 msgstr "صفحه‌هایی که گفت‌وگو در آن‌ها دیده می‌شود"
 
@@ -1340,7 +1341,7 @@ msgid "Selecting a colour saves it immediately and updates this preview."
 msgstr "انتخاب رنگ فوراً ذخیره می‌شود و این پیش‌نمایش را به‌روز می‌کند."
 
 #: includes/Admin/AnswerDeskWidgetPage.php:141
-#: includes/Frontend/ChatWidgetSettings.php:354
+#: includes/Frontend/ChatWidgetSettings.php:381
 msgid "Live preview"
 msgstr "پیش‌نمایش زنده"
 
@@ -2071,7 +2072,7 @@ msgstr ""
 #: includes/Admin/CopilotPage.php:316 includes/Admin/CopilotPage.php:317
 #: includes/Admin/SettingsPage.php:216 includes/Admin/SettingsPage.php:353
 #: includes/Frontend/ChatWidget.php:112
-#: includes/Frontend/ChatWidgetSettings.php:119
+#: includes/Frontend/ChatWidgetSettings.php:120
 msgid "Voice"
 msgstr "صدا"
 
@@ -2096,7 +2097,7 @@ msgid "Draft only"
 msgstr "فقط پیش‌نویس"
 
 #: includes/Admin/CopilotPage.php:343 includes/Admin/KnowledgeBasePage.php:379
-#: includes/Frontend/ChatWidgetSettings.php:205
+#: includes/Frontend/ChatWidgetSettings.php:206
 msgid "Title"
 msgstr "عنوان"
 
@@ -2233,12 +2234,12 @@ msgid "Structure details"
 msgstr "جزئیات ساختار"
 
 #: includes/Admin/CopilotPage.php:454
-#: includes/Frontend/ChatWidgetSettings.php:356
+#: includes/Frontend/ChatWidgetSettings.php:383
 msgid "Desktop"
 msgstr "دسکتاپ"
 
 #: includes/Admin/CopilotPage.php:455 includes/Admin/HandoffInboxPage.php:320
-#: includes/Frontend/ChatWidgetSettings.php:357
+#: includes/Frontend/ChatWidgetSettings.php:384
 #: includes/Support/HandoffEmail.php:62
 msgid "Mobile"
 msgstr "موبایل"
@@ -4126,12 +4127,12 @@ msgstr ""
 "کنید."
 
 #: includes/Admin/KnowledgeBasePage.php:407
-#: includes/Frontend/ChatWidgetSettings.php:450
+#: includes/Frontend/ChatWidgetSettings.php:477
 msgid "Content types"
 msgstr "قالب‌های محتوا"
 
 #: includes/Admin/KnowledgeBasePage.php:419
-#: includes/Frontend/ChatWidgetSettings.php:464
+#: includes/Frontend/ChatWidgetSettings.php:491
 msgid "Post categories"
 msgstr "دسته‌بندی‌های نوشته"
 
@@ -4366,7 +4367,7 @@ msgid "Delete answer"
 msgstr "حذف پاسخ"
 
 #: includes/Admin/KnowledgeBasePage.php:512
-#: includes/Api/KnowledgeBaseController.php:268
+#: includes/Api/KnowledgeBaseController.php:288
 msgid "Saved answer deleted."
 msgstr "پاسخ ذخیره‌شده حذف شد."
 
@@ -4530,7 +4531,7 @@ msgid "Updated"
 msgstr "به‌روزرسانی"
 
 #: includes/Admin/NativeFormsPage.php:109
-#: includes/Frontend/ChatWidgetSettings.php:399
+#: includes/Frontend/ChatWidgetSettings.php:426
 msgid "(no title)"
 msgstr "(بدون عنوان)"
 
@@ -4602,7 +4603,7 @@ msgid "Back to Setup"
 msgstr "بازگشت به راه‌اندازی"
 
 #: includes/Admin/SettingsPage.php:241
-#: includes/Frontend/ChatWidgetSettings.php:109
+#: includes/Frontend/ChatWidgetSettings.php:110
 msgid "Settings saved."
 msgstr "تنظیمات ذخیره شد."
 
@@ -4823,13 +4824,13 @@ msgstr ""
 "بپرسند؛ دستیار هرگز سایت شما را ویرایش نمی‌کند و تعداد درخواست‌ها محدود است."
 
 #: includes/Admin/SettingsPage.php:443 includes/Admin/SettingsPage.php:451
-#: includes/Frontend/ChatWidgetSettings.php:348
-#: includes/Frontend/ChatWidgetSettings.php:369
+#: includes/Frontend/ChatWidgetSettings.php:375
+#: includes/Frontend/ChatWidgetSettings.php:396
 msgid "Save changes"
 msgstr "ذخیرهٔ تغییرات"
 
 #: includes/Admin/SettingsPage.php:447
-#: includes/Frontend/ChatWidgetSettings.php:365
+#: includes/Frontend/ChatWidgetSettings.php:392
 msgid "Unsaved changes"
 msgstr "تغییرات ذخیره‌نشده"
 
@@ -4839,12 +4840,12 @@ msgstr "تغییرهای ذخیره‌نشده در این صفحه"
 
 #: includes/Admin/SettingsPage.php:450 includes/Admin/StoreCopilotPage.php:212
 #: includes/Efb/EfbBuilderButton.php:86
-#: includes/Frontend/ChatWidgetSettings.php:368
+#: includes/Frontend/ChatWidgetSettings.php:395
 msgid "Discard"
 msgstr "رد کردن"
 
 #: includes/Admin/SettingsPage.php:464
-#: includes/Frontend/ChatWidgetSettings.php:383
+#: includes/Frontend/ChatWidgetSettings.php:410
 msgid "Discard your changes?"
 msgstr "تغییرات کنار گذاشته شوند؟"
 
@@ -4853,7 +4854,7 @@ msgid "Advanced settings go back to their last saved values."
 msgstr "تنظیمات پیشرفته به آخرین مقادیر ذخیره‌شده برمی‌گردند."
 
 #: includes/Admin/SettingsPage.php:466
-#: includes/Frontend/ChatWidgetSettings.php:385
+#: includes/Frontend/ChatWidgetSettings.php:412
 msgid "Discard changes"
 msgstr "کنار گذاشتن تغییرات"
 
@@ -6347,66 +6348,66 @@ msgstr "لطفاً پرسشی حداکثر ۲٬۰۰۰ کاراکتری وارد 
 msgid "Conversation not found."
 msgstr "گفت‌وگو یافت نشد."
 
-#: includes/Api/ChatWidgetController.php:55
-#: includes/Api/ChatWidgetController.php:146
+#: includes/Api/ChatWidgetController.php:56
+#: includes/Api/ChatWidgetController.php:149
 msgid "The assistant widget is disabled."
 msgstr "ویجت دستیار غیرفعال است."
 
-#: includes/Api/ChatWidgetController.php:69
-#: includes/Api/KnowledgeBaseController.php:127
+#: includes/Api/ChatWidgetController.php:70
+#: includes/Api/KnowledgeBaseController.php:130
 msgid "Please enter a question."
 msgstr "لطفاً یک سوال وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:79
+#: includes/Api/ChatWidgetController.php:80
 msgid "Please shorten your message and try again."
 msgstr "لطفاً پیامتان را کوتاه‌تر کنید و دوباره تلاش کنید."
 
-#: includes/Api/ChatWidgetController.php:89
+#: includes/Api/ChatWidgetController.php:90
 msgid "Please wait before sending another message."
 msgstr "لطفاً پیش از ارسال پیام بعدی کمی صبر کنید."
 
-#: includes/Api/ChatWidgetController.php:122
+#: includes/Api/ChatWidgetController.php:125
 #: includes/Api/PublicChatController.php:38
 msgid "The assistant is temporarily unavailable. Please try again later."
 msgstr "دستیار موقتاً در دسترس نیست. لطفاً بعداً تلاش کنید."
 
-#: includes/Api/ChatWidgetController.php:156
+#: includes/Api/ChatWidgetController.php:159
 msgid "Human handoff is not enabled."
 msgstr "انتقال به انسان فعال نیست."
 
-#: includes/Api/ChatWidgetController.php:166
+#: includes/Api/ChatWidgetController.php:169
 msgid "Please wait before requesting another handoff."
 msgstr "لطفاً پیش از درخواست انتقال بعدی کمی صبر کنید."
 
-#: includes/Api/ChatWidgetController.php:186
+#: includes/Api/ChatWidgetController.php:189
 msgid "Please enter your name."
 msgstr "لطفاً نام خود را وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:187 includes/Core/Plugin.php:186
+#: includes/Api/ChatWidgetController.php:190 includes/Core/Plugin.php:186
 msgid "Please provide a valid email address."
 msgstr "لطفاً یک آدرس ایمیل معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:188 includes/Core/Plugin.php:187
+#: includes/Api/ChatWidgetController.php:191 includes/Core/Plugin.php:187
 msgid "Please enter a valid mobile number."
 msgstr "لطفاً یک شمارهٔ موبایل معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:189 includes/Core/Plugin.php:188
+#: includes/Api/ChatWidgetController.php:192 includes/Core/Plugin.php:188
 msgid "Please enter a valid website address."
 msgstr "لطفاً یک نشانی وب‌سایت معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:206
+#: includes/Api/ChatWidgetController.php:209
 msgid "Please fill in the required details."
 msgstr "لطفاً اطلاعات الزامی را پر کنید."
 
-#: includes/Api/ChatWidgetController.php:217
+#: includes/Api/ChatWidgetController.php:220
 msgid "No messages to send."
 msgstr "ارسال ناموفق بود."
 
-#: includes/Api/ChatWidgetController.php:240
+#: includes/Api/ChatWidgetController.php:243
 msgid "Your request has been sent to the support team."
 msgstr "درخواست شما برای تیم پشتیبانی ارسال شد."
 
-#: includes/Api/ChatWidgetController.php:241
+#: includes/Api/ChatWidgetController.php:244
 msgid "We could not send the request. Please try again later."
 msgstr "نتوانستیم درخواست را بفرستیم. لطفاً بعداً تلاش کنید."
 
@@ -6839,7 +6840,7 @@ msgstr ""
 msgid "Could not update the handoff status."
 msgstr "وضعیت انتقال به‌روز نشد."
 
-#: includes/Api/KnowledgeBaseController.php:54
+#: includes/Api/KnowledgeBaseController.php:57
 msgid ""
 "The local AI usage cap has been reached. Raise or reset the token cap before "
 "starting a full re-index so existing knowledge is not cleared without a "
@@ -6848,105 +6849,105 @@ msgstr ""
 "سقف مصرف هوش مصنوعی پر شده است. پیش از نمایه‌سازی دوبارهٔ کامل، سقف توکن را "
 "افزایش دهید یا بازنشانی کنید تا دانش فعلی بدون جایگزین پاک نشود."
 
-#: includes/Api/KnowledgeBaseController.php:65
+#: includes/Api/KnowledgeBaseController.php:68
 msgid "Knowledge base cleared."
 msgstr "دانش‌نامه پاک شد."
 
-#: includes/Api/KnowledgeBaseController.php:109
+#: includes/Api/KnowledgeBaseController.php:112
 msgid "Invalid post ID."
 msgstr "شناسهٔ نوشته نامعتبر است."
 
-#: includes/Api/KnowledgeBaseController.php:116
+#: includes/Api/KnowledgeBaseController.php:119
 msgid "Entry not found."
 msgstr "رکورد یافت نشد."
 
-#: includes/Api/KnowledgeBaseController.php:116
+#: includes/Api/KnowledgeBaseController.php:119
 msgid "Entry removed."
 msgstr "مورد حذف شد."
 
-#: includes/Api/KnowledgeBaseController.php:132
+#: includes/Api/KnowledgeBaseController.php:135
 #: includes/Connectors/WooCommerceContentSkill.php:62
 #: includes/Connectors/WooCommerceContentSkill.php:160
 #: includes/Connectors/WooCommerceContentSkill.php:234
 msgid "AI provider is not configured."
 msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
 
-#: includes/Api/KnowledgeBaseController.php:141
+#: includes/Api/KnowledgeBaseController.php:160
 msgid "The knowledge base is empty. Please index your content first."
 msgstr "دانش‌نامه خالی است. لطفاً ابتدا محتوای خود را ایندکس کنید."
 
-#: includes/Api/KnowledgeBaseController.php:171
+#: includes/Api/KnowledgeBaseController.php:191
 msgid "The AI provider could not answer this question. Please try again."
 msgstr "سرویس‌دهندهٔ هوش مصنوعی نتوانست به این سؤال پاسخ دهد. دوباره تلاش کنید."
 
 #. translators: %s: a question a site visitor asked that the site could not
 #. answer.
-#: includes/Api/KnowledgeBaseController.php:187
+#: includes/Api/KnowledgeBaseController.php:207
 #, php-format
 msgid "Write a help article that answers this question from a site visitor: %s"
 msgstr "یک مقالهٔ راهنما بنویس که به این پرسش بازدیدکنندهٔ سایت پاسخ دهد: %s"
 
-#: includes/Api/KnowledgeBaseController.php:229
+#: includes/Api/KnowledgeBaseController.php:249
 msgid "This question is no longer in the list. Reload the page and try again."
 msgstr ""
 "این پرسش دیگر در فهرست نیست. صفحه را دوباره بارگذاری کنید و دوباره تلاش کنید."
 
-#: includes/Api/KnowledgeBaseController.php:237
+#: includes/Api/KnowledgeBaseController.php:257
 msgid "Enter the question visitors ask."
 msgstr "پرسشی را که بازدیدکنندگان می‌پرسند وارد کنید."
 
 #. translators: %s: maximum number of characters in a saved answer.
-#: includes/Api/KnowledgeBaseController.php:239
+#: includes/Api/KnowledgeBaseController.php:259
 #, php-format
 msgid "Write an answer of up to %s characters."
 msgstr "پاسخی با حداکثر %s نویسه بنویسید."
 
-#: includes/Api/KnowledgeBaseController.php:240
+#: includes/Api/KnowledgeBaseController.php:260
 msgid "Another saved answer already covers this question."
 msgstr "پاسخ ذخیره‌شدهٔ دیگری همین پرسش را پوشش می‌دهد."
 
 #. translators: %s: maximum number of saved answers.
-#: includes/Api/KnowledgeBaseController.php:242
+#: includes/Api/KnowledgeBaseController.php:262
 #, php-format
 msgid "You can keep up to %s saved answers. Delete one before adding another."
 msgstr ""
 "حداکثر %s پاسخ ذخیره‌شده می‌توانید داشته باشید. پیش از افزودن پاسخ تازه، یکی "
 "را حذف کنید."
 
-#: includes/Api/KnowledgeBaseController.php:244
+#: includes/Api/KnowledgeBaseController.php:264
 msgid "Could not save the answer."
 msgstr "پاسخ ذخیره نشد."
 
-#: includes/Api/KnowledgeBaseController.php:266
+#: includes/Api/KnowledgeBaseController.php:286
 msgid "This saved answer no longer exists."
 msgstr "این پاسخ ذخیره‌شده دیگر وجود ندارد."
 
-#: includes/Api/KnowledgeBaseController.php:284
+#: includes/Api/KnowledgeBaseController.php:304
 msgid "Updated."
 msgstr "به‌روزرسانی شد."
 
-#: includes/Api/KnowledgeBaseController.php:304
+#: includes/Api/KnowledgeBaseController.php:324
 msgid "Enter a whole-number token cap between 0 and 1,000,000,000."
 msgstr "سقف توکن را به‌صورت عدد صحیح بین ۰ و ۱٬۰۰۰٬۰۰۰٬۰۰۰ وارد کنید."
 
-#: includes/Api/KnowledgeBaseController.php:316
+#: includes/Api/KnowledgeBaseController.php:336
 msgid "Budget updated."
 msgstr "سقف مصرف به‌روزرسانی شد."
 
-#: includes/Api/KnowledgeBaseController.php:360
+#: includes/Api/KnowledgeBaseController.php:380
 msgid "Usage data reset."
 msgstr "پیام %d/%d ارسال شد."
 
-#: includes/Api/PublicChatController.php:20
+#: includes/Api/PublicChatController.php:21
 #: includes/Api/PublicChatController.php:44
 msgid "The site assistant is not enabled."
 msgstr "دستیار سایت فعال نیست."
 
-#: includes/Api/PublicChatController.php:23
+#: includes/Api/PublicChatController.php:24
 msgid "Too many messages. Please try again later."
 msgstr "تعداد پیام‌ها بیش از حد مجاز است. لطفاً بعداً دوباره تلاش کنید."
 
-#: includes/Api/PublicChatController.php:27
+#: includes/Api/PublicChatController.php:28
 msgid "Please enter a question of up to 1,500 characters."
 msgstr "لطفاً سؤالی تا ۱۵۰۰ نویسه وارد کنید."
 
@@ -7029,32 +7030,32 @@ msgstr "order_id و مبلغ مثبت الزامی هستند."
 msgid "WooCommerce is not active."
 msgstr "ووکامرس فعال نیست."
 
-#: includes/Chat/ChatEngine.php:79 includes/Content/ContentIndexer.php:141
+#: includes/Chat/ChatEngine.php:81
 msgid "AI provider is not configured. Please add your API key in Settings."
 msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
 
-#: includes/Chat/ChatEngine.php:144 includes/Chat/ChatEngine.php:152
+#: includes/Chat/ChatEngine.php:139 includes/Chat/ChatEngine.php:147
 msgid "An error occurred while processing your question. Please try again."
 msgstr "هنگام پردازش سوال شما خطایی رخ داد. لطفاً دوباره تلاش کنید."
 
-#: includes/Chat/ChatEngine.php:207
+#: includes/Chat/ChatEngine.php:237
 msgid ""
 "I found a few different things that could match. Which one did you mean?"
 msgstr "چند مورد پیدا کردم که ممکن است منظورتان باشد. کدام‌یک؟"
 
-#: includes/Chat/ChatEngine.php:397
+#: includes/Chat/ChatEngine.php:427
+msgid "Would you like me to connect you with a member of our team?"
+msgstr "مایل هستید شما را به یکی از همکاران ما وصل کنم؟"
+
+#: includes/Chat/ChatEngine.php:431
 msgid ""
 "I looked through the site's content but couldn't find a clear answer to that "
 "yet."
 msgstr "در محتوای سایت گشتم، ولی هنوز پاسخ روشنی برای آن پیدا نکردم."
 
-#: includes/Chat/ChatEngine.php:402
+#: includes/Chat/ChatEngine.php:436
 msgid "Could you try rephrasing, or asking about something else?"
 msgstr "می‌توانید سؤال را طور دیگری بپرسید یا موضوع دیگری را مطرح کنید؟"
-
-#: includes/Chat/ChatEngine.php:406
-msgid "Would you like me to connect you with a member of our team?"
-msgstr "مایل هستید شما را به یکی از همکاران ما وصل کنم؟"
 
 #: includes/Connectors/EasyFormBuilderConnector.php:42
 msgid "Easy Form Builder"
@@ -7291,7 +7292,6 @@ msgid "WooCommerce AI draft creation is not available for this account."
 msgstr "ساخت پیش‌نویس با AI ووکامرس برای این حساب در دسترس نیست."
 
 #: includes/Connectors/WooCommerceProductSkill.php:37
-#: includes/Content/ContentIndexer.php:321
 msgid "AI provider not configured."
 msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
 
@@ -7332,61 +7332,53 @@ msgstr ""
 msgid "Product draft created. Review it in WooCommerce before publishing."
 msgstr "پیش‌نویس محصول ساخته شد. پیش از انتشار، آن را در ووکامرس بررسی کنید."
 
-#: includes/Content/ContentIndexer.php:173
-msgid "Added semantic embedding."
-msgstr "embedding معنایی افزوده شد."
+#: includes/Content/ContentIndexer.php:162
+msgid "Unexpected error during indexing."
+msgstr "خطای غیرمنتظره هنگام ایندکس."
 
-#: includes/Content/ContentIndexer.php:180
-msgid "Unchanged — skipped."
-msgstr "بدون تغییر — رد شد."
+#: includes/Content/ContentIndexer.php:198
+msgid "Post not found or not published."
+msgstr "نوشته پیدا نشد یا منتشر نشده است."
 
-#. translators: %s: post title.
-#: includes/Content/ContentIndexer.php:216
-#, php-format
-msgid "Indexed \"%s\" successfully."
-msgstr "«%s» با موفقیت نمایه شد."
+#: includes/Content/ContentIndexer.php:205
+msgid "Post type is not indexable."
+msgstr "این نوع محتوا قابل ایندکس نیست."
 
 #. translators: 1: post title, 2: error message.
-#: includes/Content/ContentIndexer.php:236
+#: includes/Content/ContentIndexer.php:330
 #, php-format
 msgid "Failed to index \"%1$s\": %2$s"
 msgstr "نمایه‌سازی «%1$s» ناموفق بود: %2$s"
 
-#: includes/Content/ContentIndexer.php:249
-msgid "Unexpected error during indexing."
-msgstr "خطای غیرمنتظره هنگام ایندکس."
+#: includes/Content/ContentIndexer.php:335
+msgid ""
+"Password-protected or private: not indexed, so the assistant never quotes it."
+msgstr "محافظت‌شده با رمز یا خصوصی: نمایه نشد تا دستیار هرگز از آن نقل نکند."
 
-#: includes/Content/ContentIndexer.php:292
+#: includes/Content/ContentIndexer.php:337
+msgid "Unchanged — skipped."
+msgstr "بدون تغییر — رد شد."
+
+#: includes/Content/ContentIndexer.php:339
+msgid "Added semantic embedding."
+msgstr "embedding معنایی افزوده شد."
+
+#. translators: 1: post title, 2: number of passages.
+#: includes/Content/ContentIndexer.php:343
+#, php-format
+msgid "Indexed \"%1$s\" (%2$d passage)."
+msgid_plural "Indexed \"%1$s\" (%2$d passages)."
+msgstr[0] "«%1$s» نمایه شد (%2$d بخش)."
+msgstr[1] "«%1$s» نمایه شد (%2$d بخش)."
+
+#: includes/Content/ContentIndexer.php:379
+#: includes/Content/ContentIndexer.php:414
 msgid ""
 "The local AI usage cap has been reached. Raise or reset the token cap in "
 "Usage & Cost, then resume this indexing pass."
 msgstr ""
 "سقف مصرف هوش مصنوعی پر شده است. سقف توکن را در «مصرف و هزینه» افزایش دهید یا "
 "بازنشانی کنید و سپس نمایه‌سازی را ادامه دهید."
-
-#: includes/Content/ContentIndexer.php:306
-msgid "Post not found or not published."
-msgstr "نوشته پیدا نشد یا منتشر نشده است."
-
-#: includes/Content/ContentIndexer.php:313
-msgid "Post type is not indexable."
-msgstr "این نوع محتوا قابل ایندکس نیست."
-
-#: includes/Content/ContentIndexer.php:328
-msgid ""
-"The local AI usage cap has been reached. Raise or reset the token cap before "
-"indexing this content."
-msgstr ""
-"سقف مصرف هوش مصنوعی پر شده است. پیش از نمایه‌سازی این محتوا، سقف توکن را "
-"افزایش دهید یا بازنشانی کنید."
-
-#: includes/Content/ContentIndexer.php:339
-msgid "Content unchanged."
-msgstr "محتوا تغییری نکرده است."
-
-#: includes/Content/ContentIndexer.php:370
-msgid "Content indexed successfully."
-msgstr "محتوا با موفقیت نمایه شد."
 
 #: includes/Content/ContentStudioReadModel.php:120
 msgid "Template not recorded"
@@ -7449,11 +7441,47 @@ msgstr ""
 msgid "Recorded before reasons were kept."
 msgstr "پیش از ثبت دلیل‌ها ثبت شده است."
 
-#: includes/Core/Activator.php:21
+#. translators: %s: product price as shown in the shop.
+#: includes/Content/KnowledgeExtractor.php:135
+#, php-format
+msgid "Price: %s"
+msgstr "قیمت: %s"
+
+#. translators: 1: stock status label, 2: number of items in stock.
+#: includes/Content/KnowledgeExtractor.php:143
+#, php-format
+msgid "%1$s (%2$d available)"
+msgstr "%1$s (%2$d عدد موجود)"
+
+#. translators: %s: stock status, e.g. "In stock" or "Out of stock".
+#: includes/Content/KnowledgeExtractor.php:146
+#, php-format
+msgid "Availability: %s"
+msgstr "موجودی: %s"
+
+#. translators: %s: product SKU.
+#: includes/Content/KnowledgeExtractor.php:150
+#, php-format
+msgid "SKU: %s"
+msgstr "شناسهٔ کالا (SKU): %s"
+
+#. translators: 1: weight, 2: weight unit.
+#: includes/Content/KnowledgeExtractor.php:165
+#, php-format
+msgid "Shipping weight: %1$s %2$s"
+msgstr "وزن ارسال: %1$s %2$s"
+
+#. translators: %s: comma-separated product categories.
+#: includes/Content/KnowledgeExtractor.php:170
+#, php-format
+msgid "Categories: %s"
+msgstr "دسته‌ها: %s"
+
+#: includes/Core/Activator.php:22
 msgid "AI Site Assistant AutoPilot requires PHP 8.1 or higher."
 msgstr "AI Site Assistant AutoPilot به PHP نسخهٔ ۸٫۱ یا بالاتر نیاز دارد."
 
-#: includes/Core/Activator.php:22
+#: includes/Core/Activator.php:23
 msgid "Plugin activation error"
 msgstr "خطای فعال‌سازی افزونه"
 
@@ -7760,20 +7788,20 @@ msgstr "درگاه‌ها و تجمیع‌کننده‌ها"
 msgid "Custom endpoint"
 msgstr "endpoint سفارشی"
 
-#: includes/Core/Settings.php:678 includes/Core/WpConnectors.php:53
+#: includes/Core/Settings.php:681 includes/Core/WpConnectors.php:53
 #: includes/Core/WpConnectors.php:96
 msgid "AI Site Assistant AutoPilot"
 msgstr "AI Site Assistant AutoPilot"
 
-#: includes/Core/Settings.php:679
+#: includes/Core/Settings.php:682
 msgid "AI Assistant"
 msgstr "دستیار AI"
 
-#: includes/Core/Settings.php:680
+#: includes/Core/Settings.php:683
 msgid "Hi! How can I help you?"
 msgstr "سلام! چطور می‌توانم کمکتان کنم؟"
 
-#: includes/Core/Settings.php:681
+#: includes/Core/Settings.php:684
 msgid "This conversation may be recorded to help our support team."
 msgstr "این گفت‌وگو ممکن است برای کمک به تیم پشتیبانی ما ثبت شود."
 
@@ -8574,8 +8602,8 @@ msgid "WordPress could not create the draft."
 msgstr "وردپرس نتوانست پیش‌نویس را بسازد."
 
 #: includes/Frontend/ChatWidget.php:42 includes/Frontend/ChatWidget.php:52
-#: includes/Frontend/ChatWidgetSettings.php:307
-#: includes/Frontend/ChatWidgetSettings.php:690
+#: includes/Frontend/ChatWidgetSettings.php:308
+#: includes/Frontend/ChatWidgetSettings.php:717
 msgid "Talk to a human"
 msgstr "صحبت با انسان"
 
@@ -8592,7 +8620,7 @@ msgid "Minimise chat"
 msgstr "کوچک کردن گفت‌وگو"
 
 #: includes/Frontend/ChatWidget.php:135
-#: includes/Frontend/ChatWidgetSettings.php:230
+#: includes/Frontend/ChatWidgetSettings.php:231
 msgid "Suggested questions"
 msgstr "پرسش‌های پیشنهادی"
 
@@ -8664,15 +8692,15 @@ msgstr "حالا نه"
 msgid "Your name"
 msgstr "نام شما"
 
-#: includes/Frontend/ChatWidgetSettings.php:99
+#: includes/Frontend/ChatWidgetSettings.php:100
 msgid "Back to Widget"
 msgstr "بازگشت به ویجت"
 
-#: includes/Frontend/ChatWidgetSettings.php:114
+#: includes/Frontend/ChatWidgetSettings.php:115
 msgid "Customise the widget"
 msgstr "سفارشی‌سازی ویجت"
 
-#: includes/Frontend/ChatWidgetSettings.php:115
+#: includes/Frontend/ChatWidgetSettings.php:116
 msgid ""
 "How the chat looks, which pages it appears on, what it says first and "
 "whether conversations are recorded. The on/off switch, voice and human "
@@ -8682,110 +8710,110 @@ msgstr ""
 "ثبت یا عدم ثبت گفت‌وگوها. کلید روشن و خاموش، صدا و انتقال به انسان هر کدام "
 "برگهٔ خودشان را دارند."
 
-#: includes/Frontend/ChatWidgetSettings.php:117
+#: includes/Frontend/ChatWidgetSettings.php:118
 msgid "Related Answer Desk settings"
 msgstr "تنظیمات مرتبط میز پاسخ‌گویی"
 
-#: includes/Frontend/ChatWidgetSettings.php:118
+#: includes/Frontend/ChatWidgetSettings.php:119
 msgid "Show or hide the widget"
 msgstr "نمایش یا پنهان‌کردن ویجت"
 
-#: includes/Frontend/ChatWidgetSettings.php:120
+#: includes/Frontend/ChatWidgetSettings.php:121
 msgid "Human handoff channels"
 msgstr "کانال‌های انتقال به انسان"
 
-#: includes/Frontend/ChatWidgetSettings.php:129
+#: includes/Frontend/ChatWidgetSettings.php:130
 msgid "Where it sits and how it looks"
 msgstr "جایگاه و ظاهر"
 
-#: includes/Frontend/ChatWidgetSettings.php:132
+#: includes/Frontend/ChatWidgetSettings.php:133
 msgid "Position"
 msgstr "موقعیت"
 
-#: includes/Frontend/ChatWidgetSettings.php:143
+#: includes/Frontend/ChatWidgetSettings.php:144
 msgid "Theme"
 msgstr "تم"
 
-#: includes/Frontend/ChatWidgetSettings.php:147
+#: includes/Frontend/ChatWidgetSettings.php:148
 msgid "Light"
 msgstr "روشن"
 
-#: includes/Frontend/ChatWidgetSettings.php:151
+#: includes/Frontend/ChatWidgetSettings.php:152
 msgid "Dark"
 msgstr "تیره"
 
-#: includes/Frontend/ChatWidgetSettings.php:162
+#: includes/Frontend/ChatWidgetSettings.php:163
 msgid "Colours"
 msgstr "رنگ‌ها"
 
-#: includes/Frontend/ChatWidgetSettings.php:163
+#: includes/Frontend/ChatWidgetSettings.php:164
 msgid "Reset to brand colour"
 msgstr "بازگشت به رنگ برند"
 
-#: includes/Frontend/ChatWidgetSettings.php:165
+#: includes/Frontend/ChatWidgetSettings.php:166
 msgid "Pick a brand colour, then adjust any single part."
 msgstr "یک رنگ برند انتخاب کنید، سپس هر بخش را جداگانه تنظیم کنید."
 
-#: includes/Frontend/ChatWidgetSettings.php:166
+#: includes/Frontend/ChatWidgetSettings.php:167
 msgid "Brand colour"
 msgstr "رنگ برند"
 
 #. translators: %s: hex colour such as #202a8d.
-#: includes/Frontend/ChatWidgetSettings.php:169
+#: includes/Frontend/ChatWidgetSettings.php:170
 #, php-format
 msgid "Use %s as the brand colour"
 msgstr "استفاده از %s به‌عنوان رنگ برند"
 
-#: includes/Frontend/ChatWidgetSettings.php:175
+#: includes/Frontend/ChatWidgetSettings.php:176
 msgid "Other colour"
 msgstr "رنگ دیگر"
 
-#: includes/Frontend/ChatWidgetSettings.php:180
-#: includes/Frontend/ChatWidgetSettings.php:185
+#: includes/Frontend/ChatWidgetSettings.php:181
+#: includes/Frontend/ChatWidgetSettings.php:186
 msgid "Every part follows the brand colour."
 msgstr "همهٔ بخش‌ها از رنگ برند پیروی می‌کنند."
 
-#: includes/Frontend/ChatWidgetSettings.php:180
-#: includes/Frontend/ChatWidgetSettings.php:184
+#: includes/Frontend/ChatWidgetSettings.php:181
+#: includes/Frontend/ChatWidgetSettings.php:185
 msgid ""
 "Some parts use their own colour. Reset to follow the brand colour again."
 msgstr ""
 "برخی بخش‌ها رنگ مخصوص خود را دارند. برای پیروی دوباره از رنگ برند، بازنشانی "
 "کنید."
 
-#: includes/Frontend/ChatWidgetSettings.php:202
+#: includes/Frontend/ChatWidgetSettings.php:203
 msgid "Header text and icons"
 msgstr "متن سربرگ و آیکون‌ها"
 
-#: includes/Frontend/ChatWidgetSettings.php:209
+#: includes/Frontend/ChatWidgetSettings.php:210
 msgid "Subtitle"
 msgstr "زیرعنوان"
 
-#: includes/Frontend/ChatWidgetSettings.php:215
+#: includes/Frontend/ChatWidgetSettings.php:216
 msgid "Beside the header title"
 msgstr "کنار عنوان در هدر"
 
-#: includes/Frontend/ChatWidgetSettings.php:215
+#: includes/Frontend/ChatWidgetSettings.php:216
 msgid "Header icon"
 msgstr "آیکون هدر"
 
-#: includes/Frontend/ChatWidgetSettings.php:216
+#: includes/Frontend/ChatWidgetSettings.php:217
 msgid "The mic button"
 msgstr "دکمهٔ میکروفون"
 
-#: includes/Frontend/ChatWidgetSettings.php:216
+#: includes/Frontend/ChatWidgetSettings.php:217
 msgid "Voice icon"
 msgstr "آیکون صدا"
 
-#: includes/Frontend/ChatWidgetSettings.php:217
+#: includes/Frontend/ChatWidgetSettings.php:218
 msgid "Handoff icon"
 msgstr "آیکون انتقال"
 
-#: includes/Frontend/ChatWidgetSettings.php:217
+#: includes/Frontend/ChatWidgetSettings.php:218
 msgid "The talk-to-human button"
 msgstr "دکمهٔ صحبت با انسان"
 
-#: includes/Frontend/ChatWidgetSettings.php:220
+#: includes/Frontend/ChatWidgetSettings.php:221
 msgid ""
 "PNG, JPEG, WebP or SVG up to 200 KB. Remove an image to use the built-in "
 "icon again."
@@ -8793,15 +8821,15 @@ msgstr ""
 "PNG، JPEG، WebP یا SVG تا ۲۰۰ کیلوبایت. برای استفادهٔ دوباره از آیکون پیش‌فرض، "
 "تصویر را حذف کنید."
 
-#: includes/Frontend/ChatWidgetSettings.php:224
+#: includes/Frontend/ChatWidgetSettings.php:225
 msgid "What visitors see first"
 msgstr "نخستین چیزی که بازدیدکنندگان می‌بینند"
 
-#: includes/Frontend/ChatWidgetSettings.php:226
+#: includes/Frontend/ChatWidgetSettings.php:227
 msgid "Greeting"
 msgstr "پیام خوش‌آمدگویی"
 
-#: includes/Frontend/ChatWidgetSettings.php:232
+#: includes/Frontend/ChatWidgetSettings.php:233
 msgid ""
 "Do you ship to my city?\n"
 "What are your opening hours?\n"
@@ -8811,7 +8839,7 @@ msgstr ""
 "ساعت کاری شما چیست؟\n"
 "چطور کالا را مرجوع کنم؟"
 
-#: includes/Frontend/ChatWidgetSettings.php:234
+#: includes/Frontend/ChatWidgetSettings.php:235
 msgid ""
 "One per line, up to four. Shown as one-tap buttons before the visitor types "
 "— the fastest way to a useful first answer."
@@ -8819,23 +8847,23 @@ msgstr ""
 "هر خط یک مورد، حداکثر چهار تا. پیش از آنکه بازدیدکننده تایپ کند به‌صورت "
 "دکمه‌های یک‌ضربه‌ای نمایش داده می‌شوند — سریع‌ترین راه به نخستین پاسخ مفید."
 
-#: includes/Frontend/ChatWidgetSettings.php:237
+#: includes/Frontend/ChatWidgetSettings.php:238
 msgid "Open the chat by itself"
 msgstr "باز شدن خودکار گفت‌وگو"
 
-#: includes/Frontend/ChatWidgetSettings.php:244
+#: includes/Frontend/ChatWidgetSettings.php:245
 msgid "Never — show a short hint beside the button"
 msgstr "هرگز — فقط یک راهنمای کوتاه کنار دکمه نشان داده شود"
 
 #. translators: %d: number of seconds after the page loads.
-#: includes/Frontend/ChatWidgetSettings.php:246
+#: includes/Frontend/ChatWidgetSettings.php:247
 #, php-format
 msgid "After %d second"
 msgid_plural "After %d seconds"
 msgstr[0] "پس از %d ثانیه"
 msgstr[1] "پس از %d ثانیه"
 
-#: includes/Frontend/ChatWidgetSettings.php:252
+#: includes/Frontend/ChatWidgetSettings.php:253
 msgid ""
 "Counted from each page load. On phones the open chat covers the whole "
 "screen, so most sites leave this off."
@@ -8843,74 +8871,106 @@ msgstr ""
 "از هر بار بارگذاری صفحه شمرده می‌شود. در گوشی، گفت‌وگوی باز تمام صفحه را "
 "می‌پوشاند؛ برای همین بیشتر سایت‌ها این گزینه را خاموش می‌گذارند."
 
-#: includes/Frontend/ChatWidgetSettings.php:257
+#: includes/Frontend/ChatWidgetSettings.php:258
 msgid "Corners and the floating button"
 msgstr "گوشه‌ها و دکمهٔ شناور"
 
-#: includes/Frontend/ChatWidgetSettings.php:261
+#: includes/Frontend/ChatWidgetSettings.php:262
 msgid "Panel corners"
 msgstr "گوشه‌های پنل"
 
-#: includes/Frontend/ChatWidgetSettings.php:268
+#: includes/Frontend/ChatWidgetSettings.php:269
 msgid "Message corners"
 msgstr "گوشه‌های پیام"
 
-#: includes/Frontend/ChatWidgetSettings.php:275
+#: includes/Frontend/ChatWidgetSettings.php:276
 msgid "Button shape"
 msgstr "شکل دکمه"
 
 #. translators: %d: corner radius in pixels.
-#: includes/Frontend/ChatWidgetSettings.php:289
+#: includes/Frontend/ChatWidgetSettings.php:290
 #, php-format
 msgid "Custom (%dpx)"
 msgstr "سفارشی (%d پیکسل)"
 
-#: includes/Frontend/ChatWidgetSettings.php:297
+#: includes/Frontend/ChatWidgetSettings.php:298
 msgid "Floating button icon"
 msgstr "آیکون دکمهٔ شناور"
 
-#: includes/Frontend/ChatWidgetSettings.php:297
+#: includes/Frontend/ChatWidgetSettings.php:298
 msgid "Replaces the chat bubble on the button"
 msgstr "جایگزین حباب گفت‌وگو روی دکمه می‌شود"
 
-#: includes/Frontend/ChatWidgetSettings.php:302
+#: includes/Frontend/ChatWidgetSettings.php:303
 msgid "Talk to a person button"
 msgstr "دکمهٔ گفت‌وگو با یک فرد"
 
-#: includes/Frontend/ChatWidgetSettings.php:303
+#: includes/Frontend/ChatWidgetSettings.php:304
 msgid "Visitors see this button only while Human handoff has a ready channel."
 msgstr ""
 "بازدیدکنندگان این دکمه را فقط وقتی می‌بینند که انتقال به انسان یک کانال آماده "
 "داشته باشد."
 
-#: includes/Frontend/ChatWidgetSettings.php:306
+#: includes/Frontend/ChatWidgetSettings.php:307
 msgid "Button text"
 msgstr "متن دکمه"
 
-#: includes/Frontend/ChatWidgetSettings.php:310
+#: includes/Frontend/ChatWidgetSettings.php:311
 msgid "Text above the button"
 msgstr "متن بالای دکمه"
 
-#: includes/Frontend/ChatWidgetSettings.php:314
+#: includes/Frontend/ChatWidgetSettings.php:315
 msgid "Set up handoff channels"
 msgstr "راه‌اندازی کانال‌های انتقال"
 
-#: includes/Frontend/ChatWidgetSettings.php:318
+#: includes/Frontend/ChatWidgetSettings.php:319
+msgid "When there is no answer"
+msgstr "وقتی پاسخی پیدا نشود"
+
+#: includes/Frontend/ChatWidgetSettings.php:320
+msgid "What visitors see when nothing on your site answers their question."
+msgstr "آنچه بازدیدکننده می‌بیند وقتی هیچ صفحه‌ای از سایت پاسخ پرسش او را ندارد."
+
+#: includes/Frontend/ChatWidgetSettings.php:324
+msgid "Then"
+msgstr "در این صورت"
+
+#: includes/Frontend/ChatWidgetSettings.php:328
+msgid "Show a message"
+msgstr "نمایش پیام"
+
+#: includes/Frontend/ChatWidgetSettings.php:332
+msgid "Offer to connect to a person"
+msgstr "پیشنهاد صحبت با انسان"
+
+#: includes/Frontend/ChatWidgetSettings.php:337
+msgid "Message"
+msgstr "پیام"
+
+#: includes/Frontend/ChatWidgetSettings.php:339
+msgid ""
+"Leave it empty to use the built-in text. Connecting to a person needs a "
+"ready handoff channel; without one, the message is shown."
+msgstr ""
+"برای متن پیش‌فرض افزونه خالی بگذارید. وصل کردن به انسان به یک کانال انتقال "
+"آماده نیاز دارد؛ بدون آن، همین پیام نمایش داده می‌شود."
+
+#: includes/Frontend/ChatWidgetSettings.php:345
 msgid "Recording and privacy"
 msgstr "ثبت گفت‌وگو و حریم خصوصی"
 
-#: includes/Frontend/ChatWidgetSettings.php:319
+#: includes/Frontend/ChatWidgetSettings.php:346
 msgid ""
 "Decide whether visitor conversations are kept, and what visitors are told."
 msgstr ""
 "تعیین کنید گفت‌وگوهای بازدیدکنندگان نگهداری شوند یا نه، و به آن‌ها چه گفته شود."
 
-#: includes/Frontend/ChatWidgetSettings.php:324
+#: includes/Frontend/ChatWidgetSettings.php:351
 msgid "Record visitor conversations"
 msgstr "ثبت گفت‌وگوهای بازدیدکنندگان"
 
-#: includes/Frontend/ChatWidgetSettings.php:325
-#: includes/Frontend/ChatWidgetSettings.php:330
+#: includes/Frontend/ChatWidgetSettings.php:352
+#: includes/Frontend/ChatWidgetSettings.php:357
 msgid ""
 "Conversations are not kept. Questions your content could not answer are "
 "still listed as content gaps, without who asked."
@@ -8918,8 +8978,8 @@ msgstr ""
 "گفت‌وگوها نگهداری نمی‌شوند. سؤال‌هایی که محتوای شما پاسخی برایشان نداشت، همچنان "
 "بدون مشخص‌شدن پرسنده به‌عنوان کمبود محتوا فهرست می‌شوند."
 
-#: includes/Frontend/ChatWidgetSettings.php:325
-#: includes/Frontend/ChatWidgetSettings.php:329
+#: includes/Frontend/ChatWidgetSettings.php:352
+#: includes/Frontend/ChatWidgetSettings.php:356
 msgid ""
 "Recorded conversations appear under Conversations with the pages each answer "
 "used."
@@ -8927,11 +8987,11 @@ msgstr ""
 "گفت‌وگوهای ثبت‌شده همراه با صفحه‌هایی که هر پاسخ از آن‌ها استفاده کرده، در بخش "
 "گفت‌وگوها نمایش داده می‌شوند."
 
-#: includes/Frontend/ChatWidgetSettings.php:337
+#: includes/Frontend/ChatWidgetSettings.php:364
 msgid "What visitors are told"
 msgstr "آنچه به بازدیدکنندگان گفته می‌شود"
 
-#: includes/Frontend/ChatWidgetSettings.php:339
+#: includes/Frontend/ChatWidgetSettings.php:366
 msgid ""
 "Shown above the message box while recording is on. Make sure it matches your "
 "privacy policy."
@@ -8939,7 +8999,7 @@ msgstr ""
 "تا وقتی ثبت روشن است، بالای کادر پیام نشان داده می‌شود. مطمئن شوید با سیاست "
 "حریم خصوصی شما هم‌خوان است."
 
-#: includes/Frontend/ChatWidgetSettings.php:343
+#: includes/Frontend/ChatWidgetSettings.php:370
 msgid ""
 "When a visitor asks for a person, that conversation is kept in the handoff "
 "inbox so your team can reply — even while recording is off."
@@ -8947,69 +9007,69 @@ msgstr ""
 "وقتی بازدیدکننده‌ای بخواهد با یک فرد گفت‌وگو کند، آن گفت‌وگو در صندوق انتقال "
 "نگهداری می‌شود تا تیم شما پاسخ دهد — حتی وقتی ثبت خاموش است."
 
-#: includes/Frontend/ChatWidgetSettings.php:355
+#: includes/Frontend/ChatWidgetSettings.php:382
 msgid "Preview size"
 msgstr "اندازهٔ پیش‌نمایش"
 
-#: includes/Frontend/ChatWidgetSettings.php:361
+#: includes/Frontend/ChatWidgetSettings.php:388
 msgid "Preview only. Visitors see changes after you save."
 msgstr "فقط پیش‌نمایش است. بازدیدکنندگان تغییرات را پس از ذخیره می‌بینند."
 
-#: includes/Frontend/ChatWidgetSettings.php:367
+#: includes/Frontend/ChatWidgetSettings.php:394
 msgid "Unsaved widget changes — visitors still see the saved version"
 msgstr "تغییرهای ذخیره‌نشدهٔ ویجت — بازدیدکنندگان هنوز نسخهٔ ذخیره‌شده را می‌بینند"
 
-#: includes/Frontend/ChatWidgetSettings.php:384
+#: includes/Frontend/ChatWidgetSettings.php:411
 msgid ""
 "The widget goes back to its last saved settings. Nothing is sent to visitors."
 msgstr ""
 "ویجت به آخرین تنظیمات ذخیره‌شده برمی‌گردد. چیزی برای بازدیدکنندگان فرستاده "
 "نمی‌شود."
 
-#: includes/Frontend/ChatWidgetSettings.php:387
+#: includes/Frontend/ChatWidgetSettings.php:414
 msgid "Searching…"
 msgstr "در حال جست‌وجو…"
 
-#: includes/Frontend/ChatWidgetSettings.php:388
+#: includes/Frontend/ChatWidgetSettings.php:415
 msgid "Choose an entry to hide the chat on it."
 msgstr "موردی را انتخاب کنید تا گفت‌وگو در آن پنهان شود."
 
-#: includes/Frontend/ChatWidgetSettings.php:389
+#: includes/Frontend/ChatWidgetSettings.php:416
 msgid "No published page, post or product has that title."
 msgstr "هیچ برگه، نوشته یا محصول منتشرشده‌ای این عنوان را ندارد."
 
-#: includes/Frontend/ChatWidgetSettings.php:390
+#: includes/Frontend/ChatWidgetSettings.php:417
 msgid "Search is not available right now. Try again."
 msgstr "جست‌وجو اکنون در دسترس نیست. دوباره تلاش کنید."
 
-#: includes/Frontend/ChatWidgetSettings.php:391
+#: includes/Frontend/ChatWidgetSettings.php:418
 msgid "Hide here"
 msgstr "اینجا پنهان شود"
 
-#: includes/Frontend/ChatWidgetSettings.php:392
+#: includes/Frontend/ChatWidgetSettings.php:419
 msgid "Hidden"
 msgstr "پنهان"
 
 #. translators: %s: title of a page, post or product.
-#: includes/Frontend/ChatWidgetSettings.php:394
+#: includes/Frontend/ChatWidgetSettings.php:421
 #, php-format
 msgid "%s added. Save changes to apply it."
 msgstr "«%s» افزوده شد. برای اعمال، تغییرات را ذخیره کنید."
 
 #. translators: %s: title of a page, post or product.
-#: includes/Frontend/ChatWidgetSettings.php:396
-#: includes/Frontend/ChatWidgetSettings.php:489
+#: includes/Frontend/ChatWidgetSettings.php:423
+#: includes/Frontend/ChatWidgetSettings.php:516
 #, php-format
 msgid "Show the chat again on %s"
 msgstr "نمایش دوبارهٔ گفت‌وگو در «%s»"
 
 #. translators: %d: the most single entries the chat can be hidden on.
-#: includes/Frontend/ChatWidgetSettings.php:398
+#: includes/Frontend/ChatWidgetSettings.php:425
 #, php-format
 msgid "You can hide the chat on up to %d single entries."
 msgstr "گفت‌وگو را حداکثر در %d مورد مشخص می‌توانید پنهان کنید."
 
-#: includes/Frontend/ChatWidgetSettings.php:433
+#: includes/Frontend/ChatWidgetSettings.php:460
 msgid ""
 "Hide the chat where it gets in the way, such as checkout or a page that "
 "already has its own contact form."
@@ -9017,25 +9077,25 @@ msgstr ""
 "گفت‌وگو را جایی که مزاحم است پنهان کنید؛ مثلاً صفحهٔ پرداخت یا صفحه‌ای که خودش "
 "فرم تماس دارد."
 
-#: includes/Frontend/ChatWidgetSettings.php:435
+#: includes/Frontend/ChatWidgetSettings.php:462
 msgid "Show the chat on"
 msgstr "نمایش گفت‌وگو در"
 
-#: includes/Frontend/ChatWidgetSettings.php:439
+#: includes/Frontend/ChatWidgetSettings.php:466
 msgid "Every page"
 msgstr "همهٔ صفحه‌ها"
 
-#: includes/Frontend/ChatWidgetSettings.php:443
+#: includes/Frontend/ChatWidgetSettings.php:470
 msgid "Every page except the ones below"
 msgstr "همهٔ صفحه‌ها جز موارد زیر"
 
-#: includes/Frontend/ChatWidgetSettings.php:447
+#: includes/Frontend/ChatWidgetSettings.php:474
 msgid "Nothing is chosen below yet, so the chat still shows on every page."
 msgstr ""
 "هنوز چیزی در پایین انتخاب نشده است، پس گفت‌وگو همچنان در همهٔ صفحه‌ها دیده "
 "می‌شود."
 
-#: includes/Frontend/ChatWidgetSettings.php:460
+#: includes/Frontend/ChatWidgetSettings.php:487
 msgid ""
 "Hides the chat on every item of a ticked type and on that type’s archive "
 "page."
@@ -9043,119 +9103,119 @@ msgstr ""
 "گفت‌وگو را در همهٔ موردهای قالبِ تیک‌خورده و در صفحهٔ بایگانی همان قالب پنهان "
 "می‌کند."
 
-#: includes/Frontend/ChatWidgetSettings.php:474
+#: includes/Frontend/ChatWidgetSettings.php:501
 msgid ""
 "Hides the chat on posts filed in a ticked category and on that category’s "
 "own page."
 msgstr "گفت‌وگو را در نوشته‌های دستهٔ تیک‌خورده و در صفحهٔ خود آن دسته پنهان می‌کند."
 
-#: includes/Frontend/ChatWidgetSettings.php:478
+#: includes/Frontend/ChatWidgetSettings.php:505
 msgid "Single pages, posts or products"
 msgstr "برگه، نوشته یا محصول مشخص"
 
-#: includes/Frontend/ChatWidgetSettings.php:479
+#: includes/Frontend/ChatWidgetSettings.php:506
 msgid "Search by title"
 msgstr "جست‌وجو با عنوان"
 
-#: includes/Frontend/ChatWidgetSettings.php:483
+#: includes/Frontend/ChatWidgetSettings.php:510
 msgid "The chat is hidden on"
 msgstr "گفت‌وگو در این موارد پنهان است"
 
-#: includes/Frontend/ChatWidgetSettings.php:493
+#: includes/Frontend/ChatWidgetSettings.php:520
 msgid "No single entry is chosen."
 msgstr "هیچ مورد مشخصی انتخاب نشده است."
 
-#: includes/Frontend/ChatWidgetSettings.php:496
+#: includes/Frontend/ChatWidgetSettings.php:523
 msgid "The same rules apply to the [aisaautopilot_chat] shortcode."
 msgstr "همین قاعده‌ها برای کد کوتاه [aisaautopilot_chat] هم اعمال می‌شوند."
 
 #. translators: %d: numeric ID of a page or post that has no title.
-#: includes/Frontend/ChatWidgetSettings.php:548
+#: includes/Frontend/ChatWidgetSettings.php:575
 #, php-format
 msgid "(no title) #%d"
 msgstr "(بدون عنوان) #%d"
 
-#: includes/Frontend/ChatWidgetSettings.php:677
+#: includes/Frontend/ChatWidgetSettings.php:704
 msgid "Do you ship to Shiraz?"
 msgstr "به شیراز ارسال دارید؟"
 
-#: includes/Frontend/ChatWidgetSettings.php:706
+#: includes/Frontend/ChatWidgetSettings.php:733
 msgid "Type your message…"
 msgstr "پیامتان را بنویسید…"
 
-#: includes/Frontend/ChatWidgetSettings.php:727
+#: includes/Frontend/ChatWidgetSettings.php:754
 msgid "Bottom Left"
 msgstr "پایین چپ"
 
-#: includes/Frontend/ChatWidgetSettings.php:729
+#: includes/Frontend/ChatWidgetSettings.php:756
 msgid "Top Right"
 msgstr "بالا راست"
 
-#: includes/Frontend/ChatWidgetSettings.php:731
+#: includes/Frontend/ChatWidgetSettings.php:758
 msgid "Top Left"
 msgstr "بالا چپ"
 
-#: includes/Frontend/ChatWidgetSettings.php:733
+#: includes/Frontend/ChatWidgetSettings.php:760
 msgid "Bottom Right"
 msgstr "پایین راست"
 
-#: includes/Frontend/ChatWidgetSettings.php:740
+#: includes/Frontend/ChatWidgetSettings.php:767
 msgid "Rounded"
 msgstr "گردگوشه"
 
-#: includes/Frontend/ChatWidgetSettings.php:742
+#: includes/Frontend/ChatWidgetSettings.php:769
 msgid "Square"
 msgstr "مربع"
 
-#: includes/Frontend/ChatWidgetSettings.php:744
+#: includes/Frontend/ChatWidgetSettings.php:771
 msgid "Circle"
 msgstr "دایره"
 
-#: includes/Frontend/ChatWidgetSettings.php:753
+#: includes/Frontend/ChatWidgetSettings.php:780
 msgid "Header from"
 msgstr "هدر — از"
 
-#: includes/Frontend/ChatWidgetSettings.php:754
+#: includes/Frontend/ChatWidgetSettings.php:781
 msgid "Header to"
 msgstr "هدر — تا"
 
-#: includes/Frontend/ChatWidgetSettings.php:755
+#: includes/Frontend/ChatWidgetSettings.php:782
 msgid "User bubble"
 msgstr "حباب کاربر"
 
-#: includes/Frontend/ChatWidgetSettings.php:756
+#: includes/Frontend/ChatWidgetSettings.php:783
 msgid "Assistant bubble"
 msgstr "حباب دستیار"
 
-#: includes/Frontend/ChatWidgetSettings.php:757
+#: includes/Frontend/ChatWidgetSettings.php:784
 msgid "Assistant text"
 msgstr "متن دستیار"
 
-#: includes/Frontend/ChatWidgetSettings.php:758
+#: includes/Frontend/ChatWidgetSettings.php:785
 msgid "Panel background"
 msgstr "پس‌زمینهٔ پنل"
 
-#: includes/Frontend/ChatWidgetSettings.php:759
+#: includes/Frontend/ChatWidgetSettings.php:786
 msgid "Messages background"
 msgstr "پس‌زمینهٔ گفت‌وگو"
 
-#: includes/Frontend/ChatWidgetSettings.php:760
+#: includes/Frontend/ChatWidgetSettings.php:787
 msgid "Border"
 msgstr "کادر و خطوط"
 
-#: includes/Frontend/ChatWidgetSettings.php:761
+#: includes/Frontend/ChatWidgetSettings.php:788
 msgid "Input background"
 msgstr "پس‌زمینهٔ ورودی"
 
-#: includes/Frontend/ChatWidgetSettings.php:762
+#: includes/Frontend/ChatWidgetSettings.php:789
 msgid "Send button"
 msgstr "دکمهٔ ارسال"
 
-#: includes/Frontend/ChatWidgetSettings.php:763
+#: includes/Frontend/ChatWidgetSettings.php:790
 msgid "Handoff button"
 msgstr "دکمهٔ انتقال"
 
-#: includes/Frontend/ChatWidgetSettings.php:764
+#: includes/Frontend/ChatWidgetSettings.php:791
 msgid "Floating button"
 msgstr "دکمهٔ شناور"
 

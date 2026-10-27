@@ -9,8 +9,8 @@
 | `includes/Admin` | همهٔ صفحه‌های مدیریت، `AdminMenu`، کتابخانهٔ `Ui`، `ConnectionChip`، ناوبری Answer Desk و Content Studio، خروجی CSV و `HealthDiagnostics` |
 | `includes/Api` | `RestRoutes` و کنترلرهای REST |
 | `includes/Providers` | `ProviderManager`، providerهای OpenAI-compatible و Anthropic، `UsageCappedProvider`، trait `SafeHttp` |
-| `includes/Content` | `KnowledgeBase`، `ContentIndexer`، `ContentSummarizer`، `VectorSearch`، `KbCache`، `KbGaps`، `ContentHooks`، read model محتوای Content Studio |
-| `includes/Chat` | `ChatEngine` (RAG)، `ConversationManager` (کنسول مدیر)، `VisitorConversationStore` (ثبت گفت‌وگوی ویجت) |
+| `includes/Content` | `KnowledgeBase`، `ContentIndexer`، `KnowledgeExtractor`، `KnowledgeChunker`، `KnowledgeText`، `KnowledgeIndex`، `KnowledgeSearch`، `VectorSearch`، `KbCache`، `KbGaps`، `ContentHooks`، read model محتوای Content Studio |
+| `includes/Chat` | `ChatEngine` (RAG)، `ConversationHistory` (نوبت‌های قبلی ویجت)، `ConversationManager` (کنسول مدیر)، `VisitorConversationStore` (ثبت گفت‌وگوی ویجت) |
 | `includes/Support` | `HandoffService`، کانال‌های Email و Telegram و Twilio، `HandoffInbox`، `PdfExporter` |
 | `includes/Skills` و `includes/Execution` | skillهای تبدیل درخواست به plan، schema و validatorها، `ActionStore` و executorهای بعد از تأیید |
 | `includes/Connectors` | قرارداد connector، connector بومی و Easy Form Builder، WooCommerce و skillهای آن |

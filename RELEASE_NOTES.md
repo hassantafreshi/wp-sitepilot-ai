@@ -62,6 +62,28 @@ unanswered questions with "Write it" into Content Studio, saved answers,
 and Collections / Sync sources views derived from the index. Optional
 embeddings for semantic search.
 
+Indexing runs on the site's own server and makes no AI request: each page is
+split by its headings and paragraphs into passages of about 900 characters,
+WooCommerce price, stock, SKU and attributes become a passage of their own,
+and every passage's words go into a search index (BM25) in which Persian,
+Arabic and English spellings, digits and the zero-width non-joiner are folded
+together. Password-protected and private content is never indexed, and is
+checked again before anything is quoted. The assistant is given the passages
+that match the question, not post summaries. A question that nothing on the
+site relates to is answered "not found" without an AI request; the site owner
+chooses whether visitors then see a message (their own or the built-in one)
+or an offer to connect to a person. The widget sends its last few turns, so
+a follow-up such as "and how much is it?" keeps its subject. Sites upgraded
+from a development build are rebuilt in the background.
+
+Measured on a 158-page test site (coffee shop, English and Persian, with
+products, a long guide, a password-protected page and 120 filler posts): the
+fact a question needs reached the model for 25 of 25 questions, against 0 of
+25 with the previous summary-based index; indexing took 1.8 seconds instead of
+about eight minutes of AI requests; end to end with a real model, 8 of 8
+answers were right, against 2 of 8. Details are in
+`docs/KB_RETRIEVAL_BENCHMARK_FA.md`.
+
 **Answer Desk** — the visitor chat widget (off by default) with panel and
 full-screen modes, a customiser for colours, icons, greeting, suggested
 questions and the pages it appears on, conversation logging with a privacy

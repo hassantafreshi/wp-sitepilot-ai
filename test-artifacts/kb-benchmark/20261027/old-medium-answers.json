@@ -1,0 +1,69 @@
+{
+    "label": "old-medium",
+    "rows": [
+        {
+            "q": "What time do you open on Saturday?",
+            "fact": "9:30",
+            "status": "not_found",
+            "answer": "I'm sorry, I don't have information about our opening hours in the content I can access. The coffee articles I know about cover origins, roasting, brewing and storage, but nothing about when we're open on Saturday. Please check the contact or visit page of the site, or reach out to the café directly for the latest hours.",
+            "correct": false,
+            "sources": []
+        },
+        {
+            "q": "How much coffee should I use for a French press?",
+            "fact": "60 g",
+            "status": "not_found",
+            "answer": "I'm sorry, I don't have a French press recipe or coffee-to-water ratio in the information I have. Our content covers the flavour and origin of our coffees, plus some general handling tips. Those include storing beans cool and dark and grinding them just before you brew. For a specific dose, a French press guide from a brewing resource or the coffee packaging would be a better place to check. If you tell me which coffee you have, I can share its tasting notes and recommended brewing approach.",
+            "correct": false,
+            "sources": []
+        },
+        {
+            "q": "What is the price of the Ethiopia Yirgacheffe?",
+            "fact": "14.50",
+            "status": "not_found",
+            "answer": "Sorry, I couldn't find anything about the Ethiopia Yirgacheffe in our content, so I don't have its price. Our coffee posts cover lots from places like Rwanda, Costa Rica, Yemen, Honduras, Guatemala, Brazil, Sumatra, Kenya, Burundi, Panama and Peru. If you tell me which one you're interested in, I can share what we have about it.",
+            "correct": false,
+            "sources": []
+        },
+        {
+            "q": "هزینه ارسال چقدر است؟",
+            "fact": "۴۵ هزار تومان",
+            "status": "not_found",
+            "answer": "متأسفانه در اطلاعات موجود درباره هزینه ارسال چیزی پیدا نکردم. برای پاسخ دقیق، لطفاً با تیم پشتیبانی فروشگاه تماس بگیرید.",
+            "correct": false,
+            "sources": []
+        },
+        {
+            "q": "میتونم اشتراکم رو موقتا متوقف کنم؟",
+            "fact": "۸ هفته",
+            "status": "not_found",
+            "answer": "متأسفانه در اطلاعات فعلی من چیزی دربارهٔ اشتراک یا امکان توقف موقت آن پیدا نکردم. مطالب موجود بیشتر دربارهٔ قهوه‌های تک‌منشأ، برشته‌کاری، نگهداری و دم‌آوری و معرفی تعاونی‌های کشاورزان است.\n\nبرای پاسخ دقیق دربارهٔ اشتراک خود، بهتر است با تیم پشتیبانی سایت تماس بگیرید یا بخش حساب کاربری را بررسی کنید. اگر دربارهٔ انتخاب یا دم‌آوری قهوه سؤالی دارید، خوشحال می‌شوم کمک کنم.",
+            "correct": false,
+            "sources": []
+        },
+        {
+            "q": "قيمت قهوه كلمبيا چقدر است؟",
+            "fact": "14.90",
+            "status": "not_found",
+            "answer": "متأسفانه در اطلاعاتی که در اختیار دارم، چیزی دربارهٔ **قهوهٔ کلمبیا** یا **قیمت** آن پیدا نکردم. مطالب موجود بیشتر دربارهٔ قهوه‌های برزیل، کنیا، یمن، هندوراس، گواتمالا، پاناما، رواندا، بوروندی، سوماترا و پرو هستند.\n\nبرای اطلاع از قیمت فعلی، لطفاً مستقیم با تیم فروش یا بخش پشتیبانی وب‌سایت تماس بگیرید. اگر می‌خواهید، می‌توانم دربارهٔ یکی از قهوه‌های موجود، طعم، روش دم‌آوری یا نگهداری آن برایتان توضیح بدهم.",
+            "correct": false,
+            "sources": []
+        },
+        {
+            "q": "Do you sell pizza?",
+            "fact": "",
+            "status": "not_found",
+            "answer": "Sorry, I don't see anything about pizza in our content. This site focuses on coffee: single-origin lots, roasting notes, brewing tips, and the farmers and cooperatives behind them. If you're curious about any of our coffees, I'd be happy to help you find one.",
+            "correct": true,
+            "sources": []
+        },
+        {
+            "q": "Is there a staff discount code?",
+            "fact": "",
+            "status": "not_found",
+            "answer": "I'm sorry, I don't have any information about a staff discount code. The content I have covers our coffee lots, roasting notes, brewing and storage tips, and the farmers and cooperatives we work with. For questions about discounts or staff pricing, please reach out to the café or roastery directly.",
+            "correct": true,
+            "sources": []
+        }
+    ]
+}
