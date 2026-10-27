@@ -376,6 +376,7 @@ final class ContentIndexer {
 			return false;
 		}
 		if ( ( new UsageTracker() )->is_exhausted() ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Never echoed: it reaches only Logger and the wp_json_encode'd REST body of a paused batch.
 			throw new ProviderException( 'usage_cap_reached', __( 'The local AI usage cap has been reached. Raise or reset the token cap in Usage & Cost, then resume this indexing pass.', 'ai-site-assistant-autopilot' ) );
 		}
 

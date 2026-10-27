@@ -65,7 +65,7 @@ final class KnowledgeExtractor {
 		$html = (string) preg_replace_callback(
 			'#<h([1-6])\b[^>]*>(.*?)</h\1>#is',
 			static function ( array $m ): string {
-				$heading = trim( (string) preg_replace( '/\s+/u', ' ', strip_tags( $m[2] ) ) );
+				$heading = trim( (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( $m[2] ) ) );
 				return '' === $heading ? "\n" : "\n\x1E" . $heading . "\n";
 			},
 			$html
@@ -74,7 +74,7 @@ final class KnowledgeExtractor {
 		$html = (string) preg_replace( '#<(td|th)\b[^>]*>#i', ' | ', $html );
 		$html = (string) preg_replace( '#<br\s*/?>#i', "\n", $html );
 		$html = (string) preg_replace( '#</?(p|div|section|article|header|footer|aside|blockquote|ul|ol|li|tr|table|thead|tbody|figure|figcaption|dl|dt|dd|pre|details|summary)\b[^>]*>#i', "\n", $html );
-		$text = html_entity_decode( strip_tags( $html ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		$text = html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		$text = str_replace( "\u{00A0}", ' ', $text );
 
 		$sections = array();
