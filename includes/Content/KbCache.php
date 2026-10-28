@@ -42,7 +42,7 @@ final class KbCache {
 		$store = $this->store();
 		$key   = $this->key( $question );
 
-		if ( ! isset( $store[ $key ] ) ) {
+		if ( '' === $key || ! isset( $store[ $key ] ) ) {
 			return null;
 		}
 
@@ -63,12 +63,12 @@ final class KbCache {
 	 * @param array<int,array<string,mixed>> $sources
 	 */
 	public function put( string $question, string $answer, array $sources ): void {
-		if ( '' === trim( $answer ) ) {
+		$key = $this->key( $question );
+		if ( '' === trim( $answer ) || '' === $key ) {
 			return;
 		}
 
 		$store = $this->store();
-		$key   = $this->key( $question );
 
 		$store[ $key ] = array(
 			'question' => mb_substr( trim( wp_strip_all_tags( $question ) ), 0, 300 ),
@@ -104,10 +104,8 @@ final class KbCache {
 		return is_array( $store ) ? $store : array();
 	}
 
+	/** The shared rule, so a question differing only in punctuation or letter forms hits the same entry. */
 	private function key( string $question ): string {
-		$q = mb_strtolower( trim( wp_strip_all_tags( $question ) ) );
-		$q = (string) preg_replace( '/\s+/u', ' ', $q );
-
-		return md5( $q );
+		return QuestionKey::of( wp_strip_all_tags( $question ) );
 	}
 }

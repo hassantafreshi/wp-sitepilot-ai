@@ -34,7 +34,10 @@ final class KbGaps {
 		}
 		$reason = in_array( $reason, self::REASONS, true ) ? $reason : '';
 		$key    = self::key( $question );
-		$now    = gmdate( 'c' );
+		if ( '' === $key ) {
+			return;
+		}
+		$now = gmdate( 'c' );
 
 		OptionLock::mutate(
 			self::OPTION,
@@ -203,11 +206,13 @@ final class KbGaps {
 		delete_option( self::OPTION );
 	}
 
-	/** The hash a question is stored under: lower case, whitespace collapsed. */
+	/**
+	 * The hash a question is stored under: the shared rule in QuestionKey, so punctuation,
+	 * case and Arabic or Persian letter forms do not split one question into several entries.
+	 * Entries recorded under the earlier lower-case-only hash keep their key and links.
+	 */
 	public static function key( string $question ): string {
-		$q = mb_strtolower( $question );
-		$q = (string) preg_replace( '/\s+/u', ' ', $q );
-		return md5( trim( $q ) );
+		return QuestionKey::of( $question );
 	}
 
 	/** A short explanation of why the question counted as unanswered. */

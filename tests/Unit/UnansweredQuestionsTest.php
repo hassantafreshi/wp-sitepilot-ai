@@ -52,6 +52,14 @@ final class UnansweredQuestionsTest extends TestCase {
 		$this->assertSame( 0, $entry['draft_post_id'] );
 	}
 
+	public function test_unanswered_questions_and_saved_answers_compare_questions_the_same_way(): void {
+		$this->assertSame( KbGaps::key( 'Do you ship to Canada?' ), KbGaps::key( 'do you ship to canada' ) );
+		$this->assertSame( KbGaps::key( 'هزینهٔ ارسال به کرج چقدر است؟' ), KbGaps::key( 'هزينهٔ ارسال به كرج چقدر است' ) );
+		$this->assertSame( SavedAnswers::key( 'Do you ship to Canada?' ), KbGaps::key( 'Do you ship to Canada?' ) );
+		$this->assertNotSame( KbGaps::key( 'Do you ship to Canada?' ), KbGaps::key( 'Do you ship to Mexico?' ) );
+		$this->assertSame( '', KbGaps::key( '?!…' ) );
+	}
+
 	public function test_a_saved_answer_matches_regardless_of_case_spacing_punctuation_and_letter_forms(): void {
 		$key = SavedAnswers::key( 'Do you ship to Canada?' );
 
