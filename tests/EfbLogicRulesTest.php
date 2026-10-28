@@ -108,6 +108,15 @@ final class EfbLogicRulesTest extends TestCase {
 			$rule['actions']
 		);
 		$this->assertSame( 'If “Customer type” is “Business”, show “Company name”.', $built['summary'] );
+		// The copilot's IF / THEN card shows the same words, split.
+		$this->assertSame(
+			array(
+				'match' => 'all',
+				'if'    => array( '“Customer type” is “Business”' ),
+				'then'  => array( 'show “Company name”' ),
+			),
+			$built['display']
+		);
 	}
 
 	public function test_step_actions_and_any_match_stay_in_the_fields_tab(): void {
@@ -150,6 +159,9 @@ final class EfbLogicRulesTest extends TestCase {
 		$this->assertSame( array( 'set_required', 'show_step' ), array_column( $rule['actions'], 'type' ) );
 		$this->assertSame( array( 'company', '2' ), array_column( $rule['actions'], 'target' ) );
 		$this->assertSame( 'If “Customer type” is “Business” or “Team size” is more than 10, make “Company name” required, show step “Company details”.', $built['summary'] );
+		$this->assertSame( 'any', $built['display']['match'] );
+		$this->assertSame( array( '“Customer type” is “Business”', '“Team size” is more than 10' ), $built['display']['if'] );
+		$this->assertSame( array( 'make “Company name” required', 'show step “Company details”' ), $built['display']['then'] );
 	}
 
 	public function test_plan_limits_follow_the_add_on(): void {

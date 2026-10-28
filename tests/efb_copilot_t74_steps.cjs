@@ -190,7 +190,8 @@ async function runT74( page, ctx ) {
 	console.log( 'T74_REVIEW ' + JSON.stringify( findings.map( ( text ) => text.slice( 0, 80 ) ) ) );
 	check( findings.some( ( text ) => text.includes( 'consent' ) ), label + 'review flags personal data without consent' );
 	check( beforeReview === JSON.stringify( await state() ), label + 'review changes nothing on its own' );
-	const apply = reviewed.locator( '.aisaautopilot-efb-finding button' );
+	// Findings the copilot cannot fix itself offer "How?" instead; only Apply changes the form.
+	const apply = reviewed.locator( '.aisaautopilot-efb-finding [data-sp-efb-apply]' );
 	if ( 'free' === env.tier ) {
 		// EFB reserves the terms checkbox for Free Plus and Pro, so the server offers no fix.
 		check( 0 === await apply.count(), label + 'on the Free plan the consent finding has no Apply button' );

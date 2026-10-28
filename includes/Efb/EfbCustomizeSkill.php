@@ -398,6 +398,7 @@ final class EfbCustomizeSkill {
 						'op'      => 'add_logic_rule',
 						'rule'    => $built['rule'],
 						'summary' => (string) ( $built['summary'] ?? '' ),
+						'display' => (array) ( $built['display'] ?? array() ),
 					);
 					break;
 			}

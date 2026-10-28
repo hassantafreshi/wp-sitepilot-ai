@@ -196,6 +196,16 @@ final class RestRoutes {
 		);
 		register_rest_route(
 			self::NAMESPACE,
+			'/ai/status',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new AiStatusController(), 'status' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
 			'/privacy/retention/run',
 			array(
 				'methods'             => 'POST',

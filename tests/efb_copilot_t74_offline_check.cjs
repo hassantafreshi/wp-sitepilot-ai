@@ -49,9 +49,11 @@ function offlinePage( efbPlan ) {
 }
 
 function html( page, logic ) {
-	const config = Object.assign( {}, page.config, { restUrl: ORIGIN + '/wp-json/aisaautopilot/v1/' } );
+	// The scripted provider stands in for a connected one; without it the copilot shows its setup card.
+	const config = Object.assign( {}, page.config, { restUrl: ORIGIN + '/wp-json/aisaautopilot/v1/', configured: true } );
 	const json = ( value ) => JSON.stringify( value ).replace( /</g, '\\u003c' );
 	return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>EFB editor (offline)</title><style>'
+		+ fs.readFileSync( path.join( ROOT, 'assets/admin/ai-dock.css' ), 'utf8' )
 		+ fs.readFileSync( path.join( ROOT, 'assets/admin/efb-copilot.css' ), 'utf8' )
 		+ '</style></head><body><div id="dropZoneEFB"></div>' + page.markup
 		+ '<script>'
@@ -64,6 +66,7 @@ function html( page, logic ) {
 		+ 'let editFormEfb = async () => { if ( sessionStorage.getItem( "valj_efb" ) ) { valj_efb = JSON.parse( sessionStorage.getItem( "valj_efb" ) ); } document.getElementById( "dropZoneEFB" ).textContent = ""; setTimeout( drawEfb, 120 ); };'
 		+ 'window.AISAAutoPilotEFB = ' + json( config ) + ';'
 		+ 'drawEfb();'
+		+ '</script><script>' + fs.readFileSync( path.join( ROOT, 'assets/admin/ai-dock.js' ), 'utf8' )
 		+ '</script><script>' + fs.readFileSync( path.join( ROOT, 'assets/admin/efb-copilot.js' ), 'utf8' ) + '</script></body></html>';
 }
 

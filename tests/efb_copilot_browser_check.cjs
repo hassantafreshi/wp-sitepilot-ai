@@ -148,8 +148,13 @@ async function login( page ) {
 		await chat.waitFor( { state: 'visible' } );
 		await page.waitForTimeout( 220 );
 		const desktopBox = await chat.boundingBox();
-		check( desktopBox && Math.abs( desktopBox.width - 388 ) <= 3 && Math.abs( desktopBox.height - 576 ) <= 3, 'desktop chat matches the 388×576 mockup panel' );
-		if ( desktopBox ) { console.log( 'PANEL_BOX ' + JSON.stringify( desktopBox ) ); }
+		// Owner-approved redesign (2026-10-28): a 420px column from the admin bar to the bottom, on
+		// the inline-end side, and the editor gives up that space instead of being covered.
+		const dockEdge = desktopBox ? ( expectRtl ? desktopBox.x : 1440 - ( desktopBox.x + desktopBox.width ) ) : 99;
+		const pushed = await page.evaluate( () => parseFloat( getComputedStyle( document.getElementById( 'wpcontent' ) ).marginInlineEnd || '0' ) );
+		check( desktopBox && Math.abs( desktopBox.width - 420 ) <= 3 && Math.abs( desktopBox.y - 32 ) <= 1 && Math.abs( desktopBox.height - ( 960 - 32 ) ) <= 3 && Math.abs( dockEdge ) <= 1, 'desktop dock is a full-height 420px column on the inline-end side' );
+		check( Math.abs( pushed - 420 ) <= 1, 'the editor makes room for the dock instead of being covered' );
+		if ( desktopBox ) { console.log( 'PANEL_BOX ' + JSON.stringify( desktopBox ) + ' PUSHED ' + pushed ); }
 		check( await page.locator( '#aisaautopilot-efb-messages .aisaautopilot-efb-msg--ai' ).count() === 1, 'opening renders one truthful welcome message' );
 		await chat.screenshot( { path: path.join( screenshotDir, 'efb-copilot-chat-desktop.png' ) } );
 		console.log( 'PLUGIN_REQUESTS_ON_OPEN ' + JSON.stringify( pluginRequests.slice( pluginRequestsBeforeOpen ) ) );
@@ -160,12 +165,14 @@ async function login( page ) {
 		// contract of ARCHITECTURE_FA.md, so the difference is deliberate.
 		const composer = page.locator( '#aisaautopilot-efb-input' );
 		const starterChips = page.locator( '#aisaautopilot-efb-messages [data-sp-efb-chip="starter"]' );
-		const starterTexts = ( await starterChips.allInnerTexts() ).map( ( item ) => item.trim() );
+		const starterTexts = await starterChips.evaluateAll( ( nodes ) => nodes.map( ( node ) => String( node.getAttribute( 'data-sp-efb-prefill' ) || '' ).trim() ) );
 		console.log( 'STARTER_CHIPS ' + JSON.stringify( starterTexts ) );
-		check( 3 === starterTexts.length, 'the welcome message offers the three live-form starter chips' );
+		// Show or hide fields is offered only where EFB's Conditional Logic add-on can apply it.
+		const logicOn = await page.evaluate( () => typeof efb_var !== 'undefined' && !! efb_var.addons && Number( efb_var.addons.AdnSMF ) >= 1 ); // eslint-disable-line no-undef
+		check( ( logicOn ? 4 : 3 ) === starterTexts.length, 'the welcome message offers the live-form starting points (' + starterTexts.length + ', logic add-on ' + logicOn + ')' );
 		const requestsBeforeChip = pluginRequests.length;
 		await starterChips.first().click();
-		check( ( await composer.inputValue() ).trim() === starterTexts[ 0 ] && starterTexts[ 0 ].length > 0, 'a starter chip only prefills the composer with its own text' );
+		check( ( await composer.inputValue() ).trim() === starterTexts[ 0 ] && starterTexts[ 0 ].length > 0, 'a starting point only prefills the composer with its example' );
 		check( await composer.evaluate( ( element ) => document.activeElement === element ), 'a starter chip moves focus into the composer' );
 		check( pluginRequests.length === requestsBeforeChip, 'a starter chip sends no request' );
 		check( 0 === await page.locator( '#aisaautopilot-efb-messages .aisaautopilot-efb-msg--user' ).count(), 'a starter chip posts nothing into the transcript' );
@@ -206,7 +213,9 @@ async function login( page ) {
 		} );
 		await composer.focus();
 		const composerFocus = await focusState();
-		check( 'aisaautopilot-efb-input' === composerFocus.id && ( composerFocus.outline >= 1 || 'none' !== composerFocus.shadow ), 'the focused composer shows a visible focus ring' );
+		// The ring is drawn on the input box around the textarea (:focus-within).
+		const boxRing = await page.evaluate( () => { const box = document.getElementById( 'aisaautopilot-efb-inputbox' ); const style = getComputedStyle( box ); return { shadow: String( style.boxShadow || 'none' ), border: style.borderColor }; } );
+		check( 'aisaautopilot-efb-input' === composerFocus.id && ( composerFocus.outline >= 1 || 'none' !== composerFocus.shadow || 'none' !== boxRing.shadow ), 'the focused composer shows a visible focus ring' );
 		await page.keyboard.press( 'Tab' );
 		const nextFocus = await focusState();
 		console.log( 'FOCUS_STATE ' + JSON.stringify( { composerFocus, nextFocus } ) );
@@ -224,9 +233,11 @@ async function login( page ) {
 
 		// Fields are clicked at their inline-start corner, where the label begins. A fixed
 		// left corner lands under the open Copilot panel in RTL, which sits on the left there.
+		// With the dock open the editor is narrower, and EFB's own field-settings panel (on the
+		// inline-start side) can cover the start of a field: click its inline-end top corner.
 		const fieldCorner = async ( locator ) => {
 			const box = await locator.boundingBox();
-			return { x: expectRtl && box ? Math.max( 8, box.width - 8 ) : 8, y: 8 };
+			return { x: expectRtl || ! box ? 24 : Math.max( 8, box.width - 24 ), y: 8 };
 		};
 		const field = page.locator( '.efbField[data-id="' + liveFieldIds[ 0 ] + '-id"]' ).first();
 		const fieldDataId = await field.getAttribute( 'data-id' );
@@ -235,9 +246,9 @@ async function login( page ) {
 		check( await page.locator( '#aisaautopilot-efb-selection' ).isVisible(), 'clicking a real EFB field opens the selected-field banner' );
 		check( await field.evaluate( ( element ) => element.classList.contains( 'aisaautopilot-efb-field-selected' ) ), 'selected real field receives the visual selection state' );
 		const bannerLabel = ( await page.locator( '#aisaautopilot-efb-selection-label' ).innerText() ).trim();
-		check( bannerLabel.length > 0, 'selection banner uses the real field label' );
+		const selectedOwnLabel = await page.evaluate( ( id ) => { const item = valj_efb.find( ( entry ) => String( entry.id_ ) === id ); return item ? String( item.name || item.value || item.id_ ) : ''; }, selectedId ); // eslint-disable-line no-undef
 		console.log( 'SELECTION_BANNER ' + JSON.stringify( bannerLabel ) );
-		check( expectRtl ? persian( bannerLabel ) : bannerLabel.startsWith( 'Working on' ), 'the selection banner is written in the admin language' );
+		check( bannerLabel.length > 0 && bannerLabel === selectedOwnLabel, 'the context chip in the composer names the real field' );
 		await page.locator( '#aisaautopilot-efb-selection' ).screenshot( { path: path.join( screenshotDir, 'efb-copilot-selection-banner.png' ) } );
 
 		await page.locator( '#aisaautopilot-efb-selection-clear' ).click();
@@ -327,7 +338,7 @@ async function login( page ) {
 
 		const beforeVoiceRequests = chatRequests.length;
 		const aiBeforeVoice = await page.locator( '#aisaautopilot-efb-messages .aisaautopilot-efb-msg--ai' ).count();
-		await page.locator( '#aisaautopilot-efb-live-voice' ).click();
+		await page.locator( '#aisaautopilot-efb-voice' ).click();
 		let voiceFallbackShown = true;
 		try {
 			await page.waitForFunction( ( count ) => document.querySelectorAll( '#aisaautopilot-efb-messages .aisaautopilot-efb-msg--ai' ).length > count, aiBeforeVoice, { timeout: 10000 } );
@@ -364,9 +375,9 @@ async function login( page ) {
 		console.log( 'STYLE_STATE ' + JSON.stringify( styleState ) );
 		check( 'pills' === styleState.steps && 'ring' === styleState.progress, 'style operations set steps_style and progress_style on the live valj_efb[0]' );
 		check( false === styleState.showIcon && false === styleState.showProBar, 'style operations show the steps row and progress bar (EFB hide flags stored as false)' );
-		const styleNotes = await page.locator( '#aisaautopilot-efb-messages .aisaautopilot-efb-msg--ai' ).filter( { has: page.locator( '.aisaautopilot-efb-inline-note' ) } ).last().locator( '.aisaautopilot-efb-inline-note' ).allInnerTexts();
-		console.log( 'STYLE_NOTES ' + JSON.stringify( styleNotes ) );
-		const appliedNotes = styleNotes.filter( ( note ) => note.startsWith( '✓ ' ) );
+		const styleMessage = page.locator( '#aisaautopilot-efb-messages .aisaautopilot-efb-msg--ai' ).filter( { has: page.locator( '[data-sp-efb-note="failed"]' ) } ).last();
+		const appliedNotes = ( await styleMessage.locator( '[data-sp-efb-note="applied"]' ).allInnerTexts() ).map( ( text ) => text.trim() );
+		console.log( 'STYLE_NOTES ' + JSON.stringify( appliedNotes ) );
 		check( 4 === appliedNotes.length, 'the four valid style operations report as applied' );
 		// T03 changed this contract on purpose: the note carries the reason code as a hook and a
 		// translated sentence, so assert the hook plus the admin language instead of English text.
@@ -375,7 +386,7 @@ async function login( page ) {
 		check( refusedNotes.length > 0 && refusedNotes.every( ( text ) => ( expectRtl ? /[؀-ۿ]/.test( text ) : text.includes( 'Not applied: Easy Form Builder does not accept that value' ) ) && ! text.includes( 'invalid_form_property_value' ) && ! text.includes( 'invalid form property value' ) ), 'the out-of-enum steps style is refused by the client and reported in the admin language, without the raw reason code' );
 		const saveNotes = await page.locator( '#aisaautopilot-efb-messages [data-sp-efb-note="save-ownership"]' ).allInnerTexts();
 		console.log( 'SAVE_NOTES ' + JSON.stringify( saveNotes.slice( -1 ) ) );
-		check( saveNotes.length > 0 && ( expectRtl ? /[؀-ۿ]/.test( saveNotes[ saveNotes.length - 1 ] ) : saveNotes[ saveNotes.length - 1 ].includes( 'green Save button' ) ), 'the note that Easy Form Builder Save keeps the change is shown in the admin language' );
+		check( saveNotes.length > 0 && ( expectRtl ? /[؀-ۿ]/.test( saveNotes[ saveNotes.length - 1 ] ) : saveNotes[ saveNotes.length - 1 ].includes( 'Click Save at the top of Easy Form Builder' ) ), 'the note that Easy Form Builder Save keeps the change is shown in the admin language' );
 		check( expectRtl ? appliedNotes.length > 0 && appliedNotes.every( ( note ) => /[\u0600-\u06ff]/.test( note ) ) : appliedNotes.some( ( note ) => note.includes( 'Steps style set to' ) ), 'style results use the localized result messages' );
 
 		const readPanel = () => page.evaluate( () => {
@@ -512,12 +523,46 @@ async function login( page ) {
 		console.log( 'VOICE_STATUS_AFTER_RESET ' + JSON.stringify( staleVoiceStatus ) );
 		check( 0 === staleVoiceStatus.length, 'New chat clears the microphone status left by the previous conversation' );
 		await page.keyboard.press( 'Escape' );
+		// The dock slides out over a quarter of a second.
+		await chat.waitFor( { state: 'hidden', timeout: 3000 } ).catch( () => {} );
 		check( await chat.isHidden(), 'Escape closes the Copilot panel' );
 		check( await page.locator( '#aisaautopilot-efb-launch' ).evaluate( ( element ) => document.activeElement === element ), 'Escape returns focus to the FAB' );
+
+		// Owner-approved launcher (2026-10-28): keyboard shortcut, hover note, unsaved count,
+		// and "Ask AI about …" beside a field picked while the dock is closed.
+		await page.keyboard.press( 'Control+/' );
+		const openedByKey = await chat.isVisible();
+		await page.keyboard.press( 'Control+/' );
+		await chat.waitFor( { state: 'hidden', timeout: 3000 } ).catch( () => {} );
+		check( openedByKey && await chat.isHidden(), 'Ctrl + / opens and closes the dock from anywhere in the editor' );
+		await page.locator( '#aisaautopilot-efb-launch' ).hover();
+		await page.waitForTimeout( 250 );
+		const pop = await page.evaluate( () => { const node = document.getElementById( 'aisaautopilot-efb-pop' ); return { shown: node.classList.contains( 'is-shown' ), title: String( node.querySelector( '[data-aisa-pop-title]' ).textContent || '' ).trim(), described: document.getElementById( 'aisaautopilot-efb-launch' ).getAttribute( 'aria-describedby' ) }; } );
+		console.log( 'LAUNCHER_NOTE ' + JSON.stringify( pop ) );
+		check( pop.shown && pop.title.length > 0 && 'aisaautopilot-efb-pop-text' === pop.described, 'hovering the launcher shows a short note that also describes the button' );
+		const badge = await page.evaluate( () => { const node = document.querySelector( '#aisaautopilot-efb-launch [data-aisa-unsaved]' ); return { hidden: node.hidden, text: String( node.textContent || '' ) }; } );
+		console.log( 'UNSAVED_BADGE ' + JSON.stringify( badge ) );
+		check( badge.hidden || /^[1-9][0-9]*$/.test( badge.text ), 'the launcher counts AI changes not saved yet, and shows nothing when there are none' );
+		await page.mouse.move( 10, 500 );
+		const closedField = page.locator( '.efbField[data-id="' + liveFieldIds[ 0 ] + '-id"]' ).first();
+		await closedField.click( { position: await fieldCorner( closedField ) } );
+		const fieldBar = page.locator( '#aisaautopilot-efb-fieldbar' );
+		const fieldBarShown = await fieldBar.isVisible();
+		const fieldBarText = fieldBarShown ? ( await fieldBar.innerText() ).trim() : '';
+		console.log( 'FIELD_BAR ' + JSON.stringify( fieldBarText ) );
+		check( fieldBarShown && fieldBarText.length > 0 && await chat.isHidden(), 'picking a field while the dock is closed offers "Ask AI about" that field instead of opening the dock' );
+		if ( fieldBarShown ) {
+			await fieldBar.click();
+			await chat.waitFor( { state: 'visible' } );
+			check( await page.locator( '#aisaautopilot-efb-selection' ).isVisible() && await fieldBar.isHidden(), '"Ask AI about" opens the dock with that field in the composer' );
+			await page.keyboard.press( 'Escape' );
+			await chat.waitFor( { state: 'hidden', timeout: 3000 } ).catch( () => {} );
+		}
 
 		await page.setViewportSize( { width: 390, height: 844 } );
 		await page.locator( '#aisaautopilot-efb-launch' ).click();
 		await chat.waitFor( { state: 'visible' } );
+		await page.waitForTimeout( 400 ); // the sheet slides up
 		const mobile = await chat.evaluate( ( element ) => {
 			const box = element.getBoundingClientRect();
 			return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, innerOverflow: element.scrollWidth > element.clientWidth + 1 };

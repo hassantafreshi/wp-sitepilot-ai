@@ -126,10 +126,18 @@ final class EfbLogicRules {
 			'actions'         => $actions,
 		);
 
+		$phrases = self::phrases( $rule, $fields, $steps );
+
 		return array(
 			'ok'      => true,
 			'rule'    => $rule,
-			'summary' => self::sentence( $rule, $fields, $steps ),
+			'summary' => self::sentence( $phrases ),
+			// The same words split for the copilot's IF / THEN card.
+			'display' => array(
+				'match' => 'OR' === $operator ? 'any' : 'all',
+				'if'    => $phrases['conditions'],
+				'then'  => $phrases['actions'],
+			),
 		);
 	}
 
@@ -173,7 +181,7 @@ final class EfbLogicRules {
 			if ( ! is_array( $rule ) ) {
 				continue;
 			}
-			$line = self::sentence( $rule, $fields, $steps );
+			$line = self::sentence( self::phrases( $rule, $fields, $steps ) );
 			if ( isset( $rule['enabled'] ) && false === (bool) $rule['enabled'] ) {
 				/* translators: %s: rule description. */
 				$line = sprintf( __( '(off) %s', 'ai-site-assistant-autopilot' ), $line );
@@ -364,11 +372,14 @@ final class EfbLogicRules {
 	}
 
 	/**
+	 * The rule's conditions and actions in plain words, with the word that joins the conditions.
+	 *
 	 * @param array<string,mixed>              $rule
 	 * @param array<int, array<string, mixed>> $fields
 	 * @param array<int, array<string, mixed>> $steps
+	 * @return array{joiner:string, conditions:array<int,string>, actions:array<int,string>}
 	 */
-	private static function sentence( array $rule, array $fields, array $steps ): string {
+	private static function phrases( array $rule, array $fields, array $steps ): array {
 		$group    = is_array( $rule['conditions'] ?? null ) ? $rule['conditions'] : array();
 		$joiner   = 'OR' === ( $group['operator'] ?? 'AND' ) ? __( ' or ', 'ai-site-assistant-autopilot' ) : __( ' and ', 'ai-site-assistant-autopilot' );
 		$parts    = array();
@@ -438,8 +449,21 @@ final class EfbLogicRules {
 			$actions[] = isset( $verbs[ $type ] ) ? sprintf( $verbs[ $type ], $name ) : sprintf( __( '%1$s “%2$s”', 'ai-site-assistant-autopilot' ), str_replace( '_', ' ', $type ), $name );
 		}
 
+		return array(
+			'joiner'     => $joiner,
+			'conditions' => $parts,
+			'actions'    => $actions,
+		);
+	}
+
+	/**
+	 * The rule as one plain sentence.
+	 *
+	 * @param array{joiner:string, conditions:array<int,string>, actions:array<int,string>} $phrases
+	 */
+	private static function sentence( array $phrases ): string {
 		/* translators: 1: conditions, 2: actions. */
-		return sprintf( __( 'If %1$s, %2$s.', 'ai-site-assistant-autopilot' ), implode( $joiner, $parts ), implode( __( ', ', 'ai-site-assistant-autopilot' ), $actions ) );
+		return sprintf( __( 'If %1$s, %2$s.', 'ai-site-assistant-autopilot' ), implode( $phrases['joiner'], $phrases['conditions'] ), implode( __( ', ', 'ai-site-assistant-autopilot' ), $phrases['actions'] ) );
 	}
 
 	/**
