@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-10-27 21:37+0000\n"
+"POT-Creation-Date: 2026-10-28 00:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -743,11 +743,13 @@ msgstr ""
 
 #: includes/Admin/AnswerConversationsPage.php:291
 #: includes/Admin/HandoffInboxPage.php:324
+#: includes/Support/PrivacyTools.php:255
 msgid "Assistant"
 msgstr ""
 
 #: includes/Admin/AnswerConversationsPage.php:291
 #: includes/Admin/HandoffInboxPage.php:275 includes/Support/HandoffEmail.php:60
+#: includes/Support/PrivacyTools.php:255
 msgid "Visitor"
 msgstr ""
 
@@ -1081,6 +1083,7 @@ msgid ""
 msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:472
+#: includes/Support/PrivacyTools.php:88
 msgid "Name"
 msgstr ""
 
@@ -1089,7 +1092,7 @@ msgid "So your team knows who they are talking to."
 msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:473
-#: includes/Frontend/ChatWidget.php:266
+#: includes/Frontend/ChatWidget.php:266 includes/Support/PrivacyTools.php:89
 msgid "Email address"
 msgstr ""
 
@@ -1102,7 +1105,7 @@ msgid "Lets your team call or text the visitor back."
 msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:474
-#: includes/Frontend/ChatWidget.php:267
+#: includes/Frontend/ChatWidget.php:267 includes/Support/PrivacyTools.php:90
 msgid "Mobile number"
 msgstr ""
 
@@ -1111,7 +1114,7 @@ msgid "Useful when visitors ask about their own site or business."
 msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:475
-#: includes/Frontend/ChatWidget.php:268
+#: includes/Frontend/ChatWidget.php:268 includes/Support/PrivacyTools.php:91
 msgid "Website address"
 msgstr ""
 
@@ -1500,7 +1503,8 @@ msgid "Only administrators see this console. Visitors use the widget."
 msgstr ""
 
 #: includes/Admin/ChatPage.php:77 includes/Admin/HandoffInboxPage.php:196
-#: includes/Frontend/ChatWidget.php:129
+#: includes/Frontend/ChatWidget.php:129 includes/Support/PrivacyTools.php:94
+#: includes/Support/PrivacyTools.php:238
 msgid "Conversation"
 msgstr ""
 
@@ -1541,7 +1545,7 @@ msgstr ""
 msgid "Record a question"
 msgstr ""
 
-#: includes/Admin/ChatPage.php:151 includes/Core/Plugin.php:158
+#: includes/Admin/ChatPage.php:151 includes/Core/Plugin.php:161
 #: includes/Efb/EfbBuilderButton.php:233 includes/Frontend/ChatWidget.php:164
 msgid "Send"
 msgstr ""
@@ -1662,7 +1666,7 @@ msgstr ""
 msgid "Delete conversation"
 msgstr ""
 
-#: includes/Admin/ChatPage.php:277 includes/Api/ChatController.php:127
+#: includes/Admin/ChatPage.php:277 includes/Api/ChatController.php:141
 msgid "Conversation deleted."
 msgstr ""
 
@@ -1728,7 +1732,7 @@ msgstr ""
 msgid "Stop audio"
 msgstr ""
 
-#: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:171
+#: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:174
 msgid "Stop recording"
 msgstr ""
 
@@ -1748,7 +1752,7 @@ msgstr ""
 msgid "Voice transcription failed. Please try again."
 msgstr ""
 
-#: includes/Admin/ChatPage.php:300 includes/Core/Plugin.php:174
+#: includes/Admin/ChatPage.php:300 includes/Core/Plugin.php:177
 msgid "No audio was captured. Please try again."
 msgstr ""
 
@@ -1756,7 +1760,7 @@ msgstr ""
 msgid "Maximum recording time reached. Transcribing…"
 msgstr ""
 
-#: includes/Admin/ChatPage.php:302 includes/Core/Plugin.php:172
+#: includes/Admin/ChatPage.php:302 includes/Core/Plugin.php:175
 msgid "Voice recording is not supported in this browser."
 msgstr ""
 
@@ -2120,6 +2124,7 @@ msgstr ""
 
 #: includes/Admin/CopilotPage.php:343 includes/Admin/KnowledgeBasePage.php:379
 #: includes/Frontend/ChatWidgetSettings.php:206
+#: includes/Support/PrivacyTools.php:236
 msgid "Title"
 msgstr ""
 
@@ -2422,7 +2427,7 @@ msgid "Edit in Easy Form Builder"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:501 includes/Admin/KnowledgeBasePage.php:461
-#: includes/Core/Plugin.php:157
+#: includes/Core/Plugin.php:160
 msgid "Try again"
 msgstr ""
 
@@ -2811,7 +2816,7 @@ msgstr ""
 #: includes/Admin/HandoffInboxPage.php:185
 #: includes/Admin/KnowledgeBasePage.php:382
 #: includes/Admin/NativeFormsPage.php:95
-#: includes/Admin/StoreCopilotPage.php:288
+#: includes/Admin/StoreCopilotPage.php:288 includes/Support/PrivacyTools.php:92
 msgid "Status"
 msgstr ""
 
@@ -6047,7 +6052,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/Api/AdminHandoffSettingsController.php:46
-#: includes/Api/ChatWidgetController.php:282
+#: includes/Api/ChatWidgetController.php:311
 msgid "Choose a supported handoff channel."
 msgstr ""
 
@@ -6139,13 +6144,13 @@ msgstr ""
 msgid "Please enter a question of up to 2,000 characters."
 msgstr ""
 
-#: includes/Api/ChatController.php:30 includes/Api/ChatController.php:110
+#: includes/Api/ChatController.php:30 includes/Api/ChatController.php:124
 #: includes/Api/VisitorConversationController.php:28
 msgid "Conversation not found."
 msgstr ""
 
 #: includes/Api/ChatWidgetController.php:56
-#: includes/Api/ChatWidgetController.php:149
+#: includes/Api/ChatWidgetController.php:173
 msgid "The assistant widget is disabled."
 msgstr ""
 
@@ -6162,48 +6167,50 @@ msgstr ""
 msgid "Please wait before sending another message."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:125
-#: includes/Api/PublicChatController.php:38
+#: includes/Api/ChatWidgetController.php:119
+#: includes/Api/ChatWidgetController.php:147
+#: includes/Api/PublicChatController.php:41
+#: includes/Api/PublicChatController.php:47
 msgid "The assistant is temporarily unavailable. Please try again later."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:159
+#: includes/Api/ChatWidgetController.php:183
 msgid "Human handoff is not enabled."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:169
+#: includes/Api/ChatWidgetController.php:193
 msgid "Please wait before requesting another handoff."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:189
+#: includes/Api/ChatWidgetController.php:218
 msgid "Please enter your name."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:190 includes/Core/Plugin.php:186
+#: includes/Api/ChatWidgetController.php:219 includes/Core/Plugin.php:189
 msgid "Please provide a valid email address."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:191 includes/Core/Plugin.php:187
+#: includes/Api/ChatWidgetController.php:220 includes/Core/Plugin.php:190
 msgid "Please enter a valid mobile number."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:192 includes/Core/Plugin.php:188
+#: includes/Api/ChatWidgetController.php:221 includes/Core/Plugin.php:191
 msgid "Please enter a valid website address."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:209
+#: includes/Api/ChatWidgetController.php:238
 msgid "Please fill in the required details."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:220
+#: includes/Api/ChatWidgetController.php:249
 msgid "No messages to send."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:243
+#: includes/Api/ChatWidgetController.php:272
 msgid "Your request has been sent to the support team."
 msgstr ""
 
-#: includes/Api/ChatWidgetController.php:244
+#: includes/Api/ChatWidgetController.php:273
 msgid "We could not send the request. Please try again later."
 msgstr ""
 
@@ -6675,7 +6682,7 @@ msgid "Usage data reset."
 msgstr ""
 
 #: includes/Api/PublicChatController.php:21
-#: includes/Api/PublicChatController.php:44
+#: includes/Api/PublicChatController.php:53
 msgid "The site assistant is not enabled."
 msgstr ""
 
@@ -6687,15 +6694,15 @@ msgstr ""
 msgid "Please enter a question of up to 1,500 characters."
 msgstr ""
 
-#: includes/Api/PublicChatController.php:50
+#: includes/Api/PublicChatController.php:59
 msgid "Voice input is turned off for this site."
 msgstr ""
 
-#: includes/Api/PublicChatController.php:53
+#: includes/Api/PublicChatController.php:62
 msgid "Too many voice requests. Please try again later."
 msgstr ""
 
-#: includes/Api/PublicChatController.php:64 includes/Api/VoiceController.php:73
+#: includes/Api/PublicChatController.php:73 includes/Api/VoiceController.php:73
 msgid "Voice input is temporarily unavailable. Please try again later."
 msgstr ""
 
@@ -6766,30 +6773,30 @@ msgstr ""
 msgid "WooCommerce is not active."
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:81
+#: includes/Chat/ChatEngine.php:87
 msgid "AI provider is not configured. Please add your API key in Settings."
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:139 includes/Chat/ChatEngine.php:147
+#: includes/Chat/ChatEngine.php:145 includes/Chat/ChatEngine.php:153
 msgid "An error occurred while processing your question. Please try again."
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:237
+#: includes/Chat/ChatEngine.php:243
 msgid ""
 "I found a few different things that could match. Which one did you mean?"
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:427
+#: includes/Chat/ChatEngine.php:433
 msgid "Would you like me to connect you with a member of our team?"
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:431
+#: includes/Chat/ChatEngine.php:437
 msgid ""
 "I looked through the site's content but couldn't find a clear answer to that "
 "yet."
 msgstr ""
 
-#: includes/Chat/ChatEngine.php:436
+#: includes/Chat/ChatEngine.php:442
 msgid "Could you try rephrasing, or asking about something else?"
 msgstr ""
 
@@ -7096,8 +7103,8 @@ msgid_plural "Indexed \"%1$s\" (%2$d passages)."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Content/ContentIndexer.php:379
-#: includes/Content/ContentIndexer.php:414
+#: includes/Content/ContentIndexer.php:380
+#: includes/Content/ContentIndexer.php:415
 msgid ""
 "The local AI usage cap has been reached. Raise or reset the token cap in "
 "Usage & Cost, then resume this indexing pass."
@@ -7206,93 +7213,93 @@ msgstr ""
 msgid "Plugin activation error"
 msgstr ""
 
-#: includes/Core/Plugin.php:156
+#: includes/Core/Plugin.php:159
 msgid "Sources"
 msgstr ""
 
-#: includes/Core/Plugin.php:160
+#: includes/Core/Plugin.php:163
 msgid "Stop waiting for the reply"
 msgstr ""
 
-#: includes/Core/Plugin.php:161
+#: includes/Core/Plugin.php:164
 msgid ""
 "You stopped waiting. The site may still finish this answer, but it will not "
 "appear here."
 msgstr ""
 
-#: includes/Core/Plugin.php:162
+#: includes/Core/Plugin.php:165
 msgid "Choose what you mean"
 msgstr ""
 
-#: includes/Core/Plugin.php:163
+#: includes/Core/Plugin.php:166
 msgid "Sending…"
 msgstr ""
 
-#: includes/Core/Plugin.php:164
+#: includes/Core/Plugin.php:167
 msgid "Sent — we will be in touch."
 msgstr ""
 
-#: includes/Core/Plugin.php:165
+#: includes/Core/Plugin.php:168
 msgid "Could not send. Please try again."
 msgstr ""
 
-#: includes/Core/Plugin.php:166
+#: includes/Core/Plugin.php:169
 msgid "Sorry, I could not answer that."
 msgstr ""
 
-#: includes/Core/Plugin.php:167
+#: includes/Core/Plugin.php:170
 msgid "Connection problem. Please try again."
 msgstr ""
 
-#: includes/Core/Plugin.php:168 includes/Frontend/ChatWidget.php:116
+#: includes/Core/Plugin.php:171 includes/Frontend/ChatWidget.php:116
 #: includes/Frontend/ChatWidget.php:117
 msgid "Full screen"
 msgstr ""
 
-#: includes/Core/Plugin.php:169
+#: includes/Core/Plugin.php:172
 msgid "Exit full screen"
 msgstr ""
 
-#: includes/Core/Plugin.php:170 includes/Frontend/ChatWidget.php:107
+#: includes/Core/Plugin.php:173 includes/Frontend/ChatWidget.php:107
 #: includes/Frontend/ChatWidget.php:108 includes/Frontend/ChatWidget.php:159
 msgid "Voice input"
 msgstr ""
 
-#: includes/Core/Plugin.php:173
+#: includes/Core/Plugin.php:176
 msgid "Microphone access was denied."
 msgstr ""
 
-#: includes/Core/Plugin.php:175
+#: includes/Core/Plugin.php:178
 msgid "Could not transcribe that. Please try again."
 msgstr ""
 
-#: includes/Core/Plugin.php:178
+#: includes/Core/Plugin.php:181
 msgid "Transcribing your recording…"
 msgstr ""
 
-#: includes/Core/Plugin.php:179
+#: includes/Core/Plugin.php:182
 msgid ""
 "Your words are in the message box. Check them, then press Send. Nothing was "
 "sent yet."
 msgstr ""
 
-#: includes/Core/Plugin.php:180
+#: includes/Core/Plugin.php:183
 msgid "From"
 msgstr ""
 
-#: includes/Core/Plugin.php:181
+#: includes/Core/Plugin.php:184
 msgid "The assistant is writing a reply"
 msgstr ""
 
-#: includes/Core/Plugin.php:182
+#: includes/Core/Plugin.php:185
 msgid "Listening… tap the mic again to stop"
 msgstr ""
 
-#: includes/Core/Plugin.php:184
+#: includes/Core/Plugin.php:187
 msgid "Listening…"
 msgstr ""
 
-#: includes/Core/Plugin.php:185
+#: includes/Core/Plugin.php:188
 msgid "Please fill this in."
 msgstr ""
 
@@ -7454,7 +7461,8 @@ msgid "Custom endpoint"
 msgstr ""
 
 #: includes/Core/Settings.php:699 includes/Core/WpConnectors.php:53
-#: includes/Core/WpConnectors.php:96
+#: includes/Core/WpConnectors.php:96 includes/Support/PrivacyTools.php:40
+#: includes/Support/PrivacyTools.php:54 includes/Support/PrivacyTools.php:153
 msgid "AI Site Assistant AutoPilot"
 msgstr ""
 
@@ -9263,6 +9271,73 @@ msgstr ""
 #: includes/Support/HandoffWhatsApp.php:269
 #, php-format
 msgid "WhatsApp returned an error (HTTP %d)."
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:82
+msgid "Requests to talk to a person"
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:83
+msgid ""
+"Requests a visitor sent from the site assistant to reach a member of the "
+"team."
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:93
+msgid "Received"
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:104
+msgid ""
+"Conversations this administrator had with the knowledge base console in wp-"
+"admin."
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:104
+msgid "Site assistant console conversations"
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:107
+msgid "Recorded visitor conversations in which this email address was written."
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:107
+msgid "Site assistant conversations"
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:160
+msgid ""
+"This site uses an AI assistant to answer questions about its content. When "
+"you ask a question in the chat, the question, the previous few messages of "
+"the conversation and the matching passages of this site's public pages are "
+"sent to the AI service the site uses, to write the answer. Voice messages "
+"you choose to send are sent to that service to be transcribed."
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:161
+msgid ""
+"Conversations are only kept on this site when the site owner has turned "
+"recording on; the chat then says so. Questions the assistant could not "
+"answer are kept without any information about who asked, so the site can add "
+"the missing content."
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:162
+msgid ""
+"If you ask to talk to a person, the conversation and the contact details you "
+"enter (such as your name, email address, mobile number or website) are "
+"stored on this site and sent to the team through the channels the site uses, "
+"which may include email, Telegram, WhatsApp, SMS, Slack or Signal."
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:163
+msgid ""
+"You can ask for a copy of these requests and conversations, or for their "
+"deletion, by the email address you gave."
+msgstr ""
+
+#: includes/Support/PrivacyTools.php:237
+msgid "Started"
 msgstr ""
 
 #. translators: 1: remaining percentage, 2: remaining tokens.

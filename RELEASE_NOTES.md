@@ -84,6 +84,11 @@ about eight minutes of AI requests; end to end with a real model, 8 of 8
 answers were right, against 2 of 8. Details are in
 `docs/KB_RETRIEVAL_BENCHMARK_FA.md`.
 
+**Privacy** — a personal-data exporter and eraser for WordPress's privacy
+tools, matching requests to talk to a person, console conversations and
+recorded visitor conversations by email address, and suggested privacy-policy
+text under Settings > Privacy > Policy Guide.
+
 **Answer Desk** — the visitor chat widget (off by default) with panel and
 full-screen modes, a customiser for colours, icons, greeting, suggested
 questions and the pages it appears on, conversation logging with a privacy

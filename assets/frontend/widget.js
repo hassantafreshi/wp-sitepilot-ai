@@ -26,7 +26,10 @@
 	// request again cannot pass an hourly limit, a spent budget or a length check.
 	var NO_RETRY = ['rate_limited', 'usage_cap_reached', 'question_too_long', 'empty', 'widget_disabled', 'assistant_not_configured'];
 
-	var convId = null;
+	// The recorded conversation's id, kept for this browser tab's session so moving to another
+	// page continues the same recorded conversation instead of starting a new one.
+	var CONV_KEY = 'aisaautopilot_conversation';
+	var convId = readConvId();
 	// The last few answered turns, sent with each question so a follow-up keeps its subject.
 	// Kept in memory only: a page load starts a fresh conversation.
 	var turns = [];
@@ -497,6 +500,22 @@
 		synth.speak(utterance);
 	}
 
+	// Storage can be blocked (private mode, site data off): then the id lives for this page only.
+	function readConvId() {
+		try {
+			var stored = window.sessionStorage.getItem(CONV_KEY);
+			return stored && /^[0-9a-f-]{36}$/i.test(stored) ? stored : null;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	function saveConvId(id) {
+		try {
+			if (id) window.sessionStorage.setItem(CONV_KEY, String(id));
+		} catch (e) { /* see readConvId */ }
+	}
+
 	// ── send ─────────────────────────────────────────────
 
 	function send(text, isRetry) {
@@ -529,6 +548,7 @@
 				// text of its own (the 400 "empty" reply once did) and must not be read as one.
 				if (data && data.ok && data.answer) {
 					convId = data.conversation_id || convId;
+					saveConvId(convId);
 					turns.push({ role: 'user', text: text.slice(0, 1200) }, { role: 'assistant', text: String(data.answer).slice(0, 1200) });
 					if (turns.length > MAX_TURNS) turns = turns.slice(-MAX_TURNS);
 					var shown = addMessage('assistant', data.answer, data.sources);

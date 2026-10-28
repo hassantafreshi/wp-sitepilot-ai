@@ -75,6 +75,23 @@ never configures payments, prices, login or registration forms, add-on
 activation or EFB's global settings; those stay in Easy Form Builder's own
 screens.
 
+== Privacy ==
+
+The plugin registers with WordPress's privacy tools. Tools > Export Personal
+Data and Tools > Erase Personal Data find, by email address, the person's
+requests to talk to a person (with the contact details they left), the
+console conversations of a WordPress user with that address, and recorded
+visitor conversations in which that address was written. Visitors are
+otherwise anonymous, so a recorded conversation without an email address in it
+cannot be matched to anyone. Erasing deletes the matching rows.
+
+Settings > Privacy > Policy Guide offers suggested text for your privacy policy
+describing what the chat sends to the AI service, what it keeps and when.
+
+Visitor conversations are recorded only if you turn recording on, and the chat
+then says so. Questions the assistant could not answer are kept without any
+information about who asked.
+
 == What deleting the plugin removes ==
 
 Deactivating changes nothing. Deleting the plugin from the Plugins screen runs

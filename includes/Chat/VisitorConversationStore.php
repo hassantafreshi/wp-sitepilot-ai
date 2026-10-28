@@ -109,6 +109,21 @@ final class VisitorConversationStore {
 		return is_array( $row ) ? $this->normalize( $row ) : null;
 	}
 
+	/**
+	 * The recorded messages of one conversation, or none when the id is unknown or malformed.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function messages_for_token( string $token ): array {
+		if ( ! $this->valid_token( $token ) ) {
+			return array();
+		}
+		$row      = $this->row_by_token( $token );
+		$messages = null !== $row ? json_decode( (string) $row['messages'], true ) : null;
+
+		return is_array( $messages ) ? array_values( array_filter( $messages, 'is_array' ) ) : array();
+	}
+
 	/** @return array<string,mixed>|null */
 	private function row_by_token( string $token ): ?array {
 		$row = $this->db->get_row( $this->db->prepare( "SELECT id, messages FROM {$this->table()} WHERE session_token = %s", $token ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is a fixed internal identifier.

@@ -196,7 +196,12 @@ final class ChatWidgetController {
 			);
 		}
 
-		$messages = $this->clean_handoff_messages( $request->get_param( 'messages' ) );
+		// With recording on, the recorded conversation is the transcript: the browser's copy
+		// could carry an "assistant" line the assistant never wrote.
+		$recorded = $this->conversation_logging_enabled()
+			? ( new \AISAAutoPilot\Chat\VisitorConversationStore() )->messages_for_token( sanitize_text_field( (string) $request->get_param( 'conversation_id' ) ) )
+			: array();
+		$messages = $this->clean_handoff_messages( array() !== $recorded ? $recorded : $request->get_param( 'messages' ) );
 		// Only the details the site owner switched on are read; the rest of the request is ignored.
 		$contact = HandoffContact::collect(
 			Settings::handoff_fields(),

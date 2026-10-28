@@ -14,6 +14,7 @@ use AISAAutoPilot\Frontend\ChatWidget;
 use AISAAutoPilot\Frontend\FormShortcode;
 use AISAAutoPilot\Admin\LogExport;
 use AISAAutoPilot\Admin\ContentStudioHistoryExport;
+use AISAAutoPilot\Support\PrivacyTools;
 use AISAAutoPilot\Support\HandoffInbox;
 use AISAAutoPilot\Chat\VisitorConversationStore;
 
@@ -53,6 +54,8 @@ final class Plugin {
 		add_action( 'rest_api_init', array( $this->container->get( RestRoutes::class ), 'register' ) );
 		( new LogExport() )->register();
 		( new ContentStudioHistoryExport() )->register();
+		// Tools > Export / Erase Personal Data, and the suggested privacy-policy text.
+		( new PrivacyTools() )->register();
 
 		/*
 		 * Answer Desk has one visitor-facing implementation: the configurable

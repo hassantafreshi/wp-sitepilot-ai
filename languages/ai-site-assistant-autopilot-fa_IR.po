@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-10-27 21:37+0000\n"
+"POT-Creation-Date: 2026-10-28 00:54+0000\n"
 "PO-Revision-Date: 2026-10-26 23:30+0000\n"
 "Last-Translator: AI Site Assistant AutoPilot <info@aisaautopilot.ai>\n"
 "Language-Team: Persian <fa@li.org>\n"
@@ -765,11 +765,13 @@ msgstr "مشاهدهٔ گفت‌وگوی ثبت‌شده"
 
 #: includes/Admin/AnswerConversationsPage.php:291
 #: includes/Admin/HandoffInboxPage.php:324
+#: includes/Support/PrivacyTools.php:255
 msgid "Assistant"
 msgstr "دستیار"
 
 #: includes/Admin/AnswerConversationsPage.php:291
 #: includes/Admin/HandoffInboxPage.php:275 includes/Support/HandoffEmail.php:60
+#: includes/Support/PrivacyTools.php:255
 msgid "Visitor"
 msgstr "بازدیدکننده"
 
@@ -1140,6 +1142,7 @@ msgstr ""
 "نشود که نمی‌توان با آن تحویل داد."
 
 #: includes/Admin/AnswerDeskHandoffPage.php:472
+#: includes/Support/PrivacyTools.php:88
 msgid "Name"
 msgstr "نام"
 
@@ -1148,7 +1151,7 @@ msgid "So your team knows who they are talking to."
 msgstr "تا تیم شما بداند با چه کسی صحبت می‌کند."
 
 #: includes/Admin/AnswerDeskHandoffPage.php:473
-#: includes/Frontend/ChatWidget.php:266
+#: includes/Frontend/ChatWidget.php:266 includes/Support/PrivacyTools.php:89
 msgid "Email address"
 msgstr "نشانی ایمیل"
 
@@ -1161,7 +1164,7 @@ msgid "Lets your team call or text the visitor back."
 msgstr "تیم شما می‌تواند به بازدیدکننده زنگ بزند یا پیامک بدهد."
 
 #: includes/Admin/AnswerDeskHandoffPage.php:474
-#: includes/Frontend/ChatWidget.php:267
+#: includes/Frontend/ChatWidget.php:267 includes/Support/PrivacyTools.php:90
 msgid "Mobile number"
 msgstr "شمارهٔ موبایل"
 
@@ -1170,7 +1173,7 @@ msgid "Useful when visitors ask about their own site or business."
 msgstr "وقتی بازدیدکننده دربارهٔ سایت یا کسب‌وکار خودش می‌پرسد، به کار می‌آید."
 
 #: includes/Admin/AnswerDeskHandoffPage.php:475
-#: includes/Frontend/ChatWidget.php:268
+#: includes/Frontend/ChatWidget.php:268 includes/Support/PrivacyTools.php:91
 msgid "Website address"
 msgstr "نشانی وب‌سایت"
 
@@ -1594,7 +1597,8 @@ msgid "Only administrators see this console. Visitors use the widget."
 msgstr "فقط مدیران این کنسول را می‌بینند. بازدیدکنندگان از ویجت استفاده می‌کنند."
 
 #: includes/Admin/ChatPage.php:77 includes/Admin/HandoffInboxPage.php:196
-#: includes/Frontend/ChatWidget.php:129
+#: includes/Frontend/ChatWidget.php:129 includes/Support/PrivacyTools.php:94
+#: includes/Support/PrivacyTools.php:238
 msgid "Conversation"
 msgstr "گفت‌وگو"
 
@@ -1635,7 +1639,7 @@ msgstr "پرسش شما"
 msgid "Record a question"
 msgstr "ضبط سؤال"
 
-#: includes/Admin/ChatPage.php:151 includes/Core/Plugin.php:158
+#: includes/Admin/ChatPage.php:151 includes/Core/Plugin.php:161
 #: includes/Efb/EfbBuilderButton.php:233 includes/Frontend/ChatWidget.php:164
 msgid "Send"
 msgstr "ارسال"
@@ -1771,7 +1775,7 @@ msgstr "برای همیشه از این کنسول حذف می‌شود. هیچ 
 msgid "Delete conversation"
 msgstr "حذف گفت‌وگو"
 
-#: includes/Admin/ChatPage.php:277 includes/Api/ChatController.php:127
+#: includes/Admin/ChatPage.php:277 includes/Api/ChatController.php:141
 msgid "Conversation deleted."
 msgstr "گفت‌وگو حذف شد."
 
@@ -1839,7 +1843,7 @@ msgstr "شنیدن"
 msgid "Stop audio"
 msgstr "توقف صدا"
 
-#: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:171
+#: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:174
 msgid "Stop recording"
 msgstr "توقف ضبط"
 
@@ -1860,7 +1864,7 @@ msgstr ""
 msgid "Voice transcription failed. Please try again."
 msgstr "تبدیل گفتار به متن ناموفق بود. لطفاً دوباره تلاش کنید."
 
-#: includes/Admin/ChatPage.php:300 includes/Core/Plugin.php:174
+#: includes/Admin/ChatPage.php:300 includes/Core/Plugin.php:177
 msgid "No audio was captured. Please try again."
 msgstr "صدایی ضبط نشد. لطفاً دوباره تلاش کنید."
 
@@ -1868,7 +1872,7 @@ msgstr "صدایی ضبط نشد. لطفاً دوباره تلاش کنید."
 msgid "Maximum recording time reached. Transcribing…"
 msgstr "به حداکثر زمان ضبط رسیدید. در حال تبدیل به متن…"
 
-#: includes/Admin/ChatPage.php:302 includes/Core/Plugin.php:172
+#: includes/Admin/ChatPage.php:302 includes/Core/Plugin.php:175
 msgid "Voice recording is not supported in this browser."
 msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند."
 
@@ -2249,6 +2253,7 @@ msgstr "فقط پیش‌نویس"
 
 #: includes/Admin/CopilotPage.php:343 includes/Admin/KnowledgeBasePage.php:379
 #: includes/Frontend/ChatWidgetSettings.php:206
+#: includes/Support/PrivacyTools.php:236
 msgid "Title"
 msgstr "عنوان"
 
@@ -2569,7 +2574,7 @@ msgid "Edit in Easy Form Builder"
 msgstr "ویرایش در Easy Form Builder"
 
 #: includes/Admin/CopilotPage.php:501 includes/Admin/KnowledgeBasePage.php:461
-#: includes/Core/Plugin.php:157
+#: includes/Core/Plugin.php:160
 msgid "Try again"
 msgstr "تلاش دوباره"
 
@@ -2977,7 +2982,7 @@ msgstr "پیکربندی کانال‌ها"
 #: includes/Admin/HandoffInboxPage.php:185
 #: includes/Admin/KnowledgeBasePage.php:382
 #: includes/Admin/NativeFormsPage.php:95
-#: includes/Admin/StoreCopilotPage.php:288
+#: includes/Admin/StoreCopilotPage.php:288 includes/Support/PrivacyTools.php:92
 msgid "Status"
 msgstr "وضعیت"
 
@@ -6436,7 +6441,7 @@ msgstr[0] "%s توکن"
 msgstr[1] "%s توکن"
 
 #: includes/Api/AdminHandoffSettingsController.php:46
-#: includes/Api/ChatWidgetController.php:282
+#: includes/Api/ChatWidgetController.php:311
 msgid "Choose a supported handoff channel."
 msgstr "یک کانال پشتیبانی‌شدهٔ انتقال به انسان انتخاب کنید."
 
@@ -6536,13 +6541,13 @@ msgstr "یک رنگ اصلی معتبر به‌صورت هگزادسیمال ا�
 msgid "Please enter a question of up to 2,000 characters."
 msgstr "لطفاً پرسشی حداکثر ۲٬۰۰۰ کاراکتری وارد کنید."
 
-#: includes/Api/ChatController.php:30 includes/Api/ChatController.php:110
+#: includes/Api/ChatController.php:30 includes/Api/ChatController.php:124
 #: includes/Api/VisitorConversationController.php:28
 msgid "Conversation not found."
 msgstr "گفت‌وگو یافت نشد."
 
 #: includes/Api/ChatWidgetController.php:56
-#: includes/Api/ChatWidgetController.php:149
+#: includes/Api/ChatWidgetController.php:173
 msgid "The assistant widget is disabled."
 msgstr "ویجت دستیار غیرفعال است."
 
@@ -6559,48 +6564,50 @@ msgstr "لطفاً پیامتان را کوتاه‌تر کنید و دوبار�
 msgid "Please wait before sending another message."
 msgstr "لطفاً پیش از ارسال پیام بعدی کمی صبر کنید."
 
-#: includes/Api/ChatWidgetController.php:125
-#: includes/Api/PublicChatController.php:38
+#: includes/Api/ChatWidgetController.php:119
+#: includes/Api/ChatWidgetController.php:147
+#: includes/Api/PublicChatController.php:41
+#: includes/Api/PublicChatController.php:47
 msgid "The assistant is temporarily unavailable. Please try again later."
 msgstr "دستیار موقتاً در دسترس نیست. لطفاً بعداً تلاش کنید."
 
-#: includes/Api/ChatWidgetController.php:159
+#: includes/Api/ChatWidgetController.php:183
 msgid "Human handoff is not enabled."
 msgstr "انتقال به انسان فعال نیست."
 
-#: includes/Api/ChatWidgetController.php:169
+#: includes/Api/ChatWidgetController.php:193
 msgid "Please wait before requesting another handoff."
 msgstr "لطفاً پیش از درخواست انتقال بعدی کمی صبر کنید."
 
-#: includes/Api/ChatWidgetController.php:189
+#: includes/Api/ChatWidgetController.php:218
 msgid "Please enter your name."
 msgstr "لطفاً نام خود را وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:190 includes/Core/Plugin.php:186
+#: includes/Api/ChatWidgetController.php:219 includes/Core/Plugin.php:189
 msgid "Please provide a valid email address."
 msgstr "لطفاً یک آدرس ایمیل معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:191 includes/Core/Plugin.php:187
+#: includes/Api/ChatWidgetController.php:220 includes/Core/Plugin.php:190
 msgid "Please enter a valid mobile number."
 msgstr "لطفاً یک شمارهٔ موبایل معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:192 includes/Core/Plugin.php:188
+#: includes/Api/ChatWidgetController.php:221 includes/Core/Plugin.php:191
 msgid "Please enter a valid website address."
 msgstr "لطفاً یک نشانی وب‌سایت معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:209
+#: includes/Api/ChatWidgetController.php:238
 msgid "Please fill in the required details."
 msgstr "لطفاً اطلاعات الزامی را پر کنید."
 
-#: includes/Api/ChatWidgetController.php:220
+#: includes/Api/ChatWidgetController.php:249
 msgid "No messages to send."
 msgstr "ارسال ناموفق بود."
 
-#: includes/Api/ChatWidgetController.php:243
+#: includes/Api/ChatWidgetController.php:272
 msgid "Your request has been sent to the support team."
 msgstr "درخواست شما برای تیم پشتیبانی ارسال شد."
 
-#: includes/Api/ChatWidgetController.php:244
+#: includes/Api/ChatWidgetController.php:273
 msgid "We could not send the request. Please try again later."
 msgstr "نتوانستیم درخواست را بفرستیم. لطفاً بعداً تلاش کنید."
 
@@ -7132,7 +7139,7 @@ msgid "Usage data reset."
 msgstr "پیام %d/%d ارسال شد."
 
 #: includes/Api/PublicChatController.php:21
-#: includes/Api/PublicChatController.php:44
+#: includes/Api/PublicChatController.php:53
 msgid "The site assistant is not enabled."
 msgstr "دستیار سایت فعال نیست."
 
@@ -7144,15 +7151,15 @@ msgstr "تعداد پیام‌ها بیش از حد مجاز است. لطفاً 
 msgid "Please enter a question of up to 1,500 characters."
 msgstr "لطفاً سؤالی تا ۱۵۰۰ نویسه وارد کنید."
 
-#: includes/Api/PublicChatController.php:50
+#: includes/Api/PublicChatController.php:59
 msgid "Voice input is turned off for this site."
 msgstr "ورودی صوتی در این سایت خاموش است."
 
-#: includes/Api/PublicChatController.php:53
+#: includes/Api/PublicChatController.php:62
 msgid "Too many voice requests. Please try again later."
 msgstr "درخواست‌های صوتی بیش از حد. لطفاً بعداً تلاش کنید."
 
-#: includes/Api/PublicChatController.php:64 includes/Api/VoiceController.php:73
+#: includes/Api/PublicChatController.php:73 includes/Api/VoiceController.php:73
 msgid "Voice input is temporarily unavailable. Please try again later."
 msgstr "ورودی صوتی موقتاً در دسترس نیست. لطفاً بعداً تلاش کنید."
 
@@ -7223,30 +7230,30 @@ msgstr "order_id و مبلغ مثبت الزامی هستند."
 msgid "WooCommerce is not active."
 msgstr "ووکامرس فعال نیست."
 
-#: includes/Chat/ChatEngine.php:81
+#: includes/Chat/ChatEngine.php:87
 msgid "AI provider is not configured. Please add your API key in Settings."
 msgstr "ارائه‌دهنده هوش مصنوعی پیکربندی نشده است."
 
-#: includes/Chat/ChatEngine.php:139 includes/Chat/ChatEngine.php:147
+#: includes/Chat/ChatEngine.php:145 includes/Chat/ChatEngine.php:153
 msgid "An error occurred while processing your question. Please try again."
 msgstr "هنگام پردازش سوال شما خطایی رخ داد. لطفاً دوباره تلاش کنید."
 
-#: includes/Chat/ChatEngine.php:237
+#: includes/Chat/ChatEngine.php:243
 msgid ""
 "I found a few different things that could match. Which one did you mean?"
 msgstr "چند مورد پیدا کردم که ممکن است منظورتان باشد. کدام‌یک؟"
 
-#: includes/Chat/ChatEngine.php:427
+#: includes/Chat/ChatEngine.php:433
 msgid "Would you like me to connect you with a member of our team?"
 msgstr "مایل هستید شما را به یکی از همکاران ما وصل کنم؟"
 
-#: includes/Chat/ChatEngine.php:431
+#: includes/Chat/ChatEngine.php:437
 msgid ""
 "I looked through the site's content but couldn't find a clear answer to that "
 "yet."
 msgstr "در محتوای سایت گشتم، ولی هنوز پاسخ روشنی برای آن پیدا نکردم."
 
-#: includes/Chat/ChatEngine.php:436
+#: includes/Chat/ChatEngine.php:442
 msgid "Could you try rephrasing, or asking about something else?"
 msgstr "می‌توانید سؤال را طور دیگری بپرسید یا موضوع دیگری را مطرح کنید؟"
 
@@ -7564,8 +7571,8 @@ msgid_plural "Indexed \"%1$s\" (%2$d passages)."
 msgstr[0] "«%1$s» نمایه شد (%2$d بخش)."
 msgstr[1] "«%1$s» نمایه شد (%2$d بخش)."
 
-#: includes/Content/ContentIndexer.php:379
-#: includes/Content/ContentIndexer.php:414
+#: includes/Content/ContentIndexer.php:380
+#: includes/Content/ContentIndexer.php:415
 msgid ""
 "The local AI usage cap has been reached. Raise or reset the token cap in "
 "Usage & Cost, then resume this indexing pass."
@@ -7678,15 +7685,15 @@ msgstr "AI Site Assistant AutoPilot به PHP نسخهٔ ۸٫۱ یا بالاتر
 msgid "Plugin activation error"
 msgstr "خطای فعال‌سازی افزونه"
 
-#: includes/Core/Plugin.php:156
+#: includes/Core/Plugin.php:159
 msgid "Sources"
 msgstr "منابع"
 
-#: includes/Core/Plugin.php:160
+#: includes/Core/Plugin.php:163
 msgid "Stop waiting for the reply"
 msgstr "توقف انتظار برای پاسخ"
 
-#: includes/Core/Plugin.php:161
+#: includes/Core/Plugin.php:164
 msgid ""
 "You stopped waiting. The site may still finish this answer, but it will not "
 "appear here."
@@ -7694,57 +7701,57 @@ msgstr ""
 "شما منتظر نماندید. ممکن است سایت این پاسخ را تمام کند، ولی اینجا نشان داده "
 "نمی‌شود."
 
-#: includes/Core/Plugin.php:162
+#: includes/Core/Plugin.php:165
 msgid "Choose what you mean"
 msgstr "منظورتان را انتخاب کنید"
 
-#: includes/Core/Plugin.php:163
+#: includes/Core/Plugin.php:166
 msgid "Sending…"
 msgstr "در حال ارسال…"
 
-#: includes/Core/Plugin.php:164
+#: includes/Core/Plugin.php:167
 msgid "Sent — we will be in touch."
 msgstr "ارسال شد — با شما تماس می‌گیریم."
 
-#: includes/Core/Plugin.php:165
+#: includes/Core/Plugin.php:168
 msgid "Could not send. Please try again."
 msgstr "ارسال نشد. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:166
+#: includes/Core/Plugin.php:169
 msgid "Sorry, I could not answer that."
 msgstr "متأسفم، نتوانستم به آن پاسخ دهم."
 
-#: includes/Core/Plugin.php:167
+#: includes/Core/Plugin.php:170
 msgid "Connection problem. Please try again."
 msgstr "مشکل در اتصال. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:168 includes/Frontend/ChatWidget.php:116
+#: includes/Core/Plugin.php:171 includes/Frontend/ChatWidget.php:116
 #: includes/Frontend/ChatWidget.php:117
 msgid "Full screen"
 msgstr "تمام‌صفحه"
 
-#: includes/Core/Plugin.php:169
+#: includes/Core/Plugin.php:172
 msgid "Exit full screen"
 msgstr "خروج از تمام‌صفحه"
 
-#: includes/Core/Plugin.php:170 includes/Frontend/ChatWidget.php:107
+#: includes/Core/Plugin.php:173 includes/Frontend/ChatWidget.php:107
 #: includes/Frontend/ChatWidget.php:108 includes/Frontend/ChatWidget.php:159
 msgid "Voice input"
 msgstr "ورودی صوتی"
 
-#: includes/Core/Plugin.php:173
+#: includes/Core/Plugin.php:176
 msgid "Microphone access was denied."
 msgstr "دسترسی به میکروفون داده نشد."
 
-#: includes/Core/Plugin.php:175
+#: includes/Core/Plugin.php:178
 msgid "Could not transcribe that. Please try again."
 msgstr "تبدیل صدا به متن ممکن نشد. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:178
+#: includes/Core/Plugin.php:181
 msgid "Transcribing your recording…"
 msgstr "در حال تبدیل صدای شما به متن…"
 
-#: includes/Core/Plugin.php:179
+#: includes/Core/Plugin.php:182
 msgid ""
 "Your words are in the message box. Check them, then press Send. Nothing was "
 "sent yet."
@@ -7752,23 +7759,23 @@ msgstr ""
 "گفتهٔ شما در کادر پیام است. آن را بررسی کنید و سپس «ارسال» را بزنید. هنوز "
 "چیزی ارسال نشده است."
 
-#: includes/Core/Plugin.php:180
+#: includes/Core/Plugin.php:183
 msgid "From"
 msgstr "منبع:"
 
-#: includes/Core/Plugin.php:181
+#: includes/Core/Plugin.php:184
 msgid "The assistant is writing a reply"
 msgstr "دستیار در حال نوشتن پاسخ است"
 
-#: includes/Core/Plugin.php:182
+#: includes/Core/Plugin.php:185
 msgid "Listening… tap the mic again to stop"
 msgstr "در حال شنیدن… برای توقف دوباره روی میکروفن بزنید"
 
-#: includes/Core/Plugin.php:184
+#: includes/Core/Plugin.php:187
 msgid "Listening…"
 msgstr "در حال گوش دادن..."
 
-#: includes/Core/Plugin.php:185
+#: includes/Core/Plugin.php:188
 msgid "Please fill this in."
 msgstr "لطفاً این را پر کنید."
 
@@ -7982,7 +7989,8 @@ msgid "Custom endpoint"
 msgstr "endpoint سفارشی"
 
 #: includes/Core/Settings.php:699 includes/Core/WpConnectors.php:53
-#: includes/Core/WpConnectors.php:96
+#: includes/Core/WpConnectors.php:96 includes/Support/PrivacyTools.php:40
+#: includes/Support/PrivacyTools.php:54 includes/Support/PrivacyTools.php:153
 msgid "AI Site Assistant AutoPilot"
 msgstr "AI Site Assistant AutoPilot"
 
@@ -9915,6 +9923,89 @@ msgstr "واتس‌اپ خطا برگرداند (HTTP %1$d): %2$s"
 #, php-format
 msgid "WhatsApp returned an error (HTTP %d)."
 msgstr "واتس‌اپ خطا برگرداند (HTTP %d)."
+
+#: includes/Support/PrivacyTools.php:82
+msgid "Requests to talk to a person"
+msgstr "درخواست‌های صحبت با انسان"
+
+#: includes/Support/PrivacyTools.php:83
+msgid ""
+"Requests a visitor sent from the site assistant to reach a member of the "
+"team."
+msgstr ""
+"درخواست‌هایی که بازدیدکننده از دستیار سایت فرستاد تا به یکی از اعضای تیم برسد."
+
+#: includes/Support/PrivacyTools.php:93
+msgid "Received"
+msgstr "دریافت‌شده در"
+
+#: includes/Support/PrivacyTools.php:104
+msgid ""
+"Conversations this administrator had with the knowledge base console in wp-"
+"admin."
+msgstr "گفت‌وگوهای این مدیر با کنسول دانش سایت در پیشخوان وردپرس."
+
+#: includes/Support/PrivacyTools.php:104
+msgid "Site assistant console conversations"
+msgstr "گفت‌وگوهای کنسول دستیار سایت"
+
+#: includes/Support/PrivacyTools.php:107
+msgid "Recorded visitor conversations in which this email address was written."
+msgstr "گفت‌وگوهای ثبت‌شدهٔ بازدیدکننده که این نشانی ایمیل در آن‌ها نوشته شده است."
+
+#: includes/Support/PrivacyTools.php:107
+msgid "Site assistant conversations"
+msgstr "گفت‌وگوهای دستیار سایت"
+
+#: includes/Support/PrivacyTools.php:160
+msgid ""
+"This site uses an AI assistant to answer questions about its content. When "
+"you ask a question in the chat, the question, the previous few messages of "
+"the conversation and the matching passages of this site's public pages are "
+"sent to the AI service the site uses, to write the answer. Voice messages "
+"you choose to send are sent to that service to be transcribed."
+msgstr ""
+"این سایت برای پاسخ به پرسش‌ها دربارهٔ محتوایش از یک دستیار هوش مصنوعی استفاده "
+"می‌کند. وقتی در گفت‌وگو پرسشی می‌پرسید، خود پرسش، چند پیام قبلی گفت‌وگو و بخش‌های "
+"مرتبط از صفحه‌های عمومی سایت به سرویس هوش مصنوعی‌ای که سایت به کار می‌برد "
+"فرستاده می‌شوند تا پاسخ نوشته شود. پیام صوتی‌ای که خودتان بفرستید هم برای "
+"تبدیل به متن به همان سرویس فرستاده می‌شود."
+
+#: includes/Support/PrivacyTools.php:161
+msgid ""
+"Conversations are only kept on this site when the site owner has turned "
+"recording on; the chat then says so. Questions the assistant could not "
+"answer are kept without any information about who asked, so the site can add "
+"the missing content."
+msgstr ""
+"گفت‌وگوها فقط وقتی در این سایت نگه داشته می‌شوند که مدیر سایت ثبت را روشن کرده "
+"باشد؛ در آن صورت خود گفت‌وگو این را می‌گوید. پرسش‌هایی که دستیار پاسخشان را "
+"نیافت، بدون هیچ اطلاعی از پرسنده نگه داشته می‌شوند تا سایت محتوای کم‌بود را "
+"اضافه کند."
+
+#: includes/Support/PrivacyTools.php:162
+msgid ""
+"If you ask to talk to a person, the conversation and the contact details you "
+"enter (such as your name, email address, mobile number or website) are "
+"stored on this site and sent to the team through the channels the site uses, "
+"which may include email, Telegram, WhatsApp, SMS, Slack or Signal."
+msgstr ""
+"اگر بخواهید با یک انسان صحبت کنید، گفت‌وگو و اطلاعات تماسی که وارد می‌کنید "
+"(مانند نام، نشانی ایمیل، شمارهٔ موبایل یا وب‌سایت) در این سایت ذخیره و از "
+"کانال‌هایی که سایت به کار می‌برد برای تیم فرستاده می‌شوند؛ این کانال‌ها ممکن است "
+"ایمیل، تلگرام، واتس‌اپ، پیامک، اسلک یا سیگنال باشند."
+
+#: includes/Support/PrivacyTools.php:163
+msgid ""
+"You can ask for a copy of these requests and conversations, or for their "
+"deletion, by the email address you gave."
+msgstr ""
+"می‌توانید با همان نشانی ایمیلی که داده‌اید، رونوشت این درخواست‌ها و گفت‌وگوها یا "
+"حذف آن‌ها را درخواست کنید."
+
+#: includes/Support/PrivacyTools.php:237
+msgid "Started"
+msgstr "آغاز"
 
 #. translators: 1: remaining percentage, 2: remaining tokens.
 #: includes/Usage/UsageTracker.php:214

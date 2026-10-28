@@ -56,11 +56,13 @@ const ANSWER_SPOKEN = persianRun ? 'ما هر روز کاری صبح به سرا
 const TRANSCRIPT = persianRun ? 'آیا شنبه‌ها به مشهد ارسال دارید؟' : 'Do you deliver to Manchester on Saturdays?';
 
 /* ChatEngine::result() through ChatWidgetController::ask(), and its refusals. */
+// A recorded conversation's id, as the server returns it (a UUID token).
+const CONV_ID = '3f2b8c1e-5d4a-4b6f-9c2d-7e8f9a0b1c2d';
 const ASK = {
-	answer: { status: 200, body: { ok: true, answer: MARKDOWN_ANSWER, sources: [ { title: persianRun ? 'ساعت کاری' : 'Opening hours', url: 'https://example.com/hours' } ], status: 'answered', clarify_options: [], handoff_offer: false, conversation_id: 71 } },
-	plain: { status: 200, body: { ok: true, answer: ANSWER_SPOKEN, sources: [], status: 'answered', clarify_options: [], handoff_offer: false, conversation_id: 71 } },
-	clarify: { status: 200, body: { ok: true, answer: persianRun ? 'منظورتان کدام است؟' : 'Which one do you mean?', sources: [], status: 'clarify', clarify_options: persianRun ? [ 'ارسال داخل کشور', 'ارسال به خارج' ] : [ 'Shipping inside the country', 'Shipping abroad' ], handoff_offer: false, conversation_id: 71 } },
-	notFound: { status: 200, body: { ok: true, answer: 'I looked through the site\u2019s content but couldn\u2019t find a clear answer to that yet.\n\nWould you like me to connect you with a member of our team?', sources: [], status: 'not_found', clarify_options: [], handoff_offer: true, conversation_id: 71 } },
+	answer: { status: 200, body: { ok: true, answer: MARKDOWN_ANSWER, sources: [ { title: persianRun ? 'ساعت کاری' : 'Opening hours', url: 'https://example.com/hours' } ], status: 'answered', clarify_options: [], handoff_offer: false, conversation_id: CONV_ID } },
+	plain: { status: 200, body: { ok: true, answer: ANSWER_SPOKEN, sources: [], status: 'answered', clarify_options: [], handoff_offer: false, conversation_id: CONV_ID } },
+	clarify: { status: 200, body: { ok: true, answer: persianRun ? 'منظورتان کدام است؟' : 'Which one do you mean?', sources: [], status: 'clarify', clarify_options: persianRun ? [ 'ارسال داخل کشور', 'ارسال به خارج' ] : [ 'Shipping inside the country', 'Shipping abroad' ], handoff_offer: false, conversation_id: CONV_ID } },
+	notFound: { status: 200, body: { ok: true, answer: 'I looked through the site\u2019s content but couldn\u2019t find a clear answer to that yet.\n\nWould you like me to connect you with a member of our team?', sources: [], status: 'not_found', clarify_options: [], handoff_offer: true, conversation_id: CONV_ID } },
 	unavailable: { status: 503, body: { ok: false, code: 'assistant_unavailable', message: 'The assistant is temporarily unavailable. Please try again later.' } },
 	rateLimited: { status: 429, body: { ok: false, code: 'rate_limited', message: 'Please wait before sending another message.' } },
 };
@@ -227,7 +229,7 @@ async function instrument( page, ctx ) {
 }
 
 function newCtx() {
-	const ctx = { requests: [], consoleErrors: [], httpFailures: [], ask: 'answer', askDelay: 0, handoff: 'sent', handoffBodies: [], uploads: 0, refusalsFromMocks: false };
+	const ctx = { requests: [], consoleErrors: [], httpFailures: [], ask: 'answer', askDelay: 0, askBodies: [], handoff: 'sent', handoffBodies: [], uploads: 0, refusalsFromMocks: false };
 	ctx.mockedRefusal = ( url ) => ctx.refusalsFromMocks && ( url.includes( '/aisaautopilot/v1/widget/ask' ) || url.includes( '/aisaautopilot/v1/widget/handoff' ) );
 	return ctx;
 }
@@ -235,6 +237,7 @@ function newCtx() {
 async function mockRoutes( page, ctx ) {
 	await page.route( '**/aisaautopilot/v1/widget/ask**', async ( route ) => {
 		const reply = ASK[ ctx.ask ];
+		try { ctx.askBodies.push( JSON.parse( route.request().postData() || '{}' ) ); } catch ( e ) { ctx.askBodies.push( { parseError: true } ); }
 		if ( ctx.askDelay ) { await new Promise( ( resolve ) => setTimeout( resolve, ctx.askDelay ) ); }
 		try {
 			await route.fulfill( { status: reply.status, contentType: 'application/json', body: JSON.stringify( reply.body ) } );
@@ -924,6 +927,23 @@ async function runAuto( browser ) {
 		return { seen, afterSentence, afterEnd: document.querySelectorAll( '.spw-word--active' ).length };
 	} );
 	check( lit.seen.every( Boolean ) && lit.afterSentence === 1 && lit.afterEnd === 0, `${ tag } each word boundary lights exactly the word being read, and the end clears it (F-19): ${ JSON.stringify( lit ) }` );
+
+	// A follow-up carries the previous turns; another page in the same tab continues the recorded conversation.
+	const asked = ( text ) => Promise.all( [ page.waitForResponse( ( r ) => r.url().includes( '/aisaautopilot/v1/widget/ask' ) ), ask( page, text ) ] );
+	await asked( persianRun ? 'هزینه‌اش چقدر است؟' : 'And how much is it?' );
+	await page.reload( { waitUntil: 'domcontentloaded' } );
+	await page.locator( '#spw-toggle' ).click();
+	await page.locator( '#spw-panel.spw-panel--open' ).waitFor();
+	await asked( persianRun ? 'ساعت کاری؟' : 'What are your hours?' );
+	const bodies = ctx.askBodies;
+	check(
+		3 === bodies.length
+		&& null === bodies[ 0 ].conversation_id && Array.isArray( bodies[ 0 ].history ) && 0 === bodies[ 0 ].history.length
+		&& CONV_ID === bodies[ 1 ].conversation_id && 2 === ( bodies[ 1 ].history || [] ).length
+		&& 'user' === bodies[ 1 ].history[ 0 ].role && 'assistant' === bodies[ 1 ].history[ 1 ].role
+		&& CONV_ID === bodies[ 2 ].conversation_id && 0 === ( bodies[ 2 ].history || [ 1 ] ).length,
+		`${ tag } a follow-up sends the previous turns, and after moving to another page the same recorded conversation continues with a fresh history: ${ JSON.stringify( bodies.map( ( b ) => [ b.conversation_id, ( b.history || [] ).length ] ) ) }`
+	);
 	check( ctx.consoleErrors.length === 0, `${ tag } console/pageerror ${ JSON.stringify( ctx.consoleErrors ) }` );
 	check( ctx.httpFailures.length === 0, `${ tag } unexpected HTTP >= 400 ${ JSON.stringify( ctx.httpFailures ) }` );
 	await context.close();

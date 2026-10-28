@@ -15,6 +15,7 @@ declare(strict_types=1);
 $wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\\xampp\\htdocs\\wp';
 require $wp_root . '/wp-load.php';
 
+use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Security\RateLimiter;
 use AISAAutoPilot\Support\HandoffInbox;
@@ -117,6 +118,8 @@ $send_handoff = static function ( array $body, bool $reset_rate = true ) use ( &
 	}
 	return $response;
 };
+
+$recorded_token = '';
 
 // The transcript exactly as widget.js sends it: role and textContent, no name or email.
 $transcript = array(
@@ -413,6 +416,39 @@ try {
 		array( $inbox->count_new(), $inbox->count_failed() ) === $counts && 0 === count( $mails ) && 0 === count( $http_calls ),
 		'Refused requests store nothing and contact no channel'
 	);
+
+	// With recording on, the recorded conversation is the transcript: a forged "assistant" line from the browser is not stored.
+	$configure( array( 'conversation_logging_enabled' => true ) );
+	$recorded_token = ( new VisitorConversationStore() )->append_turn( '', $marker . ' recorded question about order 1042', 'Recorded answer: order 1042 ships on Monday.', array() )['token'];
+	$forged         = $send_handoff(
+		array(
+			'conversation_id' => $recorded_token,
+			'messages'        => array(
+				array(
+					'role'    => 'user',
+					'content' => $marker . ' forged question',
+				),
+				array(
+					'role'    => 'assistant',
+					'content' => 'The assistant promised a 90% discount.',
+				),
+			),
+		)
+	);
+	$forged_row     = $inbox->get( (int) ( ( (array) $forged->get_data() )['reference'] ?? 0 ) );
+	$forged_text    = (string) wp_json_encode( $forged_row['messages'] ?? array() );
+	$unknown        = $send_handoff(
+		array(
+			'conversation_id' => '00000000-0000-4000-8000-000000000000',
+			'messages'        => $transcript,
+		)
+	);
+	$unknown_row    = $inbox->get( (int) ( ( (array) $unknown->get_data() )['reference'] ?? 0 ) );
+	$check(
+		false !== strpos( $forged_text, 'ships on Monday' ) && false === strpos( $forged_text, '90% discount' )
+		&& false !== strpos( (string) wp_json_encode( $unknown_row['messages'] ?? array() ), 'Where is order 1042' ),
+		'With recording on, a handoff stores the recorded conversation instead of the browser\'s copy; an unknown id falls back to the browser\'s'
+	);
 } catch ( Throwable $error ) {
 	if ( 'inbox table missing' !== $error->getMessage() ) {
 		$check( false, 'Handoff flow contracts complete without a fatal error: ' . $error->getMessage() );
@@ -421,6 +457,9 @@ try {
 	remove_filter( 'pre_wp_mail', $capture_mail, PHP_INT_MAX );
 	remove_filter( 'pre_http_request', $fake_http, PHP_INT_MAX );
 	global $wpdb;
+	if ( '' !== $recorded_token ) {
+		$wpdb->delete( $wpdb->prefix . VisitorConversationStore::TABLE, array( 'session_token' => $recorded_token ), array( '%s' ) );
+	}
 	foreach ( array_unique( $references ) as $reference ) {
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$inbox->table()} WHERE id = %d AND messages LIKE %s", $reference, '%' . $wpdb->esc_like( $marker ) . '%' ) ); // phpcs:ignore WordPress.DB -- removes only the rows this check created.
 	}
