@@ -53,7 +53,9 @@
 	function isReady() { return !! ( ready.studio && ready.ai && ready.recipient ); }
 
 	function request( path, body ) {
-		return fetch( cfg.restUrl + path, {
+		// WordPress honours _locale=user only for JSON requests, so server-built notes match the admin language.
+		var url = cfg.restUrl + path;
+		return fetch( url + ( url.indexOf( '?' ) < 0 ? '?' : '&' ) + '_locale=user', {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },

@@ -215,6 +215,8 @@ final class EfbBuilderButton {
 					'ctxOffline'                     => __( 'Not connected yet', 'ai-site-assistant-autopilot' ),
 					'starterFields'                  => __( 'Add or change fields', 'ai-site-assistant-autopilot' ),
 					'starterFieldsExample'           => __( 'Add a phone field after Email', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: an example request, shown in quotation marks. */
+					'quoted'                         => __( '“%s”', 'ai-site-assistant-autopilot' ),
 					'starterLogic'                   => __( 'Show or hide fields', 'ai-site-assistant-autopilot' ),
 					'starterLogicExample'            => __( 'Show Company only for business customers', 'ai-site-assistant-autopilot' ),
 					'starterReview'                  => __( 'Review this form', 'ai-site-assistant-autopilot' ),

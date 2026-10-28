@@ -46,7 +46,9 @@
 	var el = window.AISAAutoPilotDock.el;
 	function $( id ) { return document.getElementById( id ); }
 	function api( path, body ) {
-		return fetch( cfg.restUrl + path, {
+		// WordPress honours _locale=user only for JSON requests, so server-built notes match the admin language.
+		var url = cfg.restUrl + path;
+		return fetch( url + ( url.indexOf( '?' ) < 0 ? '?' : '&' ) + '_locale=user', {
 			method: 'POST', credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
 			body: JSON.stringify( body )
@@ -971,9 +973,9 @@
 		lastIntroFieldId = selectedField ? selectedField.id : '';
 		var starters = el( 'div', { class: 'aisa-ai-starters', 'data-sp-efb-chips': 'starter' } );
 		if ( hasLiveForm() ) {
-			starters.appendChild( starter( 'plus', 'add', t( 'starterFields', 'Add or change fields' ), '“' + t( 'starterFieldsExample', 'Add a phone field after Email' ) + '”', t( 'starterFieldsExample', 'Add a phone field after Email' ) ) );
+			starters.appendChild( starter( 'plus', 'add', t( 'starterFields', 'Add or change fields' ), t( 'quoted', '“%s”', t( 'starterFieldsExample', 'Add a phone field after Email' ) ), t( 'starterFieldsExample', 'Add a phone field after Email' ) ) );
 			// Only offered where it can work: EFB writes rules only with its Conditional Logic add-on.
-			if ( logicAddonActive() ) { starters.appendChild( starter( 'logic', 'logic', t( 'starterLogic', 'Show or hide fields' ), '“' + t( 'starterLogicExample', 'Show Company only for business customers' ) + '”', t( 'starterLogicExample', 'Show Company only for business customers' ) ) ); }
+			if ( logicAddonActive() ) { starters.appendChild( starter( 'logic', 'logic', t( 'starterLogic', 'Show or hide fields' ), t( 'quoted', '“%s”', t( 'starterLogicExample', 'Show Company only for business customers' ) ), t( 'starterLogicExample', 'Show Company only for business customers' ) ) ); }
 			starters.appendChild( starter( 'wand', 'edit', t( 'starterReview', 'Review this form' ), t( 'starterReviewHint', 'Missing consent, spam protection, too many questions' ), t( 'starterReview', 'Review this form' ) ) );
 			starters.appendChild( starter( 'help', 'edit', t( 'starterHelp', 'How do I…?' ), t( 'starterHelpHint', 'Ask anything about Easy Form Builder' ), t( 'starterHelpPrefill', 'How do I ' ) ) );
 		} else {
