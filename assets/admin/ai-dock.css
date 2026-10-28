@@ -5,7 +5,8 @@
  * each screen; this file only draws the component.
  */
 
-.aisa-ai {
+/* Tokens are global so buttons and cards also work outside the dock (Form Studio's canvas). */
+:root {
 	--aisa-ink: #14152b;
 	--aisa-muted: #5b5e7d;
 	--aisa-faint: #6f7290;
@@ -26,6 +27,9 @@
 	--aisa-logic: #6b21a8;
 	--aisa-logic-bg: #faf5ff;
 	--aisa-logic-line: #e9d5ff;
+}
+
+.aisa-ai {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;

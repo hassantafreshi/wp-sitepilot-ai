@@ -6,6 +6,7 @@ declare(strict_types=1);
 $wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\\xampp\\htdocs\\wp';
 require $wp_root . '/wp-load.php';
 
+use AISAAutoPilot\Admin\AdminMenu;
 use AISAAutoPilot\Admin\CopilotPage;
 use AISAAutoPilot\Core\Settings;
 
@@ -54,11 +55,11 @@ try {
 		'Form Studio renders one mockup header, canvas, assistant and truthful empty state'
 	);
 	$check(
-		// Three canvas examples plus the same three as assistant suggestions (mockup);
-		// all are plain buttons that only prefill the prompt.
+		// The gallery (owner-approved redesign, 2026-10-28): six examples made only of native
+		// field types, all plain buttons that only prefill the prompt.
 		6 === substr_count( $html, 'data-example=' )
-		&& 6 === substr_count( $html, '<button type="button" class="sp-chip" data-example=' )
-		&& 1 === substr_count( $html, 'data-sp-fc-suggestions' )
+		&& 6 === substr_count( $html, '<button type="button" class="sp-fc-example" data-example=' )
+		&& false !== strpos( $html, 'id="aisaautopilot-thread"' )
 		&& false !== strpos( $html, 'id="aisaautopilot-prompt"' )
 		&& false !== strpos( $html, 'id="aisaautopilot-generate"' )
 		&& false !== strpos( $html, 'id="aisaautopilot-voice-toggle"' )
@@ -78,9 +79,13 @@ try {
 	$check(
 		1 === preg_match( '/id="aisaautopilot-prompt"[^>]*disabled/', $disabled )
 		&& 1 === preg_match( '/id="aisaautopilot-generate"[^>]*disabled/', $disabled )
-		&& false !== strpos( $disabled, 'Form Studio is turned off' )
-		&& false !== strpos( $disabled, 'Open Integrations' ),
-		'Disabled integration preserves the mockup shell but prevents plan requests and offers the real recovery route'
+		// The chat draws the readiness checklist from the boot data: Form Studio is off, and the
+		// way back is Integrations.
+		&& false !== strpos( $disabled, '"studio":false' )
+		&& false !== strpos( $disabled, 'Turn on Form Studio' )
+		&& false !== strpos( $disabled, 'Open Integrations' )
+		&& false !== strpos( $disabled, 'page=' . AdminMenu::SLUG_INTEGRATIONS ),
+		'Disabled integration preserves the workspace but prevents plan requests and offers the real recovery route'
 	);
 } finally {
 	$restore_option( Settings::OPTION, $original_settings );

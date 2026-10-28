@@ -1,27 +1,34 @@
-/* global AISAAutoPilotAI */
+/* global AISAAutoPilotAI, AISAAutoPilotDock */
 /**
- * WP-02 / WP-03 / WP-04 — compose, review, result.
- * Markup mirrors "UI wireframe/AI Site Assistant AutoPilot.dc.html" one-for-one.
+ * Form Studio: one workspace. The canvas shows the gallery, the form taking shape, the plan
+ * beside a full-size preview, or the result; the chat beside it carries the conversation, so
+ * a plan is changed by asking. Nothing is created until the administrator approves a plan.
  */
 ( function () {
 	'use strict';
 
 	var cfg = window.AISAAutoPilotAI || {};
+	var Dock = window.AISAAutoPilotDock;
+	var el = Dock.el;
+	var icon = Dock.icon;
 	var boot = readBoot();
 	var T = boot.i18n || {};
+	var ready = boot.ready || { studio: true, ai: true, recipient: '' };
 
 	var actionId = null;
 	var preview = null;
 	var expiresAt = null;
 	var expiryTimer = null;
-	var genTimer = null;
+	var lastPrompt = '';
+	var working = false;
+	var checking = false;
 
 	var recorder = null;
 	var recorderStream = null;
 	var chunks = [];
 	var recordingTimer = null;
 
-	// ── tiny DOM helpers ────────────────────────────────────────
+	// ── helpers ─────────────────────────────────────────────────
 
 	function readBoot() {
 		var node = document.getElementById( 'sp-copilot-boot' );
@@ -29,62 +36,35 @@
 		try { return JSON.parse( node.textContent ) || {}; } catch ( e ) { return {}; }
 	}
 
-	function t( key, fallback ) { return T[ key ] || fallback || key; }
-
-	function sprintf( template, value ) { return String( template ).replace( /%[sd]/, value ); }
+	/** A translated string; %s, %d and %1$s take the values in order. */
+	function t( key, fallback, values ) {
+		var text = T[ key ] || fallback || key;
+		if ( undefined === values ) { return text; }
+		var list = Array.isArray( values ) ? values : [ values ];
+		var next = 0;
+		return String( text ).replace( /%(?:(\d+)\$)?[sd]/g, function ( match, position ) {
+			var i = position ? Number( position ) - 1 : next++;
+			return i < list.length ? String( list[ i ] ) : match;
+		} );
+	}
 
 	function byId( id ) { return document.getElementById( id ); }
+	function root() { return document.querySelector( '[data-aisaautopilot-copilot]' ); }
+	function isReady() { return !! ( ready.studio && ready.ai && ready.recipient ); }
 
-	function h( tag, attrs, children ) {
-		var node = document.createElement( tag );
-		Object.keys( attrs || {} ).forEach( function ( key ) {
-			var value = attrs[ key ];
-			if ( value === null || value === undefined || value === false ) { return; }
-			if ( key === 'class' ) { node.className = value; }
-			else if ( key === 'text' ) { node.textContent = value; }
-			else if ( key === 'html' ) { node.innerHTML = value; }
-			else if ( key === 'onClick' ) { node.addEventListener( 'click', value ); }
-			else if ( key === 'style' ) { node.setAttribute( 'style', value ); }
-			else { node.setAttribute( key, value === true ? '' : value ); }
-		} );
-		( children || [] ).forEach( function ( child ) {
-			if ( child === null || child === undefined || child === false ) { return; }
-			node.appendChild( typeof child === 'string' ? document.createTextNode( child ) : child );
-		} );
-		return node;
+	function request( path, body ) {
+		return fetch( cfg.restUrl + path, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
+			body: JSON.stringify( body )
+		} ).then( responseData );
 	}
 
-	/** Inline SVG from a raw path string, matching the wireframe's icon set. */
-	function svg( paths, size, stroke, width ) {
-		var node = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
-		node.setAttribute( 'width', size || 16 );
-		node.setAttribute( 'height', size || 16 );
-		node.setAttribute( 'viewBox', '0 0 24 24' );
-		node.setAttribute( 'fill', 'none' );
-		node.setAttribute( 'stroke', stroke || 'currentColor' );
-		node.setAttribute( 'stroke-width', width || 1.7 );
-		node.setAttribute( 'aria-hidden', 'true' );
-		node.innerHTML = paths;
-		return node;
-	}
-
-	var ICON = {
-		shield: '<path d="M12 3l7.5 3v6c0 4.2-3.1 7.8-7.5 9-4.4-1.2-7.5-4.8-7.5-9V6z" stroke-linejoin="round"/>',
-		clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8" stroke-linecap="round"/>',
-		check: '<path d="M5 12.5l4.5 4.5L19 7" stroke-linecap="round" stroke-linejoin="round"/>',
-		copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a1 1 0 011-1h9"/>',
-		warn: '<path d="M12 4.5l8.5 15h-17z" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke-linecap="round"/>'
-	};
-
-	// ── shared chrome ───────────────────────────────────────────
-
-	function showStage( name ) {
-		[ 'compose', 'review', 'result' ].forEach( function ( stage ) {
-			var screen = byId( 'aisaautopilot-' + stage + '-screen' );
-			if ( ! screen ) { return; }
-			screen.hidden = stage !== name;
+	function responseData( response ) {
+		return response.json().catch( function () { return {}; } ).then( function ( data ) {
+			return { ok: response.ok, data: data };
 		} );
-		window.scrollTo( { top: 0, behavior: 'smooth' } );
 	}
 
 	function toast( message ) {
@@ -105,197 +85,144 @@
 
 	function setStatus( message ) {
 		var node = byId( 'aisaautopilot-status' );
-		if ( node ) { node.textContent = message; }
+		if ( ! node ) { return; }
+		node.textContent = message || '';
+		node.classList.toggle( 'is-visible', !! message );
 	}
 
-	function request( path, body ) {
-		return fetch( cfg.restUrl + path, {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
-			body: JSON.stringify( body )
-		} ).then( responseData );
+	/* The workspace fills the screen below whatever WordPress shows above it (notices included). */
+	function fitWorkspace() {
+		var work = document.querySelector( '.sp-fc-work' );
+		if ( ! work ) { return; }
+		var top = work.getBoundingClientRect().top + window.scrollY;
+		work.style.blockSize = Math.max( 520, window.innerHeight - top - 20 ) + 'px';
 	}
 
-	function responseData( response ) {
-		return response.json().catch( function () { return {}; } ).then( function ( data ) {
-			return { ok: response.ok, data: data };
+	function setCtx( text ) { var node = document.querySelector( '[data-sp-fc-ctx]' ); if ( node ) { node.textContent = text; } }
+
+	var TYPES = { text: [ 'typeText', 'Text', 'text' ], email: [ 'typeEmail', 'Email', 'mail' ], tel: [ 'typeTel', 'Phone', 'phone' ], textarea: [ 'typeTextarea', 'Long text', 'para' ], select: [ 'typeSelect', 'Dropdown', 'select' ], checkbox: [ 'typeCheckbox', 'Checkboxes', 'checkbox' ], radio: [ 'typeRadio', 'Choice', 'radio' ] };
+	function typeLabel( type ) { var entry = TYPES[ type ]; return entry ? t( entry[ 0 ], entry[ 1 ] ) : String( type || '' ); }
+	function typeIcon( type ) { var entry = TYPES[ type ]; return entry ? entry[ 2 ] : 'text'; }
+
+	// ── the chat ────────────────────────────────────────────────
+
+	function thread() { return byId( 'aisaautopilot-thread' ); }
+	function scrollDown() { var node = thread(); if ( node ) { node.scrollTop = node.scrollHeight; } }
+	function addUser( text ) {
+		thread().appendChild( el( 'div', { class: 'aisa-ai-user', dir: 'auto', text: text } ) );
+		scrollDown();
+	}
+	function addAi( content ) {
+		var body = el( 'div', { class: 'aisa-ai-body' } );
+		( Array.isArray( content ) ? content : [ content ] ).forEach( function ( part ) {
+			if ( 'string' === typeof part ) { if ( part ) { body.appendChild( el( 'div', { class: 'aisa-ai-text', dir: 'auto', text: part } ) ); } } else if ( part ) { body.appendChild( part ); }
 		} );
+		thread().appendChild( el( 'div', { class: 'aisa-ai-row' }, [ el( 'span', { class: 'aisa-ai-av', 'aria-hidden': 'true' }, [ icon( 'spark', 15, 1.9 ) ] ), body ] ) );
+		scrollDown();
+		return body;
+	}
+	function card( head, children, attrs ) { return el( 'div', Object.assign( { class: 'aisa-ai-card' }, attrs || {} ), [ head ].concat( children || [] ) ); }
+	function button( label, opts ) {
+		opts = opts || {};
+		var node = el( 'button', Object.assign( { type: 'button', class: 'aisa-ai-btn' + ( opts.kind ? ' aisa-ai-btn--' + opts.kind : '' ) + ( opts.size ? ' aisa-ai-btn--' + opts.size : '' ) + ( opts.grow ? ' aisa-ai-btn--grow' : '' ) }, opts.attrs || {} ), [ opts.icon ? icon( opts.icon, 14, opts.stroke || 2 ) : null, el( 'span', { text: label } ) ] );
+		if ( opts.onClick ) { node.addEventListener( 'click', opts.onClick ); }
+		return node;
+	}
+	function linkButton( label, href, opts ) {
+		opts = opts || {};
+		return el( 'a', { class: 'aisa-ai-btn' + ( opts.kind ? ' aisa-ai-btn--' + opts.kind : '' ) + ( opts.size ? ' aisa-ai-btn--' + opts.size : '' ), href: href, target: opts.newTab ? '_blank' : null, rel: opts.newTab ? 'noopener' : null }, [ el( 'span', { text: label } ), opts.newTab ? icon( 'ext', 13 ) : null ] );
+	}
+	function prefill( text ) {
+		var input = byId( 'aisaautopilot-prompt' );
+		if ( ! input || input.disabled ) { return; }
+		input.value = String( text || '' );
+		Dock.autoGrow( input, 180 );
+		showTab( 'chat' );
+		input.focus();
+		try { input.setSelectionRange( input.value.length, input.value.length ); } catch ( e ) {}
+	}
+	function chip( text, label ) {
+		var node = el( 'button', { type: 'button', class: 'aisa-ai-chip', dir: 'auto', 'data-sp-fc-chip': '1' }, [ icon( 'spark', 13 ), el( 'span', { text: label || text } ) ] );
+		node.addEventListener( 'click', function () { prefill( text ); } );
+		return node;
+	}
+	function setSuggestions( list ) {
+		var box = byId( 'aisaautopilot-suggest' );
+		if ( ! box ) { return; }
+		box.textContent = '';
+		( list || [] ).slice( 0, 3 ).forEach( function ( text ) { box.appendChild( chip( text ) ); } );
 	}
 
-	function pill( label, tone, dot ) {
-		return h( 'span', { class: 'sp-pill sp-pill--' + tone }, [ dot === false ? null : h( 'span', { class: 'sp-dot' } ), label ] );
+	// ── the canvas ──────────────────────────────────────────────
+
+	function setCanvas( state ) {
+		var node = root();
+		if ( node ) { node.setAttribute( 'data-sp-fc-state', state ); }
+		var empty = document.querySelector( '[data-sp-form-empty]' );
+		var ghost = document.querySelector( '[data-sp-form-ghost]' );
+		if ( empty ) { empty.hidden = 'start' !== state; }
+		if ( ghost ) { ghost.hidden = 'drafting' !== state; }
+		byId( 'aisaautopilot-review-screen' ).hidden = 'plan' !== state;
+		byId( 'aisaautopilot-result-screen' ).hidden = 'result' !== state;
+		var bar = document.querySelector( '[data-sp-fc-stickybar]' );
+		if ( bar ) { bar.hidden = 'plan' !== state || ! actionId || isExpired(); }
+		var canvas = byId( 'sp-fc-canvas' );
+		if ( canvas ) { canvas.scrollTop = 0; }
+		// On a phone the chat and the canvas are two tabs; a new plan or result marks the other one.
+		if ( ( 'plan' === state || 'result' === state ) && node && 'preview' !== node.getAttribute( 'data-sp-fc-tab' ) ) {
+			var dot = document.querySelector( '[data-sp-fc-tab-dot]' );
+			if ( dot ) { dot.hidden = false; }
+		}
 	}
 
-	function kvRow( key, value, valueNode ) {
-		return h( 'div', { class: 'sp-kv__row' }, [
-			h( 'span', { class: 'sp-kv__k', text: key } ),
-			valueNode || h( 'span', { class: 'sp-kv__v', text: value } )
-		] );
+	function showTab( tab ) {
+		var node = root();
+		if ( ! node ) { return; }
+		node.setAttribute( 'data-sp-fc-tab', tab );
+		Array.prototype.forEach.call( document.querySelectorAll( '[data-sp-fc-tab]' ), function ( btn ) {
+			if ( 'BUTTON' === btn.tagName ) { btn.setAttribute( 'aria-selected', btn.getAttribute( 'data-sp-fc-tab' ) === tab ? 'true' : 'false' ); }
+		} );
+		if ( 'preview' === tab ) { var dot = document.querySelector( '[data-sp-fc-tab-dot]' ); if ( dot ) { dot.hidden = true; } }
 	}
 
-	function card( extra, children ) {
-		return h( 'div', { class: 'sp-card ' + ( extra || '' ) }, children );
-	}
-
-	function assistantHead( context ) {
-		return h( 'header', { class: 'sp-fc-assistant__head' }, [
-			h( 'span', {}, [ svg( ICON.shield, 19, '#fff', 1.9 ) ] ),
-			h( 'span', {}, [
-				h( 'strong', { text: t( 'formAssistant' ) } ),
-				h( 'small', { text: context } )
-			] )
-		] );
-	}
-
-	// ── expiry countdown ────────────────────────────────────────
-
-	function isExpired() { return ! expiresAt || Date.now() >= expiresAt; }
-
-	function clockLabel() {
-		var left = Math.max( 0, Math.floor( ( expiresAt - Date.now() ) / 1000 ) );
-		var mm = Math.floor( left / 60 );
-		var ss = left % 60;
-		return mm + ':' + ( ss < 10 ? '0' : '' ) + ss;
-	}
-
-	function startExpiryTimer() {
-		window.clearInterval( expiryTimer );
-		expiryTimer = window.setInterval( function () {
-			var box = byId( 'sp-expiry' );
-			if ( ! box ) { window.clearInterval( expiryTimer ); return; }
-			if ( isExpired() ) {
-				window.clearInterval( expiryTimer );
-				renderReview( preview );
-				return;
-			}
-			box.querySelector( '[data-clock]' ).textContent = sprintf( t( 'validFor' ), clockLabel() );
-			box.className = 'sp-expiry' + ( ( expiresAt - Date.now() ) < 120000 ? ' sp-expiry--warn' : '' );
-		}, 1000 );
-	}
-
-	// ── WP-03 review ────────────────────────────────────────────
-
-	function renderReview( plan ) {
-		var root = byId( 'aisaautopilot-review-content' );
-		if ( ! root || ! plan ) { return; }
-		var expired = isExpired();
-		var draft = plan.default_status !== 'publish';
-		root.textContent = '';
-
-		var meta = h( 'div', { class: 'sp-fc-review__meta' }, [
-			h( 'div', { class: 'sp-fc-review__title' }, [
-				h( 'h2', { text: plan.title || t( 'createWithAi' ) } ),
-				h( 'div', { class: 'sp-meta-row' }, [
-					expired ? pill( t( 'expired' ), 'off' ) : pill( t( 'waiting' ), 'info' ),
-					h( 'span', { class: 'sp-mono', text: shortId() } )
-				] )
+	function renderPlanCanvas( plan ) {
+		var content = byId( 'aisaautopilot-review-content' );
+		content.textContent = '';
+		var rows = el( 'ul', { class: 'sp-fc-fieldlist' } );
+		( plan.fields || [] ).forEach( function ( field ) {
+			var meta = typeLabel( field.type ) + ( ( field.options || [] ).length ? ' · ' + field.options.join( ', ' ) : '' );
+			rows.appendChild( el( 'li', {}, [
+				el( 'span', { class: 'aisa-ai-ic' }, [ icon( typeIcon( field.type ), 14 ) ] ),
+				el( 'span', { class: 'sp-fc-fieldlist__main', dir: 'auto' }, [ field.label || '', field.required ? el( 'span', { class: 'sp-fc-req', text: ' *' } ) : null, el( 'small', { text: meta } ) ] )
+			] ) );
+		} );
+		var formNode = previewForm( plan );
+		var desktop = el( 'button', { type: 'button', class: 'sp-seg__btn is-on', 'aria-pressed': 'true' }, [ icon( 'monitor', 14 ), el( 'span', { text: t( 'desktop', 'Desktop' ) } ) ] );
+		var mobile = el( 'button', { type: 'button', class: 'sp-seg__btn', 'aria-pressed': 'false' }, [ icon( 'mobile', 14 ), el( 'span', { text: t( 'mobile', 'Mobile' ) } ) ] );
+		desktop.addEventListener( 'click', function () { desktop.classList.add( 'is-on' ); mobile.classList.remove( 'is-on' ); desktop.setAttribute( 'aria-pressed', 'true' ); mobile.setAttribute( 'aria-pressed', 'false' ); formNode.classList.remove( 'is-mobile' ); } );
+		mobile.addEventListener( 'click', function () { mobile.classList.add( 'is-on' ); desktop.classList.remove( 'is-on' ); mobile.setAttribute( 'aria-pressed', 'true' ); desktop.setAttribute( 'aria-pressed', 'false' ); formNode.classList.add( 'is-mobile' ); } );
+		content.appendChild( el( 'div', { class: 'sp-fc-plan__grid', 'data-sp-form-review-canvas': '' }, [
+			el( 'section', { class: 'sp-fc-plan__fields', 'aria-label': t( 'fields', 'Fields' ) }, [
+				el( 'h2', {}, [ t( 'fields', 'Fields' ), el( 'span', { class: 'aisa-ai-tag', text: String( ( plan.fields || [] ).length ) } ) ] ),
+				rows,
+				el( 'p', { class: 'sp-fc-plan__never' }, [ icon( 'shield', 14 ), el( 'span', { text: t( 'neverIncluded', 'Native forms never include payments, passwords or sign-ups.' ) } ) ] )
 			] ),
-			h( 'div', {
-				id: 'sp-expiry',
-				class: 'sp-expiry' + ( expired ? ' sp-expiry--off' : '' )
-			}, [
-				svg( ICON.clock, 16, 'currentColor', 1.8 ),
-				h( 'span', { 'data-clock': '', text: expired ? t( 'proposalExpired' ) : sprintf( t( 'validFor' ), clockLabel() ) } )
-			] )
-		] );
-
-		var canvas = h( 'main', { class: 'sp-fc-canvas sp-fc-review-canvas', 'data-sp-form-review-canvas': true }, [
-			h( 'div', { class: 'sp-fc-canvas__inner' }, [
-				meta,
-				h( 'div', { class: 'sp-strip' + ( expired ? ' sp-strip--off' : '' ) }, [
-					svg( ICON.shield, 18, 'currentColor', 1.8 ),
-					h( 'span', { text: expired ? t( 'expiredText' ) : t( 'safeText' ) } )
-				] ),
-				previewColumn( plan )
-			] )
-		] );
-
-		var side = decisionColumn( plan, expired, draft );
-		side.className = 'sp-fc-assistant sp-fc-review-assistant';
-		side.setAttribute( 'data-sp-form-review-assistant', '' );
-		side.insertBefore( h( 'div', { class: 'sp-fc-assistant__thread sp-fc-review__thread' }, [
-			h( 'p', { text: t( 'reviewReady' ) } )
-		] ), side.firstChild );
-		side.insertBefore( assistantHead( sprintf( t( 'fieldCount' ), ( plan.fields || [] ).length ) ), side.firstChild );
-
-		root.appendChild( h( 'div', { class: 'sp-fc-layout' }, [ canvas, side ] ) );
-
-		showStage( 'review' );
-		if ( ! expired ) { startExpiryTimer(); }
-	}
-
-	function previewColumn( plan ) {
-		var col = h( 'div', { class: 'sp-col sp-col--540' } );
-
-		var previewPane = h( 'div', { class: 'sp-preview' }, [ previewForm( plan ) ] );
-		var structPane = h( 'div', { class: 'sp-card__body sp-stack', hidden: true }, structureRows( plan ) );
-
-		var tabPreview = h( 'button', { type: 'button', class: 'sp-tabs__btn is-on', text: t( 'preview' ) } );
-		var tabStruct = h( 'button', { type: 'button', class: 'sp-tabs__btn', text: t( 'structure' ) } );
-		tabPreview.addEventListener( 'click', function () {
-			tabPreview.classList.add( 'is-on' ); tabStruct.classList.remove( 'is-on' );
-			previewPane.hidden = false; structPane.hidden = true;
-		} );
-		tabStruct.addEventListener( 'click', function () {
-			tabStruct.classList.add( 'is-on' ); tabPreview.classList.remove( 'is-on' );
-			previewPane.hidden = true; structPane.hidden = false;
-		} );
-
-		var formNode = previewPane.firstChild;
-		var devDesktop = h( 'button', { type: 'button', class: 'sp-seg__btn is-on', text: t( 'desktop' ) } );
-		var devMobile = h( 'button', { type: 'button', class: 'sp-seg__btn', text: t( 'mobile' ) } );
-		devDesktop.addEventListener( 'click', function () {
-			devDesktop.classList.add( 'is-on' ); devMobile.classList.remove( 'is-on' ); formNode.classList.remove( 'is-mobile' );
-		} );
-		devMobile.addEventListener( 'click', function () {
-			devMobile.classList.add( 'is-on' ); devDesktop.classList.remove( 'is-on' ); formNode.classList.add( 'is-mobile' );
-		} );
-
-		col.appendChild( h( 'div', { class: 'sp-card sp-card--bare' }, [
-			h( 'div', { class: 'sp-card__head sp-card__head--split' }, [
-				h( 'div', { class: 'sp-tabs' }, [ tabPreview, tabStruct ] ),
-				h( 'div', { class: 'sp-seg' }, [ devDesktop, devMobile ] )
-			] ),
-			previewPane,
-			structPane
-		] ) );
-
-		col.appendChild( card( 'sp-card--16 sp-card--flat', [
-			h( 'h3', { class: 'sp-h3', text: t( 'notCreated' ) } ),
-			h( 'p', { class: 'sp-help sp-help--12', style: 'margin-bottom:11px', text: t( 'notCreatedNote' ) } ),
-			h( 'div', { class: 'sp-stack sp-stack--sm' }, [
-				excludedRow( t( 'noPayment' ) ),
-				excludedRow( t( 'noPassword' ) ),
-				excludedRow( t( 'noRegistration' ) )
+			el( 'section', { class: 'sp-fc-plan__preview', 'aria-label': t( 'preview', 'Preview' ) }, [
+				el( 'div', { class: 'sp-fc-plan__bar' }, [ el( 'span', { text: t( 'preview', 'Preview' ) } ), el( 'div', { class: 'sp-seg' }, [ desktop, mobile ] ) ] ),
+				el( 'div', { class: 'sp-preview' }, [ formNode ] )
 			] )
 		] ) );
-
-		return col;
-	}
-
-	function excludedRow( label ) {
-		return h( 'div', { style: 'display:flex;align-items:center;gap:9px;font-size:13px;color:#646970' }, [
-			h( 'span', { style: 'width:16px;height:16px;border-radius:5px;background:#f0f0f1;color:#646970;display:flex;align-items:center;justify-content:center;font-size:12px;flex:0 0 auto', text: '×' } ),
-			h( 'span', { text: label } )
-		] );
 	}
 
 	function previewForm( plan ) {
-		var form = h( 'form', { class: 'sp-preview__form', onsubmit: 'return false' } );
+		var form = el( 'form', { class: 'sp-preview__form' } );
 		form.addEventListener( 'submit', function ( e ) { e.preventDefault(); } );
-		form.appendChild( h( 'div', {}, [
-			h( 'h3', { class: 'sp-preview__title', text: plan.title || '' } ),
-			plan.description ? h( 'p', { class: 'sp-preview__lede', text: plan.description } ) : null
+		form.appendChild( el( 'div', {}, [
+			el( 'h3', { class: 'sp-preview__title', dir: 'auto', text: plan.title || '' } ),
+			plan.description ? el( 'p', { class: 'sp-preview__lede', dir: 'auto', text: plan.description } ) : null
 		] ) );
-
 		( plan.fields || [] ).forEach( function ( field, index ) { form.appendChild( previewField( field, index ) ); } );
-
-		form.appendChild( h( 'button', {
-			type: 'button',
-			class: 'sp-preview__submit',
-			text: plan.submit_button || 'Send'
-		} ) );
+		form.appendChild( el( 'button', { type: 'button', class: 'sp-preview__submit', text: plan.submit_button || 'Send' } ) );
 		return form;
 	}
 
@@ -303,248 +230,283 @@
 		var id = 'sp-pf-' + index;
 		var control;
 		var options = field.options || [];
-
-		if ( field.type === 'textarea' ) {
-			control = h( 'textarea', { id: id, disabled: true } );
-		} else if ( field.type === 'select' ) {
-			control = h( 'select', { id: id, disabled: true } );
-			options.forEach( function ( option ) { control.appendChild( h( 'option', { text: option } ) ); } );
-		} else if ( field.type === 'radio' || field.type === 'checkbox' ) {
-			control = h( 'div', { class: 'sp-stack sp-stack--sm' } );
+		if ( 'textarea' === field.type ) {
+			control = el( 'textarea', { id: id, disabled: true } );
+		} else if ( 'select' === field.type ) {
+			control = el( 'select', { id: id, disabled: true } );
+			options.forEach( function ( option ) { control.appendChild( el( 'option', { text: option } ) ); } );
+		} else if ( 'radio' === field.type || 'checkbox' === field.type ) {
+			control = el( 'div', { class: 'sp-stack sp-stack--sm' } );
 			options.forEach( function ( option, i ) {
-				control.appendChild( h( 'label', { class: 'sp-check' }, [
-					h( 'input', { type: field.type, name: id, id: id + '-' + i, disabled: true } ),
-					h( 'span', { text: option } )
-				] ) );
+				control.appendChild( el( 'label', { class: 'sp-check' }, [ el( 'input', { type: field.type, name: id, id: id + '-' + i, disabled: true } ), el( 'span', { text: option } ) ] ) );
 			} );
 		} else {
-			var type = [ 'email', 'tel', 'text', 'number', 'url', 'date' ].indexOf( field.type ) !== -1 ? field.type : 'text';
-			control = h( 'input', { id: id, type: type, dir: ( type === 'email' || type === 'tel' || type === 'url' ) ? 'ltr' : null, disabled: true } );
+			var type = [ 'email', 'tel', 'text' ].indexOf( field.type ) !== -1 ? field.type : 'text';
+			control = el( 'input', { id: id, type: type, dir: 'text' === type ? null : 'ltr', disabled: true } );
 		}
-
-		return h( 'label', { class: 'sp-preview__field', for: id }, [
-			h( 'span', { class: 'sp-preview__label' }, [
-				h( 'span', { text: field.label || '' } ),
-				field.required ? h( 'span', { class: 'sp-preview__req', text: ' *' } ) : null
-			] ),
+		return el( 'label', { class: 'sp-preview__field', for: id }, [
+			el( 'span', { class: 'sp-preview__label', dir: 'auto' }, [ el( 'span', { text: field.label || '' } ), field.required ? el( 'span', { class: 'sp-preview__req', text: ' *' } ) : null ] ),
 			control
 		] );
 	}
 
-	function structureRows( plan ) {
-		return ( plan.fields || [] ).map( function ( field ) {
-			var meta = [ h( 'span', {}, [ t( 'typeLabel' ) + ': ', h( 'span', { class: 'sp-mono', text: field.type || 'text' } ) ] ) ];
-			if ( ( field.options || [] ).length ) {
-				meta.push( h( 'span', { text: sprintf( t( 'optionsCount' ), field.options.length ) } ) );
-			}
-			return h( 'div', { class: 'sp-fieldspec' }, [
-				h( 'div', { class: 'sp-fieldspec__head' }, [
-					h( 'span', { class: 'sp-fieldspec__name', text: field.label || '' } ),
-					h( 'span', { class: field.required ? 'sp-tag sp-tag--err' : 'sp-tag sp-tag--off', text: field.required ? t( 'required' ) : t( 'optional' ) } )
-				] ),
-				h( 'div', { class: 'sp-fieldspec__meta' }, meta )
-			] );
-		} );
-	}
-
-	function decisionColumn( plan, expired, draft ) {
-		var side = h( 'aside', { class: 'sp-side sp-side--320' } );
-		var risk = ( plan.risk_level || 'low' ).toLowerCase();
-		var riskTone = risk === 'high' ? 'err' : ( risk === 'medium' ? 'warn' : 'ok' );
-		var riskLabel = risk === 'high' ? t( 'high' ) : ( risk === 'medium' ? t( 'medium' ) : t( 'low' ) );
-
-		side.appendChild( card( 'sp-card--tight', [
-			h( 'div', { class: 'sp-h3', style: 'margin-bottom:13px', text: t( 'whenApprove' ) } ),
-			h( 'div', { class: 'sp-kv' }, [
-				kvRow( t( 'connector' ), plan.connector || 'AISAAutoPilot Forms' ),
-				kvRow( t( 'destination' ), plan.title || '' ),
-				kvRow( t( 'state' ), null, h( 'span', { class: draft ? 'sp-pill sp-pill--off' : 'sp-pill sp-pill--warn' }, [ draft ? t( 'draftNotPublic' ) : t( 'publishedState' ) ] ) ),
-				kvRow( t( 'riskLevel' ), null, pill( riskLabel, riskTone ) ),
-				kvRow( t( 'notifications' ), plan.notification_email || t( 'emailToAdmin' ) )
-			] )
-		] ) );
-
-		if ( ! draft ) {
-			side.appendChild( h( 'div', { class: 'sp-card sp-card--flat', style: 'background:#fffbeb;border-color:#fde68a;padding:14px 16px' }, [
-				h( 'div', { style: 'display:flex;gap:9px;align-items:flex-start' }, [
-					svg( ICON.warn, 17, '#92400e', 1.8 ),
-					h( 'div', {}, [
-						h( 'div', { style: 'font-size:13.5px;font-weight:700;color:#92400e', text: t( 'approvePublish' ) } ),
-						h( 'div', { class: 'sp-notice__text', style: 'margin-top:3px', text: t( 'publishedState' ) } )
-					] )
-				] )
-			] ) );
-		}
-
-		var approve = h( 'button', {
-			type: 'button',
-			class: 'sp-btn sp-btn--lg sp-btn--block',
-			id: 'aisaautopilot-approve',
-			text: expired ? t( 'cannotApprove' ) : ( draft ? t( 'approveDraft' ) : t( 'approvePublish' ) ),
-			disabled: expired || null,
-			onClick: function () { draft ? approvePlan() : openConfirm(); }
-		} );
-
-		side.appendChild( h( 'div', { class: 'sp-card sp-card--16 sp-card--flat sp-decide' }, [
-			approve,
-			h( 'button', { type: 'button', class: 'sp-btn sp-btn--ghost sp-btn--block', text: t( 'backAndEdit' ), onClick: returnToCompose } ),
-			h( 'button', { type: 'button', class: 'sp-btn sp-btn--reject sp-btn--block', text: t( 'rejectProposal' ), onClick: rejectPlan } ),
-			h( 'p', { class: 'sp-decide__note', text: expired ? t( 'expiredNote' ) : t( 'approveNote' ) } )
-		] ) );
-
-		return side;
-	}
-
-	function shortId() {
-		if ( ! actionId ) { return '—'; }
-		return 'act_' + String( actionId ).replace( /-/g, '' ).slice( 0, 6 );
-	}
-
-	// ── WP-04 result ────────────────────────────────────────────
-
-	function renderResult( result ) {
-		var root = byId( 'aisaautopilot-result-content' );
-		if ( ! root ) { return; }
-		root.textContent = '';
-
+	function renderResultCanvas( result ) {
+		var content = byId( 'aisaautopilot-result-content' );
+		content.textContent = '';
 		var ok = result && result.form_id;
-		var draft = ! result || result.is_draft !== false;
-
-		var head = h( 'div', { style: 'display:flex;gap:14px;align-items:flex-start' }, [
-			h( 'span', {
-				style: 'flex:0 0 42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;' +
-					( ok ? 'background:#ecfdf5;color:#065f46' : 'background:#fef2f2;color:#b91c1c' )
-			}, [ ok ? svg( ICON.check, 22, 'currentColor', 2.4 ) : h( 'span', { style: 'font-size:20px;font-weight:700', text: '!' } ) ] ),
-			h( 'div', { style: 'min-width:0;flex:1' }, [
-				h( 'h2', { style: 'font-size:17px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em', text: ok ? ( draft ? t( 'okTitle' ) : t( 'okTitlePub' ) ) : t( 'failTitle' ) } ),
-				h( 'p', { style: 'margin:0;color:#646970;font-size:13.5px', text: ok ? sprintf( draft ? t( 'okBodyDraft' ) : t( 'okBodyPublished' ), ( preview && preview.title ) || '' ) : ( result && result.message ? result.message : t( 'genericError' ) ) } )
+		var draft = ! result || false !== result.is_draft;
+		var body = el( 'div', { class: 'sp-fc-result__card ' + ( ok ? 'sp-fc-result__card--ok' : 'sp-fc-result__card--bad' ), 'data-sp-form-result': '', 'data-sp-form-result-canvas': '' }, [
+			el( 'div', { class: 'sp-fc-result__head' }, [
+				el( 'span', { class: 'sp-fc-result__icon' }, [ ok ? icon( 'check', 22, 2.4 ) : icon( 'alert', 20 ) ] ),
+				el( 'div', {}, [
+					el( 'h2', { text: ok ? ( draft ? t( 'okTitle' ) : t( 'okTitlePub' ) ) : t( 'failTitle' ) } ),
+					el( 'p', { dir: 'auto', text: ok ? t( draft ? 'okBodyDraft' : 'okBodyPublished', '', ( preview && preview.title ) || '' ) : ( result && result.message ? result.message : t( 'genericError' ) ) } )
+				] )
 			] )
 		] );
-
-		var body = h( 'div', {
-			class: 'sp-fc-result__card ' + ( ok ? 'sp-fc-result__card--ok' : 'sp-fc-result__card--bad' ),
-			'data-sp-form-result': true
-		}, [ head ] );
-
 		if ( ok && result.shortcode ) {
-			var input = h( 'input', { class: 'sp-input sp-input--r9 sp-mono', dir: 'ltr', readonly: true, value: result.shortcode } );
-			var copy = h( 'button', { type: 'button', class: 'sp-btn sp-btn--ghost' }, [ svg( ICON.copy, 15 ), h( 'span', { text: t( 'copy' ) } ) ] );
+			var input = el( 'input', { class: 'sp-input sp-input--r9 sp-mono', dir: 'ltr', readonly: true, value: result.shortcode } );
+			var copy = button( t( 'copy' ), { icon: 'doc' } );
 			copy.addEventListener( 'click', function () {
 				input.select();
-				if ( navigator.clipboard && navigator.clipboard.writeText ) { navigator.clipboard.writeText( result.shortcode ); }
-				else { try { document.execCommand( 'copy' ); } catch ( e ) {} }
+				if ( navigator.clipboard && navigator.clipboard.writeText ) { navigator.clipboard.writeText( result.shortcode ); } else { try { document.execCommand( 'copy' ); } catch ( e ) {} }
 				toast( t( 'copied' ) );
 			} );
-
-			var actions = [];
-			actions.push( h( 'button', { type: 'button', class: 'sp-btn', 'data-sp-form-build-another': true, text: t( 'buildAnother' ), onClick: returnToCompose } ) );
-			if ( result.edit_url ) { actions.push( h( 'a', { class: 'sp-btn sp-btn--ghost', href: result.edit_url, text: draft ? t( 'openDraft' ) : t( 'openForm' ) } ) ); }
-			if ( boot.efbReady ) { actions.push( h( 'a', { class: 'sp-btn sp-btn--ghost', href: boot.efbUrl, text: t( 'editInEfb' ) } ) ); }
-
-			body.appendChild( h( 'div', { class: 'sp-fc-result__shortcode' }, [
-				h( 'label', { class: 'sp-label', text: t( 'shortcode' ) } ),
-				h( 'div', { class: 'sp-row-wrap' }, [ input, copy ] )
-			] ) );
-			body.appendChild( h( 'div', { class: 'sp-fc-result__delivery' }, [
-				svg( '<path d="M4 6h16v12H4ZM4 7l8 6 8-6"/>', 14, '#5b5e7d', 1.9 ),
-				h( 'span', { text: t( 'entriesEmailTo' ) + ' ' + ( ( preview && preview.notification_email ) || t( 'emailToAdmin' ) ) } )
-			] ) );
-			body.appendChild( h( 'div', { class: 'sp-btn-group sp-btn-group--sm sp-fc-result__actions' }, actions ) );
-		} else if ( ! ok ) {
-			body.appendChild( h( 'div', { class: 'sp-btn-group sp-btn-group--sm sp-fc-result__actions' }, [
-				h( 'button', { type: 'button', class: 'sp-btn', text: t( 'tryAgain' ), onClick: returnToCompose } )
-			] ) );
+			body.appendChild( el( 'div', { class: 'sp-fc-result__shortcode' }, [ el( 'label', { class: 'sp-label', text: t( 'shortcode' ) } ), el( 'div', { class: 'sp-row-wrap' }, [ input, copy ] ) ] ) );
+			body.appendChild( el( 'div', { class: 'sp-fc-result__delivery' }, [ icon( 'mail', 14 ), el( 'span', { text: t( 'entriesEmailTo' ) + ' ' + ( ( preview && preview.notification_email ) || t( 'emailToAdmin' ) ) } ) ] ) );
 		}
-
-		var canvas = h( 'main', { class: 'sp-fc-canvas sp-fc-result-canvas', 'data-sp-form-result-canvas': true }, [
-			h( 'div', { class: 'sp-fc-canvas__inner' }, [ body ] )
-		] );
-		var resultSummary = ok ? ( draft ? t( 'resultDraft' ) : t( 'resultPublished' ) ) : t( 'resultFailed' );
-		var side = h( 'aside', { class: 'sp-fc-assistant sp-fc-result-assistant', 'data-sp-form-result-assistant': true }, [
-			assistantHead( ok ? t( 'formCreated' ) : t( 'creationFailed' ) ),
-			h( 'div', { class: 'sp-fc-assistant__thread' }, [
-				h( 'p', { text: resultSummary } ),
-				ok ? h( 'div', { class: 'sp-fc-result__ops' }, [
-					h( 'strong', { text: t( 'createdInWp' ) } ),
-					h( 'span', { text: draft ? t( 'draftNotPublic' ) : t( 'publishedState' ) } ),
-					h( 'span', { text: t( 'notifications' ) + ': ' + ( ( preview && preview.notification_email ) || t( 'emailToAdmin' ) ) } ),
-					h( 'span', { class: 'sp-mono', text: shortId() } )
-				] ) : null
-			] ),
-			h( 'div', { class: 'sp-fc-assistant__footer' }, [
-				h( 'a', { class: 'sp-btn sp-btn--ghost sp-btn--block', href: boot.historyUrl, text: t( 'viewInActivity' ) } )
-			] )
-		] );
-
-		root.appendChild( h( 'div', { class: 'sp-fc-layout' }, [ canvas, side ] ) );
-
-		showStage( 'result' );
+		var actions = [ button( ok ? t( 'buildAnother' ) : t( 'tryAgain' ), { kind: 'primary', attrs: { 'data-sp-form-build-another': '' }, onClick: newForm } ) ];
+		if ( ok && result.edit_url ) { actions.push( linkButton( draft ? t( 'openDraft' ) : t( 'openForm' ), result.edit_url ) ); }
+		if ( ok && boot.efbReady ) { actions.push( linkButton( t( 'editInEfb' ), boot.efbUrl ) ); }
+		if ( boot.historyUrl ) { actions.push( linkButton( t( 'viewInActivity' ), boot.historyUrl, { kind: 'quiet' } ) ); }
+		body.appendChild( el( 'div', { class: 'sp-fc-result__actions' }, actions ) );
+		content.appendChild( body );
+		return ok;
 	}
 
-	// ── flow actions ────────────────────────────────────────────
+	// ── readiness ───────────────────────────────────────────────
 
-	function returnToCompose() {
+	function checklist() {
+		var rows = [
+			[ ready.studio, t( 'studioOn', 'Form Studio is on' ), t( 'studioOff', 'Turn on Form Studio' ), t( 'studioOffNote' ), t( 'openIntegrations', 'Open Integrations' ), boot.urls && boot.urls.integrations ],
+			[ ready.ai, t( 'aiOn', 'An AI service is connected' ), t( 'aiOff', 'Connect an AI service' ), t( 'aiOffNote' ), t( 'setUp', 'Set up' ), boot.urls && boot.urls.setup ],
+			[ !! ready.recipient, t( 'recipientOn', 'Answers go to %s', ready.recipient ), t( 'recipientOff', 'Choose where answers are emailed' ), t( 'recipientOffNote' ), t( 'setEmail', 'Set email' ), boot.urls && boot.urls.settings ]
+		];
+		return card( Dock.cardHead( 'warn', 'plug', t( 'ctxSetup', 'Setup needed' ) ), rows.map( function ( row ) {
+			return el( 'div', { class: 'aisa-ai-check', 'data-sp-fc-check': row[ 0 ] ? 'ok' : 'todo' }, [
+				el( 'span', { class: 'aisa-ai-st' + ( row[ 0 ] ? '' : ' aisa-ai-st--todo' ) }, [ icon( row[ 0 ] ? 'check' : 'plug', 12, 3 ) ] ),
+				el( 'span', { class: 'aisa-ai-main', dir: 'auto' }, row[ 0 ] ? [ row[ 1 ] ] : [ el( 'strong', { text: row[ 2 ] } ), el( 'small', { text: row[ 3 ] } ) ] ),
+				row[ 0 ] || ! row[ 5 ] ? null : linkButton( row[ 4 ], row[ 5 ], { kind: 'primary', size: 'sm', newTab: true } )
+			] );
+		} ), { 'data-sp-fc-checklist': '' } );
+	}
+
+	function applyReadiness() {
+		var on = isReady();
+		var chat = byId( 'sp-fc-chat' );
+		if ( chat ) { chat.classList.toggle( 'is-offline', ! on ); }
+		var input = byId( 'aisaautopilot-prompt' );
+		if ( input ) {
+			input.disabled = ! on;
+			input.placeholder = on ? t( 'placeholderReady', 'Describe the form: who fills it in and what you need to know…' ) : t( 'placeholderOff', 'Finish the setup to start…' );
+			input.parentNode.classList.toggle( 'is-off', ! on );
+		}
+		[ 'aisaautopilot-generate', 'aisaautopilot-voice-toggle' ].forEach( function ( id ) { var node = byId( id ); if ( node ) { node.disabled = ! on; } } );
+		Array.prototype.forEach.call( document.querySelectorAll( '#aisaautopilot-examples [data-example]' ), function ( node ) { node.disabled = ! on; } );
+	}
+
+	/* Back from setup in another tab: check again, no reload needed. */
+	function recheck() {
+		if ( isReady() || checking || ! cfg.restUrl ) { return; }
+		checking = true;
+		fetch( cfg.restUrl + 'ai/status', { credentials: 'same-origin', headers: { 'X-WP-Nonce': cfg.nonce } } ).then( function ( r ) { return r.json(); } ).then( function ( data ) {
+			if ( ! data || ! data.ok ) { return; }
+			ready = { studio: !! data.form_studio, ai: !! data.configured, recipient: String( data.recipient || '' ) };
+			var old = document.querySelector( '[data-sp-fc-checklist]' );
+			if ( isReady() ) {
+				if ( old ) { old.remove(); }
+				applyReadiness();
+				setCtx( t( 'ctxNew', 'New native form' ) );
+				addAi( card( Dock.cardHead( 'ok', 'check', t( 'readyNow', 'All set. Describe the form you need, or pick an example.' ) ), [], { 'data-sp-fc-ready': '' } ) );
+			} else if ( old ) {
+				old.parentNode.replaceChild( checklist(), old );
+			}
+		} ).catch( function () {} ).then( function () { checking = false; } );
+	}
+
+	// ── the conversation ────────────────────────────────────────
+
+	function greet() {
+		if ( isReady() ) {
+			addAi( t( 'greet' ) );
+			setCtx( t( 'ctxNew', 'New native form' ) );
+			return;
+		}
+		addAi( [ t( 'readyIntro' ), checklist() ] );
+		setCtx( t( 'ctxSetup', 'Setup needed' ) );
+	}
+
+	function planSummary( plan ) {
+		var fields = ( plan.fields || [] ).map( function ( field ) {
+			return field.label + ' (' + field.type + ( field.required ? ', required' : '' ) + ( ( field.options || [] ).length ? ', options: ' + field.options.join( '/' ) : '' ) + ')';
+		} );
+		return '“' + ( plan.title || '' ) + '” with ' + fields.join( '; ' ) + ( plan.submit_button ? '; button “' + plan.submit_button + '”' : '' );
+	}
+
+	function submit() {
+		var input = byId( 'aisaautopilot-prompt' );
+		var text = input ? ( input.value || '' ).trim() : '';
+		if ( ! text ) { setStatus( t( 'promptFirst' ) ); return; }
+		if ( working || ! isReady() ) { return; }
+		addUser( text );
+		input.value = '';
+		Dock.autoGrow( input, 180 );
+		// With a plan on the canvas, the message asks for a change to it.
+		var prompt = actionId && preview && ! isExpired() ? t( 'revisePrompt', 'Change this form plan. Current plan: %1$s. Change: %2$s', [ planSummary( preview ), text ] ) : text;
+		draft( prompt.slice( 0, 2000 ) );
+	}
+
+	function draft( prompt ) {
+		working = true;
+		lastPrompt = prompt;
+		setSuggestions( [] );
+		setStatus( '' );
+		var hadPlan = !! actionId;
+		byId( 'aisaautopilot-generate' ).disabled = true;
+		var steps = addAi( Dock.steps( [ [ 'done', t( 'stepUnderstood', 'Understood the request' ) ], [ 'run', t( 'stepChoosing', 'Choosing the fields…' ) ], [ 'wait', t( 'stepRules', 'Checking them against the native-form rules' ) ] ] ) );
+		steps.parentNode.setAttribute( 'data-sp-fc-thinking', '' );
+		setCanvas( 'drafting' );
+		setCtx( t( 'ctxDrafting', 'Drafting a plan…' ) );
+		request( 'forms/plan', { prompt: prompt } ).then( function ( response ) {
+			finishDraft( steps );
+			if ( ! response.ok || ! response.data.ok ) { failed( response.data || {}, hadPlan ); return; }
+			planned( response.data );
+		} ).catch( function () {
+			finishDraft( steps );
+			failed( { message: t( 'networkError' ) }, hadPlan );
+		} );
+	}
+
+	function finishDraft( steps ) {
+		working = false;
+		var send = byId( 'aisaautopilot-generate' );
+		if ( send ) { send.disabled = ! isReady(); }
+		if ( steps && steps.parentNode ) { steps.parentNode.remove(); }
+	}
+
+	function failed( data, hadPlan ) {
+		var message = data.message || t( 'genericError' );
+		var errors = Array.isArray( data.errors ) ? data.errors : [];
+		var examples = ( boot.examples || [] ).slice( 0, 2 );
+		addAi( card( Dock.cardHead( 'warn', 'alert', t( 'notBuilt', 'I could not build that yet' ) ), [
+			el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { dir: 'auto', text: message } ), errors.length ? el( 'p', { dir: 'auto', text: errors.join( ' ' ) } ) : null, el( 'p', { text: t( 'tryExamples' ) } ) ] ),
+			el( 'div', { class: 'aisa-ai-card__foot' }, examples.map( function ( example ) { return chip( example.prompt, example.title ); } ).concat( [
+				button( t( 'tryAgain', 'Try again' ), { size: 'sm', icon: 'refresh', onClick: function () { if ( lastPrompt && ! working ) { draft( lastPrompt ); } } } )
+			] ) )
+		], { 'data-sp-fc-error': '' } ) );
+		if ( hadPlan && preview && ! isExpired() ) { setCanvas( 'plan' ); startExpiryTimer(); } else { setCanvas( 'start' ); setCtx( t( 'ctxNew', 'New native form' ) ); }
+	}
+
+	function retirePlanCards() {
+		Array.prototype.forEach.call( document.querySelectorAll( '[data-sp-fc-plan-card]' ), function ( node ) {
+			node.removeAttribute( 'data-sp-fc-plan-card' );
+			Array.prototype.forEach.call( node.querySelectorAll( 'button' ), function ( btn ) { btn.disabled = true; btn.removeAttribute( 'id' ); } );
+			node.classList.add( 'is-retired' );
+		} );
+	}
+
+	function planned( data ) {
+		retirePlanCards();
+		actionId = data.action_id;
+		preview = data.preview;
+		expiresAt = data.expires_at ? Number( data.expires_at ) * 1000 : Date.now() + 900000;
+		var draftOnly = 'publish' !== preview.default_status;
+		var risk = String( preview.risk_level || 'low' ).toLowerCase();
+		var riskLabel = 'high' === risk ? t( 'high' ) : ( 'medium' === risk ? t( 'medium' ) : t( 'low' ) );
+		var list = el( 'ul', { class: 'aisa-ai-rows' }, [
+			draftOnly ? Dock.row( '', 'save', t( 'savedAsDraft', 'Saved as a draft' ), t( 'notVisible', 'Not visible on your site' ) ) : Dock.row( 'fail', 'alert', t( 'publishedState' ), t( 'publishedNote' ) ),
+			Dock.row( '', 'mail', t( 'answersTo', 'Answers emailed to %s', preview.notification_email || t( 'emailToAdmin' ) ) ),
+			Dock.row( 'high' === risk ? 'fail' : 'add', 'shield', t( 'riskIs', 'Risk: %s', riskLabel ), t( 'neverIncluded' ) )
+		] );
+		var approve = button( draftOnly ? t( 'approveDraft' ) : t( 'approvePublish' ), { kind: 'primary', size: 'lg', grow: true, icon: 'check', stroke: 2.4, attrs: { id: 'aisaautopilot-approve' }, onClick: function () { if ( draftOnly ) { approvePlan(); } else { openConfirm(); } } } );
+		var reject = button( t( 'reject', 'Reject' ), { kind: 'quiet', size: 'lg', onClick: rejectPlan } );
+		var planCard = card( Dock.cardHead( 'plan', 'doc', preview.title || t( 'createWithAi' ), t( 'fieldCount', '%d fields ready to review', ( preview.fields || [] ).length ) ), [ list, el( 'div', { class: 'aisa-ai-card__foot' }, [ approve, reject ] ) ], { 'data-sp-fc-plan-card': '' } );
+		addAi( [ t( 'planReady' ), preview.notes ? String( preview.notes ) : '', planCard ] );
+		renderPlanCanvas( preview );
+		setCanvas( 'plan' );
+		stickyBar();
+		setSuggestions( nextSuggestions( preview ) );
+		startExpiryTimer();
+	}
+
+	function nextSuggestions( plan ) {
+		var next = [];
+		var fields = plan.fields || [];
+		var optional = fields.filter( function ( field ) { return field.required && 'email' !== field.type; } )[ 1 ];
+		if ( optional ) { next.push( t( 'nextOptional', 'Make “%s” optional', optional.label ) ); }
+		if ( ! fields.some( function ( field ) { return 'tel' === field.type; } ) ) { next.push( t( 'nextPhone', 'Add a phone number field' ) ); }
+		next.push( t( 'nextButtonText', 'Change the text of the send button' ) );
+		return next;
+	}
+
+	/* On a phone, the preview tab keeps the approval at hand. */
+	function stickyBar() {
+		var bar = document.querySelector( '[data-sp-fc-stickybar]' );
+		if ( ! bar ) { return; }
+		bar.textContent = '';
+		var draftOnly = preview && 'publish' !== preview.default_status;
+		bar.appendChild( button( draftOnly ? t( 'approveDraft' ) : t( 'approvePublish' ), { kind: 'primary', size: 'lg', grow: true, icon: 'check', stroke: 2.4, attrs: { 'data-sp-fc-approve-mobile': '' }, onClick: function () { var main = byId( 'aisaautopilot-approve' ); if ( main && ! main.disabled ) { main.click(); } } } ) );
+		bar.hidden = false;
+	}
+
+	// ── expiry ──────────────────────────────────────────────────
+
+	function isExpired() { return ! expiresAt || Date.now() >= expiresAt; }
+	function clockLabel() {
+		var left = Math.max( 0, Math.floor( ( expiresAt - Date.now() ) / 1000 ) );
+		var mm = Math.floor( left / 60 );
+		var ss = left % 60;
+		return mm + ':' + ( ss < 10 ? '0' : '' ) + ss;
+	}
+	function startExpiryTimer() {
+		window.clearInterval( expiryTimer );
+		var tick = function () {
+			if ( ! actionId ) { window.clearInterval( expiryTimer ); return; }
+			if ( isExpired() ) {
+				window.clearInterval( expiryTimer );
+				expirePlan();
+				return;
+			}
+			setCtx( t( 'ctxPlan', 'Plan ready · valid for %s', clockLabel() ) );
+		};
+		tick();
+		expiryTimer = window.setInterval( tick, 1000 );
+	}
+	function expirePlan() {
+		setCtx( t( 'ctxExpired', 'Plan expired' ) );
+		var approve = byId( 'aisaautopilot-approve' );
+		if ( approve ) { approve.disabled = true; approve.querySelector( 'span' ).textContent = t( 'cannotApprove', 'Expired' ); }
+		var bar = document.querySelector( '[data-sp-fc-stickybar]' );
+		if ( bar ) { bar.hidden = true; }
+		addAi( card( Dock.cardHead( 'warn', 'alert', t( 'ctxExpired', 'Plan expired' ) ), [
+			el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { text: t( 'planExpired' ) } ) ] ),
+			el( 'div', { class: 'aisa-ai-card__foot' }, [ button( t( 'askAgain', 'Draft it again' ), { size: 'sm', icon: 'refresh', onClick: function () { if ( lastPrompt && ! working ) { draft( lastPrompt ); } } } ) ] )
+		], { 'data-sp-fc-expired': '' } ) );
+	}
+
+	// ── decisions ───────────────────────────────────────────────
+
+	function rejectPlan() {
+		retirePlanCards();
 		actionId = null;
 		preview = null;
 		expiresAt = null;
 		window.clearInterval( expiryTimer );
-		byId( 'aisaautopilot-review-content' ).textContent = '';
-		byId( 'aisaautopilot-result-content' ).textContent = '';
-		setStatus( t( 'submitHint' ) );
-		showStage( 'compose' );
-		var prompt = byId( 'aisaautopilot-prompt' );
-		if ( prompt ) { prompt.focus(); }
-	}
-
-	function rejectPlan() {
+		addAi( t( 'rejected' ) );
 		toast( t( 'rejected' ) );
-		returnToCompose();
-	}
-
-	function setGenStep( step ) {
-		[ 1, 2, 3 ].forEach( function ( n ) {
-			var node = document.querySelector( '[data-gen-step="' + n + '"]' );
-			if ( ! node ) { return; }
-			node.classList.toggle( 'is-done', step > n );
-			node.classList.toggle( 'is-current', step === n );
-			node.querySelector( '.sp-mark' ).textContent = step > n ? '✓' : '•';
-		} );
-	}
-
-	function generatePlan() {
-		var promptNode = byId( 'aisaautopilot-prompt' );
-		var prompt = promptNode ? ( promptNode.value || '' ).trim() : '';
-		if ( ! prompt ) { setStatus( t( 'promptFirst' ) ); return; }
-
-		var generate = byId( 'aisaautopilot-generate' );
-		var progress = byId( 'aisaautopilot-generation-progress' );
-		generate.disabled = true;
-		if ( progress ) { progress.hidden = false; }
-		setGenStep( 1 );
-		var tick = 1;
-		window.clearInterval( genTimer );
-		genTimer = window.setInterval( function () { tick = Math.min( 3, tick + 1 ); setGenStep( tick ); }, 900 );
-		setStatus( t( 'building' ) );
-
-		request( 'forms/plan', { prompt: prompt } ).then( function ( response ) {
-			window.clearInterval( genTimer );
-			generate.disabled = false;
-			if ( progress ) { progress.hidden = true; }
-			if ( ! response.ok || ! response.data.ok ) {
-				setStatus( response.data.message || ( response.data.errors || [] ).join( ' ' ) || t( 'genericError' ) );
-				return;
-			}
-			setStatus( t( 'submitHint' ) );
-			actionId = response.data.action_id;
-			preview = response.data.preview;
-			expiresAt = response.data.expires_at ? Number( response.data.expires_at ) * 1000 : Date.now() + 900000;
-			renderReview( preview );
-		} ).catch( function () {
-			window.clearInterval( genTimer );
-			generate.disabled = false;
-			if ( progress ) { progress.hidden = true; }
-			setStatus( t( 'networkError' ) );
-		} );
+		setSuggestions( [] );
+		setCanvas( 'start' );
+		setCtx( t( 'ctxNew', 'New native form' ) );
 	}
 
 	function openConfirm() {
@@ -554,27 +516,53 @@
 		byId( 'sp-confirm-go' ).disabled = true;
 		modal.hidden = false;
 	}
-
-	function closeConfirm() {
-		var modal = byId( 'sp-confirm' );
-		if ( modal ) { modal.hidden = true; }
-	}
+	function closeConfirm() { var modal = byId( 'sp-confirm' ); if ( modal ) { modal.hidden = true; } }
 
 	function approvePlan() {
-		if ( ! actionId ) { return; }
+		if ( ! actionId || isExpired() ) { return; }
 		closeConfirm();
 		busy( true, t( 'creating' ) );
-		request( 'forms/execute', { action_id: actionId } ).then( function ( response ) {
+		var id = actionId;
+		request( 'forms/execute', { action_id: id } ).then( function ( response ) {
 			busy( false );
-			if ( ! response.ok || ! response.data.ok ) {
-				renderResult( { message: response.data.message || t( 'genericError' ) } );
-				return;
-			}
-			renderResult( response.data.result || {} );
+			created( response.ok && response.data.ok ? ( response.data.result || {} ) : { message: response.data.message || t( 'genericError' ) } );
 		} ).catch( function () {
 			busy( false );
-			renderResult( { message: t( 'networkError' ) } );
+			created( { message: t( 'networkError' ) } );
 		} );
+	}
+
+	function created( result ) {
+		retirePlanCards();
+		window.clearInterval( expiryTimer );
+		var ok = renderResultCanvas( result );
+		var draftOnly = ! result || false !== result.is_draft;
+		actionId = null;
+		expiresAt = null;
+		setCanvas( 'result' );
+		setSuggestions( [] );
+		setCtx( ok ? t( 'ctxCreated', 'Form created' ) : t( 'creationFailed', 'Creation failed' ) );
+		addAi( card( Dock.cardHead( ok ? 'ok' : 'warn', ok ? 'check' : 'alert', ok ? ( draftOnly ? t( 'okTitle' ) : t( 'okTitlePub' ) ) : t( 'failTitle' ) ), [
+			el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { dir: 'auto', text: ok ? ( draftOnly ? t( 'resultDraft' ) : t( 'resultPublished' ) ) : ( result.message || t( 'resultFailed' ) ) } ) ] ),
+			ok && result.edit_url ? el( 'div', { class: 'aisa-ai-card__foot' }, [ linkButton( draftOnly ? t( 'openDraft' ) : t( 'openForm' ), result.edit_url, { size: 'sm' } ) ] ) : null
+		], { 'data-sp-fc-created': ok ? 'ok' : 'failed' } ) );
+	}
+
+	function newForm() {
+		retirePlanCards();
+		actionId = null;
+		preview = null;
+		expiresAt = null;
+		lastPrompt = '';
+		window.clearInterval( expiryTimer );
+		thread().textContent = '';
+		setSuggestions( [] );
+		setStatus( '' );
+		setCanvas( 'start' );
+		showTab( 'chat' );
+		greet();
+		var input = byId( 'aisaautopilot-prompt' );
+		if ( input ) { input.value = ''; Dock.autoGrow( input, 180 ); if ( ! input.disabled ) { input.focus(); } }
 	}
 
 	// ── voice ───────────────────────────────────────────────────
@@ -588,7 +576,7 @@
 		if ( label ) { label.textContent = active ? t( 'stop' ) : t( 'speak' ); }
 	}
 
-	function stopRecording() { if ( recorder && recorder.state === 'recording' ) { recorder.stop(); } }
+	function stopRecording() { if ( recorder && 'recording' === recorder.state ) { recorder.stop(); } }
 
 	function transcribeRecording( blob, duration ) {
 		var form = new FormData();
@@ -605,13 +593,14 @@
 			}
 			var prompt = byId( 'aisaautopilot-prompt' );
 			prompt.value = ( prompt.value ? prompt.value.trim() + ' ' : '' ) + response.data.transcript;
+			Dock.autoGrow( prompt, 180 );
 			prompt.focus();
 			setStatus( t( 'voiceAdded' ) );
 		} ).catch( function () { setStatus( t( 'voiceFailed' ) ); } );
 	}
 
 	function toggleVoice() {
-		if ( recorder && recorder.state === 'recording' ) { stopRecording(); return; }
+		if ( recorder && 'recording' === recorder.state ) { stopRecording(); return; }
 		if ( ! navigator.mediaDevices || ! window.MediaRecorder ) { setStatus( t( 'noMic' ) ); return; }
 		navigator.mediaDevices.getUserMedia( { audio: true } ).then( function ( stream ) {
 			recorderStream = stream;
@@ -636,46 +625,48 @@
 	// ── boot ────────────────────────────────────────────────────
 
 	function init() {
-		var newForm = document.querySelector( '[data-sp-form-new]' );
-		if ( newForm ) {
-			newForm.addEventListener( 'click', function () {
-				returnToCompose();
-				var input = byId( 'aisaautopilot-prompt' );
-				if ( input ) { input.value = ''; input.focus(); }
+		if ( ! root() || ! Dock ) { return; }
+		Dock.hydrate( root() );
+		var input = byId( 'aisaautopilot-prompt' );
+		if ( input ) {
+			Dock.autoGrow( input, 180 );
+			input.addEventListener( 'input', function () { Dock.autoGrow( input, 180 ); } );
+			// Enter sends and Shift+Enter starts a new line; Ctrl+Enter keeps working as before.
+			input.addEventListener( 'keydown', function ( event ) {
+				if ( 'Enter' === event.key && ! event.shiftKey && ! event.isComposing ) { event.preventDefault(); submit(); }
 			} );
 		}
-		var generate = byId( 'aisaautopilot-generate' );
-		if ( generate ) { generate.addEventListener( 'click', generatePlan ); }
-
+		var compose = byId( 'aisaautopilot-compose' );
+		if ( compose ) { compose.addEventListener( 'submit', function ( event ) { event.preventDefault(); submit(); } ); }
 		var voice = byId( 'aisaautopilot-voice-toggle' );
 		if ( voice ) { voice.addEventListener( 'click', toggleVoice ); }
+		var newBtn = document.querySelector( '[data-sp-form-new]' );
+		if ( newBtn ) { newBtn.addEventListener( 'click', newForm ); }
 
-		var prompt = byId( 'aisaautopilot-prompt' );
-		if ( prompt ) {
-			prompt.addEventListener( 'keydown', function ( event ) {
-				if ( ( event.ctrlKey || event.metaKey ) && event.key === 'Enter' ) { generatePlan(); }
-			} );
-		}
-
-		// Canvas and assistant chips only prefill the composer; nothing is sent until the admin submits.
-		Array.prototype.forEach.call( document.querySelectorAll( '#aisaautopilot-examples .sp-chip, [data-sp-fc-suggestions] .sp-chip' ), function ( chip ) {
-			chip.addEventListener( 'click', function () {
-				var node = byId( 'aisaautopilot-prompt' );
-				node.value = chip.getAttribute( 'data-example' ) || '';
-				node.focus();
-			} );
+		// The gallery only fills the composer; nothing is sent until the administrator submits.
+		Array.prototype.forEach.call( document.querySelectorAll( '#aisaautopilot-examples [data-example]' ), function ( node ) {
+			node.addEventListener( 'click', function () { prefill( node.getAttribute( 'data-example' ) || '' ); } );
 		} );
+		Array.prototype.forEach.call( document.querySelectorAll( 'button[data-sp-fc-tab]' ), function ( node ) {
+			node.addEventListener( 'click', function () { showTab( node.getAttribute( 'data-sp-fc-tab' ) ); } );
+		} );
+		showTab( 'chat' );
 
 		var ack = byId( 'sp-confirm-ack' );
 		if ( ack ) { ack.addEventListener( 'change', function () { byId( 'sp-confirm-go' ).disabled = ! ack.checked; } ); }
 		var go = byId( 'sp-confirm-go' );
 		if ( go ) { go.addEventListener( 'click', approvePlan ); }
-		Array.prototype.forEach.call( document.querySelectorAll( '[data-sp-confirm-cancel]' ), function ( node ) {
-			node.addEventListener( 'click', closeConfirm );
-		} );
+		Array.prototype.forEach.call( document.querySelectorAll( '[data-sp-confirm-cancel]' ), function ( node ) { node.addEventListener( 'click', closeConfirm ); } );
 
+		window.addEventListener( 'focus', recheck );
+		document.addEventListener( 'visibilitychange', function () { if ( 'visible' === document.visibilityState ) { recheck(); } } );
 		window.addEventListener( 'beforeunload', function () { stopRecording(); } );
+
+		fitWorkspace();
+		window.addEventListener( 'resize', fitWorkspace );
+		setCanvas( 'start' );
+		greet();
 	}
 
-	if ( document.readyState === 'loading' ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }
+	if ( 'loading' === document.readyState ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }
 }() );

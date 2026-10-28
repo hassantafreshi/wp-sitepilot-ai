@@ -1435,27 +1435,28 @@ async function contentStudioNavigationHealthy( page ) {
 }
 
 async function formComposerHealthy( page ) {
-	console.log( 'CHECK Form Studio mockup shell, approval flow, RTL and mobile layout' );
+	console.log( 'CHECK Form Studio workspace: gallery, plan, revision by message, approval, result, RTL and phone tabs' );
 	const formUrl = baseUrl + '/wp-admin/admin.php?page=aisaautopilot-form-builder&mode=forms';
 	const routePattern = '**/wp-json/aisaautopilot/v1/forms/**';
-	let planRequests = 0;
+	const planPrompts = [];
 	let executeRequests = 0;
 	let plannedStatus = 'draft';
 	await page.route( routePattern, async ( route ) => {
 		const request = route.request();
 		const pathname = new URL( request.url() ).pathname;
 		if ( pathname.endsWith( '/forms/plan' ) ) {
-			planRequests++;
 			const requestBody = request.postDataJSON();
+			planPrompts.push( String( requestBody.prompt || '' ) );
 			plannedStatus = /publish/i.test( requestBody.prompt || '' ) ? 'publish' : 'draft';
+			const optionalName = /Make .?Name.? optional/i.test( requestBody.prompt || '' );
 			await route.fulfill( { contentType: 'application/json', body: JSON.stringify( {
 				ok: true,
-				action_id: 'form-browser-qa-action',
+				action_id: 'form-browser-qa-action-' + planPrompts.length,
 				expires_at: Math.floor( Date.now() / 1000 ) + 900,
 				preview: {
 					title: 'Browser QA contact form', description: 'A review-only browser fixture.',
 					fields: [
-						{ label: 'Name', type: 'text', required: true, options: [] },
+						{ label: 'Name', type: 'text', required: ! optionalName, options: [] },
 						{ label: 'Email', type: 'email', required: true, options: [] },
 						{ label: 'Message', type: 'textarea', required: false, options: [] },
 					],
@@ -1486,73 +1487,88 @@ async function formComposerHealthy( page ) {
 		const assistant = root.locator( '[data-sp-form-assistant]' );
 		const prompt = root.locator( '#aisaautopilot-prompt' );
 		const examples = root.locator( '#aisaautopilot-examples [data-example]' );
+		const thread = root.locator( '#aisaautopilot-thread' );
+		await page.waitForTimeout( 150 );
 		const rects = await Promise.all( [ canvas.boundingBox(), assistant.boundingBox() ] );
+		const workBottom = await page.evaluate( () => document.querySelector( '.sp-fc-work' ).getBoundingClientRect().bottom );
 		const desktopOverflow = await page.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
 		const nativeRtl = await page.locator( 'html' ).getAttribute( 'dir' ) === 'rtl';
 		check(
 			await root.locator( '.sp-fc-header' ).count() === 1
 			&& await canvas.count() === 1 && await assistant.count() === 1
-			&& await root.locator( '[data-sp-form-empty]' ).count() === 1
-			&& await examples.count() === 3 && await root.locator( '[data-sp-form-delivery]' ).count() === 1
+			&& await root.locator( '[data-sp-form-empty]' ).isVisible()
+			&& await examples.count() === 6 && await root.locator( '[data-sp-form-delivery]' ).count() === 1
 			&& !!rects[0] && !!rects[1]
 			&& ( nativeRtl ? rects[1].x < rects[0].x : rects[1].x > rects[0].x )
 			&& !desktopOverflow,
-			'Form Studio renders the one-header canvas/assistant mockup structure without desktop overflow'
+			'Form Studio is one workspace: a six-example gallery on the canvas and the chat beside it, without desktop overflow'
 		);
+		check( workBottom <= 960 + 1 && rects[1] && rects[1].height > 500, 'the workspace runs to the bottom of the screen, so the composer is always in view' );
+		check( 1 === await thread.locator( '.aisa-ai-row' ).count(), 'the chat opens with one greeting and sends nothing' );
 		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-empty-desktop.png' ), fullPage: true } );
 
 		await examples.first().click();
-		check( ( await prompt.inputValue() ).length > 10 && planRequests === 0, 'Example chip only creates an editable prefill and makes no provider request' );
+		check( ( await prompt.inputValue() ).length > 10 && planPrompts.length === 0, 'An example only fills the composer with an editable request and makes no provider request' );
 		await root.locator( '[data-sp-form-new]' ).click();
 		check( await prompt.inputValue() === '' && await prompt.evaluate( ( node ) => document.activeElement === node ), 'New form clears the draft and returns keyboard focus to the composer' );
 		await prompt.fill( 'Build a contact form for browser QA.' );
 		await prompt.press( 'Control+Enter' );
 		const review = root.locator( '#aisaautopilot-review-screen' );
 		await review.waitFor( { state: 'visible', timeout: 10000 } );
-		const reviewCanvas = review.locator( '[data-sp-form-review-canvas]' );
-		const reviewAssistant = review.locator( '[data-sp-form-review-assistant]' );
-		const reviewRects = await Promise.all( [ reviewCanvas.boundingBox(), reviewAssistant.boundingBox() ] );
-		const reviewText = await review.innerText();
+		const approve = root.locator( '#aisaautopilot-approve' );
+		const reviewRects = await Promise.all( [ review.boundingBox(), assistant.boundingBox() ] );
+		const ctxText = ( await root.locator( '[data-sp-fc-ctx]' ).innerText() ).trim();
 		check(
-			planRequests === 1 && executeRequests === 0
+			planPrompts.length === 1 && executeRequests === 0
 			&& await review.locator( '.sp-preview__field' ).count() === 3
-			&& await review.locator( '#aisaautopilot-approve' ).count() === 1
+			&& await review.locator( '.sp-fc-fieldlist li' ).count() === 3
+			&& await approve.count() === 1
+			&& await thread.locator( '.aisa-ai-user' ).count() === 1
 			&& !!reviewRects[0] && !!reviewRects[1]
 			&& ( nativeRtl ? reviewRects[1].x < reviewRects[0].x : reviewRects[1].x > reviewRects[0].x )
-			&& !reviewText.includes( '1,200' ),
-			'Form Studio shows the validated field preview in the mockup canvas/assistant shell before execution'
+			&& /\d+:\d\d/.test( ctxText ),
+			'The plan shows its fields beside a full-size preview, the approval sits in the chat, and the chat names the time left'
 		);
 		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-review-desktop.png' ), fullPage: true } );
-		await review.locator( '#aisaautopilot-approve' ).click();
+
+		// A plan is changed by asking: the next message carries the plan and the change.
+		await prompt.fill( 'Make Name optional' );
+		await prompt.press( 'Enter' );
+		await page.waitForFunction( () => document.querySelectorAll( '[data-aisaautopilot-copilot] .aisa-ai-card.is-retired' ).length >= 1, null, { timeout: 10000 } );
+		const revision = planPrompts[ 1 ] || '';
+		check(
+			planPrompts.length === 2 && /Make Name optional/.test( revision ) && /Browser QA contact form/.test( revision )
+			&& await approve.count() === 1 && executeRequests === 0
+			&& await review.locator( '.sp-preview__field' ).first().locator( '.sp-preview__req' ).count() === 0,
+			'Asking for a change sends the current plan with the change and replaces the plan; the old one can no longer be approved'
+		);
+
+		await approve.click();
 		const result = root.locator( '#aisaautopilot-result-screen' );
 		await result.waitFor( { state: 'visible', timeout: 10000 } );
-		const resultCanvas = result.locator( '[data-sp-form-result-canvas]' );
-		const resultAssistant = result.locator( '[data-sp-form-result-assistant]' );
-		const resultRects = await Promise.all( [ resultCanvas.boundingBox(), resultAssistant.boundingBox() ] );
 		check(
 			executeRequests === 1
 			&& await result.locator( 'input[value="[aisaautopilot_form id=\\"999998\\"]"]' ).count() === 1
 			&& await result.locator( 'a[href*="post=999998"]' ).count() === 1
 			&& await result.locator( '[data-sp-form-build-another]' ).count() === 1
-			&& !!resultRects[0] && !!resultRects[1]
-			&& ( nativeRtl ? resultRects[1].x < resultRects[0].x : resultRects[1].x > resultRects[0].x )
+			&& await thread.locator( '[data-sp-fc-created="ok"]' ).count() === 1
 			&& !( await result.innerText() ).includes( '1,200' ),
-			'Explicit approval produces the real result controls in the mockup canvas/assistant shell'
+			'Explicit approval shows the result on the canvas and says so in the chat'
 		);
 		await page.waitForTimeout( 350 );
 		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-result-desktop.png' ), fullPage: true } );
 		await result.locator( '[data-sp-form-build-another]' ).click();
-		check( await root.locator( '#aisaautopilot-compose-screen' ).isVisible(), 'Build another returns to the single compose surface' );
+		check( await root.locator( '[data-sp-form-empty]' ).isVisible() && 1 === await thread.locator( '.aisa-ai-row' ).count(), 'Build another returns to the gallery with a fresh chat' );
 
 		await prompt.fill( 'Build and publish a contact form for browser QA.' );
 		await prompt.press( 'Control+Enter' );
 		await review.waitFor( { state: 'visible', timeout: 10000 } );
-		await review.locator( '#aisaautopilot-approve' ).click();
+		await approve.click();
 		const confirm = root.locator( '#sp-confirm' );
 		const confirmGo = confirm.locator( '#sp-confirm-go' );
 		await confirm.waitFor( { state: 'visible', timeout: 10000 } );
 		check(
-			planRequests === 2 && executeRequests === 1 && await confirmGo.isDisabled(),
+			planPrompts.length === 3 && executeRequests === 1 && await confirmGo.isDisabled(),
 			'Publish approval opens the second confirmation and cannot execute before acknowledgement'
 		);
 		await confirm.locator( '#sp-confirm-ack' ).check();
@@ -1569,40 +1585,41 @@ async function formComposerHealthy( page ) {
 			check( nativeRtl, 'Form Studio runs inside a genuinely RTL WordPress admin shell' );
 			await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-rtl.png' ), fullPage: true } );
 		}
+
+		// Phones: the chat and the canvas are two tabs, and the preview keeps the approval at hand.
 		await page.setViewportSize( { width: 390, height: 844 } );
 		await page.goto( formUrl, { waitUntil: 'domcontentloaded', timeout: 20000 } );
 		await root.waitFor( { state: 'attached', timeout: 10000 } );
+		const tabChat = root.locator( 'button[data-sp-fc-tab="chat"]' );
+		const tabPreview = root.locator( 'button[data-sp-fc-tab="preview"]' );
 		const mobileOverflow = await page.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
 		check(
-			await root.locator( '[data-sp-form-canvas]' ).count() === 1
-			&& await root.locator( '[data-sp-form-assistant]' ).count() === 1
+			await tabChat.isVisible() && await tabPreview.isVisible()
+			&& 'true' === await tabChat.getAttribute( 'aria-selected' )
+			&& await assistant.isVisible() && ! await canvas.isVisible()
 			&& !mobileOverflow,
-			'Form Studio keeps canvas and assistant inside the 390px viewport'
+			'On a phone Form Studio opens on the Chat tab, inside the 390px viewport'
 		);
 		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-mobile.png' ), fullPage: true } );
-
 		await prompt.fill( 'Build a contact form for mobile browser QA.' );
 		await prompt.press( 'Control+Enter' );
-		await review.waitFor( { state: 'visible', timeout: 10000 } );
-		const mobileReviewRects = await Promise.all( [ reviewCanvas.boundingBox(), reviewAssistant.boundingBox() ] );
+		await approve.waitFor( { state: 'attached', timeout: 10000 } );
+		check( await root.locator( '[data-sp-fc-tab-dot]' ).isVisible(), 'a new plan marks the Preview tab' );
+		await tabPreview.click();
+		const sticky = root.locator( '[data-sp-fc-approve-mobile]' );
 		const mobileReviewOverflow = await page.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
 		check(
-			planRequests === 3 && !!mobileReviewRects[0] && !!mobileReviewRects[1]
-			&& mobileReviewRects[1].y >= mobileReviewRects[0].y + mobileReviewRects[0].height - 1
+			await canvas.isVisible() && ! await assistant.isVisible()
+			&& await review.locator( '.sp-preview__field' ).count() === 3
+			&& await sticky.isVisible()
 			&& !mobileReviewOverflow,
-			'Form Studio stacks the review canvas before its assistant without 390px overflow'
+			'The Preview tab shows the plan with the approval fixed at the bottom, without 390px overflow'
 		);
 		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-review-mobile.png' ), fullPage: true } );
-		await review.locator( '#aisaautopilot-approve' ).click();
+		await sticky.click();
 		await result.waitFor( { state: 'visible', timeout: 10000 } );
-		const mobileResultRects = await Promise.all( [ resultCanvas.boundingBox(), resultAssistant.boundingBox() ] );
 		const mobileResultOverflow = await page.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
-		check(
-			executeRequests === 3 && !!mobileResultRects[0] && !!mobileResultRects[1]
-			&& mobileResultRects[1].y >= mobileResultRects[0].y + mobileResultRects[0].height - 1
-			&& !mobileResultOverflow,
-			'Form Studio stacks the approved result before its assistant without 390px overflow'
-		);
+		check( executeRequests === 3 && !mobileResultOverflow, 'Approving from the Preview tab creates the form once, without 390px overflow' );
 		await page.waitForTimeout( 350 );
 		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-result-mobile.png' ), fullPage: true } );
 	} finally {

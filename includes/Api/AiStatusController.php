@@ -22,10 +22,13 @@ final class AiStatusController {
 
 		return new WP_REST_Response(
 			array(
-				'ok'         => true,
-				'configured' => $configured,
-				'provider'   => $configured ? (string) ( $preset['label'] ?? $provider ) : '',
-				'model'      => $configured ? (string) Settings::get( 'model', '' ) : '',
+				'ok'          => true,
+				'configured'  => $configured,
+				'provider'    => $configured ? (string) ( $preset['label'] ?? $provider ) : '',
+				'model'       => $configured ? (string) Settings::get( 'model', '' ) : '',
+				// Form Studio's readiness checklist: its switch and where answers are emailed.
+				'form_studio' => (bool) Settings::get( 'form_composer_enabled', true ),
+				'recipient'   => Settings::form_notification_email(),
 			),
 			200
 		);

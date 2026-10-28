@@ -275,7 +275,14 @@ final class AdminMenu {
 		foreach ( $scripts as $script ) {
 			list($file, $object) = $script;
 			$handle              = 'aisaautopilot-' . pathinfo( $file, PATHINFO_FILENAME );
-			wp_enqueue_script( $handle, AISAAUTOPILOT_URL . 'assets/admin/' . $file, array(), AISAAUTOPILOT_VERSION, true );
+			$deps                = array();
+			// Form Studio draws its chat with the same component as the Easy Form Builder copilot.
+			if ( 'form-builder.js' === $file ) {
+				wp_enqueue_style( 'aisaautopilot-ai-dock', AISAAUTOPILOT_URL . 'assets/admin/ai-dock.css', array(), AISAAUTOPILOT_VERSION );
+				wp_enqueue_script( 'aisaautopilot-ai-dock', AISAAUTOPILOT_URL . 'assets/admin/ai-dock.js', array(), AISAAUTOPILOT_VERSION, true );
+				$deps = array( 'aisaautopilot-ai-dock' );
+			}
+			wp_enqueue_script( $handle, AISAAUTOPILOT_URL . 'assets/admin/' . $file, $deps, AISAAUTOPILOT_VERSION, true );
 			wp_localize_script( $handle, $object, $conf );
 		}
 	}
