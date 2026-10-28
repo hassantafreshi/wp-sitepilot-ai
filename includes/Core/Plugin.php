@@ -56,6 +56,7 @@ final class Plugin {
 		( new ContentStudioHistoryExport() )->register();
 		// Tools > Export / Erase Personal Data, and the suggested privacy-policy text.
 		( new PrivacyTools() )->register();
+		( new Network() )->register();
 
 		/*
 		 * Answer Desk has one visitor-facing implementation: the configurable
@@ -111,6 +112,7 @@ final class Plugin {
 	 * Register post types, shortcodes, and front-end widget hooks.
 	 */
 	public function on_init(): void {
+		Activator::maybe_setup_site();
 		NativeFormConnector::register_post_types();
 		// Runs once per schema version, so existing installations receive the
 		// inbox table without requiring a deactivate/reactivate cycle.

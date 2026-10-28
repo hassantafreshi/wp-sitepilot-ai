@@ -11,11 +11,19 @@ use AISAAutoPilot\Support\HandoffInbox;
 use AISAAutoPilot\Chat\VisitorConversationStore;
 
 /**
- * Runs on plugin activation.
+ * Runs on plugin activation, and sets up any site of a network the activation did not reach.
  */
 final class Activator {
 
-	public static function activate(): void {
+	/** Records that this site has the plugin's tables and default settings. */
+	public const SITE_OPTION = 'aisaautopilot_site_setup';
+
+	private const SITE_VERSION = '1';
+
+	/**
+	 * @param bool $network_wide True when a multisite network administrator activates the plugin for every site.
+	 */
+	public static function activate( $network_wide = false ): void {
 		if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
 			deactivate_plugins( AISAAUTOPILOT_BASENAME );
 			wp_die(
@@ -25,6 +33,31 @@ final class Activator {
 			);
 		}
 
+		if ( is_multisite() && $network_wide ) {
+			// On a large network this request would time out; each site then sets itself up on
+			// its own first request instead (maybe_setup_site()).
+			if ( ! wp_is_large_network() ) {
+				Network::for_each_site( array( self::class, 'setup_site' ) );
+			}
+		} else {
+			self::setup_site();
+		}
+
+		flush_rewrite_rules();
+	}
+
+	/**
+	 * Called on init: a site of a network that was added after network activation, or that
+	 * a large network's activation skipped, gets its tables on its first request.
+	 */
+	public static function maybe_setup_site(): void {
+		if ( self::SITE_VERSION !== get_option( self::SITE_OPTION ) ) {
+			self::setup_site();
+		}
+	}
+
+	/** Sets up the current site: data carried over from the old name, settings and tables. */
+	public static function setup_site(): void {
 		/*
 		 * Carry data over from the pre-rebrand names before anything reads or
 		 * seeds an option, otherwise the defaults below would be written first
@@ -33,7 +66,6 @@ final class Activator {
 		RebrandMigrator::run();
 
 		NativeFormConnector::register_post_types();
-		flush_rewrite_rules();
 
 		// Seed default settings if none exist.
 		if ( false === get_option( Settings::OPTION ) ) {
@@ -52,5 +84,7 @@ final class Activator {
 		// Create the private visitor-initiated handoff inbox table.
 		HandoffInbox::ensure_schema();
 		VisitorConversationStore::ensure_schema();
+
+		update_option( self::SITE_OPTION, self::SITE_VERSION, true );
 	}
 }

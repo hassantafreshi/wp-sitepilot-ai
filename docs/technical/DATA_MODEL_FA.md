@@ -84,6 +84,7 @@
 | `aisaautopilot_kb_schema` | نسخهٔ ستون‌های `{prefix}aisaautopilot_kb`. وقتی برابر نسخهٔ کد است، `KnowledgeBase::ensure_schema()` هیچ `SHOW TABLES` یا `SHOW COLUMNS` اجرا نمی‌کند؛ پیش‌تر هر پرسش بازدیدکننده چهار پرس‌وجوی schema داشت. |
 | `aisaautopilot_kb_index_format` | قالب ایندکس پاره‌ها (`schema\|نسخهٔ متن\|ContentIndexer::FORMAT`). نابرابری یعنی بازسازی پس‌زمینه لازم است. |
 | `aisaautopilot_kb_rebuild` | مکان‌نمای cron `aisaautopilot_kb_rebuild` تا پایان بازسازی؛ سپس حذف می‌شود. |
+| `aisaautopilot_site_setup` | نشان راه‌اندازی این سایت (`Activator::SITE_OPTION`، autoload): جدول‌ها و تنظیمات پیش‌فرض ساخته شده‌اند. `Activator::maybe_setup_site()` در `init` اگر آن را نبیند `setup_site()` را اجرا می‌کند؛ این راه سایت تازهٔ شبکه و سایت‌های شبکهٔ بزرگ است. |
 | `aisaautopilot_rebrand_migrated` | نشانهٔ پایان مهاجرت نام |
 
 ## transientها
@@ -130,13 +131,13 @@
 | تنظیمات و اسرار | `aisaautopilot_settings`، `aisaautopilot_provider_key`، `aisaautopilot_embedding_key`، `aisaautopilot_handoff_secrets`، `aisaautopilot_wp_connector_key`، `aisaautopilot_provider_verified` |
 | لاگ و مصرف | `aisaautopilot_logs`، `aisaautopilot_usage_log`، `aisaautopilot_usage_totals`، `aisaautopilot_monthly_budget`، `aisaautopilot_usage_period`، `aisaautopilot_usage_period_contexts`، `aisaautopilot_usage_daily`، `aisaautopilot_usage_historical_totals`، `aisaautopilot_usage_historical_log`، `aisaautopilot_usage_period_archive`، `aisaautopilot_voice_usage_log` |
 | دانش سایت | `aisaautopilot_kb_gaps`، `aisaautopilot_kb_saved_answers`، `aisaautopilot_kb_answer_cache`، `aisaautopilot_kb_version`، `aisaautopilot_kb_index_format`، `aisaautopilot_kb_rebuild` |
-| سلامت و schema | `aisaautopilot_health_diagnostics`، `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema`، `aisaautopilot_kb_schema` |
+| سلامت و schema | `aisaautopilot_health_diagnostics`، `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema`، `aisaautopilot_kb_schema`، `aisaautopilot_site_setup` |
 | قدیمی | `aisaautopilot_setup_step` (مکان‌نمای ویزارد نسخه‌های پیشین) و `aisaautopilot_last_diagnostics` (مهر صفحهٔ Connections در 1.0.4) |
 | مهاجرت | `aisaautopilot_rebrand_migrated` — عمداً پاک می‌شود تا نصب دوباره در کنار ردیف‌های قدیمی، مهاجرت را دوباره اجرا کند |
 | قفل‌ها | هر `aisaautopilot_action_claim_*` با `DELETE ... LIKE` |
 | transientها | `_transient_aisaautopilot_%` و `_transient_timeout_aisaautopilot_%` با `DELETE ... LIKE` |
 | جاروی پایانی | هر ردیف باقی‌ماندهٔ `aisaautopilot_%` در جدول options |
-| cron | `wp_clear_scheduled_hook( 'aisaautopilot_index_post' )` و `wp_clear_scheduled_hook( 'aisaautopilot_kb_rebuild' )` |
+| cron | `wp_unschedule_hook()` برای `aisaautopilot_index_post` و `aisaautopilot_kb_rebuild`. `wp_clear_scheduled_hook()` فقط رویدادهای بی‌آرگومان را برمی‌داشت و رویداد هر برگه (با شناسهٔ نوشته) می‌ماند. |
 
 **چرا جاروی پایانی لازم است:** `RebrandMigrator::migrate_options()` هر option با پیشوند `sitepilot_` را با تغییر پیشوند به `aisaautopilot_` منتقل می‌کند و فهرست را از دیتابیس کشف می‌کند، نه از یک آرایهٔ ثابت. پس سایتی که از نام قدیمی ارتقا یافته می‌تواند ردیف‌های `aisaautopilot_*` داشته باشد که نام‌شان در این نسخه اصلاً اعلام نشده است و فهرست صریح به آن‌ها نمی‌رسد. پیشوند منجمد و مخصوص همین افزونه است، پس جارو به دادهٔ افزونهٔ دیگری نمی‌رسد.
 
@@ -148,6 +149,16 @@
 | نوشته‌های `aisaautopilot_entry` | اگر نسخه‌ای قدیمی ساخته باشد؛ مسیر فعلی ارسال فرم چیزی ذخیره نمی‌کند |
 | نوشته، برگه و پیش‌نویس محصول ساخته‌شده با افزونه و metaهای `_aisaautopilot_generated`، `_aisaautopilot_meta_description` و `_aisaautopilot_source_gap` | محتوای خود سایت |
 | فرم‌های Easy Form Builder | مال آن افزونه است |
+
+### چندسایته
+
+هر سایت شبکه جدول‌ها (با پیشوند خودش، مثل `wp_2_`) و optionهای خودش را دارد. افزونه هیچ دادهٔ مشترک شبکه ندارد.
+
+- **فعال‌سازی برای کل شبکه:** `Activator::activate( true )` با `Network::for_each_site()` سایت‌های همان شبکه را صد‌تا صد‌تا می‌خواند و روی هر کدام `setup_site()` را اجرا می‌کند: مهاجرت نام، تنظیمات پیش‌فرض، شش جدول و نشان `aisaautopilot_site_setup`. در شبکه‌ای که وردپرس «بزرگ» می‌شمارد (`wp_is_large_network()`، پیش‌فرض بیش از ۱۰٬۰۰۰ سایت) این حلقه اجرا نمی‌شود، چون در یک درخواست تمام نمی‌شود.
+- **سایت تازه و سایت‌های شبکهٔ بزرگ:** `Activator::maybe_setup_site()` در `init` نشان سایت را می‌خواند (یک option با autoload، بی‌پرس‌وجو) و اگر نباشد همان `setup_site()` را اجرا می‌کند. پس هر سایت در نخستین درخواستش آماده می‌شود. پیش‌تر زیرسایت‌ها هرگز جدول دانش و گفت‌وگوی مدیر را نمی‌گرفتند.
+- **حذف یک سایت:** `Network::site_tables()` روی `wpmu_drop_tables` شش جدول افزونه را به جدول‌هایی که وردپرس با سایت می‌اندازد اضافه می‌کند. این فیلتر فقط وقتی اجرا می‌شود که افزونه در صفحهٔ شبکه بارگذاری شده باشد، یعنی برای کل شبکه یا برای سایت اصلی فعال باشد.
+- **حذف افزونه:** `uninstall.php` روی هر سایت همهٔ شبکه‌ها `aisaautopilot_uninstall_site()` را اجرا می‌کند. سپس جدول‌های افزونهٔ سایت‌هایی را که دیگر وجود ندارند می‌اندازد. این حالتی است که افزونه فقط روی همان سایت فعال بود و فیلتر حذف سایت اجرا نشد. فقط شش نام جدول افزونه با الگوی `{base_prefix}{id}_aisaautopilot_…` و شناسه‌ای که `get_site()` پیدا نمی‌کند انداخته می‌شوند.
+- **آزمون:** `tests/wordpress_multisite_integration.php` (۷ بررسی) هر گام را در یک فرایند جدای WP-CLI روی یک شبکهٔ آزمایشی اجرا می‌کند.
 
 ### محدودیت‌های شناخته‌شده
 

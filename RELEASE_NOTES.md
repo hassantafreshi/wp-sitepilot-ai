@@ -89,6 +89,12 @@ tools, matching requests to talk to a person, console conversations and
 recorded visitor conversations by email address, and suggested privacy-policy
 text under Settings > Privacy > Policy Guide.
 
+**Multisite** — each site of a network keeps its own tables, settings and keys.
+Network activation sets up every site; a site added later, or every site of a
+network WordPress counts as large (where one request could not set them all
+up), sets itself up on its first request. Deleting a site drops the plugin's
+tables with it, and uninstall cleans every site of the network.
+
 **Answer Desk** — the visitor chat widget (off by default) with panel and
 full-screen modes, a customiser for colours, icons, greeting, suggested
 questions and the pages it appears on, conversation logging with a privacy
@@ -154,10 +160,10 @@ Deactivating changes nothing. Deleting runs `uninstall.php`.
 
 | Removed | Detail |
 |---|---|
-| Tables | `{prefix}aisaautopilot_kb`, `{prefix}aisaautopilot_chats`, `{prefix}aisaautopilot_widget_chats`, `{prefix}aisaautopilot_handoffs` |
-| Options | 27 named `aisaautopilot_*` options (settings, encrypted keys, handoff secrets, logs, usage and budget, knowledge gaps and saved answers, schema stamps, the rebrand marker), every `aisaautopilot_action_claim_*` replay lock, and a final sweep of any remaining `aisaautopilot_*` row |
+| Tables | `{prefix}aisaautopilot_kb`, `{prefix}aisaautopilot_kb_chunks`, `{prefix}aisaautopilot_kb_terms`, `{prefix}aisaautopilot_chats`, `{prefix}aisaautopilot_widget_chats`, `{prefix}aisaautopilot_handoffs` |
+| Options | 31 named `aisaautopilot_*` options (settings, encrypted keys, handoff secrets, logs, usage and budget, knowledge gaps and saved answers, the passage index format and its rebuild cursor, schema stamps, the site-setup marker, the rebrand marker), every `aisaautopilot_action_claim_*` replay lock, and a final sweep of any remaining `aisaautopilot_*` row |
 | Transients | Rate-limit counters, the 15-minute action preview, the provider-test record and the delivery-test cooldown, by `_transient_aisaautopilot_*` prefix |
-| Cron | `aisaautopilot_index_post` is unscheduled |
+| Cron | `aisaautopilot_index_post` (every queued page) and `aisaautopilot_kb_rebuild` are unscheduled |
 
 | Kept on purpose | Why |
 |---|---|
@@ -166,7 +172,8 @@ Deactivating changes nothing. Deleting runs `uninstall.php`.
 | Posts, pages and product drafts written through the plugin, with their `_aisaautopilot_generated`, `_aisaautopilot_meta_description` and `_aisaautopilot_source_gap` meta | Your content |
 | Easy Form Builder forms | They belong to that plugin |
 
-The plugin stores no user meta and no network-wide options. Under a persistent
+On a multisite network all of this is removed from every site. The plugin
+stores no user meta and no network-wide options. Under a persistent
 object cache the plugin's transients live in the cache rather than the options
 table; they are not reachable from the uninstall hook and expire within an hour.
 

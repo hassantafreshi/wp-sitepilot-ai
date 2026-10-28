@@ -361,9 +361,9 @@
   | چه چیزی | جزئیات |
   |---|---|
   | جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_kb_chunks`، `{prefix}aisaautopilot_kb_terms`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats`، `{prefix}aisaautopilot_handoffs` |
-  | optionها | ۳۰ option نام‌دار `aisaautopilot_*` (تنظیمات، کلیدهای رمزشده، اسرار انتقال، لاگ، مصرف و سقف، پرسش‌های بی‌پاسخ و پاسخ‌های ذخیره‌شده، قالب ایندکس و مکان‌نمای بازسازی آن، مهر schema، نشان مهاجرت)، هر قفل `aisaautopilot_action_claim_*`، و در پایان جاروی هر ردیف باقی‌ماندهٔ `aisaautopilot_*` |
+  | optionها | ۳۱ option نام‌دار `aisaautopilot_*` (تنظیمات، کلیدهای رمزشده، اسرار انتقال، لاگ، مصرف و سقف، پرسش‌های بی‌پاسخ و پاسخ‌های ذخیره‌شده، قالب ایندکس و مکان‌نمای بازسازی آن، مهر schema، نشان راه‌اندازی سایت، نشان مهاجرت)، هر قفل `aisaautopilot_action_claim_*`، و در پایان جاروی هر ردیف باقی‌ماندهٔ `aisaautopilot_*` |
   | transientها | شمارنده‌های محدودیت نرخ، پیش‌نمایش ۱۵ دقیقه‌ای، رکورد آزمون provider و فاصلهٔ آزمون تحویل، با پیشوند `_transient_aisaautopilot_*` |
-  | cron | `aisaautopilot_index_post` و `aisaautopilot_kb_rebuild` از زمان‌بندی درمی‌آیند |
+  | cron | `aisaautopilot_index_post` (همهٔ برگه‌های در صف) و `aisaautopilot_kb_rebuild` از زمان‌بندی درمی‌آیند |
 
   **باید عمداً مانده باشد:**
 
@@ -379,6 +379,16 @@
 - [ ] **12.4** اگر سایت object cache پایدار دارد.
   **Expected:** transientها در کش‌اند نه در جدول options؛ از قلاب uninstall در دسترس نیستند و
   خودشان حداکثر تا یک ساعت منقضی می‌شوند. این یک محدودیت شناخته‌شده و مستند است.
+- [ ] **12.5** چندسایته (شبکهٔ آزمایشی، نه شبکهٔ واقعی):
+  1. دو سایت بسازید و افزونه را از Network Admin > Plugins برای کل شبکه فعال کنید.
+     **Expected:** هر سه سایت شش جدول `{prefix}aisaautopilot_*` و option `aisaautopilot_settings` دارند (پیشوند زیرسایت مثل `wp_2_` است).
+  2. سایت سومی بسازید و یک‌بار پیشخوان یا صفحهٔ آن را باز کنید.
+     **Expected:** پیش از بازدید جدولی ندارد؛ پس از بازدید هر شش جدول را دارد.
+  3. یکی از سایت‌ها را از Network Admin > Sites حذف کنید.
+     **Expected:** جدول‌های `aisaautopilot_*` آن سایت هم حذف شده‌اند.
+  4. افزونه را برای شبکه غیرفعال و سپس حذف کنید.
+     **Expected:** در هیچ سایتی جدول یا option `aisaautopilot_*` نمانده است.
+  - خودکار: `tests/wordpress_multisite_integration.php` همین مراحل را با WP-CLI روی شبکهٔ آزمایشی اجرا می‌کند؛ مسیر شبکه در `AISAAUTOPILOT_WP_MS_ROOT` و مسیر `wp-cli.phar` در `AISAAUTOPILOT_WP_CLI`.
 
 ---
 

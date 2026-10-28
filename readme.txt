@@ -120,8 +120,9 @@ aisaautopilot_usage_daily, aisaautopilot_usage_historical_totals,
 aisaautopilot_usage_historical_log, aisaautopilot_usage_period_archive,
 aisaautopilot_voice_usage_log, aisaautopilot_health_diagnostics,
 aisaautopilot_last_diagnostics, aisaautopilot_kb_schema, aisaautopilot_handoff_inbox_schema,
-aisaautopilot_widget_chat_schema, aisaautopilot_rebrand_migrated, and every
-aisaautopilot_action_claim_* replay lock.
+aisaautopilot_widget_chat_schema, aisaautopilot_site_setup,
+aisaautopilot_rebrand_migrated, and every aisaautopilot_action_claim_* replay
+lock.
 
 Anything else stored under the plugin's own aisaautopilot_ prefix is swept by
 prefix, so an install that was migrated from the plugin's former name does not
@@ -136,7 +137,11 @@ the options table; they are not reachable from the uninstall hook and expire on
 their own.
 
 The scheduled indexing jobs (aisaautopilot_index_post and
-aisaautopilot_kb_rebuild) are unscheduled.
+aisaautopilot_kb_rebuild) are unscheduled, including every page still waiting
+to be indexed.
+
+On a multisite network each site has its own tables and options, and all of
+the above is removed from every site of the network.
 
 Kept on purpose, because it is your content:
 
@@ -303,6 +308,15 @@ The visitor chat widget is off until you enable it in Answer Desk.
 
 == Frequently Asked Questions ==
 
+= Does it work on WordPress multisite? =
+
+Yes. Each site keeps its own knowledge, conversations, settings and keys.
+Activating the plugin for the whole network sets up every site; a site added
+later sets itself up the first time it is visited, and so does every site of
+a very large network, where setting them all up at once would time out.
+Deleting a site removes the plugin's tables with it, and deleting the plugin
+removes its data from every site.
+
 = Are form submissions stored in WordPress? =
 
 No. AISAAutoPilot validates each submission in memory, sends an email, and
@@ -371,6 +385,8 @@ editable text; nothing is sent until you press Send.
   nothing related on the site is answered "not found" without an AI request,
   and you choose what visitors then see: a message (yours or the built-in one)
   or an offer to connect to a person. Follow-up questions keep their subject.
+* Multisite: network activation sets up every site, a deleted site takes the
+  plugin's tables with it, and deleting the plugin cleans every site.
 * Content Studio drafts, Form Studio forms, native email-only forms, and the
   Easy Form Builder copilot.
 * Easy Form Builder copilot: help text, steps for long forms, a consent
