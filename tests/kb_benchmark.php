@@ -9,7 +9,7 @@
  *       For every question, check whether its fact reaches the context the model is given,
  *       and whether unanswerable questions stop before the model is called. No AI request.
  *   php tests/kb_benchmark.php answer <label> <out.json> [n]   ask n questions end to end (uses the AI provider)
- *   php tests/kb_benchmark.php teardown                remove the fixture posts and empty the knowledge base
+ *   php tests/kb_benchmark.php teardown                remove the fixture posts and their index entries; the site's own entries stay
  *
  * The "fact reached" check compares normalised text (digits, Arabic/Persian letter forms,
  * spacing), the same normalisation for every method, so only retrieval is measured.
@@ -258,7 +258,12 @@ switch ( $mode ) {
 		break;
 
 	case 'teardown':
+		// Only the fixture's rows go: emptying the tables would also remove the site's own content.
 		foreach ( aisa_bench_ids() as $id ) {
+			( new KnowledgeBase() )->delete_by_post_id( (int) $id );
+			if ( class_exists( '\AISAAutoPilot\Content\KnowledgeIndex' ) ) {
+				( new \AISAAutoPilot\Content\KnowledgeIndex() )->delete_post( (int) $id );
+			}
 			wp_delete_post( (int) $id, true );
 		}
 		delete_option( AISA_BENCH_IDS );
@@ -272,10 +277,6 @@ switch ( $mode ) {
 			}
 			update_option( 'aisaautopilot_settings', $settings );
 			delete_option( AISA_BENCH_SETTINGS );
-		}
-		( new KnowledgeBase() )->truncate();
-		if ( class_exists( '\AISAAutoPilot\Content\KnowledgeIndex' ) ) {
-			( new \AISAAutoPilot\Content\KnowledgeIndex() )->truncate();
 		}
 		echo "Benchmark fixture removed.\n";
 		break;

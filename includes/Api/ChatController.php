@@ -52,6 +52,20 @@ final class ChatController {
 			);
 		}
 
+		// A failure has no answer to keep: nothing is saved, and the console offers a retry.
+		$status = (string) ( $result['status'] ?? '' );
+		if ( in_array( $status, ChatEngine::FAILURE_STATUSES, true ) ) {
+			return new \WP_REST_Response(
+				array(
+					'ok'              => false,
+					'code'            => 'not_configured' === $status ? 'not_configured' : 'assistant_unavailable',
+					'message'         => (string) ( $result['answer'] ?? '' ),
+					'conversation_id' => $conv_id,
+				),
+				'not_configured' === $status ? 400 : 503
+			);
+		}
+
 		// Save messages.
 		$manager->add_message(
 			$conv_id,

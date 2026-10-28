@@ -359,7 +359,7 @@
   | چه چیزی | جزئیات |
   |---|---|
   | جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_kb_chunks`، `{prefix}aisaautopilot_kb_terms`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats`، `{prefix}aisaautopilot_handoffs` |
-  | optionها | ۲۹ option نام‌دار `aisaautopilot_*` (تنظیمات، کلیدهای رمزشده، اسرار انتقال، لاگ، مصرف و سقف، پرسش‌های بی‌پاسخ و پاسخ‌های ذخیره‌شده، قالب ایندکس و مکان‌نمای بازسازی آن، مهر schema، نشان مهاجرت)، هر قفل `aisaautopilot_action_claim_*`، و در پایان جاروی هر ردیف باقی‌ماندهٔ `aisaautopilot_*` |
+  | optionها | ۳۰ option نام‌دار `aisaautopilot_*` (تنظیمات، کلیدهای رمزشده، اسرار انتقال، لاگ، مصرف و سقف، پرسش‌های بی‌پاسخ و پاسخ‌های ذخیره‌شده، قالب ایندکس و مکان‌نمای بازسازی آن، مهر schema، نشان مهاجرت)، هر قفل `aisaautopilot_action_claim_*`، و در پایان جاروی هر ردیف باقی‌ماندهٔ `aisaautopilot_*` |
   | transientها | شمارنده‌های محدودیت نرخ، پیش‌نمایش ۱۵ دقیقه‌ای، رکورد آزمون provider و فاصلهٔ آزمون تحویل، با پیشوند `_transient_aisaautopilot_*` |
   | cron | `aisaautopilot_index_post` و `aisaautopilot_kb_rebuild` از زمان‌بندی درمی‌آیند |
 

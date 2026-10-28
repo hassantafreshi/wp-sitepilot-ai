@@ -36,6 +36,7 @@ delete_option( 'aisaautopilot_health_diagnostics' );
 // Diagnostics stamp written by the 1.0.4 Connections page, orphaned since Health replaced it.
 delete_option( 'aisaautopilot_last_diagnostics' );
 delete_option( 'aisaautopilot_handoff_inbox_schema' );
+delete_option( 'aisaautopilot_kb_schema' );
 delete_option( 'aisaautopilot_widget_chat_schema' );
 // Marker for the sitepilot-ai → ai-site-assistant-autopilot data migration. It
 // must go too, so that a later reinstall alongside leftover legacy rows runs

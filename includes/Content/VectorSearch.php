@@ -10,11 +10,14 @@ use AISAAutoPilot\Providers\ProviderManager;
  * Semantic (embeddings) retrieval over the Knowledge Base.
  *
  * The question is embedded once, then compared to every stored entry vector
- * with cosine similarity in PHP. This is language-agnostic — a Persian question
+ * with cosine similarity in PHP, a page at a time. This is language-agnostic — a Persian question
  * finds the right English page and vice-versa — and ranks by meaning rather
  * than keyword overlap. Falls back cleanly to keyword/recency retrieval upstream.
  */
 final class VectorSearch {
+
+	/** Vectors read per query; each is a few kilobytes of JSON. */
+	private const PAGE_SIZE = 200;
 
 	private KnowledgeBase $kb;
 	private ProviderManager $manager;
@@ -34,7 +37,7 @@ final class VectorSearch {
 			return false;
 		}
 
-		return $this->kb->count_with_embeddings( $this->manager->embedding_model() ) > 0;
+		return $this->kb->has_embeddings( $this->manager->embedding_model() );
 	}
 
 	/**
@@ -64,31 +67,32 @@ final class VectorSearch {
 			return array();
 		}
 
-		$entries = $this->kb->get_vectors( $model );
-		if ( empty( $entries ) ) {
-			return array();
-		}
-
-		$scored = array();
-		foreach ( $entries as $entry ) {
-			$vec = $entry['vector'];
-			if ( count( $vec ) !== count( $q ) ) {
-				continue; // Dimension mismatch (model changed) — skip.
+		// Page through the vectors and keep only the best few, so memory stays the same
+		// for a hundred posts or fifty thousand.
+		$limit = max( 1, $limit );
+		$best  = array();
+		$after = 0;
+		do {
+			$page = $this->kb->vector_page( $model, $after, self::PAGE_SIZE );
+			foreach ( $page as $entry ) {
+				$after = max( $after, (int) $entry['id'] );
+				$vec   = $entry['vector'];
+				if ( count( $vec ) !== count( $q ) ) {
+					continue; // Dimension mismatch (model changed) — skip.
+				}
+				unset( $entry['vector'], $entry['id'] );
+				$entry['score'] = $this->cosine( $q, $vec, $q_norm );
+				$best[]         = $entry;
+				if ( count( $best ) > $limit ) {
+					usort( $best, static fn( $a, $b ) => $b['score'] <=> $a['score'] );
+					array_pop( $best );
+				}
 			}
-			$score = $this->cosine( $q, $vec, $q_norm );
-			unset( $entry['vector'] );
-			$entry['score'] = $score;
-			$scored[]       = $entry;
-		}
+		} while ( count( $page ) === self::PAGE_SIZE );
 
-		usort(
-			$scored,
-			static function ( $a, $b ) {
-				return $b['score'] <=> $a['score'];
-			}
-		);
+		usort( $best, static fn( $a, $b ) => $b['score'] <=> $a['score'] );
 
-		return array_slice( $scored, 0, max( 1, $limit ) );
+		return $best;
 	}
 
 	/**

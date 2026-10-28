@@ -15,6 +15,11 @@ final class KnowledgeBase {
 
 	public const TABLE_SUFFIX = 'aisaautopilot_kb';
 
+	/** Remembers that the table has every column this version reads. */
+	public const SCHEMA_OPTION = 'aisaautopilot_kb_schema';
+
+	private const SCHEMA_VERSION = '2';
+
 	private \wpdb $db;
 
 	/** Guards the one-time-per-request schema check. */
@@ -61,6 +66,9 @@ final class KnowledgeBase {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+		if ( $this->table_exists() ) {
+			update_option( self::SCHEMA_OPTION, self::SCHEMA_VERSION, false );
+		}
 	}
 
 	/**
@@ -75,7 +83,9 @@ final class KnowledgeBase {
 		}
 		self::$schema_checked = true;
 
-		if ( ! $this->table_exists() ) {
+		// Once the columns are in place the answer never changes, so it is remembered instead of
+		// asked with SHOW TABLES and three SHOW COLUMNS on every visitor question.
+		if ( self::SCHEMA_VERSION === get_option( self::SCHEMA_OPTION, '' ) || ! $this->table_exists() ) {
 			return;
 		}
 
@@ -96,6 +106,7 @@ final class KnowledgeBase {
 				$this->db->query( "ALTER TABLE {$table} {$ddl}" );
 			}
 		}
+		update_option( self::SCHEMA_OPTION, self::SCHEMA_VERSION, false );
 	}
 
 	/**
@@ -236,7 +247,8 @@ final class KnowledgeBase {
 		$total = (int) $this->db->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Fetch page.
-		$query_sql = "SELECT * FROM {$table} WHERE {$where} ORDER BY updated_at DESC LIMIT %d OFFSET %d"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// Every column but the vector: a page of entries does not need several hundred kilobytes of JSON.
+		$query_sql = "SELECT id, post_id, post_type, title, summary, keywords, category, content_type, embedding_model, content_hash, status, token_count, indexed_at, updated_at FROM {$table} WHERE {$where} ORDER BY updated_at DESC LIMIT %d OFFSET %d"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$params[]  = $per_page;
 		$params[]  = $offset;
 		$items     = $this->db->get_results(
@@ -460,40 +472,46 @@ final class KnowledgeBase {
 	}
 
 	/**
-	 * Fetch indexed entries that carry an embedding, for in-PHP similarity search.
-	 *
-	 * @return array<int, array<string, mixed>> Each row includes a decoded 'vector'.
+	 * Whether any entry has an embedding from this model. Stops at the first one, so it is
+	 * cheap enough to ask on every visitor question; the full count is for admin screens.
 	 */
-	public function get_vectors( string $model = '', int $limit = 2000 ): array {
+	public function has_embeddings( string $model ): bool {
 		$this->ensure_schema();
 		$table = $this->table();
 
-		$where = "status = 'indexed' AND embedding IS NOT NULL AND embedding <> ''";
-		$args  = array();
-		if ( '' !== $model ) {
-			$where .= ' AND embedding_model = %s';
-			$args[] = $model;
-		}
-		$args[] = $limit;
+		return null !== $this->db->get_var(
+			$this->db->prepare(
+				"SELECT id FROM {$table} WHERE embedding_model = %s AND embedding IS NOT NULL AND embedding <> '' LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$model
+			)
+		);
+	}
 
-		$sql  = "SELECT post_id, title, post_type, summary, keywords, content_type, embedding FROM {$table} WHERE {$where} ORDER BY updated_at DESC LIMIT %d"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$rows = $this->db->get_results(
-			$this->db->prepare( $sql, ...$args ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	/**
+	 * One page of indexed entries with an embedding from this model, in row order after
+	 * $after_id. Search reads page by page, so memory stays bounded however large the site.
+	 *
+	 * @return array<int, array<string, mixed>> Rows with their decoded 'vector' and row 'id'.
+	 */
+	public function vector_page( string $model, int $after_id, int $size = 200 ): array {
+		$this->ensure_schema();
+		$table = $this->table();
+		$rows  = $this->db->get_results(
+			$this->db->prepare(
+				"SELECT id, post_id, title, post_type, summary, keywords, content_type, embedding FROM {$table} WHERE status = 'indexed' AND embedding_model = %s AND embedding IS NOT NULL AND embedding <> '' AND id > %d ORDER BY id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$model,
+				$after_id,
+				max( 1, $size )
+			),
 			ARRAY_A
 		);
 
-		if ( ! is_array( $rows ) ) {
-			return array();
-		}
-
 		$out = array();
-		foreach ( $rows as $row ) {
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
 			$vector = json_decode( (string) $row['embedding'], true );
-			if ( ! is_array( $vector ) || empty( $vector ) ) {
-				continue;
-			}
 			unset( $row['embedding'] );
-			$row['vector'] = $vector;
+			$row['id']     = (int) $row['id'];
+			$row['vector'] = is_array( $vector ) ? $vector : array();
 			$out[]         = $row;
 		}
 

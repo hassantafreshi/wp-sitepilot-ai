@@ -30,8 +30,17 @@ final class PublicChatController {
 		$context = ConversationHistory::context( ConversationHistory::clean( $request->get_param( 'history' ) ), $question );
 		try {
 			$result = ( new ChatEngine() )->ask( $question, $context );
-			if ( 'usage_cap_reached' === (string) ( $result['status'] ?? '' ) ) {
+			$status = (string) ( $result['status'] ?? '' );
+			if ( 'usage_cap_reached' === $status ) {
 				return $this->error( 'usage_cap_reached', (string) ( $result['answer'] ?? '' ), 429 );
+			}
+			// A failure is not an answer; the provider's wording is for the site owner, not the visitor.
+			if ( in_array( $status, ChatEngine::FAILURE_STATUSES, true ) ) {
+				return $this->error(
+					'not_configured' === $status ? 'assistant_not_configured' : 'assistant_unavailable',
+					__( 'The assistant is temporarily unavailable. Please try again later.', 'ai-site-assistant-autopilot' ),
+					503
+				);
 			}
 			return new \WP_REST_Response( array( 'ok' => true ) + $result );
 		} catch ( \Throwable $e ) {

@@ -44,7 +44,7 @@
 
 | مسیر | متد | مجوز | کاربرد |
 |---|---|---|---|
-| `/chat/ask` | POST | `can_manage` | پرسش در یک گفت‌وگو (`question` تا 2000 نویسه، `conversation_id`). پاسخ `answer`، `sources`، `status` (`answered`، `clarify`، `not_found`)، `clarify_options`، `handoff_offer` و `conversation_id`. پیام‌ها و `status` در گفت‌وگو ذخیره می‌شوند. |
+| `/chat/ask` | POST | `can_manage` | پرسش در یک گفت‌وگو (`question` تا 2000 نویسه، `conversation_id`). پاسخ `answer`، `sources`، `status` (`answered`، `clarify`، `not_found`)، `clarify_options`، `handoff_offer` و `conversation_id`. پیام‌ها و `status` در گفت‌وگو ذخیره می‌شوند. شکست هیچ‌چیز ذخیره نمی‌کند و `ok: false` است: 503 `assistant_unavailable` (خطای provider)، 400 `not_configured` (provider تنظیم نشده)، 429 `usage_cap_reached`. |
 | `/chat/create` | POST | `can_manage` | ساخت گفت‌وگوی خالی |
 | `/chat/list` | GET | `can_manage` | 50 گفت‌وگوی تازهٔ همان کاربر |
 | `/chat/get` | GET | `can_manage` | یک گفت‌وگو با پیام‌های decode‌شده (`id`) |
@@ -79,11 +79,11 @@
 | مسیر | متد | مجوز | کاربرد |
 |---|---|---|---|
 | `/widget/settings` | GET | عمومی | تنظیمات زمان اجرای ویجت، بدون اسرار. از T10 خود `widget.js` آن را صدا نمی‌زند (همین داده‌ها در `AISAAutoPilotWidget` هستند)؛ route برای سازگاری حفظ شده است. |
-| `/widget/ask` | POST | عمومی | پرسش بازدیدکننده. rate limit دارد و از `ChatEngine` عبور می‌کند. `history` اختیاری: آخرین ۶ نوبت `{role, text}` (هر کدام تا ۱۲۰۰ نویسه)، فقط برای پرسش پیگیر، و ذخیره نمی‌شود. موفقیت: `ok: true` به‌اضافهٔ `answer`، `sources`، `status`، `clarify_options`، `handoff_offer` و در صورت logging `conversation_id`. هر رد (403 `widget_disabled`، 400 `empty` و `question_too_long`، 429 `rate_limited` و `usage_cap_reached`، 503 `assistant_unavailable`) `ok: false`، `code` و `message` دارد و هرگز `answer` ندارد؛ 400 `empty` تا T10 کلید `answer` داشت. |
+| `/widget/ask` | POST | عمومی | پرسش بازدیدکننده. rate limit دارد و از `ChatEngine` عبور می‌کند. `history` اختیاری: آخرین ۶ نوبت `{role, text}` (هر کدام تا ۱۲۰۰ نویسه)، فقط برای پرسش پیگیر، و ذخیره نمی‌شود. موفقیت: `ok: true` به‌اضافهٔ `answer`، `sources`، `status`، `clarify_options`، `handoff_offer` و در صورت logging `conversation_id`. هر رد (403 `widget_disabled`، 400 `empty` و `question_too_long`، 429 `rate_limited` و `usage_cap_reached`، 503 `assistant_unavailable` و `assistant_not_configured`) `ok: false`، `code` و `message` دارد و هرگز `answer` ندارد؛ 400 `empty` تا T10 کلید `answer` داشت. تا ۲۰۲۶-۱۰-۲۸ خطای provider و «provider تنظیم نشده» با `ok: true` و متن عذرخواهی در `answer` برمی‌گشتند، به‌عنوان پاسخ ثبت می‌شدند و جملهٔ «API key … Settings» به بازدیدکننده می‌رسید؛ اکنون پیام بازدیدکننده خنثی است و `assistant_not_configured` در ویجت دکمهٔ «دوباره» ندارد. |
 | `/widget/conversation` | POST | عمومی | افزودن نوبت به گفت‌وگوی ثبت‌شده، فقط وقتی ثبت گفت‌وگو روشن است |
 | `/widget/handoff` | POST | عمومی | درخواست انتقال به انسان. به کانال‌های آماده fan-out می‌شود و در صندوق با وضعیت `new` یا `failed` ثبت می‌شود. `name`، `email`، `phone` و `website` فقط وقتی خوانده می‌شوند که در `handoff_fields` روشن باشند. خطاها: `missing_contact` و `invalid_name`، `invalid_email`، `invalid_phone` یا `invalid_website` (400، با `fields`). |
 | `/widget/handoff/status` | GET | عمومی | آیا انتقال اکنون در دسترس است |
-| `/public/chat` | POST | عمومی | نسخهٔ فقط‌خواندنی دستیار عمومی |
+| `/public/chat` | POST | عمومی | نسخهٔ فقط‌خواندنی دستیار عمومی، با همان `history` و همان ردهای `/widget/ask` (503 `assistant_unavailable` یا `assistant_not_configured`، 429 `usage_cap_reached`) |
 | `/public/voice` | POST | عمومی | تبدیل گفتار دستیار عمومی. از T12 **دو دروازه** دارد: `answer_desk_enabled()` (403 `assistant_disabled`) و `widget.voice_enabled` (403 `voice_disabled`). هر دو **پیش از rate limiter** سنجیده می‌شوند، پس سایتی که میکروفن را خاموش کرده نه سهمیهٔ `public_voice` بازدیدکننده را خرج می‌کند و نه فراخوان provider. پس از آن: 429 `rate_limited`، 400 خطاهای `VoiceTranscriber` (`invalid_audio` — از T20 شامل فایلی که بایت‌های آغازینش WebM، Ogg، MP4 یا WAV نیست، هرچه `Content-Type` کلاینت باشد؛ `audio_too_large`؛ `audio_too_long`؛ `provider_not_configured`) و 503 `voice_unavailable`. موفقیت: `ok: true` با `transcript` و `language`. |
 | `/widget/admin-settings` | POST | `can_manage` | به‌روزرسانی محدود tab Widget (نمایش، رنگ) |
 | `/handoff/admin-settings` | POST | `can_manage` | به‌روزرسانی کانال‌های انتقال. `handoff_enabled` از وجود کانال آماده مشتق می‌شود. |

@@ -102,7 +102,7 @@ aisaautopilot_usage_period, aisaautopilot_usage_period_contexts,
 aisaautopilot_usage_daily, aisaautopilot_usage_historical_totals,
 aisaautopilot_usage_historical_log, aisaautopilot_usage_period_archive,
 aisaautopilot_voice_usage_log, aisaautopilot_health_diagnostics,
-aisaautopilot_last_diagnostics, aisaautopilot_handoff_inbox_schema,
+aisaautopilot_last_diagnostics, aisaautopilot_kb_schema, aisaautopilot_handoff_inbox_schema,
 aisaautopilot_widget_chat_schema, aisaautopilot_rebrand_migrated, and every
 aisaautopilot_action_claim_* replay lock.
 

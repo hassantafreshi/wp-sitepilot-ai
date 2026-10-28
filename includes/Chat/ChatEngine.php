@@ -61,6 +61,12 @@ final class ChatEngine {
 	 *   usage:array{prompt_tokens:int,completion_tokens:int,total_tokens:int}
 	 * }
 	 */
+	/**
+	 * Statuses that carry no answer: the text in `answer` explains a failure. Endpoints answer
+	 * these with ok:false and an HTTP error, so no failure is shown, stored or counted as an answer.
+	 */
+	public const FAILURE_STATUSES = array( 'error', 'not_configured', 'usage_cap_reached' );
+
 	public function ask( string $question, string $history = '' ): array {
 		// 0) A saved answer the site owner wrote for this question: no AI request, so it also works without a provider
 		//    and never counts against the usage cap. Follow-ups are skipped because their meaning depends on history.

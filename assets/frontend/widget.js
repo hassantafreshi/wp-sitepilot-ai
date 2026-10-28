@@ -24,7 +24,7 @@
 
 	// An immediate "try again" only helps when the failure was transient. Sending the same
 	// request again cannot pass an hourly limit, a spent budget or a length check.
-	var NO_RETRY = ['rate_limited', 'usage_cap_reached', 'question_too_long', 'empty', 'widget_disabled'];
+	var NO_RETRY = ['rate_limited', 'usage_cap_reached', 'question_too_long', 'empty', 'widget_disabled', 'assistant_not_configured'];
 
 	var convId = null;
 	// The last few answered turns, sent with each question so a follow-up keeps its subject.

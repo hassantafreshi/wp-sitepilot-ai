@@ -2156,8 +2156,8 @@ async function chatConsoleHealthy( page ) {
 		}
 		if ( 'chat/ask' === endpoint ) {
 			if ( 'engine_error' === askMode ) {
-				// ChatEngine catches provider failures and answers with status "error" (ok stays true, no usage recorded).
-				return reply( 200, { ok: true, answer: 'An error occurred while processing your question. Please try again.', sources: [], status: 'error', clarify_options: [], handoff_offer: false, usage: null, conversation_id: 9103 } );
+				// ChatEngine catches provider failures; chat/ask refuses with 503 and saves nothing.
+				return reply( 503, { ok: false, code: 'assistant_unavailable', message: 'An error occurred while processing your question. Please try again.', conversation_id: 9103 } );
 			}
 			if ( 'cap' === askMode ) {
 				return reply( 429, { ok: false, code: 'usage_cap_reached', message: 'Monthly AI budget reached.', status: 'usage_cap_reached', conversation_id: 9103 } );

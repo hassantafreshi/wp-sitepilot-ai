@@ -363,7 +363,7 @@
 					notFound: 'not_found' === data.status,
 					handoffOffer: !! data.handoff_offer,
 				} );
-			} else if ( data.ok ) {
+			} else if ( data.ok || 'assistant_unavailable' === data.code ) {
 				// The engine caught a provider failure, so no answer exists: say so and offer a retry and Health.
 				failed = true;
 				addMessage( 'assistant', t( 'errorProvider', 'The AI service did not return an answer. Ask again, or check the connection in Health.' ), {
@@ -379,7 +379,7 @@
 					errorTitle: true,
 					actions: 'usage_cap_reached' === data.code
 						? [ linkAction( conf.usageUrl, t( 'openUsage', 'Open Usage & Cost' ) ) ]
-						: [ retryButton( question ) ],
+						: ( 'not_configured' === data.code ? [ linkAction( conf.healthUrl, t( 'openHealth', 'Open Health' ) ) ] : [ retryButton( question ) ] ),
 				} );
 			}
 			loadConversations();

@@ -97,15 +97,9 @@ final class ChatWidgetController {
 			// The widget's last few turns, so a follow-up keeps its subject. Nothing is stored here.
 			$history = ConversationHistory::context( ConversationHistory::clean( $request->get_param( 'history' ) ), $question );
 			$result  = ( new ChatEngine( new KnowledgeBase() ) )->ask( $question, $history );
-			if ( 'usage_cap_reached' === (string) ( $result['status'] ?? '' ) ) {
-				return new \WP_REST_Response(
-					array(
-						'ok'      => false,
-						'code'    => 'usage_cap_reached',
-						'message' => (string) ( $result['answer'] ?? '' ),
-					),
-					429
-				);
+			$failure = $this->failure_response( (string) ( $result['status'] ?? '' ), (string) ( $result['answer'] ?? '' ) );
+			if ( null !== $failure ) {
+				return $failure;
 			}
 			if ( $this->conversation_logging_enabled() ) {
 				$stored                    = ( new \AISAAutoPilot\Chat\VisitorConversationStore() )->append_turn(
@@ -127,6 +121,36 @@ final class ChatWidgetController {
 				503
 			);
 		}
+	}
+
+	/**
+	 * A failure the engine reported, as a refusal: never shown, stored or counted as an answer.
+	 * The provider's own wording is for the site owner, so a visitor gets a neutral line.
+	 */
+	private function failure_response( string $status, string $answer ): ?\WP_REST_Response {
+		if ( 'usage_cap_reached' === $status ) {
+			return new \WP_REST_Response(
+				array(
+					'ok'      => false,
+					'code'    => 'usage_cap_reached',
+					'message' => $answer,
+				),
+				429
+			);
+		}
+		if ( in_array( $status, ChatEngine::FAILURE_STATUSES, true ) ) {
+			return new \WP_REST_Response(
+				array(
+					'ok'      => false,
+					// Asking again cannot help while no provider is set up, so the widget offers no retry.
+					'code'    => 'not_configured' === $status ? 'assistant_not_configured' : 'assistant_unavailable',
+					'message' => __( 'The assistant is temporarily unavailable. Please try again later.', 'ai-site-assistant-autopilot' ),
+				),
+				503
+			);
+		}
+
+		return null;
 	}
 
 	public function conversation( \WP_REST_Request $request ): \WP_REST_Response {

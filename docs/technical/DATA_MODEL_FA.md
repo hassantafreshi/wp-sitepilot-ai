@@ -81,6 +81,9 @@
 | `aisaautopilot_logs` | حداکثر 200 رویداد. نوشتن زیر قفل `GET_LOCK` است و متن از `Redactor` می‌گذرد. |
 | `aisaautopilot_health_diagnostics` | نتیجهٔ امن آخرین اجرای Health |
 | `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema` | نسخهٔ schema جدول‌های تازه، برای ساخت بدون فعال‌سازی دوباره |
+| `aisaautopilot_kb_schema` | نسخهٔ ستون‌های `{prefix}aisaautopilot_kb`. وقتی برابر نسخهٔ کد است، `KnowledgeBase::ensure_schema()` هیچ `SHOW TABLES` یا `SHOW COLUMNS` اجرا نمی‌کند؛ پیش‌تر هر پرسش بازدیدکننده چهار پرس‌وجوی schema داشت. |
+| `aisaautopilot_kb_index_format` | قالب ایندکس پاره‌ها (`schema\|نسخهٔ متن\|ContentIndexer::FORMAT`). نابرابری یعنی بازسازی پس‌زمینه لازم است. |
+| `aisaautopilot_kb_rebuild` | مکان‌نمای cron `aisaautopilot_kb_rebuild` تا پایان بازسازی؛ سپس حذف می‌شود. |
 | `aisaautopilot_rebrand_migrated` | نشانهٔ پایان مهاجرت نام |
 
 ## transientها
@@ -97,7 +100,9 @@
 
 | جدول | ستون‌ها | کاربرد |
 |---|---|---|
-| `{prefix}aisaautopilot_kb` | `id`، `post_id` (یکتا)، `post_type`، `title`، `summary`، `keywords`، `category`، `content_type`، `embedding` (LONGTEXT)، `embedding_model`، `content_hash`، `status`، `token_count`، `indexed_at`، `updated_at` | مدخل‌های دانش سایت. `KnowledgeBase::ensure_schema()` ستون‌های تازه را اضافه می‌کند. |
+| `{prefix}aisaautopilot_kb` | `id`، `post_id` (یکتا)، `post_type`، `title`، `summary`، `keywords`، `category`، `content_type`، `embedding` (LONGTEXT)، `embedding_model`، `content_hash`، `status`، `token_count`، `indexed_at`، `updated_at` | یک ردیف برای هر نوشته، برای صفحه‌های مدیریت و embedding. `KnowledgeBase::ensure_schema()` ستون‌های تازه را یک بار اضافه می‌کند. جست‌وجوی معنایی بردارها را ۲۰۰تایی و به ترتیب `id` می‌خواند (`vector_page()`)، و `/kb/list` ستون `embedding` را نمی‌فرستد. |
+| `{prefix}aisaautopilot_kb_chunks` | `id`، `post_id`، `ordinal`، `heading`، `content` (TEXT)، `token_count`؛ کلید `post_ordinal` | پاره‌های حدود ۹۰۰ نویسه‌ای هر نوشته (`KnowledgeIndex`). |
+| `{prefix}aisaautopilot_kb_terms` | `term` (VARBINARY(160))، `chunk_id`، `post_id`، `tf`؛ کلید اصلی (`term`, `chunk_id`) | فهرست وارونهٔ واژه‌ها برای BM25، با یکسان‌سازی `KnowledgeText`. |
 | `{prefix}aisaautopilot_chats` | `id`، `user_id`، `title`، `messages` (JSON)، `message_count`، `created_at`، `updated_at` | گفت‌وگوهای کنسول مدیر. هر خواندن و حذف به کاربر جاری محدود است. |
 | `{prefix}aisaautopilot_widget_chats` | `id`، `session_token` (یکتا)، `messages`، `message_count`، `created_at`، `updated_at` | فقط وقتی ثبت گفت‌وگوی ویجت روشن است. |
 | `{prefix}aisaautopilot_handoffs` | `id`، `status`، `visitor_name`، `visitor_email`، `visitor_phone`، `visitor_website`، `messages`، `created_at`، `updated_at`، `archived_at` (NULL تا بایگانی) | صندوق انتقال. وضعیت‌ها در `HandoffInbox::STATUSES`. schema نسخهٔ 2 از ۲۰۲۶-۰۹-۱۶؛ `ensure_schema()` ستون‌های تازه را با `dbDelta` روی جدول موجود اضافه می‌کند. |
@@ -121,17 +126,17 @@
 
 | دسته | موارد |
 |---|---|
-| جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats` و `{prefix}aisaautopilot_handoffs` (دو تای آخر دادهٔ بازدیدکننده دارند) |
+| جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_kb_chunks`، `{prefix}aisaautopilot_kb_terms`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats` و `{prefix}aisaautopilot_handoffs` (دو تای آخر دادهٔ بازدیدکننده دارند) |
 | تنظیمات و اسرار | `aisaautopilot_settings`، `aisaautopilot_provider_key`، `aisaautopilot_embedding_key`، `aisaautopilot_handoff_secrets`، `aisaautopilot_wp_connector_key`، `aisaautopilot_provider_verified` |
 | لاگ و مصرف | `aisaautopilot_logs`، `aisaautopilot_usage_log`، `aisaautopilot_usage_totals`، `aisaautopilot_monthly_budget`، `aisaautopilot_usage_period`، `aisaautopilot_usage_period_contexts`، `aisaautopilot_usage_daily`، `aisaautopilot_usage_historical_totals`، `aisaautopilot_usage_historical_log`، `aisaautopilot_usage_period_archive`، `aisaautopilot_voice_usage_log` |
-| دانش سایت | `aisaautopilot_kb_gaps`، `aisaautopilot_kb_saved_answers`، `aisaautopilot_kb_answer_cache`، `aisaautopilot_kb_version` |
-| سلامت و schema | `aisaautopilot_health_diagnostics`، `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema` |
+| دانش سایت | `aisaautopilot_kb_gaps`، `aisaautopilot_kb_saved_answers`، `aisaautopilot_kb_answer_cache`، `aisaautopilot_kb_version`، `aisaautopilot_kb_index_format`، `aisaautopilot_kb_rebuild` |
+| سلامت و schema | `aisaautopilot_health_diagnostics`، `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema`، `aisaautopilot_kb_schema` |
 | قدیمی | `aisaautopilot_setup_step` (مکان‌نمای ویزارد نسخه‌های پیشین) و `aisaautopilot_last_diagnostics` (مهر صفحهٔ Connections در 1.0.4) |
 | مهاجرت | `aisaautopilot_rebrand_migrated` — عمداً پاک می‌شود تا نصب دوباره در کنار ردیف‌های قدیمی، مهاجرت را دوباره اجرا کند |
 | قفل‌ها | هر `aisaautopilot_action_claim_*` با `DELETE ... LIKE` |
 | transientها | `_transient_aisaautopilot_%` و `_transient_timeout_aisaautopilot_%` با `DELETE ... LIKE` |
 | جاروی پایانی | هر ردیف باقی‌ماندهٔ `aisaautopilot_%` در جدول options |
-| cron | `wp_clear_scheduled_hook( 'aisaautopilot_index_post' )` |
+| cron | `wp_clear_scheduled_hook( 'aisaautopilot_index_post' )` و `wp_clear_scheduled_hook( 'aisaautopilot_kb_rebuild' )` |
 
 **چرا جاروی پایانی لازم است:** `RebrandMigrator::migrate_options()` هر option با پیشوند `sitepilot_` را با تغییر پیشوند به `aisaautopilot_` منتقل می‌کند و فهرست را از دیتابیس کشف می‌کند، نه از یک آرایهٔ ثابت. پس سایتی که از نام قدیمی ارتقا یافته می‌تواند ردیف‌های `aisaautopilot_*` داشته باشد که نام‌شان در این نسخه اصلاً اعلام نشده است و فهرست صریح به آن‌ها نمی‌رسد. پیشوند منجمد و مخصوص همین افزونه است، پس جارو به دادهٔ افزونهٔ دیگری نمی‌رسد.
 
