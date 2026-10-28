@@ -424,6 +424,14 @@ editable text; nothing is sent until you press Send.
   with the Conditional Logic add-on, plain-language explanations of existing
   rules, a form review that can add a missing consent checkbox in one click,
   and Undo for every AI change.
+* The copilot sits in a column beside the Easy Form Builder editor (a sheet on
+  phones) and opens with Ctrl+/ or the Ask AI button. Each change shows as a
+  card with its own Undo, the button counts unsaved AI changes until you click
+  Save, and without an AI service it explains the two-minute setup instead.
+* Form Studio is one workspace: describe the form in a chat or start from six
+  examples, see the plan field by field with a desktop and phone preview, ask
+  for changes in the same chat, then approve. A checklist shows what is
+  missing before the first form.
 * Twenty-three provider presets, including new xAI Grok, Cohere, Z.ai GLM,
   Moonshot Kimi, MiniMax, Cerebras, SambaNova, Together AI, Fireworks AI,
   Hugging Face and NVIDIA NIM presets, and refreshed model lists for every

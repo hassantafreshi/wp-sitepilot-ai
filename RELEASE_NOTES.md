@@ -117,11 +117,20 @@ simple-product draft.
 
 **Content Studio and Form Studio** — AI-drafted posts and pages with templates,
 history and CSV export; and forms described in text or voice, previewed field
-by field with a masked recipient, approved, then placed by shortcode.
+by field with a masked recipient, approved, then placed by shortcode. Form
+Studio is one full-height workspace: a chat beside a canvas that shows six
+example forms, then the plan's fields with a desktop and phone preview, then
+the created form. A follow-up message changes the current plan instead of
+starting over, and a checklist names what is missing (the Integrations switch,
+an AI service, the delivery email) before the first request.
 
-**Easy Form Builder Copilot** — an "Ask AI Site Assistant" chat button inside
-Easy Form Builder that creates and edits real EFB forms. Saving stays with EFB's own
-button, and the interface says so. Checked against EFB 4.3.1 and its add-ons
+**Easy Form Builder Copilot** — an assistant inside Easy Form Builder that
+creates and edits real EFB forms. It sits in a column beside the editor (a
+sheet on phones) and opens with Ctrl+/ (⌘+/ on a Mac), the Ask AI button, or
+"Ask AI about" next to a field picked on the canvas. Each change arrives as a
+card with its own Undo, and the button counts the AI changes not yet saved.
+Saving stays with EFB's own button, and the interface says so. Without an AI
+service the assistant shows the setup steps instead of failing. Checked against EFB 4.3.1 and its add-ons
 (T74):
 
 - *New form:* a preview before anything is written, with help text, a submit
@@ -250,6 +259,20 @@ bring-your-own-key defaults the administrator chooses, and the WordPress AI
 Client exists only from WordPress 7.0 while this plugin supports 6.2. Plugin
 Check 2.1.0 then reports no errors and no warnings.
 
+**Measured again on 2026-10-28**, after data retention, multisite and the
+redesigned copilot and Form Studio. Static: PHPUnit 216 tests / 1151
+assertions, PHPStan 0, PHPCS 0 errors and 0 warnings. Browser, on the same
+container site: EFB copilot matrix 107/0 in `en_US` and 107/0 in `fa_IR`,
+offline T74 check 65/0, logic end-to-end 8/0, Form Studio 43/0 (both
+languages), Advanced settings 18/0 and 20/0. The Persian translation covers
+all 2118 strings. Plugin Check 2.1.0 on the built ZIP, with **every check in
+all five categories** (General, Plugin Repo, Security, Performance,
+Accessibility), the experimental checks, low-severity errors and warnings, and
+the runtime checks (script and style size, scope, blocking and footer
+placement, run with the release copy active), reports **0 errors and 0
+warnings** in both `new` and default mode. No AI request was made for this
+pass.
+
 ## Known limitations in this release
 
 - The indexing queue keeps no persistent cursor: a pass lives only while the
@@ -276,8 +299,16 @@ Check 2.1.0 then reports no errors and no warnings.
 
 ### Plugin Check
 
-We run Plugin Check against the built ZIP, not the development folder. On
-Plugin Check **2.0.0** in `new` mode, all **27 static checks run** and the
+**Latest run, 2026-10-28:** Plugin Check **2.1.0** on the built ZIP, with all
+checks in all five categories, the experimental checks, low-severity findings
+and the runtime checks, reports **0 errors and 0 warnings**. The runtime checks
+register only when `plugin check` comes first on the WP-CLI command line, so
+the run used `wp plugin check ai-site-assistant-autopilot --require=…/plugin-check/cli.php
+--include-experimental --include-low-severity-errors --include-low-severity-warnings`
+with the release copy installed and active.
+
+The history below is kept for the record. We run Plugin Check against the built
+ZIP, not the development folder. On Plugin Check **2.0.0** in `new` mode, all **27 static checks run** and the
 result is **0 errors and 0 warnings**, with no check failing to run. The
 machine-readable report is in
 `test-artifacts/plugin-check/0.0.1-rebuild-20260921/plugin-check-0.0.1.json`,

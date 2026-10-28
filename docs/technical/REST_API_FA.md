@@ -14,6 +14,7 @@
   | 403 | قابلیت خاموش است، مثل `handoff_disabled` |
   | 404 | موجود نیست |
   | 429 | `rate_limited`، یا `usage_cap_reached` که پیام آن متن قابل‌نمایش سقف است |
+- **زبان پیام‌ها:** وردپرس `_locale=user` را فقط برای درخواست JSON می‌پذیرد. اسکریپت‌های مدیریت (دانش سایت، Answer Desk، تنظیمات، Copilot در EFB و Form Studio) آن را به نشانی می‌افزایند تا `message` و یادداشت‌های ساخته‌شده در سرور به زبان کاربر مدیر برگردند، نه زبان سایت.
 - **هیچ پاسخی کلید یا اسرار ندارد.** اسرار handoff و کلید provider فقط به شکل «ذخیره شده است» گزارش می‌شوند.
 
 ## مدل مجوز
@@ -71,6 +72,7 @@
 | `/usage/reset` | POST | `can_manage` | صفر کردن شمار دورهٔ جاری |
 | `/provider/test` | POST | `can_manage` | آزمون کوتاه اتصال با مقدارهای ذخیره‌نشدهٔ فرم |
 | `/provider/models` | POST | `can_manage` | فهرست مدل‌هایی که کلید اجازه دارد |
+| `/ai/status` | GET | `can_manage` | آمادگی دستیارها بدون فراخوانی provider: `configured`، `provider`، `model`، `form_studio` (کلید Integrations) و `recipient` (نشانی دریافت پاسخ فرم). Copilot در EFB و Form Studio پس از بازگشت از زبانهٔ راه‌اندازی آن را دوباره می‌خوانند. |
 | `/health/diagnostics` | POST | `can_manage` | اجرای تنها درخواست مجاز provider در Health و ذخیرهٔ نتیجهٔ امن |
 | `/activity` | GET | `can_manage` | خوراک فعالیت پاک‌سازی‌شده (`limit`، `level`، `search`) |
 
