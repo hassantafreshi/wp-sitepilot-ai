@@ -4633,6 +4633,22 @@ html[dir="rtl"] .sp-adv-readonly { font-size: 11.5px; font-weight: 700; letter-s
 .sp-adv-connector.is-warn .sp-adv-connector__head span { color: #7a600e; }
 .sp-app .sp-adv-connector p { margin: 3px 0 0; color: var(--sp-muted); font-size: 11.5px; line-height: 1.5; }
 .sp-adv-delivery { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+/* Data retention: days inputs, last-run status and the server cron instructions. */
+.sp-adv-retention__grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.sp-adv-days { display: inline-flex; align-items: center; gap: 8px; }
+.sp-app .sp-wz-field .sp-adv-days .sp-input { inline-size: 110px; width: 110px; max-width: 110px; }
+.sp-adv-days__unit { color: var(--sp-muted); font-size: 12.5px; }
+.sp-adv-retention__status { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: #fbfbfe; }
+.sp-app .sp-adv-retention__status p { margin: 0; color: #4d5075; font-size: 12.5px; line-height: 1.5; }
+.sp-app .sp-adv-retention__status .sp-wz-card__note { color: var(--sp-muted); }
+.sp-app [data-sp-retention-cron-off] { margin-top: 12px; }
+.sp-adv-cron { margin-top: 12px; border: 1.5px solid var(--sp-line); border-radius: 10px; background: #fff; }
+.sp-app .sp-adv-cron summary { padding: 11px 14px; color: var(--sp-primary); font-size: 13px; font-weight: 700; line-height: 1.4; cursor: pointer; }
+.sp-app .sp-adv-cron p { margin: 0 14px 10px; color: #4d5075; font-size: 12.5px; line-height: 1.6; }
+.sp-app .sp-adv-cron code { font-size: 12px; }
+.sp-adv-cron__cmd { display: flex; align-items: flex-start; gap: 8px; margin: 0 14px 12px; }
+.sp-app .sp-adv-cron__cmd pre { flex: 1; min-width: 0; margin: 0; padding: 9px 11px; overflow-x: auto; border-radius: 8px; background: #14152b; color: #e8eaf8; font-size: 12px; line-height: 1.5; text-align: left; white-space: pre; }
+.sp-app .sp-adv-cron__cmd pre code { background: transparent; color: inherit; padding: 0; }
 
 @media screen and (max-width: 960px) {
 	.sp-adv { grid-template-columns: minmax(0, 1fr); }

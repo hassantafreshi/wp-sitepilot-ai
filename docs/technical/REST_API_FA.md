@@ -108,6 +108,7 @@
 | `/forms/execute` | POST | `can_manage_form_composer` | تأیید و اجرای پیشنهاد: claim اتمی، اعتبارسنجی دوباره، connector و لاگ |
 | `/forms/voice/transcribe` | POST | `can_manage_form_composer` | تبدیل گفتار Form Composer |
 | `/forms/delivery/test` | POST | `can_manage` | ایمیل آزمون به نشانی ذخیره‌شدهٔ دریافت پاسخ فرم |
+| `/privacy/retention/run` | POST | `can_manage` | اجرای فوری پاک‌سازی نگهداری با مدت‌های ذخیره‌شده؛ پاسخ `{ok, code, message, last_run}` |
 | `/efb/chat` | POST | `can_manage_efb_copilot` | هماهنگ‌کنندهٔ گفت‌وگوی Copilot در ویرایشگر EFB |
 | `/efb/help` | POST | `can_manage_efb_copilot` | پاسخ «چطور…» از دانش گردآوری‌شدهٔ EFB |
 | `/efb/plan` | POST | `can_manage_efb_copilot` | plan فرم برای EFB |

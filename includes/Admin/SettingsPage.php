@@ -9,6 +9,7 @@ use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Core\WpConnectors;
 use AISAAutoPilot\Providers\ProviderManager;
+use AISAAutoPilot\Support\Retention;
 use AISAAutoPilot\Usage\UsageTracker;
 
 /**
@@ -192,30 +193,46 @@ final class SettingsPage {
 			wp_die( esc_html__( 'You do not have permission to view this page.', 'ai-site-assistant-autopilot' ) );
 		}
 
-		$saved       = $this->maybe_save();
-		$s           = Settings::all();
-		$kb          = new KnowledgeBase();
-		$embedded    = $kb->table_exists() ? $kb->count_with_embeddings() : 0;
-		$kb_total    = $kb->table_exists() ? (int) ( $kb->get_stats()['total'] ?? 0 ) : 0;
-		$has_emb_key = Settings::has_embedding_key();
-		$presets     = Settings::presets();
-		$provider    = isset( $presets[ $s['provider'] ] ) ? (string) $s['provider'] : 'custom';
-		$preset      = Settings::preset( $provider );
-		$embeddings  = (array) ( $preset['embeddings'] ?? array() );
-		$efb_health  = ( new EasyFormBuilderConnector() )->get_health();
-		$efb_ready   = ! empty( $efb_health['available'] );
-		$configured  = ( new ProviderManager() )->is_configured();
-		$endpoint    = (string) wp_parse_url( (string) $s['base_url'], PHP_URL_HOST );
-		$emb_on      = ! empty( $s['embeddings_enabled'] );
-		$no_embeds   = array() === $embeddings && '' === trim( (string) ( $s['embedding_base_url'] ?? '' ) );
-		$setup_url   = admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP );
-		$kb_url      = admin_url( 'admin.php?page=' . AdminMenu::SLUG_KB );
-		$sections    = array(
+		$saved            = $this->maybe_save();
+		$s                = Settings::all();
+		$kb               = new KnowledgeBase();
+		$embedded         = $kb->table_exists() ? $kb->count_with_embeddings() : 0;
+		$kb_total         = $kb->table_exists() ? (int) ( $kb->get_stats()['total'] ?? 0 ) : 0;
+		$has_emb_key      = Settings::has_embedding_key();
+		$presets          = Settings::presets();
+		$provider         = isset( $presets[ $s['provider'] ] ) ? (string) $s['provider'] : 'custom';
+		$preset           = Settings::preset( $provider );
+		$embeddings       = (array) ( $preset['embeddings'] ?? array() );
+		$efb_health       = ( new EasyFormBuilderConnector() )->get_health();
+		$efb_ready        = ! empty( $efb_health['available'] );
+		$configured       = ( new ProviderManager() )->is_configured();
+		$endpoint         = (string) wp_parse_url( (string) $s['base_url'], PHP_URL_HOST );
+		$emb_on           = ! empty( $s['embeddings_enabled'] );
+		$no_embeds        = array() === $embeddings && '' === trim( (string) ( $s['embedding_base_url'] ?? '' ) );
+		$setup_url        = admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP );
+		$kb_url           = admin_url( 'admin.php?page=' . AdminMenu::SLUG_KB );
+		$sections         = array(
 			'sp-adv-connection' => __( 'Connection', 'ai-site-assistant-autopilot' ),
 			'sp-adv-search'     => __( 'Semantic search', 'ai-site-assistant-autopilot' ),
 			'sp-adv-voice'      => __( 'Voice', 'ai-site-assistant-autopilot' ),
 			'sp-adv-forms'      => __( 'Forms and delivery', 'ai-site-assistant-autopilot' ),
 			'sp-adv-public'     => __( 'Public site assistant', 'ai-site-assistant-autopilot' ),
+			'sp-adv-retention'  => __( 'Data retention', 'ai-site-assistant-autopilot' ),
+		);
+		$retention        = Retention::periods();
+		$retention_fields = array(
+			'conversations_days' => array(
+				'label' => __( 'Recorded visitor conversations', 'ai-site-assistant-autopilot' ),
+				'help'  => __( 'Counted from the last message. Conversations are only recorded when recording is on in Answer Desk.', 'ai-site-assistant-autopilot' ),
+			),
+			'handoffs_days'      => array(
+				'label' => __( 'Requests to talk to a person', 'ai-site-assistant-autopilot' ),
+				'help'  => __( 'Counted from the last change, with the contact details the visitor left.', 'ai-site-assistant-autopilot' ),
+			),
+			'questions_days'     => array(
+				'label' => __( 'Unanswered questions', 'ai-site-assistant-autopilot' ),
+				'help'  => __( 'Counted from the last time someone asked. Cached answers older than this go too.', 'ai-site-assistant-autopilot' ),
+			),
 		);
 
 		Ui::grad_defs();
@@ -439,6 +456,73 @@ final class SettingsPage {
 							</div>
 						</section>
 
+						<section class="sp-wz-card" id="sp-adv-retention" aria-labelledby="sp-adv-retention-title" data-sp-retention>
+							<h2 class="sp-wz-card__title" id="sp-adv-retention-title"><?php esc_html_e( 'Data retention', 'ai-site-assistant-autopilot' ); ?></h2>
+							<p class="sp-adv-lead"><?php esc_html_e( 'Visitor data older than these periods is deleted once a day. Enter 0 to keep it until you delete it yourself.', 'ai-site-assistant-autopilot' ); ?></p>
+							<div class="sp-wz-card__grid sp-adv-retention__grid">
+								<?php foreach ( $retention_fields as $retention_key => $retention_field ) : ?>
+									<label class="sp-wz-field">
+										<span class="sp-wz-field__label"><?php echo esc_html( $retention_field['label'] ); ?></span>
+										<span class="sp-adv-days">
+											<input type="number" name="retention_<?php echo esc_attr( $retention_key ); ?>" class="sp-input sp-input--sm" dir="ltr" min="0" max="<?php echo esc_attr( (string) Retention::MAX_DAYS ); ?>" step="1" inputmode="numeric" value="<?php echo esc_attr( (string) $retention[ $retention_key ] ); ?>" aria-describedby="sp-adv-retention-<?php echo esc_attr( $retention_key ); ?>-help" />
+											<span class="sp-adv-days__unit"><?php esc_html_e( 'days', 'ai-site-assistant-autopilot' ); ?></span>
+										</span>
+										<span class="sp-wz-field__help" id="sp-adv-retention-<?php echo esc_attr( $retention_key ); ?>-help">
+										<?php
+										echo esc_html(
+											$retention_field['help'] . ' ' . sprintf(
+												/* translators: %s: number of days. */
+												__( 'Default: %s.', 'ai-site-assistant-autopilot' ),
+												number_format_i18n( Retention::DEFAULTS[ $retention_key ] )
+											)
+										);
+										?>
+										</span>
+									</label>
+								<?php endforeach; ?>
+							</div>
+							<div class="sp-adv-retention__status">
+								<p data-sp-retention-summary role="status" aria-live="polite"><?php echo esc_html( Retention::summary( Retention::last_run() ) ); ?></p>
+								<p>
+								<?php
+								$next_cleanup = Retention::next_run();
+								echo esc_html(
+									$next_cleanup > 0
+										? sprintf(
+											/* translators: %s: date and time. */
+											__( 'Next cleanup: %s, or later if nobody visits the site then.', 'ai-site-assistant-autopilot' ),
+											wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $next_cleanup )
+										)
+										: __( 'The daily cleanup is not queued yet; WordPress queues it on the next page load.', 'ai-site-assistant-autopilot' )
+								);
+								?>
+								</p>
+								<div class="sp-adv-delivery">
+									<button type="button" class="sp-btn sp-btn--ghost sp-btn--r8" data-sp-retention-run><?php esc_html_e( 'Delete expired data now', 'ai-site-assistant-autopilot' ); ?></button>
+									<span class="sp-status-text" data-sp-retention-result role="status" aria-live="polite"></span>
+								</div>
+								<p class="sp-wz-card__note"><?php esc_html_e( 'Uses the saved periods. Save first if you changed them.', 'ai-site-assistant-autopilot' ); ?></p>
+							</div>
+							<?php if ( Retention::wp_cron_disabled() ) : ?>
+								<p class="sp-adv-notice" data-sp-retention-cron-off><?php esc_html_e( 'WordPress’s own scheduler is turned off on this site (DISABLE_WP_CRON in wp-config.php). The cleanup only runs if a server cron job calls WordPress, as shown below, or when you click the button above.', 'ai-site-assistant-autopilot' ); ?></p>
+							<?php endif; ?>
+							<details class="sp-adv-cron"<?php echo Retention::wp_cron_disabled() ? ' open' : ''; ?>>
+								<summary><?php esc_html_e( 'Run it on time with a server cron job', 'ai-site-assistant-autopilot' ); ?></summary>
+								<p><?php esc_html_e( 'WordPress starts scheduled jobs only when someone visits the site, so on a quiet site the cleanup can run late. To run it on time, add a cron job on your server. In cPanel it is under Advanced › Cron Jobs; in Plesk under Tools & Settings › Scheduled Tasks. Choose every 15 minutes and paste this command:', 'ai-site-assistant-autopilot' ); ?></p>
+								<div class="sp-adv-cron__cmd">
+									<pre dir="ltr"><code data-sp-copy-source><?php echo esc_html( '*/15 * * * * wget -q -O - "' . site_url( 'wp-cron.php?doing_wp_cron' ) . '" >/dev/null 2>&1' ); ?></code></pre>
+									<button type="button" class="sp-btn sp-btn--ghost sp-btn--sm" data-sp-copy><?php esc_html_e( 'Copy', 'ai-site-assistant-autopilot' ); ?></button>
+								</div>
+								<p><?php esc_html_e( 'If your host has WP-CLI, this does the same without a web request:', 'ai-site-assistant-autopilot' ); ?></p>
+								<div class="sp-adv-cron__cmd">
+									<pre dir="ltr"><code data-sp-copy-source><?php echo esc_html( '*/15 * * * * wp cron event run --due-now --path=' . untrailingslashit( ABSPATH ) . ' >/dev/null 2>&1' ); ?></code></pre>
+									<button type="button" class="sp-btn sp-btn--ghost sp-btn--sm" data-sp-copy><?php esc_html_e( 'Copy', 'ai-site-assistant-autopilot' ); ?></button>
+								</div>
+								<p><?php esc_html_e( 'When the server job works, you can add this line to wp-config.php so visits stop starting the scheduler:', 'ai-site-assistant-autopilot' ); ?> <code dir="ltr">define( 'DISABLE_WP_CRON', true );</code></p>
+								<p><?php esc_html_e( 'The command only starts WordPress’s scheduler. It runs this cleanup once a day and any other job that is due; it changes nothing else.', 'ai-site-assistant-autopilot' ); ?></p>
+							</details>
+						</section>
+
 						<div class="sp-wz-actions">
 							<button type="submit" class="sp-btn sp-btn--r8"><?php esc_html_e( 'Save changes', 'ai-site-assistant-autopilot' ); ?></button>
 						</div>
@@ -461,9 +545,12 @@ final class SettingsPage {
 		Ui::json_script(
 			'sp-adv-i18n',
 			array(
-				'discardTitle' => __( 'Discard your changes?', 'ai-site-assistant-autopilot' ),
-				'discardBody'  => __( 'Advanced settings go back to their last saved values.', 'ai-site-assistant-autopilot' ),
-				'discardCta'   => __( 'Discard changes', 'ai-site-assistant-autopilot' ),
+				'discardTitle'     => __( 'Discard your changes?', 'ai-site-assistant-autopilot' ),
+				'discardBody'      => __( 'Advanced settings go back to their last saved values.', 'ai-site-assistant-autopilot' ),
+				'discardCta'       => __( 'Discard changes', 'ai-site-assistant-autopilot' ),
+				'retentionRunning' => __( 'Deleting expired data…', 'ai-site-assistant-autopilot' ),
+				'retentionDone'    => __( 'Done.', 'ai-site-assistant-autopilot' ),
+				'copied'           => __( 'Copied', 'ai-site-assistant-autopilot' ),
 			)
 		);
 	}
@@ -1283,6 +1370,13 @@ final class SettingsPage {
 		if ( array_key_exists( 'form_notification_email', $_POST ) ) {
 			$email                             = sanitize_email( (string) wp_unslash( $_POST['form_notification_email'] ) );
 			$update['form_notification_email'] = is_email( $email ) ? $email : '';
+		}
+		if ( array_key_exists( 'retention_conversations_days', $_POST ) ) {
+			$retention = array();
+			foreach ( array_keys( Retention::DEFAULTS ) as $retention_key ) {
+				$retention[ $retention_key ] = Retention::days( wp_unslash( $_POST[ 'retention_' . $retention_key ] ?? Retention::DEFAULTS[ $retention_key ] ) );
+			}
+			$update['retention'] = $retention;
 		}
 		if ( array() !== $update ) {
 			Settings::update( $update );

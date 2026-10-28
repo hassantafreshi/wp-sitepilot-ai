@@ -15,6 +15,7 @@ use AISAAutoPilot\Frontend\FormShortcode;
 use AISAAutoPilot\Admin\LogExport;
 use AISAAutoPilot\Admin\ContentStudioHistoryExport;
 use AISAAutoPilot\Support\PrivacyTools;
+use AISAAutoPilot\Support\Retention;
 use AISAAutoPilot\Support\HandoffInbox;
 use AISAAutoPilot\Chat\VisitorConversationStore;
 
@@ -56,6 +57,8 @@ final class Plugin {
 		( new ContentStudioHistoryExport() )->register();
 		// Tools > Export / Erase Personal Data, and the suggested privacy-policy text.
 		( new PrivacyTools() )->register();
+		// Daily deletion of visitor data older than the periods set in Advanced settings.
+		( new Retention() )->register();
 		( new Network() )->register();
 
 		/*

@@ -209,6 +209,8 @@
 - [ ] **7.11 (محیط واقعی)** کانال ایمیل، تلگرام یا Twilio را پیکربندی کنید و یک تست بفرستید.
 - [ ] **7.10b** با یک درخواست انسان که ایمیل `privacy@example.test` دارد، **Tools → Export Personal Data** و سپس **Erase Personal Data** را برای همان ایمیل اجرا کنید؛ در **Settings → Privacy → Policy Guide** بخش «AI Site Assistant AutoPilot» را ببینید.
   **Expected:** فایل خروجی بخش «Requests to talk to a person» با نام، ایمیل، موبایل و متن گفت‌وگو دارد؛ پس از حذف، آن درخواست در inbox نیست و درخواست‌های دیگران می‌مانند؛ متن پیشنهادی سیاست حریم خصوصی می‌گوید چه چیزی به سرویس AI می‌رود و چه چیزی نگه داشته می‌شود.
+- [ ] **7.10c** **Setup & Connection → Advanced settings → Data retention** را باز کنید.
+  **Expected:** سه عدد پیش‌فرض ۳۰، ۱۸۰ و ۹۰ روز؛ «Delete expired data now» زمان آخرین اجرا و شمار حذف‌شده‌ها را نشان می‌دهد؛ بخش «Run it on time with a server cron job» نشانی `wp-cron.php` همین سایت و فرمان WP-CLI را با دکمهٔ Copy دارد. اگر `DISABLE_WP_CRON` در `wp-config.php` باشد، هشدار زرد می‌آید و همان بخش باز است. یک عدد را ۰ کنید و ذخیره کنید؛ پس از بارگذاری دوباره همان ۰ می‌ماند. **(محیط واقعی)** فرمان cron را در cPanel یا Plesk بگذارید و فردا ببینید «Last cleanup» به‌روز شده است.
 - [ ] **7.11b (محیط واقعی)** **WhatsApp Business:** در Meta یک قالب Utility با یک متغیر `{{1}}` بسازید و تأیید بگیرید. سپس توکن دائمی کاربر سیستمی، Phone number ID، شمارهٔ گیرنده و نام قالب را وارد کنید، «Check connection» بزنید و از ویجت یک درخواست انسان بفرستید.
   **Expected:** بررسی، نام کسب‌وکار را نشان می‌دهد و چیزی نمی‌فرستد؛ درخواست با همان قالب به واتس‌اپ گیرنده می‌رسد. بدون قالب، اگر گیرنده در ۲۴ ساعت گذشته به شمارهٔ کسب‌وکار پیام نداده باشد، inbox «delivery failed» و لاگ توضیح ۲۴ ساعت را نشان می‌دهد.
 - [ ] **7.11c (محیط واقعی)** **Slack:** «Add another channel → Slack»، یک incoming webhook بچسبانید، «Check connection» و یک درخواست انسان.
@@ -361,9 +363,9 @@
   | چه چیزی | جزئیات |
   |---|---|
   | جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_kb_chunks`، `{prefix}aisaautopilot_kb_terms`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats`، `{prefix}aisaautopilot_handoffs` |
-  | optionها | ۳۱ option نام‌دار `aisaautopilot_*` (تنظیمات، کلیدهای رمزشده، اسرار انتقال، لاگ، مصرف و سقف، پرسش‌های بی‌پاسخ و پاسخ‌های ذخیره‌شده، قالب ایندکس و مکان‌نمای بازسازی آن، مهر schema، نشان راه‌اندازی سایت، نشان مهاجرت)، هر قفل `aisaautopilot_action_claim_*`، و در پایان جاروی هر ردیف باقی‌ماندهٔ `aisaautopilot_*` |
+  | optionها | ۳۲ option نام‌دار `aisaautopilot_*` (تنظیمات، کلیدهای رمزشده، اسرار انتقال، لاگ، مصرف و سقف، پرسش‌های بی‌پاسخ و پاسخ‌های ذخیره‌شده، قالب ایندکس و مکان‌نمای بازسازی آن، مهر schema، نشان راه‌اندازی سایت، آخرین پاک‌سازی نگهداری، نشان مهاجرت)، هر قفل `aisaautopilot_action_claim_*`، و در پایان جاروی هر ردیف باقی‌ماندهٔ `aisaautopilot_*` |
   | transientها | شمارنده‌های محدودیت نرخ، پیش‌نمایش ۱۵ دقیقه‌ای، رکورد آزمون provider و فاصلهٔ آزمون تحویل، با پیشوند `_transient_aisaautopilot_*` |
-  | cron | `aisaautopilot_index_post` (همهٔ برگه‌های در صف) و `aisaautopilot_kb_rebuild` از زمان‌بندی درمی‌آیند |
+  | cron | `aisaautopilot_index_post` (همهٔ برگه‌های در صف)، `aisaautopilot_kb_rebuild` و `aisaautopilot_retention_cleanup` روزانه از زمان‌بندی درمی‌آیند |
 
   **باید عمداً مانده باشد:**
 

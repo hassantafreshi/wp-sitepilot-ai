@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace AISAAutoPilot\Core;
 use AISAAutoPilot\Security\KeyVault;
+use AISAAutoPilot\Support\Retention;
 
 final class Settings {
 	public const OPTION                = 'aisaautopilot_settings';
@@ -459,6 +460,8 @@ final class Settings {
 			// Empty means the site's Administration Email Address is used. This
 			// recipient is server-owned and is never accepted from an AI prompt.
 			'form_notification_email'  => '',
+			// Days visitor data is kept (0 = until deleted by hand); see Support\Retention.
+			'retention'                => Retention::DEFAULTS,
 			// Phase 1 WooCommerce contract: one reviewed simple-product draft.
 			'woocommerce'              => array(
 				'enabled'       => true,

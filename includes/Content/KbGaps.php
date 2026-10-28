@@ -81,6 +81,28 @@ final class KbGaps {
 	}
 
 	/**
+	 * Removes questions not asked since $before (a Unix time), whatever their status; an entry
+	 * without a readable date goes too. Returns how many were removed. Used by Retention.
+	 */
+	public function forget_before( int $before ): int {
+		$removed = 0;
+		OptionLock::mutate(
+			self::OPTION,
+			static function ( array $gaps ) use ( $before, &$removed ): array {
+				foreach ( $gaps as $key => $gap ) {
+					$seen = is_array( $gap ) ? strtotime( self::normalize_entry( $gap )['last_seen'] ) : false;
+					if ( false === $seen || $seen < $before ) {
+						unset( $gaps[ $key ] );
+						++$removed;
+					}
+				}
+				return $gaps;
+			}
+		);
+		return $removed;
+	}
+
+	/**
 	 * All logged gaps, keyed by hash, in the current shape (older entries are read with defaults).
 	 *
 	 * @return array<string, array{question:string,language:string,count:int,first_seen:string,last_seen:string,status:string,reason:string,draft_post_id:int}>

@@ -68,8 +68,8 @@ try {
 	$check(
 		false !== strpos( $html, 'data-sp-advanced-form' )
 		&& false !== strpos( $html, 'name="advanced_settings" value="1"' )
-		&& 5 === substr_count( $html, 'href="#sp-adv-' ),
-		'Advanced settings render the scoped form and its five-section page navigation'
+		&& 6 === substr_count( $html, 'href="#sp-adv-' ),
+		'Advanced settings render the scoped form and its six-section page navigation'
 	);
 	$check(
 		false !== strpos( $html, 'sp-form-notification-email' ) && false !== strpos( $html, 'sp-test-form-delivery' ),

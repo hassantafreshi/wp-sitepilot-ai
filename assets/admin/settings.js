@@ -373,6 +373,43 @@
 
 		initRadioCards();
 		initAdvanced();
+		initRetention();
+	}
+
+	/* ── Advanced settings: data retention ── */
+
+	function initRetention() {
+		var card = document.querySelector( '[data-sp-retention]' );
+		if ( ! card ) { return; }
+		var A = readJson( 'sp-adv-i18n' );
+		var run = card.querySelector( '[data-sp-retention-run]' );
+		var result = card.querySelector( '[data-sp-retention-result]' );
+		var summary = card.querySelector( '[data-sp-retention-summary]' );
+
+		if ( run ) {
+			run.addEventListener( 'click', function () {
+				run.disabled = true;
+				status( result, A.retentionRunning || 'Deleting expired data…' );
+				post( 'privacy/retention/run?_locale=user', {} ).then( function ( data ) {
+					if ( summary && data && data.message ) { summary.textContent = data.message; }
+					status( result, A.retentionDone || 'Done.', 'ok' );
+				} ).catch( function ( e ) {
+					status( result, ( e && e.data && e.data.message ) || ( e && e.message ) || t( 'networkError', 'Network error.' ), 'err' );
+				} ).then( function () { run.disabled = false; } );
+			} );
+		}
+
+		Array.prototype.forEach.call( card.querySelectorAll( '[data-sp-copy]' ), function ( button ) {
+			button.addEventListener( 'click', function () {
+				var source = button.parentNode.querySelector( '[data-sp-copy-source]' );
+				if ( ! source || ! navigator.clipboard ) { return; }
+				navigator.clipboard.writeText( source.textContent ).then( function () {
+					var label = button.textContent;
+					button.textContent = A.copied || 'Copied';
+					window.setTimeout( function () { button.textContent = label; }, 1600 );
+				} );
+			} );
+		} );
 	}
 
 	/* ── Advanced settings: unsaved changes and section navigation ── */

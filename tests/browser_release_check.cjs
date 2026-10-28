@@ -3431,7 +3431,7 @@ async function advancedSettingsHealthy( page ) {
 
 		check( 0 === pluginRequests.length && await savebar.isHidden(), 'Advanced settings open without REST requests and without an unsaved-changes bar' );
 		check(
-			5 === await page.locator( '.sp-adv__nav a[href^="#sp-adv-"]' ).count()
+			6 === await page.locator( '.sp-adv__nav a[href^="#sp-adv-"]' ).count()
 			&& 0 === await form.locator( '[name="provider"], [name="api_key"], [name="base_url"], [name="model"], [name="key_management"], [name="temperature"]' ).count()
 			&& 0 === await page.locator( '#sp-adv-connection input, #sp-adv-connection select' ).count()
 			&& 1 === await page.locator( '#sp-adv-connection a[href*="page=aisaautopilot-setup"]' ).count(),
@@ -3448,6 +3448,24 @@ async function advancedSettingsHealthy( page ) {
 			&& ( await page.locator( '#sp-form-delivery-test-result' ).innerText() ).includes( 'browser QA stub' )
 			&& await savebar.isHidden(),
 			'The delivery test uses the nonce-protected route (stubbed, no mail) and is not an unsaved change'
+		);
+
+		// Data retention: the real route, which on this site only finds rows older than the saved periods.
+		const retentionCard = page.locator( '#sp-adv-retention' );
+		const retentionResponse = page.waitForResponse( ( response ) => response.url().includes( '/privacy/retention/run' ) );
+		await retentionCard.locator( '[data-sp-retention-run]' ).click();
+		const retained = await retentionResponse;
+		await page.waitForFunction( () => /is-(ok|err)/.test( document.querySelector( '[data-sp-retention-result]' ).className ) );
+		check(
+			200 === retained.status()
+			&& !! retained.request().headers()[ 'x-wp-nonce' ]
+			&& 3 === await retentionCard.locator( 'input[type="number"][name^="retention_"]' ).count()
+			&& /is-ok/.test( await retentionCard.locator( '[data-sp-retention-result]' ).getAttribute( 'class' ) )
+			&& ( await retentionCard.locator( '[data-sp-retention-summary]' ).innerText() ).trim().length > 0
+			&& 2 === await retentionCard.locator( '.sp-adv-cron [data-sp-copy-source]' ).count()
+			&& ( await retentionCard.locator( '.sp-adv-cron [data-sp-copy-source]' ).first().textContent() ).includes( 'wp-cron.php?doing_wp_cron' )
+			&& await savebar.isHidden(),
+			'Data retention shows three periods, runs the cleanup on its nonce-protected route, explains a server cron job, and is not an unsaved change'
 		);
 
 		const search = form.locator( '#sp-adv-embeddings' );

@@ -42,6 +42,7 @@
 - **بازبینی پیش‌فرض‌ها:** `defaults_revision` (عدد صحیح، اکنون 2). `Settings::migrate_widget_defaults()` در boot فقط وقتی این نشان کمتر از 2 است مقدارهای قدیمیِ انتخاب‌نشده را جابه‌جا می‌کند: `auto_open` 5 به 0، `window_width` 380 به 392 و `window_height` 550 به 624. option تازه‌ای نمی‌سازد؛ حذف در uninstall همراه خود `aisaautopilot_settings` است.
 - **ثبت گفت‌وگو:** `conversation_logging_enabled`، `conversation_notice`
 - **انتقال به انسان:** `handoff_enabled`، `handoff_text`، `handoff_hook`، `handoff_email_*`، `handoff_telegram_*`، `handoff_twilio_*`، `handoff_whatsapp_*` (`enabled`، `phone_id`، `to`، `template`، `language` با پیش‌فرض `en_US`)، `handoff_slack_enabled`، `handoff_signal_*` (`enabled`، `url`، `from`، `to`)، `handoff_fields` (کلیدهای `name`، `email`، `phone`، `website` با مقدار `off`، `optional` یا `required`؛ پیش‌فرض همه `off`)
+- **مهلت نگهداری:** `retention` با `conversations_days` (۳۰)، `handoffs_days` (۱۸۰) و `questions_days` (۹۰)؛ هر کدام ۰ تا ۳٬۶۵۰ و ۰ یعنی نگه‌داشتن. `Retention::periods()` کلید غایب را با پیش‌فرض پر می‌کند؛ فقط فرم Advanced settings آن را می‌نویسد.
 - **کلیدهای بازنشسته (F-12، ۲۰۲۶-۰۹-۱۸):** دوازده کلید از طرح نخست ویجت در `Settings::WIDGET_RETIRED_DEFAULTS` جمع شده‌اند. هیچ کدی آن‌ها را نمی‌خواند و هیچ فرمی نمی‌نویسد؛ فقط چون `Settings::update()` روی هر سایتی که یک‌بار ذخیره کرده آن‌ها را نوشته است، در پیش‌فرض‌ها می‌مانند و با خود `aisaautopilot_settings` در uninstall حذف می‌شوند. به آن‌ها سیم‌کشی نشود: شش تای اول کار یک کنترل زنده را تکرار می‌کنند و دو کنترل برای یک کار مدیر را گیج می‌کند.
 
   | کلید بازنشسته | کنترل زنده‌ای که همین کار را می‌کند |
@@ -84,6 +85,7 @@
 | `aisaautopilot_kb_schema` | نسخهٔ ستون‌های `{prefix}aisaautopilot_kb`. وقتی برابر نسخهٔ کد است، `KnowledgeBase::ensure_schema()` هیچ `SHOW TABLES` یا `SHOW COLUMNS` اجرا نمی‌کند؛ پیش‌تر هر پرسش بازدیدکننده چهار پرس‌وجوی schema داشت. |
 | `aisaautopilot_kb_index_format` | قالب ایندکس پاره‌ها (`schema\|نسخهٔ متن\|ContentIndexer::FORMAT`). نابرابری یعنی بازسازی پس‌زمینه لازم است. |
 | `aisaautopilot_kb_rebuild` | مکان‌نمای cron `aisaautopilot_kb_rebuild` تا پایان بازسازی؛ سپس حذف می‌شود. |
+| `aisaautopilot_retention_last_run` | آخرین اجرای پاک‌سازی نگهداری (`Retention::LAST_RUN_OPTION`): `time`، شمار حذف‌شدهٔ `conversations`، `handoffs` و `questions`، و `complete` (false یعنی دسته‌ها به سقف رسید و بقیه در اجرای بعد). |
 | `aisaautopilot_site_setup` | نشان راه‌اندازی این سایت (`Activator::SITE_OPTION`، autoload): جدول‌ها و تنظیمات پیش‌فرض ساخته شده‌اند. `Activator::maybe_setup_site()` در `init` اگر آن را نبیند `setup_site()` را اجرا می‌کند؛ این راه سایت تازهٔ شبکه و سایت‌های شبکهٔ بزرگ است. |
 | `aisaautopilot_rebrand_migrated` | نشانهٔ پایان مهاجرت نام |
 
@@ -131,13 +133,13 @@
 | تنظیمات و اسرار | `aisaautopilot_settings`، `aisaautopilot_provider_key`، `aisaautopilot_embedding_key`، `aisaautopilot_handoff_secrets`، `aisaautopilot_wp_connector_key`، `aisaautopilot_provider_verified` |
 | لاگ و مصرف | `aisaautopilot_logs`، `aisaautopilot_usage_log`، `aisaautopilot_usage_totals`، `aisaautopilot_monthly_budget`، `aisaautopilot_usage_period`، `aisaautopilot_usage_period_contexts`، `aisaautopilot_usage_daily`، `aisaautopilot_usage_historical_totals`، `aisaautopilot_usage_historical_log`، `aisaautopilot_usage_period_archive`، `aisaautopilot_voice_usage_log` |
 | دانش سایت | `aisaautopilot_kb_gaps`، `aisaautopilot_kb_saved_answers`، `aisaautopilot_kb_answer_cache`، `aisaautopilot_kb_version`، `aisaautopilot_kb_index_format`، `aisaautopilot_kb_rebuild` |
-| سلامت و schema | `aisaautopilot_health_diagnostics`، `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema`، `aisaautopilot_kb_schema`، `aisaautopilot_site_setup` |
+| سلامت و schema | `aisaautopilot_health_diagnostics`، `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema`، `aisaautopilot_kb_schema`، `aisaautopilot_site_setup`، `aisaautopilot_retention_last_run` |
 | قدیمی | `aisaautopilot_setup_step` (مکان‌نمای ویزارد نسخه‌های پیشین) و `aisaautopilot_last_diagnostics` (مهر صفحهٔ Connections در 1.0.4) |
 | مهاجرت | `aisaautopilot_rebrand_migrated` — عمداً پاک می‌شود تا نصب دوباره در کنار ردیف‌های قدیمی، مهاجرت را دوباره اجرا کند |
 | قفل‌ها | هر `aisaautopilot_action_claim_*` با `DELETE ... LIKE` |
 | transientها | `_transient_aisaautopilot_%` و `_transient_timeout_aisaautopilot_%` با `DELETE ... LIKE` |
 | جاروی پایانی | هر ردیف باقی‌ماندهٔ `aisaautopilot_%` در جدول options |
-| cron | `wp_unschedule_hook()` برای `aisaautopilot_index_post` و `aisaautopilot_kb_rebuild`. `wp_clear_scheduled_hook()` فقط رویدادهای بی‌آرگومان را برمی‌داشت و رویداد هر برگه (با شناسهٔ نوشته) می‌ماند. |
+| cron | `wp_unschedule_hook()` برای `aisaautopilot_index_post`، `aisaautopilot_kb_rebuild` و `aisaautopilot_retention_cleanup` (غیرفعال کردن هم این آخری را برمی‌دارد). `wp_clear_scheduled_hook()` فقط رویدادهای بی‌آرگومان را برمی‌داشت و رویداد هر برگه (با شناسهٔ نوشته) می‌ماند. |
 
 **چرا جاروی پایانی لازم است:** `RebrandMigrator::migrate_options()` هر option با پیشوند `sitepilot_` را با تغییر پیشوند به `aisaautopilot_` منتقل می‌کند و فهرست را از دیتابیس کشف می‌کند، نه از یک آرایهٔ ثابت. پس سایتی که از نام قدیمی ارتقا یافته می‌تواند ردیف‌های `aisaautopilot_*` داشته باشد که نام‌شان در این نسخه اصلاً اعلام نشده است و فهرست صریح به آن‌ها نمی‌رسد. پیشوند منجمد و مخصوص همین افزونه است، پس جارو به دادهٔ افزونهٔ دیگری نمی‌رسد.
 

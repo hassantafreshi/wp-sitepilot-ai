@@ -87,7 +87,13 @@ answers were right, against 2 of 8. Details are in
 **Privacy** — a personal-data exporter and eraser for WordPress's privacy
 tools, matching requests to talk to a person, console conversations and
 recorded visitor conversations by email address, and suggested privacy-policy
-text under Settings > Privacy > Policy Guide.
+text under Settings > Privacy > Policy Guide. **Data retention** in Advanced
+settings deletes visitor data once a day after a period the administrator sets:
+recorded conversations 30 days, requests to talk to a person 180 days and
+unanswered questions (with cached answers) 90 days by default, 0 to keep. The
+card shows the last and next run, has "Delete expired data now", and explains
+how to add a server cron job by hand for sites with little traffic or
+`DISABLE_WP_CRON`. The suggested privacy-policy text states the periods.
 
 **Multisite** — each site of a network keeps its own tables, settings and keys.
 Network activation sets up every site; a site added later, or every site of a
@@ -161,9 +167,9 @@ Deactivating changes nothing. Deleting runs `uninstall.php`.
 | Removed | Detail |
 |---|---|
 | Tables | `{prefix}aisaautopilot_kb`, `{prefix}aisaautopilot_kb_chunks`, `{prefix}aisaautopilot_kb_terms`, `{prefix}aisaautopilot_chats`, `{prefix}aisaautopilot_widget_chats`, `{prefix}aisaautopilot_handoffs` |
-| Options | 31 named `aisaautopilot_*` options (settings, encrypted keys, handoff secrets, logs, usage and budget, knowledge gaps and saved answers, the passage index format and its rebuild cursor, schema stamps, the site-setup marker, the rebrand marker), every `aisaautopilot_action_claim_*` replay lock, and a final sweep of any remaining `aisaautopilot_*` row |
+| Options | 32 named `aisaautopilot_*` options (settings, encrypted keys, handoff secrets, logs, usage and budget, knowledge gaps and saved answers, the passage index format and its rebuild cursor, schema stamps, the site-setup marker, the last retention run, the rebrand marker), every `aisaautopilot_action_claim_*` replay lock, and a final sweep of any remaining `aisaautopilot_*` row |
 | Transients | Rate-limit counters, the 15-minute action preview, the provider-test record and the delivery-test cooldown, by `_transient_aisaautopilot_*` prefix |
-| Cron | `aisaautopilot_index_post` (every queued page) and `aisaautopilot_kb_rebuild` are unscheduled |
+| Cron | `aisaautopilot_index_post` (every queued page), `aisaautopilot_kb_rebuild` and the daily `aisaautopilot_retention_cleanup` are unscheduled |
 
 | Kept on purpose | Why |
 |---|---|

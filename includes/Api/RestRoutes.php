@@ -194,6 +194,16 @@ final class RestRoutes {
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/privacy/retention/run',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new RetentionController(), 'run' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+			)
+		);
+
 		$delivery = new FormDeliveryController();
 		register_rest_route(
 			self::NAMESPACE,

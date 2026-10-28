@@ -43,6 +43,8 @@ function aisaautopilot_uninstall_site(): void {
 	delete_option( 'aisaautopilot_last_diagnostics' );
 	delete_option( 'aisaautopilot_handoff_inbox_schema' );
 	delete_option( 'aisaautopilot_kb_schema' );
+	// What the last retention cleanup deleted (Support\Retention).
+	delete_option( 'aisaautopilot_retention_last_run' );
 	// Marks a site of a network as set up (Activator::maybe_setup_site()).
 	delete_option( 'aisaautopilot_site_setup' );
 	delete_option( 'aisaautopilot_widget_chat_schema' );
@@ -92,6 +94,7 @@ function aisaautopilot_uninstall_site(): void {
 	// Every queued event, whatever post it was for: wp_clear_scheduled_hook() only removes those without arguments.
 	wp_unschedule_hook( 'aisaautopilot_index_post' );
 	wp_unschedule_hook( 'aisaautopilot_kb_rebuild' );
+	wp_unschedule_hook( 'aisaautopilot_retention_cleanup' );
 }
 
 /*

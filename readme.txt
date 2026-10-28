@@ -92,6 +92,13 @@ Visitor conversations are recorded only if you turn recording on, and the chat
 then says so. Questions the assistant could not answer are kept without any
 information about who asked.
 
+Visitor data is deleted automatically once a day after a period you set in
+Setup & Connection > Advanced settings > Data retention: recorded
+conversations after 30 days, requests to talk to a person after 180 days and
+unanswered questions (with cached answers) after 90 days, unless you change
+them. 0 keeps that data until you delete it yourself. The same card has a
+"Delete expired data now" button and shows when the cleanup last ran.
+
 == What deleting the plugin removes ==
 
 Deactivating changes nothing. Deleting the plugin from the Plugins screen runs
@@ -121,6 +128,7 @@ aisaautopilot_usage_historical_log, aisaautopilot_usage_period_archive,
 aisaautopilot_voice_usage_log, aisaautopilot_health_diagnostics,
 aisaautopilot_last_diagnostics, aisaautopilot_kb_schema, aisaautopilot_handoff_inbox_schema,
 aisaautopilot_widget_chat_schema, aisaautopilot_site_setup,
+aisaautopilot_retention_last_run,
 aisaautopilot_rebrand_migrated, and every aisaautopilot_action_claim_* replay
 lock.
 
@@ -136,9 +144,9 @@ site uses a persistent object cache, transients are held there instead of in
 the options table; they are not reachable from the uninstall hook and expire on
 their own.
 
-The scheduled indexing jobs (aisaautopilot_index_post and
-aisaautopilot_kb_rebuild) are unscheduled, including every page still waiting
-to be indexed.
+The scheduled jobs (aisaautopilot_index_post, aisaautopilot_kb_rebuild and
+the daily aisaautopilot_retention_cleanup) are unscheduled, including every
+page still waiting to be indexed.
 
 On a multisite network each site has its own tables and options, and all of
 the above is removed from every site of the network.
@@ -308,6 +316,21 @@ The visitor chat widget is off until you enable it in Answer Desk.
 
 == Frequently Asked Questions ==
 
+= How long is visitor data kept, and why does the cleanup run late? =
+
+By default recorded conversations are kept 30 days, requests to talk to a
+person 180 days and unanswered questions 90 days; change them in Advanced
+settings > Data retention. The cleanup runs on WP-Cron, which WordPress starts
+only when someone visits the site, so on a quiet site it can run late, and it
+does not run at all if DISABLE_WP_CRON is set in wp-config.php. In that case
+add a cron job on your server (cPanel: Advanced > Cron Jobs; Plesk: Tools &
+Settings > Scheduled Tasks) that runs every 15 minutes:
+
+`wget -q -O - "https://example.com/wp-cron.php?doing_wp_cron" >/dev/null 2>&1`
+
+Use your own site address; the Data retention card shows the exact command,
+and a WP-CLI alternative (`wp cron event run --due-now`), ready to copy.
+
 = Does it work on WordPress multisite? =
 
 Yes. Each site keeps its own knowledge, conversations, settings and keys.
@@ -387,6 +410,10 @@ editable text; nothing is sent until you press Send.
   or an offer to connect to a person. Follow-up questions keep their subject.
 * Multisite: network activation sets up every site, a deleted site takes the
   plugin's tables with it, and deleting the plugin cleans every site.
+* Data retention: visitor conversations, requests to talk to a person and
+  unanswered questions are deleted once a day after 30, 180 and 90 days by
+  default, each period changeable in Advanced settings, with instructions for
+  a server cron job.
 * Content Studio drafts, Form Studio forms, native email-only forms, and the
   Easy Form Builder copilot.
 * Easy Form Builder copilot: help text, steps for long forms, a consent

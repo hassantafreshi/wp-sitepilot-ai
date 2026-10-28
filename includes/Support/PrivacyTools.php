@@ -160,10 +160,32 @@ final class PrivacyTools {
 			__( 'This site uses an AI assistant to answer questions about its content. When you ask a question in the chat, the question, the previous few messages of the conversation and the matching passages of this site\'s public pages are sent to the AI service the site uses, to write the answer. Voice messages you choose to send are sent to that service to be transcribed.', 'ai-site-assistant-autopilot' ),
 			__( 'Conversations are only kept on this site when the site owner has turned recording on; the chat then says so. Questions the assistant could not answer are kept without any information about who asked, so the site can add the missing content.', 'ai-site-assistant-autopilot' ),
 			__( 'If you ask to talk to a person, the conversation and the contact details you enter (such as your name, email address, mobile number or website) are stored on this site and sent to the team through the channels the site uses, which may include email, Telegram, WhatsApp, SMS, Slack or Signal.', 'ai-site-assistant-autopilot' ),
+			self::retention_text(),
 			__( 'You can ask for a copy of these requests and conversations, or for their deletion, by the email address you gave.', 'ai-site-assistant-autopilot' ),
 		);
 
 		return '<p>' . implode( '</p><p>', array_map( 'esc_html', $paragraphs ) ) . '</p>';
+	}
+
+	/** How long each kind is kept, from the periods saved in Advanced settings. */
+	private static function retention_text(): string {
+		$periods = array_map(
+			static function ( int $days ): string {
+				return $days > 0
+					/* translators: %s: number of days. */
+					? sprintf( _n( '%s day', '%s days', $days, 'ai-site-assistant-autopilot' ), number_format_i18n( $days ) )
+					: __( 'until the site owner deletes them', 'ai-site-assistant-autopilot' );
+			},
+			Retention::periods()
+		);
+
+		return sprintf(
+			/* translators: 1: recorded conversations, 2: requests to talk to a person, 3: unanswered questions; each "30 days" or "until the site owner deletes them". */
+			__( 'Stored data is deleted automatically after: recorded conversations, %1$s; requests to talk to a person, %2$s; unanswered questions, %3$s.', 'ai-site-assistant-autopilot' ),
+			$periods['conversations_days'],
+			$periods['handoffs_days'],
+			$periods['questions_days']
+		);
 	}
 
 	/**

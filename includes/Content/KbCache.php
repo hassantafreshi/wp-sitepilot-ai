@@ -91,6 +91,21 @@ final class KbCache {
 		update_option( self::OPTION, $store, false );
 	}
 
+	/** Removes answers cached before $before (a Unix time) and returns how many. Used by Retention. */
+	public function forget_before( int $before ): int {
+		$store = $this->store();
+		$kept  = array_filter(
+			$store,
+			static function ( $entry ) use ( $before ): bool {
+				return is_array( $entry ) && (int) ( $entry['ts'] ?? 0 ) >= $before;
+			}
+		);
+		if ( count( $kept ) !== count( $store ) ) {
+			update_option( self::OPTION, $kept, false );
+		}
+		return count( $store ) - count( $kept );
+	}
+
 	public function clear(): void {
 		delete_option( self::OPTION );
 	}
