@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Efb;
 
+use AISAAutoPilot\Core\SiteLanguage;
+
 /**
  * Deterministic form review: the checks an experienced form designer runs
  * before publishing, without sending anything to an AI provider.
@@ -94,14 +96,17 @@ final class EfbFormReview {
 				'code'     => 'personal_data_without_consent',
 				'severity' => 'warning',
 				'message'  => __( 'This form collects personal data but asks for no consent. Add a required consent checkbox that links to your privacy policy.', 'ai-site-assistant-autopilot' ),
-				'fix'      => array(
-					'op'    => 'add_field',
-					'field' => array(
-						'type'     => 'trmCheckbox',
-						'label'    => __( 'Consent', 'ai-site-assistant-autopilot' ),
-						'required' => true,
-						'options'  => array( __( 'I agree that my details are stored and used to answer this request.', 'ai-site-assistant-autopilot' ) ),
-					),
+				// The checkbox goes on the form, so its words follow the site language.
+				'fix'      => SiteLanguage::for_site(
+					static fn (): array => array(
+						'op'    => 'add_field',
+						'field' => array(
+							'type'     => 'trmCheckbox',
+							'label'    => __( 'Consent', 'ai-site-assistant-autopilot' ),
+							'required' => true,
+							'options'  => array( __( 'I agree that my details are stored and used to answer this request.', 'ai-site-assistant-autopilot' ) ),
+						),
+					)
 				),
 			);
 		}

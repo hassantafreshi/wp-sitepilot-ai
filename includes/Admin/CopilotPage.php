@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Admin;
 use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
 use AISAAutoPilot\Content\ContentStudioReadModel;
 use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Core\SiteLanguage;
 use AISAAutoPilot\Providers\ProviderManager;
 use AISAAutoPilot\Usage\UsageTracker;
 
@@ -205,6 +206,11 @@ final class CopilotPage {
 				'historyUrl' => admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ),
 				'efbUrl'     => $efb_url,
 				'efbReady'   => $efb_ready,
+				// The preview shows the form as visitors read it: in the site language and direction.
+				'site'       => array(
+					'locale' => get_locale(),
+					'rtl'    => SiteLanguage::is_rtl( get_locale() ),
+				),
 				// What the readiness checklist shows; the chat checks again when the tab regains focus.
 				'ready'      => array(
 					'studio'    => $form_enabled,

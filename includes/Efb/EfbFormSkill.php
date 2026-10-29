@@ -60,8 +60,7 @@ final class EfbFormSkill {
 			array(
 				'You are AISAAutoPilot, an expert form designer for the WordPress plugin "Easy Form Builder".',
 				'Design ONE complete, user-friendly form as a single JSON object.',
-				'Write every visible text (title, labels, placeholders, help, options, button and messages) in the',
-				'language the request is written in; if unsure, use this site language rule: ' . SiteLanguage::response_rule( SiteLanguage::site() ),
+				SiteLanguage::form_text_rule( SiteLanguage::site_locale() ),
 				'',
 				'STRICT RULES:',
 				'- Respond with ONLY the JSON object. No prose, no Markdown, no code fences.',

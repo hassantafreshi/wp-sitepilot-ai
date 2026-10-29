@@ -124,6 +124,16 @@ the created form. A follow-up message changes the current plan instead of
 starting over, and a checklist names what is missing (the Integrations switch,
 an AI service, the delivery email) before the first request.
 
+**Form text follows the site language.** Visitors read the form in the site
+language, so every text the AI writes on a form (title, labels, placeholders,
+help, options, button and messages) is in the site language, and on a Persian or
+Arabic site it reads right to left, whatever language the admin writes the
+request in or uses for the dashboard. The few texts the plugin writes itself (the
+Submit, Next and Previous buttons, the thank-you lines, a page title, the consent
+sentence) follow the site language too, even on a request that carries the
+admin's own language. Only an explicit ask such as "in English" changes the
+form's language.
+
 **Easy Form Builder Copilot** — an assistant inside Easy Form Builder that
 creates and edits real EFB forms. It sits in a column beside the editor (a
 sheet on phones) and opens with Ctrl+/ (⌘+/ on a Mac), the Ask AI button, or

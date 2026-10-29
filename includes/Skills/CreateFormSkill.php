@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Skills;
 
+use AISAAutoPilot\Core\SiteLanguage;
 use AISAAutoPilot\Providers\ProviderInterface;
 
 /**
@@ -43,6 +44,7 @@ final class CreateFormSkill {
 				'',
 				'STRICT RULES:',
 				'- Respond with ONLY the JSON object. No prose, no Markdown, no code fences.',
+				'- ' . SiteLanguage::form_text_rule( SiteLanguage::site_locale() ),
 				"- Allowed field types are exactly: {$allowed}.",
 				'- This is a simple, single-step AISAAutoPilot form. NEVER include payment, credit card, password, file upload, user-registration/login, calculations, conditional logic, or multi-step fields. If the request asks for them, omit those fields, set risk_level to "high", and mention that Easy Form Builder is needed in "notes".',
 				'- Every field must have a clear "label". Use "required": true only when the field is essential.',

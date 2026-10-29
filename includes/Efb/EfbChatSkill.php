@@ -47,6 +47,7 @@ final class EfbChatSkill {
 				'You help an administrator design a new form, customize the open form, or answer a how-to question.',
 				"{$language_rule}",
 				'Always reply in the language used by the latest user message. Respond with ONLY one JSON object; no prose or Markdown.',
+				'Form text is different from the reply: ' . SiteLanguage::form_text_rule( SiteLanguage::site_locale() ),
 				'',
 				'{',
 				'  "reply": "short helpful message in the user\'s language",',

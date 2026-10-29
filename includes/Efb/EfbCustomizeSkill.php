@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Efb;
 
+use AISAAutoPilot\Core\SiteLanguage;
 use AISAAutoPilot\Efb\EfbFormModel;
 use AISAAutoPilot\Providers\ProviderInterface;
 
@@ -447,6 +448,7 @@ final class EfbCustomizeSkill {
 				'',
 				'Rules:',
 				'- Only emit operations that clearly match the request. If nothing matches, return {"operations":[]}.',
+				'- ' . SiteLanguage::form_text_rule( SiteLanguage::site_locale() ),
 				'- Never invent fields that are not in the provided list (except values for set_field/add_option).',
 				'- "width": full=100%, half=50%, third=33%, quarter=25%.',
 				'- Do not emit operations for add-ons, credentials, payment settings, raw HTML, URLs, or conditional logic. Explain those as help instead.',

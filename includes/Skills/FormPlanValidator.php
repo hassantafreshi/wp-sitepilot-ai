@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Skills;
 
+use AISAAutoPilot\Core\SiteLanguage;
+
 /**
  * Validates and normalizes an AI-produced form plan.
  *
@@ -158,13 +160,21 @@ final class FormPlanValidator {
 			$risk = 'medium';
 		}
 
+		// Visitors read these, so they follow the site language, not the admin's.
+		$defaults = SiteLanguage::for_site(
+			static fn (): array => array(
+				'submit'       => __( 'Submit', 'ai-site-assistant-autopilot' ),
+				'confirmation' => __( 'Thank you. We received your submission.', 'ai-site-assistant-autopilot' ),
+			)
+		);
+
 		$plan = array(
 			'intent'                => 'create_form',
 			'title'                 => $title,
 			'description'           => $this->clean_text( (string) ( $form['description'] ?? '' ), 300 ),
 			'fields'                => $fields,
-			'submit_button'         => $this->clean_text( (string) ( $form['submit_button'] ?? 'Submit' ), 40 ) ?: 'Submit',
-			'confirmation_message'  => $this->clean_text( (string) ( $form['confirmation_message'] ?? 'Thank you. We received your submission.' ), 300 ),
+			'submit_button'         => $this->clean_text( (string) ( $form['submit_button'] ?? '' ), 40 ) ?: $defaults['submit'],
+			'confirmation_message'  => $this->clean_text( (string) ( $form['confirmation_message'] ?? '' ), 300 ) ?: $defaults['confirmation'],
 			'risk_level'            => $risk,
 			'notes'                 => $this->clean_text( (string) ( $raw['notes'] ?? '' ), 300 ),
 			// Only switches: the recipient addresses are never taken from the AI.

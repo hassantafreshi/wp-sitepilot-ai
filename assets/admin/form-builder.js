@@ -217,7 +217,8 @@
 	}
 
 	function previewForm( plan ) {
-		var form = el( 'form', { class: 'sp-preview__form' } );
+		// Visitors read the form in the site language and direction, which may differ from the admin's.
+		var form = el( 'form', { class: 'sp-preview__form', dir: boot.site && boot.site.rtl ? 'rtl' : 'ltr', lang: ( boot.site && boot.site.locale || '' ).replace( '_', '-' ) } );
 		form.addEventListener( 'submit', function ( e ) { e.preventDefault(); } );
 		form.appendChild( el( 'div', {}, [
 			el( 'h3', { class: 'sp-preview__title', dir: 'auto', text: plan.title || '' } ),

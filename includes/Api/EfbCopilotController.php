@@ -5,6 +5,7 @@ namespace AISAAutoPilot\Api;
 
 use AISAAutoPilot\Connectors\ConnectorRegistry;
 use AISAAutoPilot\Core\Plugin;
+use AISAAutoPilot\Core\SiteLanguage;
 use AISAAutoPilot\Efb\EfbChatSkill;
 use AISAAutoPilot\Efb\EfbCustomizeSkill;
 use AISAAutoPilot\Efb\EfbFormConverter;
@@ -609,7 +610,7 @@ final class EfbCopilotController {
 					$existing[] = (string) ( $item['id_'] ?? '' );
 				}
 			} elseif ( 'add_step' === ( $op['op'] ?? '' ) ) {
-				$op['item'] = $converter->build_step( (string) ( $op['label'] ?? 'Step' ) );
+				$op['item'] = $converter->build_step( (string) ( $op['label'] ?? SiteLanguage::for_site( static fn (): string => __( 'Step', 'ai-site-assistant-autopilot' ) ) ) );
 			}
 		}
 		unset( $op );

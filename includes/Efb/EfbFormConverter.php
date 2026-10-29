@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Efb;
 
+use AISAAutoPilot\Core\SiteLanguage;
+
 /**
  * Converts a validated, clean form plan into a real EFB `form_structer` array.
  *
@@ -15,23 +17,70 @@ namespace AISAAutoPilot\Efb;
  * them from the site's own settings after validation.
  *
  * Output: flat array [ settings, step, field, option, option, field, ... ] matching EFB 4.x.
- * Pure PHP (no WordPress) so it is unit testable.
+ * Pure PHP apart from __() so it is unit testable. The few texts the converter writes
+ * itself (button labels, thank-you lines, a page or privacy fallback) are visitor-facing,
+ * so they follow the site language, not the admin's dashboard language.
  */
 final class EfbFormConverter {
+
+	/** @var array<string,string>|null */
+	private static ?array $texts = null;
+
+	/**
+	 * The texts EFB shows visitors that no plan supplies, in the site language.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function texts(): array {
+		if ( null === self::$texts ) {
+			self::$texts = SiteLanguage::for_site(
+				static fn (): array => array(
+					'form'          => __( 'Form', 'ai-site-assistant-autopilot' ),
+					/* translators: %d: page number of a multi-step form. */
+					'step'          => __( 'Step %d', 'ai-site-assistant-autopilot' ),
+					'heading'       => __( 'Heading', 'ai-site-assistant-autopilot' ),
+					'privacy'       => __( 'Privacy Policy', 'ai-site-assistant-autopilot' ),
+					'consent'       => __( 'I agree to the privacy policy.', 'ai-site-assistant-autopilot' ),
+					'submit'        => __( 'Submit', 'ai-site-assistant-autopilot' ),
+					'next'          => __( 'Next', 'ai-site-assistant-autopilot' ),
+					'previous'      => __( 'Previous', 'ai-site-assistant-autopilot' ),
+					'thank_you'     => __( 'Thanks for filling out the form.', 'ai-site-assistant-autopilot' ),
+					'done'          => __( 'You’re all done', 'ai-site-assistant-autopilot' ),
+					'tracking_code' => __( 'Confirmation Code', 'ai-site-assistant-autopilot' ),
+					'fill_required' => __( 'Please fill in all required fields.', 'ai-site-assistant-autopilot' ),
+				)
+			);
+		}
+
+		return self::$texts;
+	}
+
+	/** Forget the cached texts, so a later locale switch is honoured (tests). */
+	public static function reset_texts(): void {
+		self::$texts = null;
+	}
 
 	/**
 	 * @param array<string, mixed> $plan
 	 * @return array<int, array<string, mixed>>
 	 */
 	public function convert( array $plan ): array {
-		$title = (string) ( $plan['title'] ?? 'Form' );
+		$texts = self::texts();
+		$title = (string) ( $plan['title'] ?? $texts['form'] );
 		if ( '' === trim( $title ) ) {
-			$title = 'Form';
+			$title = $texts['form'];
 		}
 
-		$settings             = EfbFormModel::template( 'form_settings' );
-		$settings['formName'] = $title;
+		$settings                         = EfbFormModel::template( 'form_settings' );
+		$settings['formName']             = $title;
+		$settings['button_single_text']   = $texts['submit'];
+		$settings['button_Next_text']     = $texts['next'];
+		$settings['button_Previous_text'] = $texts['previous'];
 		if ( isset( $settings['thank_you_message'] ) && is_array( $settings['thank_you_message'] ) ) {
+			$settings['thank_you_message']['thankYou']                   = $texts['thank_you'];
+			$settings['thank_you_message']['done']                       = $texts['done'];
+			$settings['thank_you_message']['trackingCode']               = $texts['tracking_code'];
+			$settings['thank_you_message']['pleaseFillInRequiredFields'] = $texts['fill_required'];
 			$confirmation = trim( (string) ( $plan['confirmation_message'] ?? '' ) );
 			if ( '' !== $confirmation ) {
 				$settings['thank_you_message']['thankYou'] = $confirmation;
@@ -77,7 +126,7 @@ final class EfbFormConverter {
 
 				++$step_no;
 				++$amount;
-				$new_step                      = $this->build_step( '' !== $label ? $label : 'Step ' . $step_no );
+				$new_step                      = $this->build_step( '' !== $label ? $label : sprintf( $texts['step'], $step_no ) );
 				$new_step['id_']               = (string) $step_no;
 				$new_step['dataId']            = (string) $step_no;
 				$new_step['id']                = (string) $step_no;
@@ -181,7 +230,7 @@ final class EfbFormConverter {
 		$text = (string) preg_replace( '#\b(?:https?://|www\.)\S+#iu', '', $text );
 		$text = trim( (string) preg_replace( '/\s+/u', ' ', str_replace( array( '[', ']' ), '', $text ) ) );
 		if ( '' === $text ) {
-			$text = 'I agree to the privacy policy.';
+			$text = self::texts()['consent'];
 		}
 
 		$url   = is_array( $privacy_link ) ? trim( (string) ( $privacy_link['url'] ?? '' ) ) : '';
@@ -190,7 +239,7 @@ final class EfbFormConverter {
 			return $text;
 		}
 
-		return sprintf( '%s ([%s](%s))', $text, '' !== $label ? $label : 'Privacy Policy', $url );
+		return sprintf( '%s ([%s](%s))', $text, '' !== $label ? $label : self::texts()['privacy'], $url );
 	}
 
 	/**
@@ -208,7 +257,7 @@ final class EfbFormConverter {
 			unset( $heading['__replace__'] );
 			$heading['id_']    = $key;
 			$heading['dataId'] = $key . '-id';
-			$heading['value']  = (string) ( $field['label'] ?? 'Heading' );
+			$heading['value']  = (string) ( $field['label'] ?? self::texts()['heading'] );
 
 			return array( $heading );
 		}

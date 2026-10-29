@@ -428,6 +428,11 @@ editable text; nothing is sent until you press Send.
   phones) and opens with Ctrl+/ or the Ask AI button. Each change shows as a
   card with its own Undo, the button counts unsaved AI changes until you click
   Save, and without an AI service it explains the two-minute setup instead.
+* Forms are written in the site language: on a Persian or Arabic site the
+  labels, options, button and messages of a form built by Form Studio or the
+  Easy Form Builder copilot are in that language and read right to left, even
+  when the administrator writes the request in English or runs the dashboard
+  in another language. Only an explicit "in English" changes that.
 * Form Studio is one workspace: describe the form in a chat or start from six
   examples, see the plan field by field with a desktop and phone preview, ask
   for changes in the same chat, then approve. A checklist shows what is

@@ -30,6 +30,26 @@ final class EfbFormConverterTest extends TestCase {
 		$this->assertSame( '2', $items[0]['EfbVersion'] );
 	}
 
+	/** Every text EFB shows visitors is written by the converter, so it can follow the site language. */
+	public function test_visitor_texts_are_set_even_when_the_plan_gives_none(): void {
+		$plan = $this->plan();
+		unset( $plan['confirmation_message'] );
+		$items = ( new EfbFormConverter() )->convert( $plan );
+
+		$this->assertSame( 'Submit', $items[0]['button_single_text'] );
+		$this->assertSame( 'Next', $items[0]['button_Next_text'] );
+		$this->assertSame( 'Previous', $items[0]['button_Previous_text'] );
+		$this->assertSame( 'Thanks for filling out the form.', $items[0]['thank_you_message']['thankYou'] );
+		$this->assertSame( 'You’re all done', $items[0]['thank_you_message']['done'] );
+		$this->assertSame( 'Please fill in all required fields.', $items[0]['thank_you_message']['pleaseFillInRequiredFields'] );
+
+		$plan['fields'][] = array( 'key' => 'more', 'type' => 'steps', 'label' => '', 'required' => false, 'placeholder' => '', 'options' => array() );
+		$plan['fields'][] = array( 'key' => 'note', 'type' => 'textarea', 'label' => 'Note', 'required' => false, 'placeholder' => '', 'options' => array() );
+		$items = ( new EfbFormConverter() )->convert( $plan );
+		$steps = array_values( array_filter( $items, static fn ( array $i ): bool => 'step' === $i['type'] ) );
+		$this->assertSame( 'Step 2', $steps[1]['name'] );
+	}
+
 	public function test_fields_and_options_present_with_parent(): void {
 		$items = ( new EfbFormConverter() )->convert( $this->plan() );
 

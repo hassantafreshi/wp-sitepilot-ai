@@ -20,6 +20,23 @@ final class LanguageAndVoiceTest extends TestCase {
 		self::assertStringContainsString( 'another language', $rule );
 	}
 
+	/** Form text follows the site, not the request: a Persian site gets Persian labels from an English ask. */
+	public function test_form_text_rule_names_the_site_language_and_its_direction(): void {
+		$rule = SiteLanguage::form_text_rule( 'fa_IR' );
+		self::assertStringContainsString( 'site language "fa-ir" (a right-to-left language)', $rule );
+		self::assertStringContainsString( 'even when the request is written in another language', $rule );
+		self::assertStringContainsString( 'explicitly asks', $rule );
+		self::assertStringNotContainsString( 'right-to-left', SiteLanguage::form_text_rule( 'de_DE' ) );
+		self::assertTrue( SiteLanguage::is_rtl( 'ar' ) );
+		self::assertTrue( SiteLanguage::is_rtl( 'he_IL' ) );
+		self::assertFalse( SiteLanguage::is_rtl( 'en_US' ) );
+	}
+
+	/** Without WordPress the site-language wrapper simply runs the callback. */
+	public function test_for_site_returns_the_callback_result(): void {
+		self::assertSame( 'ok', SiteLanguage::for_site( static fn (): string => 'ok' ) );
+	}
+
 	public function test_voice_upload_guard_rejects_invalid_size_and_duration(): void {
 		self::assertSame( 'invalid_audio', VoiceTranscriber::validate_file( array(), 1000 ) );
 		self::assertSame( 'audio_too_large', VoiceTranscriber::validate_file( array( 'tmp_name' => __FILE__, 'size' => VoiceTranscriber::MAX_BYTES + 1 ), 1000 ) );

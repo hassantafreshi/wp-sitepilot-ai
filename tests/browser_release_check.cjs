@@ -1529,6 +1529,17 @@ async function formComposerHealthy( page ) {
 			&& /\d+:\d\d/.test( ctxText ),
 			'The plan shows its fields beside a full-size preview, the approval sits in the chat, and the chat names the time left'
 		);
+		// The preview is the visitors' view: it follows the site language and direction, which the
+		// boot data names, not the administrator's dashboard language.
+		const previewDir = await review.locator( '.sp-preview__form' ).evaluate( ( node ) => ( {
+			dir: node.getAttribute( 'dir' ),
+			lang: node.getAttribute( 'lang' ),
+			site: JSON.parse( document.getElementById( 'sp-copilot-boot' ).textContent ).site,
+		} ) );
+		check(
+			!! previewDir.site && previewDir.dir === ( previewDir.site.rtl ? 'rtl' : 'ltr' ) && previewDir.lang === String( previewDir.site.locale ).replace( '_', '-' ),
+			'The preview form carries the site language and direction'
+		);
 		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-review-desktop.png' ), fullPage: true } );
 
 		// A plan is changed by asking: the next message carries the plan and the change.
