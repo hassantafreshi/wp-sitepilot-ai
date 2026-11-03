@@ -176,8 +176,14 @@
 
 	/* ── REST ───────────────────────────────────────────────── */
 
+	// With plain permalinks the REST root is "index.php?rest_route=/…", so a path's own query joins with "&".
+	function restUrl( path ) {
+		var base = cfg.restUrl || '';
+		return -1 !== base.indexOf( '?' ) ? base + path.replace( '?', '&' ) : base + path;
+	}
+
 	function post( path, body ) {
-		return fetch( cfg.restUrl + path, {
+		return fetch( restUrl( path ), {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },

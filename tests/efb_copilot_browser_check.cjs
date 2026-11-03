@@ -126,6 +126,14 @@ async function login( page ) {
 		const response = await page.goto( editUrl, { waitUntil: 'domcontentloaded', timeout: 45000 } );
 		check( response && response.status() === 200, 'real EFB editor loads with HTTP 200' );
 		await page.locator( '#aisaautopilot-efb-launch' ).waitFor( { state: 'visible', timeout: 20000 } );
+		// Easy Form Builder asks for a review once the install is a day old; a site owner closes that
+		// dialog first, so the check does too. The copilot's own nudge already waits for it.
+		const efbReview = page.locator( '#efb-review-modal .efb-dlg__close' );
+		if ( await efbReview.waitFor( { state: 'visible', timeout: 4000 } ).then( () => true, () => false ) ) {
+			await efbReview.click();
+			await page.locator( '#efb-review-modal' ).waitFor( { state: 'hidden', timeout: 5000 } ).catch( () => {} );
+			console.log( 'EFB_REVIEW_DIALOG closed before the check' );
+		}
 		await page.waitForFunction( () => typeof valj_efb !== 'undefined' && Array.isArray( valj_efb ) && valj_efb.length > 2, undefined, { timeout: 20000 } ); // eslint-disable-line no-undef
 		check( await page.locator( '#aisaautopilot-efb-chat' ).isHidden(), 'Copilot starts as the mockup FAB state' );
 		const liveFieldIds = await page.evaluate( () => valj_efb.filter( ( item ) => item && item.type && ! [ 'form', 'step', 'option', 'r_matrix' ].includes( item.type ) ).map( ( item ) => String( item.id_ ) ) ); // eslint-disable-line no-undef

@@ -1436,7 +1436,10 @@ async function contentStudioNavigationHealthy( page ) {
 
 async function formComposerHealthy( page ) {
 	console.log( 'CHECK Form Studio workspace: gallery, plan, revision by message, approval, result, RTL and phone tabs' );
-	const formUrl = baseUrl + '/wp-admin/admin.php?page=aisaautopilot-form-builder&mode=forms';
+	// The menu opens the canonical page; the old Content Studio address is kept as an alias. Both
+	// must run the workspace script (a release once loaded the wrong one on the canonical page).
+	const formUrl = baseUrl + '/wp-admin/admin.php?page=aisaautopilot-form-studio';
+	const aliasUrl = baseUrl + '/wp-admin/admin.php?page=aisaautopilot-form-builder&mode=forms';
 	const routePattern = '**/wp-json/aisaautopilot/v1/forms/**';
 	const planPrompts = [];
 	let executeRequests = 0;
@@ -1480,6 +1483,14 @@ async function formComposerHealthy( page ) {
 
 	try {
 		await page.setViewportSize( { width: 1440, height: 960 } );
+		for ( const [ label, url ] of [ [ 'the canonical Form Studio page', formUrl ], [ 'the Content Studio forms alias', aliasUrl ] ] ) {
+			await page.goto( url, { waitUntil: 'domcontentloaded', timeout: 20000 } );
+			const booted = await page.waitForFunction( () => {
+				const r = document.querySelector( '[data-aisaautopilot-copilot]' );
+				return !! r && !! r.getAttribute( 'data-sp-fc-tab' ) && document.querySelectorAll( '#aisaautopilot-thread .aisa-ai-row' ).length > 0 && !! window.AISAAutoPilotDock;
+			}, null, { timeout: 15000 } ).then( () => true, () => false );
+			check( booted, 'Form Studio runs its workspace script on ' + label );
+		}
 		await page.goto( formUrl, { waitUntil: 'domcontentloaded', timeout: 20000 } );
 		const root = page.locator( '[data-aisaautopilot-copilot]' );
 		await root.waitFor( { state: 'attached', timeout: 10000 } );
@@ -3871,16 +3882,15 @@ async function efbDetailsHealthy( page ) {
 			await publicPage.locator( '#spw-toggle' ).waitFor( { state: 'attached', timeout: 10000 } );
 			check( await publicPage.locator( '#spw-toggle' ).count() === 1, 'public widget renders one launcher' );
 			check( await publicPage.evaluate( () => 'speechSynthesis' in window ), 'browser exposes text-to-speech capability for widget responses' );
-			let voiceRequest = false;
-			publicPage.on( 'request', ( request ) => {
-				if ( request.url().includes( '/aisaautopilot/v1/public/voice' ) && request.method() === 'POST' ) { voiceRequest = true; }
-			} );
 			await publicPage.locator( '#spw-toggle' ).click();
+			// Stop only once recording has really started (getUserMedia is slow on a busy machine),
+			// then wait for the upload itself rather than a fixed delay.
+			const voicePost = publicPage.waitForRequest( ( request ) => request.url().includes( '/aisaautopilot/v1/public/voice' ) && request.method() === 'POST', { timeout: 15000 } ).then( () => true, () => false );
 			await publicPage.locator( '#spw-mic' ).click();
+			await publicPage.locator( '#spw-mic[aria-pressed="true"]' ).waitFor( { state: 'attached', timeout: 10000 } ).catch( () => {} );
 			await publicPage.waitForTimeout( 700 );
 			await publicPage.locator( '#spw-mic' ).click();
-			await publicPage.waitForTimeout( 1800 );
-			check( voiceRequest, 'widget microphone records and posts only to the safe public voice endpoint' );
+			check( await voicePost, 'widget microphone records and posts only to the safe public voice endpoint' );
 			const publicOverflow = await publicPage.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
 			check( !publicOverflow, 'public widget has no desktop horizontal overflow' );
 		} else {

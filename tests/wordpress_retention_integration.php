@@ -248,11 +248,24 @@ try {
 	);
 
 	// Scheduling.
-	$check( Retention::next_run() > time() - 60, 'The daily cleanup is queued on WP-Cron' );
+	// Queued, not necessarily in the future: WP-Cron only runs on visits, and an overdue job is
+	// still queued (the Advanced card then says the scheduler is not running).
+	$check( Retention::next_run() > 0 && 'daily' === wp_get_schedule( Retention::HOOK ), 'The daily cleanup is queued on WP-Cron' );
 	Deactivator::deactivate();
 	$unscheduled = 0 === Retention::next_run();
 	Retention::schedule();
 	$check( $unscheduled && Retention::next_run() > 0, 'Deactivating the plugin removes the daily job; the next request queues it again' );
+
+	// A job a day overdue means WP-Cron is not running; the card says so instead of a past "next" date.
+	Retention::unschedule();
+	wp_schedule_event( time() - DAY_IN_SECONDS, 'daily', Retention::HOOK );
+	$overdue_html = $render();
+	Retention::unschedule();
+	Retention::schedule();
+	$check(
+		1 === preg_match( '/data-sp-retention-next>[^<]*has not run yet[^<]*server cron job/', $overdue_html ),
+		'An overdue cleanup is reported as WordPress\'s scheduler not running, pointing to the server cron job'
+	);
 
 	// The button, for administrators only.
 	$request  = new WP_REST_Request( 'POST', '/aisaautopilot/v1/privacy/retention/run' );

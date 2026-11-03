@@ -40,14 +40,8 @@ final class RateLimiter {
 		if ( $user_id > 0 && str_starts_with( $scope, 'admin_' ) ) {
 			$identity = 'user:' . $user_id;
 		} else {
-			/*
-			 * Do not trust X-Forwarded-For, X-Real-IP, or CDN-specific headers.
-			 * Those headers are client-controlled unless a site has explicitly
-			 * configured and validated trusted proxies. REMOTE_ADDR is the safe
-			 * default for a WordPress plugin.
-			 */
-			$ip       = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) : 'unknown'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- reduced to hex, colon and dot on the next line, then HMAC'd.
-			$identity = 'ip:' . substr( preg_replace( '/[^0-9a-fA-F:.]/', '', $ip ) ?? '', 0, 64 );
+			// REMOTE_ADDR, or the visitor behind Cloudflare; never a client-written header. See ClientAddress.
+			$identity = 'ip:' . ClientAddress::get();
 		}
 
 		return hash_hmac( 'sha256', $identity, wp_salt( 'auth' ) );

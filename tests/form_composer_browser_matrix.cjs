@@ -20,7 +20,7 @@ try {
 			env: { ...env,
 				AISAAUTOPILOT_BROWSER_USER: account.username,
 				AISAAUTOPILOT_BROWSER_PASSWORD: account.password,
-				AISAAUTOPILOT_BROWSER_SLUGS: 'aisaautopilot-form-builder',
+				AISAAUTOPILOT_BROWSER_SLUGS: 'aisaautopilot-form-studio,aisaautopilot-form-builder',
 				AISAAUTOPILOT_BROWSER_FORM_COMPOSER_ONLY: '1',
 				AISAAUTOPILOT_BROWSER_SKIP_SPECIALIST: '1',
 				AISAAUTOPILOT_BROWSER_EXPECT_RTL: locale === 'fa_IR' ? '1' : '0',

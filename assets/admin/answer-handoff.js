@@ -281,7 +281,8 @@
 		}
 		if ( button ) { button.disabled = true; }
 		show( strings().handoffSaving || 'Saving...', 'busy' );
-		window.fetch( config.restUrl + 'handoff/visitor-fields?_locale=user', {
+		// Plain permalinks put "?rest_route=" in the REST root, so the locale joins with "&" there.
+		window.fetch( config.restUrl + ( -1 !== config.restUrl.indexOf( '?' ) ? 'handoff/visitor-fields&_locale=user' : 'handoff/visitor-fields?_locale=user' ), {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },

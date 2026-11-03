@@ -411,7 +411,15 @@ async function focusAudit( page, tag ) {
 		};
 		window.__aisaFocusBase = new Map();
 		const nodes = document.querySelectorAll( '.sp-app a[href], .sp-app button, .sp-app input, .sp-app select, .sp-app textarea, .sp-app [tabindex], .sp-app summary' );
-		nodes.forEach( ( el ) => window.__aisaFocusBase.set( el, style( el ) ) );
+		nodes.forEach( ( el ) => {
+			window.__aisaFocusBase.set( el, style( el ) );
+			// Wrappers too: a composer often draws its focus ring on the box around the field (:focus-within).
+			[ el.parentElement, el.labels && el.labels[ 0 ] ].forEach( ( wrap ) => {
+				if ( wrap && ! window.__aisaFocusBase.has( wrap ) ) {
+					window.__aisaFocusBase.set( wrap, style( wrap ) );
+				}
+			} );
+		} );
 		window.__aisaFocusStyle = style;
 		if ( document.activeElement && document.activeElement !== document.body ) {
 			document.activeElement.blur();
@@ -449,11 +457,15 @@ async function focusAudit( page, tag ) {
 			const cs = getComputedStyle( el );
 			// A control whose own box is hidden (a styled checkbox) may show focus on its label or wrapper instead.
 			let proxyChanged = false;
-			const proxy = ( el.labels && el.labels[ 0 ] ) || el.parentElement;
-			if ( proxy && proxy.matches( ':focus-within' ) ) {
+			[ el.labels && el.labels[ 0 ], el.parentElement ].forEach( ( proxy ) => {
+				if ( proxyChanged || ! proxy || ! proxy.matches( ':focus-within' ) ) {
+					return;
+				}
 				const pcs = getComputedStyle( proxy );
-				proxyChanged = 'none' !== pcs.outlineStyle && parseFloat( pcs.outlineWidth ) > 0;
-			}
+				const proxyBase = window.__aisaFocusBase.get( proxy );
+				proxyChanged = ( 'none' !== pcs.outlineStyle && parseFloat( pcs.outlineWidth ) > 0 )
+					|| ( undefined !== proxyBase && proxyBase !== window.__aisaFocusStyle( proxy ) );
+			} );
 			// A radio, checkbox or file input laid transparently over its label is a visually hidden
 			// control like a 1px one: its focus must show on what the user sees, not on itself.
 			const transparentControl = 'INPUT' === el.tagName && [ 'radio', 'checkbox', 'file' ].includes( el.type ) && parseFloat( cs.opacity ) === 0;

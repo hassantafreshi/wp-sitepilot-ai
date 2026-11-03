@@ -47,8 +47,14 @@
 		return node;
 	}
 
+	// With plain permalinks the REST root is "index.php?rest_route=/…", so a path's own query joins with "&".
+	function restUrl( path ) {
+		var base = cfg.restUrl || '';
+		return -1 !== base.indexOf( '?' ) ? base + path.replace( '?', '&' ) : base + path;
+	}
+
 	function api( path, body ) {
-		return fetch( cfg.restUrl + path, {
+		return fetch( restUrl( path ), {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: {
@@ -62,7 +68,7 @@
 	}
 
 	function apiGet( path ) {
-		return fetch( cfg.restUrl + path, {
+		return fetch( restUrl( path ), {
 			method: 'GET',
 			credentials: 'same-origin',
 			// WordPress honours _locale=user only for JSON requests, so server-built labels match the admin language.

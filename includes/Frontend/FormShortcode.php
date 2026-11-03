@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Frontend;
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Forms\NativeFormSubmission;
 use AISAAutoPilot\Logging\Logger;
+use AISAAutoPilot\Security\ClientAddress;
 
 /**
  * Renders [aisaautopilot_form id="123"] and delivers submissions by email only.
@@ -275,10 +276,7 @@ final class FormShortcode {
 	}
 
 	private function rate_limit_key( int $form_id ): string {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) : 'unknown'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated as an IP on the next line, then HMAC'd into a transient key.
-		if ( false === filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-			$ip = 'unknown';
-		}
+		$ip = ClientAddress::get();
 		return 'aisaautopilot_form_rate_' . $form_id . '_' . substr( hash_hmac( 'sha256', $form_id . '|' . $ip, wp_salt( 'nonce' ) ), 0, 20 );
 	}
 

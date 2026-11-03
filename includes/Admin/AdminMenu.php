@@ -222,7 +222,8 @@ final class AdminMenu {
 		),
 		self::SLUG_WIDGET        => array( array( 'widget-settings.js', 'AISAAutoPilotAI' ), array( 'handoff-inbox.js', 'AISAAutoPilotAI' ) ),
 		self::SLUG_HANDOFFS      => array( array( 'handoff-inbox.js', 'AISAAutoPilotAI' ) ),
-		self::SLUG_FORM_STUDIO   => array( array( 'content-studio.js', 'AISAAutoPilotAI' ) ),
+		// The menu's own Form Studio page; the Content Studio forms alias resolves to the same script below.
+		self::SLUG_FORM_STUDIO   => array( array( 'form-builder.js', 'AISAAutoPilotAI' ) ),
 	);
 
 	public function enqueue_assets( string $hook ): void {

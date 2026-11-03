@@ -483,20 +483,21 @@ final class SettingsPage {
 							</div>
 							<div class="sp-adv-retention__status">
 								<p data-sp-retention-summary role="status" aria-live="polite"><?php echo esc_html( Retention::summary( Retention::last_run() ) ); ?></p>
-								<p>
 								<?php
 								$next_cleanup = Retention::next_run();
-								echo esc_html(
-									$next_cleanup > 0
-										? sprintf(
-											/* translators: %s: date and time. */
-											__( 'Next cleanup: %s, or later if nobody visits the site then.', 'ai-site-assistant-autopilot' ),
-											wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $next_cleanup )
-										)
-										: __( 'The daily cleanup is not queued yet; WordPress queues it on the next page load.', 'ai-site-assistant-autopilot' )
-								);
+								$cleanup_when = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $next_cleanup );
+								if ( 0 === $next_cleanup ) {
+									$cleanup_note = __( 'The daily cleanup is not queued yet; WordPress queues it on the next page load.', 'ai-site-assistant-autopilot' );
+								} elseif ( $next_cleanup < time() - HOUR_IN_SECONDS ) {
+									// Long overdue means WP-Cron is not running on this site; say so instead of showing a past date as "next".
+									/* translators: %s: date and time. */
+									$cleanup_note = sprintf( __( 'The daily cleanup was due on %s and has not run yet, so WordPress\'s scheduler is not running on this site. Add the server cron job below.', 'ai-site-assistant-autopilot' ), $cleanup_when );
+								} else {
+									/* translators: %s: date and time. */
+									$cleanup_note = sprintf( __( 'Next cleanup: %s, or later if nobody visits the site then.', 'ai-site-assistant-autopilot' ), $cleanup_when );
+								}
 								?>
-								</p>
+								<p data-sp-retention-next><?php echo esc_html( $cleanup_note ); ?></p>
 								<div class="sp-adv-delivery">
 									<button type="button" class="sp-btn sp-btn--ghost sp-btn--r8" data-sp-retention-run><?php esc_html_e( 'Delete expired data now', 'ai-site-assistant-autopilot' ); ?></button>
 									<span class="sp-status-text" data-sp-retention-result role="status" aria-live="polite"></span>
