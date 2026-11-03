@@ -438,6 +438,103 @@ class WooCommerceAnalyticsSkill {
 		}
 	}
 
+	/** Statuses a checkout reaches once the customer has paid, or chose an offline payment the store accepts. */
+	public const PAID_STATUSES = array( 'processing', 'completed', 'on-hold', 'refunded' );
+
+	/** Orders created by a customer at checkout (classic and block checkout), not by an administrator or an import. */
+	public const CHECKOUT_SOURCES = array( 'checkout', 'store-api' );
+
+	/**
+	 * Checkout drop-off from WooCommerce's own orders: of the orders customers placed at
+	 * checkout in the last 7, 30 or 90 days, how many were paid and how many stopped at
+	 * payment (pending), failed or were cancelled. Unpaid ones are grouped by payment
+	 * method (the latest 200), which is usually where a store can act. Carts left before
+	 * checkout are not recorded by WooCommerce, so they are not counted. No AI is used.
+	 *
+	 * @return array{ok:bool, days?:int, paid?:int, pending?:int, failed?:int, cancelled?:int, total?:int, completion?:float|null, methods?:array<int,array{name:string,count:int}>, sampled?:bool, error?:string}
+	 */
+	public function checkout_dropoff( int $days = 30 ): array {
+		if ( ! $this->is_available() ) {
+			return array(
+				'ok'    => false,
+				'error' => __( 'WooCommerce is not active.', 'ai-site-assistant-autopilot' ),
+			);
+		}
+		$days  = in_array( $days, array( 7, 30, 90 ), true ) ? $days : 30;
+		$query = array(
+			'type'         => 'shop_order',
+			'created_via'  => self::CHECKOUT_SOURCES,
+			'date_created' => '>' . ( time() - $days * DAY_IN_SECONDS ),
+		);
+		$count = static function ( array $statuses ) use ( $query ): int {
+			$found = wc_get_orders(
+				$query + array(
+					'status'   => $statuses,
+					'limit'    => 1,
+					'paginate' => true,
+					'return'   => 'ids',
+				)
+			);
+
+			return is_object( $found ) && isset( $found->total ) ? (int) $found->total : 0;
+		};
+
+		try {
+			$paid      = $count( self::PAID_STATUSES );
+			$pending   = $count( array( 'pending' ) );
+			$failed    = $count( array( 'failed' ) );
+			$cancelled = $count( array( 'cancelled' ) );
+			$total     = $paid + $pending + $failed + $cancelled;
+
+			$methods = array();
+			if ( $pending + $failed > 0 ) {
+				$unpaid = wc_get_orders(
+					$query + array(
+						'status'  => array( 'pending', 'failed' ),
+						'limit'   => 200,
+						'orderby' => 'date',
+						'order'   => 'DESC',
+					)
+				);
+				foreach ( (array) $unpaid as $order ) {
+					if ( ! $order instanceof \WC_Order ) {
+						continue;
+					}
+					$name             = trim( wp_strip_all_tags( $order->get_payment_method_title() ) );
+					$name             = '' !== $name ? $name : __( 'No payment method chosen', 'ai-site-assistant-autopilot' );
+					$methods[ $name ] = ( $methods[ $name ] ?? 0 ) + 1;
+				}
+				arsort( $methods );
+			}
+			$top = array();
+			foreach ( array_slice( $methods, 0, 3, true ) as $name => $n ) {
+				$top[] = array(
+					'name'  => (string) $name,
+					'count' => (int) $n,
+				);
+			}
+
+			return array(
+				'ok'         => true,
+				'days'       => $days,
+				'paid'       => $paid,
+				'pending'    => $pending,
+				'failed'     => $failed,
+				'cancelled'  => $cancelled,
+				'total'      => $total,
+				'completion' => $total > 0 ? round( 100 * $paid / $total, 1 ) : null,
+				'methods'    => $top,
+				'sampled'    => $pending + $failed > 200,
+			);
+		} catch ( \Throwable $e ) {
+			$this->logger->error( 'wc_checkout_dropoff', $e->getMessage() );
+			return array(
+				'ok'    => false,
+				'error' => __( 'The order figures could not be read.', 'ai-site-assistant-autopilot' ),
+			);
+		}
+	}
+
 	/**
 	 * Get dashboard summary.
 	 *

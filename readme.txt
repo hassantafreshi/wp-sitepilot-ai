@@ -39,8 +39,9 @@ Everything in this first version:
   signal-cli REST API server you run).
 * Voice input that is transcript-first: speech becomes editable text in the
   message box and is never sent by itself.
-* Store Copilot for WooCommerce: read-only store insight, plus creation of a
-  single reviewed simple-product draft. Optionally (off by default), AI
+* Store Copilot for WooCommerce: read-only store insight (including checkout
+  drop-off from your own orders), plus creation of a single reviewed
+  simple-product draft. Optionally (off by default), AI
   descriptions for products you already have: pick up to ten, read each draft
   beside the current text, edit it, and apply or skip it one by one; Undo puts
   the old text back. Publishing, editing any other field, orders and refunds
@@ -481,6 +482,9 @@ editable text; nothing is sent until you press Send.
   when the administrator writes the request in English or runs the dashboard
   in another language. Only an explicit "in English" changes that.
 * Optional Cloudflare Turnstile spam check for native forms.
+* Store Copilot > Orders: checkout drop-off (paid, stopped at payment, failed,
+  cancelled) from WooCommerce's own orders, with payment methods and links.
+* Form Studio keeps a plan under review across a page reload in the same tab.
 * Store Copilot > Descriptions: optional AI descriptions for existing
   products, approved one by one, with Undo (off by default).
 * Setup proposes a monthly spend cap of 2,000,000 tokens that you can change

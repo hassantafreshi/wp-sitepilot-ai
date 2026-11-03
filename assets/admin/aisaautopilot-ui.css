@@ -3675,6 +3675,22 @@ button.sp-store-switch:focus-visible { outline: 2px solid var(--sp-primary); out
 .sp-store-panel__foot { padding: 13px 20px; color: #5b5e7d; font-size: 12px; line-height: 1.55; }
 
 .sp-store-orders { max-inline-size: 640px; padding: 20px; }
+/* Store Copilot > Orders: checkout drop-off (read from WooCommerce orders, no AI). */
+.sp-store-funnel { max-inline-size: 640px; margin-block-end: 16px; }
+.sp-store-funnel__period { margin-inline-start: auto; }
+.sp-store-funnel .sp-seg__btn { display: inline-flex; align-items: center; min-block-size: 26px; text-decoration: none; }
+.sp-store-funnel__body { padding: 14px 20px 6px; }
+.sp-app .sp-store-funnel__lead { margin: 0 0 14px; color: #14152b; font-size: 14px; font-weight: 600; line-height: 1.5; }
+.sp-store-funnel__rows .sp-kv__row { align-items: flex-start; }
+.sp-store-funnel__k { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.sp-store-funnel__label { color: #14152b; font-weight: 600; }
+.sp-store-funnel__hint { color: #5b5e7d; font-size: 12px; line-height: 1.5; }
+.sp-store-funnel .sp-kv__v { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 4px 10px; white-space: nowrap; }
+.sp-store-funnel__share { color: #5b5e7d; font-weight: 500; font-size: 12px; }
+.sp-store-funnel__link { display: inline-flex; align-items: center; min-block-size: 24px; font-size: 12px; font-weight: 600; }
+.sp-app .sp-store-funnel__subhead { margin: 18px 0 8px; color: #14152b; font-size: 13px; font-weight: 700; }
+.sp-app .sp-store-funnel__methods { margin: 0 0 12px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.sp-store-funnel__methods li { display: flex; justify-content: space-between; gap: 10px; }
 .sp-store-orders__intro { margin-block-end: 16px !important; }
 .sp-store-order-permissions { display: flex; flex-direction: column; gap: 13px; }
 .sp-store-order-permission { display: flex; align-items: center; gap: 13px; }
@@ -4194,6 +4210,11 @@ html[dir="rtl"] .sp-app[data-sp-logs] .sp-pagebar__titles { text-align: start; }
 	.sp-store-proposal__fields .sp-kv__k { flex-basis: 112px; }
 	.sp-store-field-lock { flex-basis: 100%; }
 	.sp-store-orders { padding: 16px; }
+	.sp-store-funnel__body { padding-inline: 16px; }
+	.sp-store-funnel .sp-store-panel__foot { padding-inline: 16px; }
+	.sp-store-funnel__period { margin-inline-start: 0; }
+	.sp-store-funnel__rows .sp-kv__row { flex-wrap: wrap; }
+	.sp-store-funnel .sp-kv__v { justify-content: flex-start; }
 }
 
 /* ── Form Studio: one full-height workspace (owner-approved redesign, 2026-10-28) ── */

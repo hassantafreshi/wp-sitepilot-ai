@@ -45,6 +45,18 @@ class OrderSkillTest extends TestCase {
 	}
 
 	/**
+	 * Only the exact "wc-" prefix is removed: ltrim( $s, 'wc-' ) turned
+	 * "completed" into "ompleted" and "cancelled" into "ancelled".
+	 */
+	public function test_status_slug_keeps_the_status_name_whole(): void {
+		$this->assertSame( 'completed', WooCommerceOrderSkill::status_slug( 'completed' ) );
+		$this->assertSame( 'completed', WooCommerceOrderSkill::status_slug( 'wc-completed' ) );
+		$this->assertSame( 'cancelled', WooCommerceOrderSkill::status_slug( 'Cancelled' ) );
+		$this->assertSame( 'on-hold', WooCommerceOrderSkill::status_slug( 'wc-on-hold' ) );
+		$this->assertSame( '', WooCommerceOrderSkill::status_slug( 'wc-' ) );
+	}
+
+	/**
 	 * Test get_stats returns error when WooCommerce is not active.
 	 */
 	public function test_get_stats_fallback(): void {

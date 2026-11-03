@@ -206,6 +206,8 @@ final class CopilotPage {
 				'historyUrl' => admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ),
 				'efbUrl'     => $efb_url,
 				'efbReady'   => $efb_ready,
+				// Binds a plan kept across a reload (sessionStorage) to the administrator who drafted it.
+				'user'       => get_current_user_id(),
 				// The preview shows the form as visitors read it: in the site language and direction.
 				'site'       => array(
 					'locale' => get_locale(),
@@ -579,6 +581,7 @@ final class CopilotPage {
 			'notBuilt'         => __( 'I could not build that yet', 'ai-site-assistant-autopilot' ),
 			'tryExamples'      => __( 'Say who fills it in and what you need from them. For example:', 'ai-site-assistant-autopilot' ),
 			'planReady'        => __( 'The plan is ready and shown on the canvas. Approve it, or ask me to change something.', 'ai-site-assistant-autopilot' ),
+			'planRestored'     => __( 'Here is the plan you were reviewing before the page reloaded. It is still waiting for your approval.', 'ai-site-assistant-autopilot' ),
 			'savedAsDraft'     => __( 'Saved as a draft', 'ai-site-assistant-autopilot' ),
 			'notVisible'       => __( 'Not visible on your site', 'ai-site-assistant-autopilot' ),
 			'publishedNote'    => __( 'Visible to visitors as soon as you confirm', 'ai-site-assistant-autopilot' ),

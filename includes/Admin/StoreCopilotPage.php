@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Admin;
 
+use AISAAutoPilot\Connectors\WooCommerceAnalyticsSkill;
 use AISAAutoPilot\Connectors\WooCommerceConnector;
 use AISAAutoPilot\Providers\ProviderManager;
 
@@ -474,6 +475,9 @@ final class StoreCopilotPage {
 
 	private function render_orders( bool $active, bool $enabled, bool $can_manage ): void {
 		$manager_read = $active && $enabled && $can_manage;
+		if ( $manager_read ) {
+			$this->render_checkout_dropoff();
+		}
 		?>
 		<section class="sp-card sp-store-orders" data-sp-store-orders>
 			<h2 class="sp-h2 sp-h2--md"><?php esc_html_e( 'What it may read from an order', 'ai-site-assistant-autopilot' ); ?></h2>
@@ -490,6 +494,121 @@ final class StoreCopilotPage {
 			</div>
 		</section>
 		<?php
+	}
+
+	/**
+	 * Checkout drop-off: paid against unpaid checkouts from WooCommerce's own orders,
+	 * read on this page only (no route, no AI). See WooCommerceAnalyticsSkill::checkout_dropoff().
+	 */
+	private function render_checkout_dropoff(): void {
+		$days   = isset( $_GET['days'] ) ? absint( wp_unslash( $_GET['days'] ) ) : 30; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only period selection.
+		$data   = ( new WooCommerceAnalyticsSkill() )->checkout_dropoff( $days );
+		$days   = (int) ( $data['days'] ?? 30 );
+		$base   = add_query_arg( 'tab', 'orders', admin_url( 'admin.php?page=' . AdminMenu::SLUG_WC_DASHBOARD ) );
+		$total  = (int) ( $data['total'] ?? 0 );
+		$unpaid = $total - (int) ( $data['paid'] ?? 0 );
+		$share  = static function ( int $n ) use ( $total ): string {
+			/* translators: %s: share of all checkouts in the period, as a percentage. */
+			return $total > 0 ? sprintf( __( '%s%%', 'ai-site-assistant-autopilot' ), number_format_i18n( 100 * $n / $total, 0 ) ) : '';
+		};
+		$rows   = array(
+			array( 'paid', __( 'Paid', 'ai-site-assistant-autopilot' ), __( 'Processing, completed, on hold for an offline payment, or refunded later.', 'ai-site-assistant-autopilot' ), '' ),
+			array( 'pending', __( 'Stopped at payment', 'ai-site-assistant-autopilot' ), __( 'Pending payment: the customer placed the order but never paid.', 'ai-site-assistant-autopilot' ), 'wc-pending' ),
+			array( 'failed', __( 'Payment failed', 'ai-site-assistant-autopilot' ), __( 'The payment provider declined or the payment did not go through.', 'ai-site-assistant-autopilot' ), 'wc-failed' ),
+			array( 'cancelled', __( 'Cancelled', 'ai-site-assistant-autopilot' ), __( 'Usually an unpaid order that WooCommerce cancelled when its held stock expired.', 'ai-site-assistant-autopilot' ), 'wc-cancelled' ),
+		);
+		?>
+		<section class="sp-card sp-store-panel sp-store-funnel" data-sp-store-funnel data-sp-funnel-days="<?php echo esc_attr( (string) $days ); ?>">
+			<div class="sp-store-panel__head">
+				<h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( 'Checkout drop-off', 'ai-site-assistant-autopilot' ); ?></h2>
+				<nav class="sp-seg sp-store-funnel__period" aria-label="<?php esc_attr_e( 'Period', 'ai-site-assistant-autopilot' ); ?>">
+					<?php foreach ( array( 7, 30, 90 ) as $option ) : ?>
+						<a class="sp-seg__btn<?php echo $option === $days ? ' is-on' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'days', $option, $base ) ); ?>"<?php echo $option === $days ? ' aria-current="page"' : ''; ?>>
+							<?php
+							/* translators: %s: number of days. */
+							echo esc_html( sprintf( __( '%s days', 'ai-site-assistant-autopilot' ), number_format_i18n( $option ) ) );
+							?>
+						</a>
+					<?php endforeach; ?>
+				</nav>
+			</div>
+			<div class="sp-store-funnel__body">
+				<?php if ( empty( $data['ok'] ) ) : ?>
+					<p class="sp-status-text is-err" data-sp-funnel-error><?php echo esc_html( (string) ( $data['error'] ?? '' ) ); ?></p>
+				<?php elseif ( 0 === $total ) : ?>
+					<p class="sp-store-funnel__lead" data-sp-funnel-empty>
+						<?php
+						/* translators: %s: number of days. */
+						echo esc_html( sprintf( __( 'No customer placed an order at checkout in the last %s days.', 'ai-site-assistant-autopilot' ), number_format_i18n( $days ) ) );
+						?>
+					</p>
+				<?php else : ?>
+					<p class="sp-store-funnel__lead" data-sp-funnel-lead>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: 1: number of checkouts, 2: number of days, 3: percentage paid, 4: number not paid. */
+								_n( '%1$s checkout in the last %2$s days: %3$s paid, %4$s not paid.', '%1$s checkouts in the last %2$s days: %3$s paid, %4$s not paid.', $total, 'ai-site-assistant-autopilot' ),
+								number_format_i18n( $total ),
+								number_format_i18n( $days ),
+								$share( (int) $data['paid'] ),
+								number_format_i18n( $unpaid )
+							)
+						);
+						?>
+					</p>
+					<div class="sp-kv sp-store-funnel__rows">
+						<?php foreach ( $rows as $row ) : ?>
+							<?php
+							list( $key, $label, $hint, $status ) = $row;
+							$n                                   = (int) ( $data[ $key ] ?? 0 );
+							?>
+							<div class="sp-kv__row sp-kv__row--ruled" data-sp-funnel-row="<?php echo esc_attr( $key ); ?>">
+								<span class="sp-store-funnel__k">
+									<span class="sp-store-funnel__label"><?php echo esc_html( $label ); ?></span>
+									<span class="sp-store-funnel__hint"><?php echo esc_html( $hint ); ?></span>
+								</span>
+								<span class="sp-kv__v">
+									<span data-sp-funnel-count><?php echo esc_html( number_format_i18n( $n ) ); ?></span>
+									<span class="sp-store-funnel__share"><?php echo esc_html( $share( $n ) ); ?></span>
+									<?php if ( '' !== $status && $n > 0 ) : ?>
+										<a class="sp-store-funnel__link" href="<?php echo esc_url( $this->orders_url( $status ) ); ?>"><?php esc_html_e( 'View orders', 'ai-site-assistant-autopilot' ); ?></a>
+									<?php endif; ?>
+								</span>
+							</div>
+						<?php endforeach; ?>
+					</div>
+					<?php if ( ! empty( $data['methods'] ) ) : ?>
+						<h3 class="sp-store-funnel__subhead"><?php esc_html_e( 'Unpaid and failed checkouts by payment method', 'ai-site-assistant-autopilot' ); ?></h3>
+						<ul class="sp-store-funnel__methods" data-sp-funnel-methods>
+							<?php foreach ( (array) $data['methods'] as $method ) : ?>
+								<li><span dir="auto"><?php echo esc_html( (string) $method['name'] ); ?></span> <strong><?php echo esc_html( number_format_i18n( (int) $method['count'] ) ); ?></strong></li>
+							<?php endforeach; ?>
+						</ul>
+						<?php if ( ! empty( $data['sampled'] ) ) : ?>
+							<p class="sp-store-funnel__hint"><?php esc_html_e( 'Based on the latest 200 unpaid and failed checkouts.', 'ai-site-assistant-autopilot' ); ?></p>
+						<?php endif; ?>
+					<?php endif; ?>
+				<?php endif; ?>
+			</div>
+			<div class="sp-store-panel__foot"><?php esc_html_e( 'Counts orders that customers placed at checkout in this period, read from WooCommerce on this page. Orders you add yourself are left out, and carts left before checkout are not counted because WooCommerce does not record them.', 'ai-site-assistant-autopilot' ); ?></div>
+		</section>
+		<?php
+	}
+
+	/** WooCommerce's own order list filtered by one status, on either order storage. */
+	private function orders_url( string $status ): string {
+		$hpos = class_exists( 'Automattic\\WooCommerce\\Utilities\\OrderUtil' ) && \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+
+		return $hpos
+			? add_query_arg( 'status', $status, admin_url( 'admin.php?page=wc-orders' ) )
+			: add_query_arg(
+				array(
+					'post_status' => $status,
+					'post_type'   => 'shop_order',
+				),
+				admin_url( 'edit.php' )
+			);
 	}
 
 	private function order_permission_row( string $label, bool $on, string $note ): void {

@@ -8,6 +8,11 @@ use AISAAutoPilot\Providers\ProviderManager;
 /**
  * WooCommerce Order Intelligence Skill.
  *
+ * Only recent_orders() is reachable today (GET /woocommerce/orders/recent, store
+ * managers only). The write methods (status, refund, note) have no route and stay
+ * dormant until the separate Phase 2 security task (T48) puts them behind a reviewed
+ * proposal; they are kept correct so that work starts from sound code.
+ *
  * Capabilities:
  * - Search orders by number, customer name, email
  * - List recent orders with pagination
@@ -78,11 +83,14 @@ class WooCommerceOrderSkill {
 			}
 
 			// Date range.
-			if ( ! empty( $args['date_from'] ) ) {
-				$search_args['date_created'] = '>=' . sanitize_text_field( $args['date_from'] );
-			}
-			if ( ! empty( $args['date_to'] ) ) {
-				$search_args['date_created'] = ( $search_args['date_created'] ?? '' ) . '...' . sanitize_text_field( $args['date_to'] );
+			$from = sanitize_text_field( (string) ( $args['date_from'] ?? '' ) );
+			$to   = sanitize_text_field( (string) ( $args['date_to'] ?? '' ) );
+			if ( '' !== $from && '' !== $to ) {
+				$search_args['date_created'] = $from . '...' . $to;
+			} elseif ( '' !== $from ) {
+				$search_args['date_created'] = '>=' . $from;
+			} elseif ( '' !== $to ) {
+				$search_args['date_created'] = '<=' . $to;
 			}
 
 			$orders = wc_get_orders( $search_args );
@@ -133,8 +141,8 @@ class WooCommerceOrderSkill {
 		}
 
 		try {
-			$order = wc_get_order( $order_id );
-			if ( ! $order ) {
+			$order = $this->find_order( $order_id );
+			if ( null === $order ) {
 				return array(
 					'ok'    => false,
 					'error' => __( 'Order not found.', 'ai-site-assistant-autopilot' ),
@@ -203,8 +211,8 @@ class WooCommerceOrderSkill {
 		}
 
 		try {
-			$order = wc_get_order( $order_id );
-			if ( ! $order ) {
+			$order = $this->find_order( $order_id );
+			if ( null === $order ) {
 				return array(
 					'ok'    => false,
 					'error' => __( 'Order not found.', 'ai-site-assistant-autopilot' ),
@@ -212,8 +220,9 @@ class WooCommerceOrderSkill {
 			}
 
 			$valid_statuses = wc_get_order_statuses();
-			$status_key     = 'wc-' . ltrim( $new_status, 'wc-' );
-			if ( ! isset( $valid_statuses[ $status_key ] ) ) {
+			$slug           = self::status_slug( $new_status );
+			$status_key     = 'wc-' . $slug;
+			if ( '' === $slug || ! isset( $valid_statuses[ $status_key ] ) ) {
 				return array(
 					'ok'    => false,
 					'error' => __( 'Invalid status.', 'ai-site-assistant-autopilot' ),
@@ -222,15 +231,15 @@ class WooCommerceOrderSkill {
 			}
 
 			$old_status = $order->get_status();
-			$order->update_status( $new_status, $note ? $note : __( 'Status updated via AI Site Assistant AutoPilot.', 'ai-site-assistant-autopilot' ) );
+			$order->update_status( $slug, $note ? $note : __( 'Status updated via AI Site Assistant AutoPilot.', 'ai-site-assistant-autopilot' ) );
 
-			$this->logger->info( 'wc_order_status', "Order #{$order_id}: {$old_status} → {$new_status}" );
+			$this->logger->info( 'wc_order_status', "Order #{$order_id}: {$old_status} → {$slug}" );
 
 			return array(
 				'ok'         => true,
 				'order_id'   => $order_id,
 				'old_status' => $old_status,
-				'new_status' => $new_status,
+				'new_status' => $slug,
 			);
 
 		} catch ( \Throwable $e ) {
@@ -254,8 +263,8 @@ class WooCommerceOrderSkill {
 		}
 
 		try {
-			$order = wc_get_order( $order_id );
-			if ( ! $order ) {
+			$order = $this->find_order( $order_id );
+			if ( null === $order ) {
 				return array(
 					'ok'    => false,
 					'error' => __( 'Order not found.', 'ai-site-assistant-autopilot' ),
@@ -398,8 +407,8 @@ class WooCommerceOrderSkill {
 		}
 
 		try {
-			$order = wc_get_order( $order_id );
-			if ( ! $order ) {
+			$order = $this->find_order( $order_id );
+			if ( null === $order ) {
 				return array(
 					'ok'    => false,
 					'error' => __( 'Order not found.', 'ai-site-assistant-autopilot' ),
@@ -421,6 +430,27 @@ class WooCommerceOrderSkill {
 				'error' => $e->getMessage(),
 			);
 		}
+	}
+
+	/**
+	 * A status name without WooCommerce's "wc-" prefix: "wc-completed" and "completed"
+	 * both give "completed". Only the exact prefix is removed (ltrim( $s, 'wc-' ) would
+	 * also strip the first letters of "completed" or "cancelled").
+	 */
+	public static function status_slug( string $status ): string {
+		$status = sanitize_key( $status );
+
+		return 0 === strpos( $status, 'wc-' ) ? substr( $status, 3 ) : $status;
+	}
+
+	/**
+	 * A real order by ID. wc_get_order() also returns refunds, which have no status,
+	 * notes or refund total of their own, so they are treated as not found.
+	 */
+	private function find_order( int $order_id ): ?\WC_Order {
+		$order = $order_id > 0 ? wc_get_order( $order_id ) : false;
+
+		return $order instanceof \WC_Order ? $order : null;
 	}
 
 	/**

@@ -110,7 +110,8 @@ if ( ! function_exists( 'sanitize_email' ) ) {
 
 if ( ! function_exists( 'sanitize_key' ) ) {
 	function sanitize_key( string $key ): string {
-		return strtolower( preg_replace( '/[^a-z0-9_\-]/', '', $key ) ?? '' );
+		// Like WordPress: lowercase first, then drop everything else.
+		return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( $key ) ) ?? '';
 	}
 }
 

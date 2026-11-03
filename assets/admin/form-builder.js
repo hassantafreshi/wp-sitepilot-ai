@@ -23,6 +23,9 @@
 	var working = false;
 	var checking = false;
 
+	// The open plan survives a reload in this tab until it is approved, rejected or expires.
+	var SAVED_PLAN = 'aisaautopilot.formStudio.plan';
+
 	var recorder = null;
 	var recorderStream = null;
 	var chunks = [];
@@ -418,7 +421,7 @@
 		} );
 	}
 
-	function planned( data ) {
+	function planned( data, restored ) {
 		retirePlanCards();
 		actionId = data.action_id;
 		preview = data.preview;
@@ -434,12 +437,14 @@
 		var approve = button( draftOnly ? t( 'approveDraft' ) : t( 'approvePublish' ), { kind: 'primary', size: 'lg', grow: true, icon: 'check', stroke: 2.4, attrs: { id: 'aisaautopilot-approve' }, onClick: function () { if ( draftOnly ) { approvePlan(); } else { openConfirm(); } } } );
 		var reject = button( t( 'reject', 'Reject' ), { kind: 'quiet', size: 'lg', onClick: rejectPlan } );
 		var planCard = card( Dock.cardHead( 'plan', 'doc', preview.title || t( 'createWithAi' ), t( 'fieldCount', '%d fields ready to review', ( preview.fields || [] ).length ) ), [ list, el( 'div', { class: 'aisa-ai-card__foot' }, [ approve, reject ] ) ], { 'data-sp-fc-plan-card': '' } );
-		addAi( [ t( 'planReady' ), preview.notes ? String( preview.notes ) : '', planCard ] );
+		addAi( [ restored ? t( 'planRestored' ) : t( 'planReady' ), preview.notes ? String( preview.notes ) : '', planCard ] );
+		planCard.setAttribute( 'data-sp-fc-restored', restored ? '1' : '0' );
 		renderPlanCanvas( preview );
 		setCanvas( 'plan' );
 		stickyBar();
 		setSuggestions( nextSuggestions( preview ) );
 		startExpiryTimer();
+		savePlan();
 	}
 
 	function nextSuggestions( plan ) {
@@ -460,6 +465,33 @@
 		var draftOnly = preview && 'publish' !== preview.default_status;
 		bar.appendChild( button( draftOnly ? t( 'approveDraft' ) : t( 'approvePublish' ), { kind: 'primary', size: 'lg', grow: true, icon: 'check', stroke: 2.4, attrs: { 'data-sp-fc-approve-mobile': '' }, onClick: function () { var main = byId( 'aisaautopilot-approve' ); if ( main && ! main.disabled ) { main.click(); } } } ) );
 		bar.hidden = false;
+	}
+
+	// ── a plan kept across a reload ─────────────────────────────
+
+	/* Only this tab, only the administrator who drafted it, and only until the server's proposal expires. */
+	function savePlan() {
+		try {
+			window.sessionStorage.setItem( SAVED_PLAN, JSON.stringify( { v: 1, user: boot.user || 0, action_id: actionId, preview: preview, expires_at: expiresAt, prompt: lastPrompt } ) );
+		} catch ( e ) {}
+	}
+	function forgetPlan() {
+		try { window.sessionStorage.removeItem( SAVED_PLAN ); } catch ( e ) {}
+	}
+	function savedPlan() {
+		var saved = null;
+		try { saved = JSON.parse( window.sessionStorage.getItem( SAVED_PLAN ) || 'null' ); } catch ( e ) { saved = null; }
+		var usable = saved && 1 === saved.v && saved.action_id && saved.preview && Array.isArray( saved.preview.fields )
+			&& ( saved.user || 0 ) === ( boot.user || 0 ) && Number( saved.expires_at ) > Date.now() + 5000;
+		if ( ! usable ) { forgetPlan(); return null; }
+		return saved;
+	}
+	function restorePlan() {
+		var saved = savedPlan();
+		if ( ! saved || ! isReady() ) { return false; }
+		lastPrompt = String( saved.prompt || '' );
+		planned( { action_id: saved.action_id, preview: saved.preview, expires_at: Number( saved.expires_at ) / 1000 }, true );
+		return true;
 	}
 
 	// ── expiry ──────────────────────────────────────────────────
@@ -486,6 +518,7 @@
 		expiryTimer = window.setInterval( tick, 1000 );
 	}
 	function expirePlan() {
+		forgetPlan();
 		setCtx( t( 'ctxExpired', 'Plan expired' ) );
 		var approve = byId( 'aisaautopilot-approve' );
 		if ( approve ) { approve.disabled = true; approve.querySelector( 'span' ).textContent = t( 'cannotApprove', 'Expired' ); }
@@ -500,6 +533,7 @@
 	// ── decisions ───────────────────────────────────────────────
 
 	function rejectPlan() {
+		forgetPlan();
 		retirePlanCards();
 		actionId = null;
 		preview = null;
@@ -536,6 +570,7 @@
 	}
 
 	function created( result ) {
+		forgetPlan();
 		retirePlanCards();
 		window.clearInterval( expiryTimer );
 		var ok = renderResultCanvas( result );
@@ -552,6 +587,7 @@
 	}
 
 	function newForm() {
+		forgetPlan();
 		retirePlanCards();
 		actionId = null;
 		preview = null;
@@ -669,6 +705,7 @@
 		window.addEventListener( 'resize', fitWorkspace );
 		setCanvas( 'start' );
 		greet();
+		restorePlan();
 	}
 
 	if ( 'loading' === document.readyState ) { document.addEventListener( 'DOMContentLoaded', init ); } else { init(); }

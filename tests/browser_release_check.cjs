@@ -1034,8 +1034,8 @@ async function storeCopilotHealthy( page ) {
 	}
 	const tabIds = await page.locator( '[data-sp-subtab]' ).evaluateAll( ( tabs ) => tabs.map( ( tab ) => tab.getAttribute( 'data-sp-subtab' ) ) );
 	check(
-		JSON.stringify( tabIds ) === JSON.stringify( [ 'newproduct', 'capabilities', 'products', 'orders' ] ),
-		'Store Copilot renders exactly the four canonical mockup tabs in order'
+		JSON.stringify( tabIds ) === JSON.stringify( [ 'newproduct', 'capabilities', 'products', 'descriptions', 'orders' ] ),
+		'Store Copilot renders its five tabs in order (the mockup four plus Descriptions)'
 	);
 	check(
 		await page.locator( '[data-sp-store-new-product]' ).count() === 1
@@ -1067,8 +1067,8 @@ async function storeCopilotHealthy( page ) {
 	check(
 		await page.locator( '[data-sp-store-capability-state]' ).count() === 9
 		&& await page.locator( '[data-sp-store-status-row]' ).count() === 6
-		&& await page.locator( '[data-sp-store-setting]' ).count() === 2,
-		'Store Copilot What it can do keeps the compact capability, status, and two-live-setting panels'
+		&& await page.locator( '[data-sp-store-setting]' ).count() === 3,
+		'Store Copilot What it can do keeps the compact capability, status, and three-live-setting panels (connector, search, descriptions)'
 	);
 	const connector = page.locator( '[data-sp-store-setting="enabled"]' );
 	check( await connector.getAttribute( 'aria-checked' ) === 'true', 'Store Copilot browser fixture starts with the connector enabled' );
@@ -1139,7 +1139,7 @@ async function storeCopilotHealthy( page ) {
 	await page.goto( capabilitiesUrl, { waitUntil: 'domcontentloaded', timeout: 20000 } );
 	root = page.locator( '[data-sp-store-copilot][data-sp-store-tab="capabilities"]' );
 	await root.waitFor( { state: 'attached', timeout: 10000 } );
-	check( await page.locator( '[data-sp-subtab]' ).count() === 4, 'Store Copilot keeps all four tabs at 390px width' );
+	check( await page.locator( '[data-sp-subtab]' ).count() === 5, 'Store Copilot keeps all five tabs at 390px width' );
 	const mobileOverflow = await page.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
 	check( !mobileOverflow, 'Store Copilot has no horizontal overflow at 390px width' );
 	await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-store-capabilities-mobile.png' ), fullPage: true } );
@@ -1455,6 +1455,7 @@ async function formComposerHealthy( page ) {
 	const aliasUrl = baseUrl + '/wp-admin/admin.php?page=aisaautopilot-form-builder&mode=forms';
 	const routePattern = '**/wp-json/aisaautopilot/v1/forms/**';
 	const planPrompts = [];
+	const executedIds = [];
 	let executeRequests = 0;
 	let plannedStatus = 'draft';
 	await page.route( routePattern, async ( route ) => {
@@ -1485,6 +1486,7 @@ async function formComposerHealthy( page ) {
 		}
 		if ( pathname.endsWith( '/forms/execute' ) ) {
 			executeRequests++;
+			executedIds.push( String( ( request.postDataJSON() || {} ).action_id || '' ) );
 			await route.fulfill( { contentType: 'application/json', body: JSON.stringify( {
 				ok: true,
 				result: { connector: 'AISAAutoPilot Built-in Forms', form_id: 999998, edit_url: baseUrl + '/wp-admin/post.php?post=999998&action=edit', shortcode: '[aisaautopilot_form id="999998"]', is_draft: plannedStatus !== 'publish' },
@@ -1578,6 +1580,18 @@ async function formComposerHealthy( page ) {
 			'Asking for a change sends the current plan with the change and replaces the plan; the old one can no longer be approved'
 		);
 
+		// A reload keeps the plan under review (this tab only, until it is approved, rejected or expires).
+		await page.reload( { waitUntil: 'domcontentloaded', timeout: 20000 } );
+		await review.waitFor( { state: 'visible', timeout: 10000 } );
+		check(
+			planPrompts.length === 2 && executeRequests === 0
+			&& 1 === await thread.locator( '[data-sp-fc-plan-card][data-sp-fc-restored="1"]' ).count()
+			&& 3 === await review.locator( '.sp-preview__field' ).count()
+			&& 0 === await review.locator( '.sp-preview__field' ).first().locator( '.sp-preview__req' ).count()
+			&& /\d+:\d\d/.test( ( await root.locator( '[data-sp-fc-ctx]' ).innerText() ).trim() ),
+			'After a reload the plan under review comes back with its time left, without asking the AI again'
+		);
+
 		await approve.click();
 		const result = root.locator( '#aisaautopilot-result-screen' );
 		await result.waitFor( { state: 'visible', timeout: 10000 } );
@@ -1590,10 +1604,17 @@ async function formComposerHealthy( page ) {
 			&& !( await result.innerText() ).includes( '1,200' ),
 			'Explicit approval shows the result on the canvas and says so in the chat'
 		);
+		check( 'form-browser-qa-action-2' === executedIds[ 0 ], 'The restored plan approves the same proposal the server holds', executedIds );
 		await page.waitForTimeout( 350 );
 		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-result-desktop.png' ), fullPage: true } );
 		await result.locator( '[data-sp-form-build-another]' ).click();
 		check( await root.locator( '[data-sp-form-empty]' ).isVisible() && 1 === await thread.locator( '.aisa-ai-row' ).count(), 'Build another returns to the gallery with a fresh chat' );
+		await page.reload( { waitUntil: 'domcontentloaded', timeout: 20000 } );
+		await root.locator( '#aisaautopilot-thread .aisa-ai-row' ).first().waitFor( { timeout: 10000 } );
+		check(
+			await root.locator( '[data-sp-form-empty]' ).isVisible() && 0 === await thread.locator( '[data-sp-fc-plan-card]' ).count(),
+			'An approved plan is not brought back by a reload'
+		);
 
 		await prompt.fill( 'Build and publish a contact form for browser QA.' );
 		await prompt.press( 'Control+Enter' );

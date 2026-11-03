@@ -121,7 +121,11 @@ under What it can do), AI descriptions for existing products: pick up to ten
 with missing or short descriptions, read each draft beside the current text,
 edit it, apply or skip it one by one. Only the long description changes; an
 approval is refused if someone edited that description after the draft; Undo
-restores the earlier text.
+restores the earlier text. Under Orders, "Checkout drop-off" shows, for the
+last 7, 30 or 90 days, how many checkouts were paid and how many stopped at
+payment, failed or were cancelled, with the payment methods unpaid checkouts
+used and links to those orders in WooCommerce. It reads WooCommerce's own
+orders (only those placed at checkout); no AI is involved.
 
 **Content Studio and Form Studio** — AI-drafted posts and pages with templates,
 history and CSV export; and forms described in text or voice, previewed field
@@ -130,7 +134,9 @@ Studio is one full-height workspace: a chat beside a canvas that shows six
 example forms, then the plan's fields with a desktop and phone preview, then
 the created form. A follow-up message changes the current plan instead of
 starting over, and a checklist names what is missing (the Integrations switch,
-an AI service, the delivery email) before the first request.
+an AI service, the delivery email) before the first request. A plan under
+review survives a page reload in the same tab until it is approved, rejected
+or expires.
 
 **Spam on native forms** — every native form has a hidden honeypot field and a
 per-visitor rate limit. Optionally, paste a Cloudflare Turnstile site key and
