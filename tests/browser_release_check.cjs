@@ -3527,6 +3527,16 @@ async function advancedSettingsHealthy( page ) {
 			&& 1 === await page.locator( '#sp-adv-forms #sp-adv-keep-undelivered' ).count(),
 			'Forms and delivery offers "Keep a submission when its email cannot be sent", off by default'
 		);
+		// Cloudflare Turnstile: two keys in Forms and delivery; the secret is a password field that never shows a value.
+		const turnstile = page.locator( '#sp-adv-forms [data-sp-turnstile]' );
+		check(
+			1 === await turnstile.count()
+			&& 1 === await turnstile.locator( 'input[name="turnstile_site_key"]' ).count()
+			&& 'password' === await turnstile.locator( 'input[name="turnstile_secret"]' ).getAttribute( 'type' )
+			&& '' === await turnstile.locator( 'input[name="turnstile_secret"]' ).inputValue()
+			&& 1 === await turnstile.locator( '[data-sp-turnstile-state]' ).count(),
+			'Forms and delivery offers optional Cloudflare Turnstile keys; the secret field never shows a saved value'
+		);
 
 		const search = form.locator( '#sp-adv-embeddings' );
 		const searchFields = form.locator( '[data-sp-adv-fields="search"]' );

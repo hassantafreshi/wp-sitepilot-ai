@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Support;
 use AISAAutoPilot\Chat\ConversationManager;
 use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Forms\FormOutbox;
+use AISAAutoPilot\Forms\Turnstile;
 
 /**
  * WordPress privacy tools (Tools > Export Personal Data / Erase Personal Data) and the
@@ -185,6 +186,9 @@ final class PrivacyTools {
 			self::retention_text(),
 			FormOutbox::enabled()
 				? __( 'Answers sent with a form on this site are emailed to the team. If that email cannot be sent, the answers are kept on this site until it is sent, and deleted automatically after the period above at the latest.', 'ai-site-assistant-autopilot' )
+				: '',
+			Turnstile::enabled()
+				? __( 'Forms on this site use Cloudflare Turnstile to keep out spam. When you open or send a form, Cloudflare receives your IP address and information about your browser to check that you are a person; see Cloudflare\'s privacy policy.', 'ai-site-assistant-autopilot' )
 				: '',
 			__( 'You can ask for a copy of these requests and conversations, or for their deletion, by the email address you gave.', 'ai-site-assistant-autopilot' ),
 		);

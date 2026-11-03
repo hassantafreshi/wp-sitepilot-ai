@@ -192,6 +192,12 @@
   **Expected:** پس از سقف، محدودیت نرخ فعال می‌شود (پنجرهٔ ۱۰ دقیقه‌ای، شناسایی با هش، نه IP خام).
 - [ ] **6.9** صفحهٔ **Native forms** (زیر Content Studio).
   **Expected:** فهرست فرم‌ها، shortcode با دکمهٔ کپی، و **آزمون تحویل ایمیل** با فاصلهٔ پنج دقیقه.
+- [ ] **6.9a (محیط واقعی)** در Cloudflare یک ویجت Turnstile بسازید و کلیدهای آن را در Advanced settings › Forms
+  and delivery بگذارید و ذخیره کنید.
+  **Expected:** فیلد Secret key دیگر کلید را نشان نمی‌دهد («Saved securely»). روی برگهٔ فرم، بررسی Cloudflare بالای دکمه
+  دیده می‌شود. ارسال بدون کامل شدن بررسی پیام «Please complete the spam check…» می‌دهد و ایمیلی نمی‌آید؛ با بررسی کامل،
+  ایمیل می‌رسد. با «Remove the saved secret key» بررسی خاموش می‌شود. متن پیشنهادی سیاست حریم خصوصی تا وقتی روشن است
+  Cloudflare Turnstile را نام می‌برد.
 - [ ] **6.10 (محیط واقعی)** در Advanced settings › Forms and delivery گزینهٔ «Keep a submission when its email
   cannot be sent» را روشن کنید و ایمیل سایت را عمداً از کار بیندازید (مثلاً تنظیم SMTP اشتباه)، سپس فرمی بفرستید.
   **Expected:** بازدیدکننده پیام تشکر عادی می‌بیند؛ در Your forms کارت «۱ پاسخ ایمیل نشد» با پاسخ‌ها، **Resend** و

@@ -462,6 +462,8 @@ final class Settings {
 			'form_notification_email'  => '',
 			// Keep a submission whose email could not be sent (Forms\FormOutbox). Off: nothing is stored.
 			'forms_keep_undelivered'   => false,
+			// Optional Cloudflare Turnstile on native forms; the secret is stored encrypted (Forms\Turnstile).
+			'turnstile_site_key'       => '',
 			// Days visitor data is kept (0 = until deleted by hand); see Support\Retention.
 			'retention'                => Retention::DEFAULTS,
 			// Phase 1 WooCommerce contract: one reviewed simple-product draft.

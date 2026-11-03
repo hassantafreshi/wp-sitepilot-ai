@@ -101,3 +101,4 @@
 	height: 1px !important;
 	overflow: hidden !important;
 }
+.aisaautopilot-form__turnstile { margin-block: 4px 12px; min-block-size: 65px; }

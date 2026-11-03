@@ -132,6 +132,13 @@ the created form. A follow-up message changes the current plan instead of
 starting over, and a checklist names what is missing (the Integrations switch,
 an AI service, the delivery email) before the first request.
 
+**Spam on native forms** — every native form has a hidden honeypot field and a
+per-visitor rate limit. Optionally, paste a Cloudflare Turnstile site key and
+secret key under Advanced settings > Forms and delivery: the form then shows
+Cloudflare's check and confirms each submission with Cloudflare before the
+email is sent (no answer from Cloudflare means the submission is refused). The
+secret is stored encrypted and never shown again. Off while either key is empty.
+
 **Form text follows the site language.** Visitors read the form in the site
 language, so every text the AI writes on a form (title, labels, placeholders,
 help, options, button and messages) is in the site language, and on a Persian or

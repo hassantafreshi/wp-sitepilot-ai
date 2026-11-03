@@ -4651,6 +4651,8 @@ html[dir="rtl"] .sp-adv-readonly { font-size: 11.5px; font-weight: 700; letter-s
 .sp-adv-connector.is-warn .sp-adv-connector__head span { color: #7a600e; }
 .sp-app .sp-adv-connector p { margin: 3px 0 0; color: var(--sp-muted); font-size: 11.5px; line-height: 1.5; }
 .sp-adv-delivery { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.sp-adv-turnstile { margin-block: 16px 12px; padding-block-start: 14px; border-block-start: 1px solid var(--sp-line); }
+.sp-app .sp-adv-subtitle { margin: 0 0 4px; color: var(--sp-ink); font-size: 13.5px; font-weight: 700; }
 /* Data retention: days inputs, last-run status and the server cron instructions. */
 .sp-adv-retention__grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .sp-adv-days { display: inline-flex; align-items: center; gap: 8px; }

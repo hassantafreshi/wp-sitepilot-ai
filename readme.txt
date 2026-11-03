@@ -138,8 +138,8 @@ aisaautopilot_usage_historical_log, aisaautopilot_usage_period_archive,
 aisaautopilot_voice_usage_log, aisaautopilot_health_diagnostics,
 aisaautopilot_last_diagnostics, aisaautopilot_kb_schema, aisaautopilot_handoff_inbox_schema,
 aisaautopilot_widget_chat_schema, aisaautopilot_site_setup,
-aisaautopilot_retention_last_run,
-aisaautopilot_rebrand_migrated, and every aisaautopilot_action_claim_* replay
+aisaautopilot_retention_last_run, aisaautopilot_form_outbox_schema,
+aisaautopilot_turnstile_secret, aisaautopilot_rebrand_migrated, and every aisaautopilot_action_claim_* replay
 lock.
 
 Anything else stored under the plugin's own aisaautopilot_ prefix is swept by
@@ -300,6 +300,18 @@ server you run; that server delivers it through Signal. "Check connection" asks
 the server which numbers it can send from. Signal's terms and privacy policy:
 https://signal.org/legal/
 
+**Cloudflare Turnstile (optional, native forms)**
+
+Only if you enter a Turnstile site key and secret key under Setup &
+Connection > Advanced settings > Forms and delivery. Then every page with a
+native form loads Cloudflare's script from challenges.cloudflare.com, which
+shows the check and reads the visitor's IP address and browser details, and
+each submission's answer token is sent from your server to Cloudflare's
+siteverify endpoint with your secret key and the visitor's IP address before
+the email is sent. The form answers themselves are never sent to Cloudflare.
+Terms: https://www.cloudflare.com/website-terms/, privacy:
+https://www.cloudflare.com/privacypolicy/
+
 **Google Fonts (admin screens only)**
 
 The plugin's admin screens load the Plus Jakarta Sans and JetBrains Mono
@@ -367,6 +379,15 @@ hour up to five times, and listed under Your forms with Resend and Delete; the
 Overview names it under "Needs you". It is deleted once sent, or after the
 period under Data retention (30 days unless you change it), and the privacy
 tools and suggested policy text include it.
+
+= How do native forms keep out spam? =
+
+Every native form has a hidden honeypot field and a rate limit of five
+submissions per ten minutes per visitor. For more, add free Cloudflare
+Turnstile under Advanced settings > Forms and delivery: paste a site key and a
+secret key, and every native form shows the check (most visitors never see a
+puzzle) and confirms it with Cloudflare before the email is sent. Leave the
+keys empty to keep it off; see External services for what Cloudflare receives.
 
 = Can I make a payment, upload, login or multi-step form? =
 
@@ -459,6 +480,7 @@ editable text; nothing is sent until you press Send.
   Easy Form Builder copilot are in that language and read right to left, even
   when the administrator writes the request in English or runs the dashboard
   in another language. Only an explicit "in English" changes that.
+* Optional Cloudflare Turnstile spam check for native forms.
 * Store Copilot > Descriptions: optional AI descriptions for existing
   products, approved one by one, with Undo (off by default).
 * Setup proposes a monthly spend cap of 2,000,000 tokens that you can change

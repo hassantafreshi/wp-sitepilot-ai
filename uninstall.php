@@ -46,6 +46,8 @@ function aisaautopilot_uninstall_site(): void {
 	// What the last retention cleanup deleted (Support\Retention).
 	delete_option( 'aisaautopilot_retention_last_run' );
 	delete_option( 'aisaautopilot_form_outbox_schema' );
+	// The encrypted Cloudflare Turnstile secret (Forms\Turnstile).
+	delete_option( 'aisaautopilot_turnstile_secret' );
 	// Marks a site of a network as set up (Activator::maybe_setup_site()).
 	delete_option( 'aisaautopilot_site_setup' );
 	delete_option( 'aisaautopilot_widget_chat_schema' );

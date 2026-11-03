@@ -8,6 +8,7 @@ use AISAAutoPilot\Connectors\WooCommerceConnector;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Core\WpConnectors;
+use AISAAutoPilot\Forms\Turnstile;
 use AISAAutoPilot\Providers\ProviderManager;
 use AISAAutoPilot\Support\Retention;
 use AISAAutoPilot\Usage\UsageTracker;
@@ -449,6 +450,24 @@ final class SettingsPage {
 									<label class="sp-wz-switch-row__title" for="sp-adv-keep-undelivered"><?php esc_html_e( 'Keep a submission when its email cannot be sent', 'ai-site-assistant-autopilot' ); ?></label>
 									<p class="sp-wz-switch-row__note" id="sp-adv-keep-undelivered-note"><?php esc_html_e( 'Off: nothing is saved in WordPress, and a visitor whose email fails is asked to try again. On: the answers are kept on this site, retried every hour up to 5 times, and listed under Your forms to resend; they are deleted once sent or after the period under Data retention.', 'ai-site-assistant-autopilot' ); ?></p>
 								</div>
+							</div>
+							<div class="sp-adv-turnstile" data-sp-turnstile>
+								<h3 class="sp-adv-subtitle"><?php esc_html_e( 'Spam check (optional): Cloudflare Turnstile', 'ai-site-assistant-autopilot' ); ?></h3>
+								<p class="sp-wz-card__note"><?php esc_html_e( 'Free, and most visitors never see a puzzle. In your Cloudflare dashboard, open Turnstile and add a widget for this site, then paste its two keys here. While both are set, every native form shows the check and its answer is confirmed with Cloudflare before the email is sent; leave them empty to keep forms as they are.', 'ai-site-assistant-autopilot' ); ?></p>
+								<div class="sp-wz-card__grid">
+									<label class="sp-wz-field">
+										<span class="sp-wz-field__label"><?php esc_html_e( 'Site key', 'ai-site-assistant-autopilot' ); ?></span>
+										<input type="text" name="turnstile_site_key" class="sp-input sp-input--sm" dir="ltr" autocomplete="off" spellcheck="false" value="<?php echo esc_attr( Turnstile::site_key() ); ?>" />
+									</label>
+									<label class="sp-wz-field">
+										<span class="sp-wz-field__label"><?php esc_html_e( 'Secret key', 'ai-site-assistant-autopilot' ); ?></span>
+										<input type="password" name="turnstile_secret" class="sp-input sp-input--sm" dir="ltr" autocomplete="new-password" spellcheck="false" value="" placeholder="<?php echo esc_attr( Turnstile::has_secret() ? __( 'Saved securely - enter a new key to replace it', 'ai-site-assistant-autopilot' ) : '' ); ?>" />
+									</label>
+								</div>
+								<?php if ( Turnstile::has_secret() ) : ?>
+									<label class="sp-adv-check"><input type="checkbox" name="clear_turnstile_secret" value="1" /> <?php esc_html_e( 'Remove the saved secret key (turns the check off)', 'ai-site-assistant-autopilot' ); ?></label>
+								<?php endif; ?>
+								<p class="sp-wz-card__note" data-sp-turnstile-state><?php echo esc_html( Turnstile::enabled() ? __( 'On: native forms ask Cloudflare to confirm each visitor.', 'ai-site-assistant-autopilot' ) : __( 'Off: native forms use their built-in honeypot and rate limit only.', 'ai-site-assistant-autopilot' ) ); ?></p>
 							</div>
 							<div class="sp-adv-delivery">
 								<button type="button" id="sp-test-form-delivery" class="sp-btn sp-btn--ghost sp-btn--r8"><?php esc_html_e( 'Send a delivery test', 'ai-site-assistant-autopilot' ); ?></button>
@@ -1391,6 +1410,14 @@ final class SettingsPage {
 		if ( array_key_exists( 'form_notification_email', $_POST ) ) {
 			$email                             = sanitize_email( (string) wp_unslash( $_POST['form_notification_email'] ) );
 			$update['form_notification_email'] = is_email( $email ) ? $email : '';
+		}
+		if ( array_key_exists( 'turnstile_site_key', $_POST ) ) {
+			$update['turnstile_site_key'] = Turnstile::clean_key( (string) wp_unslash( $_POST['turnstile_site_key'] ) );
+		}
+		if ( ! empty( $_POST['clear_turnstile_secret'] ) ) {
+			Turnstile::set_secret( '' );
+		} elseif ( '' !== trim( (string) wp_unslash( $_POST['turnstile_secret'] ?? '' ) ) ) {
+			Turnstile::set_secret( (string) wp_unslash( $_POST['turnstile_secret'] ) );
 		}
 		if ( array_key_exists( 'retention_conversations_days', $_POST ) ) {
 			$retention = array();

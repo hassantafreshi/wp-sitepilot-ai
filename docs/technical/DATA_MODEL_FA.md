@@ -12,6 +12,7 @@
 | `aisaautopilot_provider_key` | کلید provider، رمزشده با `KeyVault` | فقط جایگزین یا حذف می‌شود و هرگز خوانده و نمایش داده نمی‌شود. |
 | `aisaautopilot_embedding_key` | کلید جدای embeddings، رمزشده | اختیاری است. خالی یعنی استفاده از کلید اصلی (جز Anthropic). |
 | `aisaautopilot_handoff_secrets` | توکن Telegram، SID و توکن Twilio، توکن دسترسی WhatsApp، نشانی webhook اسلک، توکن اختیاری Signal | جدا از تنظیمات عمومی و رمزشده نگهداری می‌شوند. |
+| `aisaautopilot_turnstile_secret` | کلید مخفی Cloudflare Turnstile، رمزشده با `KeyVault` | فقط جایگزین یا حذف می‌شود و در صفحه نشان داده نمی‌شود. کلید سایت در `turnstile_site_key` تنظیمات است. |
 | `aisaautopilot_wp_connector_key` | جایگاه کلید در Connectors API وردپرس 7 | با `key_management = wp_connectors` |
 | `aisaautopilot_provider_verified` | زمان آخرین آزمون موفق همان پیکربندی ذخیره‌شده | با تغییر provider، endpoint، مدل، کلید یا روش نگهداری پاک می‌شود. |
 

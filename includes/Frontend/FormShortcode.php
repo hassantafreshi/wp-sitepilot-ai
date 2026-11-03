@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Frontend;
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Forms\NativeFormSubmission;
+use AISAAutoPilot\Forms\Turnstile;
 use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Security\ClientAddress;
 
@@ -83,6 +84,7 @@ final class FormShortcode {
 						<input id="sp-website-<?php echo esc_attr( (string) $id ); ?>" type="text" name="sp_website" tabindex="-1" autocomplete="off" />
 					</div>
 					<?php echo $this->render_fields( (array) $plan['fields'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every dynamic field value is escaped below. ?>
+					<?php echo Turnstile::widget(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attributes escaped in Turnstile::widget(). ?>
 					<button type="submit" class="aisaautopilot-form__submit">
 						<?php echo esc_html( (string) ( $plan['submit_button'] ?? __( 'Submit', 'ai-site-assistant-autopilot' ) ) ); ?>
 					</button>
@@ -196,6 +198,10 @@ final class FormShortcode {
 		}
 		if ( $this->is_rate_limited( $form_id ) ) {
 			$this->redirect( $form_id, 'rate_limited' );
+		}
+		// Optional Cloudflare Turnstile: checked before anything else is done with the answers.
+		if ( Turnstile::enabled() && ! Turnstile::verify( (string) wp_unslash( $_POST[ Turnstile::RESPONSE_FIELD ] ?? '' ) )['ok'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- an opaque token sent only to Cloudflare, length-checked in verify().
+			$this->redirect( $form_id, 'spam_check' );
 		}
 
 		$input  = wp_unslash( $_POST );
@@ -314,6 +320,7 @@ final class FormShortcode {
 		$messages = array(
 			'invalid'      => __( 'Please check the required fields and try again.', 'ai-site-assistant-autopilot' ),
 			'rate_limited' => __( 'Too many submissions. Please wait a few minutes and try again.', 'ai-site-assistant-autopilot' ),
+			'spam_check'   => __( 'Please complete the spam check above the button and send the form again.', 'ai-site-assistant-autopilot' ),
 			'delivery'     => __( 'We could not send your submission. Please try again later.', 'ai-site-assistant-autopilot' ),
 		);
 		return $messages[ $error ] ?? __( 'We could not process your submission. Please try again.', 'ai-site-assistant-autopilot' );
