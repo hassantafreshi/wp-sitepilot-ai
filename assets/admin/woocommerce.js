@@ -12,7 +12,8 @@
 	var settingsBusy = false;
 	var settings = {
 		enabled: root.getAttribute( 'data-sp-store-enabled' ) === '1',
-		enable_search: root.getAttribute( 'data-sp-store-search' ) === '1'
+		enable_search: root.getAttribute( 'data-sp-store-search' ) === '1',
+		enable_descriptions: root.getAttribute( 'data-sp-store-descriptions' ) === '1'
 	};
 	var i18n = readJson( 'sp-store-i18n' );
 
@@ -229,8 +230,10 @@
 	function applySettings( next ) {
 		settings.enabled = !! next.enabled;
 		settings.enable_search = !! next.enable_search;
+		settings.enable_descriptions = !! next.enable_descriptions;
 		root.setAttribute( 'data-sp-store-enabled', settings.enabled ? '1' : '0' );
 		root.setAttribute( 'data-sp-store-search', settings.enable_search ? '1' : '0' );
+		root.setAttribute( 'data-sp-store-descriptions', settings.enable_descriptions ? '1' : '0' );
 		Object.keys( settings ).forEach( function ( key ) {
 			var button = root.querySelector( '[data-sp-store-setting="' + key + '"]' );
 			if ( ! button ) { return; }
@@ -257,7 +260,7 @@
 
 	function saveSetting( key ) {
 		if ( settingsBusy || ! Object.prototype.hasOwnProperty.call( settings, key ) ) { return; }
-		var previous = { enabled: settings.enabled, enable_search: settings.enable_search };
+		var previous = { enabled: settings.enabled, enable_search: settings.enable_search, enable_descriptions: settings.enable_descriptions };
 		settings[ key ] = ! settings[ key ];
 		applySettings( settings );
 		setSettingsBusy( true );

@@ -40,8 +40,11 @@ Everything in this first version:
 * Voice input that is transcript-first: speech becomes editable text in the
   message box and is never sent by itself.
 * Store Copilot for WooCommerce: read-only store insight, plus creation of a
-  single reviewed simple-product draft. Publishing, editing, bulk changes,
-  orders and refunds stay unavailable.
+  single reviewed simple-product draft. Optionally (off by default), AI
+  descriptions for products you already have: pick up to ten, read each draft
+  beside the current text, edit it, and apply or skip it one by one; Undo puts
+  the old text back. Publishing, editing any other field, orders and refunds
+  stay unavailable.
 * Content Studio: AI-drafted posts and pages with templates, an immutable
   preview, explicit approval, a history screen and CSV export. Drafts only.
 * Form Studio: describe a form in text or by voice, review the exact fields
@@ -151,9 +154,13 @@ site uses a persistent object cache, transients are held there instead of in
 the options table; they are not reachable from the uninstall hook and expire on
 their own.
 
-The scheduled jobs (aisaautopilot_index_post, aisaautopilot_kb_rebuild and
-the daily aisaautopilot_retention_cleanup) are unscheduled, including every
-page still waiting to be indexed.
+The scheduled jobs (aisaautopilot_index_post, aisaautopilot_kb_rebuild, the
+daily aisaautopilot_retention_cleanup and aisaautopilot_form_outbox_retry) are
+unscheduled, including every page still waiting to be indexed.
+
+Post meta (deleted): _aisaautopilot_previous_description, the earlier text of a
+product description that a Store Copilot approval replaced, kept only for Undo.
+The new description itself stays, because it is your content.
 
 On a multisite network each site has its own tables and options, and all of
 the above is removed from every site of the network.
@@ -398,7 +405,10 @@ write values or change notifications are left to you.
 
 No. Content Studio creates drafts, and WooCommerce work is limited to one
 reviewed simple-product draft. Publishing is always a human action in
-WordPress' own editor.
+WordPress' own editor. The one change to an existing product is an AI
+description you approved, product by product, once you turn Product
+descriptions on in Store Copilot; it replaces only the description, and Undo
+restores the earlier text.
 
 = Why is voice input unavailable? =
 
@@ -449,6 +459,8 @@ editable text; nothing is sent until you press Send.
   Easy Form Builder copilot are in that language and read right to left, even
   when the administrator writes the request in English or runs the dashboard
   in another language. Only an explicit "in English" changes that.
+* Store Copilot > Descriptions: optional AI descriptions for existing
+  products, approved one by one, with Undo (off by default).
 * Setup proposes a monthly spend cap of 2,000,000 tokens that you can change
   or switch off.
 * Optional: keep a form submission whose email cannot be sent, retry it, and

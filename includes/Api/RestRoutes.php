@@ -679,6 +679,26 @@ final class RestRoutes {
 		);
 
 		$admin_store = new AdminStoreSettingsController();
+		// Reviewed AI descriptions for existing products (off until the store manager turns them on).
+		$descriptions = new ProductDescriptionsController();
+		foreach (
+			array(
+				'/woocommerce/descriptions'       => array( 'GET', 'products' ),
+				'/woocommerce/descriptions/draft' => array( 'POST', 'draft' ),
+				'/woocommerce/descriptions/apply' => array( 'POST', 'apply' ),
+				'/woocommerce/descriptions/undo'  => array( 'POST', 'undo' ),
+			) as $route => $handler
+		) {
+			register_rest_route(
+				self::NAMESPACE,
+				$route,
+				array(
+					'methods'             => $handler[0],
+					'callback'            => array( $descriptions, $handler[1] ),
+					'permission_callback' => array( $this, 'can_manage_woocommerce' ),
+				)
+			);
+		}
 		register_rest_route(
 			self::NAMESPACE,
 			'/woocommerce/admin-settings',

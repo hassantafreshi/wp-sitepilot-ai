@@ -99,6 +99,8 @@ function aisaautopilot_uninstall_site(): void {
 	wp_unschedule_hook( 'aisaautopilot_kb_rebuild' );
 	wp_unschedule_hook( 'aisaautopilot_retention_cleanup' );
 	wp_unschedule_hook( 'aisaautopilot_form_outbox_retry' );
+	// The description a Store Copilot approval replaced, kept only so Undo can restore it.
+	delete_post_meta_by_key( '_aisaautopilot_previous_description' );
 }
 
 /*

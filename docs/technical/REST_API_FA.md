@@ -136,6 +136,10 @@
 | `/woocommerce/categories` | GET | `can_manage_woocommerce` | دسته‌های محصول |
 | `/woocommerce/analytics/dashboard` | GET | `can_manage_woocommerce` | خلاصهٔ فقط‌خواندنی |
 | `/woocommerce/orders/recent` | GET | `can_manage_woocommerce` | سفارش‌های اخیر، فقط‌خواندنی |
+| `/woocommerce/descriptions` | GET | `can_manage_woocommerce` | محصولات برای توضیح (`only_short`، پیش‌فرض true). با کلید «Product descriptions» خاموش 403 `descriptions_disabled` (برای همهٔ مسیرهای این گروه). |
+| `/woocommerce/descriptions/draft` | POST | `can_manage_woocommerce` | `product_id`، `tone`؛ پیش‌نویس پاک‌سازی‌شده و `action_id` (۱۵ دقیقه)؛ چیزی تغییر نمی‌کند |
+| `/woocommerce/descriptions/apply` | POST | `can_manage_woocommerce` | `action_id`، `description` اختیاری (ویرایش مدیر)؛ فقط سازنده و یک بار؛ تغییر هم‌زمان 409 |
+| `/woocommerce/descriptions/undo` | POST | `can_manage_woocommerce` | `product_id`؛ برگرداندن توضیح قبلی |
 
 متدهای دیگر `WooCommerceAnalyticsController`، `WooCommerceContentController` و `WooCommerceOrderController`، از جمله تغییر وضعیت سفارش، refund و bulk، **ثبت نشده‌اند** و نباید بدون بستهٔ امنیتی مستقل Phase 2 (T48) فعال شوند.
 

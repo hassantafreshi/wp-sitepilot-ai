@@ -116,7 +116,12 @@ credential is stored encrypted, and each channel has a "Check connection"
 button; only Slack's posts a line, because a webhook cannot be read.
 
 **Store Copilot** — read-only WooCommerce insight and a single reviewed
-simple-product draft.
+simple-product draft. Optionally (off by default, "Product descriptions"
+under What it can do), AI descriptions for existing products: pick up to ten
+with missing or short descriptions, read each draft beside the current text,
+edit it, apply or skip it one by one. Only the long description changes; an
+approval is refused if someone edited that description after the draft; Undo
+restores the earlier text.
 
 **Content Studio and Form Studio** — AI-drafted posts and pages with templates,
 history and CSV export; and forms described in text or voice, previewed field

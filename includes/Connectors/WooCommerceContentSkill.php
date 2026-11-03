@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace AISAAutoPilot\Connectors;
 
+use AISAAutoPilot\Core\SiteLanguage;
 use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Providers\ProviderManager;
 
@@ -96,7 +97,8 @@ class WooCommerceContentSkill {
 				. "Include key features and benefits.\n"
 				. "Use HTML formatting (h2, p, ul, li, strong) for structure.\n"
 				. "Do not include the product name as a heading.\n"
-				. 'Respond in the same language as the product name.';
+				// Shoppers read it: the product's own language, else the site's (not the admin's).
+				. 'Respond in the same language as the product name; if the name does not show a language, use the site language "' . SiteLanguage::site_locale() . '".';
 
 			$user_prompt = "Product: {$name}\n"
 				. ( $sku ? "SKU: {$sku}\n" : '' )

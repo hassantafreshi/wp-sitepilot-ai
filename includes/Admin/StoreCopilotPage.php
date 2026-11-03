@@ -11,8 +11,10 @@ use AISAAutoPilot\Providers\ProviderManager;
  *
  * Phase 1 deliberately has four mockup-aligned tabs: proposal to reviewed
  * draft, capability/status settings, a read-only product list, and an honest
- * order-access contract. Publishing, editing, bulk work and order mutations
- * are never rendered as usable actions.
+ * order-access contract. Publishing, general editing and order mutations are never
+ * rendered as usable actions. The one exception is Descriptions: reviewed AI
+ * descriptions for existing products, off until the store manager turns them on,
+ * one approval per product, with Undo (Connectors\ProductDescriptions).
  */
 final class StoreCopilotPage {
 
@@ -20,6 +22,7 @@ final class StoreCopilotPage {
 		'newproduct'   => 'New product',
 		'capabilities' => 'What it can do',
 		'products'     => 'Products',
+		'descriptions' => 'Descriptions',
 		'orders'       => 'Orders',
 	);
 
@@ -47,6 +50,7 @@ final class StoreCopilotPage {
 			data-sp-store-active="<?php echo $active ? '1' : '0'; ?>"
 			data-sp-store-enabled="<?php echo $enabled ? '1' : '0'; ?>"
 			data-sp-store-search="<?php echo ! empty( $settings['enable_search'] ) ? '1' : '0'; ?>"
+			data-sp-store-descriptions="<?php echo ! empty( $settings['enable_descriptions'] ) ? '1' : '0'; ?>"
 			data-sp-store-provider="<?php echo $provider_ready ? '1' : '0'; ?>"
 			data-sp-store-can-manage="<?php echo $can_manage ? '1' : '0'; ?>"
 		>
@@ -71,6 +75,9 @@ final class StoreCopilotPage {
 							break;
 						case 'products':
 							$this->render_products( $active, $enabled );
+							break;
+						case 'descriptions':
+							$this->render_descriptions( $active && $enabled && $can_manage, ! empty( $settings['enable_descriptions'] ), $provider_ready );
 							break;
 						case 'orders':
 							$this->render_orders( $active, $enabled, $can_manage );
@@ -105,6 +112,24 @@ final class StoreCopilotPage {
 				'review_draft'     => __( 'Review product draft', 'ai-site-assistant-autopilot' ),
 				'lock_simple'      => __( 'Phase 1 creates simple products only', 'ai-site-assistant-autopilot' ),
 				'lock_draft'       => __( 'Phase 1 always creates a draft', 'ai-site-assistant-autopilot' ),
+				'desc_loading'     => __( 'Loading products…', 'ai-site-assistant-autopilot' ),
+				'desc_none'        => __( 'Every product already has a description of at least 40 words. Clear the filter to rewrite one anyway.', 'ai-site-assistant-autopilot' ),
+				/* translators: %s: number of words in the current description. */
+				'desc_words'       => __( '%s words now', 'ai-site-assistant-autopilot' ),
+				'desc_empty'       => __( 'No description yet', 'ai-site-assistant-autopilot' ),
+				/* translators: 1: number of drafts written so far, 2: number of drafts asked for. */
+				'desc_writing'     => __( 'Writing draft %1$s of %2$s…', 'ai-site-assistant-autopilot' ),
+				'desc_written'     => __( 'Drafts are ready. Read each one, edit it if you like, then apply or skip it.', 'ai-site-assistant-autopilot' ),
+				'desc_limit'       => __( 'Pick up to 10 products at a time.', 'ai-site-assistant-autopilot' ),
+				'desc_current'     => __( 'Now', 'ai-site-assistant-autopilot' ),
+				'desc_draft'       => __( 'AI draft (you can edit it)', 'ai-site-assistant-autopilot' ),
+				'desc_apply'       => __( 'Apply', 'ai-site-assistant-autopilot' ),
+				'desc_skip'        => __( 'Skip', 'ai-site-assistant-autopilot' ),
+				'desc_undo'        => __( 'Undo', 'ai-site-assistant-autopilot' ),
+				'desc_applied'     => __( 'Applied', 'ai-site-assistant-autopilot' ),
+				'desc_skipped'     => __( 'Skipped. Nothing changed.', 'ai-site-assistant-autopilot' ),
+				'desc_failed'      => __( 'No draft for this product.', 'ai-site-assistant-autopilot' ),
+				'desc_edit_label'  => __( 'Description', 'ai-site-assistant-autopilot' ),
 			)
 		);
 	}
@@ -125,6 +150,7 @@ final class StoreCopilotPage {
 			'newproduct'   => __( 'New product', 'ai-site-assistant-autopilot' ),
 			'capabilities' => __( 'What it can do', 'ai-site-assistant-autopilot' ),
 			'products'     => __( 'Products', 'ai-site-assistant-autopilot' ),
+			'descriptions' => __( 'Descriptions', 'ai-site-assistant-autopilot' ),
 			'orders'       => __( 'Orders', 'ai-site-assistant-autopilot' ),
 		);
 		$tabs  = array();
@@ -301,7 +327,8 @@ final class StoreCopilotPage {
 					<div class="sp-store-settings-list">
 						<?php $this->setting_toggle( 'enabled', __( 'WooCommerce AI connector', 'ai-site-assistant-autopilot' ), __( 'Off means no proposals, drafts, or Store Copilot reads.', 'ai-site-assistant-autopilot' ), $enabled ); ?>
 						<?php $this->setting_toggle( 'enable_search', __( 'Smart product search', 'ai-site-assistant-autopilot' ), __( 'Controls the protected Store search endpoint. It does not add a visitor-facing search interface.', 'ai-site-assistant-autopilot' ), ! empty( $settings['enable_search'] ) ); ?>
-						<?php $this->locked_toggle( __( 'Product editing by AI', 'ai-site-assistant-autopilot' ), __( 'Reserved for Phase 2. It cannot be switched on yet.', 'ai-site-assistant-autopilot' ), false ); ?>
+						<?php $this->setting_toggle( 'enable_descriptions', __( 'Product descriptions', 'ai-site-assistant-autopilot' ), __( 'Lets AutoPilot draft descriptions for products you already have. Each one waits for your approval, and Undo puts the old text back. Nothing else about a product is changed.', 'ai-site-assistant-autopilot' ), ! empty( $settings['enable_descriptions'] ) ); ?>
+						<?php $this->locked_toggle( __( 'Product editing by AI', 'ai-site-assistant-autopilot' ), __( 'Prices, stock, titles and every other field are reserved for Phase 2. They cannot be switched on yet.', 'ai-site-assistant-autopilot' ), false ); ?>
 						<?php $this->locked_toggle( __( 'Always create as draft', 'ai-site-assistant-autopilot' ), __( 'Fixed in Phase 1. Publishing stays a manual step.', 'ai-site-assistant-autopilot' ), true ); ?>
 					</div>
 					<p class="sp-status-text" data-sp-store-settings-status role="status" aria-live="polite"></p>
@@ -397,6 +424,50 @@ final class StoreCopilotPage {
 				<?php endforeach; ?>
 			<?php endif; ?>
 			<div class="sp-store-panel__foot"><?php esc_html_e( 'Drafts AutoPilot created are marked. Everything else it can read but not touch until Phase 2.', 'ai-site-assistant-autopilot' ); ?></div>
+		</section>
+		<?php
+	}
+
+	/**
+	 * Descriptions: pick products with missing or thin descriptions, draft them with AI,
+	 * read each draft beside the current text, edit it, and apply or skip it one by one.
+	 */
+	private function render_descriptions( bool $usable, bool $switched_on, bool $provider_ready ): void {
+		$capabilities_url = add_query_arg( 'tab', 'capabilities', admin_url( 'admin.php?page=' . AdminMenu::SLUG_WC_DASHBOARD ) );
+		?>
+		<section class="sp-card sp-store-panel sp-store-desc" data-sp-store-descriptions-panel data-sp-desc-ready="<?php echo $usable && $switched_on && $provider_ready ? '1' : '0'; ?>">
+			<div class="sp-store-panel__head">
+				<h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( 'Descriptions for products you already have', 'ai-site-assistant-autopilot' ); ?></h2>
+				<span class="sp-store-panel__sub"><?php esc_html_e( 'You approve each one. Only the description changes, and Undo puts the old text back.', 'ai-site-assistant-autopilot' ); ?></span>
+			</div>
+			<?php if ( ! $usable ) : ?>
+				<p class="sp-empty sp-store-empty"><?php esc_html_e( 'Descriptions become available here when WooCommerce and its AI connector are active.', 'ai-site-assistant-autopilot' ); ?></p>
+			<?php elseif ( ! $switched_on ) : ?>
+				<div class="sp-store-desc__off" data-sp-desc-off>
+					<p><?php esc_html_e( 'Product descriptions are off. Turn them on under What it can do, then pick the products to write for here.', 'ai-site-assistant-autopilot' ); ?></p>
+					<a class="sp-btn sp-btn--ghost" href="<?php echo esc_url( $capabilities_url ); ?>"><?php esc_html_e( 'Open What it can do', 'ai-site-assistant-autopilot' ); ?></a>
+				</div>
+			<?php elseif ( ! $provider_ready ) : ?>
+				<p class="sp-empty sp-store-empty"><?php esc_html_e( 'Connect an AI service in Setup & Connection first.', 'ai-site-assistant-autopilot' ); ?></p>
+			<?php else : ?>
+				<div class="sp-store-desc__bar">
+					<label class="sp-store-desc__filter"><input type="checkbox" data-sp-desc-only-short checked /> <?php esc_html_e( 'Only products with a missing or short description', 'ai-site-assistant-autopilot' ); ?></label>
+					<label class="sp-store-desc__tone">
+						<span><?php esc_html_e( 'Tone', 'ai-site-assistant-autopilot' ); ?></span>
+						<select class="sp-select" data-sp-desc-tone>
+							<option value="professional"><?php esc_html_e( 'Professional', 'ai-site-assistant-autopilot' ); ?></option>
+							<option value="friendly"><?php esc_html_e( 'Friendly', 'ai-site-assistant-autopilot' ); ?></option>
+							<option value="luxury"><?php esc_html_e( 'Premium', 'ai-site-assistant-autopilot' ); ?></option>
+							<option value="technical"><?php esc_html_e( 'Technical', 'ai-site-assistant-autopilot' ); ?></option>
+						</select>
+					</label>
+					<button type="button" class="sp-btn" data-sp-desc-write disabled><?php esc_html_e( 'Write drafts', 'ai-site-assistant-autopilot' ); ?></button>
+				</div>
+				<p class="sp-status-text" data-sp-desc-status role="status" aria-live="polite"></p>
+				<ul class="sp-store-desc__list" data-sp-desc-list aria-label="<?php esc_attr_e( 'Products', 'ai-site-assistant-autopilot' ); ?>"></ul>
+				<div class="sp-store-desc__reviews" data-sp-desc-reviews></div>
+			<?php endif; ?>
+			<div class="sp-store-panel__foot"><?php esc_html_e( 'Up to 10 drafts at a time, one AI request each. A draft is valid for 15 minutes and is refused if someone changes that description meanwhile.', 'ai-site-assistant-autopilot' ); ?></div>
 		</section>
 		<?php
 	}

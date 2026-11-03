@@ -23,13 +23,18 @@ final class AdminStoreSettingsController {
 			);
 		}
 
+		// Product descriptions joined later: a request without it keeps the saved choice.
+		$descriptions = $request->has_param( 'enable_descriptions' )
+			? rest_sanitize_boolean( $request->get_param( 'enable_descriptions' ) )
+			: WooCommerceConnector::get_settings()['enable_descriptions'];
 		Settings::update(
 			array(
 				'woocommerce' => array(
-					'enabled'       => rest_sanitize_boolean( $request->get_param( 'enabled' ) ),
-					'auto_draft'    => true,
-					'enable_search' => rest_sanitize_boolean( $request->get_param( 'enable_search' ) ),
-					'enable_edit'   => false,
+					'enabled'             => rest_sanitize_boolean( $request->get_param( 'enabled' ) ),
+					'auto_draft'          => true,
+					'enable_search'       => rest_sanitize_boolean( $request->get_param( 'enable_search' ) ),
+					'enable_edit'         => false,
+					'enable_descriptions' => $descriptions,
 				),
 			)
 		);

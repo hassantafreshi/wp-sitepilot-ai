@@ -214,7 +214,7 @@ final class AdminMenu {
 		self::SLUG_SETTINGS      => array( array( 'settings.js', 'AISAAutoPilotAI' ) ),
 		self::SLUG_CONNECTIONS   => array( array( 'connections.js', 'AISAAutoPilotAI' ) ),
 		self::SLUG_WC            => array( array( 'woocommerce.js', 'AISAAutoPilotAI' ) ),
-		self::SLUG_WC_DASHBOARD  => array( array( 'woocommerce.js', 'AISAAutoPilotAI' ) ),
+		self::SLUG_WC_DASHBOARD  => array( array( 'woocommerce.js', 'AISAAutoPilotAI' ), array( 'store-descriptions.js', 'AISAAutoPilotAI' ) ),
 		self::SLUG_CONVERSATIONS => array(
 			array( 'answer-widget.js', 'AISAAutoPilotAI' ),
 			array( 'answer-handoff.js', 'AISAAutoPilotAI' ),

@@ -47,9 +47,12 @@ final class WooCommerceConnector {
 	 * Read the non-secret Store Copilot settings with Phase 1 invariants.
 	 *
 	 * `auto_draft` and `enable_edit` are deliberately fixed: a proposal can only
-	 * create one simple product draft, and it can never edit an existing product.
+	 * create one simple product draft, and general product editing stays reserved.
+	 * `enable_descriptions` (off by default) is the one narrow exception: reviewed AI
+	 * descriptions for existing products, one approval each, with Undo
+	 * (ProductDescriptions).
 	 *
-	 * @return array{enabled:bool,auto_draft:bool,enable_search:bool,enable_edit:bool}
+	 * @return array{enabled:bool,auto_draft:bool,enable_search:bool,enable_edit:bool,enable_descriptions:bool}
 	 */
 	public static function get_settings(): array {
 
@@ -57,10 +60,11 @@ final class WooCommerceConnector {
 		$stored = is_array( $stored ) ? $stored : array();
 
 		return array(
-			'enabled'       => ! array_key_exists( 'enabled', $stored ) || ! empty( $stored['enabled'] ),
-			'auto_draft'    => true,
-			'enable_search' => ! empty( $stored['enable_search'] ),
-			'enable_edit'   => false,
+			'enabled'             => ! array_key_exists( 'enabled', $stored ) || ! empty( $stored['enabled'] ),
+			'auto_draft'          => true,
+			'enable_search'       => ! empty( $stored['enable_search'] ),
+			'enable_edit'         => false,
+			'enable_descriptions' => ! empty( $stored['enable_descriptions'] ),
 		);
 	}
 
@@ -112,6 +116,8 @@ final class WooCommerceConnector {
 				'publish'      => false,
 				'edit'         => false,
 				'bulk_edit'    => false,
+				// Only the long description, one reviewed approval at a time, with Undo.
+				'description'  => $available && ProductDescriptions::enabled(),
 			),
 			'orders'    => array(
 				'read'   => $available,

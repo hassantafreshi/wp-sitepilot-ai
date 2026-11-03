@@ -51,6 +51,7 @@ const ROUTES = [
 	[ 'store-capabilities', 'page=aisaautopilot-wc-dashboard&tab=capabilities' ],
 	[ 'store-products', 'page=aisaautopilot-wc-dashboard&tab=products' ],
 	[ 'store-orders', 'page=aisaautopilot-wc-dashboard&tab=orders' ],
+	[ 'store-descriptions', 'page=aisaautopilot-wc-dashboard&tab=descriptions' ],
 	// Legacy alias where T15 saw F15-1 (title not on the right edge in fa_IR).
 	[ 'store-legacy-settings', 'page=aisaautopilot-woocommerce' ],
 	[ 'studio-write', 'page=aisaautopilot-form-builder&mode=content' ],

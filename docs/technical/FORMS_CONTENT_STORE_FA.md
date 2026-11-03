@@ -82,11 +82,12 @@ D-23 (۲۰۲۶-۰۹-۱۷): این صفحه از یک deep link زیر Content St
 
   | حوزه | مجاز | غیرمجاز |
   |---|---|---|
-  | محصول | `read` و `create_draft` | `publish`، `edit`، `bulk_edit` |
+  | محصول | `read`، `create_draft` و `description` (فقط با کلید «Product descriptions») | `publish`، `edit`، `bulk_edit` |
   | سفارش | خواندن اخیر | هر تغییری |
 
 - **ساخت محصول:** `/woocommerce/plan` و `/woocommerce/execute` با `WooCommerceProductSkill` فقط پیش‌نویس محصول می‌سازند.
 - **جست‌وجوی هوشمند:** `/woocommerce/smart-search` فقط‌خواندنی است و فقط با ترجیح صریح آن کار می‌کند (`is_smart_search_enabled()`).
+- **توضیح محصولات موجود (۲۰۲۶-۱۱-۰۴، P2 بازبینی CTO):** `Connectors\ProductDescriptions`، پشت تنظیم `woocommerce.enable_descriptions` (پیش‌فرض خاموش، کلید در «What it can do»؛ `enable_edit` همچنان قفل است). مسیرها: `GET /woocommerce/descriptions` (فهرست؛ بی‌توضیح یا کمتر از ۴۰ کلمه اول)، `POST …/draft` (یک درخواست `WooCommerceContentSkill::generate_description`، پاک‌سازی با `wp_kses_post` و حذف code fence، ذخیره در `ActionStore` با اتصال `woocommerce_description` و hash توضیح فعلی)، `POST …/apply` (claim اتمی فقط برای سازنده؛ اگر توضیح پس از پیش‌نویس عوض شده باشد 409 `changed_since_draft`؛ متن ویرایش‌شدهٔ مدیر پاک‌سازی می‌شود؛ متن قبلی در post meta `_aisaautopilot_previous_description`)، `POST …/undo`. فقط `set_description()`؛ قیمت، موجودی، عنوان و وضعیت هرگز. تب «Descriptions» با `store-descriptions.js` (پیش‌نمایش با allowlist برچسب در مرورگر). آزمون‌ها: `wordpress_product_descriptions_integration.php` (۹) و `product_descriptions_browser_matrix.cjs` (en و fa).
 - **مسیرهای خاموش:** کنترلرهای analytics دیگر، content و order-write در کد مانده‌اند اما ثبت نشده‌اند (T48 و T49).
 - **رفتار صفحه:** بدون WooCommerce حالت صادقانهٔ «در دسترس نیست» نمایش می‌دهد و هیچ کنترل نوشتنی ندارد.
 

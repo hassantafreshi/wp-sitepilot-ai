@@ -140,7 +140,8 @@
 | قفل‌ها | هر `aisaautopilot_action_claim_*` با `DELETE ... LIKE` |
 | transientها | `_transient_aisaautopilot_%` و `_transient_timeout_aisaautopilot_%` با `DELETE ... LIKE` |
 | جاروی پایانی | هر ردیف باقی‌ماندهٔ `aisaautopilot_%` در جدول options |
-| cron | `wp_unschedule_hook()` برای `aisaautopilot_index_post`، `aisaautopilot_kb_rebuild` و `aisaautopilot_retention_cleanup` (غیرفعال کردن هم این آخری را برمی‌دارد). `wp_clear_scheduled_hook()` فقط رویدادهای بی‌آرگومان را برمی‌داشت و رویداد هر برگه (با شناسهٔ نوشته) می‌ماند. |
+| post meta | `delete_post_meta_by_key( '_aisaautopilot_previous_description' )`: متن توضیحی که تأیید Store Copilot جایگزینش کرد، فقط برای Undo. توضیح تازه خودش محتوای سایت است و می‌ماند. |
+| cron | `wp_unschedule_hook()` برای `aisaautopilot_index_post`، `aisaautopilot_kb_rebuild`، `aisaautopilot_retention_cleanup` و `aisaautopilot_form_outbox_retry` (غیرفعال کردن هم این آخری را برمی‌دارد). `wp_clear_scheduled_hook()` فقط رویدادهای بی‌آرگومان را برمی‌داشت و رویداد هر برگه (با شناسهٔ نوشته) می‌ماند. |
 
 **چرا جاروی پایانی لازم است:** `RebrandMigrator::migrate_options()` هر option با پیشوند `sitepilot_` را با تغییر پیشوند به `aisaautopilot_` منتقل می‌کند و فهرست را از دیتابیس کشف می‌کند، نه از یک آرایهٔ ثابت. پس سایتی که از نام قدیمی ارتقا یافته می‌تواند ردیف‌های `aisaautopilot_*` داشته باشد که نام‌شان در این نسخه اصلاً اعلام نشده است و فهرست صریح به آن‌ها نمی‌رسد. پیشوند منجمد و مخصوص همین افزونه است، پس جارو به دادهٔ افزونهٔ دیگری نمی‌رسد.
 
