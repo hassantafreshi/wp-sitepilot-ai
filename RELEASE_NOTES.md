@@ -297,7 +297,7 @@ fixed five defects (details in `docs/CTO_REVIEW_AND_FINAL_QA_FA.md`):
 
 Each fix has its own test. Results on the final commit:
 
-- the full regression on the final commit was still running when this was written; its result follows in the next commit
+- the full regression on the final commit gave 4662 PASS and 0 FAIL over 86 suites, including multisite 7/0 and Plain permalinks 6/0, with no PHP notice in debug.log (the fa_IR halves of the a11y and Form Studio matrices were re-run after a slow fa_IR dashboard login in this container: 764/0 and 28/0)
 - PHPUnit 225 tests / 1178 assertions.
 - PHPStan 0, including a run targeting PHP 8.1.
 - PHPCS 0/0.

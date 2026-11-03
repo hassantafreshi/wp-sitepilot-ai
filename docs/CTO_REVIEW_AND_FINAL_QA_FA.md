@@ -104,7 +104,7 @@
 
 | حوزه | نتیجه |
 |---|---|
-| رگرسیون کامل (همهٔ integrationها، smokeها، ماتریس‌های مرورگر en_US و fa_IR، multisite، Plain permalinks) روی commit نهایی | هنگام این commit در حال اجراست؛ نتیجه در commit بعدی همین‌جا ثبت می‌شود |
+| رگرسیون کامل (همهٔ integrationها، smokeها، ماتریس‌های مرورگر en_US و fa_IR، multisite، Plain permalinks) روی commit نهایی | **۴۶۶۲ PASS و ۰ FAIL** در ۸۶ ردیف؛ multisite ۷/۰ و Plain permalinks ۶/۰؛ هیچ خط PHP notice در `debug.log`. دو ماتریس (a11y و Form Studio) هنگام ورود کاربر fa_IR زمان‌بر شدند، چون داشبورد فارسی از پشت proxy محیط کند به wordpress.org وصل می‌شود؛ نیمهٔ fa_IR آن‌ها دوباره اجرا شد: ۷۶۴/۰ و ۲۸/۰. smoke دارایی‌ها که هنوز قرارداد اسکریپت قدیمی Form Studio را داشت، پس از اصلاح ۲۰/۰ شد. |
 | PHPUnit | ۲۲۵ آزمون، ۱۱۷۸ assertion، سبز |
 | PHPStan سطح ۵؛ و سطح ۵ با هدف PHP 8.1 | بدون خطا |
 | PHPStan سطح ۸ (فقط برای کشف) | ۱۷۷ مورد، تقریباً همه دقت نوع؛ نقص قابل‌رسیدن برای کاربر نبود. مورد سفارش‌های refund در کد بی‌مسیر است. |
