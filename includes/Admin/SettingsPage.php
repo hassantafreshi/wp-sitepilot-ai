@@ -925,11 +925,36 @@ final class SettingsPage {
 							<?php endforeach; ?>
 						</div>
 
+						<?php
+						// First setup proposes a cap (a surprise bill is the most common complaint about AI plugins);
+						// a site set up earlier without one sees the suggestion switched off, one click away.
+						$cap_on    = $budget > 0 || ! $is_verified;
+						$cap_value = $budget > 0 ? $budget : UsageTracker::SUGGESTED_BUDGET;
+						?>
+						<div class="sp-wizard-card sp-wizard-cap" data-sp-setup-cap>
+							<div class="sp-wizard-cap__head">
+								<span class="sp-wizard-integration__icon" aria-hidden="true"><?php echo Ui::icon( 'money', 18, 'currentColor', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+								<div class="sp-wizard-integration__body">
+									<span class="sp-wizard-integration__name" id="sp-setup-cap-title"><?php esc_html_e( 'Monthly spend cap', 'ai-site-assistant-autopilot' ); ?></span>
+									<p class="sp-wizard-integration__desc" id="sp-setup-cap-note"><?php esc_html_e( 'Protects you from a surprise bill: once this month passes the tokens below, every AI feature pauses until next month and the Overview tells you. 2,000,000 tokens is roughly 700 to 1,000 assistant answers; what that costs depends on your provider\'s price per million tokens.', 'ai-site-assistant-autopilot' ); ?></p>
+								</div>
+								<label class="sp-wizard-switch sp-wizard-switch--main">
+									<input type="hidden" name="monthly_budget_enabled" value="0" />
+									<input type="checkbox" role="switch" name="monthly_budget_enabled" value="1" aria-labelledby="sp-setup-cap-title" aria-describedby="sp-setup-cap-note" data-sp-setup-cap-switch <?php checked( $cap_on ); ?> />
+									<span class="sp-wizard-switch__track" aria-hidden="true"></span>
+								</label>
+							</div>
+							<label class="sp-wizard-cap__field" data-sp-setup-cap-field<?php echo $cap_on ? '' : ' hidden'; ?>>
+								<span><?php esc_html_e( 'Tokens per month', 'ai-site-assistant-autopilot' ); ?></span>
+								<input type="number" name="monthly_budget" class="sp-wizard-input" dir="ltr" inputmode="numeric" min="10000" max="<?php echo esc_attr( (string) UsageTracker::MAX_BUDGET ); ?>" step="10000" value="<?php echo esc_attr( (string) $cap_value ); ?>" />
+							</label>
+						</div>
+
 						<div class="sp-wizard-card sp-wizard-accordion">
 							<button type="button" class="sp-wizard-accordion__toggle" data-sp-accordion aria-expanded="false" aria-controls="sp-setup-advanced-4">
 								<?php echo Ui::icon( 'cog', 16, '#5b5e7d', 2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 								<span class="sp-wizard-accordion__title"><?php esc_html_e( 'Advanced', 'ai-site-assistant-autopilot' ); ?></span>
-								<span class="sp-wizard-accordion__meta"><?php esc_html_e( 'Approval before publishing, spend cap', 'ai-site-assistant-autopilot' ); ?></span>
+								<span class="sp-wizard-accordion__meta"><?php esc_html_e( 'Approval before publishing', 'ai-site-assistant-autopilot' ); ?></span>
 								<span class="sp-wizard-accordion__chev" aria-hidden="true"><?php echo Ui::icon( 'chev-down', 16, '#5b5e7d', 2.2 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
 							</button>
 							<div class="sp-wizard-accordion__body sp-wizard-guards" id="sp-setup-advanced-4" hidden>
@@ -938,23 +963,6 @@ final class SettingsPage {
 									<div>
 										<div class="sp-wizard-switch__title"><?php esc_html_e( 'Ask me before publishing', 'ai-site-assistant-autopilot' ); ?> <span class="sp-wizard-tag"><?php esc_html_e( 'Always on', 'ai-site-assistant-autopilot' ); ?></span></div>
 										<p class="sp-wizard-switch__desc"><?php esc_html_e( 'AutoPilot drafts the change and waits for your approval instead of writing it live. This version cannot switch it off.', 'ai-site-assistant-autopilot' ); ?></p>
-									</div>
-								</div>
-								<div class="sp-wizard-guard">
-									<span class="sp-wizard-switch__track<?php echo $budget > 0 ? ' is-on' : ''; ?> is-locked" aria-hidden="true"></span>
-									<div>
-										<div class="sp-wizard-switch__title"><?php esc_html_e( 'Monthly spend cap', 'ai-site-assistant-autopilot' ); ?></div>
-										<p class="sp-wizard-switch__desc">
-											<?php
-											if ( $budget > 0 ) {
-												/* translators: %s: monthly token budget. */
-												echo esc_html( sprintf( __( 'Pauses every AI feature once this month passes %s tokens.', 'ai-site-assistant-autopilot' ), number_format_i18n( $budget ) ) );
-											} else {
-												esc_html_e( 'No cap is set, so AI features keep running all month.', 'ai-site-assistant-autopilot' );
-											}
-											?>
-											<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_USAGE ) ); ?>"><?php esc_html_e( 'Set it in Usage & Cost', 'ai-site-assistant-autopilot' ); ?></a>
-										</p>
 									</div>
 								</div>
 							</div>
@@ -1527,6 +1535,12 @@ final class SettingsPage {
 		}
 
 		Settings::update( $settings_update );
+
+		// Step 4: the spend cap Setup proposes. Off means no cap (0); the number is clamped like Usage & Cost does.
+		if ( $is_setup_wizard && array_key_exists( 'monthly_budget_enabled', $_POST ) ) {
+			$cap = ! empty( $_POST['monthly_budget_enabled'] ) ? absint( wp_unslash( $_POST['monthly_budget'] ?? UsageTracker::SUGGESTED_BUDGET ) ) : 0;
+			( new UsageTracker() )->set_budget( $cap > 0 ? max( 10000, $cap ) : 0 );
+		}
 
 		if ( $clear_key ) {
 			Settings::set_api_key( '' );

@@ -17,6 +17,13 @@ final class UsageTracker {
 	/** Largest token cap accepted by the local budget control. */
 	public const MAX_BUDGET = 1000000000;
 
+	/**
+	 * The cap Setup suggests when none is set: roughly 700 to 1,000 assistant answers a
+	 * month. Surprise AI bills are a top complaint about AI plugins; the administrator can
+	 * change or remove it.
+	 */
+	public const SUGGESTED_BUDGET = 2000000;
+
 	private const OPTION_LOG             = 'aisaautopilot_usage_log';
 	private const OPTION_TOTALS          = 'aisaautopilot_usage_totals';
 	private const OPTION_BUDGET          = 'aisaautopilot_monthly_budget';

@@ -64,7 +64,9 @@ Everything in this first version:
   rules already there, or review the form for missing labels, consent, spam
   protection and length. Every change can be undone before you save.
 * Usage & cost tracking per period and per context, with an optional monthly
-  token budget that stops requests once it is reached.
+  token budget that stops requests once it is reached. Setup proposes one
+  (2,000,000 tokens, roughly 700 to 1,000 answers) so a first month never
+  brings a surprise bill; change or remove it there or in Usage & Cost.
 * Activity log of plans, approvals and executions, with API keys and tokens
   redacted.
 * Full right-to-left support and a complete Persian translation. The interface
@@ -447,6 +449,8 @@ editable text; nothing is sent until you press Send.
   Easy Form Builder copilot are in that language and read right to left, even
   when the administrator writes the request in English or runs the dashboard
   in another language. Only an explicit "in English" changes that.
+* Setup proposes a monthly spend cap of 2,000,000 tokens that you can change
+  or switch off.
 * Optional: keep a form submission whose email cannot be sent, retry it, and
   resend or delete it from Your forms (off by default).
 * Form Studio is one workspace: describe the form in a chat or start from six

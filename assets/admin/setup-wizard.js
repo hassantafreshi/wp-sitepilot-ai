@@ -690,6 +690,12 @@
 	}
 
 	function bind() {
+		// Step 4 spend cap: the number only matters while the cap is on.
+		var capSwitch = one( '[data-sp-setup-cap-switch]' );
+		var capField = one( '[data-sp-setup-cap-field]' );
+		if ( capSwitch && capField ) {
+			capSwitch.addEventListener( 'change', function () { capField.hidden = ! capSwitch.checked; } );
+		}
 		all( 'input[name="key_management"]' ).forEach( function ( radio ) {
 			radio.addEventListener( 'change', function () { syncKeyMode(); resetTest(); } );
 		} );

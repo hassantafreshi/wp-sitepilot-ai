@@ -14,6 +14,7 @@ use AISAAutoPilot\Admin\SettingsPage;
 use AISAAutoPilot\Api\CopilotController;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Core\WpConnectors;
+use AISAAutoPilot\Usage\UsageTracker;
 
 wp_set_current_user( 1 );
 
@@ -27,6 +28,7 @@ $option_names   = array(
 	Settings::EMBED_KEY_OPTION,
 	WpConnectors::WP_OPTION_KEY,
 	SettingsPage::VERIFIED_OPTION,
+	'aisaautopilot_monthly_budget',
 	'_transient_' . $test_transient,
 	'_transient_timeout_' . $test_transient,
 );
@@ -191,6 +193,50 @@ try {
 		&& 'invalid_config' === ( $custom_data['diagnostic'] ?? '' )
 		&& 246810 === (int) get_option( SettingsPage::VERIFIED_OPTION, 0 ),
 		'explicitly blank setup fields report invalid_config without falling back to the saved provider endpoint'
+	);
+
+	// Step 4 proposes a monthly spend cap (CTO review P1: surprise bills).
+	$wizard_html = static function (): string {
+		$_POST        = array(); // render() saves a pending POST; this is a plain page view.
+		$_GET['page'] = 'aisaautopilot-setup';
+		ob_start();
+		( new SettingsPage() )->render();
+		unset( $_GET['page'] );
+		return (string) ob_get_clean();
+	};
+	$cap_state = static function ( string $html ): array {
+		preg_match( '/<input type="checkbox"[^>]*name="monthly_budget_enabled"[^>]*>/', $html, $switch );
+		preg_match( '/name="monthly_budget"[^>]*value="(\d+)"/', $html, $value );
+		return array( 'on' => isset( $switch[0] ) && false !== strpos( $switch[0], 'checked' ), 'value' => (int) ( $value[1] ?? 0 ) );
+	};
+	$tracker = new UsageTracker();
+	$tracker->set_budget( 0 );
+	delete_option( SettingsPage::VERIFIED_OPTION );
+	$first = $cap_state( $wizard_html() );
+	update_option( SettingsPage::VERIFIED_OPTION, time(), false );
+	$returning = $cap_state( $wizard_html() );
+	$tracker->set_budget( 500000 );
+	$existing = $cap_state( $wizard_html() );
+	$check(
+		array( 'on' => true, 'value' => UsageTracker::SUGGESTED_BUDGET ) === $first
+		&& array( 'on' => false, 'value' => UsageTracker::SUGGESTED_BUDGET ) === $returning
+		&& array( 'on' => true, 'value' => 500000 ) === $existing,
+		'Setup step 4 proposes a 2,000,000-token monthly cap on first setup, offers it switched off to a site set up without one, and shows a cap already set'
+	);
+	SettingsPage::record_provider_test( $candidate, true ); // Finishing Setup needs a passed connection test.
+	$save( $candidate, true, array( 'monthly_budget_enabled' => '1', 'monthly_budget' => '3000000' ) );
+	$saved_on = $tracker->get_budget();
+	SettingsPage::record_provider_test( $candidate, true ); // Finishing Setup needs a passed connection test.
+	$save( $candidate, true, array( 'monthly_budget_enabled' => '1', 'monthly_budget' => '5' ) );
+	$saved_low = $tracker->get_budget();
+	SettingsPage::record_provider_test( $candidate, true ); // Finishing Setup needs a passed connection test.
+	$save( $candidate, true, array( 'monthly_budget_enabled' => '0', 'monthly_budget' => '3000000' ) );
+	$saved_off = $tracker->get_budget();
+	$tracker->set_budget( 700000 );
+	$save( $candidate, false, array( 'monthly_budget_enabled' => '1', 'monthly_budget' => '9' ) );
+	$check(
+		3000000 === $saved_on && 10000 === $saved_low && 0 === $saved_off && 700000 === $tracker->get_budget(),
+		'Finishing Setup saves the cap (at least 10,000 tokens), switching it off removes it, and other forms never touch it'
 	);
 } finally {
 	$_POST = $original_post;

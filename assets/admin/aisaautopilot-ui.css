@@ -1283,6 +1283,12 @@ html[dir="rtl"] .sp-wizard__next svg { transform: scaleX(-1); }
 .sp-app .sp-wizard-integration__desc { margin: 4px 0 0; font-size: 12.5px; color: #63668a; line-height: 1.55; }
 .sp-wizard-guards { display: flex; flex-direction: column; gap: 14px; padding-block-start: 16px; }
 .sp-wizard-guard { display: flex; align-items: flex-start; gap: 12px; }
+.sp-wizard-cap { display: flex; flex-direction: column; gap: 12px; margin-block-start: 14px; padding: 16px 18px; }
+.sp-wizard-cap__head { display: flex; align-items: flex-start; gap: 13px; }
+.sp-wizard-cap__head .sp-wizard-integration__icon { background: #fff7e6; color: #9a5b00; }
+.sp-wizard-cap__field { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-inline-start: 49px; color: var(--sp-ink); font-size: 13px; font-weight: 600; }
+.sp-wizard-cap__field[hidden] { display: none; }
+.sp-app .sp-wizard-cap__field .sp-wizard-input { flex: 0 1 200px; inline-size: 200px; }
 .sp-wizard-guard .sp-wizard-switch__desc a { font-weight: 700; }
 
 /* Done */

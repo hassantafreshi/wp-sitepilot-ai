@@ -201,6 +201,19 @@ async function setupHealthy( page ) {
 	} );
 	const integrationOverflow = await page.evaluate( () => document.documentElement.scrollWidth > window.innerWidth + 1 );
 	check( !integrationOverflow, 'Setup integrations panel has no desktop horizontal overflow' );
+	// The monthly spend cap is a visible card on step 4; its number shows only while the cap is on.
+	const capSwitch = page.locator( '[data-sp-setup-cap-switch]' );
+	const capField = page.locator( '[data-sp-setup-cap-field]' );
+	const capVisible = await page.locator( '[data-sp-setup-cap]' ).isVisible();
+	const capWasOn = await capSwitch.isChecked();
+	await capSwitch.setChecked( ! capWasOn, { force: true } );
+	const fieldAfterToggle = await capField.isVisible();
+	await capSwitch.setChecked( capWasOn, { force: true } );
+	check(
+		capVisible && fieldAfterToggle === ! capWasOn && await capField.isVisible() === capWasOn
+		&& Number( await capField.locator( 'input' ).inputValue() ) >= 10000,
+		'Setup step 4 shows the monthly spend cap with its token number, which follows the switch'
+	);
 	await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-setup-integrations-desktop.png' ), fullPage: true } );
 
 	const originalDir = await page.locator( 'html' ).getAttribute( 'dir' );
