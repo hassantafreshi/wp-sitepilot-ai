@@ -24,7 +24,8 @@ $routes = array(
 	// `mode=forms` deep link is checked by the Content Studio navigation
 	// integration. Form Studio (D-23) is its own top-level page below.
 	AdminMenu::SLUG_FORM_BUILDER => array( 'content-studio.js' ),
-	AdminMenu::SLUG_FORM_STUDIO  => array( 'content-studio.js' ),
+	// The Form Studio workspace and the chat component it shares with the EFB copilot.
+	AdminMenu::SLUG_FORM_STUDIO  => array( 'form-builder.js', 'ai-dock.js' ),
 	AdminMenu::SLUG_FORMS        => array( 'native-forms.js' ),
 	AdminMenu::SLUG_HISTORY      => array(),
 	AdminMenu::SLUG_EFB          => array(),

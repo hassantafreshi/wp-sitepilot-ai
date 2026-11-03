@@ -283,6 +283,32 @@ placement, run with the release copy active), reports **0 errors and 0
 warnings** in both `new` and default mode. No AI request was made for this
 pass.
 
+**Final QA, 2026-11-03.** A strict pass over the whole product found and
+fixed five defects (details in `docs/CTO_REVIEW_AND_FINAL_QA_FA.md`):
+
+- **Critical.** Form Studio's own menu page loaded the old script after the
+  redesign, so its chat did not work there.
+- **Plain permalinks.** Several admin requests returned 404, leaving the Site
+  Knowledge list and the unanswered questions empty.
+- **Behind Cloudflare.** All visitors shared one rate limit.
+- **Unsaved AI changes.** Leaving the Easy Form Builder editor gave no warning.
+- **Stalled scheduler.** The retention card showed a past date as "next
+  cleanup" when WP-Cron was not running.
+
+Each fix has its own test. Results on the final commit:
+
+- the full regression on the final commit was still running when this was written; its result follows in the next commit
+- PHPUnit 225 tests / 1178 assertions.
+- PHPStan 0, including a run targeting PHP 8.1.
+- PHPCS 0/0.
+- Plugin Check 2.1.0 on the ZIP, all categories plus runtime: 0/0.
+- Clean install, uninstall (nothing left behind) and reinstall from the ZIP.
+- Stored-XSS probing of every admin screen: nothing executed.
+- REST access control: every admin route returns 401 without a login.
+
+The provider key used earlier is now rejected by the provider, so no live
+model call was made.
+
 ## Known limitations in this release
 
 - The indexing queue keeps no persistent cursor: a pass lives only while the

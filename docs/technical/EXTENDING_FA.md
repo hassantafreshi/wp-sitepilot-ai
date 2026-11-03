@@ -7,6 +7,7 @@
 | `aisaautopilot_provider_presets` | آرایهٔ presetها | افزودن یا تغییر provider در فهرست Setup. هر preset باید `label`، `group`، `api` (`openai` یا `anthropic`)، `baseUrl`، `model`، `models`، `embeddings` و `note` داشته باشد. |
 | `aisaautopilot_allow_insecure_provider_url` | `bool $allow`، `string $endpoint` | اجازهٔ HTTP ساده برای provider یا تبدیل گفتار در شبکهٔ خصوصی مورد اعتماد. پیش‌فرض false است. |
 | `aisaautopilot_efb_available` | `bool` | بازنویسی نتیجهٔ تشخیص EFB، مثلاً در آزمون |
+| `aisaautopilot_client_ip` | `string $ip`، `string $remote` | نشانی بازدیدکننده برای محدودیت نرخ، برای سایتی پشت proxy غیر از Cloudflare (Cloudflare خودکار شناخته می‌شود). فقط نشانی‌ای را برگردانید که خود proxy می‌گذارد، نه سربرگی که کلاینت می‌تواند بنویسد. مقدار نامعتبر نادیده گرفته می‌شود. |
 | `aisaautopilot_efb_create_form` | پارامترهای ساخت فرم EFB | مداخله در ساخت فرم EFB |
 
 ## shortcodeها
