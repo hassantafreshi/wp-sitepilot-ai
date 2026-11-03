@@ -126,12 +126,17 @@ async function runT74( page, ctx ) {
 	page.on( 'request', trackPosts );
 
 	const original = await state();
+	// Whether leaving already asks before these steps: earlier, unrelated AI changes may still be unsaved.
+	const leaveGuarded = () => page.evaluate( () => { const ev = new Event( 'beforeunload', { cancelable: true } ); window.dispatchEvent( ev ); return ev.defaultPrevented; } );
+	const guardedBefore = await leaveGuarded();
 
 	// 1. Two fields in one change, built from the server's own EFB templates.
 	const added = await send( MESSAGES.add );
 	let now = await state();
 	check( !! now.customer && 'select' === now.customer.type && 2 === now.customer.options.length && !! now.company && 'text' === now.company.type, label + 'add_field puts the dropdown, its two options and the text field into valj_efb' );
 	check( 2 === await added.locator( '[data-sp-efb-note="applied"]' ).count(), label + 'both added fields are reported as applied' );
+	// Unsaved AI changes: leaving the page asks first (the browser's own beforeunload prompt).
+	check( await leaveGuarded(), label + 'leaving the page with unsaved AI changes asks first' );
 	check( 1 === await added.locator( '[data-sp-efb-undo]' ).count(), label + 'the change offers its own Undo button' );
 	check( !! now.customer && await canvasHas( now.customer.id, true ), label + 'the EFB canvas redraws with the new dropdown' );
 	const addUndo = added.locator( '[data-sp-efb-undo]' );
@@ -214,6 +219,7 @@ async function runT74( page, ctx ) {
 	await addUndo.click();
 	now = await state();
 	check( JSON.stringify( now.ids ) === JSON.stringify( original.ids ) && JSON.stringify( now.rules ) === JSON.stringify( original.rules ), label + 'Undo on the first change restores the original fields and rules' );
+	check( guardedBefore === await leaveGuarded(), label + 'undoing these changes puts the leave-page guard back as it was (off when nothing else is unsaved)' );
 	check( ! original.ids.includes( 'customer_type' ) ? await canvasHas( 'customer_type', false ) : true, label + 'the EFB canvas redraws without the undone dropdown' );
 
 	page.off( 'request', trackPosts );

@@ -24,6 +24,7 @@
 	var lastIntroFieldId = '';
 	var configured = !! cfg.configured;
 	var unsaved = 0;
+	var leaving = false; // The copilot's own navigation (a new form, a reload after a failed redraw) needs no warning.
 	var flashTimer = null;
 	var nudging = false;
 	var checking = false;
@@ -640,7 +641,7 @@
 			api( 'efb/create', { action_id: data.action_id } ).then( function ( res ) {
 				if ( ! res.data.ok ) { status.textContent = res.data.message || t( 'createFailed', 'The form could not be created. Please try again.' ); approve.disabled = false; return; }
 				status.textContent = t( 'createdOpening', 'Created! Opening the editor…' );
-				if ( res.data.result && res.data.result.edit_url ) { setTimeout( function () { window.location.href = res.data.result.edit_url; }, 600 ); }
+				if ( res.data.result && res.data.result.edit_url ) { setTimeout( function () { leaving = true; window.location.href = res.data.result.edit_url; }, 600 ); }
 			} ).catch( function () { status.textContent = t( 'networkError', 'Network error. Please try again.' ); approve.disabled = false; } );
 		} );
 		discard.addEventListener( 'click', function () { box.remove(); setSuggestions( [] ); } );
@@ -752,7 +753,7 @@
 		}
 		scrollDown();
 		history.push( { role: 'assistant', text: 'Applied: ' + report.applied.join( '; ' ) } );
-		if ( ! refreshed.ok ) { setTimeout( function () { window.location.reload(); }, 800 ); return; }
+		if ( ! refreshed.ok ) { setTimeout( function () { leaving = true; window.location.reload(); }, 800 ); return; }
 		setUnsaved( unsaved + report.items.length );
 		flashFields( report.items, false );
 		setSuggestions( nextSuggestions( report ) );
@@ -795,7 +796,7 @@
 			holder.appendChild( note( t( 'undone', 'Undone. The canvas is back to how it was before this change.' ), 'undone' ) );
 			setUnsaved( unsavedBefore );
 			history.push( { role: 'assistant', text: 'Undid the last change.' } );
-			if ( ! refreshed.ok ) { setTimeout( function () { window.location.reload(); }, 800 ); }
+			if ( ! refreshed.ok ) { setTimeout( function () { leaving = true; window.location.reload(); }, 800 ); }
 		} );
 		return undo;
 	}
@@ -1122,6 +1123,11 @@
 
 	/* EFB saves with its own admin-ajax call; a successful save keeps every AI change. */
 	function watchSaves() {
+		// AI changes live only in the editor until Easy Form Builder's Save: ask before a tab close or
+		// a link throws them away. The browser shows its own wording; the badge already names the count.
+		window.addEventListener( 'beforeunload', function ( event ) {
+			if ( unsaved > 0 && ! leaving ) { event.preventDefault(); event.returnValue = ''; }
+		} );
 		if ( ! window.jQuery ) { return; }
 		window.jQuery( document ).on( 'ajaxSuccess', function ( event, xhr, settings ) {
 			if ( ! /(^|&)action=(add|update)_form_Emsfb(&|$)/.test( String( settings && settings.data || '' ) ) ) { return; }
