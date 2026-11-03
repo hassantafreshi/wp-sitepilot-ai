@@ -49,6 +49,8 @@ Everything in this first version:
 * Native AISAAutoPilot Forms: text, email, tel, textarea, select, radio and
   checkbox, up to 20 fields, validated server-side and delivered by
   wp_mail(). Visitor values are never stored in posts, meta, options or logs.
+  Optionally, a submission whose email cannot be sent is kept until it is sent
+  (off by default; see the FAQ).
 * Easy Form Builder Copilot: an "Ask AI Site Assistant" chat button inside
   Easy Form Builder that creates and edits real EFB forms. Saving stays with EFB's own button.
   Describe a form and review a preview first: fields, help text, steps for
@@ -80,8 +82,9 @@ screens.
 The plugin registers with WordPress's privacy tools. Tools > Export Personal
 Data and Tools > Erase Personal Data find, by email address, the person's
 requests to talk to a person (with the contact details they left), the
-console conversations of a WordPress user with that address, and recorded
-visitor conversations in which that address was written. Visitors are
+console conversations of a WordPress user with that address, recorded
+visitor conversations in which that address was written, and form submissions
+kept because their email could not be sent. Visitors are
 otherwise anonymous, so a recorded conversation without an email address in it
 cannot be matched to anyone. Erasing deletes the matching rows.
 
@@ -95,8 +98,8 @@ information about who asked.
 Visitor data is deleted automatically once a day after a period you set in
 Setup & Connection > Advanced settings > Data retention: recorded
 conversations after 30 days, requests to talk to a person after 180 days and
-unanswered questions (with cached answers) after 90 days, unless you change
-them. 0 keeps that data until you delete it yourself. The same card has a
+unanswered questions (with cached answers) after 90 days, and undelivered
+form submissions after 30 days, unless you change them. 0 keeps that data until you delete it yourself. The same card has a
 "Delete expired data now" button and shows when the cleanup last ran.
 
 == What deleting the plugin removes ==
@@ -113,6 +116,8 @@ Database tables (dropped):
 * {prefix}aisaautopilot_widget_chats - visitor conversations.
 * {prefix}aisaautopilot_handoffs - handoff requests, including the contact
   details a visitor typed.
+* {prefix}aisaautopilot_form_outbox - form submissions whose email could not
+  be sent (only used when you turn that on).
 
 Options (deleted): aisaautopilot_settings, aisaautopilot_provider_key,
 aisaautopilot_embedding_key, aisaautopilot_handoff_secrets,
@@ -342,8 +347,17 @@ removes its data from every site.
 
 = Are form submissions stored in WordPress? =
 
-No. AISAAutoPilot validates each submission in memory, sends an email, and
-discards the visitor values.
+Not by default. AISAAutoPilot validates each submission in memory, sends an
+email, and discards the visitor values. If the email cannot be sent, the
+visitor is asked to try again.
+
+Email that silently fails is the most common way forms lose leads, so you can
+turn on Advanced settings > Forms and delivery > "Keep a submission when its
+email cannot be sent". Then a failed email is kept on your site, retried every
+hour up to five times, and listed under Your forms with Resend and Delete; the
+Overview names it under "Needs you". It is deleted once sent, or after the
+period under Data retention (30 days unless you change it), and the privacy
+tools and suggested policy text include it.
 
 = Can I make a payment, upload, login or multi-step form? =
 
@@ -433,6 +447,8 @@ editable text; nothing is sent until you press Send.
   Easy Form Builder copilot are in that language and read right to left, even
   when the administrator writes the request in English or runs the dashboard
   in another language. Only an explicit "in English" changes that.
+* Optional: keep a form submission whose email cannot be sent, retry it, and
+  resend or delete it from Your forms (off by default).
 * Form Studio is one workspace: describe the form in a chat or start from six
   examples, see the plan field by field with a desktop and phone preview, ask
   for changes in the same chat, then approve. A checklist shows what is

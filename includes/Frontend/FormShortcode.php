@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Frontend;
 
 use AISAAutoPilot\Connectors\NativeFormConnector;
+use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Forms\NativeFormSubmission;
 use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Security\ClientAddress;
@@ -203,19 +204,37 @@ final class FormShortcode {
 			$this->redirect( $form_id, 'invalid' );
 		}
 
+		$subject   = $this->email_subject( $plan );
+		$body      = $this->email_body( $plan, $result['values'] );
+		$headers   = $this->email_headers( $plan, $result['values'] );
 		$recipient = sanitize_email( (string) ( $plan['notification_email'] ?? '' ) );
 		if ( '' === $recipient || ! is_email( $recipient ) ) {
 			$this->audit_delivery( 'form.delivery_config_invalid', $form_id );
-			$this->redirect( $form_id, 'delivery' );
+			$this->keep_or_fail( $form_id, $subject, $body, $headers, 'no_recipient' );
 		}
 
-		if ( ! wp_mail( $recipient, $this->email_subject( $plan ), $this->email_body( $plan, $result['values'] ), $this->email_headers( $plan, $result['values'] ) ) ) {
+		if ( ! wp_mail( $recipient, $subject, $body, $headers ) ) {
 			$this->audit_delivery( 'form.email_failed', $form_id );
-			$this->redirect( $form_id, 'delivery' );
+			$this->keep_or_fail( $form_id, $subject, $body, $headers, 'wp_mail_failed' );
 		}
 
 		$this->audit_delivery( 'form.email_sent', $form_id );
 		$this->redirect( $form_id, 'sent' );
+	}
+
+	/**
+	 * An email that could not be sent: kept for the administrator when they chose that
+	 * (the visitor's answers are then safe and they see the normal thank-you), otherwise
+	 * the visitor is asked to try again, as before.
+	 *
+	 * @param string[] $headers
+	 */
+	private function keep_or_fail( int $form_id, string $subject, string $body, array $headers, string $error ): void {
+		if ( FormOutbox::enabled() && ( new FormOutbox() )->keep( $form_id, $subject, $body, $headers, $error ) > 0 ) {
+			$this->audit_delivery( 'form.email_kept', $form_id );
+			$this->redirect( $form_id, 'sent' );
+		}
+		$this->redirect( $form_id, 'delivery' );
 	}
 
 	/** @param array<string,mixed> $plan */

@@ -460,6 +460,8 @@ final class Settings {
 			// Empty means the site's Administration Email Address is used. This
 			// recipient is server-owned and is never accepted from an AI prompt.
 			'form_notification_email'  => '',
+			// Keep a submission whose email could not be sent (Forms\FormOutbox). Off: nothing is stored.
+			'forms_keep_undelivered'   => false,
 			// Days visitor data is kept (0 = until deleted by hand); see Support\Retention.
 			'retention'                => Retention::DEFAULTS,
 			// Phase 1 WooCommerce contract: one reviewed simple-product draft.

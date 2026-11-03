@@ -7,6 +7,7 @@ use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Content\KbCache;
 use AISAAutoPilot\Content\KbGaps;
 use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Logging\Logger;
 
 /**
@@ -34,6 +35,8 @@ final class Retention {
 		'conversations_days' => 30,
 		'handoffs_days'      => 180,
 		'questions_days'     => 90,
+		// Form submissions whose email failed, kept only when that option is on (Forms\FormOutbox).
+		'undelivered_days'   => 30,
 	);
 
 	/** Ten years: anything longer is "keep". */
@@ -64,7 +67,7 @@ final class Retention {
 	/**
 	 * The saved periods in days, each 0 (keep) to MAX_DAYS.
 	 *
-	 * @return array{conversations_days:int, handoffs_days:int, questions_days:int}
+	 * @return array{conversations_days:int, handoffs_days:int, questions_days:int, undelivered_days:int}
 	 */
 	public static function periods(): array {
 		$saved   = Settings::get( 'retention', array() );
@@ -74,7 +77,7 @@ final class Retention {
 			$periods[ $key ] = array_key_exists( $key, $saved ) ? self::days( $saved[ $key ] ) : $default;
 		}
 
-		/** @var array{conversations_days:int, handoffs_days:int, questions_days:int} $periods */
+		/** @var array{conversations_days:int, handoffs_days:int, questions_days:int, undelivered_days:int} $periods */
 		return $periods;
 	}
 
@@ -91,7 +94,7 @@ final class Retention {
 	/**
 	 * Deletes everything older than its period and records what was deleted.
 	 *
-	 * @return array{time:int, conversations:int, handoffs:int, questions:int, complete:bool}
+	 * @return array{time:int, conversations:int, handoffs:int, questions:int, undelivered:int, complete:bool}
 	 */
 	public function run(): array {
 		$periods  = self::periods();
@@ -100,6 +103,7 @@ final class Retention {
 			'conversations' => 0,
 			'handoffs'      => 0,
 			'questions'     => 0,
+			'undelivered'   => 0,
 		);
 		$db       = $this->db();
 		$tables   = array(
@@ -117,13 +121,16 @@ final class Retention {
 			$before               = time() - $periods['questions_days'] * DAY_IN_SECONDS;
 			$deleted['questions'] = ( new KbGaps() )->forget_before( $before ) + ( new KbCache() )->forget_before( $before );
 		}
+		if ( $periods['undelivered_days'] > 0 ) {
+			$deleted['undelivered'] = ( new FormOutbox() )->forget_before( time() - $periods['undelivered_days'] * DAY_IN_SECONDS );
+		}
 
 		$last = array( 'time' => time() ) + $deleted + array( 'complete' => $complete );
 		update_option( self::LAST_RUN_OPTION, $last, false );
 		if ( array_sum( $deleted ) > 0 ) {
 			( new Logger() )->info(
 				'privacy.retention_cleanup',
-				sprintf( 'Retention cleanup deleted %d conversations, %d requests to talk to a person and %d questions.', $deleted['conversations'], $deleted['handoffs'], $deleted['questions'] )
+				sprintf( 'Retention cleanup deleted %d conversations, %d requests to talk to a person, %d questions and %d undelivered form submissions.', $deleted['conversations'], $deleted['handoffs'], $deleted['questions'], $deleted['undelivered'] )
 			);
 		}
 
@@ -133,7 +140,7 @@ final class Retention {
 	/**
 	 * What the last run did, or null before the first one.
 	 *
-	 * @return array{time:int, conversations:int, handoffs:int, questions:int, complete:bool}|null
+	 * @return array{time:int, conversations:int, handoffs:int, questions:int, undelivered:int, complete:bool}|null
 	 */
 	public static function last_run(): ?array {
 		$last = get_option( self::LAST_RUN_OPTION, null );
@@ -146,6 +153,7 @@ final class Retention {
 			'conversations' => (int) ( $last['conversations'] ?? 0 ),
 			'handoffs'      => (int) ( $last['handoffs'] ?? 0 ),
 			'questions'     => (int) ( $last['questions'] ?? 0 ),
+			'undelivered'   => (int) ( $last['undelivered'] ?? 0 ),
 			'complete'      => ! empty( $last['complete'] ),
 		);
 	}
@@ -153,7 +161,7 @@ final class Retention {
 	/**
 	 * One sentence for the administrator: when the last cleanup ran and what it deleted.
 	 *
-	 * @param array{time:int, conversations:int, handoffs:int, questions:int, complete:bool}|null $last
+	 * @param array{time:int, conversations:int, handoffs:int, questions:int, undelivered:int, complete:bool}|null $last
 	 */
 	public static function summary( ?array $last ): string {
 		if ( null === $last ) {
@@ -170,6 +178,13 @@ final class Retention {
 			/* translators: %s: number of unanswered questions and cached answers. */
 			sprintf( _n( '%s question', '%s questions', $last['questions'], 'ai-site-assistant-autopilot' ), number_format_i18n( $last['questions'] ) )
 		);
+		if ( $last['undelivered'] > 0 ) {
+			$text .= ' ' . sprintf(
+				/* translators: %s: number of undelivered form submissions. */
+				_n( 'It also deleted %s undelivered form submission.', 'It also deleted %s undelivered form submissions.', $last['undelivered'], 'ai-site-assistant-autopilot' ),
+				number_format_i18n( $last['undelivered'] )
+			);
+		}
 		if ( ! $last['complete'] ) {
 			$text .= ' ' . __( 'More is left; the next run continues.', 'ai-site-assistant-autopilot' );
 		}

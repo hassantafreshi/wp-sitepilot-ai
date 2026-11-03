@@ -224,6 +224,24 @@ final class RestRoutes {
 				'permission_callback' => array( $this, 'can_manage' ),
 			)
 		);
+		$outbox = new FormOutboxController();
+		foreach ( array( 'resend', 'delete' ) as $outbox_action ) {
+			register_rest_route(
+				self::NAMESPACE,
+				'/forms/outbox/(?P<id>\\d+)/' . $outbox_action,
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $outbox, $outbox_action ),
+					'permission_callback' => array( $this, 'can_manage' ),
+					'args'                => array(
+						'id' => array(
+							'type'     => 'integer',
+							'required' => true,
+						),
+					),
+				)
+			);
+		}
 
 		// WooCommerce Phase 1: read-only dashboard and an explicitly approved
 		// simple product draft. Order mutations, product editing, and bulk tools

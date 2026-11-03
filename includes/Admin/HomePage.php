@@ -9,6 +9,7 @@ use AISAAutoPilot\Connectors\WooCommerceConnector;
 use AISAAutoPilot\Content\KbGaps;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Providers\ProviderManager;
 use AISAAutoPilot\Usage\UsageTracker;
 
@@ -46,7 +47,7 @@ final class HomePage {
 
 		$stats   = $this->stats( $first_day, $questions_answered, $drafts, $published, $waiting, $tokens_used, $budget );
 		$efb     = ( new EasyFormBuilderConnector() )->get_health();
-		$needs   = $this->needs_you( $first_day, $provider_ready, $kb_total, $gaps, $waiting, $budget, $used_percent, (bool) $efb['active'], (bool) $efb['available'] );
+		$needs   = $this->needs_you( $first_day, $provider_ready, $kb_total, $gaps, $waiting, $budget, $used_percent, (bool) $efb['active'], (bool) $efb['available'], ( new FormOutbox() )->count() );
 		$running = $this->running_now( $settings );
 
 		Ui::grad_defs();
@@ -230,8 +231,23 @@ final class HomePage {
 	 *
 	 * @return array<int, array{title:string,body:string,cta:string,url:string,icon:string}>
 	 */
-	private function needs_you( bool $first_day, bool $provider_ready, int $kb_total, int $gaps, int $waiting, int $budget, float $used_percent, bool $efb_active, bool $efb_available ): array {
+	private function needs_you( bool $first_day, bool $provider_ready, int $kb_total, int $gaps, int $waiting, int $budget, float $used_percent, bool $efb_active, bool $efb_available, int $undelivered = 0 ): array {
 		$items = array();
+
+		// First: visitors' answers that never reached anyone.
+		if ( $undelivered > 0 ) {
+			$items[] = array(
+				'title' => sprintf(
+					/* translators: %s: number of form submissions whose email failed. */
+					_n( '%s form submission could not be emailed', '%s form submissions could not be emailed', $undelivered, 'ai-site-assistant-autopilot' ),
+					number_format_i18n( $undelivered )
+				),
+				'body'  => __( 'The answers are kept on this site. Check the site\'s email setup, then resend them.', 'ai-site-assistant-autopilot' ),
+				'cta'   => __( 'Open Your forms', 'ai-site-assistant-autopilot' ),
+				'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_FORMS ),
+				'icon'  => 'mail',
+			);
+		}
 
 		if ( ! $provider_ready ) {
 			$items[] = array(

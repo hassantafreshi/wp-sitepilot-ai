@@ -4019,6 +4019,21 @@ html[dir="rtl"] .sp-app[data-sp-logs] .sp-pagebar__titles { text-align: start; }
 .sp-native-forms__notice-body strong { color: #6b5a12; }
 .sp-native-forms__delivery-body span,
 .sp-native-forms__notice-body span { color: #5b5e7d; font-size: 12px; line-height: 1.5; }
+
+/* Submissions whose email failed, kept when the administrator turned that on. */
+.sp-native-forms__outbox { padding: 14px 18px; border: 1.5px solid #f0e4a8; border-radius: 12px; background: #fffdf0; }
+.sp-native-forms__outbox-head { display: flex; align-items: flex-start; gap: 12px; }
+.sp-app .sp-native-forms__outbox-head h2 { margin: 0; padding: 0; color: #6b5a12; font-size: 14px; font-weight: 700; line-height: 1.4; }
+.sp-native-forms__outbox-head p { margin: 2px 0 0; color: #5b5e7d; font-size: 12px; line-height: 1.5; }
+.sp-native-forms__outbox-list { margin: 12px 0 0; padding: 0; list-style: none; }
+.sp-native-forms__outbox-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px 12px; margin: 0; padding: 10px 0; border-block-start: 1px solid #f0e4a8; }
+.sp-native-forms__outbox-main { display: flex; flex: 1 1 260px; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.sp-native-forms__outbox-main strong { color: var(--sp-ink); font-size: 13px; }
+.sp-native-forms__outbox-main small { color: #5b5e7d; font-size: 12px; }
+.sp-native-forms__outbox-main summary { display: inline-flex; align-items: center; min-block-size: 28px; margin-block-start: 2px; color: var(--sp-primary); font-size: 12px; font-weight: 600; cursor: pointer; }
+.sp-native-forms__outbox-main pre { max-block-size: 220px; margin: 6px 0 0; padding: 10px; overflow: auto; border-radius: 8px; background: #fff; color: var(--sp-ink); font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.sp-native-forms__outbox-actions { display: flex; gap: 6px; }
+.sp-native-forms__outbox-row .sp-native-forms__status { flex: 1 1 100%; }
 .sp-native-forms__email { color: var(--sp-primary); }
 .sp-native-forms__status:empty { display: none; }
 .sp-native-forms__status[data-tone="ok"] { color: #166a45 !important; font-weight: 700; }

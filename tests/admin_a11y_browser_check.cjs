@@ -57,6 +57,7 @@ const ROUTES = [
 	[ 'studio-templates', 'page=aisaautopilot-form-builder&mode=templates' ],
 	[ 'studio-history', 'page=aisaautopilot-history' ],
 	[ 'form-studio', 'page=aisaautopilot-form-studio' ],
+	[ 'native-forms', 'page=aisaautopilot-forms' ],
 	[ 'efb-copilot', 'page=aisaautopilot-efb' ],
 ].filter( ( [ name ] ) => ! onlyRoutes.length || onlyRoutes.includes( name ) );
 

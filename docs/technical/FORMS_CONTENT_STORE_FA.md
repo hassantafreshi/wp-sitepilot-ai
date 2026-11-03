@@ -15,6 +15,7 @@
 - **ذخیره:** `NativeFormConnector` plan تأییدشده را در post type `aisaautopilot_form` نگه می‌دارد. plan در meta تغییرناپذیر است و از آن رندر می‌شود.
 - **نمایش:** `FormShortcode` فرم را با `[aisaautopilot_form id="123"]` نمایش می‌دهد.
 - **ارسال:** به `admin-post.php` با action `aisaautopilot_form_submit` می‌رود. `NativeFormSubmission::validate()` پاسخ را با همان plan می‌سنجد و پاسخ فقط به `form_notification_email` یا ایمیل مدیریت فرستاده می‌شود. پاسخ در وردپرس ذخیره نمی‌شود.
+- **پاسخِ ایمیل‌نشده (اختیاری، ۲۰۲۶-۱۱-۰۴، P1 بازبینی CTO):** با `forms_keep_undelivered` (Advanced › Forms and delivery، پیش‌فرض خاموش)، اگر `wp_mail` شکست بخورد یا نشانی معتبر نباشد، `FormShortcode::keep_or_fail()` ایمیل ساخته‌شده را با `Forms\FormOutbox::keep()` نگه می‌دارد و بازدیدکننده پیام تشکر عادی می‌بیند (خاموش: مثل قبل خطای `delivery`). تلاش خودکار با cron `aisaautopilot_form_outbox_retry` پس از ۱۵ دقیقه و سپس ساعتی، تا `MAX_AUTO_ATTEMPTS` (۵). صفحهٔ Your forms فهرست، نمایش پاسخ‌ها، Resend و Delete دارد (`/forms/outbox/{id}/*`) و Overview زیر «Needs you» نامش را می‌برد. نگهداری (`undelivered_days`)، حذف کامل، جدول شبکه، صادر و پاک‌کردن ابزار حریم خصوصی و متن پیشنهادی سیاست آن را پوشش می‌دهند. آزمون‌ها: `wordpress_form_outbox_integration.php` (۱۱) و `form_outbox_browser_matrix.cjs` (en و fa، ۲۰).
 - **صفحهٔ «Your forms»:** alias `aisaautopilot-forms` (`NativeFormsPage`) است. فرم‌ها، شمار فیلد، shortcode با دکمهٔ کپی و آزمون تحویل (`/forms/delivery/test`) را نشان می‌دهد.
 
 ## Form Studio (نام تازه؛ تا ۲۰۲۶-۰۹-۱۷ «Form Composer»)

@@ -1,8 +1,8 @@
 /**
  * Your forms (native AISAAutoPilot forms list).
  *
- * Copies a form's shortcode and sends the delivery test email through the
- * protected REST route. Nothing else on this screen changes data.
+ * Copies a form's shortcode, sends the delivery test email, and resends or
+ * deletes a kept submission whose email failed, all through protected REST routes.
  */
 ( function () {
 	'use strict';
@@ -78,16 +78,7 @@
 				status.textContent = t( 'sending', 'Sending test…' );
 				status.setAttribute( 'data-tone', '' );
 			}
-			window.fetch( cfg.restUrl + 'forms/delivery/test', {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce || '' },
-				body: '{}'
-			} ).then( function ( response ) {
-				return response.json().catch( function () { return {}; } ).then( function ( data ) {
-					return { ok: response.ok && !! ( data && data.ok ), data: data || {} };
-				} );
-			} ).then( function ( result ) {
+			post( 'forms/delivery/test' ).then( function ( result ) {
 				var message = result.data.message || ( result.ok ? t( 'deliveryOk', 'Test accepted.' ) : t( 'deliveryFail', 'Test failed.' ) );
 				if ( status ) {
 					status.textContent = message;
@@ -104,9 +95,76 @@
 		} );
 	}
 
+	// Messages come back in the admin's language (_locale=user, honoured for JSON requests). With plain
+	// permalinks the REST root already holds "?rest_route=/…", so the query joins with "&" there.
+	function post( path ) {
+		var url = ( cfg.restUrl || '' ) + path;
+		return window.fetch( url + ( -1 === url.indexOf( '?' ) ? '?' : '&' ) + '_locale=user', {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce || '' },
+			body: '{}'
+		} ).then( function ( response ) {
+			return response.json().catch( function () { return {}; } ).then( function ( data ) {
+				return { ok: response.ok && !! ( data && data.ok ), data: data || {} };
+			} );
+		} );
+	}
+
+	/* Kept submissions: Resend removes the row once sent; Delete asks first. */
+	function initOutbox() {
+		var box = document.querySelector( '[data-sp-form-outbox]' );
+		if ( ! box || ! cfg.restUrl ) {
+			return;
+		}
+		function done( row, result ) {
+			var status = row.querySelector( '[data-sp-outbox-status]' );
+			if ( result.ok ) {
+				row.parentNode.removeChild( row );
+				toast( result.data.message || '' );
+				var left = box.querySelectorAll( '[data-sp-outbox-row]' ).length;
+				var title = box.querySelector( '[data-sp-form-outbox-title]' );
+				if ( title ) {
+					title.textContent = 0 === left
+						? t( 'outboxEmpty', 'Every kept submission has been sent or deleted.' )
+						: ( 1 === left ? t( 'outboxLeftOne', 'One submission could not be emailed' ) : t( 'outboxLeftMany', '%s submissions are still waiting to be emailed' ).replace( '%s', String( left ) ) );
+				}
+				return;
+			}
+			if ( status ) {
+				status.textContent = result.data.message || t( 'networkError', 'Network error. Please try again.' );
+				status.setAttribute( 'data-tone', 'err' );
+			}
+		}
+		box.addEventListener( 'click', function ( event ) {
+			var resend = event.target.closest( '[data-sp-outbox-resend]' );
+			var remove = event.target.closest( '[data-sp-outbox-delete]' );
+			var button = resend || remove;
+			if ( ! button ) {
+				return;
+			}
+			var row = button.closest( '[data-sp-outbox-row]' );
+			var id = button.getAttribute( resend ? 'data-sp-outbox-resend' : 'data-sp-outbox-delete' );
+			if ( remove && ! window.confirm( t( 'outboxDeleteConfirm', 'Delete these answers for good? They were never emailed.' ) ) ) {
+				return;
+			}
+			var status = row.querySelector( '[data-sp-outbox-status]' );
+			if ( status ) { status.textContent = resend ? t( 'outboxSending', 'Sending…' ) : ''; status.setAttribute( 'data-tone', '' ); }
+			Array.prototype.forEach.call( row.querySelectorAll( 'button' ), function ( b ) { b.disabled = true; } );
+			post( 'forms/outbox/' + encodeURIComponent( id ) + '/' + ( resend ? 'resend' : 'delete' ) ).then( function ( result ) {
+				done( row, result );
+			} ).catch( function () {
+				done( row, { ok: false, data: {} } );
+			} ).then( function () {
+				Array.prototype.forEach.call( row.querySelectorAll( 'button' ), function ( b ) { b.disabled = false; } );
+			} );
+		} );
+	}
+
 	function init() {
 		initCopy();
 		initDeliveryTest();
+		initOutbox();
 	}
 
 	if ( document.readyState === 'loading' ) {

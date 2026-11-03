@@ -4,20 +4,21 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Core;
 
 use AISAAutoPilot\Admin\AdminMenu;
+use AISAAutoPilot\Admin\ContentStudioHistoryExport;
+use AISAAutoPilot\Admin\LogExport;
 use AISAAutoPilot\Api\RestRoutes;
+use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Connectors\ConnectorRegistry;
 use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Content\ContentHooks;
 use AISAAutoPilot\Efb\EfbBuilderButton;
+use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Frontend\ChatWidget;
 use AISAAutoPilot\Frontend\FormShortcode;
-use AISAAutoPilot\Admin\LogExport;
-use AISAAutoPilot\Admin\ContentStudioHistoryExport;
+use AISAAutoPilot\Support\HandoffInbox;
 use AISAAutoPilot\Support\PrivacyTools;
 use AISAAutoPilot\Support\Retention;
-use AISAAutoPilot\Support\HandoffInbox;
-use AISAAutoPilot\Chat\VisitorConversationStore;
 
 final class Plugin {
 	private static ?Plugin $instance = null;
@@ -59,6 +60,7 @@ final class Plugin {
 		( new PrivacyTools() )->register();
 		// Daily deletion of visitor data older than the periods set in Advanced settings.
 		( new Retention() )->register();
+		( new FormOutbox() )->register();
 		( new Network() )->register();
 
 		/*

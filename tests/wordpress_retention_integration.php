@@ -123,8 +123,9 @@ try {
 			'conversations_days' => 30,
 			'handoffs_days'      => 180,
 			'questions_days'     => 90,
+			'undelivered_days'   => 30,
 		) === Retention::periods(),
-		'With nothing saved, conversations are kept 30 days, requests to talk to a person 180 and unanswered questions 90'
+		'With nothing saved, conversations are kept 30 days, requests to talk to a person 180, unanswered questions 90 and undelivered form submissions 30'
 	);
 	$check( 0 === Retention::days( -5 ) && 3650 === Retention::days( 99999 ) && 0 === Retention::days( 'abc' ) && 45 === Retention::days( '45' ), 'A period is a whole number of days from 0 to 3,650' );
 
@@ -134,8 +135,9 @@ try {
 		&& 1 === preg_match( '/name="retention_conversations_days"[^>]*value="30"/', $html )
 		&& 1 === preg_match( '/name="retention_handoffs_days"[^>]*value="180"/', $html )
 		&& 1 === preg_match( '/name="retention_questions_days"[^>]*value="90"/', $html )
+		&& 1 === preg_match( '/name="retention_undelivered_days"[^>]*value="30"/', $html )
 		&& false !== strpos( $html, 'Delete expired data now' ),
-		'Advanced settings show a Data retention card with the three periods and a button to delete now'
+		'Advanced settings show a Data retention card with the four periods and a button to delete now'
 	);
 	$check(
 		false !== strpos( $html, esc_html( site_url( 'wp-cron.php?doing_wp_cron' ) ) )
@@ -152,6 +154,7 @@ try {
 			'retention_conversations_days'  => '3650',
 			'retention_handoffs_days'       => '3650',
 			'retention_questions_days'      => '99999',
+			'retention_undelivered_days'    => '14',
 		)
 	);
 	$check(
@@ -159,6 +162,7 @@ try {
 			'conversations_days' => 3650,
 			'handoffs_days'      => 3650,
 			'questions_days'     => 3650,
+			'undelivered_days'   => 14,
 		) === Retention::periods(),
 		'Saving Advanced settings stores the periods, capped at 3,650 days'
 	);

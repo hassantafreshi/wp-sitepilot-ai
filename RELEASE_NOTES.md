@@ -29,8 +29,11 @@ cache-busting and one informational field in the native form connector.
   is sent until you press Send.
 - **Secrets stay server-side.** API keys are encrypted at rest and never reach
   the DOM, a REST response, the activity log or an export.
-- **Visitor form values are never stored.** They are validated in memory, sent
-  by `wp_mail()`, and discarded.
+- **Visitor form values are never stored by default.** They are validated in
+  memory, sent by `wp_mail()`, and discarded. Only if the administrator turns
+  on "Keep a submission when its email cannot be sent" is a submission whose
+  email failed kept, retried, and listed under Your forms to resend or delete,
+  until it is sent or its retention period (30 days) ends.
 
 ## What ships
 

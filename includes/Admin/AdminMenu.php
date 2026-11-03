@@ -306,6 +306,12 @@ final class AdminMenu {
 			'networkError'               => __( 'Network error. Please try again.', 'ai-site-assistant-autopilot' ),
 			'sending'                    => __( 'Sending test…', 'ai-site-assistant-autopilot' ),
 			'deliveryOk'                 => __( 'Test accepted.', 'ai-site-assistant-autopilot' ),
+			'outboxSending'              => __( 'Sending…', 'ai-site-assistant-autopilot' ),
+			'outboxDeleteConfirm'        => __( 'Delete these answers for good? They were never emailed.', 'ai-site-assistant-autopilot' ),
+			'outboxEmpty'                => __( 'Every kept submission has been sent or deleted.', 'ai-site-assistant-autopilot' ),
+			'outboxLeftOne'              => __( 'One submission could not be emailed', 'ai-site-assistant-autopilot' ),
+			/* translators: %s: number of form submissions still waiting to be emailed. */
+			'outboxLeftMany'             => __( '%s submissions are still waiting to be emailed', 'ai-site-assistant-autopilot' ),
 			'deliveryFail'               => __( 'Test failed.', 'ai-site-assistant-autopilot' ),
 			'copy'                       => __( 'Copy', 'ai-site-assistant-autopilot' ),
 			'copied'                     => __( 'Copied', 'ai-site-assistant-autopilot' ),

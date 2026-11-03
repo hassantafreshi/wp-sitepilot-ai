@@ -72,7 +72,7 @@ $state = static function ( array $ids ) use ( $wp ): array {
 };
 
 $set_up = static function ( array $site ): bool {
-	return 6 === ( $site['tables'] ?? 0 ) && in_array( 'aisaautopilot_site_setup', $site['options'] ?? array(), true ) && in_array( 'aisaautopilot_settings', $site['options'] ?? array(), true );
+	return 7 === ( $site['tables'] ?? 0 ) && in_array( 'aisaautopilot_site_setup', $site['options'] ?? array(), true ) && in_array( 'aisaautopilot_settings', $site['options'] ?? array(), true );
 };
 
 $empty = static function ( array $site ): bool {
@@ -109,7 +109,7 @@ try {
 	$after     = $state( array( 1, $sites['a'], $sites['b'] ) );
 	$check(
 		0 === $code && $set_up( $after[1] ?? array() ) && $set_up( $after[ $sites['a'] ] ?? array() ) && $set_up( $after[ $sites['b'] ] ?? array() ),
-		'Network activation gives every site its six tables and default settings, not only the main site',
+		'Network activation gives every site its seven tables and default settings, not only the main site',
 		$describe( $after )
 	);
 
@@ -176,7 +176,7 @@ try {
 	$uninstall();
 	$clean = $state( array( 1, $orphan_id, $sites['c'] ) );
 	$check(
-		6 === ( $orphaned[ $orphan_id ]['tables'] ?? 0 ) && $empty( $clean[1] ?? array() ) && $empty( $clean[ $orphan_id ] ?? array() ) && $empty( $clean[ $sites['c'] ] ?? array() ),
+		7 === ( $orphaned[ $orphan_id ]['tables'] ?? 0 ) && $empty( $clean[1] ?? array() ) && $empty( $clean[ $orphan_id ] ?? array() ) && $empty( $clean[ $sites['c'] ] ?? array() ),
 		'Uninstall also drops the tables a deleted site kept when the plugin was active on that site alone',
 		$describe( array( $orphaned, $clean ) )
 	);

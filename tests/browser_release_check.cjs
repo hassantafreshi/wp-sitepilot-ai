@@ -3498,13 +3498,21 @@ async function advancedSettingsHealthy( page ) {
 		check(
 			200 === retained.status()
 			&& !! retained.request().headers()[ 'x-wp-nonce' ]
-			&& 3 === await retentionCard.locator( 'input[type="number"][name^="retention_"]' ).count()
+			&& 4 === await retentionCard.locator( 'input[type="number"][name^="retention_"]' ).count()
 			&& /is-ok/.test( await retentionCard.locator( '[data-sp-retention-result]' ).getAttribute( 'class' ) )
 			&& ( await retentionCard.locator( '[data-sp-retention-summary]' ).innerText() ).trim().length > 0
 			&& 2 === await retentionCard.locator( '.sp-adv-cron [data-sp-copy-source]' ).count()
 			&& ( await retentionCard.locator( '.sp-adv-cron [data-sp-copy-source]' ).first().textContent() ).includes( 'wp-cron.php?doing_wp_cron' )
 			&& await savebar.isHidden(),
-			'Data retention shows three periods, runs the cleanup on its nonce-protected route, explains a server cron job, and is not an unsaved change'
+			'Data retention shows four periods, runs the cleanup on its nonce-protected route, explains a server cron job, and is not an unsaved change'
+		);
+		// Keeping undelivered form submissions: off by default, a switch in Forms and delivery.
+		const keepSwitch = page.locator( '#sp-adv-keep-undelivered' );
+		check(
+			1 === await keepSwitch.count() && ! await keepSwitch.isChecked()
+			&& 'switch' === await keepSwitch.getAttribute( 'role' )
+			&& 1 === await page.locator( '#sp-adv-forms #sp-adv-keep-undelivered' ).count(),
+			'Forms and delivery offers "Keep a submission when its email cannot be sent", off by default'
 		);
 
 		const search = form.locator( '#sp-adv-embeddings' );

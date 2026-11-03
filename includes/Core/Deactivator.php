@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Core;
 
+use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Support\Retention;
 
 /**
@@ -13,5 +14,6 @@ final class Deactivator {
 	public static function deactivate(): void {
 		flush_rewrite_rules();
 		Retention::unschedule();
+		FormOutbox::unschedule();
 	}
 }

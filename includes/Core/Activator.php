@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Core;
 
+use AISAAutoPilot\Chat\ConversationManager;
+use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Content\KnowledgeIndex;
-use AISAAutoPilot\Chat\ConversationManager;
+use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Support\HandoffInbox;
-use AISAAutoPilot\Chat\VisitorConversationStore;
 
 /**
  * Runs on plugin activation, and sets up any site of a network the activation did not reach.
@@ -18,7 +19,7 @@ final class Activator {
 	/** Records that this site has the plugin's tables and default settings. */
 	public const SITE_OPTION = 'aisaautopilot_site_setup';
 
-	private const SITE_VERSION = '1';
+	private const SITE_VERSION = '2';
 
 	/**
 	 * @param bool $network_wide True when a multisite network administrator activates the plugin for every site.
@@ -84,6 +85,8 @@ final class Activator {
 		// Create the private visitor-initiated handoff inbox table.
 		HandoffInbox::ensure_schema();
 		VisitorConversationStore::ensure_schema();
+		// Undelivered form submissions, used only when the administrator turns that on.
+		FormOutbox::ensure_schema();
 
 		update_option( self::SITE_OPTION, self::SITE_VERSION, true );
 	}

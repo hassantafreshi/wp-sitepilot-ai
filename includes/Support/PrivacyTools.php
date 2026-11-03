@@ -5,6 +5,7 @@ namespace AISAAutoPilot\Support;
 
 use AISAAutoPilot\Chat\ConversationManager;
 use AISAAutoPilot\Chat\VisitorConversationStore;
+use AISAAutoPilot\Forms\FormOutbox;
 
 /**
  * WordPress privacy tools (Tools > Export Personal Data / Erase Personal Data) and the
@@ -106,6 +107,23 @@ final class PrivacyTools {
 			foreach ( $this->visitor_rows( $email ) as $row ) {
 				$items[] = $this->conversation_item( 'aisaautopilot-visitor-chats', __( 'Site assistant conversations', 'ai-site-assistant-autopilot' ), __( 'Recorded visitor conversations in which this email address was written.', 'ai-site-assistant-autopilot' ), $row, '' );
 			}
+			foreach ( ( new FormOutbox() )->rows_for_email( $email ) as $row ) {
+				$items[] = array(
+					'group_id'          => 'aisaautopilot-form-outbox',
+					'group_label'       => __( 'Undelivered form submissions', 'ai-site-assistant-autopilot' ),
+					'group_description' => __( 'Form answers kept on this site because the email to the team could not be sent.', 'ai-site-assistant-autopilot' ),
+					'item_id'           => 'aisaautopilot-form-outbox-' . $row['id'],
+					'data'              => array_values(
+						array_filter(
+							array(
+								$this->pair( __( 'Form', 'ai-site-assistant-autopilot' ), $row['form_title'] ),
+								$this->pair( __( 'Received', 'ai-site-assistant-autopilot' ), $row['created_at'] ),
+								$this->pair( __( 'Answers', 'ai-site-assistant-autopilot' ), $row['body'] ),
+							)
+						)
+					),
+				);
+			}
 		}
 
 		return array(
@@ -134,6 +152,10 @@ final class PrivacyTools {
 			foreach ( $this->visitor_rows( $email ) as $row ) {
 				$removed += (int) $db->delete( $db->prefix . VisitorConversationStore::TABLE, array( 'id' => (int) $row['id'] ), array( '%d' ) );
 			}
+			$outbox = new FormOutbox();
+			foreach ( $outbox->rows_for_email( $email ) as $row ) {
+				$removed += $outbox->delete( $row['id'] ) ? 1 : 0;
+			}
 		}
 
 		return array(
@@ -161,10 +183,13 @@ final class PrivacyTools {
 			__( 'Conversations are only kept on this site when the site owner has turned recording on; the chat then says so. Questions the assistant could not answer are kept without any information about who asked, so the site can add the missing content.', 'ai-site-assistant-autopilot' ),
 			__( 'If you ask to talk to a person, the conversation and the contact details you enter (such as your name, email address, mobile number or website) are stored on this site and sent to the team through the channels the site uses, which may include email, Telegram, WhatsApp, SMS, Slack or Signal.', 'ai-site-assistant-autopilot' ),
 			self::retention_text(),
+			FormOutbox::enabled()
+				? __( 'Answers sent with a form on this site are emailed to the team. If that email cannot be sent, the answers are kept on this site until it is sent, and deleted automatically after the period above at the latest.', 'ai-site-assistant-autopilot' )
+				: '',
 			__( 'You can ask for a copy of these requests and conversations, or for their deletion, by the email address you gave.', 'ai-site-assistant-autopilot' ),
 		);
 
-		return '<p>' . implode( '</p><p>', array_map( 'esc_html', $paragraphs ) ) . '</p>';
+		return '<p>' . implode( '</p><p>', array_map( 'esc_html', array_filter( $paragraphs ) ) ) . '</p>';
 	}
 
 	/** How long each kind is kept, from the periods saved in Advanced settings. */
@@ -179,13 +204,22 @@ final class PrivacyTools {
 			Retention::periods()
 		);
 
-		return sprintf(
+		$text = sprintf(
 			/* translators: 1: recorded conversations, 2: requests to talk to a person, 3: unanswered questions; each "30 days" or "until the site owner deletes them". */
 			__( 'Stored data is deleted automatically after: recorded conversations, %1$s; requests to talk to a person, %2$s; unanswered questions, %3$s.', 'ai-site-assistant-autopilot' ),
 			$periods['conversations_days'],
 			$periods['handoffs_days'],
 			$periods['questions_days']
 		);
+		if ( FormOutbox::enabled() ) {
+			$text .= ' ' . sprintf(
+				/* translators: %s: "30 days" or "until the site owner deletes them". */
+				__( 'Undelivered form submissions: %s.', 'ai-site-assistant-autopilot' ),
+				$periods['undelivered_days']
+			);
+		}
+
+		return $text;
 	}
 
 	/**

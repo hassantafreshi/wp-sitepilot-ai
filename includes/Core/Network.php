@@ -7,6 +7,7 @@ use AISAAutoPilot\Chat\ConversationManager;
 use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Content\KnowledgeIndex;
+use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Support\HandoffInbox;
 
 /**
@@ -28,6 +29,7 @@ final class Network {
 		ConversationManager::TABLE,
 		VisitorConversationStore::TABLE,
 		HandoffInbox::TABLE,
+		FormOutbox::TABLE,
 	);
 
 	public function register(): void {

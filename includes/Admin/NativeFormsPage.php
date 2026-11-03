@@ -5,6 +5,7 @@ namespace AISAAutoPilot\Admin;
 
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Core\Settings;
+use AISAAutoPilot\Forms\FormOutbox;
 
 /**
  * "Your forms": the simple forms made with Form Studio (native connector).
@@ -31,6 +32,8 @@ final class NativeFormsPage {
 
 		$recipient    = Settings::form_notification_email();
 		$settings_url = admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETTINGS );
+		$keep         = FormOutbox::enabled();
+		$outbox       = ( new FormOutbox() )->list( 100 );
 
 		Ui::grad_defs();
 		?>
@@ -39,7 +42,9 @@ final class NativeFormsPage {
 				<?php
 				Ui::page_header(
 					__( 'Your forms', 'ai-site-assistant-autopilot' ),
-					__( 'Forms made with Form Studio. Submissions are emailed to you and never stored here.', 'ai-site-assistant-autopilot' ),
+					$keep
+						? __( 'Forms made with Form Studio. Submissions are emailed to you; one whose email fails is kept here until it is sent.', 'ai-site-assistant-autopilot' )
+						: __( 'Forms made with Form Studio. Submissions are emailed to you and never stored here.', 'ai-site-assistant-autopilot' ),
 					array(
 						'chip'   => ConnectionChip::derive(),
 						'action' => array(
@@ -73,12 +78,72 @@ final class NativeFormsPage {
 									);
 									?>
 								</strong>
-								<span><?php esc_html_e( 'Only completed entries are sent. Nothing is saved in WordPress.', 'ai-site-assistant-autopilot' ); ?></span>
+								<span>
+									<?php
+									echo esc_html(
+										$keep
+											? __( 'Only completed entries are sent. A submission whose email fails is kept below until it is sent.', 'ai-site-assistant-autopilot' )
+											: __( 'Only completed entries are sent. Nothing is saved in WordPress.', 'ai-site-assistant-autopilot' )
+									);
+									?>
+								</span>
 								<span class="sp-native-forms__status" data-sp-form-delivery-status role="status" aria-live="polite"></span>
 							</div>
 							<button type="button" class="sp-btn sp-btn--ghost sp-native-forms__test" data-sp-form-delivery-test><?php esc_html_e( 'Send a test email', 'ai-site-assistant-autopilot' ); ?></button>
 							<a class="sp-native-forms__change" href="<?php echo esc_url( $settings_url ); ?>"><?php esc_html_e( 'Change', 'ai-site-assistant-autopilot' ); ?></a>
 						</div>
+					<?php endif; ?>
+
+					<?php if ( array() !== $outbox ) : ?>
+						<section class="sp-native-forms__outbox" data-sp-form-outbox aria-labelledby="sp-form-outbox-title">
+							<div class="sp-native-forms__outbox-head">
+								<span class="sp-native-forms__icon sp-native-forms__icon--warn" aria-hidden="true"><?php echo Ui::icon( 'triangle', 17, 'currentColor', 2.1 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
+								<div>
+									<h2 id="sp-form-outbox-title" data-sp-form-outbox-title>
+										<?php
+										echo esc_html(
+											sprintf(
+												/* translators: %s: number of form submissions whose email failed. */
+												_n( '%s submission could not be emailed', '%s submissions could not be emailed', count( $outbox ), 'ai-site-assistant-autopilot' ),
+												number_format_i18n( count( $outbox ) )
+											)
+										);
+										?>
+									</h2>
+									<p><?php esc_html_e( 'The answers are safe here. They are retried every hour up to 5 times; resend one yourself once the site\'s email works again, for example after setting up an SMTP plugin.', 'ai-site-assistant-autopilot' ); ?></p>
+								</div>
+							</div>
+							<ul class="sp-native-forms__outbox-list">
+								<?php foreach ( $outbox as $kept ) : ?>
+									<li class="sp-native-forms__outbox-row" data-sp-outbox-row="<?php echo esc_attr( (string) $kept['id'] ); ?>">
+										<div class="sp-native-forms__outbox-main">
+											<strong><?php echo esc_html( $kept['form_title'] ); ?></strong>
+											<small>
+												<?php
+												echo esc_html(
+													sprintf(
+														/* translators: 1: date and time the visitor sent the form, 2: number of send attempts. */
+														_n( 'Sent by the visitor %1$s · %2$s attempt', 'Sent by the visitor %1$s · %2$s attempts', $kept['attempts'], 'ai-site-assistant-autopilot' ),
+														wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) strtotime( $kept['created_at'] . ' UTC' ) ),
+														number_format_i18n( $kept['attempts'] )
+													)
+												);
+												?>
+											</small>
+											<details>
+												<summary><?php esc_html_e( 'Show the answers', 'ai-site-assistant-autopilot' ); ?></summary>
+												<pre dir="auto"><?php echo esc_html( $kept['body'] ); ?></pre>
+											</details>
+										</div>
+										<div class="sp-native-forms__outbox-actions">
+											<button type="button" class="sp-btn sp-btn--xs" data-sp-outbox-resend="<?php echo esc_attr( (string) $kept['id'] ); ?>"><?php esc_html_e( 'Resend', 'ai-site-assistant-autopilot' ); ?></button>
+											<button type="button" class="sp-btn sp-btn--ghost sp-btn--xs" data-sp-outbox-delete="<?php echo esc_attr( (string) $kept['id'] ); ?>"><?php esc_html_e( 'Delete', 'ai-site-assistant-autopilot' ); ?></button>
+										</div>
+										<span class="sp-native-forms__status" data-sp-outbox-status role="status" aria-live="polite"></span>
+									</li>
+								<?php endforeach; ?>
+							</ul>
+						</section>
 					<?php endif; ?>
 
 					<?php if ( array() === $forms ) : ?>

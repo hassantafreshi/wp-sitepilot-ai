@@ -233,6 +233,10 @@ final class SettingsPage {
 				'label' => __( 'Unanswered questions', 'ai-site-assistant-autopilot' ),
 				'help'  => __( 'Counted from the last time someone asked. Cached answers older than this go too.', 'ai-site-assistant-autopilot' ),
 			),
+			'undelivered_days'   => array(
+				'label' => __( 'Undelivered form submissions', 'ai-site-assistant-autopilot' ),
+				'help'  => __( 'Counted from when the visitor sent the form. Kept only when "Keep a submission when its email cannot be sent" is on under Forms and delivery.', 'ai-site-assistant-autopilot' ),
+			),
 		);
 
 		Ui::grad_defs();
@@ -435,8 +439,16 @@ final class SettingsPage {
 								<label class="sp-wz-field">
 									<span class="sp-wz-field__label"><?php esc_html_e( 'Send submissions to', 'ai-site-assistant-autopilot' ); ?></span>
 									<input type="email" id="sp-form-notification-email" name="form_notification_email" class="sp-input sp-input--sm" dir="ltr" value="<?php echo esc_attr( Settings::form_notification_email() ); ?>" />
-									<span class="sp-wz-field__help"><?php esc_html_e( 'Submissions are delivered only to this address and are not saved in WordPress. Leave blank to use the site administration email.', 'ai-site-assistant-autopilot' ); ?></span>
+									<span class="sp-wz-field__help"><?php esc_html_e( 'Submissions are delivered only to this address. Leave blank to use the site administration email.', 'ai-site-assistant-autopilot' ); ?></span>
 								</label>
+							</div>
+							<div class="sp-wz-switch-row">
+								<input type="hidden" name="forms_keep_undelivered" value="0" />
+								<input type="checkbox" class="sp-wz-switch" id="sp-adv-keep-undelivered" role="switch" name="forms_keep_undelivered" value="1" aria-describedby="sp-adv-keep-undelivered-note" <?php checked( ! empty( $s['forms_keep_undelivered'] ) ); ?> />
+								<div class="sp-wz-switch-row__body">
+									<label class="sp-wz-switch-row__title" for="sp-adv-keep-undelivered"><?php esc_html_e( 'Keep a submission when its email cannot be sent', 'ai-site-assistant-autopilot' ); ?></label>
+									<p class="sp-wz-switch-row__note" id="sp-adv-keep-undelivered-note"><?php esc_html_e( 'Off: nothing is saved in WordPress, and a visitor whose email fails is asked to try again. On: the answers are kept on this site, retried every hour up to 5 times, and listed under Your forms to resend; they are deleted once sent or after the period under Data retention.', 'ai-site-assistant-autopilot' ); ?></p>
+								</div>
 							</div>
 							<div class="sp-adv-delivery">
 								<button type="button" id="sp-test-form-delivery" class="sp-btn sp-btn--ghost sp-btn--r8"><?php esc_html_e( 'Send a delivery test', 'ai-site-assistant-autopilot' ); ?></button>
@@ -1350,7 +1362,7 @@ final class SettingsPage {
 		$existing = Settings::all();
 		$update   = array();
 
-		foreach ( array( 'embeddings_enabled', 'voice_responses_enabled', 'prefer_efb', 'public_assistant_enabled' ) as $switch ) {
+		foreach ( array( 'embeddings_enabled', 'voice_responses_enabled', 'prefer_efb', 'public_assistant_enabled', 'forms_keep_undelivered' ) as $switch ) {
 			if ( array_key_exists( $switch, $_POST ) ) {
 				$update[ $switch ] = ! empty( $_POST[ $switch ] );
 			}
