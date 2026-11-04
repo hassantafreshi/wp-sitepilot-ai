@@ -53,7 +53,7 @@
 |---|---|---|---|---|---|
 | T29 | همه | ممیزی و تأیید D-13 | T14 | D-13 | تکمیل ۲۰۲۶-۱۱-۰۴ (بخش ۸) |
 | T30 | A-05 | پرسش‌های بی‌پاسخ و «Write it» | T29 | D-22 | تکمیل ۲۰۲۶-۰۹-۱۶ (دستور مالک؛ همراه پاسخ ذخیره‌شده) |
-| T31 | A-18 | تشخیص افزونهٔ هم‌پوشان | T29 | — | منتظر |
+| T31 | A-18 | تشخیص افزونهٔ هم‌پوشان | T29 | — | تکمیل ۲۰۲۶-۱۱-۰۴ |
 | T32 | A-14 | لحن Formal و Plain | T29 | — | منتظر |
 | T33 | A-15 | شمار استفادهٔ الگو | T29 | — | منتظر |
 | T34 | A-15 | ویرایشگر الگوی سفارشی | T33 | — | منتظر |
@@ -132,6 +132,17 @@
 - **UI:** بنر بالای بدنهٔ Integrations مطابق موکاپ، با نام افزونهٔ واقعی، CTA «Open Plugins» به `plugins.php` و دکمهٔ Dismiss قابل‌دسترسی با keyboard. ادعای «overlap» فقط برای `chat_widget` و با واژهٔ «may».
 - **آزمون و گیت:** PHPUnit برای matcher با فهرست تزریقی (single و sitewide)؛ integration با `pre_option_active_plugins` درون‌پردازشی برای رندر بنر، متن هر نوع، dismiss و بازگشت با افزونهٔ تازه؛ browser برای حالت بدون تداخل (یا مثبت واقعی سایت محلی، طبق inventory T29) و dismiss با keyboard.
 - **ریسک:** مثبت کاذب؛ فهرست کوتاه و فقط slugهای تأییدشده.
+- **اجرا (۲۰۲۶-۱۱-۰۴): تکمیل.**
+  - **فهرست:** ۱۴ slug که هر کدام با API فهرست افزونه‌های WordPress.org (`plugins/info/1.2`) در همان روز تأیید شد:
+    - `chat_widget`: tidio-live-chat، tawkto-live-chat، crisp، wp-live-chat-software-for-wordpress، wp-live-chat-support، zopim-live-chat، smartsupp-live-chat، wp-whatsapp-chat، click-to-chat-for-whatsapp، chaty، social-chat-buttons؛
+    - `ai_assistant`: ai-engine، chatbot، gpt3-ai-content-generator.
+  - **تطبیق با نام فولدر:** تطبیق با نام فولدر WordPress.org است، نه نام فایل اصلی. پس تفاوت نام فایل اصلی (مثل `tidio-elements.php` یا `cht-icons.php`) مهم نیست.
+  - **تفاوت با plan، ذخیرهٔ پنهان‌سازی:** با `update_user_option` ذخیره می‌شود، یعنی user meta با پیشوند جدول سایت. پس در multisite هر سایت جدا است. `uninstall.php` آن را پاک می‌کند.
+  - **تفاوت با plan، عنوان هشدار:** برای افزونهٔ چت «Another chat plugin is active» است (X-14 گزارش شکاف).
+  - **آزمون:**
+    - `ConflictDetectorTest`: ۴ آزمون؛
+    - `wordpress_conflict_detector_integration`: 8/0؛
+    - `conflict_browser_matrix`: en/fa، هر کدام ۹ و ۱۰ بررسی، 19/0، روی دو افزونهٔ جانشین با همان نام فولدر و بدون کد.
 
 ### T32 — S5.3 لحن Formal و Plain (A-14)
 

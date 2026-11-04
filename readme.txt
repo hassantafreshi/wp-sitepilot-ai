@@ -189,7 +189,11 @@ Kept on purpose, because it is your content:
   _aisaautopilot_meta_description and _aisaautopilot_source_gap meta.
 * Forms created in Easy Form Builder. They belong to that plugin.
 
-The plugin stores no user meta and no site-wide (network) options.
+User meta (deleted): {prefix}aisaautopilot_dismissed_conflicts, the
+Integrations warnings about other chat or AI plugins that each administrator
+hid on that site.
+
+The plugin stores no other user meta and no site-wide (network) options.
 
 == External services ==
 
@@ -515,6 +519,11 @@ editable text; nothing is sent until you press Send.
   decline, carts left for an hour listed under Orders, one reminder per cart
   sent only by the store manager, and a link that refills the cart.
 * Form Studio keeps a plan under review across a page reload in the same tab.
+* Integrations warns when another chat plugin (such as Tidio, Tawk.to or
+  Chaty) or AI assistant plugin (such as AI Engine) is active, by its real
+  name. A chat plugin is reported only while the Answer Desk chat button is on.
+  Each administrator can hide the warning; another plugin from the list
+  activated later brings it back. The check reads only this site's list of active plugins.
 * Store Copilot > Descriptions: optional AI descriptions for existing
   products, approved one by one, with Undo (off by default).
 * Setup proposes a monthly spend cap of 2,000,000 tokens that you can change

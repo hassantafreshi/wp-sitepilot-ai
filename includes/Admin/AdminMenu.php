@@ -297,6 +297,7 @@ final class AdminMenu {
 	private function script_strings(): array {
 		return array(
 			'dismiss'                    => __( 'Dismiss', 'ai-site-assistant-autopilot' ),
+			'conflictHideFailed'         => __( 'The warning could not be hidden. Please try again.', 'ai-site-assistant-autopilot' ),
 			'testing'                    => __( 'Testing…', 'ai-site-assistant-autopilot' ),
 			'testingBody'                => __( 'A short request was sent to the provider.', 'ai-site-assistant-autopilot' ),
 			'testOk'                     => __( 'Connection works', 'ai-site-assistant-autopilot' ),

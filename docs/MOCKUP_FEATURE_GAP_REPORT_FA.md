@@ -39,7 +39,7 @@
 | A-15 | Content Studio › Templates | شمار استفاده مانند «Used 38 times» (`:1699`) | ناموجود: `CopilotPage.php:344` | شمارندهٔ استفاده از الگو. **T29:** الگوها در `CopilotPage.php:403` تا `:425`. |
 | A-16 | Usage & Cost | مبالغ دلاری و سقف هزینه؛ «در سقف همهٔ قابلیت‌ها متوقف و ایمیل می‌شود» (`:1295`) | جایگزین صادقانه: توکن‌محور (`includes/Admin/UsagePage.php:9`). ایمیل هنگام رسیدن به سقف ناموجود. | نقشهٔ قیمت هر مدل و اعلان ایمیلی. **T29:** Setup سقف ماهانهٔ توکنی پیشنهاد می‌کند و Overview هنگام رسیدن به سقف بنر نشان می‌دهد. ایمیل و مبلغ دلاری هنوز نیستند. |
 | A-17 | Activity Log | Approve، Approve all، Undo و Restore روی ردیف‌ها (`:1363`، `:2605`) | ناموجود؛ لاگ فقط‌خواندنی با خروجی CSV: `includes/Admin/LogsPage.php:44` | مسیر بازگردانی برای هر نوع عمل. |
-| A-18 | Integrations | بنر «Another AI plugin is active» (`:1543`، `:1998`) | ناموجود: `includes/Admin/IntegrationsPage.php` | تشخیص افزونه‌های چت هم‌پوشان؛ کم‌هزینه. |
+| A-18 | Integrations | بنر «Another AI plugin is active» (`:1543`، `:1998`) | **اجرا شد ۲۰۲۶-۱۱-۰۴ (T31)** — به بخش ۴ منتقل شد. | — |
 | A-19 | Answer Desk › Widget | «Match my theme colours» (`:2691`) | قفل صادقانه با برچسب «Manual palette»: `includes/Admin/AnswerDeskWidgetPage.php` (`data-sp-widget-theme-locked`). **تا ۲۰۲۶-۰۹-۱۸ در این گزارش نیامده بود؛ در T73 پیدا شد.** | هیچ کدی پالت قالب را نمی‌خواند. راه کم‌هزینه: خواندن `theme.json` پالت (`wp_get_global_settings( array( 'color', 'palette' ) )`) و پیشنهاد آن رنگ‌ها کنار رنگ‌های برند؛ قالب بدون پالت صادقانه گفته شود. پس از انتشار، در T29 (D-13 ب). **T29:** task آن T76 است. |
 
 ### ۱.۲ `Front Chat Widget.dc.html`
@@ -126,6 +126,7 @@
 | X-11 | Usage & Cost، Health و Activity Log زیر نوار tab «Overview»، با برجسته شدن «Overview» در منو (T16) | `AdminMenu.php` | تصمیم بازآرایی IA در S6. |
 | X-12 | «Widget settings» در سربرگ Answer Desk به tab Widget می‌رود، نه modal چهار-کلیدی (T16) | `AnswerDeskWidgetPage.php`، B-06 | سفارشی‌ساز کامل یک منبع حقیقت است. |
 | X-13 | «Speak replies aloud» تا روشن شدن «transcribe + speak» غیرفعال است (T16) | `answer-voice.js` | پخش پاسخ بدون ورودی صوتی معنا ندارد؛ یادداشت دلیل را می‌گوید. |
+| X-14 | هشدار افزونهٔ هم‌پوشان (T31): برای افزونهٔ چت عنوان «Another chat plugin is active» و «may overlap» به‌جای «will overlap»؛ هشدار چت فقط وقتی دکمهٔ چت Answer Desk روشن است؛ پنهان کردن برای هر مدیر و هر سایت ماندگار است | `IntegrationsPage.php` (`render_conflicts`)، `ConflictDetector.php` | Tawk.to یا Chaty افزونهٔ AI نیستند. هم‌پوشانی فقط وقتی ممکن است که هر دو دکمه روشن باشند. ادعای قطعی بدون دیدن قالب و جای دکمه درست نیست. |
 
 ---
 
@@ -136,6 +137,7 @@
 - کارت‌های Human handoff در عرض گوشی: دکمه‌ها هم‌تراز متن کارت. متن «آخرین اعمال» صفحهٔ EFB در فارسی دیگر با فونت monospace (که اتصال حروف را می‌شکند) نمایش داده نمی‌شود. نوار چسبان «Save settings» در صفحهٔ قدیمی Widget زمینه گرفت تا روی فیلدها نیفتد.
 - aliasهای Chat، Handoffs، Forms و EFB با `Ui::page_header` و منوی باز: `ChatPage.php`، `HandoffInboxPage.php`، `NativeFormsPage.php`، `EasyFormBuilderPage.php`.
 - Store Copilot › What it can do: دو ستون برابر، فاصلهٔ درست عنوان گروه‌ها، آیکون tick و dash، عنوان کارت 14px و رنگ وضعیت مطابق موکاپ.
+- **A-18 (T31، ۲۰۲۶-۱۱-۰۴):** Integrations با نام واقعی افزونه هشدار می‌دهد که افزونهٔ چت یا دستیار AI دیگری فعال است، همراه CTA «Open Plugins» و دکمهٔ پنهان کردن که با keyboard کار می‌کند. فهرست شامل ۱۴ slug تأییدشده در WordPress.org است و با filter `aisaautopilot_conflicting_plugins` گسترش می‌یابد. پنهان کردن در user option هر مدیر روی همان سایت ذخیره می‌شود و افزونهٔ دیگری از فهرست که بعداً فعال شود هشدار را برمی‌گرداند؛ افزونهٔ پنهان‌شده پنهان می‌ماند: `Core/ConflictDetector.php`، `Api/IntegrationsController.php`، `IntegrationsPage.php`، `integrations.js`. شاهد: `wordpress_conflict_detector_integration` 8/0، `ConflictDetectorTest` 4 آزمون، `conflict_browser_matrix` en/fa 19/0.
 - **A-05 (T30، ۲۰۲۶-۰۹-۱۶):** پرسش بی‌پاسخ با دلیل، «Asked N times»، فیلتر «Last 7 days»، «Write it» به Content Studio › Write با brief و `source_gap`، و «Open draft» پس از تأیید پیش‌نویس. به دستور مالک، «Answer it» و کارت «Saved answers» هم ساخته شد که بدون درخواست AI پاسخ می‌دهد: `KbGaps.php`، `SavedAnswers.php`، `KnowledgeBasePage.php`، `knowledge-base.js`، `ContentController.php`، `ContentDraftExecutor.php`.
 - Site Knowledge › Overview: قالب «x of y» و کارت «Questions your site could not answer» که با حالت خالی صادقانه همیشه دیده می‌شود: `KnowledgeBasePage.php` (`#sp-kb-gaps-empty`) و `knowledge-base.js:496`.
 - Form Composer: چیپ‌های کوتاه موکاپ در بوم و چیپ‌های دستیار زیر خوشامد که فقط composer را پر می‌کنند و چیزی ارسال نمی‌کنند: `CopilotPage.php:67` و `:128`، `form-builder.js:660`.

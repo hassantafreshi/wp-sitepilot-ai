@@ -56,8 +56,8 @@ msgstr "ثبت‌شده"
 #: includes/Activity/ActivityTimeline.php:142 includes/Admin/AdminMenu.php:71
 #: includes/Admin/CopilotPage.php:312 includes/Admin/CopilotPage.php:432
 #: includes/Admin/HistoryPage.php:30 includes/Admin/HomePage.php:390
-#: includes/Admin/IntegrationsPage.php:114
-#: includes/Admin/IntegrationsPage.php:336
+#: includes/Admin/IntegrationsPage.php:115
+#: includes/Admin/IntegrationsPage.php:391
 #: includes/Admin/SettingsPage.php:1114
 msgid "Content Studio"
 msgstr "استودیوی محتوا"
@@ -65,7 +65,7 @@ msgstr "استودیوی محتوا"
 #: includes/Activity/ActivityTimeline.php:135
 #: includes/Activity/ActivityTimeline.php:145 includes/Admin/AdminMenu.php:69
 #: includes/Admin/AdminMenu.php:95 includes/Admin/HomePage.php:369
-#: includes/Admin/IntegrationsPage.php:130
+#: includes/Admin/IntegrationsPage.php:131
 #: includes/Admin/SettingsPage.php:1082 includes/Admin/StoreCopilotPage.php:65
 msgid "Store Copilot"
 msgstr "دستیار فروشگاه"
@@ -76,8 +76,8 @@ msgid "AutoPilot"
 msgstr "AutoPilot"
 
 #: includes/Activity/ActivityTimeline.php:148 includes/Admin/AdminMenu.php:60
-#: includes/Admin/HomePage.php:355 includes/Admin/IntegrationsPage.php:49
-#: includes/Admin/IntegrationsPage.php:290
+#: includes/Admin/HomePage.php:355 includes/Admin/IntegrationsPage.php:50
+#: includes/Admin/IntegrationsPage.php:345
 #: includes/Admin/KnowledgeBasePage.php:68
 #: includes/Admin/SettingsPage.php:1056
 msgid "Site Knowledge"
@@ -91,16 +91,16 @@ msgstr "دانش سایت"
 #: includes/Admin/AnswerDeskVoicePage.php:40
 #: includes/Admin/AnswerDeskWidgetPage.php:55
 #: includes/Admin/HandoffInboxPage.php:36 includes/Admin/HomePage.php:362
-#: includes/Admin/IntegrationsPage.php:65
-#: includes/Admin/IntegrationsPage.php:301
+#: includes/Admin/IntegrationsPage.php:66
+#: includes/Admin/IntegrationsPage.php:356
 #: includes/Admin/SettingsPage.php:1069
 #: includes/Frontend/ChatWidgetSettings.php:95
 msgid "Answer Desk"
 msgstr "میز پاسخ‌گویی"
 
 #: includes/Activity/ActivityTimeline.php:156 includes/Admin/HomePage.php:383
-#: includes/Admin/IntegrationsPage.php:95
-#: includes/Admin/IntegrationsPage.php:324
+#: includes/Admin/IntegrationsPage.php:96
+#: includes/Admin/IntegrationsPage.php:379
 #: includes/Admin/SettingsPage.php:1102
 msgid "Easy Form Builder Copilot"
 msgstr "دستیار Easy Form Builder"
@@ -108,8 +108,8 @@ msgstr "دستیار Easy Form Builder"
 # D-23 rename (T54): the admin-facing name is now "Form Studio".
 #: includes/Activity/ActivityTimeline.php:159 includes/Admin/AdminMenu.php:76
 #: includes/Admin/CopilotPage.php:80 includes/Admin/CopilotPage.php:93
-#: includes/Admin/HomePage.php:376 includes/Admin/IntegrationsPage.php:81
-#: includes/Admin/IntegrationsPage.php:312
+#: includes/Admin/HomePage.php:376 includes/Admin/IntegrationsPage.php:82
+#: includes/Admin/IntegrationsPage.php:367
 #: includes/Admin/SettingsPage.php:1094
 msgid "Form Studio"
 msgstr "استودیوی فرم"
@@ -148,7 +148,7 @@ msgstr "نمای کلی"
 msgid "Setup & Connection"
 msgstr "راه‌اندازی و اتصال"
 
-#: includes/Admin/AdminMenu.php:59 includes/Admin/IntegrationsPage.php:155
+#: includes/Admin/AdminMenu.php:59 includes/Admin/IntegrationsPage.php:156
 #: includes/Admin/SettingsPage.php:633
 msgid "Integrations"
 msgstr "یکپارچه‌سازی‌ها"
@@ -237,169 +237,173 @@ msgstr ""
 "می‌کند"
 
 #: includes/Admin/AdminMenu.php:300
+msgid "The warning could not be hidden. Please try again."
+msgstr "این هشدار پنهان نشد. لطفاً دوباره تلاش کنید."
+
+#: includes/Admin/AdminMenu.php:301
 msgid "Testing…"
 msgstr "در حال آزمایش…"
 
-#: includes/Admin/AdminMenu.php:301
+#: includes/Admin/AdminMenu.php:302
 msgid "A short request was sent to the provider."
 msgstr "یک درخواست کوتاه به ارائه‌دهنده فرستاده شد."
 
-#: includes/Admin/AdminMenu.php:302
+#: includes/Admin/AdminMenu.php:303
 msgid "Connection works"
 msgstr "اتصال برقرار است"
 
-#: includes/Admin/AdminMenu.php:303
+#: includes/Admin/AdminMenu.php:304
 msgid "Valid response received. You can continue."
 msgstr "پاسخ معتبر دریافت شد. می‌توانید ادامه دهید."
 
-#: includes/Admin/AdminMenu.php:304
+#: includes/Admin/AdminMenu.php:305
 msgid "Key or endpoint was rejected"
 msgstr "کلید یا endpoint پذیرفته نشد"
 
-#: includes/Admin/AdminMenu.php:305
+#: includes/Admin/AdminMenu.php:306
 msgid "Replace the key or check the custom endpoint."
 msgstr "کلید را جایگزین کنید یا endpoint سفارشی را بررسی کنید."
 
-#: includes/Admin/AdminMenu.php:306 includes/Admin/ChatPage.php:286
+#: includes/Admin/AdminMenu.php:307 includes/Admin/ChatPage.php:286
 #: includes/Admin/CopilotPage.php:543 includes/Admin/SettingsPage.php:1320
 #: includes/Admin/StoreCopilotPage.php:108
 #: includes/Efb/EfbBuilderButton.php:91
 msgid "Network error. Please try again."
 msgstr "خطای شبکه. لطفاً دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:307
+#: includes/Admin/AdminMenu.php:308
 msgid "Sending test…"
 msgstr "در حال ارسال آزمون…"
 
-#: includes/Admin/AdminMenu.php:308
+#: includes/Admin/AdminMenu.php:309
 msgid "Test accepted."
 msgstr "آزمون پذیرفته شد."
 
-#: includes/Admin/AdminMenu.php:309 includes/Core/Plugin.php:177
+#: includes/Admin/AdminMenu.php:310 includes/Core/Plugin.php:177
 msgid "Sending…"
 msgstr "در حال ارسال…"
 
-#: includes/Admin/AdminMenu.php:310
+#: includes/Admin/AdminMenu.php:311
 msgid "Delete these answers for good? They were never emailed."
 msgstr "این پاسخ‌ها برای همیشه پاک شوند؟ هرگز ایمیل نشده‌اند."
 
-#: includes/Admin/AdminMenu.php:311
+#: includes/Admin/AdminMenu.php:312
 msgid "Every kept submission has been sent or deleted."
 msgstr "همهٔ پاسخ‌های نگه‌داشته‌شده فرستاده یا پاک شدند."
 
-#: includes/Admin/AdminMenu.php:312
+#: includes/Admin/AdminMenu.php:313
 msgid "One submission could not be emailed"
 msgstr "یک پاسخ ایمیل نشد"
 
 #. translators: %s: number of form submissions still waiting to be emailed.
-#: includes/Admin/AdminMenu.php:314
+#: includes/Admin/AdminMenu.php:315
 #, php-format
 msgid "%s submissions are still waiting to be emailed"
 msgstr "%s پاسخ هنوز منتظر ایمیل شدن است"
 
-#: includes/Admin/AdminMenu.php:315
+#: includes/Admin/AdminMenu.php:316
 msgid "Test failed."
 msgstr "آزمون ناموفق بود."
 
-#: includes/Admin/AdminMenu.php:316 includes/Admin/CopilotPage.php:526
+#: includes/Admin/AdminMenu.php:317 includes/Admin/CopilotPage.php:526
 #: includes/Admin/NativeFormsPage.php:202 includes/Admin/SettingsPage.php:550
 #: includes/Admin/SettingsPage.php:555
 msgid "Copy"
 msgstr "کپی"
 
-#: includes/Admin/AdminMenu.php:317 includes/Admin/SettingsPage.php:589
+#: includes/Admin/AdminMenu.php:318 includes/Admin/SettingsPage.php:589
 msgid "Copied"
 msgstr "کپی شد"
 
-#: includes/Admin/AdminMenu.php:318
+#: includes/Admin/AdminMenu.php:319
 msgid "Shortcode copied. Paste it into any page or post."
 msgstr "شورت‌کد کپی شد. آن را در هر برگه یا نوشته‌ای بچسبانید."
 
-#: includes/Admin/AdminMenu.php:319
+#: includes/Admin/AdminMenu.php:320
 msgid "Could not copy. Select the shortcode and copy it yourself."
 msgstr "کپی نشد. شورت‌کد را انتخاب و خودتان کپی کنید."
 
-#: includes/Admin/AdminMenu.php:320
+#: includes/Admin/AdminMenu.php:321
 msgid ""
 "No channel is enabled, so the handoff button stays hidden from visitors."
 msgstr ""
 "هیچ کانالی فعال نیست، پس دکمهٔ انتقال برای بازدیدکننده نمایش داده نمی‌شود."
 
-#: includes/Admin/AdminMenu.php:321
+#: includes/Admin/AdminMenu.php:322
 #: includes/Frontend/ChatWidgetSettings.php:413
 msgid "That image is too large. Please use a PNG under 200 KB."
 msgstr ""
 "این تصویر خیلی بزرگ است. لطفاً یک PNG کمتر از ۲۰۰ کیلوبایت انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:322 includes/Admin/AdminMenu.php:325
-#: includes/Admin/AdminMenu.php:357 includes/Admin/UsagePage.php:152
+#: includes/Admin/AdminMenu.php:323 includes/Admin/AdminMenu.php:326
+#: includes/Admin/AdminMenu.php:358 includes/Admin/UsagePage.php:152
 msgid "Saving..."
 msgstr "در حال ذخیره..."
 
-#: includes/Admin/AdminMenu.php:323 includes/Admin/AdminMenu.php:326
-#: includes/Admin/AdminMenu.php:358
+#: includes/Admin/AdminMenu.php:324 includes/Admin/AdminMenu.php:327
+#: includes/Admin/AdminMenu.php:359
 msgid "Saved."
 msgstr "ذخیره شد."
 
-#: includes/Admin/AdminMenu.php:324
+#: includes/Admin/AdminMenu.php:325
 msgid "Could not save the Widget setting. Please try again."
 msgstr "تنظیم ویجت ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:327
+#: includes/Admin/AdminMenu.php:328
 msgid "Could not save the handoff channel. Please try again."
 msgstr "کانال انتقال به انسان ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:328
+#: includes/Admin/AdminMenu.php:329
 msgid "This contacts the provider to validate the saved credential. Continue?"
 msgstr ""
 "برای بررسی اطلاعات ورود ذخیره‌شده با سرویس‌دهنده تماس گرفته می‌شود. ادامه "
 "می‌دهید؟"
 
-#: includes/Admin/AdminMenu.php:329
+#: includes/Admin/AdminMenu.php:330
 msgid "Could not check the connection. Please try again."
 msgstr "اتصال بررسی نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:330
+#: includes/Admin/AdminMenu.php:331
 #: includes/Admin/AnswerDeskHandoffPage.php:579
 msgid "Ready"
 msgstr "آماده"
 
-#: includes/Admin/AdminMenu.php:331
+#: includes/Admin/AdminMenu.php:332
 #: includes/Admin/AnswerDeskHandoffPage.php:582
 msgid "Needs setup"
 msgstr "نیازمند تنظیم"
 
-#: includes/Admin/AdminMenu.php:332 includes/Admin/AdminMenu.php:367
+#: includes/Admin/AdminMenu.php:333 includes/Admin/AdminMenu.php:368
 #: includes/Admin/AnswerDeskHandoffPage.php:584
 #: includes/Admin/AnswerDeskVoicePage.php:80
 msgid "Paused"
 msgstr "متوقف"
 
-#: includes/Admin/AdminMenu.php:333
+#: includes/Admin/AdminMenu.php:334
 #: includes/Admin/AnswerDeskHandoffPage.php:584
 #: includes/Admin/AnswerDeskVoicePage.php:27
 msgid "Not configured"
 msgstr "تنظیم نشده"
 
-#: includes/Admin/AdminMenu.php:334
+#: includes/Admin/AdminMenu.php:335
 #: includes/Admin/AnswerDeskHandoffPage.php:531
 #: includes/Admin/KnowledgeBasePage.php:507
 msgid "Edit"
 msgstr "ویرایش"
 
-#: includes/Admin/AdminMenu.php:335
+#: includes/Admin/AdminMenu.php:336
 #: includes/Admin/AnswerDeskHandoffPage.php:531
 msgid "Connect"
 msgstr "اتصال"
 
-#: includes/Admin/AdminMenu.php:336 includes/Admin/HandoffInboxPage.php:180
+#: includes/Admin/AdminMenu.php:337 includes/Admin/HandoffInboxPage.php:180
 #: includes/Admin/HandoffInboxPage.php:202
-#: includes/Admin/IntegrationsPage.php:395
+#: includes/Admin/IntegrationsPage.php:450
 #: includes/Efb/EfbBuilderButton.php:339
 msgid "Close"
 msgstr "بستن"
 
-#: includes/Admin/AdminMenu.php:337
+#: includes/Admin/AdminMenu.php:338
 #: includes/Admin/AnswerDeskHandoffPage.php:223
 #: includes/Admin/AnswerDeskHandoffPage.php:265
 #: includes/Admin/AnswerDeskHandoffPage.php:318
@@ -409,103 +413,103 @@ msgid "Not set up yet"
 msgstr "هنوز تنظیم نشده"
 
 #. translators: %s: WordPress administration email address.
-#: includes/Admin/AdminMenu.php:340
+#: includes/Admin/AdminMenu.php:341
 #: includes/Admin/AnswerDeskHandoffPage.php:187
 #, php-format
 msgid "Uses the WordPress administration email: %s"
 msgstr "از ایمیل مدیریت وردپرس استفاده می‌شود: %s"
 
 #. translators: %s: configured Telegram chat identifier.
-#: includes/Admin/AdminMenu.php:344
+#: includes/Admin/AdminMenu.php:345
 #: includes/Admin/AnswerDeskHandoffPage.php:220
 #, php-format
 msgid "Credential stored securely; chat %s"
 msgstr "اطلاعات ورود امن ذخیره شده است؛ گفت‌وگو %s"
 
 #. translators: %s: configured recipient phone number.
-#: includes/Admin/AdminMenu.php:346
+#: includes/Admin/AdminMenu.php:347
 #: includes/Admin/AnswerDeskHandoffPage.php:262
 #, php-format
 msgid "Credentials stored securely; sends to %s"
 msgstr "اطلاعات ورود امن ذخیره شده است؛ ارسال به %s"
 
 #. translators: %s: recipient WhatsApp number.
-#: includes/Admin/AdminMenu.php:348
+#: includes/Admin/AdminMenu.php:349
 #: includes/Admin/AnswerDeskHandoffPage.php:315
 #, php-format
 msgid "Token stored securely; sends to %s"
 msgstr "توکن امن ذخیره شده است؛ ارسال به %s"
 
-#: includes/Admin/AdminMenu.php:349
+#: includes/Admin/AdminMenu.php:350
 #: includes/Admin/AnswerDeskHandoffPage.php:370
 msgid "Webhook stored securely"
 msgstr "وب‌هوک امن ذخیره شده است"
 
 #. translators: %s: Signal recipient (a phone number or a group).
-#: includes/Admin/AdminMenu.php:351
+#: includes/Admin/AdminMenu.php:352
 #: includes/Admin/AnswerDeskHandoffPage.php:399
 #, php-format
 msgid "Sends to %s"
 msgstr "ارسال به %s"
 
-#: includes/Admin/AdminMenu.php:352
+#: includes/Admin/AdminMenu.php:353
 #: includes/Admin/AnswerDeskHandoffPage.php:400
 msgid "a Signal group"
 msgstr "یک گروه سیگنال"
 
-#: includes/Admin/AdminMenu.php:353
+#: includes/Admin/AdminMenu.php:354
 msgid "Checking connection..."
 msgstr "در حال بررسی اتصال..."
 
-#: includes/Admin/AdminMenu.php:354
+#: includes/Admin/AdminMenu.php:355
 msgid "Connection verified."
 msgstr "اتصال تأیید شد."
 
-#: includes/Admin/AdminMenu.php:355
+#: includes/Admin/AdminMenu.php:356
 msgid "Saved. The handoff card asks for these details from now on."
 msgstr "ذخیره شد. از این پس کارت انتقال این اطلاعات را می‌پرسد."
 
-#: includes/Admin/AdminMenu.php:356
+#: includes/Admin/AdminMenu.php:357
 msgid "Could not save the details. Please try again."
 msgstr "اطلاعات ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:359
+#: includes/Admin/AdminMenu.php:360
 msgid "Could not save the voice settings. Please try again."
 msgstr "تنظیمات صدا ذخیره نشد. دوباره تلاش کنید."
 
-#: includes/Admin/AdminMenu.php:360
+#: includes/Admin/AdminMenu.php:361
 msgid "Turn on transcribe + speak before playing a test phrase."
 msgstr "پیش از پخش عبارت آزمایشی، «رونویسی + گفتار» را روشن کنید."
 
-#: includes/Admin/AdminMenu.php:361
+#: includes/Admin/AdminMenu.php:362
 msgid "Playing a test phrase locally..."
 msgstr "در حال پخش عبارت آزمایشی در همین مرورگر..."
 
-#: includes/Admin/AdminMenu.php:362
+#: includes/Admin/AdminMenu.php:363
 msgid "Test phrase finished in this browser."
 msgstr "پخش عبارت آزمایشی در این مرورگر تمام شد."
 
-#: includes/Admin/AdminMenu.php:363
+#: includes/Admin/AdminMenu.php:364
 msgid "Speech output is not available in this browser."
 msgstr "خروجی گفتار در این مرورگر در دسترس نیست."
 
-#: includes/Admin/AdminMenu.php:364
+#: includes/Admin/AdminMenu.php:365
 msgid "This browser could not play the test phrase."
 msgstr "این مرورگر نتوانست عبارت آزمایشی را پخش کند."
 
-#: includes/Admin/AdminMenu.php:366 includes/Admin/AnswerDeskVoicePage.php:80
+#: includes/Admin/AdminMenu.php:367 includes/Admin/AnswerDeskVoicePage.php:80
 #: includes/Admin/HomePage.php:363 includes/Admin/HomePage.php:370
 #: includes/Admin/HomePage.php:377 includes/Admin/HomePage.php:384
-#: includes/Admin/HomePage.php:391 includes/Admin/IntegrationsPage.php:67
-#: includes/Admin/IntegrationsPage.php:83
-#: includes/Admin/IntegrationsPage.php:100
-#: includes/Admin/IntegrationsPage.php:116
-#: includes/Admin/IntegrationsPage.php:135
+#: includes/Admin/HomePage.php:391 includes/Admin/IntegrationsPage.php:68
+#: includes/Admin/IntegrationsPage.php:84
+#: includes/Admin/IntegrationsPage.php:101
+#: includes/Admin/IntegrationsPage.php:117
+#: includes/Admin/IntegrationsPage.php:136
 #: includes/Admin/SettingsPage.php:1137 includes/Admin/SettingsPage.php:1323
 msgid "On"
 msgstr "روشن"
 
-#: includes/Admin/AdminMenu.php:368 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:369 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Uses the visitor’s browser speech engine. Off keeps voice input but shows "
 "the answer as text only."
@@ -513,7 +517,7 @@ msgstr ""
 "از موتور گفتار مرورگر بازدیدکننده استفاده می‌کند. در حالت خاموش، ورودی صوتی "
 "می‌ماند اما پاسخ فقط به‌صورت متن نمایش داده می‌شود."
 
-#: includes/Admin/AdminMenu.php:369 includes/Admin/AnswerDeskVoicePage.php:108
+#: includes/Admin/AdminMenu.php:370 includes/Admin/AnswerDeskVoicePage.php:108
 msgid ""
 "Turn on transcribe + speak first; reply playback is unavailable while voice "
 "input is paused."
@@ -521,116 +525,116 @@ msgstr ""
 "اول «رونویسی + گفتار» را روشن کنید؛ تا ورودی صوتی متوقف است، پخش پاسخ در "
 "دسترس نیست."
 
-#: includes/Admin/AdminMenu.php:370
+#: includes/Admin/AdminMenu.php:371
 msgid "This is a local AutoPilot voice test."
 msgstr "این یک آزمون صدای محلی AutoPilot است."
 
-#: includes/Admin/AdminMenu.php:371
+#: includes/Admin/AdminMenu.php:372
 msgid "Describe the draft first."
 msgstr "اول پیش‌نویس را توصیف کنید."
 
-#: includes/Admin/AdminMenu.php:372
+#: includes/Admin/AdminMenu.php:373
 msgid "Building a reviewable draft…"
 msgstr "در حال ساخت پیش‌نویسی برای بازبینی…"
 
-#: includes/Admin/AdminMenu.php:373 includes/Admin/CopilotPage.php:352
+#: includes/Admin/AdminMenu.php:374 includes/Admin/CopilotPage.php:352
 msgid "Write a draft"
 msgstr "نوشتن پیش‌نویس"
 
-#: includes/Admin/AdminMenu.php:374
+#: includes/Admin/AdminMenu.php:375
 msgid "Writing…"
 msgstr "در حال نوشتن…"
 
-#: includes/Admin/AdminMenu.php:375
+#: includes/Admin/AdminMenu.php:376
 msgid "Creating your WordPress draft…"
 msgstr "در حال ساخت پیش‌نویس وردپرس…"
 
-#: includes/Admin/AdminMenu.php:376
+#: includes/Admin/AdminMenu.php:377
 msgid ""
 "Draft created. Review and publish it from WordPress when you are ready."
 msgstr ""
 "پیش‌نویس ساخته شد. هر وقت آماده بودید آن را در وردپرس بازبینی و منتشر کنید."
 
-#: includes/Admin/AdminMenu.php:377
+#: includes/Admin/AdminMenu.php:378
 msgid "Open draft in WordPress"
 msgstr "باز کردن پیش‌نویس در وردپرس"
 
-#: includes/Admin/AdminMenu.php:378
+#: includes/Admin/AdminMenu.php:379
 #: includes/Content/ContentStudioReadModel.php:163
 msgid "Draft saved"
 msgstr "پیش‌نویس ذخیره شد"
 
-#: includes/Admin/AdminMenu.php:379
+#: includes/Admin/AdminMenu.php:380
 msgid "Just now"
 msgstr "همین حالا"
 
-#: includes/Admin/AdminMenu.php:380
+#: includes/Admin/AdminMenu.php:381
 msgid "Post"
 msgstr "نوشته"
 
-#: includes/Admin/AdminMenu.php:381 includes/Admin/KnowledgeBasePage.php:585
+#: includes/Admin/AdminMenu.php:382 includes/Admin/KnowledgeBasePage.php:585
 msgid "Page"
 msgstr "برگه"
 
-#: includes/Admin/AdminMenu.php:382
+#: includes/Admin/AdminMenu.php:383
 #: includes/Content/ContentStudioReadModel.php:53
 #: includes/Content/ContentStudioReadModel.php:111
 msgid "Untitled draft"
 msgstr "پیش‌نویس بدون عنوان"
 
-#: includes/Admin/AdminMenu.php:383
+#: includes/Admin/AdminMenu.php:384
 msgid "Choose a key-storage option to continue."
 msgstr "برای ادامه، محل نگهداری کلید را انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:384
+#: includes/Admin/AdminMenu.php:385
 msgid "Choose an AI service to continue."
 msgstr "برای ادامه، یک سرویس هوش مصنوعی انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:385
+#: includes/Admin/AdminMenu.php:386
 msgid "Test a working provider key and model before continuing."
 msgstr "پیش از ادامه، یک کلید و مدل سالم را آزمایش کنید."
 
-#: includes/Admin/AdminMenu.php:386
+#: includes/Admin/AdminMenu.php:387
 msgid "Enter or choose a model before continuing."
 msgstr "پیش از ادامه، مدل را وارد یا انتخاب کنید."
 
-#: includes/Admin/AdminMenu.php:387
+#: includes/Admin/AdminMenu.php:388
 msgid "Not tested yet"
 msgstr "هنوز آزمایش نشده"
 
-#: includes/Admin/AdminMenu.php:388
+#: includes/Admin/AdminMenu.php:389
 msgid "Run a short connection test before continuing."
 msgstr "پیش از ادامه، یک آزمون کوتاه اتصال اجرا کنید."
 
-#: includes/Admin/AdminMenu.php:389 includes/Admin/SettingsPage.php:1275
+#: includes/Admin/AdminMenu.php:390 includes/Admin/SettingsPage.php:1275
 msgid "Add an API key"
 msgstr "یک کلید API اضافه کنید"
 
-#: includes/Admin/AdminMenu.php:390 includes/Admin/SettingsPage.php:1276
+#: includes/Admin/AdminMenu.php:391 includes/Admin/SettingsPage.php:1276
 msgid "That key was rejected"
 msgstr "این کلید پذیرفته نشد"
 
-#: includes/Admin/AdminMenu.php:391
+#: includes/Admin/AdminMenu.php:392
 msgid "Billing action required"
 msgstr "نیاز به اقدام در صورت‌حساب"
 
-#: includes/Admin/AdminMenu.php:392
+#: includes/Admin/AdminMenu.php:393
 msgid "Provider is rate limiting"
 msgstr "سرویس‌دهنده درخواست‌ها را محدود کرده است"
 
-#: includes/Admin/AdminMenu.php:393 includes/Admin/SettingsPage.php:1279
+#: includes/Admin/AdminMenu.php:394 includes/Admin/SettingsPage.php:1279
 msgid "Your server could not reach the provider"
 msgstr "سرور شما به سرویس‌دهنده دسترسی پیدا نکرد"
 
-#: includes/Admin/AdminMenu.php:394 includes/Admin/SettingsPage.php:1280
+#: includes/Admin/AdminMenu.php:395 includes/Admin/SettingsPage.php:1280
 msgid "Wrong endpoint or model"
 msgstr "آدرس یا مدل نادرست است"
 
-#: includes/Admin/AdminMenu.php:395 includes/Admin/SettingsPage.php:1281
+#: includes/Admin/AdminMenu.php:396 includes/Admin/SettingsPage.php:1281
 msgid "Connection details are incomplete"
 msgstr "اطلاعات اتصال کامل نیست"
 
-#: includes/Admin/AdminMenu.php:396
+#: includes/Admin/AdminMenu.php:397
 msgid ""
 "The key works, but no models came back. Type a model name or enable model "
 "access with the provider."
@@ -638,24 +642,24 @@ msgstr ""
 "کلید کار می‌کند اما هیچ مدلی برنگشت. نام مدل را بنویسید یا دسترسی به مدل را "
 "نزد سرویس‌دهنده فعال کنید."
 
-#: includes/Admin/AdminMenu.php:397 includes/Admin/SettingsPage.php:1314
+#: includes/Admin/AdminMenu.php:398 includes/Admin/SettingsPage.php:1314
 msgid ""
 "This provider does not publish a model list. Type its model name above."
 msgstr "این سرویس‌دهنده فهرست مدل منتشر نمی‌کند. نام مدل را بالا بنویسید."
 
-#: includes/Admin/AdminMenu.php:398
+#: includes/Admin/AdminMenu.php:399
 msgid "This choice uses the key saved in WordPress Connectors."
 msgstr "این گزینه از کلید ذخیره‌شده در Connectors وردپرس استفاده می‌کند."
 
-#: includes/Admin/AdminMenu.php:399
+#: includes/Admin/AdminMenu.php:400
 msgid "Get a key from {provider}."
 msgstr "از {provider} کلید بگیرید."
 
-#: includes/Admin/AdminMenu.php:400
+#: includes/Admin/AdminMenu.php:401
 msgid "This provider supports embeddings. "
 msgstr "این سرویس‌دهنده از Embedding پشتیبانی می‌کند. "
 
-#: includes/Admin/AdminMenu.php:401
+#: includes/Admin/AdminMenu.php:402
 msgid "This provider does not publish an embeddings endpoint. "
 msgstr "این سرویس‌دهنده نقطهٔ دسترسی Embedding ندارد. "
 
@@ -930,13 +934,13 @@ msgstr ""
 "درخواست‌های قبلی در صندوق می‌مانند."
 
 #: includes/Admin/AnswerDeskHandoffPage.php:140
-msgid "Nobody is waiting"
-msgstr "کسی در انتظار نیست"
-
-#: includes/Admin/AnswerDeskHandoffPage.php:140
 #: includes/Admin/HandoffInboxPage.php:88
 msgid "Waiting for a person"
 msgstr "در انتظار یک فرد"
+
+#: includes/Admin/AnswerDeskHandoffPage.php:140
+msgid "Nobody is waiting"
+msgstr "کسی در انتظار نیست"
 
 #. translators: %s: number of handoff requests nobody has picked up yet.
 #. translators: %s: number of threads nobody has picked up yet.
@@ -1206,32 +1210,32 @@ msgid "Lets your team reply by email from the inbox."
 msgstr "تیم شما می‌تواند از صندوق با ایمیل پاسخ دهد."
 
 #: includes/Admin/AnswerDeskHandoffPage.php:474
-msgid "Lets your team call or text the visitor back."
-msgstr "تیم شما می‌تواند به بازدیدکننده زنگ بزند یا پیامک بدهد."
-
-#: includes/Admin/AnswerDeskHandoffPage.php:474
 #: includes/Frontend/ChatWidget.php:267 includes/Support/PrivacyTools.php:93
 msgid "Mobile number"
 msgstr "شمارهٔ موبایل"
 
-#: includes/Admin/AnswerDeskHandoffPage.php:475
-msgid "Useful when visitors ask about their own site or business."
-msgstr ""
-"وقتی بازدیدکننده دربارهٔ سایت یا کسب‌وکار خودش می‌پرسد، به کار می‌آید."
+#: includes/Admin/AnswerDeskHandoffPage.php:474
+msgid "Lets your team call or text the visitor back."
+msgstr "تیم شما می‌تواند به بازدیدکننده زنگ بزند یا پیامک بدهد."
 
 #: includes/Admin/AnswerDeskHandoffPage.php:475
 #: includes/Frontend/ChatWidget.php:268 includes/Support/PrivacyTools.php:94
 msgid "Website address"
 msgstr "نشانی وب‌سایت"
 
+#: includes/Admin/AnswerDeskHandoffPage.php:475
+msgid "Useful when visitors ask about their own site or business."
+msgstr ""
+"وقتی بازدیدکننده دربارهٔ سایت یا کسب‌وکار خودش می‌پرسد، به کار می‌آید."
+
 #: includes/Admin/AnswerDeskHandoffPage.php:478
 #: includes/Admin/HomePage.php:363 includes/Admin/HomePage.php:370
 #: includes/Admin/HomePage.php:377 includes/Admin/HomePage.php:384
-#: includes/Admin/HomePage.php:391 includes/Admin/IntegrationsPage.php:67
-#: includes/Admin/IntegrationsPage.php:83
-#: includes/Admin/IntegrationsPage.php:100
-#: includes/Admin/IntegrationsPage.php:116
-#: includes/Admin/IntegrationsPage.php:135
+#: includes/Admin/HomePage.php:391 includes/Admin/IntegrationsPage.php:68
+#: includes/Admin/IntegrationsPage.php:84
+#: includes/Admin/IntegrationsPage.php:101
+#: includes/Admin/IntegrationsPage.php:117
+#: includes/Admin/IntegrationsPage.php:136
 #: includes/Admin/SettingsPage.php:1137 includes/Admin/SettingsPage.php:1324
 msgid "Off"
 msgstr "خاموش"
@@ -1331,7 +1335,7 @@ msgstr ""
 " گفتار» در پایین استفاده کنید."
 
 #: includes/Admin/AnswerDeskVoicePage.php:63
-#: includes/Admin/IntegrationsPage.php:295
+#: includes/Admin/IntegrationsPage.php:350
 msgid "Not available in this release"
 msgstr "در این نسخه در دسترس نیست"
 
@@ -1344,6 +1348,10 @@ msgid "How speech is turned into a reply."
 msgstr "گفتار چگونه به پاسخ تبدیل می‌شود."
 
 #: includes/Admin/AnswerDeskVoicePage.php:74
+msgid "Realtime stream"
+msgstr "جریان هم‌زمان"
+
+#: includes/Admin/AnswerDeskVoicePage.php:74
 msgid ""
 "One live audio connection with low latency and interruption support. It "
 "needs a realtime-capable provider and backend stream support."
@@ -1351,13 +1359,13 @@ msgstr ""
 "یک اتصال صوتی زنده با تأخیر کم و امکان قطع کردن. به سرویس‌دهندهٔ هم‌زمان و "
 "پشتیبانی جریان در سرور نیاز دارد."
 
-#: includes/Admin/AnswerDeskVoicePage.php:74
-msgid "Realtime stream"
-msgstr "جریان هم‌زمان"
-
 #: includes/Admin/AnswerDeskVoicePage.php:75
 msgid "Not available"
 msgstr "در دسترس نیست"
+
+#: includes/Admin/AnswerDeskVoicePage.php:79
+msgid "Transcribe + speak"
+msgstr "رونویسی + گفتار"
 
 #: includes/Admin/AnswerDeskVoicePage.php:79
 msgid ""
@@ -1368,10 +1376,6 @@ msgstr ""
 "بازدیدکننده یک صدای کوتاه ضبط می‌کند. این صدا فقط یک بار برای رونویسی "
 "فرستاده می‌شود، افزونه آن را ذخیره نمی‌کند و متن در کادر پیام قرار می‌گیرد. "
 "پخش پاسخ در پایین تنظیم می‌شود."
-
-#: includes/Admin/AnswerDeskVoicePage.php:79
-msgid "Transcribe + speak"
-msgstr "رونویسی + گفتار"
 
 #: includes/Admin/AnswerDeskVoicePage.php:87
 msgid "Voice reply options"
@@ -1414,16 +1418,16 @@ msgid "Let visitors interrupt is not available"
 msgstr "قطع کردن پاسخ توسط بازدیدکننده در دسترس نیست"
 
 #: includes/Admin/AnswerDeskVoicePage.php:104
+msgid "Let visitors interrupt"
+msgstr "اجازهٔ قطع کردن به بازدیدکننده"
+
+#: includes/Admin/AnswerDeskVoicePage.php:104
 msgid ""
 "Interrupting an answer needs the unavailable realtime stream; one-shot "
 "transcription cannot barge in."
 msgstr ""
 "قطع کردن پاسخ به جریان هم‌زمان نیاز دارد که در دسترس نیست؛ رونویسی یک‌باره "
 "نمی‌تواند وسط پاسخ قطع کند."
-
-#: includes/Admin/AnswerDeskVoicePage.php:104
-msgid "Let visitors interrupt"
-msgstr "اجازهٔ قطع کردن به بازدیدکننده"
 
 #: includes/Admin/AnswerDeskVoicePage.php:107
 #: includes/Admin/AnswerDeskVoicePage.php:108
@@ -2094,13 +2098,13 @@ msgstr ""
 msgid "Finish the setup to start…"
 msgstr "برای شروع، راه‌اندازی را تمام کنید…"
 
-#: includes/Admin/CopilotPage.php:165 includes/Admin/CopilotPage.php:548
-msgid "Speak"
-msgstr "صحبت کنید"
-
 #: includes/Admin/CopilotPage.php:165
 msgid "Start voice command"
 msgstr "شروع فرمان صوتی"
+
+#: includes/Admin/CopilotPage.php:165 includes/Admin/CopilotPage.php:548
+msgid "Speak"
+msgstr "صحبت کنید"
 
 #: includes/Admin/CopilotPage.php:171
 msgid "AI drafts a plan. Nothing is created until you approve."
@@ -2136,15 +2140,15 @@ msgstr "فرم تماس"
 msgid "Create a contact form with name, email, phone, and message."
 msgstr "یک فرم تماس با نام، ایمیل، تلفن و پیام بسازید."
 
-#: includes/Admin/CopilotPage.php:251
-#: includes/Frontend/ChatWidgetSettings.php:337
-msgid "Message"
-msgstr "پیام"
-
 #: includes/Admin/CopilotPage.php:251 includes/Admin/CopilotPage.php:605
 #: includes/Efb/EfbBuilderButton.php:293
 msgid "Phone"
 msgstr "تلفن"
+
+#: includes/Admin/CopilotPage.php:251
+#: includes/Frontend/ChatWidgetSettings.php:337
+msgid "Message"
+msgstr "پیام"
 
 #: includes/Admin/CopilotPage.php:254
 msgid "Newsletter signup"
@@ -2178,12 +2182,12 @@ msgstr ""
 "فرم درخواست پشتیبانی با نام، ایمیل، اولویت (کم، متوسط، زیاد) و جزئیات."
 
 #: includes/Admin/CopilotPage.php:261
-msgid "Details"
-msgstr "جزئیات"
-
-#: includes/Admin/CopilotPage.php:261
 msgid "Priority"
 msgstr "اولویت"
+
+#: includes/Admin/CopilotPage.php:261
+msgid "Details"
+msgstr "جزئیات"
 
 #: includes/Admin/CopilotPage.php:264
 msgid "Job application"
@@ -2198,10 +2202,6 @@ msgstr ""
 "فهرست کشویی و یک نامهٔ همراه."
 
 #: includes/Admin/CopilotPage.php:266
-msgid "Cover letter"
-msgstr "نامهٔ همراه"
-
-#: includes/Admin/CopilotPage.php:266
 msgid "Full name"
 msgstr "نام کامل"
 
@@ -2209,6 +2209,10 @@ msgstr "نام کامل"
 #: includes/Frontend/ChatWidgetSettings.php:133
 msgid "Position"
 msgstr "موقعیت"
+
+#: includes/Admin/CopilotPage.php:266
+msgid "Cover letter"
+msgstr "نامهٔ همراه"
 
 #: includes/Admin/CopilotPage.php:269
 msgid "Event RSVP"
@@ -2227,12 +2231,12 @@ msgid "Attending"
 msgstr "حضور"
 
 #: includes/Admin/CopilotPage.php:271
-msgid "Dietary needs"
-msgstr "رژیم غذایی خاص"
-
-#: includes/Admin/CopilotPage.php:271
 msgid "Guests"
 msgstr "مهمان‌ها"
+
+#: includes/Admin/CopilotPage.php:271
+msgid "Dietary needs"
+msgstr "رژیم غذایی خاص"
 
 #: includes/Admin/CopilotPage.php:274
 msgid "Quote request"
@@ -2246,6 +2250,11 @@ msgstr ""
 "یک فرم درخواست قیمت با نام، ایمیل، تلفن، خدمت موردنیاز به‌صورت فهرست کشویی، "
 "بازهٔ بودجه و جزئیات پروژه."
 
+#: includes/Admin/CopilotPage.php:276 includes/Admin/KnowledgeBasePage.php:583
+#: includes/Admin/SettingsPage.php:294
+msgid "Service"
+msgstr "خدمت"
+
 #: includes/Admin/CopilotPage.php:276
 msgid "Budget"
 msgstr "بودجه"
@@ -2254,34 +2263,29 @@ msgstr "بودجه"
 msgid "Project details"
 msgstr "جزئیات پروژه"
 
-#: includes/Admin/CopilotPage.php:276 includes/Admin/KnowledgeBasePage.php:583
-#: includes/Admin/SettingsPage.php:294
-msgid "Service"
-msgstr "خدمت"
-
 #: includes/Admin/CopilotPage.php:297
 msgid "Content Studio is turned off"
 msgstr "استودیوی محتوا خاموش است"
 
 #: includes/Admin/CopilotPage.php:298
-msgid "AI provider unavailable"
-msgstr "ارائه‌دهندهٔ AI در دسترس نیست"
-
-#: includes/Admin/CopilotPage.php:298
 msgid "AI usage cap reached"
 msgstr "سقف مصرف هوش مصنوعی پر شده است"
+
+#: includes/Admin/CopilotPage.php:298
+msgid "AI provider unavailable"
+msgstr "ارائه‌دهندهٔ AI در دسترس نیست"
 
 #: includes/Admin/CopilotPage.php:300
 msgid "Turn it on in Integrations before creating a reviewable draft."
 msgstr "پیش از ساخت پیش‌نویس، آن را در یکپارچه‌سازی‌ها روشن کنید."
 
 #: includes/Admin/CopilotPage.php:301
-msgid "Connect an AI provider before a draft can be built."
-msgstr "پیش از ساخت پیش‌نویس، یک سرویس‌دهندهٔ هوش مصنوعی وصل کنید."
-
-#: includes/Admin/CopilotPage.php:301
 msgid "Increase or reset the usage budget before building a draft."
 msgstr "پیش از ساخت پیش‌نویس، سقف مصرف را افزایش دهید یا بازنشانی کنید."
+
+#: includes/Admin/CopilotPage.php:301
+msgid "Connect an AI provider before a draft can be built."
+msgstr "پیش از ساخت پیش‌نویس، یک سرویس‌دهندهٔ هوش مصنوعی وصل کنید."
 
 #: includes/Admin/CopilotPage.php:305
 msgid "Open Usage"
@@ -2985,12 +2989,12 @@ msgid "Open EFB forms"
 msgstr "باز کردن فرم‌های EFB"
 
 #: includes/Admin/EasyFormBuilderPage.php:92
-msgid "Easy Form Builder is not active"
-msgstr "Easy Form Builder فعال نیست"
-
-#: includes/Admin/EasyFormBuilderPage.php:92
 msgid "Easy Form Builder needs attention"
 msgstr "Easy Form Builder نیاز به رسیدگی دارد"
+
+#: includes/Admin/EasyFormBuilderPage.php:92
+msgid "Easy Form Builder is not active"
+msgstr "Easy Form Builder فعال نیست"
 
 #: includes/Admin/EasyFormBuilderPage.php:97
 msgid ""
@@ -3009,7 +3013,7 @@ msgid "Activate Easy Form Builder"
 msgstr "فعال‌سازی Easy Form Builder"
 
 #: includes/Admin/EasyFormBuilderPage.php:104
-#: includes/Admin/IntegrationsPage.php:108
+#: includes/Admin/IntegrationsPage.php:109
 msgid "Install Easy Form Builder"
 msgstr "نصب Easy Form Builder"
 
@@ -3227,14 +3231,14 @@ msgid "Filter threads by status"
 msgstr "فیلتر گفت‌وگوها بر اساس وضعیت"
 
 #: includes/Admin/HandoffInboxPage.php:115
-#: includes/Admin/HandoffInboxPage.php:330
-msgid "No one has asked for a person yet"
-msgstr "هنوز کسی نخواسته با یک فرد گفت‌وگو کند"
-
-#: includes/Admin/HandoffInboxPage.php:115
 #: includes/Admin/HandoffInboxPage.php:332
 msgid "Nothing waiting in the inbox"
 msgstr "چیزی در صندوق منتظر نیست"
+
+#: includes/Admin/HandoffInboxPage.php:115
+#: includes/Admin/HandoffInboxPage.php:330
+msgid "No one has asked for a person yet"
+msgstr "هنوز کسی نخواسته با یک فرد گفت‌وگو کند"
 
 #: includes/Admin/HandoffInboxPage.php:116
 #: includes/Admin/HandoffInboxPage.php:333
@@ -3999,36 +4003,36 @@ msgstr ""
 msgid "Review it"
 msgstr "بازبینی"
 
-#: includes/Admin/HomePage.php:356 includes/Admin/IntegrationsPage.php:51
+#: includes/Admin/HomePage.php:356 includes/Admin/IntegrationsPage.php:52
 #: includes/Admin/SettingsPage.php:987 includes/Admin/SettingsPage.php:1132
 msgid "Always on"
 msgstr "همیشه روشن"
 
-#: includes/Admin/IntegrationsPage.php:23
+#: includes/Admin/IntegrationsPage.php:24
 msgid "You do not have permission to access this page."
 msgstr "اجازهٔ دسترسی به این صفحه را ندارید."
 
-#: includes/Admin/IntegrationsPage.php:50 includes/Admin/SettingsPage.php:1058
+#: includes/Admin/IntegrationsPage.php:51 includes/Admin/SettingsPage.php:1058
 msgid ""
 "Keeps answers grounded in your published site content and its cited sources."
 msgstr "پاسخ‌ها را بر پایهٔ محتوای منتشرشدهٔ سایت و منابع ذکرشده نگه می‌دارد."
 
-#: includes/Admin/IntegrationsPage.php:58
-#: includes/Admin/IntegrationsPage.php:74
-#: includes/Admin/IntegrationsPage.php:90
-#: includes/Admin/IntegrationsPage.php:108
-#: includes/Admin/IntegrationsPage.php:123
+#: includes/Admin/IntegrationsPage.php:59
+#: includes/Admin/IntegrationsPage.php:75
+#: includes/Admin/IntegrationsPage.php:91
+#: includes/Admin/IntegrationsPage.php:109
+#: includes/Admin/IntegrationsPage.php:124
 msgid "Configure"
 msgstr "پیکربندی"
 
-#: includes/Admin/IntegrationsPage.php:66 includes/Admin/SettingsPage.php:1071
+#: includes/Admin/IntegrationsPage.php:67 includes/Admin/SettingsPage.php:1071
 msgid ""
 "Lets visitors ask grounded questions through the read-only public assistant."
 msgstr ""
 "بازدیدکنندگان می‌توانند از طریق دستیار عمومی فقط‌خواندنی، سؤال‌های مستند "
 "بپرسند."
 
-#: includes/Admin/IntegrationsPage.php:82 includes/Admin/SettingsPage.php:1096
+#: includes/Admin/IntegrationsPage.php:83 includes/Admin/SettingsPage.php:1096
 msgid ""
 "Creates reviewable native forms with email-only delivery and server-side "
 "validation."
@@ -4036,23 +4040,23 @@ msgstr ""
 "فرم‌های داخلی قابل بازبینی با ارسال فقط از طریق ایمیل و اعتبارسنجی سمت سرور "
 "می‌سازد."
 
-#: includes/Admin/IntegrationsPage.php:97 includes/Admin/SettingsPage.php:1105
+#: includes/Admin/IntegrationsPage.php:98 includes/Admin/SettingsPage.php:1105
 msgid "Adds an approved AI helper to a compatible Easy Form Builder editor."
 msgstr ""
 "یک دستیار هوش مصنوعی تأییدشده به ویرایشگر سازگار Easy Form Builder اضافه "
 "می‌کند."
 
-#: includes/Admin/IntegrationsPage.php:98 includes/Admin/SettingsPage.php:1106
+#: includes/Admin/IntegrationsPage.php:99 includes/Admin/SettingsPage.php:1106
 msgid ""
 "A compatible Easy Form Builder installation is required before this helper "
 "can run."
 msgstr "برای اجرای این دستیار، نصب سازگار Easy Form Builder لازم است."
 
-#: includes/Admin/IntegrationsPage.php:101
+#: includes/Admin/IntegrationsPage.php:102
 msgid "Needs Easy Form Builder"
 msgstr "نیازمند Easy Form Builder"
 
-#: includes/Admin/IntegrationsPage.php:115
+#: includes/Admin/IntegrationsPage.php:116
 #: includes/Admin/SettingsPage.php:1116
 msgid ""
 "Creates reviewable WordPress page and post drafts; publishing always stays "
@@ -4061,85 +4065,145 @@ msgstr ""
 "پیش‌نویس‌های قابل بازبینی برای برگه و نوشتهٔ وردپرس می‌سازد؛ انتشار همیشه با"
 " شماست."
 
-#: includes/Admin/IntegrationsPage.php:132
+#: includes/Admin/IntegrationsPage.php:133
 #: includes/Admin/SettingsPage.php:1085
 msgid ""
 "Creates reviewed simple-product drafts and presents safe store insights."
 msgstr ""
 "پیش‌نویس محصول ساده با بازبینی می‌سازد و اطلاعات امن فروشگاه را نشان می‌دهد."
 
-#: includes/Admin/IntegrationsPage.php:133
+#: includes/Admin/IntegrationsPage.php:134
 #: includes/Admin/SettingsPage.php:1086
 msgid ""
 "WooCommerce must be installed and active before Store Copilot can be used."
 msgstr "برای استفاده از دستیار فروشگاه، ووکامرس باید نصب و فعال باشد."
 
-#: includes/Admin/IntegrationsPage.php:136
+#: includes/Admin/IntegrationsPage.php:137
 msgid "Needs WooCommerce"
 msgstr "نیازمند ووکامرس"
 
-#: includes/Admin/IntegrationsPage.php:143
-msgid "Install WooCommerce"
-msgstr "نصب ووکامرس"
-
-#: includes/Admin/IntegrationsPage.php:143
+#: includes/Admin/IntegrationsPage.php:144
 msgid "Open settings"
 msgstr "باز کردن تنظیمات"
 
-#: includes/Admin/IntegrationsPage.php:156
+#: includes/Admin/IntegrationsPage.php:144
+msgid "Install WooCommerce"
+msgstr "نصب ووکامرس"
+
+#: includes/Admin/IntegrationsPage.php:157
 msgid "Each one is a job AutoPilot can do. Turn on only what you need."
 msgstr ""
 "هر کدام کاری است که AutoPilot می‌تواند انجام دهد. فقط آنچه لازم دارید روشن "
 "کنید."
 
-#: includes/Admin/IntegrationsPage.php:162
+#: includes/Admin/IntegrationsPage.php:163
 msgid "Integration settings saved."
 msgstr "تنظیمات یکپارچه‌سازی ذخیره شد."
 
-#: includes/Admin/IntegrationsPage.php:170
+#: includes/Admin/IntegrationsPage.php:173
 msgid "Foundation"
 msgstr "پایه"
 
-#: includes/Admin/IntegrationsPage.php:171
+#: includes/Admin/IntegrationsPage.php:174
 msgid "Talking to visitors"
 msgstr "گفت‌وگو با بازدیدکنندگان"
 
-#: includes/Admin/IntegrationsPage.php:172
+#: includes/Admin/IntegrationsPage.php:175
 msgid "Making things"
 msgstr "ساختن"
 
-#: includes/Admin/IntegrationsPage.php:173
+#: includes/Admin/IntegrationsPage.php:176
 msgid "Your store"
 msgstr "فروشگاه شما"
 
 #. translators: %s: integration name.
-#: includes/Admin/IntegrationsPage.php:243
+#: includes/Admin/IntegrationsPage.php:246
 #, php-format
 msgid "Turn %s off"
 msgstr "خاموش کردن %s"
 
 #. translators: %s: integration name.
-#: includes/Admin/IntegrationsPage.php:248
+#: includes/Admin/IntegrationsPage.php:251
 #, php-format
 msgid "Turn %s on"
 msgstr "روشن کردن %s"
 
-#: includes/Admin/IntegrationsPage.php:269
+#. translators: %s: a plugin name.
+#. translators: %s: an example request, shown in quotation marks.
+#: includes/Admin/IntegrationsPage.php:285
+#: includes/Efb/EfbBuilderButton.php:219
+#, php-format
+msgid "“%s”"
+msgstr "«%s»"
+
+#: includes/Admin/IntegrationsPage.php:291
+msgid "Another chat plugin is active"
+msgid_plural "Other chat plugins are active"
+msgstr[0] "افزونهٔ چت دیگری فعال است"
+msgstr[1] "افزونه‌های چت دیگری فعال‌اند"
+
+#. translators: %s: plugin names in quotes, such as “Tidio” and “Chaty”.
+#: includes/Admin/IntegrationsPage.php:293
+#, php-format
+msgid ""
+"%s also puts a chat button on your site. It may overlap the Answer Desk chat"
+" button in the same corner, so keep one of them switched on."
+msgid_plural ""
+"%s also put chat buttons on your site. They may overlap the Answer Desk chat"
+" button in the same corner, so keep one of them switched on."
+msgstr[0] ""
+"%s هم یک دکمهٔ چت روی سایت شما می‌گذارد. ممکن است با دکمهٔ چت Answer Desk در"
+" یک گوشه روی هم بیفتند؛ فقط یکی از آن‌ها را روشن نگه دارید."
+msgstr[1] ""
+"%s هم دکمه‌های چت روی سایت شما می‌گذارند. ممکن است با دکمهٔ چت Answer Desk "
+"در یک گوشه روی هم بیفتند؛ فقط یکی از آن‌ها را روشن نگه دارید."
+
+#: includes/Admin/IntegrationsPage.php:295
+msgid "Another AI plugin is active"
+msgid_plural "Other AI plugins are active"
+msgstr[0] "افزونهٔ هوش مصنوعی دیگری فعال است"
+msgstr[1] "افزونه‌های هوش مصنوعی دیگری فعال‌اند"
+
+#. translators: %s: plugin names in quotes, such as “AI Engine”.
+#: includes/Admin/IntegrationsPage.php:297
+#, php-format
+msgid ""
+"%s is also an AI assistant. Two assistants may answer the same question "
+"differently, so decide which one answers your visitors."
+msgid_plural ""
+"%s are also AI assistants. Several assistants may answer the same question "
+"differently, so decide which one answers your visitors."
+msgstr[0] ""
+"%s هم یک دستیار هوش مصنوعی است. دو دستیار ممکن است به یک پرسش پاسخ متفاوت "
+"بدهند؛ تصمیم بگیرید کدام‌یک به بازدیدکنندگان پاسخ دهد."
+msgstr[1] ""
+"%s هم دستیار هوش مصنوعی‌اند. چند دستیار ممکن است به یک پرسش پاسخ متفاوت "
+"بدهند؛ تصمیم بگیرید کدام‌یک به بازدیدکنندگان پاسخ دهد."
+
+#: includes/Admin/IntegrationsPage.php:311
+msgid "Open Plugins"
+msgstr "باز کردن افزونه‌ها"
+
+#: includes/Admin/IntegrationsPage.php:313
+msgid "Hide this warning"
+msgstr "پنهان کردن این هشدار"
+
+#: includes/Admin/IntegrationsPage.php:324
 msgid "Everything is switched off"
 msgstr "همه‌چیز خاموش است"
 
-#: includes/Admin/IntegrationsPage.php:270
+#: includes/Admin/IntegrationsPage.php:325
 msgid ""
 "Turn on the public assistant or one of the creation tools when you are ready"
 " to use it."
 msgstr ""
 "هر وقت آماده بودید، دستیار عمومی یا یکی از ابزارهای ساخت را روشن کنید."
 
-#: includes/Admin/IntegrationsPage.php:277
+#: includes/Admin/IntegrationsPage.php:332
 msgid "Turn on Answer Desk"
 msgstr "روشن کردن میز پاسخ‌گویی"
 
-#: includes/Admin/IntegrationsPage.php:290
+#: includes/Admin/IntegrationsPage.php:345
 msgid ""
 "The core knowledge layer stays available. These controls only change how new"
 " content is indexed."
@@ -4147,56 +4211,56 @@ msgstr ""
 "لایهٔ اصلی دانش همیشه در دسترس است. این گزینه‌ها فقط نحوهٔ نمایه‌سازی محتوای"
 " تازه را تغییر می‌دهند."
 
-#: includes/Admin/IntegrationsPage.php:293
+#: includes/Admin/IntegrationsPage.php:348
 msgid "Automatically index new published content"
 msgstr "نمایه‌سازی خودکار محتوای تازهٔ منتشرشده"
 
-#: includes/Admin/IntegrationsPage.php:293
+#: includes/Admin/IntegrationsPage.php:348
 msgid "Schedules safe indexing only after a post is published."
 msgstr "نمایه‌سازی امن را فقط پس از انتشار نوشته زمان‌بندی می‌کند."
 
-#: includes/Admin/IntegrationsPage.php:294
+#: includes/Admin/IntegrationsPage.php:349
 msgid "Content scope"
 msgstr "محدودهٔ محتوا"
 
-#: includes/Admin/IntegrationsPage.php:294
+#: includes/Admin/IntegrationsPage.php:349
 msgid "Published site content only"
 msgstr "فقط محتوای منتشرشدهٔ سایت"
 
-#: includes/Admin/IntegrationsPage.php:295
+#: includes/Admin/IntegrationsPage.php:350
 msgid "Bulk crawling"
 msgstr "خزش گروهی"
 
-#: includes/Admin/IntegrationsPage.php:301
+#: includes/Admin/IntegrationsPage.php:356
 msgid ""
 "Control the read-only public assistant separately from its visual widget "
 "settings."
 msgstr "دستیار عمومی فقط‌خواندنی را جدا از تنظیمات ظاهری ویجت کنترل کنید."
 
-#: includes/Admin/IntegrationsPage.php:304
+#: includes/Admin/IntegrationsPage.php:359
+msgid "Enable the public assistant"
+msgstr "فعال کردن دستیار عمومی"
+
+#: includes/Admin/IntegrationsPage.php:359
 msgid ""
 "Allows visitors to ask grounded questions; it never edits site content."
 msgstr ""
 "به بازدیدکنندگان اجازهٔ سؤال مستند می‌دهد؛ هیچ‌وقت محتوای سایت را ویرایش "
 "نمی‌کند."
 
-#: includes/Admin/IntegrationsPage.php:304
-msgid "Enable the public assistant"
-msgstr "فعال کردن دستیار عمومی"
-
-#: includes/Admin/IntegrationsPage.php:305
+#: includes/Admin/IntegrationsPage.php:360
 msgid "Enable voice responses"
 msgstr "فعال کردن پاسخ صوتی"
 
-#: includes/Admin/IntegrationsPage.php:305
+#: includes/Admin/IntegrationsPage.php:360
 msgid "Uses the configured voice response capability when it is available."
 msgstr "در صورت در دسترس بودن، از قابلیت پاسخ صوتی تنظیم‌شده استفاده می‌کند."
 
-#: includes/Admin/IntegrationsPage.php:306
+#: includes/Admin/IntegrationsPage.php:361
 msgid "Customize the visitor widget"
 msgstr "سفارشی‌سازی ویجت بازدیدکننده"
 
-#: includes/Admin/IntegrationsPage.php:312
+#: includes/Admin/IntegrationsPage.php:367
 msgid ""
 "The form workflow creates proposals for review and keeps visitor submissions"
 " out of WordPress."
@@ -4204,11 +4268,11 @@ msgstr ""
 "روند فرم پیشنهادی برای بازبینی می‌سازد و داده‌های ارسالی بازدیدکنندگان را در"
 " وردپرس ذخیره نمی‌کند."
 
-#: includes/Admin/IntegrationsPage.php:315
+#: includes/Admin/IntegrationsPage.php:370
 msgid "Enable Form Studio"
 msgstr "فعال کردن استودیوی فرم"
 
-#: includes/Admin/IntegrationsPage.php:315
+#: includes/Admin/IntegrationsPage.php:370
 msgid ""
 "Makes the native-form planning and execution endpoints available to "
 "administrators."
@@ -4216,88 +4280,88 @@ msgstr ""
 "نقطه‌های دسترسی برنامه‌ریزی و اجرای فرم داخلی را در اختیار مدیران قرار "
 "می‌دهد."
 
-#: includes/Admin/IntegrationsPage.php:316
-msgid "Email delivery only; personal data is not stored here"
-msgstr "فقط ارسال با ایمیل؛ داده‌های شخصی اینجا ذخیره نمی‌شود"
-
-#: includes/Admin/IntegrationsPage.php:316
+#: includes/Admin/IntegrationsPage.php:371
 msgid "Submission storage"
 msgstr "ذخیرهٔ داده‌های ارسالی"
 
-#: includes/Admin/IntegrationsPage.php:317
-msgid "Server-side validation is always required"
-msgstr "اعتبارسنجی سمت سرور همیشه الزامی است"
+#: includes/Admin/IntegrationsPage.php:371
+msgid "Email delivery only; personal data is not stored here"
+msgstr "فقط ارسال با ایمیل؛ داده‌های شخصی اینجا ذخیره نمی‌شود"
 
-#: includes/Admin/IntegrationsPage.php:317
+#: includes/Admin/IntegrationsPage.php:372
 msgid "Validation"
 msgstr "اعتبارسنجی"
 
-#: includes/Admin/IntegrationsPage.php:324
+#: includes/Admin/IntegrationsPage.php:372
+msgid "Server-side validation is always required"
+msgstr "اعتبارسنجی سمت سرور همیشه الزامی است"
+
+#: includes/Admin/IntegrationsPage.php:379
 msgid "The helper appears only in a compatible Easy Form Builder editor."
 msgstr "دستیار فقط در ویرایشگر سازگار Easy Form Builder نمایش داده می‌شود."
 
-#: includes/Admin/IntegrationsPage.php:327
+#: includes/Admin/IntegrationsPage.php:382
+msgid "Enable Easy Form Builder Copilot"
+msgstr "فعال کردن دستیار Easy Form Builder"
+
+#: includes/Admin/IntegrationsPage.php:382
 msgid ""
 "Allows the approved helper panel and its protected administrator routes."
 msgstr "پنل دستیار تأییدشده و مسیرهای محافظت‌شدهٔ مدیریتی آن را فعال می‌کند."
 
-#: includes/Admin/IntegrationsPage.php:327
-msgid "Enable Easy Form Builder Copilot"
-msgstr "فعال کردن دستیار Easy Form Builder"
-
-#: includes/Admin/IntegrationsPage.php:328
-#: includes/Admin/IntegrationsPage.php:329
-msgid "Owned by Easy Form Builder"
-msgstr "در اختیار Easy Form Builder"
-
-#: includes/Admin/IntegrationsPage.php:328
+#: includes/Admin/IntegrationsPage.php:383
 msgid "Theme matching"
 msgstr "هماهنگی با قالب"
 
-#: includes/Admin/IntegrationsPage.php:329
+#: includes/Admin/IntegrationsPage.php:383
+#: includes/Admin/IntegrationsPage.php:384
+msgid "Owned by Easy Form Builder"
+msgstr "در اختیار Easy Form Builder"
+
+#: includes/Admin/IntegrationsPage.php:384
 msgid "Calendar behavior"
 msgstr "رفتار تقویم"
 
-#: includes/Admin/IntegrationsPage.php:336
+#: includes/Admin/IntegrationsPage.php:391
 msgid "Keep the reviewed draft workflow available only when you need it."
 msgstr "روند پیش‌نویس با بازبینی را فقط وقتی لازم دارید فعال نگه دارید."
 
-#: includes/Admin/IntegrationsPage.php:339
+#: includes/Admin/IntegrationsPage.php:394
 msgid "Enable Content Studio"
 msgstr "فعال کردن استودیوی محتوا"
 
-#: includes/Admin/IntegrationsPage.php:339
+#: includes/Admin/IntegrationsPage.php:394
 msgid ""
 "Makes content planning and approved draft creation available to "
 "administrators."
 msgstr ""
 "برنامه‌ریزی محتوا و ساخت پیش‌نویس تأییدشده را در اختیار مدیران قرار می‌دهد."
 
-#: includes/Admin/IntegrationsPage.php:340
-msgid "Draft only; an administrator always approves publishing"
-msgstr "فقط پیش‌نویس؛ انتشار همیشه با تأیید مدیر است"
-
-#: includes/Admin/IntegrationsPage.php:340
+#: includes/Admin/IntegrationsPage.php:395
 msgid "Publishing"
 msgstr "انتشار"
 
-#: includes/Admin/IntegrationsPage.php:341
+#: includes/Admin/IntegrationsPage.php:395
+msgid "Draft only; an administrator always approves publishing"
+msgstr "فقط پیش‌نویس؛ انتشار همیشه با تأیید مدیر است"
+
+#: includes/Admin/IntegrationsPage.php:396
 msgid "Source of truth"
 msgstr "مرجع اصلی"
 
-#: includes/Admin/IntegrationsPage.php:341
+#: includes/Admin/IntegrationsPage.php:396
 msgid "Your reviewed brief and WordPress draft"
 msgstr "خلاصهٔ بازبینی‌شدهٔ شما و پیش‌نویس وردپرس"
 
-#: includes/Admin/IntegrationsPage.php:355
+#: includes/Admin/IntegrationsPage.php:410
 msgid "Close dialog"
 msgstr "بستن پنجره"
 
-#: includes/Admin/IntegrationsPage.php:387
+#: includes/Admin/IntegrationsPage.php:442
 msgid "Locked"
 msgstr "قفل"
 
-#: includes/Admin/IntegrationsPage.php:396
+#: includes/Admin/IntegrationsPage.php:451
 #: includes/Admin/SettingsPage.php:1235
 msgid "Done"
 msgstr "انجام شد"
@@ -4311,12 +4375,12 @@ msgid "Re-index everything"
 msgstr "نمایه‌سازی دوبارهٔ همه"
 
 #: includes/Admin/KnowledgeBasePage.php:88
-msgid "Add your API key in Settings"
-msgstr "کلید API خود را در تنظیمات وارد کنید"
-
-#: includes/Admin/KnowledgeBasePage.php:88
 msgid "No AI provider is connected."
 msgstr "هیچ سرویس‌دهندهٔ هوش مصنوعی متصل نیست."
+
+#: includes/Admin/KnowledgeBasePage.php:88
+msgid "Add your API key in Settings"
+msgstr "کلید API خود را در تنظیمات وارد کنید"
 
 #: includes/Admin/KnowledgeBasePage.php:102
 msgid "Nothing has been read yet"
@@ -5093,12 +5157,12 @@ msgstr[0] "%s فیلد"
 msgstr[1] "%s فیلد"
 
 #: includes/Admin/NativeFormsPage.php:191
-msgid "Draft"
-msgstr "پیش‌نویس"
-
-#: includes/Admin/NativeFormsPage.php:191
 msgid "Published"
 msgstr "منتشرشده"
+
+#: includes/Admin/NativeFormsPage.php:191
+msgid "Draft"
+msgstr "پیش‌نویس"
 
 #. translators: %s: form title.
 #: includes/Admin/NativeFormsPage.php:201
@@ -5303,12 +5367,12 @@ msgid "Key (optional)"
 msgstr "کلید (اختیاری)"
 
 #: includes/Admin/SettingsPage.php:355
-msgid "Leave blank to reuse your key"
-msgstr "برای استفادهٔ دوباره از کلید فعلی، خالی بگذارید"
-
-#: includes/Admin/SettingsPage.php:355
 msgid "Saved securely — enter a new key to replace it"
 msgstr "به‌صورت امن ذخیره شده — برای جایگزینی، کلید تازه وارد کنید"
+
+#: includes/Admin/SettingsPage.php:355
+msgid "Leave blank to reuse your key"
+msgstr "برای استفادهٔ دوباره از کلید فعلی، خالی بگذارید"
 
 #: includes/Admin/SettingsPage.php:359
 msgid "Remove the saved embedding key"
@@ -5471,14 +5535,14 @@ msgid "Remove the saved secret key (turns the check off)"
 msgstr "حذف کلید مخفی ذخیره‌شده (بررسی را خاموش می‌کند)"
 
 #: includes/Admin/SettingsPage.php:474
+msgid "On: native forms ask Cloudflare to confirm each visitor."
+msgstr "روشن: فرم‌های بومی برای هر بازدیدکننده از Cloudflare تأیید می‌گیرند."
+
+#: includes/Admin/SettingsPage.php:474
 msgid "Off: native forms use their built-in honeypot and rate limit only."
 msgstr ""
 "خاموش: فرم‌های بومی فقط از فیلد پنهان ضداسپم (honeypot) و محدودیت تعداد "
 "ارسال خود استفاده می‌کنند."
-
-#: includes/Admin/SettingsPage.php:474
-msgid "On: native forms ask Cloudflare to confirm each visitor."
-msgstr "روشن: فرم‌های بومی برای هر بازدیدکننده از Cloudflare تأیید می‌گیرند."
 
 #: includes/Admin/SettingsPage.php:477
 msgid "Send a delivery test"
@@ -5873,20 +5937,20 @@ msgid "Temperature, reply length, semantic search"
 msgstr "دما، طول پاسخ، جست‌وجوی معنایی"
 
 #: includes/Admin/SettingsPage.php:908
-msgid "Creative"
-msgstr "خلاق"
-
-#: includes/Admin/SettingsPage.php:908
 msgid "Predictable"
 msgstr "قابل پیش‌بینی"
 
-#: includes/Admin/SettingsPage.php:912
-msgid "Not available yet"
-msgstr "هنوز در دسترس نیست"
+#: includes/Admin/SettingsPage.php:908
+msgid "Creative"
+msgstr "خلاق"
 
 #: includes/Admin/SettingsPage.php:912
 msgid "Reply length"
 msgstr "طول پاسخ"
+
+#: includes/Admin/SettingsPage.php:912
+msgid "Not available yet"
+msgstr "هنوز در دسترس نیست"
 
 #: includes/Admin/SettingsPage.php:914
 msgid "Short"
@@ -6699,10 +6763,6 @@ msgid "Try one of these"
 msgstr "یکی از این‌ها را امتحان کنید"
 
 #: includes/Admin/StoreCopilotPage.php:229
-msgid "A simple 500g organic Arabic coffee with a SKU and introductory price"
-msgstr "یک قهوهٔ عربی ارگانیک ساده ۵۰۰ گرمی با شناسهٔ کالا و قیمت معرفی"
-
-#: includes/Admin/StoreCopilotPage.php:229
 msgid ""
 "A simple 500g organic Arabic coffee, with a short description, SKU and "
 "introductory price."
@@ -6710,22 +6770,26 @@ msgstr ""
 "یک قهوهٔ عربی ارگانیک ساده ۵۰۰ گرمی، با توضیح کوتاه، شناسهٔ کالا و قیمت "
 "معرفی."
 
-#: includes/Admin/StoreCopilotPage.php:230
-msgid "A linen camp collar shirt for summer, 89 euros, in Shirts"
-msgstr "یک پیراهن کتان یقه‌کوبایی تابستانی، ۸۹ یورو، در دستهٔ پیراهن‌ها"
+#: includes/Admin/StoreCopilotPage.php:229
+msgid "A simple 500g organic Arabic coffee with a SKU and introductory price"
+msgstr "یک قهوهٔ عربی ارگانیک ساده ۵۰۰ گرمی با شناسهٔ کالا و قیمت معرفی"
 
 #: includes/Admin/StoreCopilotPage.php:230
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts."
 msgstr "یک پیراهن کتان یقه‌کوبایی تابستانی، ۸۹ یورو، در دستهٔ پیراهن‌ها."
 
-#: includes/Admin/StoreCopilotPage.php:231
-msgid "A simple ceramic travel mug with stock status"
-msgstr "یک ماگ سفری سرامیکی ساده با وضعیت موجودی"
+#: includes/Admin/StoreCopilotPage.php:230
+msgid "A linen camp collar shirt for summer, 89 euros, in Shirts"
+msgstr "یک پیراهن کتان یقه‌کوبایی تابستانی، ۸۹ یورو، در دستهٔ پیراهن‌ها"
 
 #: includes/Admin/StoreCopilotPage.php:231
 msgid ""
 "A simple ceramic travel mug, with a short description and stock status."
 msgstr "یک ماگ سفری سرامیکی ساده، با توضیح کوتاه و وضعیت موجودی."
+
+#: includes/Admin/StoreCopilotPage.php:231
+msgid "A simple ceramic travel mug with stock status"
+msgstr "یک ماگ سفری سرامیکی ساده با وضعیت موجودی"
 
 #: includes/Admin/StoreCopilotPage.php:237
 msgid "Proposal - read it before approving"
@@ -6794,6 +6858,10 @@ msgid "Propose one simple product as a draft"
 msgstr "پیشنهاد یک محصول ساده به‌صورت پیش‌نویس"
 
 #: includes/Admin/StoreCopilotPage.php:298
+msgid "Publish a product"
+msgstr "انتشار محصول"
+
+#: includes/Admin/StoreCopilotPage.php:298
 #: includes/Admin/StoreCopilotPage.php:299
 #: includes/Admin/StoreCopilotPage.php:300
 #: includes/Admin/StoreCopilotPage.php:307
@@ -6801,10 +6869,6 @@ msgstr "پیشنهاد یک محصول ساده به‌صورت پیش‌نوی�
 #: includes/Admin/StoreCopilotPage.php:501
 msgid "Phase 2"
 msgstr "فاز ۲"
-
-#: includes/Admin/StoreCopilotPage.php:298
-msgid "Publish a product"
-msgstr "انتشار محصول"
 
 #: includes/Admin/StoreCopilotPage.php:299
 msgid "Edit a product that already exists"
@@ -6851,6 +6915,10 @@ msgid "Product tags"
 msgstr "برچسب‌های محصول"
 
 #: includes/Admin/StoreCopilotPage.php:329
+msgid "Draft workflow"
+msgstr "روند پیش‌نویس"
+
+#: includes/Admin/StoreCopilotPage.php:329
 msgid "Always draft (fixed in Phase 1)"
 msgstr "همیشه پیش‌نویس (ثابت در فاز ۱)"
 
@@ -6858,18 +6926,18 @@ msgstr "همیشه پیش‌نویس (ثابت در فاز ۱)"
 msgid "Connector paused"
 msgstr "رابط متوقف است"
 
-#: includes/Admin/StoreCopilotPage.php:329
-msgid "Draft workflow"
-msgstr "روند پیش‌نویس"
+#: includes/Admin/StoreCopilotPage.php:336
+msgid "WooCommerce AI connector"
+msgstr "رابط هوش مصنوعی ووکامرس"
 
 #: includes/Admin/StoreCopilotPage.php:336
 msgid "Off means no proposals, drafts, or Store Copilot reads."
 msgstr ""
 "خاموش یعنی نه پیشنهاد، نه پیش‌نویس و نه خواندن داده توسط دستیار فروشگاه."
 
-#: includes/Admin/StoreCopilotPage.php:336
-msgid "WooCommerce AI connector"
-msgstr "رابط هوش مصنوعی ووکامرس"
+#: includes/Admin/StoreCopilotPage.php:337
+msgid "Smart product search"
+msgstr "جست‌وجوی هوشمند محصول"
 
 #: includes/Admin/StoreCopilotPage.php:337
 msgid ""
@@ -6879,9 +6947,9 @@ msgstr ""
 "نقطهٔ دسترسی محافظت‌شدهٔ جست‌وجوی فروشگاه را کنترل می‌کند. رابط جست‌وجو برای"
 " بازدیدکنندگان اضافه نمی‌کند."
 
-#: includes/Admin/StoreCopilotPage.php:337
-msgid "Smart product search"
-msgstr "جست‌وجوی هوشمند محصول"
+#: includes/Admin/StoreCopilotPage.php:338
+msgid "Product descriptions"
+msgstr "توضیح محصولات"
 
 #: includes/Admin/StoreCopilotPage.php:338
 msgid ""
@@ -6892,10 +6960,6 @@ msgstr ""
 "به AutoPilot اجازه می‌دهد برای محصولات موجود توضیح پیش‌نویس کند. هر کدام "
 "منتظر تأیید شماست و «واگرد» متن قبلی را برمی‌گرداند. چیز دیگری از محصول "
 "تغییر نمی‌کند."
-
-#: includes/Admin/StoreCopilotPage.php:338
-msgid "Product descriptions"
-msgstr "توضیح محصولات"
 
 #: includes/Admin/StoreCopilotPage.php:339
 msgid "Count carts"
@@ -6933,16 +6997,16 @@ msgstr ""
 "داده‌ها، حذف می‌شوند."
 
 #: includes/Admin/StoreCopilotPage.php:341
+msgid "Product editing by AI"
+msgstr "ویرایش محصول با هوش مصنوعی"
+
+#: includes/Admin/StoreCopilotPage.php:341
 msgid ""
 "Prices, stock, titles and every other field are reserved for Phase 2. They "
 "cannot be switched on yet."
 msgstr ""
 "قیمت، موجودی، عنوان و هر فیلد دیگر برای فاز ۲ کنار گذاشته شده و هنوز قابل "
 "روشن کردن نیست."
-
-#: includes/Admin/StoreCopilotPage.php:341
-msgid "Product editing by AI"
-msgstr "ویرایش محصول با هوش مصنوعی"
 
 #: includes/Admin/StoreCopilotPage.php:342
 msgid "Always create as draft"
@@ -7069,12 +7133,12 @@ msgstr ""
 "بازدیدکنندگان در این نسخه ثبت نشده است."
 
 #: includes/Admin/StoreCopilotPage.php:498
-msgid "Read only"
-msgstr "فقط‌خواندنی"
-
-#: includes/Admin/StoreCopilotPage.php:498
 msgid "Recent order summary for a store manager"
 msgstr "خلاصهٔ سفارش‌های اخیر برای مدیر فروشگاه"
+
+#: includes/Admin/StoreCopilotPage.php:498
+msgid "Read only"
+msgstr "فقط‌خواندنی"
 
 #: includes/Admin/StoreCopilotPage.php:498
 msgid "Unavailable"
@@ -7125,12 +7189,12 @@ msgstr ""
 "در حال انجام، تکمیل‌شده، در انتظار پرداخت آفلاین، یا بعداً بازپرداخت‌شده."
 
 #: includes/Admin/StoreCopilotPage.php:528
-msgid "Pending payment: the customer placed the order but never paid."
-msgstr "در انتظار پرداخت: مشتری سفارش را ثبت کرد اما هرگز پرداخت نکرد."
-
-#: includes/Admin/StoreCopilotPage.php:528
 msgid "Stopped at payment"
 msgstr "توقف در مرحلهٔ پرداخت"
+
+#: includes/Admin/StoreCopilotPage.php:528
+msgid "Pending payment: the customer placed the order but never paid."
+msgstr "در انتظار پرداخت: مشتری سفارش را ثبت کرد اما هرگز پرداخت نکرد."
 
 #: includes/Admin/StoreCopilotPage.php:529
 msgid "Payment failed"
@@ -7599,25 +7663,25 @@ msgstr "نمایش ویجت و رنگ اصلی الزامی است."
 msgid "Choose a valid hexadecimal accent colour."
 msgstr "یک رنگ اصلی معتبر به‌صورت هگزادسیمال انتخاب کنید."
 
-#: includes/Api/CartRecoveryController.php:34
+#: includes/Api/CartRecoveryController.php:44
 msgid "Reminder sent. No other email will be sent for this cart."
 msgstr "یادآوری فرستاده شد. ایمیل دیگری برای این سبد فرستاده نمی‌شود."
 
-#: includes/Api/CartRecoveryController.php:35
+#: includes/Api/CartRecoveryController.php:45
 msgid "Cart deleted."
 msgstr "سبد حذف شد."
 
-#: includes/Api/CartRecoveryController.php:36
+#: includes/Api/CartRecoveryController.php:46
 msgid "A reminder was already sent for this cart."
 msgstr "برای این سبد پیش‌تر یادآوری فرستاده شده است."
 
-#: includes/Api/CartRecoveryController.php:37
+#: includes/Api/CartRecoveryController.php:47
 msgid ""
 "This cart is no longer kept. The customer may have ordered or declined."
 msgstr ""
 "این سبد دیگر نگه داشته نمی‌شود. شاید مشتری سفارش داده یا نپذیرفته است."
 
-#: includes/Api/CartRecoveryController.php:38
+#: includes/Api/CartRecoveryController.php:48
 msgid ""
 "The reminder could not be sent. Check that this site can send email "
 "(Advanced settings > Forms and delivery has a test)."
@@ -7625,7 +7689,7 @@ msgstr ""
 "یادآوری فرستاده نشد. بررسی کنید این سایت می‌تواند ایمیل بفرستد (در Advanced "
 "settings › Forms and delivery آزمونی برای این کار هست)."
 
-#: includes/Api/CartRecoveryController.php:39
+#: includes/Api/CartRecoveryController.php:49
 msgid "Abandoned cart reminders are switched off under What it can do."
 msgstr "یادآوری سبد رهاشده در What it can do خاموش است."
 
@@ -8170,6 +8234,12 @@ msgstr ""
 msgid "Could not update the handoff status."
 msgstr "وضعیت انتقال به‌روز نشد."
 
+#: includes/Api/IntegrationsController.php:24
+msgid "None of these plugins is active any more, so there is nothing to hide."
+msgstr ""
+"هیچ‌کدام از این افزونه‌ها دیگر فعال نیست، پس چیزی برای پنهان کردن نمانده "
+"است."
+
 #: includes/Api/KnowledgeBaseController.php:57
 msgid ""
 "The local AI usage cap has been reached. Raise or reset the token cap before"
@@ -8188,12 +8258,12 @@ msgid "Invalid post ID."
 msgstr "شناسهٔ نوشته نامعتبر است."
 
 #: includes/Api/KnowledgeBaseController.php:119
-msgid "Entry not found."
-msgstr "رکورد یافت نشد."
-
-#: includes/Api/KnowledgeBaseController.php:119
 msgid "Entry removed."
 msgstr "مورد حذف شد."
+
+#: includes/Api/KnowledgeBaseController.php:119
+msgid "Entry not found."
+msgstr "رکورد یافت نشد."
 
 #: includes/Api/KnowledgeBaseController.php:135
 #: includes/Connectors/WooCommerceContentSkill.php:63
@@ -8429,17 +8499,17 @@ msgid "Your cart and email will not be kept."
 msgstr "سبد و ایمیل شما نگه داشته نمی‌شود."
 
 #. translators: %s: site name.
-#: includes/Connectors/CartRecovery.php:348
+#: includes/Connectors/CartRecovery.php:388
 #, php-format
 msgid "You left something in your cart at %s"
 msgstr "در سبد خرید شما در %s چیزی مانده است"
 
-#: includes/Connectors/CartRecovery.php:352
+#: includes/Connectors/CartRecovery.php:392
 msgid "Hello,"
 msgstr "سلام،"
 
 #. translators: %s: site name.
-#: includes/Connectors/CartRecovery.php:354
+#: includes/Connectors/CartRecovery.php:394
 #, php-format
 msgid ""
 "You started an order at %s but did not finish it. Your cart is still "
@@ -8447,12 +8517,12 @@ msgid ""
 msgstr "سفارشی را در %s شروع کردید اما کامل نکردید. سبد شما هنوز منتظر است:"
 
 #. translators: %s: link that refills the cart.
-#: includes/Connectors/CartRecovery.php:357
+#: includes/Connectors/CartRecovery.php:397
 #, php-format
 msgid "To finish your order, open: %s"
 msgstr "برای کامل کردن سفارش، این پیوند را باز کنید: %s"
 
-#: includes/Connectors/CartRecovery.php:358
+#: includes/Connectors/CartRecovery.php:398
 msgid ""
 "You received this one reminder because you entered your email at checkout. "
 "We will not send another, and your cart will be deleted after a while."
@@ -9866,12 +9936,6 @@ msgstr "افزودن یا تغییر فیلدها"
 msgid "Add a phone field after Email"
 msgstr "یک فیلد تلفن بعد از ایمیل اضافه کن"
 
-#. translators: %s: an example request, shown in quotation marks.
-#: includes/Efb/EfbBuilderButton.php:219
-#, php-format
-msgid "“%s”"
-msgstr "«%s»"
-
 #: includes/Efb/EfbBuilderButton.php:220
 msgid "Show or hide fields"
 msgstr "نمایش یا پنهان کردن فیلدها"
@@ -10324,12 +10388,12 @@ msgid "(off) %s"
 msgstr "(خاموش) %s"
 
 #: includes/Efb/EfbLogicRules.php:384
-msgid " and "
-msgstr " و "
-
-#: includes/Efb/EfbLogicRules.php:384
 msgid " or "
 msgstr " یا "
+
+#: includes/Efb/EfbLogicRules.php:384
+msgid " and "
+msgstr " و "
 
 #. translators: 1: field label, 2: value.
 #: includes/Efb/EfbLogicRules.php:388
@@ -10443,15 +10507,15 @@ msgstr "به مرحلهٔ «%s» برود"
 msgid "%1$s “%2$s”"
 msgstr "%1$s «%2$s»"
 
-#: includes/Efb/EfbLogicRules.php:466
-msgid ", "
-msgstr "، "
-
 #. translators: 1: conditions, 2: actions.
 #: includes/Efb/EfbLogicRules.php:466
 #, php-format
 msgid "If %1$s, %2$s."
 msgstr "اگر %1$s، %2$s."
+
+#: includes/Efb/EfbLogicRules.php:466
+msgid ", "
+msgstr "، "
 
 #: includes/Execution/ActionExecutor.php:50
 msgid "This approval does not belong to this product surface."
@@ -10651,17 +10715,17 @@ msgid "Other colour"
 msgstr "رنگ دیگر"
 
 #: includes/Frontend/ChatWidgetSettings.php:181
-#: includes/Frontend/ChatWidgetSettings.php:186
-msgid "Every part follows the brand colour."
-msgstr "همهٔ بخش‌ها از رنگ برند پیروی می‌کنند."
-
-#: includes/Frontend/ChatWidgetSettings.php:181
 #: includes/Frontend/ChatWidgetSettings.php:185
 msgid ""
 "Some parts use their own colour. Reset to follow the brand colour again."
 msgstr ""
 "برخی بخش‌ها رنگ مخصوص خود را دارند. برای پیروی دوباره از رنگ برند، بازنشانی "
 "کنید."
+
+#: includes/Frontend/ChatWidgetSettings.php:181
+#: includes/Frontend/ChatWidgetSettings.php:186
+msgid "Every part follows the brand colour."
+msgstr "همهٔ بخش‌ها از رنگ برند پیروی می‌کنند."
 
 #: includes/Frontend/ChatWidgetSettings.php:203
 msgid "Header text and icons"
@@ -10672,20 +10736,20 @@ msgid "Subtitle"
 msgstr "زیرعنوان"
 
 #: includes/Frontend/ChatWidgetSettings.php:216
-msgid "Beside the header title"
-msgstr "کنار عنوان در هدر"
-
-#: includes/Frontend/ChatWidgetSettings.php:216
 msgid "Header icon"
 msgstr "آیکون هدر"
 
-#: includes/Frontend/ChatWidgetSettings.php:217
-msgid "The mic button"
-msgstr "دکمهٔ میکروفون"
+#: includes/Frontend/ChatWidgetSettings.php:216
+msgid "Beside the header title"
+msgstr "کنار عنوان در هدر"
 
 #: includes/Frontend/ChatWidgetSettings.php:217
 msgid "Voice icon"
 msgstr "آیکون صدا"
+
+#: includes/Frontend/ChatWidgetSettings.php:217
+msgid "The mic button"
+msgstr "دکمهٔ میکروفون"
 
 #: includes/Frontend/ChatWidgetSettings.php:218
 msgid "Handoff icon"
@@ -10850,15 +10914,6 @@ msgid "Record visitor conversations"
 msgstr "ثبت گفت‌وگوهای بازدیدکنندگان"
 
 #: includes/Frontend/ChatWidgetSettings.php:352
-#: includes/Frontend/ChatWidgetSettings.php:357
-msgid ""
-"Conversations are not kept. Questions your content could not answer are "
-"still listed as content gaps, without who asked."
-msgstr ""
-"گفت‌وگوها نگهداری نمی‌شوند. سؤال‌هایی که محتوای شما پاسخی برایشان نداشت، "
-"همچنان بدون مشخص‌شدن پرسنده به‌عنوان کمبود محتوا فهرست می‌شوند."
-
-#: includes/Frontend/ChatWidgetSettings.php:352
 #: includes/Frontend/ChatWidgetSettings.php:356
 msgid ""
 "Recorded conversations appear under Conversations with the pages each answer"
@@ -10866,6 +10921,15 @@ msgid ""
 msgstr ""
 "گفت‌وگوهای ثبت‌شده همراه با صفحه‌هایی که هر پاسخ از آن‌ها استفاده کرده، در "
 "بخش گفت‌وگوها نمایش داده می‌شوند."
+
+#: includes/Frontend/ChatWidgetSettings.php:352
+#: includes/Frontend/ChatWidgetSettings.php:357
+msgid ""
+"Conversations are not kept. Questions your content could not answer are "
+"still listed as content gaps, without who asked."
+msgstr ""
+"گفت‌وگوها نگهداری نمی‌شوند. سؤال‌هایی که محتوای شما پاسخی برایشان نداشت، "
+"همچنان بدون مشخص‌شدن پرسنده به‌عنوان کمبود محتوا فهرست می‌شوند."
 
 #: includes/Frontend/ChatWidgetSettings.php:364
 msgid "What visitors are told"
@@ -11628,24 +11692,24 @@ msgid "Received"
 msgstr "دریافت‌شده در"
 
 #: includes/Support/PrivacyTools.php:107
+msgid "Site assistant console conversations"
+msgstr "گفت‌وگوهای کنسول دستیار سایت"
+
+#: includes/Support/PrivacyTools.php:107
 msgid ""
 "Conversations this administrator had with the knowledge base console in wp-"
 "admin."
 msgstr "گفت‌وگوهای این مدیر با کنسول دانش سایت در پیشخوان وردپرس."
 
-#: includes/Support/PrivacyTools.php:107
-msgid "Site assistant console conversations"
-msgstr "گفت‌وگوهای کنسول دستیار سایت"
+#: includes/Support/PrivacyTools.php:110
+msgid "Site assistant conversations"
+msgstr "گفت‌وگوهای دستیار سایت"
 
 #: includes/Support/PrivacyTools.php:110
 msgid ""
 "Recorded visitor conversations in which this email address was written."
 msgstr ""
 "گفت‌وگوهای ثبت‌شدهٔ بازدیدکننده که این نشانی ایمیل در آن‌ها نوشته شده است."
-
-#: includes/Support/PrivacyTools.php:110
-msgid "Site assistant conversations"
-msgstr "گفت‌وگوهای دستیار سایت"
 
 #: includes/Support/PrivacyTools.php:116
 msgid ""

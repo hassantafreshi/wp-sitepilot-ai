@@ -509,6 +509,22 @@ final class RestRoutes {
 		);
 		register_rest_route(
 			self::NAMESPACE,
+			'/integrations/conflicts/dismiss',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new IntegrationsController(), 'dismiss_conflicts' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'plugins' => array(
+						'type'     => 'array',
+						'items'    => array( 'type' => 'string' ),
+						'required' => true,
+					),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
 			'/kb/gaps/dismiss',
 			array(
 				'methods'             => 'POST',

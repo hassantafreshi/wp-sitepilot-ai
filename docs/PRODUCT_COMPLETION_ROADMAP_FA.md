@@ -129,7 +129,7 @@
 | T75 | دستور مالک ۲۰۲۶-۱۰-۲۶، `docs/EFB_AI_FORM_BUILDER_T74_T75_FA.md` بخش ۶ | فهرست سرویس‌ها و مدل‌های AI: xAI Grok و ۸ سرویس تازه، اصلاح شناسه‌های منسوخ و نادرست (Mistral، DeepSeek، Groq، OpenAI، Gemini، Anthropic)، تلاش دوباره بدون temperature برای مدل‌های reasoning | — | در حال اجرا — کد و تست سبز؛ readme.txt هر ۲۳ پریست را با پیوند شرایط و حریم خصوصی افشا می‌کند و یک تست جلوی جاافتادن بعدی را می‌گیرد؛ Clusy و Perplexity به دستور مالک حذف و Moonshot Kimi و MiniMax افزوده شد (۲۰۲۶-۱۰-۲۶)؛ آزمون اتصال واقعی هر سرویس جز Anthropic (E-1) و تصمیم مالک دربارهٔ مدل STT باقی |
 | T29 | S5.0 | ممیزی S5: تأیید دوبارهٔ هر شکاف موکاپ روی کد و runtime، تأیید D-13 و نهایی‌سازی `docs/MOCKUP_GAP_S5_AUDIT_AND_PLAN_FA.md` | T14، T25 (D-13 گزینهٔ ب) | تکمیل — ۲۰۲۶-۱۱-۰۴؛ نتیجه در بخش ۸ سند S5. خط‌های موکاپ و قاب‌ها تأیید نشدند، چون فایل موکاپ در مخزن نیست |
 | T30 | S5.1، A-05 | پرسش‌های بی‌پاسخ: دلیل، «Asked N times» و «Write it» به پیش‌نویس Content Studio با تأیید انسانی و «Open draft» | T29 | تکمیل — ۲۰۲۶-۰۹-۱۶ با دستور مستقیم مالک پیش از T29، همراه پاسخ ذخیره‌شده (D-22). T29 این ردیف را تأییدشده بداند. |
-| T31 | S5.2، A-18 | تشخیص افزونهٔ AI یا ویجت چت هم‌پوشان و بنر Integrations با CTA «Open Plugins» | T29 | منتظر |
+| T31 | S5.2، A-18 | تشخیص افزونهٔ AI یا ویجت چت هم‌پوشان و بنر Integrations با CTA «Open Plugins» | T29 | تکمیل — ۲۰۲۶-۱۱-۰۴ |
 | T32 | S5.3، A-14 | لحن Formal و Plain در Content Studio › Write با پارامتر `tone` در `/content/plan` | T29 | منتظر |
 | T33 | S5.4، A-15 | شناسهٔ پایدار الگوها و شمار واقعی «Used N times» از پیش‌نویس‌های ساخته‌شده | T29 | منتظر |
 | T34 | S5.5، A-15 | ویرایشگر الگوی سفارشی («Edit template») با CRUD امن | T33 | منتظر |
@@ -445,6 +445,7 @@
 
 - کار: `includes/Core/ConflictDetector.php` با فهرست slugهای تأییدشده و filter `aisaautopilot_conflicting_plugins`، بنر `Ui::banner` در Integrations با نام واقعی افزونه و CTA «Open Plugins»، dismiss در user meta.
 - گیت: PHPUnit matcher؛ integration با `pre_option_active_plugins`؛ browser dismiss با keyboard.
+- **وضعیت ۲۰۲۶-۱۱-۰۴: تکمیل.** جزئیات در بخش T31 سند S5 و ژورنال.
 
 ### T32 — S5.3 لحن Formal و Plain
 

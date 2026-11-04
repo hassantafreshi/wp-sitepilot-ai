@@ -77,6 +77,7 @@
 | `/ai/status` | GET | `can_manage` | آمادگی دستیارها بدون فراخوانی provider: `configured`، `provider`، `model`، `form_studio` (کلید Integrations) و `recipient` (نشانی دریافت پاسخ فرم). Copilot در EFB و Form Studio پس از بازگشت از زبانهٔ راه‌اندازی آن را دوباره می‌خوانند. |
 | `/health/diagnostics` | POST | `can_manage` | اجرای تنها درخواست مجاز provider در Health و ذخیرهٔ نتیجهٔ امن |
 | `/activity` | GET | `can_manage` | خوراک فعالیت پاک‌سازی‌شده (`limit`، `level`، `search`) |
+| `/integrations/conflicts/dismiss` | POST | `can_manage` | پنهان کردن هشدار «افزونهٔ چت یا AI دیگری فعال است» در Integrations برای مدیر فعلی روی همین سایت. `plugins` آرایه‌ای از فایل افزونه است و فقط افزونه‌ای پذیرفته می‌شود که همین حالا شناسایی شده؛ در غیر این صورت 400 `not_detected` (T31). |
 
 ### Answer Desk
 

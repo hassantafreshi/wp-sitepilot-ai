@@ -59,6 +59,17 @@ custom `temperature` is retried once without it instead of failing (this also
 covers Kimi's fixed temperature), and `<think>…</think>` reasoning that MiniMax
 and some open models write into the reply is stripped before it is used.
 
+**Another chat or AI plugin** — Integrations warns, by the plugin's real name,
+when one of a short checked list of chat plugins (Tidio, Tawk.to, Crisp,
+LiveChat, 3CX, Zendesk Chat, Smartsupp, Social Chat, Click to Chat, Chaty,
+Social Chat Buttons) or AI assistant plugins (AI Engine, WPBot, AI Puffer) is
+active. A chat plugin is reported only while the Answer Desk chat button is on,
+because only then can two buttons overlap. Plugins are matched by their
+WordPress.org folder, and the `aisaautopilot_conflicting_plugins` filter
+extends the list. Each administrator can hide the warning on that site through
+`POST /integrations/conflicts/dismiss`, which accepts only plugins detected
+right now; another plugin from the list activated later brings it back. Nothing is sent anywhere.
+
 **Site Knowledge** — indexing of published WordPress content, an entries list
 with single delete and full re-index, an "Ask your knowledge base" console,
 unanswered questions with "Write it" into Content Studio, saved answers,
@@ -222,6 +233,7 @@ Deactivating changes nothing. Deleting runs `uninstall.php`.
 | Tables | `{prefix}aisaautopilot_kb`, `{prefix}aisaautopilot_kb_chunks`, `{prefix}aisaautopilot_kb_terms`, `{prefix}aisaautopilot_chats`, `{prefix}aisaautopilot_widget_chats`, `{prefix}aisaautopilot_handoffs` |
 | Options | 32 named `aisaautopilot_*` options (settings, encrypted keys, handoff secrets, logs, usage and budget, knowledge gaps and saved answers, the passage index format and its rebuild cursor, schema stamps, the site-setup marker, the last retention run, the rebrand marker), every `aisaautopilot_action_claim_*` replay lock, and a final sweep of any remaining `aisaautopilot_*` row |
 | Transients | Rate-limit counters, the 15-minute action preview, the provider-test record and the delivery-test cooldown, by `_transient_aisaautopilot_*` prefix |
+| User meta | `{prefix}aisaautopilot_dismissed_conflicts`: the Integrations warnings about other chat or AI plugins that each administrator hid on that site |
 | Cron | `aisaautopilot_index_post` (every queued page), `aisaautopilot_kb_rebuild` and the daily `aisaautopilot_retention_cleanup` are unscheduled |
 
 | Kept on purpose | Why |
@@ -232,7 +244,8 @@ Deactivating changes nothing. Deleting runs `uninstall.php`.
 | Easy Form Builder forms | They belong to that plugin |
 
 On a multisite network all of this is removed from every site. The plugin
-stores no user meta and no network-wide options. Under a persistent
+stores no user meta other than `{prefix}aisaautopilot_dismissed_conflicts` (the Integrations warnings each
+administrator hid on that site, deleted with the plugin) and no network-wide options. Under a persistent
 object cache the plugin's transients live in the cache rather than the options
 table; they are not reachable from the uninstall hook and expire within an hour.
 

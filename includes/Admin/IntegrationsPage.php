@@ -5,6 +5,7 @@ namespace AISAAutoPilot\Admin;
 
 use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
 use AISAAutoPilot\Connectors\WooCommerceConnector;
+use AISAAutoPilot\Core\ConflictDetector;
 use AISAAutoPilot\Core\Settings;
 
 /**
@@ -162,6 +163,8 @@ final class IntegrationsPage {
 						<?php Ui::alert( 'ok', 'check-circle', esc_html__( 'Integration settings saved.', 'ai-site-assistant-autopilot' ) ); ?>
 					<?php endif; ?>
 
+					<?php $this->render_conflicts(); ?>
+
 					<?php if ( $all_off ) : ?>
 						<?php $this->render_all_off_banner(); ?>
 					<?php endif; ?>
@@ -259,6 +262,58 @@ final class IntegrationsPage {
 			</button>
 		</form>
 		<?php
+	}
+
+	/**
+	 * One warning per kind when another chat or AI assistant plugin is active (T31).
+	 * Hiding it is remembered for this administrator on this site until another such
+	 * plugin is activated.
+	 */
+	private function render_conflicts(): void {
+		$groups = ( new ConflictDetector() )->warnings( get_current_user_id() );
+		foreach ( array( ConflictDetector::KIND_CHAT, ConflictDetector::KIND_AI ) as $kind ) {
+			if ( empty( $groups[ $kind ] ) ) {
+				continue;
+			}
+			$plugins = $groups[ $kind ];
+			$count   = count( $plugins );
+			$names   = wp_sprintf_l(
+				'%l',
+				array_map(
+					static function ( array $plugin ): string {
+						/* translators: %s: a plugin name. */
+						return sprintf( __( '“%s”', 'ai-site-assistant-autopilot' ), $plugin['name'] );
+					},
+					$plugins
+				)
+			);
+			if ( ConflictDetector::KIND_CHAT === $kind ) {
+				$title = _n( 'Another chat plugin is active', 'Other chat plugins are active', $count, 'ai-site-assistant-autopilot' );
+				/* translators: %s: plugin names in quotes, such as “Tidio” and “Chaty”. */
+				$body = sprintf( _n( '%s also puts a chat button on your site. It may overlap the Answer Desk chat button in the same corner, so keep one of them switched on.', '%s also put chat buttons on your site. They may overlap the Answer Desk chat button in the same corner, so keep one of them switched on.', $count, 'ai-site-assistant-autopilot' ), $names );
+			} else {
+				$title = _n( 'Another AI plugin is active', 'Other AI plugins are active', $count, 'ai-site-assistant-autopilot' );
+				/* translators: %s: plugin names in quotes, such as “AI Engine”. */
+				$body = sprintf( _n( '%s is also an AI assistant. Two assistants may answer the same question differently, so decide which one answers your visitors.', '%s are also AI assistants. Several assistants may answer the same question differently, so decide which one answers your visitors.', $count, 'ai-site-assistant-autopilot' ), $names );
+			}
+			$network  = in_array( true, array_column( $plugins, 'network' ), true ) && current_user_can( 'manage_network_plugins' );
+			$show_cta = $network || current_user_can( 'activate_plugins' );
+			$id       = 'sp-conflict-' . str_replace( '_', '-', $kind );
+			?>
+			<section class="sp-banner sp-banner--warn sp-conflict-banner" aria-labelledby="<?php echo esc_attr( $id ); ?>-title" data-sp-conflict="<?php echo esc_attr( $kind ); ?>" data-sp-conflict-plugins="<?php echo esc_attr( (string) wp_json_encode( array_column( $plugins, 'plugin' ) ) ); ?>">
+				<span class="sp-banner__icon" aria-hidden="true"><?php echo Ui::icon( 'warning', 17, 'currentColor', 2.1 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static icon markup. ?></span>
+				<div class="sp-banner__body">
+					<h2 class="sp-banner__title" id="<?php echo esc_attr( $id ); ?>-title"><?php echo esc_html( $title ); ?></h2>
+					<p class="sp-banner__text"><?php echo esc_html( $body ); ?></p>
+					<p class="sp-status-text is-err sp-conflict-banner__error" role="alert" data-sp-conflict-error hidden></p>
+				</div>
+				<?php if ( $show_cta ) : ?>
+					<a class="sp-banner__cta" href="<?php echo esc_url( $network ? network_admin_url( 'plugins.php' ) : admin_url( 'plugins.php' ) ); ?>"><?php esc_html_e( 'Open Plugins', 'ai-site-assistant-autopilot' ); ?></a>
+				<?php endif; ?>
+				<button type="button" class="sp-banner__dismiss" data-sp-conflict-dismiss aria-label="<?php echo esc_attr( __( 'Hide this warning', 'ai-site-assistant-autopilot' ) ); ?>">&times;</button>
+			</section>
+			<?php
+		}
 	}
 
 	private function render_all_off_banner(): void {

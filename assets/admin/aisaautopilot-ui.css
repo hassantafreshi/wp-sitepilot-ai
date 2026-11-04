@@ -2038,6 +2038,12 @@ button.sp-pagebar__action:disabled { opacity: 0.6; cursor: default; }
 .sp-banner__dismiss:hover { color: var(--sp-ink); }
 .sp-banner[hidden] { display: none; }
 
+/* Integrations: another chat or AI plugin is active (T31). */
+.sp-conflict-banner .sp-banner__title { margin: 0; padding: 0; line-height: 1.4; }
+.sp-conflict-banner .sp-banner__dismiss { min-inline-size: 32px; min-block-size: 32px; border-radius: 8px; }
+.sp-conflict-banner .sp-banner__dismiss:focus-visible { outline: 2px solid var(--sp-warn-ink); outline-offset: 2px; }
+.sp-conflict-banner__error { margin: 6px 0 0 !important; }
+
 /* ── Running job bar ─────────────────────────────────────────────────── */
 
 .sp-jobbar {
