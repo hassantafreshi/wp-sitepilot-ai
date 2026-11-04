@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Admin;
 
+use AISAAutoPilot\Connectors\CartFunnel;
 use AISAAutoPilot\Connectors\WooCommerceAnalyticsSkill;
 use AISAAutoPilot\Connectors\WooCommerceConnector;
 use AISAAutoPilot\Providers\ProviderManager;
@@ -52,6 +53,7 @@ final class StoreCopilotPage {
 			data-sp-store-enabled="<?php echo $enabled ? '1' : '0'; ?>"
 			data-sp-store-search="<?php echo ! empty( $settings['enable_search'] ) ? '1' : '0'; ?>"
 			data-sp-store-descriptions="<?php echo ! empty( $settings['enable_descriptions'] ) ? '1' : '0'; ?>"
+			data-sp-store-cart-funnel="<?php echo ! empty( $settings['cart_funnel'] ) ? '1' : '0'; ?>"
 			data-sp-store-provider="<?php echo $provider_ready ? '1' : '0'; ?>"
 			data-sp-store-can-manage="<?php echo $can_manage ? '1' : '0'; ?>"
 		>
@@ -329,6 +331,7 @@ final class StoreCopilotPage {
 						<?php $this->setting_toggle( 'enabled', __( 'WooCommerce AI connector', 'ai-site-assistant-autopilot' ), __( 'Off means no proposals, drafts, or Store Copilot reads.', 'ai-site-assistant-autopilot' ), $enabled ); ?>
 						<?php $this->setting_toggle( 'enable_search', __( 'Smart product search', 'ai-site-assistant-autopilot' ), __( 'Controls the protected Store search endpoint. It does not add a visitor-facing search interface.', 'ai-site-assistant-autopilot' ), ! empty( $settings['enable_search'] ) ); ?>
 						<?php $this->setting_toggle( 'enable_descriptions', __( 'Product descriptions', 'ai-site-assistant-autopilot' ), __( 'Lets AutoPilot draft descriptions for products you already have. Each one waits for your approval, and Undo puts the old text back. Nothing else about a product is changed.', 'ai-site-assistant-autopilot' ), ! empty( $settings['enable_descriptions'] ) ); ?>
+						<?php $this->setting_toggle( 'cart_funnel', __( 'Count carts', 'ai-site-assistant-autopilot' ), __( 'Counts, per day, how many carts are started and how many reach checkout, so Orders can show where shoppers stop. Only the two numbers are stored: no name, email, address, IP address or cart content. Store staff are not counted.', 'ai-site-assistant-autopilot' ), ! empty( $settings['cart_funnel'] ) ); ?>
 						<?php $this->locked_toggle( __( 'Product editing by AI', 'ai-site-assistant-autopilot' ), __( 'Prices, stock, titles and every other field are reserved for Phase 2. They cannot be switched on yet.', 'ai-site-assistant-autopilot' ), false ); ?>
 						<?php $this->locked_toggle( __( 'Always create as draft', 'ai-site-assistant-autopilot' ), __( 'Fixed in Phase 1. Publishing stays a manual step.', 'ai-site-assistant-autopilot' ), true ); ?>
 					</div>
@@ -536,6 +539,7 @@ final class StoreCopilotPage {
 				<?php if ( empty( $data['ok'] ) ) : ?>
 					<p class="sp-status-text is-err" data-sp-funnel-error><?php echo esc_html( (string) ( $data['error'] ?? '' ) ); ?></p>
 				<?php elseif ( 0 === $total ) : ?>
+					<?php $this->render_cart_steps( $days, 0 ); ?>
 					<p class="sp-store-funnel__lead" data-sp-funnel-empty>
 						<?php
 						/* translators: %s: number of days. */
@@ -543,6 +547,7 @@ final class StoreCopilotPage {
 						?>
 					</p>
 				<?php else : ?>
+					<?php $this->render_cart_steps( $days, (int) ( $data['paid'] ?? 0 ) ); ?>
 					<p class="sp-store-funnel__lead" data-sp-funnel-lead>
 						<?php
 						echo esc_html(
@@ -591,8 +596,68 @@ final class StoreCopilotPage {
 					<?php endif; ?>
 				<?php endif; ?>
 			</div>
-			<div class="sp-store-panel__foot"><?php esc_html_e( 'Counts orders that customers placed at checkout in this period, read from WooCommerce on this page. Orders you add yourself are left out, and carts left before checkout are not counted because WooCommerce does not record them.', 'ai-site-assistant-autopilot' ); ?></div>
+			<div class="sp-store-panel__foot" data-sp-funnel-foot>
+				<?php
+				if ( CartFunnel::enabled() ) {
+					esc_html_e( 'Orders are those customers placed at checkout in this period, read from WooCommerce on this page; orders you add yourself are left out. Carts started and carts that reached checkout are counted by AutoPilot while Count carts is on, without anything about the shopper.', 'ai-site-assistant-autopilot' );
+				} else {
+					esc_html_e( 'Counts orders that customers placed at checkout in this period, read from WooCommerce on this page. Orders you add yourself are left out, and carts left before checkout are not counted because WooCommerce does not record them.', 'ai-site-assistant-autopilot' );
+				}
+				?>
+			</div>
 		</section>
+		<?php
+	}
+
+	/**
+	 * Carts started, carts that reached checkout, and paid checkouts, when "Count carts"
+	 * is on (CartFunnel); otherwise one line saying how to see carts left before checkout.
+	 */
+	private function render_cart_steps( int $days, int $paid ): void {
+		if ( ! CartFunnel::enabled() ) {
+			$capabilities_url = add_query_arg( 'tab', 'capabilities', admin_url( 'admin.php?page=' . AdminMenu::SLUG_WC_DASHBOARD ) );
+			?>
+			<p class="sp-store-funnel__hint sp-store-funnel__off" data-sp-cart-steps-off>
+				<?php esc_html_e( 'To also see carts that never reach checkout, turn on Count carts under What it can do.', 'ai-site-assistant-autopilot' ); ?>
+				<a href="<?php echo esc_url( $capabilities_url ); ?>"><?php esc_html_e( 'Open What it can do', 'ai-site-assistant-autopilot' ); ?></a>
+			</p>
+			<?php
+			return;
+		}
+		$counts = ( new CartFunnel() )->totals( $days );
+		$carts  = $counts['cart'];
+		$pct    = static function ( int $n ) use ( $carts ): string {
+			/* translators: %s: share of carts started, as a percentage. */
+			return $carts > 0 ? sprintf( __( '%s%%', 'ai-site-assistant-autopilot' ), number_format_i18n( min( 100, 100 * $n / $carts ), 0 ) ) : '';
+		};
+		$steps  = array(
+			array( 'cart', __( 'Carts started', 'ai-site-assistant-autopilot' ), $carts ),
+			array( 'checkout', __( 'Reached checkout', 'ai-site-assistant-autopilot' ), $counts['checkout'] ),
+			array( 'paid', __( 'Paid', 'ai-site-assistant-autopilot' ), $paid ),
+		);
+		$start  = wp_date( 'Y-m-d', time() - ( $days - 1 ) * DAY_IN_SECONDS );
+		?>
+		<div class="sp-store-funnel__steps" data-sp-cart-steps>
+			<ol class="sp-store-funnel__steplist">
+				<?php foreach ( $steps as $step ) : ?>
+					<li data-sp-cart-step="<?php echo esc_attr( $step[0] ); ?>">
+						<span class="sp-store-funnel__label"><?php echo esc_html( $step[1] ); ?></span>
+						<strong data-sp-cart-step-count><?php echo esc_html( number_format_i18n( $step[2] ) ); ?></strong>
+						<span class="sp-store-funnel__share"><?php echo esc_html( 'cart' === $step[0] ? '' : $pct( $step[2] ) ); ?></span>
+					</li>
+				<?php endforeach; ?>
+			</ol>
+			<?php if ( '' === $counts['since'] ) : ?>
+				<p class="sp-store-funnel__hint" data-sp-cart-steps-since><?php esc_html_e( 'Counting is on. Carts appear here once shoppers add something.', 'ai-site-assistant-autopilot' ); ?></p>
+			<?php elseif ( $counts['since'] > $start ) : ?>
+				<p class="sp-store-funnel__hint" data-sp-cart-steps-since>
+					<?php
+					/* translators: %s: the date counting started. */
+					echo esc_html( sprintf( __( 'Carts are counted since %s, so this period is not complete yet.', 'ai-site-assistant-autopilot' ), date_i18n( get_option( 'date_format' ), (int) strtotime( $counts['since'] ) ) ) );
+					?>
+				</p>
+			<?php endif; ?>
+		</div>
 		<?php
 	}
 

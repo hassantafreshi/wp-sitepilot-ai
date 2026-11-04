@@ -13,6 +13,7 @@ use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Content\ContentHooks;
 use AISAAutoPilot\Efb\EfbBuilderButton;
+use AISAAutoPilot\Connectors\CartFunnel;
 use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Frontend\ChatWidget;
 use AISAAutoPilot\Frontend\FormShortcode;
@@ -61,6 +62,7 @@ final class Plugin {
 		// Daily deletion of visitor data older than the periods set in Advanced settings.
 		( new Retention() )->register();
 		( new FormOutbox() )->register();
+		( new CartFunnel() )->register();
 		( new Network() )->register();
 
 		/*

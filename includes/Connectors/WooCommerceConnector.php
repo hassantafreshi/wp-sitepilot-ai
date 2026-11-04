@@ -52,7 +52,10 @@ final class WooCommerceConnector {
 	 * descriptions for existing products, one approval each, with Undo
 	 * (ProductDescriptions).
 	 *
-	 * @return array{enabled:bool,auto_draft:bool,enable_search:bool,enable_edit:bool,enable_descriptions:bool}
+	 * `cart_funnel` (off by default) lets CartFunnel count, anonymously, carts started
+	 * and carts that reached checkout.
+	 *
+	 * @return array{enabled:bool,auto_draft:bool,enable_search:bool,enable_edit:bool,enable_descriptions:bool,cart_funnel:bool}
 	 */
 	public static function get_settings(): array {
 
@@ -65,6 +68,7 @@ final class WooCommerceConnector {
 			'enable_search'       => ! empty( $stored['enable_search'] ),
 			'enable_edit'         => false,
 			'enable_descriptions' => ! empty( $stored['enable_descriptions'] ),
+			'cart_funnel'         => ! empty( $stored['cart_funnel'] ),
 		);
 	}
 

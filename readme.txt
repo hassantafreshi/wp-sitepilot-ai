@@ -40,8 +40,9 @@ Everything in this first version:
 * Voice input that is transcript-first: speech becomes editable text in the
   message box and is never sent by itself.
 * Store Copilot for WooCommerce: read-only store insight (including checkout
-  drop-off from your own orders), plus creation of a single reviewed
-  simple-product draft. Optionally (off by default), AI
+  drop-off from your own orders and, if you turn on Count carts, anonymous
+  counts of carts started and carts that reached checkout), plus creation of a
+  single reviewed simple-product draft. Optionally (off by default), AI
   descriptions for products you already have: pick up to ten, read each draft
   beside the current text, edit it, and apply or skip it one by one; Undo puts
   the old text back. Publishing, editing any other field, orders and refunds
@@ -124,6 +125,8 @@ Database tables (dropped):
   details a visitor typed.
 * {prefix}aisaautopilot_form_outbox - form submissions whose email could not
   be sent (only used when you turn that on).
+* {prefix}aisaautopilot_cart_funnel - anonymous daily counts of carts started
+  and carts that reached checkout (only used when you turn on Count carts).
 
 Options (deleted): aisaautopilot_settings, aisaautopilot_provider_key,
 aisaautopilot_embedding_key, aisaautopilot_handoff_secrets,
@@ -140,6 +143,7 @@ aisaautopilot_voice_usage_log, aisaautopilot_health_diagnostics,
 aisaautopilot_last_diagnostics, aisaautopilot_kb_schema, aisaautopilot_handoff_inbox_schema,
 aisaautopilot_widget_chat_schema, aisaautopilot_site_setup,
 aisaautopilot_retention_last_run, aisaautopilot_form_outbox_schema,
+aisaautopilot_cart_funnel_schema,
 aisaautopilot_turnstile_secret, aisaautopilot_rebrand_migrated, and every aisaautopilot_action_claim_* replay
 lock.
 
@@ -484,6 +488,8 @@ editable text; nothing is sent until you press Send.
 * Optional Cloudflare Turnstile spam check for native forms.
 * Store Copilot > Orders: checkout drop-off (paid, stopped at payment, failed,
   cancelled) from WooCommerce's own orders, with payment methods and links.
+* Optional "Count carts": anonymous daily counts of carts started and carts
+  that reached checkout, shown as a funnel beside paid orders.
 * Form Studio keeps a plan under review across a page reload in the same tab.
 * Store Copilot > Descriptions: optional AI descriptions for existing
   products, approved one by one, with Undo (off by default).

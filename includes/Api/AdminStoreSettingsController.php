@@ -24,9 +24,13 @@ final class AdminStoreSettingsController {
 		}
 
 		// Product descriptions joined later: a request without it keeps the saved choice.
+		$saved        = WooCommerceConnector::get_settings();
 		$descriptions = $request->has_param( 'enable_descriptions' )
 			? rest_sanitize_boolean( $request->get_param( 'enable_descriptions' ) )
-			: WooCommerceConnector::get_settings()['enable_descriptions'];
+			: $saved['enable_descriptions'];
+		$cart_funnel  = $request->has_param( 'cart_funnel' )
+			? rest_sanitize_boolean( $request->get_param( 'cart_funnel' ) )
+			: $saved['cart_funnel'];
 		Settings::update(
 			array(
 				'woocommerce' => array(
@@ -35,6 +39,7 @@ final class AdminStoreSettingsController {
 					'enable_search'       => rest_sanitize_boolean( $request->get_param( 'enable_search' ) ),
 					'enable_edit'         => false,
 					'enable_descriptions' => $descriptions,
+					'cart_funnel'         => $cart_funnel,
 				),
 			)
 		);

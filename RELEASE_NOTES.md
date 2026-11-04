@@ -125,7 +125,11 @@ restores the earlier text. Under Orders, "Checkout drop-off" shows, for the
 last 7, 30 or 90 days, how many checkouts were paid and how many stopped at
 payment, failed or were cancelled, with the payment methods unpaid checkouts
 used and links to those orders in WooCommerce. It reads WooCommerce's own
-orders (only those placed at checkout); no AI is involved.
+orders (only those placed at checkout); no AI is involved. With "Count carts"
+switched on under What it can do (off by default), the card starts with three
+steps: carts started, carts that reached checkout, and paid. Only two numbers
+per day are stored, nothing about the shopper, and store staff are not
+counted.
 
 **Content Studio and Form Studio** — AI-drafted posts and pages with templates,
 history and CSV export; and forms described in text or voice, previewed field

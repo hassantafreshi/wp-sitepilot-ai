@@ -3688,6 +3688,12 @@ button.sp-store-switch:focus-visible { outline: 2px solid var(--sp-primary); out
 .sp-store-funnel .sp-kv__v { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 4px 10px; white-space: nowrap; }
 .sp-store-funnel__share { color: #5b5e7d; font-weight: 500; font-size: 12px; }
 .sp-store-funnel__link { display: inline-flex; align-items: center; min-block-size: 24px; font-size: 12px; font-weight: 600; }
+.sp-store-funnel__steps { margin-block-end: 16px; padding-block-end: 14px; border-block-end: 1px solid var(--sp-line-soft); }
+.sp-app .sp-store-funnel__steplist { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 8px; padding: 0; list-style: none; }
+.sp-store-funnel__steplist li { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 10px; background: var(--sp-bg); }
+.sp-store-funnel__steplist strong { color: #14152b; font-size: 18px; line-height: 1.3; }
+.sp-store-funnel__off { margin-block-end: 14px; }
+.sp-store-funnel__off a { display: inline-flex; align-items: center; min-block-size: 24px; font-weight: 600; }
 .sp-app .sp-store-funnel__subhead { margin: 18px 0 8px; color: #14152b; font-size: 13px; font-weight: 700; }
 .sp-app .sp-store-funnel__methods { margin: 0 0 12px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
 .sp-store-funnel__methods li { display: flex; justify-content: space-between; gap: 10px; }

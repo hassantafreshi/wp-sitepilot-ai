@@ -8,6 +8,7 @@ use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Content\KnowledgeIndex;
+use AISAAutoPilot\Connectors\CartFunnel;
 use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Support\HandoffInbox;
 
@@ -19,7 +20,7 @@ final class Activator {
 	/** Records that this site has the plugin's tables and default settings. */
 	public const SITE_OPTION = 'aisaautopilot_site_setup';
 
-	private const SITE_VERSION = '2';
+	private const SITE_VERSION = '3';
 
 	/**
 	 * @param bool $network_wide True when a multisite network administrator activates the plugin for every site.
@@ -87,6 +88,8 @@ final class Activator {
 		VisitorConversationStore::ensure_schema();
 		// Undelivered form submissions, used only when the administrator turns that on.
 		FormOutbox::ensure_schema();
+		// Anonymous cart counts, used only when the store manager turns "Count carts" on.
+		CartFunnel::ensure_schema();
 
 		update_option( self::SITE_OPTION, self::SITE_VERSION, true );
 	}

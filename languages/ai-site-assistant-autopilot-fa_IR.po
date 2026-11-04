@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-11-03 18:53+0000\n"
+"POT-Creation-Date: 2026-11-04 17:44+0000\n"
 "PO-Revision-Date: 2026-11-04 10:00+0000\n"
 "Last-Translator: AI Site Assistant AutoPilot <info@aisaautopilot.ai>\n"
 "Language-Team: Persian <fa@li.org>\n"
@@ -66,7 +66,7 @@ msgstr "استودیوی محتوا"
 #: includes/Activity/ActivityTimeline.php:145 includes/Admin/AdminMenu.php:69
 #: includes/Admin/AdminMenu.php:95 includes/Admin/HomePage.php:369
 #: includes/Admin/IntegrationsPage.php:130
-#: includes/Admin/SettingsPage.php:1078 includes/Admin/StoreCopilotPage.php:61
+#: includes/Admin/SettingsPage.php:1078 includes/Admin/StoreCopilotPage.php:63
 msgid "Store Copilot"
 msgstr "دستیار فروشگاه"
 
@@ -262,7 +262,7 @@ msgstr "کلید را جایگزین کنید یا endpoint سفارشی را ب
 
 #: includes/Admin/AdminMenu.php:306 includes/Admin/ChatPage.php:286
 #: includes/Admin/CopilotPage.php:543 includes/Admin/SettingsPage.php:1316
-#: includes/Admin/StoreCopilotPage.php:104
+#: includes/Admin/StoreCopilotPage.php:106
 #: includes/Efb/EfbBuilderButton.php:91
 msgid "Network error. Please try again."
 msgstr "خطای شبکه. لطفاً دوباره تلاش کنید."
@@ -275,7 +275,7 @@ msgstr "در حال ارسال آزمون…"
 msgid "Test accepted."
 msgstr "آزمون پذیرفته شد."
 
-#: includes/Admin/AdminMenu.php:309 includes/Core/Plugin.php:173
+#: includes/Admin/AdminMenu.php:309 includes/Core/Plugin.php:175
 msgid "Sending…"
 msgstr "در حال ارسال…"
 
@@ -669,7 +669,7 @@ msgstr "این سرویس‌دهنده نقطهٔ دسترسی Embedding ندا�
 #: includes/Admin/HomePage.php:27 includes/Admin/KnowledgeBasePage.php:26
 #: includes/Admin/LogsPage.php:25 includes/Admin/NativeFormsPage.php:20
 #: includes/Admin/SettingsPage.php:175 includes/Admin/SettingsPage.php:194
-#: includes/Admin/StoreCopilotPage.php:32
+#: includes/Admin/StoreCopilotPage.php:33
 #: includes/Frontend/ChatWidgetSettings.php:62
 msgid "You do not have permission to view this page."
 msgstr "شما اجازه مشاهده این صفحه را ندارید."
@@ -814,7 +814,7 @@ msgid "How it looks on your site"
 msgstr "نمای آن در سایت شما"
 
 #: includes/Admin/AnswerConversationsPage.php:313
-#: includes/Admin/StoreCopilotPage.php:327
+#: includes/Admin/StoreCopilotPage.php:329
 msgid "Settings"
 msgstr "تنظیمات"
 
@@ -1689,7 +1689,7 @@ msgid "Record a question"
 msgstr "ضبط سؤال"
 
 #: includes/Admin/ChatPage.php:151 includes/Admin/CopilotPage.php:167
-#: includes/Core/Plugin.php:168 includes/Efb/EfbBuilderButton.php:355
+#: includes/Core/Plugin.php:170 includes/Efb/EfbBuilderButton.php:355
 #: includes/Frontend/ChatWidget.php:164
 msgid "Send"
 msgstr "ارسال"
@@ -1895,7 +1895,7 @@ msgstr "شنیدن"
 msgid "Stop audio"
 msgstr "توقف صدا"
 
-#: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:181
+#: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:183
 msgid "Stop recording"
 msgstr "توقف ضبط"
 
@@ -1917,7 +1917,7 @@ msgstr ""
 msgid "Voice transcription failed. Please try again."
 msgstr "تبدیل گفتار به متن ناموفق بود. لطفاً دوباره تلاش کنید."
 
-#: includes/Admin/ChatPage.php:300 includes/Core/Plugin.php:184
+#: includes/Admin/ChatPage.php:300 includes/Core/Plugin.php:186
 msgid "No audio was captured. Please try again."
 msgstr "صدایی ضبط نشد. لطفاً دوباره تلاش کنید."
 
@@ -1925,7 +1925,7 @@ msgstr "صدایی ضبط نشد. لطفاً دوباره تلاش کنید."
 msgid "Maximum recording time reached. Transcribing…"
 msgstr "به حداکثر زمان ضبط رسیدید. در حال تبدیل به متن…"
 
-#: includes/Admin/ChatPage.php:302 includes/Core/Plugin.php:182
+#: includes/Admin/ChatPage.php:302 includes/Core/Plugin.php:184
 msgid "Voice recording is not supported in this browser."
 msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند."
 
@@ -2348,7 +2348,7 @@ msgstr "ساده"
 msgid "Review the draft before saving"
 msgstr "پیش از ذخیره، پیش‌نویس را بازبینی کنید"
 
-#: includes/Admin/CopilotPage.php:370 includes/Admin/StoreCopilotPage.php:107
+#: includes/Admin/CopilotPage.php:370 includes/Admin/StoreCopilotPage.php:109
 msgid "Draft only"
 msgstr "فقط پیش‌نویس"
 
@@ -2671,7 +2671,7 @@ msgid "Edit in Easy Form Builder"
 msgstr "ویرایش در Easy Form Builder"
 
 #: includes/Admin/CopilotPage.php:531 includes/Admin/KnowledgeBasePage.php:461
-#: includes/Core/Plugin.php:167
+#: includes/Core/Plugin.php:169
 msgid "Try again"
 msgstr "تلاش دوباره"
 
@@ -3279,7 +3279,7 @@ msgstr "پیکربندی کانال‌ها"
 #: includes/Admin/HandoffInboxPage.php:185
 #: includes/Admin/KnowledgeBasePage.php:382
 #: includes/Admin/NativeFormsPage.php:160
-#: includes/Admin/StoreCopilotPage.php:315
+#: includes/Admin/StoreCopilotPage.php:317
 #: includes/Support/PrivacyTools.php:94
 msgid "Status"
 msgstr "وضعیت"
@@ -5346,7 +5346,7 @@ msgstr "فعال"
 msgid "Built in. Simple forms whose submissions are emailed to you."
 msgstr "داخلی. فرم‌های ساده‌ای که پاسخ‌هایشان برای شما ایمیل می‌شود."
 
-#: includes/Admin/SettingsPage.php:406 includes/Admin/StoreCopilotPage.php:277
+#: includes/Admin/SettingsPage.php:406 includes/Admin/StoreCopilotPage.php:279
 msgid "Not active"
 msgstr "فعال نیست"
 
@@ -5599,7 +5599,7 @@ msgstr "تغییرات ذخیره‌نشده"
 msgid "Unsaved changes on this page"
 msgstr "تغییرهای ذخیره‌نشده در این صفحه"
 
-#: includes/Admin/SettingsPage.php:566 includes/Admin/StoreCopilotPage.php:239
+#: includes/Admin/SettingsPage.php:566 includes/Admin/StoreCopilotPage.php:241
 #: includes/Efb/EfbBuilderButton.php:88
 #: includes/Frontend/ChatWidgetSettings.php:395
 msgid "Discard"
@@ -6442,71 +6442,71 @@ msgid "Test this exact provider, key and model before saving Setup."
 msgstr ""
 "پیش از ذخیرهٔ راه‌اندازی، همین سرویس‌دهنده، کلید و مدل را آزمایش کنید."
 
-#: includes/Admin/StoreCopilotPage.php:62
+#: includes/Admin/StoreCopilotPage.php:64
 msgid "Propose one product at a time. You review it, AutoPilot saves a draft."
 msgstr ""
 "هر بار یک محصول پیشنهاد می‌شود. شما بازبینی می‌کنید و AutoPilot پیش‌نویس را "
 "ذخیره می‌کند."
 
-#: includes/Admin/StoreCopilotPage.php:100
+#: includes/Admin/StoreCopilotPage.php:102
 msgid "Writing the proposal..."
 msgstr "در حال نوشتن پیشنهاد..."
 
-#: includes/Admin/StoreCopilotPage.php:101
+#: includes/Admin/StoreCopilotPage.php:103
 msgid "Read the proposal before creating the draft."
 msgstr "پیش از ساخت پیش‌نویس، پیشنهاد را بخوانید."
 
-#: includes/Admin/StoreCopilotPage.php:102
+#: includes/Admin/StoreCopilotPage.php:104
 msgid "Creating the WooCommerce draft..."
 msgstr "در حال ساخت پیش‌نویس ووکامرس..."
 
-#: includes/Admin/StoreCopilotPage.php:103
+#: includes/Admin/StoreCopilotPage.php:105
 msgid "Draft created. Publishing remains a manual WooCommerce step."
 msgstr "پیش‌نویس ساخته شد. انتشار همچنان یک گام دستی در ووکامرس است."
 
-#: includes/Admin/StoreCopilotPage.php:105
+#: includes/Admin/StoreCopilotPage.php:107
 msgid "Describe the product you want to draft."
 msgstr "محصولی را که می‌خواهید پیش‌نویسش ساخته شود توصیف کنید."
 
-#: includes/Admin/StoreCopilotPage.php:106
+#: includes/Admin/StoreCopilotPage.php:108
 msgid "This proposal expired before it was approved. Nothing was created."
 msgstr "این پیشنهاد پیش از تأیید منقضی شد. چیزی ساخته نشد."
 
-#: includes/Admin/StoreCopilotPage.php:108
+#: includes/Admin/StoreCopilotPage.php:110
 msgid "Not managed"
 msgstr "مدیریت‌نشده"
 
-#: includes/Admin/StoreCopilotPage.php:109
+#: includes/Admin/StoreCopilotPage.php:111
 msgid "Store Copilot settings saved."
 msgstr "تنظیمات دستیار فروشگاه ذخیره شد."
 
-#: includes/Admin/StoreCopilotPage.php:110
+#: includes/Admin/StoreCopilotPage.php:112
 msgid "The Store Copilot settings could not be saved."
 msgstr "تنظیمات دستیار فروشگاه ذخیره نشد."
 
 #. translators: %s: time left before the proposal expires, as m:ss.
-#: includes/Admin/StoreCopilotPage.php:112
+#: includes/Admin/StoreCopilotPage.php:114
 #, php-format
 msgid "Expires in %s"
 msgstr "انقضا در %s"
 
-#: includes/Admin/StoreCopilotPage.php:113
+#: includes/Admin/StoreCopilotPage.php:115
 msgid "Review product draft"
 msgstr "بازبینی پیش‌نویس محصول"
 
-#: includes/Admin/StoreCopilotPage.php:114
+#: includes/Admin/StoreCopilotPage.php:116
 msgid "Phase 1 creates simple products only"
 msgstr "فاز ۱ فقط محصول ساده می‌سازد"
 
-#: includes/Admin/StoreCopilotPage.php:115
+#: includes/Admin/StoreCopilotPage.php:117
 msgid "Phase 1 always creates a draft"
 msgstr "فاز ۱ همیشه پیش‌نویس می‌سازد"
 
-#: includes/Admin/StoreCopilotPage.php:116
+#: includes/Admin/StoreCopilotPage.php:118
 msgid "Loading products…"
 msgstr "در حال بارگذاری محصولات…"
 
-#: includes/Admin/StoreCopilotPage.php:117
+#: includes/Admin/StoreCopilotPage.php:119
 msgid ""
 "Every product already has a description of at least 40 words. Clear the "
 "filter to rewrite one anyway."
@@ -6515,98 +6515,98 @@ msgstr ""
 "بردارید."
 
 #. translators: %s: number of words in the current description.
-#: includes/Admin/StoreCopilotPage.php:119
+#: includes/Admin/StoreCopilotPage.php:121
 #, php-format
 msgid "%s words now"
 msgstr "اکنون %s کلمه"
 
-#: includes/Admin/StoreCopilotPage.php:120
+#: includes/Admin/StoreCopilotPage.php:122
 msgid "No description yet"
 msgstr "هنوز توضیحی ندارد"
 
 #. translators: 1: number of drafts written so far, 2: number of drafts asked
 #. for.
-#: includes/Admin/StoreCopilotPage.php:122
+#: includes/Admin/StoreCopilotPage.php:124
 #, php-format
 msgid "Writing draft %1$s of %2$s…"
 msgstr "در حال نوشتن پیش‌نویس %1$s از %2$s…"
 
-#: includes/Admin/StoreCopilotPage.php:123
+#: includes/Admin/StoreCopilotPage.php:125
 msgid ""
 "Drafts are ready. Read each one, edit it if you like, then apply or skip it."
 msgstr ""
 "پیش‌نویس‌ها آماده‌اند. هر کدام را بخوانید، اگر خواستید ویرایش کنید و سپس "
 "اعمال یا رد کنید."
 
-#: includes/Admin/StoreCopilotPage.php:124
+#: includes/Admin/StoreCopilotPage.php:126
 msgid "Pick up to 10 products at a time."
 msgstr "هر بار حداکثر ۱۰ محصول انتخاب کنید."
 
-#: includes/Admin/StoreCopilotPage.php:125
+#: includes/Admin/StoreCopilotPage.php:127
 msgid "Now"
 msgstr "اکنون"
 
-#: includes/Admin/StoreCopilotPage.php:126
+#: includes/Admin/StoreCopilotPage.php:128
 msgid "AI draft (you can edit it)"
 msgstr "پیش‌نویس هوش مصنوعی (قابل ویرایش)"
 
-#: includes/Admin/StoreCopilotPage.php:127
+#: includes/Admin/StoreCopilotPage.php:129
 #: includes/Efb/EfbBuilderButton.php:158
 msgid "Apply"
 msgstr "اعمال"
 
-#: includes/Admin/StoreCopilotPage.php:128
+#: includes/Admin/StoreCopilotPage.php:130
 msgid "Skip"
 msgstr "رد کردن"
 
-#: includes/Admin/StoreCopilotPage.php:129
+#: includes/Admin/StoreCopilotPage.php:131
 #: includes/Efb/EfbBuilderButton.php:156
 msgid "Undo"
 msgstr "واگرد"
 
-#: includes/Admin/StoreCopilotPage.php:130
+#: includes/Admin/StoreCopilotPage.php:132
 msgid "Applied"
 msgstr "اعمال شد"
 
-#: includes/Admin/StoreCopilotPage.php:131
+#: includes/Admin/StoreCopilotPage.php:133
 msgid "Skipped. Nothing changed."
 msgstr "رد شد. چیزی تغییر نکرد."
 
-#: includes/Admin/StoreCopilotPage.php:132
+#: includes/Admin/StoreCopilotPage.php:134
 msgid "No draft for this product."
 msgstr "برای این محصول پیش‌نویسی نوشته نشد."
 
-#: includes/Admin/StoreCopilotPage.php:133
+#: includes/Admin/StoreCopilotPage.php:135
 msgid "Description"
 msgstr "توضیح"
 
-#: includes/Admin/StoreCopilotPage.php:151
+#: includes/Admin/StoreCopilotPage.php:153
 msgid "New product"
 msgstr "محصول تازه"
 
-#: includes/Admin/StoreCopilotPage.php:152
+#: includes/Admin/StoreCopilotPage.php:154
 msgid "What it can do"
 msgstr "چه کارهایی می‌تواند"
 
-#: includes/Admin/StoreCopilotPage.php:153
-#: includes/Admin/StoreCopilotPage.php:287
-#: includes/Admin/StoreCopilotPage.php:319
-#: includes/Admin/StoreCopilotPage.php:408
-#: includes/Admin/StoreCopilotPage.php:468
+#: includes/Admin/StoreCopilotPage.php:155
+#: includes/Admin/StoreCopilotPage.php:289
+#: includes/Admin/StoreCopilotPage.php:321
+#: includes/Admin/StoreCopilotPage.php:411
+#: includes/Admin/StoreCopilotPage.php:471
 msgid "Products"
 msgstr "محصولات"
 
-#: includes/Admin/StoreCopilotPage.php:154
+#: includes/Admin/StoreCopilotPage.php:156
 msgid "Descriptions"
 msgstr "توضیح‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:155
-#: includes/Admin/StoreCopilotPage.php:297
+#: includes/Admin/StoreCopilotPage.php:157
+#: includes/Admin/StoreCopilotPage.php:299
 msgid "Orders"
 msgstr "سفارش‌ها"
 
 #. translators: %s: WooCommerce installation URL.
-#: includes/Admin/StoreCopilotPage.php:177
+#: includes/Admin/StoreCopilotPage.php:179
 #, php-format
 msgid ""
 "WooCommerce is not active. Store Copilot cannot read products, orders, or "
@@ -6615,7 +6615,7 @@ msgstr ""
 "ووکامرس فعال نیست. تا فعال نشود، دستیار فروشگاه نمی‌تواند محصولات و سفارش‌ها"
 " را بخواند یا پیش‌نویس بسازد. <a href=\"%s\">نصب ووکامرس</a>."
 
-#: includes/Admin/StoreCopilotPage.php:188
+#: includes/Admin/StoreCopilotPage.php:190
 msgid ""
 "Your account does not have WooCommerce management access. Store Copilot "
 "remains read-only and cannot create a proposal."
@@ -6623,7 +6623,7 @@ msgstr ""
 "حساب شما دسترسی مدیریت ووکامرس ندارد. دستیار فروشگاه فقط‌خواندنی می‌ماند و "
 "نمی‌تواند پیشنهاد بسازد."
 
-#: includes/Admin/StoreCopilotPage.php:197
+#: includes/Admin/StoreCopilotPage.php:199
 msgid ""
 "The WooCommerce AI connector is paused. It cannot read store data or create "
 "a draft until you turn it on in What it can do."
@@ -6631,11 +6631,11 @@ msgstr ""
 "رابط هوش مصنوعی ووکامرس متوقف است. تا آن را در «چه کارهایی می‌تواند» روشن "
 "نکنید، نه داده‌های فروشگاه را می‌خواند و نه پیش‌نویس می‌سازد."
 
-#: includes/Admin/StoreCopilotPage.php:206
+#: includes/Admin/StoreCopilotPage.php:208
 msgid "Describe the product"
 msgstr "محصول را توصیف کنید"
 
-#: includes/Admin/StoreCopilotPage.php:207
+#: includes/Admin/StoreCopilotPage.php:209
 msgid ""
 "One product at a time. AutoPilot writes a proposal, you read it, and only "
 "then does it create a draft in WooCommerce."
@@ -6643,35 +6643,35 @@ msgstr ""
 "هر بار یک محصول. AutoPilot پیشنهاد می‌نویسد، شما آن را می‌خوانید و فقط پس از"
 " آن پیش‌نویس در ووکامرس ساخته می‌شود."
 
-#: includes/Admin/StoreCopilotPage.php:208
+#: includes/Admin/StoreCopilotPage.php:210
 msgid "Product draft prompt"
 msgstr "توضیح پیش‌نویس محصول"
 
-#: includes/Admin/StoreCopilotPage.php:209
+#: includes/Admin/StoreCopilotPage.php:211
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts..."
 msgstr "یک پیراهن کتان یقه‌کوبایی تابستانی، ۸۹ یورو، در دستهٔ پیراهن‌ها..."
 
-#: includes/Admin/StoreCopilotPage.php:211
+#: includes/Admin/StoreCopilotPage.php:213
 msgid "Write proposal"
 msgstr "نوشتن پیشنهاد"
 
-#: includes/Admin/StoreCopilotPage.php:213
+#: includes/Admin/StoreCopilotPage.php:215
 msgid "Nothing is written to your store at this step."
 msgstr "در این گام چیزی در فروشگاه شما نوشته نمی‌شود."
 
-#: includes/Admin/StoreCopilotPage.php:220
+#: includes/Admin/StoreCopilotPage.php:222
 msgid "Product examples"
 msgstr "نمونه‌های محصول"
 
-#: includes/Admin/StoreCopilotPage.php:221
+#: includes/Admin/StoreCopilotPage.php:223
 msgid "Try one of these"
 msgstr "یکی از این‌ها را امتحان کنید"
 
-#: includes/Admin/StoreCopilotPage.php:222
+#: includes/Admin/StoreCopilotPage.php:224
 msgid "A simple 500g organic Arabic coffee with a SKU and introductory price"
 msgstr "یک قهوهٔ عربی ارگانیک ساده ۵۰۰ گرمی با شناسهٔ کالا و قیمت معرفی"
 
-#: includes/Admin/StoreCopilotPage.php:222
+#: includes/Admin/StoreCopilotPage.php:224
 msgid ""
 "A simple 500g organic Arabic coffee, with a short description, SKU and "
 "introductory price."
@@ -6679,53 +6679,53 @@ msgstr ""
 "یک قهوهٔ عربی ارگانیک ساده ۵۰۰ گرمی، با توضیح کوتاه، شناسهٔ کالا و قیمت "
 "معرفی."
 
-#: includes/Admin/StoreCopilotPage.php:223
+#: includes/Admin/StoreCopilotPage.php:225
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts"
 msgstr "یک پیراهن کتان یقه‌کوبایی تابستانی، ۸۹ یورو، در دستهٔ پیراهن‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:223
+#: includes/Admin/StoreCopilotPage.php:225
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts."
 msgstr "یک پیراهن کتان یقه‌کوبایی تابستانی، ۸۹ یورو، در دستهٔ پیراهن‌ها."
 
-#: includes/Admin/StoreCopilotPage.php:224
+#: includes/Admin/StoreCopilotPage.php:226
 msgid "A simple ceramic travel mug with stock status"
 msgstr "یک ماگ سفری سرامیکی ساده با وضعیت موجودی"
 
-#: includes/Admin/StoreCopilotPage.php:224
+#: includes/Admin/StoreCopilotPage.php:226
 msgid ""
 "A simple ceramic travel mug, with a short description and stock status."
 msgstr "یک ماگ سفری سرامیکی ساده، با توضیح کوتاه و وضعیت موجودی."
 
-#: includes/Admin/StoreCopilotPage.php:230
+#: includes/Admin/StoreCopilotPage.php:232
 msgid "Proposal - read it before approving"
 msgstr "پیشنهاد — پیش از تأیید آن را بخوانید"
 
-#: includes/Admin/StoreCopilotPage.php:231
+#: includes/Admin/StoreCopilotPage.php:233
 msgid "Not created yet"
 msgstr "هنوز ساخته نشده"
 
-#: includes/Admin/StoreCopilotPage.php:237
+#: includes/Admin/StoreCopilotPage.php:239
 msgid "Approve - create the draft"
 msgstr "تأیید — ساخت پیش‌نویس"
 
-#: includes/Admin/StoreCopilotPage.php:238
+#: includes/Admin/StoreCopilotPage.php:240
 msgid "Propose again"
 msgstr "پیشنهاد دوباره"
 
-#: includes/Admin/StoreCopilotPage.php:240
+#: includes/Admin/StoreCopilotPage.php:242
 msgid "Creates a draft only. You publish it yourself."
 msgstr "فقط پیش‌نویس می‌سازد. انتشار با خود شماست."
 
-#: includes/Admin/StoreCopilotPage.php:251
+#: includes/Admin/StoreCopilotPage.php:253
 msgid "Activate WooCommerce before Store Copilot can make a proposal."
 msgstr "پیش از آنکه دستیار فروشگاه پیشنهاد بدهد، ووکامرس را فعال کنید."
 
-#: includes/Admin/StoreCopilotPage.php:254
+#: includes/Admin/StoreCopilotPage.php:256
 msgid ""
 "WooCommerce management access is required before a proposal can be approved."
 msgstr "برای تأیید پیشنهاد، دسترسی مدیریت ووکامرس لازم است."
 
-#: includes/Admin/StoreCopilotPage.php:257
+#: includes/Admin/StoreCopilotPage.php:259
 msgid ""
 "Turn on the WooCommerce AI connector in What it can do before writing a "
 "proposal."
@@ -6733,7 +6733,7 @@ msgstr ""
 "پیش از نوشتن پیشنهاد، رابط هوش مصنوعی ووکامرس را در «چه کارهایی می‌تواند» "
 "روشن کنید."
 
-#: includes/Admin/StoreCopilotPage.php:260
+#: includes/Admin/StoreCopilotPage.php:262
 msgid ""
 "Connect an AI provider in Setup before Store Copilot can write a proposal."
 msgstr ""
@@ -6741,106 +6741,106 @@ msgstr ""
 " مصنوعی وصل کنید."
 
 #. translators: %s: active WooCommerce version.
-#: includes/Admin/StoreCopilotPage.php:274
+#: includes/Admin/StoreCopilotPage.php:276
 #, php-format
 msgid "Active · %s"
 msgstr "فعال · %s"
 
-#: includes/Admin/StoreCopilotPage.php:282
+#: includes/Admin/StoreCopilotPage.php:284
 msgid "Phase 1 capabilities"
 msgstr "قابلیت‌های فاز ۱"
 
-#: includes/Admin/StoreCopilotPage.php:283
+#: includes/Admin/StoreCopilotPage.php:285
 msgid "What the connector is allowed to do today"
 msgstr "کارهایی که رابط امروز اجازه دارد انجام دهد"
 
-#: includes/Admin/StoreCopilotPage.php:289
+#: includes/Admin/StoreCopilotPage.php:291
 msgid "Read your products and categories"
 msgstr "خواندن محصولات و دسته‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:290
+#: includes/Admin/StoreCopilotPage.php:292
 msgid "Propose one simple product as a draft"
 msgstr "پیشنهاد یک محصول ساده به‌صورت پیش‌نویس"
 
-#: includes/Admin/StoreCopilotPage.php:291
-#: includes/Admin/StoreCopilotPage.php:292
 #: includes/Admin/StoreCopilotPage.php:293
-#: includes/Admin/StoreCopilotPage.php:300
-#: includes/Admin/StoreCopilotPage.php:301
-#: includes/Admin/StoreCopilotPage.php:489
+#: includes/Admin/StoreCopilotPage.php:294
+#: includes/Admin/StoreCopilotPage.php:295
+#: includes/Admin/StoreCopilotPage.php:302
+#: includes/Admin/StoreCopilotPage.php:303
+#: includes/Admin/StoreCopilotPage.php:492
 msgid "Phase 2"
 msgstr "فاز ۲"
 
-#: includes/Admin/StoreCopilotPage.php:291
+#: includes/Admin/StoreCopilotPage.php:293
 msgid "Publish a product"
 msgstr "انتشار محصول"
 
-#: includes/Admin/StoreCopilotPage.php:292
+#: includes/Admin/StoreCopilotPage.php:294
 msgid "Edit a product that already exists"
 msgstr "ویرایش محصول موجود"
 
-#: includes/Admin/StoreCopilotPage.php:293
+#: includes/Admin/StoreCopilotPage.php:295
 msgid "Change many products at once"
 msgstr "تغییر هم‌زمان چند محصول"
 
-#: includes/Admin/StoreCopilotPage.php:299
+#: includes/Admin/StoreCopilotPage.php:301
 msgid "Read a recent order summary as a store manager"
 msgstr "خواندن خلاصهٔ سفارش‌های اخیر به‌عنوان مدیر فروشگاه"
 
-#: includes/Admin/StoreCopilotPage.php:300
+#: includes/Admin/StoreCopilotPage.php:302
 msgid "Change an order"
 msgstr "تغییر سفارش"
 
-#: includes/Admin/StoreCopilotPage.php:301
+#: includes/Admin/StoreCopilotPage.php:303
 msgid "Issue a refund"
 msgstr "بازپرداخت وجه"
 
-#: includes/Admin/StoreCopilotPage.php:305
+#: includes/Admin/StoreCopilotPage.php:307
 msgid "Analytics"
 msgstr "آنالیتیکس"
 
-#: includes/Admin/StoreCopilotPage.php:307
+#: includes/Admin/StoreCopilotPage.php:309
 msgid "Read store analytics"
 msgstr "خواندن آمار فروشگاه"
 
-#: includes/Admin/StoreCopilotPage.php:317
+#: includes/Admin/StoreCopilotPage.php:319
 msgid "WooCommerce"
 msgstr "ووکامرس"
 
-#: includes/Admin/StoreCopilotPage.php:318
+#: includes/Admin/StoreCopilotPage.php:320
 msgid "Your access"
 msgstr "دسترسی شما"
 
-#: includes/Admin/StoreCopilotPage.php:320
+#: includes/Admin/StoreCopilotPage.php:322
 msgid "Categories"
 msgstr "دسته‌بندی‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:321
+#: includes/Admin/StoreCopilotPage.php:323
 msgid "Product tags"
 msgstr "برچسب‌های محصول"
 
-#: includes/Admin/StoreCopilotPage.php:322
+#: includes/Admin/StoreCopilotPage.php:324
 msgid "Always draft (fixed in Phase 1)"
 msgstr "همیشه پیش‌نویس (ثابت در فاز ۱)"
 
-#: includes/Admin/StoreCopilotPage.php:322
+#: includes/Admin/StoreCopilotPage.php:324
 msgid "Connector paused"
 msgstr "رابط متوقف است"
 
-#: includes/Admin/StoreCopilotPage.php:322
+#: includes/Admin/StoreCopilotPage.php:324
 msgid "Draft workflow"
 msgstr "روند پیش‌نویس"
 
-#: includes/Admin/StoreCopilotPage.php:329
+#: includes/Admin/StoreCopilotPage.php:331
 msgid "Off means no proposals, drafts, or Store Copilot reads."
 msgstr ""
 "خاموش یعنی نه پیشنهاد، نه پیش‌نویس و نه خواندن داده توسط دستیار فروشگاه."
 
-#: includes/Admin/StoreCopilotPage.php:329
+#: includes/Admin/StoreCopilotPage.php:331
 msgid "WooCommerce AI connector"
 msgstr "رابط هوش مصنوعی ووکامرس"
 
-#: includes/Admin/StoreCopilotPage.php:330
+#: includes/Admin/StoreCopilotPage.php:332
 msgid ""
 "Controls the protected Store search endpoint. It does not add a visitor-"
 "facing search interface."
@@ -6848,11 +6848,11 @@ msgstr ""
 "نقطهٔ دسترسی محافظت‌شدهٔ جست‌وجوی فروشگاه را کنترل می‌کند. رابط جست‌وجو برای"
 " بازدیدکنندگان اضافه نمی‌کند."
 
-#: includes/Admin/StoreCopilotPage.php:330
+#: includes/Admin/StoreCopilotPage.php:332
 msgid "Smart product search"
 msgstr "جست‌وجوی هوشمند محصول"
 
-#: includes/Admin/StoreCopilotPage.php:331
+#: includes/Admin/StoreCopilotPage.php:333
 msgid ""
 "Lets AutoPilot draft descriptions for products you already have. Each one "
 "waits for your approval, and Undo puts the old text back. Nothing else about"
@@ -6862,11 +6862,27 @@ msgstr ""
 "منتظر تأیید شماست و «واگرد» متن قبلی را برمی‌گرداند. چیز دیگری از محصول "
 "تغییر نمی‌کند."
 
-#: includes/Admin/StoreCopilotPage.php:331
+#: includes/Admin/StoreCopilotPage.php:333
 msgid "Product descriptions"
 msgstr "توضیح محصولات"
 
-#: includes/Admin/StoreCopilotPage.php:332
+#: includes/Admin/StoreCopilotPage.php:334
+msgid "Count carts"
+msgstr "شمارش سبدها"
+
+#: includes/Admin/StoreCopilotPage.php:334
+msgid ""
+"Counts, per day, how many carts are started and how many reach checkout, so "
+"Orders can show where shoppers stop. Only the two numbers are stored: no "
+"name, email, address, IP address or cart content. Store staff are not "
+"counted."
+msgstr ""
+"هر روز می‌شمارد چند سبد خرید ساخته شد و چند تا به تسویه‌حساب رسید، تا Orders"
+" نشان دهد خریداران کجا متوقف می‌شوند. فقط همین دو عدد ذخیره می‌شود: نه نام، "
+"نه ایمیل، نه نشانی، نه نشانی IP و نه محتوای سبد. کارکنان فروشگاه شمرده "
+"نمی‌شوند."
+
+#: includes/Admin/StoreCopilotPage.php:335
 msgid ""
 "Prices, stock, titles and every other field are reserved for Phase 2. They "
 "cannot be switched on yet."
@@ -6874,27 +6890,27 @@ msgstr ""
 "قیمت، موجودی، عنوان و هر فیلد دیگر برای فاز ۲ کنار گذاشته شده و هنوز قابل "
 "روشن کردن نیست."
 
-#: includes/Admin/StoreCopilotPage.php:332
+#: includes/Admin/StoreCopilotPage.php:335
 msgid "Product editing by AI"
 msgstr "ویرایش محصول با هوش مصنوعی"
 
-#: includes/Admin/StoreCopilotPage.php:333
+#: includes/Admin/StoreCopilotPage.php:336
 msgid "Always create as draft"
 msgstr "همیشه به‌صورت پیش‌نویس بساز"
 
-#: includes/Admin/StoreCopilotPage.php:333
+#: includes/Admin/StoreCopilotPage.php:336
 msgid "Fixed in Phase 1. Publishing stays a manual step."
 msgstr "در فاز ۱ ثابت است. انتشار یک گام دستی می‌ماند."
 
-#: includes/Admin/StoreCopilotPage.php:376
+#: includes/Admin/StoreCopilotPage.php:379
 msgid "No store-management access"
 msgstr "بدون دسترسی مدیریت فروشگاه"
 
-#: includes/Admin/StoreCopilotPage.php:409
+#: includes/Admin/StoreCopilotPage.php:412
 msgid "Read-only in Phase 1 - AutoPilot cannot edit what already exists"
 msgstr "فقط‌خواندنی در فاز ۱ — AutoPilot نمی‌تواند موارد موجود را ویرایش کند"
 
-#: includes/Admin/StoreCopilotPage.php:412
+#: includes/Admin/StoreCopilotPage.php:415
 msgid ""
 "Products become available here when WooCommerce and its AI connector are "
 "active."
@@ -6902,7 +6918,7 @@ msgstr ""
 "وقتی ووکامرس و رابط هوش مصنوعی آن فعال باشند، محصولات اینجا نمایش داده "
 "می‌شوند."
 
-#: includes/Admin/StoreCopilotPage.php:414
+#: includes/Admin/StoreCopilotPage.php:417
 msgid ""
 "No WooCommerce products were found yet. Drafts created by AutoPilot will be "
 "marked here."
@@ -6910,7 +6926,7 @@ msgstr ""
 "هنوز محصولی در ووکامرس پیدا نشد. پیش‌نویس‌هایی که AutoPilot بسازد اینجا "
 "علامت می‌خورند."
 
-#: includes/Admin/StoreCopilotPage.php:427
+#: includes/Admin/StoreCopilotPage.php:430
 msgid ""
 "Drafts AutoPilot created are marked. Everything else it can read but not "
 "touch until Phase 2."
@@ -6918,11 +6934,11 @@ msgstr ""
 "پیش‌نویس‌های ساخت AutoPilot علامت خورده‌اند. بقیه را تا فاز ۲ فقط می‌خواند و"
 " تغییر نمی‌دهد."
 
-#: includes/Admin/StoreCopilotPage.php:441
+#: includes/Admin/StoreCopilotPage.php:444
 msgid "Descriptions for products you already have"
 msgstr "توضیح برای محصولاتی که دارید"
 
-#: includes/Admin/StoreCopilotPage.php:442
+#: includes/Admin/StoreCopilotPage.php:445
 msgid ""
 "You approve each one. Only the description changes, and Undo puts the old "
 "text back."
@@ -6930,14 +6946,14 @@ msgstr ""
 "هر کدام را خودتان تأیید می‌کنید. فقط توضیح تغییر می‌کند و «واگرد» متن قبلی "
 "را برمی‌گرداند."
 
-#: includes/Admin/StoreCopilotPage.php:445
+#: includes/Admin/StoreCopilotPage.php:448
 msgid ""
 "Descriptions become available here when WooCommerce and its AI connector are"
 " active."
 msgstr ""
 "وقتی ووکامرس و اتصال هوش مصنوعی آن فعال باشند، توضیح‌ها اینجا در دسترس‌اند."
 
-#: includes/Admin/StoreCopilotPage.php:448
+#: includes/Admin/StoreCopilotPage.php:451
 msgid ""
 "Product descriptions are off. Turn them on under What it can do, then pick "
 "the products to write for here."
@@ -6945,43 +6961,44 @@ msgstr ""
 "توضیح محصولات خاموش است. آن را در «چه کارهایی می‌کند» روشن کنید و سپس "
 "محصولات را اینجا انتخاب کنید."
 
-#: includes/Admin/StoreCopilotPage.php:449
+#: includes/Admin/StoreCopilotPage.php:452
+#: includes/Admin/StoreCopilotPage.php:622
 msgid "Open What it can do"
 msgstr "باز کردن «چه کارهایی می‌کند»"
 
-#: includes/Admin/StoreCopilotPage.php:452
+#: includes/Admin/StoreCopilotPage.php:455
 msgid "Connect an AI service in Setup & Connection first."
 msgstr "اول در راه‌اندازی و اتصال یک سرویس هوش مصنوعی وصل کنید."
 
-#: includes/Admin/StoreCopilotPage.php:455
+#: includes/Admin/StoreCopilotPage.php:458
 msgid "Only products with a missing or short description"
 msgstr "فقط محصولات بدون توضیح یا با توضیح کوتاه"
 
-#: includes/Admin/StoreCopilotPage.php:457
+#: includes/Admin/StoreCopilotPage.php:460
 msgid "Tone"
 msgstr "لحن"
 
-#: includes/Admin/StoreCopilotPage.php:459
+#: includes/Admin/StoreCopilotPage.php:462
 msgid "Professional"
 msgstr "حرفه‌ای"
 
-#: includes/Admin/StoreCopilotPage.php:460
+#: includes/Admin/StoreCopilotPage.php:463
 msgid "Friendly"
 msgstr "صمیمی"
 
-#: includes/Admin/StoreCopilotPage.php:461
+#: includes/Admin/StoreCopilotPage.php:464
 msgid "Premium"
 msgstr "لوکس"
 
-#: includes/Admin/StoreCopilotPage.php:462
+#: includes/Admin/StoreCopilotPage.php:465
 msgid "Technical"
 msgstr "فنی"
 
-#: includes/Admin/StoreCopilotPage.php:465
+#: includes/Admin/StoreCopilotPage.php:468
 msgid "Write drafts"
 msgstr "نوشتن پیش‌نویس‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:471
+#: includes/Admin/StoreCopilotPage.php:474
 msgid ""
 "Up to 10 drafts at a time, one AI request each. A draft is valid for 15 "
 "minutes and is refused if someone changes that description meanwhile."
@@ -6989,11 +7006,11 @@ msgstr ""
 "هر بار حداکثر ۱۰ پیش‌نویس، هر کدام یک درخواست هوش مصنوعی. پیش‌نویس ۱۵ دقیقه "
 "اعتبار دارد و اگر کسی در این فاصله آن توضیح را تغییر دهد، پذیرفته نمی‌شود."
 
-#: includes/Admin/StoreCopilotPage.php:483
+#: includes/Admin/StoreCopilotPage.php:486
 msgid "What it may read from an order"
 msgstr "آنچه از یک سفارش می‌تواند بخواند"
 
-#: includes/Admin/StoreCopilotPage.php:484
+#: includes/Admin/StoreCopilotPage.php:487
 msgid ""
 "The current order route is protected for a store manager. A visitor-facing "
 "order lookup is not registered in this release."
@@ -7001,36 +7018,36 @@ msgstr ""
 "مسیر فعلی سفارش فقط برای مدیر فروشگاه محافظت شده است. جست‌وجوی سفارش برای "
 "بازدیدکنندگان در این نسخه ثبت نشده است."
 
-#: includes/Admin/StoreCopilotPage.php:486
+#: includes/Admin/StoreCopilotPage.php:489
 msgid "Read only"
 msgstr "فقط‌خواندنی"
 
-#: includes/Admin/StoreCopilotPage.php:486
+#: includes/Admin/StoreCopilotPage.php:489
 msgid "Recent order summary for a store manager"
 msgstr "خلاصهٔ سفارش‌های اخیر برای مدیر فروشگاه"
 
-#: includes/Admin/StoreCopilotPage.php:486
+#: includes/Admin/StoreCopilotPage.php:489
 msgid "Unavailable"
 msgstr "در دسترس نیست"
 
-#: includes/Admin/StoreCopilotPage.php:487
+#: includes/Admin/StoreCopilotPage.php:490
 msgid "Customer-facing order lookup"
 msgstr "جست‌وجوی سفارش برای مشتری"
 
-#: includes/Admin/StoreCopilotPage.php:487
-#: includes/Admin/StoreCopilotPage.php:488
+#: includes/Admin/StoreCopilotPage.php:490
+#: includes/Admin/StoreCopilotPage.php:491
 msgid "Not registered"
 msgstr "ثبت نشده"
 
-#: includes/Admin/StoreCopilotPage.php:488
+#: includes/Admin/StoreCopilotPage.php:491
 msgid "Order items, notes, or personal details"
 msgstr "اقلام سفارش، یادداشت‌ها یا اطلاعات شخصی"
 
-#: includes/Admin/StoreCopilotPage.php:489
+#: includes/Admin/StoreCopilotPage.php:492
 msgid "Change status, cancel, or refund"
 msgstr "تغییر وضعیت، لغو یا بازپرداخت"
 
-#: includes/Admin/StoreCopilotPage.php:493
+#: includes/Admin/StoreCopilotPage.php:496
 msgid ""
 "Changing an order status, cancelling, and refunding are not registered as "
 "Store Copilot routes in Phase 1. No prompt in this UI can trigger them."
@@ -7039,42 +7056,45 @@ msgstr ""
 " نشده‌اند. هیچ درخواستی در این رابط نمی‌تواند آن‌ها را اجرا کند."
 
 #. translators: %s: share of all checkouts in the period, as a percentage.
-#: includes/Admin/StoreCopilotPage.php:512
+#. translators: %s: share of carts started, as a percentage.
+#: includes/Admin/StoreCopilotPage.php:515
+#: includes/Admin/StoreCopilotPage.php:631
 #, php-format
 msgid "%s%%"
 msgstr "٪%s"
 
-#: includes/Admin/StoreCopilotPage.php:515
+#: includes/Admin/StoreCopilotPage.php:518
+#: includes/Admin/StoreCopilotPage.php:636
 msgid "Paid"
 msgstr "پرداخت‌شده"
 
-#: includes/Admin/StoreCopilotPage.php:515
+#: includes/Admin/StoreCopilotPage.php:518
 msgid ""
 "Processing, completed, on hold for an offline payment, or refunded later."
 msgstr ""
 "در حال انجام، تکمیل‌شده، در انتظار پرداخت آفلاین، یا بعداً بازپرداخت‌شده."
 
-#: includes/Admin/StoreCopilotPage.php:516
+#: includes/Admin/StoreCopilotPage.php:519
 msgid "Pending payment: the customer placed the order but never paid."
 msgstr "در انتظار پرداخت: مشتری سفارش را ثبت کرد اما هرگز پرداخت نکرد."
 
-#: includes/Admin/StoreCopilotPage.php:516
+#: includes/Admin/StoreCopilotPage.php:519
 msgid "Stopped at payment"
 msgstr "توقف در مرحلهٔ پرداخت"
 
-#: includes/Admin/StoreCopilotPage.php:517
+#: includes/Admin/StoreCopilotPage.php:520
 msgid "Payment failed"
 msgstr "پرداخت ناموفق"
 
-#: includes/Admin/StoreCopilotPage.php:517
+#: includes/Admin/StoreCopilotPage.php:520
 msgid "The payment provider declined or the payment did not go through."
 msgstr "درگاه پرداخت آن را رد کرد یا پرداخت انجام نشد."
 
-#: includes/Admin/StoreCopilotPage.php:518
+#: includes/Admin/StoreCopilotPage.php:521
 msgid "Cancelled"
 msgstr "لغوشده"
 
-#: includes/Admin/StoreCopilotPage.php:518
+#: includes/Admin/StoreCopilotPage.php:521
 msgid ""
 "Usually an unpaid order that WooCommerce cancelled when its held stock "
 "expired."
@@ -7082,29 +7102,29 @@ msgstr ""
 "معمولاً سفارشی پرداخت‌نشده که ووکامرس پس از پایان زمان نگه‌داری موجودی لغو "
 "کرده است."
 
-#: includes/Admin/StoreCopilotPage.php:523
+#: includes/Admin/StoreCopilotPage.php:526
 msgid "Checkout drop-off"
 msgstr "ریزش در تسویه‌حساب"
 
-#: includes/Admin/StoreCopilotPage.php:524
+#: includes/Admin/StoreCopilotPage.php:527
 msgid "Period"
 msgstr "بازه"
 
 #. translators: %s: number of days.
-#: includes/Admin/StoreCopilotPage.php:529
+#: includes/Admin/StoreCopilotPage.php:532
 #, php-format
 msgid "%s days"
 msgstr "%s روز"
 
 #. translators: %s: number of days.
-#: includes/Admin/StoreCopilotPage.php:542
+#: includes/Admin/StoreCopilotPage.php:546
 #, php-format
 msgid "No customer placed an order at checkout in the last %s days."
 msgstr "در %s روز گذشته هیچ مشتری‌ای در تسویه‌حساب سفارشی ثبت نکرده است."
 
 #. translators: 1: number of checkouts, 2: number of days, 3: percentage paid,
 #. 4: number not paid.
-#: includes/Admin/StoreCopilotPage.php:551
+#: includes/Admin/StoreCopilotPage.php:556
 #, php-format
 msgid "%1$s checkout in the last %2$s days: %3$s paid, %4$s not paid."
 msgid_plural "%1$s checkouts in the last %2$s days: %3$s paid, %4$s not paid."
@@ -7113,19 +7133,31 @@ msgstr[0] ""
 msgstr[1] ""
 "%1$s تسویه‌حساب در %2$s روز گذشته: %3$s پرداخت‌شده، %4$s پرداخت‌نشده."
 
-#: includes/Admin/StoreCopilotPage.php:575
+#: includes/Admin/StoreCopilotPage.php:580
 msgid "View orders"
 msgstr "دیدن سفارش‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:582
+#: includes/Admin/StoreCopilotPage.php:587
 msgid "Unpaid and failed checkouts by payment method"
 msgstr "تسویه‌حساب‌های پرداخت‌نشده و ناموفق بر اساس روش پرداخت"
 
-#: includes/Admin/StoreCopilotPage.php:589
+#: includes/Admin/StoreCopilotPage.php:594
 msgid "Based on the latest 200 unpaid and failed checkouts."
 msgstr "بر اساس ۲۰۰ تسویه‌حساب پرداخت‌نشده و ناموفق اخیر."
 
-#: includes/Admin/StoreCopilotPage.php:594
+#: includes/Admin/StoreCopilotPage.php:602
+msgid ""
+"Orders are those customers placed at checkout in this period, read from "
+"WooCommerce on this page; orders you add yourself are left out. Carts "
+"started and carts that reached checkout are counted by AutoPilot while Count"
+" carts is on, without anything about the shopper."
+msgstr ""
+"سفارش‌ها همان‌هایی هستند که مشتریان در این بازه در تسویه‌حساب ثبت کرده‌اند و"
+" همین‌جا از ووکامرس خوانده می‌شوند؛ سفارش‌هایی که خودتان اضافه می‌کنید شمرده"
+" نمی‌شوند. سبدهای ساخته‌شده و رسیده به تسویه‌حساب را AutoPilot تا وقتی "
+"«شمارش سبدها» روشن است می‌شمارد، بدون هیچ اطلاعاتی دربارهٔ خریدار."
+
+#: includes/Admin/StoreCopilotPage.php:604
 msgid ""
 "Counts orders that customers placed at checkout in this period, read from "
 "WooCommerce on this page. Orders you add yourself are left out, and carts "
@@ -7136,6 +7168,33 @@ msgstr ""
 "همین‌جا از ووکامرس خوانده می‌شوند. سفارش‌هایی که خودتان اضافه می‌کنید شمرده "
 "نمی‌شوند، و سبدهایی که پیش از تسویه‌حساب رها شده‌اند هم شمرده نمی‌شوند، چون "
 "ووکامرس آن‌ها را ثبت نمی‌کند."
+
+#: includes/Admin/StoreCopilotPage.php:621
+msgid ""
+"To also see carts that never reach checkout, turn on Count carts under What "
+"it can do."
+msgstr ""
+"برای دیدن سبدهایی که هرگز به تسویه‌حساب نمی‌رسند، «شمارش سبدها» را در What "
+"it can do روشن کنید."
+
+#: includes/Admin/StoreCopilotPage.php:634
+msgid "Carts started"
+msgstr "سبدهای ساخته‌شده"
+
+#: includes/Admin/StoreCopilotPage.php:635
+msgid "Reached checkout"
+msgstr "رسیده به تسویه‌حساب"
+
+#: includes/Admin/StoreCopilotPage.php:651
+msgid "Counting is on. Carts appear here once shoppers add something."
+msgstr ""
+"شمارش روشن است. وقتی خریداران چیزی به سبد اضافه کنند، اینجا دیده می‌شود."
+
+#. translators: %s: the date counting started.
+#: includes/Admin/StoreCopilotPage.php:656
+#, php-format
+msgid "Carts are counted since %s, so this period is not complete yet."
+msgstr "سبدها از %s شمرده می‌شوند، پس این بازه هنوز کامل نیست."
 
 #: includes/Admin/Ui.php:259
 msgid "Breadcrumb"
@@ -7479,15 +7538,15 @@ msgstr "لطفاً پیش از درخواست انتقال بعدی کمی صب�
 msgid "Please enter your name."
 msgstr "لطفاً نام خود را وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:219 includes/Core/Plugin.php:196
+#: includes/Api/ChatWidgetController.php:219 includes/Core/Plugin.php:198
 msgid "Please provide a valid email address."
 msgstr "لطفاً یک آدرس ایمیل معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:220 includes/Core/Plugin.php:197
+#: includes/Api/ChatWidgetController.php:220 includes/Core/Plugin.php:199
 msgid "Please enter a valid mobile number."
 msgstr "لطفاً یک شمارهٔ موبایل معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:221 includes/Core/Plugin.php:198
+#: includes/Api/ChatWidgetController.php:221 includes/Core/Plugin.php:200
 msgid "Please enter a valid website address."
 msgstr "لطفاً یک نشانی وب‌سایت معتبر وارد کنید."
 
@@ -8383,7 +8442,7 @@ msgid "Customer not found."
 msgstr "مشتری یافت نشد."
 
 #: includes/Connectors/WooCommerceAnalyticsSkill.php:398
-#: includes/Connectors/WooCommerceConnector.php:183
+#: includes/Connectors/WooCommerceConnector.php:187
 msgid "Uncategorized"
 msgstr "دسته‌بندی‌نشده"
 
@@ -8395,11 +8454,11 @@ msgstr "روش پرداختی انتخاب نشده"
 msgid "The order figures could not be read."
 msgstr "آمار سفارش‌ها خوانده نشد."
 
-#: includes/Connectors/WooCommerceConnector.php:184
+#: includes/Connectors/WooCommerceConnector.php:188
 msgid "Created by AutoPilot"
 msgstr "ساخته‌شده توسط AutoPilot"
 
-#: includes/Connectors/WooCommerceConnector.php:184
+#: includes/Connectors/WooCommerceConnector.php:188
 msgid "Existing product"
 msgstr "محصول موجود"
 
@@ -8681,23 +8740,23 @@ msgstr "وزن ارسال: %1$s %2$s"
 msgid "Categories: %s"
 msgstr "دسته‌ها: %s"
 
-#: includes/Core/Activator.php:31
+#: includes/Core/Activator.php:32
 msgid "AI Site Assistant AutoPilot requires PHP 8.1 or higher."
 msgstr "AI Site Assistant AutoPilot به PHP نسخهٔ ۸٫۱ یا بالاتر نیاز دارد."
 
-#: includes/Core/Activator.php:32
+#: includes/Core/Activator.php:33
 msgid "Plugin activation error"
 msgstr "خطای فعال‌سازی افزونه"
 
-#: includes/Core/Plugin.php:166
+#: includes/Core/Plugin.php:168
 msgid "Sources"
 msgstr "منابع"
 
-#: includes/Core/Plugin.php:170
+#: includes/Core/Plugin.php:172
 msgid "Stop waiting for the reply"
 msgstr "توقف انتظار برای پاسخ"
 
-#: includes/Core/Plugin.php:171
+#: includes/Core/Plugin.php:173
 msgid ""
 "You stopped waiting. The site may still finish this answer, but it will not "
 "appear here."
@@ -8705,53 +8764,53 @@ msgstr ""
 "شما منتظر نماندید. ممکن است سایت این پاسخ را تمام کند، ولی اینجا نشان داده "
 "نمی‌شود."
 
-#: includes/Core/Plugin.php:172
+#: includes/Core/Plugin.php:174
 msgid "Choose what you mean"
 msgstr "منظورتان را انتخاب کنید"
 
-#: includes/Core/Plugin.php:174
+#: includes/Core/Plugin.php:176
 msgid "Sent — we will be in touch."
 msgstr "ارسال شد — با شما تماس می‌گیریم."
 
-#: includes/Core/Plugin.php:175
+#: includes/Core/Plugin.php:177
 msgid "Could not send. Please try again."
 msgstr "ارسال نشد. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:176
+#: includes/Core/Plugin.php:178
 msgid "Sorry, I could not answer that."
 msgstr "متأسفم، نتوانستم به آن پاسخ دهم."
 
-#: includes/Core/Plugin.php:177
+#: includes/Core/Plugin.php:179
 msgid "Connection problem. Please try again."
 msgstr "مشکل در اتصال. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:178 includes/Frontend/ChatWidget.php:116
+#: includes/Core/Plugin.php:180 includes/Frontend/ChatWidget.php:116
 #: includes/Frontend/ChatWidget.php:117
 msgid "Full screen"
 msgstr "تمام‌صفحه"
 
-#: includes/Core/Plugin.php:179
+#: includes/Core/Plugin.php:181
 msgid "Exit full screen"
 msgstr "خروج از تمام‌صفحه"
 
-#: includes/Core/Plugin.php:180 includes/Frontend/ChatWidget.php:107
+#: includes/Core/Plugin.php:182 includes/Frontend/ChatWidget.php:107
 #: includes/Frontend/ChatWidget.php:108 includes/Frontend/ChatWidget.php:159
 msgid "Voice input"
 msgstr "ورودی صوتی"
 
-#: includes/Core/Plugin.php:183
+#: includes/Core/Plugin.php:185
 msgid "Microphone access was denied."
 msgstr "دسترسی به میکروفون داده نشد."
 
-#: includes/Core/Plugin.php:185
+#: includes/Core/Plugin.php:187
 msgid "Could not transcribe that. Please try again."
 msgstr "تبدیل صدا به متن ممکن نشد. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:188
+#: includes/Core/Plugin.php:190
 msgid "Transcribing your recording…"
 msgstr "در حال تبدیل صدای شما به متن…"
 
-#: includes/Core/Plugin.php:189
+#: includes/Core/Plugin.php:191
 msgid ""
 "Your words are in the message box. Check them, then press Send. Nothing was "
 "sent yet."
@@ -8759,23 +8818,23 @@ msgstr ""
 "گفتهٔ شما در کادر پیام است. آن را بررسی کنید و سپس «ارسال» را بزنید. هنوز "
 "چیزی ارسال نشده است."
 
-#: includes/Core/Plugin.php:190
+#: includes/Core/Plugin.php:192
 msgid "From"
 msgstr "منبع:"
 
-#: includes/Core/Plugin.php:191
+#: includes/Core/Plugin.php:193
 msgid "The assistant is writing a reply"
 msgstr "دستیار در حال نوشتن پاسخ است"
 
-#: includes/Core/Plugin.php:192
+#: includes/Core/Plugin.php:194
 msgid "Listening… tap the mic again to stop"
 msgstr "در حال شنیدن… برای توقف دوباره روی میکروفن بزنید"
 
-#: includes/Core/Plugin.php:194
+#: includes/Core/Plugin.php:196
 msgid "Listening…"
 msgstr "در حال گوش دادن..."
 
-#: includes/Core/Plugin.php:195
+#: includes/Core/Plugin.php:197
 msgid "Please fill this in."
 msgstr "لطفاً این را پر کنید."
 
@@ -8990,21 +9049,21 @@ msgstr "درگاه‌ها و تجمیع‌کننده‌ها"
 msgid "Custom endpoint"
 msgstr "endpoint سفارشی"
 
-#: includes/Core/Settings.php:706 includes/Core/WpConnectors.php:53
+#: includes/Core/Settings.php:708 includes/Core/WpConnectors.php:53
 #: includes/Core/WpConnectors.php:96 includes/Support/PrivacyTools.php:42
 #: includes/Support/PrivacyTools.php:56 includes/Support/PrivacyTools.php:176
 msgid "AI Site Assistant AutoPilot"
 msgstr "AI Site Assistant AutoPilot"
 
-#: includes/Core/Settings.php:707
+#: includes/Core/Settings.php:709
 msgid "AI Assistant"
 msgstr "دستیار AI"
 
-#: includes/Core/Settings.php:708
+#: includes/Core/Settings.php:710
 msgid "Hi! How can I help you?"
 msgstr "سلام! چطور می‌توانم کمکتان کنم؟"
 
-#: includes/Core/Settings.php:709
+#: includes/Core/Settings.php:711
 msgid "This conversation may be recorded to help our support team."
 msgstr "این گفت‌وگو ممکن است برای کمک به تیم پشتیبانی ما ثبت شود."
 

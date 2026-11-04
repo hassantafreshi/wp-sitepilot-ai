@@ -13,7 +13,8 @@
 	var settings = {
 		enabled: root.getAttribute( 'data-sp-store-enabled' ) === '1',
 		enable_search: root.getAttribute( 'data-sp-store-search' ) === '1',
-		enable_descriptions: root.getAttribute( 'data-sp-store-descriptions' ) === '1'
+		enable_descriptions: root.getAttribute( 'data-sp-store-descriptions' ) === '1',
+		cart_funnel: root.getAttribute( 'data-sp-store-cart-funnel' ) === '1'
 	};
 	var i18n = readJson( 'sp-store-i18n' );
 
@@ -231,6 +232,8 @@
 		settings.enabled = !! next.enabled;
 		settings.enable_search = !! next.enable_search;
 		settings.enable_descriptions = !! next.enable_descriptions;
+		settings.cart_funnel = !! next.cart_funnel;
+		root.setAttribute( 'data-sp-store-cart-funnel', settings.cart_funnel ? '1' : '0' );
 		root.setAttribute( 'data-sp-store-enabled', settings.enabled ? '1' : '0' );
 		root.setAttribute( 'data-sp-store-search', settings.enable_search ? '1' : '0' );
 		root.setAttribute( 'data-sp-store-descriptions', settings.enable_descriptions ? '1' : '0' );
@@ -260,7 +263,7 @@
 
 	function saveSetting( key ) {
 		if ( settingsBusy || ! Object.prototype.hasOwnProperty.call( settings, key ) ) { return; }
-		var previous = { enabled: settings.enabled, enable_search: settings.enable_search, enable_descriptions: settings.enable_descriptions };
+		var previous = { enabled: settings.enabled, enable_search: settings.enable_search, enable_descriptions: settings.enable_descriptions, cart_funnel: settings.cart_funnel };
 		settings[ key ] = ! settings[ key ];
 		applySettings( settings );
 		setSettingsBusy( true );

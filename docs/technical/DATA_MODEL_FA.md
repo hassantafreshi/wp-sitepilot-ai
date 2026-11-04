@@ -82,7 +82,7 @@
 | `aisaautopilot_kb_answer_cache` | کش پاسخ `ChatEngine`. با تغییر نسخهٔ دانش سایت باطل می‌شود. |
 | `aisaautopilot_logs` | حداکثر 200 رویداد. نوشتن زیر قفل `GET_LOCK` است و متن از `Redactor` می‌گذرد. |
 | `aisaautopilot_health_diagnostics` | نتیجهٔ امن آخرین اجرای Health |
-| `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema`، `aisaautopilot_form_outbox_schema` | نسخهٔ schema جدول‌های تازه، برای ساخت بدون فعال‌سازی دوباره |
+| `aisaautopilot_handoff_inbox_schema`، `aisaautopilot_widget_chat_schema`، `aisaautopilot_form_outbox_schema`، `aisaautopilot_cart_funnel_schema` | نسخهٔ schema جدول‌های تازه، برای ساخت بدون فعال‌سازی دوباره |
 | `aisaautopilot_kb_schema` | نسخهٔ ستون‌های `{prefix}aisaautopilot_kb`. وقتی برابر نسخهٔ کد است، `KnowledgeBase::ensure_schema()` هیچ `SHOW TABLES` یا `SHOW COLUMNS` اجرا نمی‌کند؛ پیش‌تر هر پرسش بازدیدکننده چهار پرس‌وجوی schema داشت. |
 | `aisaautopilot_kb_index_format` | قالب ایندکس پاره‌ها (`schema\|نسخهٔ متن\|ContentIndexer::FORMAT`). نابرابری یعنی بازسازی پس‌زمینه لازم است. |
 | `aisaautopilot_kb_rebuild` | مکان‌نمای cron `aisaautopilot_kb_rebuild` تا پایان بازسازی؛ سپس حذف می‌شود. |
@@ -111,6 +111,7 @@
 | `{prefix}aisaautopilot_widget_chats` | `id`، `session_token` (یکتا)، `messages`، `message_count`، `created_at`، `updated_at` | فقط وقتی ثبت گفت‌وگوی ویجت روشن است. |
 | `{prefix}aisaautopilot_handoffs` | `id`، `status`، `visitor_name`، `visitor_email`، `visitor_phone`، `visitor_website`، `messages`، `created_at`، `updated_at`، `archived_at` (NULL تا بایگانی) | صندوق انتقال. وضعیت‌ها در `HandoffInbox::STATUSES`. schema نسخهٔ 2 از ۲۰۲۶-۰۹-۱۶؛ `ensure_schema()` ستون‌های تازه را با `dbDelta` روی جدول موجود اضافه می‌کند. |
 | `{prefix}aisaautopilot_form_outbox` | `id`، `form_id`، `subject`، `body` (متن کامل ایمیل با پاسخ‌ها)، `headers` (JSON)، `attempts`، `last_error`، `created_at`، `updated_at` | پاسخ فرم بومی که ایمیلش فرستاده نشد (`Forms\FormOutbox`). فقط وقتی پر می‌شود که `forms_keep_undelivered` روشن باشد (پیش‌فرض خاموش). با ارسال موفق یا حذف مدیر پاک می‌شود و پاک‌سازی نگهداری ردیف‌های قدیمی‌تر از `undelivered_days` (پیش‌فرض ۳۰) را بر اساس `created_at` حذف می‌کند. cron `aisaautopilot_form_outbox_retry` پس از ۱۵ دقیقه و سپس ساعتی تا ۵ تلاش. |
+| `{prefix}aisaautopilot_cart_funnel` | `day` (DATE)، `stage` (`cart` یا `checkout`)، `hits`؛ کلید اصلی `(day, stage)` | شمار بی‌نام روزانهٔ سبدهای ساخته‌شده و رسیده به تسویه‌حساب (`Connectors\CartFunnel`). فقط وقتی پر می‌شود که `woocommerce.cart_funnel` روشن باشد (پیش‌فرض خاموش). هیچ دادهٔ خریدار ندارد؛ هر نشست ووکامرس با پرچم `aisaautopilot_funnel_*` در session خود ووکامرس یک بار برای هر گام شمرده می‌شود. افزایش اتمی با `INSERT … ON DUPLICATE KEY UPDATE`. روزهای قدیمی‌تر از ۱۲۰ روز در cron نگهداری روزانه حذف می‌شوند. |
 
 ## post typeها و actionها
 
@@ -131,7 +132,7 @@
 
 | دسته | موارد |
 |---|---|
-| جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_kb_chunks`، `{prefix}aisaautopilot_kb_terms`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats` ، `{prefix}aisaautopilot_handoffs` و `{prefix}aisaautopilot_form_outbox` (سه تای آخر دادهٔ بازدیدکننده دارند) |
+| جدول‌ها | `{prefix}aisaautopilot_kb`، `{prefix}aisaautopilot_kb_chunks`، `{prefix}aisaautopilot_kb_terms`، `{prefix}aisaautopilot_chats`، `{prefix}aisaautopilot_widget_chats` ، `{prefix}aisaautopilot_handoffs`، `{prefix}aisaautopilot_form_outbox` (این سه دادهٔ بازدیدکننده دارند) و `{prefix}aisaautopilot_cart_funnel` (فقط شمار بی‌نام) |
 | تنظیمات و اسرار | `aisaautopilot_settings`، `aisaautopilot_provider_key`، `aisaautopilot_embedding_key`، `aisaautopilot_handoff_secrets`، `aisaautopilot_wp_connector_key`، `aisaautopilot_provider_verified` |
 | لاگ و مصرف | `aisaautopilot_logs`، `aisaautopilot_usage_log`، `aisaautopilot_usage_totals`، `aisaautopilot_monthly_budget`، `aisaautopilot_usage_period`، `aisaautopilot_usage_period_contexts`، `aisaautopilot_usage_daily`، `aisaautopilot_usage_historical_totals`، `aisaautopilot_usage_historical_log`، `aisaautopilot_usage_period_archive`، `aisaautopilot_voice_usage_log` |
 | دانش سایت | `aisaautopilot_kb_gaps`، `aisaautopilot_kb_saved_answers`، `aisaautopilot_kb_answer_cache`، `aisaautopilot_kb_version`، `aisaautopilot_kb_index_format`، `aisaautopilot_kb_rebuild` |

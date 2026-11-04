@@ -31,6 +31,9 @@ if ( '' === $root || '' === $cli ) {
 	exit( 2 );
 }
 
+// The plugin's own tables, counted from Core\Network::TABLES so a new table needs no edit here.
+preg_match( '/public const TABLES = array\((.*?)\);/s', (string) file_get_contents( dirname( __DIR__ ) . '/includes/Core/Network.php' ), $aisaautopilot_tables );
+$table_count = substr_count( $aisaautopilot_tables[1] ?? '', '::' );
 $check = static function ( bool $ok, string $name, string $detail = '' ) use ( &$checks ): void {
 	$checks[] = array(
 		'ok'   => $ok,
@@ -71,8 +74,8 @@ $state = static function ( array $ids ) use ( $wp ): array {
 	return is_array( $decoded ) ? $decoded : array();
 };
 
-$set_up = static function ( array $site ): bool {
-	return 7 === ( $site['tables'] ?? 0 ) && in_array( 'aisaautopilot_site_setup', $site['options'] ?? array(), true ) && in_array( 'aisaautopilot_settings', $site['options'] ?? array(), true );
+$set_up = static function ( array $site ) use ( $table_count ): bool {
+	return $table_count === ( $site['tables'] ?? 0 ) && in_array( 'aisaautopilot_site_setup', $site['options'] ?? array(), true ) && in_array( 'aisaautopilot_settings', $site['options'] ?? array(), true );
 };
 
 $empty = static function ( array $site ): bool {
@@ -109,7 +112,7 @@ try {
 	$after     = $state( array( 1, $sites['a'], $sites['b'] ) );
 	$check(
 		0 === $code && $set_up( $after[1] ?? array() ) && $set_up( $after[ $sites['a'] ] ?? array() ) && $set_up( $after[ $sites['b'] ] ?? array() ),
-		'Network activation gives every site its seven tables and default settings, not only the main site',
+		'Network activation gives every site its ' . $table_count . ' tables and default settings, not only the main site',
 		$describe( $after )
 	);
 
@@ -176,7 +179,7 @@ try {
 	$uninstall();
 	$clean = $state( array( 1, $orphan_id, $sites['c'] ) );
 	$check(
-		7 === ( $orphaned[ $orphan_id ]['tables'] ?? 0 ) && $empty( $clean[1] ?? array() ) && $empty( $clean[ $orphan_id ] ?? array() ) && $empty( $clean[ $sites['c'] ] ?? array() ),
+		$table_count === ( $orphaned[ $orphan_id ]['tables'] ?? 0 ) && $empty( $clean[1] ?? array() ) && $empty( $clean[ $orphan_id ] ?? array() ) && $empty( $clean[ $sites['c'] ] ?? array() ),
 		'Uninstall also drops the tables a deleted site kept when the plugin was active on that site alone',
 		$describe( array( $orphaned, $clean ) )
 	);

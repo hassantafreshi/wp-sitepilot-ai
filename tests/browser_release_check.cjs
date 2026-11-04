@@ -1067,8 +1067,8 @@ async function storeCopilotHealthy( page ) {
 	check(
 		await page.locator( '[data-sp-store-capability-state]' ).count() === 9
 		&& await page.locator( '[data-sp-store-status-row]' ).count() === 6
-		&& await page.locator( '[data-sp-store-setting]' ).count() === 3,
-		'Store Copilot What it can do keeps the compact capability, status, and three-live-setting panels (connector, search, descriptions)'
+		&& await page.locator( '[data-sp-store-setting]' ).count() === 4,
+		'Store Copilot What it can do keeps the compact capability, status, and four-live-setting panels (connector, search, descriptions, count carts)'
 	);
 	const connector = page.locator( '[data-sp-store-setting="enabled"]' );
 	check( await connector.getAttribute( 'aria-checked' ) === 'true', 'Store Copilot browser fixture starts with the connector enabled' );

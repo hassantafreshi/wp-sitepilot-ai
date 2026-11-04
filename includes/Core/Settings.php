@@ -472,6 +472,8 @@ final class Settings {
 				'auto_draft'    => true,
 				'enable_search' => false,
 				'enable_edit'   => false,
+				// Anonymous daily counts of carts started and carts that reached checkout (Connectors\CartFunnel).
+				'cart_funnel'   => false,
 			),
 		);
 	}
