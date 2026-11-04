@@ -5,6 +5,7 @@
 - منبع شکاف‌ها: `docs/MOCKUP_FEATURE_GAP_REPORT_FA.md` بخش ۱ (ردیف‌های A-01 تا A-18، W-01، W-02، C-01 تا C-03 و E-01).
 - موکاپ‌ها: `mockups/design_handoff_admin_redesign/` (فقط‌خواندنی). قاب‌های گرفته‌شده: `test-artifacts/mockup-parity/mockup/`.
 - مرجع خط موکاپ به شکل `نام فایل:خط` و مرجع کد نسبت به ریشهٔ افزونه است. شمارهٔ خط‌ها مربوط به تاریخ نگارش است و T29 باید پیش از اجرا دوباره تأییدشان کند.
+- **T29 اجرا شد (۲۰۲۶-۱۱-۰۴):** مرجع‌های کد امروز، اصلاح‌های هر task، inventory REST و task تازهٔ T76 در **بخش ۸** آمده‌اند. جایی که بخش ۸ با مرجع کد بخش‌های ۴ و ۵ اختلاف دارد، بخش ۸ معتبر است.
 
 ## ۱. تصمیم معماری
 
@@ -50,7 +51,7 @@
 
 | Task | شکاف | کار | وابسته به | تصمیم | وضعیت |
 |---|---|---|---|---|---|
-| T29 | همه | ممیزی و تأیید D-13 | T14 | D-13 | منتظر |
+| T29 | همه | ممیزی و تأیید D-13 | T14 | D-13 | تکمیل ۲۰۲۶-۱۱-۰۴ (بخش ۸) |
 | T30 | A-05 | پرسش‌های بی‌پاسخ و «Write it» | T29 | D-22 | تکمیل ۲۰۲۶-۰۹-۱۶ (دستور مالک؛ همراه پاسخ ذخیره‌شده) |
 | T31 | A-18 | تشخیص افزونهٔ هم‌پوشان | T29 | — | منتظر |
 | T32 | A-14 | لحن Formal و Plain | T29 | — | منتظر |
@@ -64,7 +65,8 @@
 | T40 | C-01، C-02، C-03 | Form Composer مکالمه‌ای | T29 | — | منتظر |
 | T41 | A-17 | تأیید و Undo در Activity Log | T29 | — | منتظر |
 | T42 | A-06 (آمار) | «answered without you» | T29 | — | منتظر |
-| T43 | — | بستن S5-A | T30 تا T42 | — | منتظر |
+| T76 | A-19 | پیشنهاد رنگ از پالت قالب در تب Widget | T29 | — | منتظر (تعریف در T29، بخش ۸.۸) |
+| T43 | — | بستن S5-A | T30 تا T42 و T76 | — | منتظر |
 | T44 | A-03 | صف پایدار ایندکس | T25، T43 | D-07 | نیازمند تصمیم |
 | T45 | A-04 | منبع PDF و URL | T25، T43 | D-07، D-16 | نیازمند تصمیم |
 | T46 | A-07 | transportهای Phase 2 | T25، T43 | D-07 | نیازمند تصمیم |
@@ -90,6 +92,7 @@
   4. قاب‌های موکاپ مرتبط را از `test-artifacts/mockup-parity/mockup/` فهرست کن و قاب‌های ناموجود را با Playwright از `file://` بگیر (`admin-knowledge-*`، `admin-answers-*`، `admin-store-*`، `admin-studio-*`، `admin-logs-*`، `admin-integrations-conflict`، `admin-setup-3-ok-advanced`، `composer-*`، `widget-handoff-*`).
   5. فهرست افزونه‌های فعال سایت محلی را برای T31 ثبت کن (نوار کناری افزونه‌ای به نام Social Chat Buttons نشان می‌دهد؛ ممکن است مثبت واقعی باشد).
 - **گیت:** همهٔ ردیف‌های جدول نگاشت با مرجع تأییدشده؛ خط ژورنال با فهرست اصلاح‌ها؛ هیچ تغییر کد.
+- **وضعیت ۲۰۲۶-۱۱-۰۴: تکمیل.** نتیجه در بخش ۸. خط‌های موکاپ و قاب‌ها به‌دلیل نبودن فایل موکاپ در مخزن دوباره تأیید نشدند (بخش ۸.۲ و ۸.۴).
 
 ### T30 — S5.1 پرسش‌های بی‌پاسخ: دلیل، شمار و «Write it» (A-05)
 
@@ -370,3 +373,177 @@
 | D-17 | قرارداد draft-only ووکامرس برای Phase 2 باز شود؟ | پس از انتشار و هر قابلیت با بستهٔ امنیتی مستقل؛ شروع از ویرایش به‌صورت revision پیش‌نویس |
 | D-18 | وضعیت سفارش برای بازدیدکننده با چه احرازی؟ | ابتدا فقط مشتری واردشده؛ مهمان بعداً با شمارهٔ سفارش، ایمیل و rate limit |
 | D-19 | منبع قیمت و ایمیل سقف؟ | جدول قیمت قابل‌ویرایش بدون پیش‌فرض بسته‌بندی‌شده؛ ایمیل یک‌بار در هر دوره |
+
+---
+
+## ۸. نتیجهٔ T29 — ممیزی ۲۰۲۶-۱۱-۰۴
+
+- **مجری و روش:** هر ادعای «کد فعلی» در بخش‌های ۴ و ۵ و هر ردیف بخش ۱ گزارش شکاف روی کد HEAD (`569dd8a`) با Grep و خواندن فایل وارسی شد. سپس ادعاهای کلیدی دوباره با `sed -n` تأیید شدند: قفل Discord و Webhook، نبود caller برای `KnowledgeBase::search`، فهرست سفید `ActionStore::create`، هدر Reply-To و سقف توکن providerها. هیچ کد محصولی تغییر نکرد.
+- **حکم:** جایی که این بخش با مرجع‌های کد در بخش‌های ۴ و ۵ اختلاف دارد، **این بخش معتبر است**. شمارهٔ خط‌ها مربوط به همین تاریخ است.
+
+### ۸.۱ گام ۱: D-13
+
+D-13 بسته است: تأیید مالک در ۲۰۲۶-۰۹-۱۸ گزینهٔ (ب) بود، یعنی S5-A پس از انتشار. T25 در جدول صف `تکمیل` است، پس T29 اجراپذیر بود و متوقف نشد.
+
+### ۸.۲ گام ۲: ردیف‌های گزارش شکاف
+
+**محدودیت محیط:** فایل‌های موکاپ (`mockups/design_handoff_admin_redesign/*.dc.html`) و قاب‌های `test-artifacts/mockup-parity/mockup/` در این مخزن نیستند. در شاخهٔ `main` مخزن `hassantafreshi/sitepilot-ai` هم نیستند؛ این در ۲۰۲۶-۱۱-۰۴ با sparse clone بررسی شد. پس:
+- خط‌های موکاپ (`:331`، `:1543` و…) دوباره تأیید **نشدند** و همان مرجع ۲۰۲۶-۰۹-۱۵ ماندند؛
+- برچسب دقیق گزینه‌های `lengthOptions` برای T35 ثبت **نشد**.
+
+هر task که به این دو نیاز دارد، پیش از کار UI باید آن‌ها را روی ماشین مالک بگیرد، یا مالک فولدر موکاپ را در مخزن بگذارد. بخش کد کامل وارسی شد:
+
+| ردیف | نتیجه | مرجع کد امروز | چه عوض شده |
+|---|---|---|---|
+| A-01 | درست | قفل Reply length: `SettingsPage.php:912` تا `:918`. متن accordion در `:897`: «Temperature, reply length, semantic search». timeout: `ProviderManager.php:68` با پیش‌فرض 45. | کارت سقف ماهانه در `SettingsPage.php:952` تا `:972`. کلید `reply_length` و `request_timeout` نیست. |
+| A-02 | درست | قفل «Managed by index scope»: `KnowledgeBasePage.php:266`. ردیف‌ها `:243` تا `:268`. `ContentIndexer::get_indexable_types()` در `:496`. `kb_post_types` در `Settings.php:447`. | بازیابی گفتگو اکنون `KnowledgeSearch::retrieve` است (`includes/Content/KnowledgeSearch.php:60`، `rank` در `:153`، `fuse` در `:302`). `KnowledgeBase::search` (`KnowledgeBase.php:330`) هیچ caller ندارد. `VectorSearch` فقط fallback است (`ChatEngine.php:192` تا `:194`). |
+| A-03 | درست، با تکمیل | متن صادقانه: `KnowledgeBasePage.php:290`. «Resume indexing» پس از توقف سقف: `:543`. `/kb/index/batch`: `RestRoutes.php:449`. | cron بازسازی پایدار `aisaautopilot_kb_rebuild` با cursor و انتظار یک‌ساعته پس از سقف: `ContentHooks.php:59` تا `:90`، `KnowledgeIndex::REBUILD_OPTION`. فقط پس از تغییر قالب ایندکس اجرا می‌شود، نه برای اجرای مدیر. |
+| A-04 | درست | `KnowledgeBasePage.php:333` («Only the WordPress post types listed above are connected in this version.») | جدول chunks (`KnowledgeIndex.php:52` تا `:61`) ستون `source_type` ندارد. |
+| A-06 | درست | شمار رشته‌ها: `AnswerConversationsPage.php:154`. جدول: `VisitorConversationStore.php:30`. `append_turn`: `:48`. | ChatEngine علاوه بر `answered`، `clarify` و `not_found`، وضعیت‌های `error`، `not_configured` و `usage_cap_reached` هم دارد (`ChatEngine.php:68`). `append_turn` فقط پس از پاسخ موفق صدا زده می‌شود (`ChatWidgetController.php:105`). |
+| A-07 | **بیشتر منسوخ** | کانال‌های واقعی: WhatsApp Business (`AnswerDeskHandoffPage.php:307` تا `:360`)، Slack (`:363` تا `:389`)، Signal (`:392` تا `:441`؛ در موکاپ نیست). قفل‌مانده: Discord و Custom webhook (`:457`، `:458`). متن: `:460`. آزمون: دکمهٔ «Check connection» و `POST /widget/test/(whatsapp\|slack\|signal)` (`RestRoutes.php:803`). | قفل `:206` تا `:230` دیگر وجود ندارد. |
+| A-08 | درست | متن fan-out: `AnswerDeskHandoffPage.php:69`. `HandoffService::handoff()`: `HandoffService.php:21` تا `:71`. | fan-out اکنون ۶ کانال دارد: email، telegram، twilio، whatsapp، slack و signal (`:32` تا `:50`). صندوق با شکست همهٔ کانال‌ها `failed` می‌شود (`ChatWidgetController.php:259` تا `:266`). |
+| A-09 | درست | `AnswerDeskVoicePage.php:57` تا `:76` و `:102` تا `:105`. «Browser default»: `:91` و `:92`. | — |
+| A-10 | **بخشی منسوخ** | ردیف‌های Phase 2: `StoreCopilotPage.php:298` تا `:300` و `:307`، `:308`. قفل «Product editing by AI»: `:341`. | تب Descriptions (`:445` تا `:483`): توضیح بلند محصول موجود با پیش‌نویس AI، بازبینی، اعمال مستقیم و Undo از meta `_aisaautopilot_previous_description` (`ProductDescriptions.php:173` تا `:217`). متن تب Products هنوز می‌گوید هیچ محصول موجودی ویرایش نمی‌شود (`:418`، `:436`): **تناقض**؛ بخش ۸.۷. |
+| A-11 | درست | `StoreCopilotPage.php:306`، `:496`، `:499`. `/woocommerce/orders/recent`: `RestRoutes.php:326`. | — |
+| A-12 | درست | متن: `StoreCopilotPage.php:337`. `WooCommerceController::smart_search`: `WooCommerceController.php:84`. route: `RestRoutes.php:302` تا `:314`. | ایندکس KB محصولات را با `content_type` برابر `product` برچسب می‌زند (`ContentIndexer.php:468`، `:469`). |
+| A-13 | درست (عمدی) | `ContentDraftExecutor.php:54`، `ContentController.php:91`، `CopilotPage.php:330` | — |
+| A-14 | درست | چیپ‌های قفل: `CopilotPage.php:349`، `:350`. `/content/plan`: `RestRoutes.php:49` تا `:60`. | `ContentController::plan` علاوه بر `prompt`، `source_gap` هم می‌گیرد. الگوی لحن در Store Descriptions هست (`ProductDescriptions.php:30`). |
+| A-15 | درست | الگوها: `CopilotPage.php:403` تا `:425` (بدون شناسه؛ «Use template» متن brief را می‌فرستد: `ContentStudioNavigation.php:55` تا `:66`). «Template not recorded»: `ContentStudioReadModel.php:120`. | الگوی «Used %s times» در پاسخ‌های ذخیره‌شدهٔ KB هست (`KnowledgeBasePage.php:514` تا `:518`). |
+| A-16 | درست، با تکمیل | `UsagePage.php:9` تا `:12` و `:132`. `UsageTracker::get_report()`: `UsageTracker.php:233`. | Setup سقف ماهانهٔ پیشنهادی دارد، ولی برحسب توکن (`SettingsPage.php:950` تا `:973`). اعلان درون برنامه هست: بنر Overview (`HomePage.php:77` تا `:87`) و هشدار ۷۵٪ (`:310` تا `:322`). ایمیل سقف هنوز نیست. |
+| A-17 | درست | `LogsPage.php:44`، `ActivityTimeline.php:24` و `:175` تا `:209`. فقط `GET /activity` هست. | Undo توضیح محصول در Store هست، ولی Activity Log برای آن اقدامی ندارد. |
+| A-18 | درست | `Ui::banner()`: `Ui.php:404`. `IntegrationsPage.php` فقط بنر «همه خاموش» دارد (`:166`). | `ConflictDetector` وجود ندارد. |
+| A-19 | درست | `AnswerDeskWidgetPage.php:105` تا `:111`؛ آزمون `browser_release_check.cjs:569` | — |
+| W-01 | درست (D-02 بسته) | `#spw-voice`: `ChatWidget.php:106`. `#spw-mic`: `:159`. `startRecording`: `widget.js:827`. دروازهٔ `voice_disabled`: `PublicChatController.php:58`. | — |
+| W-02 | **بخشی منسوخ** | کارت: `ChatWidget.php:214` تا `:251`. `showHandoffCard`: `widget.js:923`. `requestHandoff`: `:1002`. `ChatWidgetController::handoff`: `:167`. | **Reply-To ساخته شده:** `HandoffService.php:131`، `:132` و `HandoffEmail.php:81` تا `:83`، با آزمون `wordpress_widget_handoff_flow_integration.php`. فیلدهای تماس (نام، ایمیل، تلفن، وب‌سایت) قابل تنظیم‌اند (`ChatWidget.php:263` تا `:286`). موتور می‌تواند خودش انتقال را پیشنهاد کند (`widget.js:560`). انتخاب کانال هنوز نیست. |
+| C-01 | **بخشی ساخته شده** | بازبینی با پیام: `form-builder.js:370` تا `:372` روی همان `POST /forms/plan` (`:386`). | «Back and edit» دیگر نیست. کلیک روی فیلد، چیپ «Editing» و `/forms/refine` هنوز نیستند. انتخاب فیلد با چیپ در EFB Copilot الگوی آماده است (`efb-copilot.js:204` تا `:277`). |
+| C-02 | **بخشی منسوخ** | `renderPlanCanvas`: `form-builder.js:193` تا `:220`. پیش‌نمایش فقط‌خواندنی: `:235` تا `:257`. نتیجه: `:259` تا `:291`. | تب‌های Preview و Structure حذف شدند؛ فهرست فیلدها کنار پیش‌نمایش است. |
+| C-03 | درست | `CopilotPage.php:115` تا `:123` | دیگر نوار ثابت نیست؛ فقط در حالت شروع دیده می‌شود و متنش «dates» را هم دارد. درخواست پیشرفته فقط از راه `notes` نوشتهٔ AI (`CreateFormSkill.php:49`) به گفتگو می‌رسد. |
+| E-01 | **بخشی منسوخ** | یک دکمهٔ ضبط: `#aisaautopilot-efb-voice` (`EfbBuilderButton.php:353`). `startVoice`: `efb-copilot.js:922` تا `:947`. | `aisaautopilot-efb-live-voice` دیگر نیست. متن زنده و سپس transcript سرور در composer، بدون ارسال خودکار (`:909`). |
+| X-04 | متن منسوخ، اختلاف پابرجا | `CopilotPage.php:81`: «Simple forms, emailed to you. Describe one, check the plan, then create it.» | — |
+
+### ۸.۳ گام ۳: inventory REST و برخورد route
+
+`rest_get_server()->get_routes()` روی WordPress 7.1.3 با WooCommerce 11.2.1 و EFB 4.3.1 فعال، **۷۶ route** زیر `aisaautopilot/v1` داشت (بدون ریشهٔ namespace). هیچ‌یک از routeهای تازهٔ این بسته با route موجود برخورد ندارد:
+
+| route تازه | task | وضعیت |
+|---|---|---|
+| `POST /integrations/conflicts/dismiss` | T31 | آزاد |
+| `GET/POST /content/templates` و `DELETE /content/templates/(?P<id>…)` | T34 | آزاد |
+| `POST /kb/collections` و `POST /kb/collections/add` | T36 | آزاد |
+| `POST /forms/refine` | T40 | آزاد |
+| `POST /activity/undo` و `POST /activity/restore` | T41 | آزاد؛ `GET /activity` جداست و تداخلی ندارد |
+
+routeهای تازه از ۲۰۲۶-۰۹-۱۵ که planها باید بدانند:
+- `/forms/outbox/{id}/resend` و `/forms/outbox/{id}/delete`
+- `/forms/delivery/test`
+- `/handoff/visitor-fields`
+- `/handoffs/*`
+- `/kb/answers` و `/kb/answers/delete`
+- `/privacy/retention/run`
+- `/usage/budget`
+- `/widget/test/(whatsapp|slack|signal)`
+- `/woocommerce/descriptions` (به‌همراه `/draft`، `/apply` و `/undo`)
+- `/woocommerce/carts/{id}/remind` و `/woocommerce/carts/{id}/delete`
+- `/woocommerce/analytics/dashboard`
+
+### ۸.۴ گام ۴: قاب‌های موکاپ
+
+فهرست و گرفتن قاب‌ها در این محیط شدنی نبود، چون فایل‌های موکاپ نیستند (بخش ۸.۲). قاب‌های مورد نیاز همان فهرست گام ۴ است. هر task که UI می‌سازد (T31 تا T42 و T76)، پیش از کار browser، قاب خودش را روی ماشین مالک بگیرد.
+
+### ۸.۵ گام ۵: افزونه‌های فعال برای T31
+
+سایت آزمایشی محیط ابری (WordPress 7.1.3): `ai-site-assistant-autopilot` 0.0.1، `easy-form-builder` 4.3.1، `woocommerce` 11.2.1 و `plugin-check` 2.1.0. هیچ‌کدام افزونهٔ چت یا دستیار AI هم‌پوشان نیستند، پس browser check T31 در این محیط حالت «بدون تداخل» را می‌آزماید. حالت مثبت باید با fixture یا `pre_option_active_plugins` آزموده شود.
+
+افزونهٔ Social Chat Buttons که سایت محلی مالک (XAMPP) نشان می‌داد، اینجا وارسی نشد. T31 slug آن را روی ماشین مالک یا از صفحهٔ WordPress.org تأیید کند.
+
+### ۸.۶ اصلاح planها
+
+**S5-A:**
+
+- **T31:** بدون تغییر.
+- **T32:**
+  - `ContentController::plan` اکنون `prompt` و `source_gap` می‌گیرد.
+  - `ActionStore::create` فقط `status` و `source_gap` را در `execution_context` نگه می‌دارد (`ActionStore.php:42` تا `:48`). `tone` بدون افزودن به این فهرست سفید دور ریخته می‌شود؛ این تغییر بخشی از T32 است.
+  - واژه‌های لحن با واژه‌های Store Descriptions (`ProductDescriptions.php:30`) هماهنگ شوند، یا اختلاف ثبت شود.
+- **T33:**
+  - الگوها در `CopilotPage.php:403` تا `:425` هستند، نه `:344` تا `:368`.
+  - «Use template» متن brief را می‌فرستد، نه شناسه را.
+  - `template_id` هم به همان فهرست سفید `ActionStore` نیاز دارد.
+  - رشته‌های جمع «Used %s times» و «Not used yet» از KB قابل استفاده‌اند.
+- **T34:** بدون تغییر.
+- **T35:**
+  - کنترل قفل در `SettingsPage.php:912` است.
+  - «رفتار فعلی» یکسان نیست: Anthropic همیشه `max_tokens` 8192 می‌فرستد (`AnthropicProvider.php:32`، `:196`)، ولی `OpenAiCompatibleProvider` در گفتگو `max_tokens` نمی‌فرستد. پس گزینهٔ پیش‌فرض «Standard» یعنی «همان سقف هر provider». برای OpenAI-compatible یعنی نفرستادن `max_tokens`، وگرنه رفتار عوض می‌شود.
+  - fallback `max_completion_tokens` از پیش هست (`:389` تا `:391`).
+  - `ProviderInterface` پارامتر سقف توکن ندارد، پس امضای آن تغییر می‌کند.
+  - فهرست مدل‌ها اکنون `min( 20, $timeout )` است.
+  - متن accordion در `:897` واژهٔ «timeout» را ندارد.
+- **T36:**
+  - وزن‌دهی و کنار گذاشتن نوع خاموش باید در `KnowledgeSearch::rank` و `fuse` و مسیر semantic آن (`:276` تا `:283`) انجام شود، نه در `KnowledgeBase::search` که caller ندارد.
+  - جدول‌های chunks و terms ستون `post_type` ندارند. فیلتر یا با join روی post، یا با ستون تازه و افزایش `KnowledgeIndex` SCHEMA_VERSION و بازسازی انجام شود. این تصمیم در خود T36 گرفته و ثبت شود.
+  - `get_indexable_types()` در `ContentIndexer.php:496` و `kb_post_types` در `Settings.php:447` است.
+- **T37:**
+  - `handoff_order` باید `telegram`، `twilio`، `whatsapp`، `slack` و `signal` را بپذیرد و با `AdminHandoffSettingsController::ENABLE_KEYS` اعتبارسنجی شود.
+  - Email اکنون اولین عضو آرایهٔ fan-out است و در حالت `ordered` باید به انتها برود.
+  - قاعدهٔ پذیرش برای کانال‌های تازه: WhatsApp پاسخ 2xx همراه `messages[0].id` (`HandoffWhatsApp.php:223`)، Slack پاسخ 200 (`HandoffSlack.php:139`) و Signal پاسخ 2xx (`HandoffSignal.php:104`).
+  - گام ۳ (`failed` در صندوق) از پیش ساخته شده است.
+- **T38:**
+  - گام ۱ backend، یعنی هدر Reply-To، **از پیش ساخته شده** و حذف می‌شود.
+  - کار باقی‌مانده:
+    - دکمهٔ «Email me a reply» با ایمیل الزامی؛
+    - `handoff_telegram_public_url` و دکمهٔ Telegram؛
+    - `contact_method` در صندوق.
+  - کارت تازه باید با فیلدهای تماس قابل تنظیم (`handoff_asks`) و پیشنهاد خودکار انتقال (`handoff_offer`) سازگار بماند.
+  - مرجع‌ها همان مرجع‌های ردیف W-02 در بخش ۸.۲ است.
+- **T39:**
+  - برچسب `content_type` برابر `product` در ایندکس KB از پیش هست و کارت محصول می‌تواند روی آن بنا شود.
+  - منابع ChatEngine فعلاً `post_id`، `title`، `url` و `relevance` دارند (`ChatEngine.php:55`).
+- **T40:**
+  - بازبینی با پیام (C-01، بخشی) روی `/forms/plan` ساخته شده است. `/forms/refine` همچنان کار تازه است.
+  - دو پیش‌نیاز تازه:
+    1. `CopilotController::build_preview` (`CopilotController.php:269` تا `:293`) `key`، `help`، `placeholder` و `width` فیلد را دور می‌ریزد. `field_refs` به `key` نیاز دارد. بازبینی فعلی با پیام هم متن راهنما را به مدل برنمی‌گرداند و ممکن است آن را گم کند.
+    2. هر بازبینی proposal تازه می‌سازد و proposal قبلی تا پایان TTL پانزده‌دقیقه‌ای روی سرور قابل تأیید می‌ماند. فقط دکمه‌اش در مرورگر غیرفعال می‌شود. `/forms/refine` باید token قبلی را باطل کند.
+  - مرجع‌های `form-builder.js` با بخش ۸.۲ جایگزین شوند.
+  - آزمون freeze بازبینی در `browser_release_check.cjs:1451` تا `:1616` است.
+  - کلیدهای i18n مرده: `backAndEdit` (`CopilotPage.php:504`) و `structure` (`:483`).
+- **T41:**
+  - `ActionStore` فهرست یا index ندارد؛ proposalها transient جدا با TTL پانزده‌دقیقه هستند (`ActionStore.php:15`، `:26`، `:59`). `PendingApprovals` به index تازه نیاز دارد.
+  - اقدام «Restore previous description» برای رویداد `store.description_applied` از مسیر Undo موجود (`/woocommerce/descriptions/undo`) کم‌هزینه است.
+- **T42:**
+  - `outcome` برابر `error` هرگز نوشته نمی‌شود، چون نوبت ناموفق ثبت نمی‌شود. فقط `answered`، `not_found` و `clarify`.
+  - علامت `handoff` را می‌توان در `/widget/handoff` با `conversation_id` موجود گذاشت (`ChatWidgetController.php:202`).
+  - نگهداری پیش‌فرض گفتگو ۳۰ روز است (`Retention.php:36`) و برای آمار «امروز» کافی است.
+- **T76 (تازه):** A-19، یعنی «Match my theme colours». گزارش شکاف تعیین task آن را به T29 سپرده بود؛ بخش ۸.۸.
+
+**S5-B (فقط اصلاح مرجع؛ همچنان `نیازمند تصمیم`):**
+
+- **T44:** cron بازسازی `aisaautopilot_kb_rebuild` با cursor و توقف سقف (`ContentHooks.php:59` تا `:90`) الگوی آماده است. صف تازه نباید هم‌زمان با آن اجرا شود.
+- **T45:** `source_type` و `source_ref` باید روی جدول‌های chunks و terms هم بیایند (افزایش schema).
+- **T46:** دامنه به **Discord و Custom webhook** کوچک شد، چون WhatsApp Business و Slack ساخته شده‌اند و Signal افزوده شده است. دکمهٔ آزمون «Check connection» است، نه «Send a test post»: یا اختلاف عمدی ثبت شود یا متن عوض شود.
+- **T47:** مرجع‌های transcript-first عبارت‌اند از `widget.js:827` تا `:902` و `efb-copilot.js:909` تا `:947`.
+- **T48:**
+  - ویرایش توضیح بلند محصول موجود (مستقیم، با Undo و بدون revision) از پیش ساخته شده است.
+  - دامنهٔ باقی: قیمت، موجودی، عنوان و فیلدهای دیگر، انتشار، تغییر سفارش و بازپرداخت.
+  - `WooCommerceOrderController` برای `recent` ثبت شده و `update_status` و `refund` آن route ندارند. `WooCommerceContentController` ثبت نشده است.
+- **T49:** route در `RestRoutes.php:326` و متن در `StoreCopilotPage.php:306` است.
+- **T50:**
+  - `UsageTracker.php:233`.
+  - سقف Setup و بنر Overview از پیش هستند؛ فقط ایمیل و نقشهٔ قیمت باقی است.
+  - تناقض متنی: Setup می‌گوید «every AI feature pauses» (`SettingsPage.php:962`)، ولی Usage می‌گوید «only requests covered by this token cap pause» (`UsagePage.php:89`). بخش ۸.۷.
+- **T51 و T52:** بدون تغییر.
+
+### ۸.۷ یافته‌های جانبی (خارج از دامنهٔ T29؛ برای تصمیم مالک)
+
+| # | یافته | شدت | پیشنهاد |
+|---|---|---|---|
+| F-1 | تب Products در Store Copilot می‌گوید «Read-only in Phase 1 - AutoPilot cannot edit what already exists» و «can read but not touch until Phase 2» (`StoreCopilotPage.php:418`، `:436`). از زمان قابلیت Descriptions (۲۰۲۶-۱۱-۰۴) این دقیق نیست. ردیف‌های «Edit a product that already exists» و «Change many products at once» (`:299`، `:300`) هم استثنای توضیح را نمی‌گویند. | متوسط: متن نادرست در UI | اصلاح متن با ذکر استثنای توضیح بلند، ترجمهٔ فارسی و آزمون |
+| F-2 | پس از بازبینی طرح فرم با پیام، proposal قبلی تا ۱۵ دقیقه روی سرور قابل اجراست و فقط مرورگر دکمه‌اش را غیرفعال می‌کند. | کم: فقط مدیر و فقط طرحی که خودش دیده | باطل کردن token قبلی در T40 |
+| F-3 | بازبینی با پیام، متن راهنما و placeholder فیلدها را به مدل نمی‌فرستد (`build_preview`) و ممکن است در طرح تازه گم شوند. | کم | در T40 |
+| F-4 | تناقض متن سقف مصرف بین Setup (`SettingsPage.php:962`) و Usage (`UsagePage.php:89`) | کم | یکسان کردن متن |
+| F-5 | کد مرده: `KnowledgeBase::search` (بدون caller) و کلیدهای i18n `backAndEdit` و `structure` | کم | حذف در یک کار پاک‌سازی |
+
+### ۸.۸ تعیین task برای A-19
+
+A-19 («Match my theme colours») task نداشت. **T76** در S5-A تعریف می‌شود: وابسته به T29، پیش از T43 و بدون تصمیم مالک، چون قرارداد را نمی‌شکند.
+- **کار:** پالت قالب از `wp_get_global_settings( array( 'color', 'palette' ) )` (theme و default) خوانده می‌شود و در تب Widget به‌صورت پیشنهاد رنگ، کنار رنگ‌های برند، نمایش داده می‌شود. انتخاب یک رنگ فقط فرم را پر می‌کند و ذخیره همچنان با دکمهٔ Save همان صفحه است. قالب بدون پالت با متن صادقانه و قفل فعلی می‌ماند.
+- **گیت:** integration با فیلتر `wp_theme_json_data_theme` برای پالت ساختگی و حالت بدون پالت. browser در en/fa و 390 با keyboard. آزمون `browser_release_check.cjs:569` به‌روز شود.
