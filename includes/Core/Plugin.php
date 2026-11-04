@@ -14,6 +14,7 @@ use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Content\ContentHooks;
 use AISAAutoPilot\Efb\EfbBuilderButton;
 use AISAAutoPilot\Connectors\CartFunnel;
+use AISAAutoPilot\Connectors\CartRecovery;
 use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Frontend\ChatWidget;
 use AISAAutoPilot\Frontend\FormShortcode;
@@ -63,6 +64,7 @@ final class Plugin {
 		( new Retention() )->register();
 		( new FormOutbox() )->register();
 		( new CartFunnel() )->register();
+		( new CartRecovery() )->register();
 		( new Network() )->register();
 
 		/*

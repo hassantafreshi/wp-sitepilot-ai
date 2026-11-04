@@ -9,6 +9,7 @@ use AISAAutoPilot\Connectors\NativeFormConnector;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Content\KnowledgeIndex;
 use AISAAutoPilot\Connectors\CartFunnel;
+use AISAAutoPilot\Connectors\CartRecovery;
 use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Support\HandoffInbox;
 
@@ -20,7 +21,7 @@ final class Activator {
 	/** Records that this site has the plugin's tables and default settings. */
 	public const SITE_OPTION = 'aisaautopilot_site_setup';
 
-	private const SITE_VERSION = '3';
+	private const SITE_VERSION = '4';
 
 	/**
 	 * @param bool $network_wide True when a multisite network administrator activates the plugin for every site.
@@ -90,6 +91,8 @@ final class Activator {
 		FormOutbox::ensure_schema();
 		// Anonymous cart counts, used only when the store manager turns "Count carts" on.
 		CartFunnel::ensure_schema();
+		// Abandoned carts with an email, used only when the store manager turns reminders on.
+		CartRecovery::ensure_schema();
 
 		update_option( self::SITE_OPTION, self::SITE_VERSION, true );
 	}

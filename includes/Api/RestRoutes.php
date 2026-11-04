@@ -699,6 +699,25 @@ final class RestRoutes {
 				)
 			);
 		}
+		// Abandoned-cart reminders: the store manager sends the one reminder or deletes a cart.
+		$carts = new CartRecoveryController();
+		foreach ( array( 'remind', 'delete' ) as $cart_action ) {
+			register_rest_route(
+				self::NAMESPACE,
+				'/woocommerce/carts/(?P<id>\d+)/' . $cart_action,
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $carts, $cart_action ),
+					'permission_callback' => array( $this, 'can_manage_woocommerce' ),
+					'args'                => array(
+						'id' => array(
+							'type'     => 'integer',
+							'required' => true,
+						),
+					),
+				)
+			);
+		}
 		register_rest_route(
 			self::NAMESPACE,
 			'/woocommerce/admin-settings',

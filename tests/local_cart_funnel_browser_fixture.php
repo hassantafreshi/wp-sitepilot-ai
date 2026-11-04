@@ -1,6 +1,6 @@
 <?php
 /**
- * Fixture for tests/cart_funnel_browser_matrix.cjs. `prepare` creates a product, turns
+ * Fixture for tests/cart_funnel_browser_matrix.cjs. `prepare` turns WooCommerce's Coming soon mode off, creates a product, turns
  * Count carts off (the test turns it on in the UI) and empties the counts; `status`
  * prints the counts for the last 7 days; `restore` puts back the settings, the counts
  * and removes the product. Needs WooCommerce active.
@@ -27,6 +27,7 @@ if ( 'prepare' === $mode ) {
 		$state = array(
 			'settings' => get_option( Settings::OPTION ),
 			'rows'     => $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- test fixture.
+			'coming_soon' => get_option( 'woocommerce_coming_soon', null ),
 		);
 		$product = new WC_Product_Simple();
 		$product->set_name( 'QA Funnel Mug' );
@@ -36,6 +37,8 @@ if ( 'prepare' === $mode ) {
 	}
 	$wpdb->query( "DELETE FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- test fixture.
 	Settings::update( array( 'woocommerce' => array( 'enabled' => true, 'auto_draft' => true, 'enable_search' => false, 'enable_edit' => false, 'enable_descriptions' => false, 'cart_funnel' => false ) ) );
+	// Shoppers must reach the real checkout, not WooCommerce's Coming soon page.
+	update_option( 'woocommerce_coming_soon', 'no' );
 	update_option( $state_option, $state, false );
 	echo wp_json_encode( array( 'product' => $state['product'], 'checkout' => wc_get_checkout_url() ) ) . PHP_EOL;
 	exit( 0 );
@@ -55,6 +58,11 @@ if ( 'restore' === $mode ) {
 		$wpdb->query( "DELETE FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- test fixture.
 		foreach ( (array) $state['rows'] as $row ) {
 			$wpdb->insert( $table, $row );
+		}
+		if ( null === ( $state['coming_soon'] ?? null ) ) {
+			delete_option( 'woocommerce_coming_soon' );
+		} else {
+			update_option( 'woocommerce_coming_soon', $state['coming_soon'] );
 		}
 		delete_option( $state_option );
 	}

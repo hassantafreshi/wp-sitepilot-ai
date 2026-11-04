@@ -5,6 +5,7 @@ namespace AISAAutoPilot\Support;
 
 use AISAAutoPilot\Chat\ConversationManager;
 use AISAAutoPilot\Chat\VisitorConversationStore;
+use AISAAutoPilot\Connectors\CartRecovery;
 use AISAAutoPilot\Forms\FormOutbox;
 use AISAAutoPilot\Forms\Turnstile;
 
@@ -125,6 +126,36 @@ final class PrivacyTools {
 					),
 				);
 			}
+			foreach ( ( new CartRecovery() )->rows_for_email( $email ) as $row ) {
+				$items[] = array(
+					'group_id'          => 'aisaautopilot-carts',
+					'group_label'       => __( 'Abandoned carts', 'ai-site-assistant-autopilot' ),
+					'group_description' => __( 'Carts kept after checkout was left, with the email typed there, so the store could send one reminder.', 'ai-site-assistant-autopilot' ),
+					'item_id'           => 'aisaautopilot-cart-' . $row['id'],
+					'data'              => array_values(
+						array_filter(
+							array(
+								$this->pair( __( 'Email address', 'ai-site-assistant-autopilot' ), $row['email'] ),
+								$this->pair(
+									__( 'Products', 'ai-site-assistant-autopilot' ),
+									implode(
+										', ',
+										array_map(
+											static function ( array $item ): string {
+												return $item['quantity'] . ' × ' . $item['name'];
+											},
+											$row['items']
+										)
+									)
+								),
+								$this->pair( __( 'Total', 'ai-site-assistant-autopilot' ), number_format_i18n( $row['total'], 2 ) . ' ' . $row['currency'] ),
+								$this->pair( __( 'Last change', 'ai-site-assistant-autopilot' ), $row['updated_at'] ),
+								$this->pair( __( 'Reminder sent', 'ai-site-assistant-autopilot' ), $row['reminded_at'] ),
+							)
+						)
+					),
+				);
+			}
 		}
 
 		return array(
@@ -157,6 +188,10 @@ final class PrivacyTools {
 			foreach ( $outbox->rows_for_email( $email ) as $row ) {
 				$removed += $outbox->delete( $row['id'] ) ? 1 : 0;
 			}
+			$carts = new CartRecovery();
+			foreach ( $carts->rows_for_email( $email ) as $row ) {
+				$removed += $carts->delete( $row['id'] ) ? 1 : 0;
+			}
 		}
 
 		return array(
@@ -186,6 +221,9 @@ final class PrivacyTools {
 			self::retention_text(),
 			FormOutbox::enabled()
 				? __( 'Answers sent with a form on this site are emailed to the team. If that email cannot be sent, the answers are kept on this site until it is sent, and deleted automatically after the period above at the latest.', 'ai-site-assistant-autopilot' )
+				: '',
+			CartRecovery::enabled()
+				? __( 'If you enter your email address at checkout and do not finish your order, this shop keeps that email and the contents of your cart so it can send you one reminder. A note under the email field says so, with a button to decline. The cart is deleted when you order, when you decline, or after the period above.', 'ai-site-assistant-autopilot' )
 				: '',
 			Turnstile::enabled()
 				? __( 'Forms on this site use Cloudflare Turnstile to keep out spam. When you open or send a form, Cloudflare receives your IP address and information about your browser to check that you are a person; see Cloudflare\'s privacy policy.', 'ai-site-assistant-autopilot' )
@@ -220,6 +258,13 @@ final class PrivacyTools {
 				/* translators: %s: "30 days" or "until the site owner deletes them". */
 				__( 'Undelivered form submissions: %s.', 'ai-site-assistant-autopilot' ),
 				$periods['undelivered_days']
+			);
+		}
+		if ( CartRecovery::enabled() ) {
+			$text .= ' ' . sprintf(
+				/* translators: %s: "30 days" or "until the site owner deletes them". */
+				__( 'Abandoned carts: %s.', 'ai-site-assistant-autopilot' ),
+				$periods['carts_days']
 			);
 		}
 

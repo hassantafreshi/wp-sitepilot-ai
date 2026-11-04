@@ -474,6 +474,8 @@ final class Settings {
 				'enable_edit'   => false,
 				// Anonymous daily counts of carts started and carts that reached checkout (Connectors\CartFunnel).
 				'cart_funnel'   => false,
+				// Abandoned-cart reminders with the email typed at checkout (Connectors\CartRecovery).
+				'cart_recovery' => false,
 			),
 		);
 	}

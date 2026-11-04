@@ -1067,8 +1067,8 @@ async function storeCopilotHealthy( page ) {
 	check(
 		await page.locator( '[data-sp-store-capability-state]' ).count() === 9
 		&& await page.locator( '[data-sp-store-status-row]' ).count() === 6
-		&& await page.locator( '[data-sp-store-setting]' ).count() === 4,
-		'Store Copilot What it can do keeps the compact capability, status, and four-live-setting panels (connector, search, descriptions, count carts)'
+		&& await page.locator( '[data-sp-store-setting]' ).count() === 5,
+		'Store Copilot What it can do keeps the compact capability, status, and five-live-setting panels (connector, search, descriptions, count carts, cart reminders)'
 	);
 	const connector = page.locator( '[data-sp-store-setting="enabled"]' );
 	check( await connector.getAttribute( 'aria-checked' ) === 'true', 'Store Copilot browser fixture starts with the connector enabled' );
@@ -3532,13 +3532,13 @@ async function advancedSettingsHealthy( page ) {
 		check(
 			200 === retained.status()
 			&& !! retained.request().headers()[ 'x-wp-nonce' ]
-			&& 4 === await retentionCard.locator( 'input[type="number"][name^="retention_"]' ).count()
+			&& 5 === await retentionCard.locator( 'input[type="number"][name^="retention_"]' ).count()
 			&& /is-ok/.test( await retentionCard.locator( '[data-sp-retention-result]' ).getAttribute( 'class' ) )
 			&& ( await retentionCard.locator( '[data-sp-retention-summary]' ).innerText() ).trim().length > 0
 			&& 2 === await retentionCard.locator( '.sp-adv-cron [data-sp-copy-source]' ).count()
 			&& ( await retentionCard.locator( '.sp-adv-cron [data-sp-copy-source]' ).first().textContent() ).includes( 'wp-cron.php?doing_wp_cron' )
 			&& await savebar.isHidden(),
-			'Data retention shows four periods, runs the cleanup on its nonce-protected route, explains a server cron job, and is not an unsaved change'
+			'Data retention shows five periods, runs the cleanup on its nonce-protected route, explains a server cron job, and is not an unsaved change'
 		);
 		// Keeping undelivered form submissions: off by default, a switch in Forms and delivery.
 		const keepSwitch = page.locator( '#sp-adv-keep-undelivered' );

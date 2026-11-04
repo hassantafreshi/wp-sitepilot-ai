@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Core;
 use AISAAutoPilot\Chat\ConversationManager;
 use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Connectors\CartFunnel;
+use AISAAutoPilot\Connectors\CartRecovery;
 use AISAAutoPilot\Content\KnowledgeBase;
 use AISAAutoPilot\Content\KnowledgeIndex;
 use AISAAutoPilot\Forms\FormOutbox;
@@ -32,6 +33,7 @@ final class Network {
 		HandoffInbox::TABLE,
 		FormOutbox::TABLE,
 		CartFunnel::TABLE,
+		CartRecovery::TABLE,
 	);
 
 	public function register(): void {

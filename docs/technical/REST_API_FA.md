@@ -37,6 +37,8 @@
 | `widget_text`، `public_text` | 20 درخواست در ساعت |
 | `widget_handoff` | 5 درخواست در ساعت |
 | `public_voice` | 8 درخواست در ساعت |
+| `public_cart` (ثبت سبد رهاشده در تسویه‌حساب) | 30 درخواست در ساعت |
+| `public_cart_restore` (پیوند یادآوری) | 20 درخواست در ساعت |
 | `admin_voice` (تبدیل گفتار مدیر) | 30 درخواست در 10 دقیقه |
 
 ## مسیرها
@@ -140,6 +142,10 @@
 | `/woocommerce/descriptions/draft` | POST | `can_manage_woocommerce` | `product_id`، `tone`؛ پیش‌نویس پاک‌سازی‌شده و `action_id` (۱۵ دقیقه)؛ چیزی تغییر نمی‌کند |
 | `/woocommerce/descriptions/apply` | POST | `can_manage_woocommerce` | `action_id`، `description` اختیاری (ویرایش مدیر)؛ فقط سازنده و یک بار؛ تغییر هم‌زمان 409 |
 | `/woocommerce/descriptions/undo` | POST | `can_manage_woocommerce` | `product_id`؛ برگرداندن توضیح قبلی |
+| `/woocommerce/carts/{id}/remind` | POST | `can_manage_woocommerce` | تنها ایمیل یادآوری سبد رهاشده؛ تکرار 409 `already_reminded`، سبد نبود 404، کلید خاموش 400 `off`، شکست `wp_mail` 400 `mail_failed` |
+| `/woocommerce/carts/{id}/delete` | POST | `can_manage_woocommerce` | حذف سبد و ایمیل آن |
+
+**admin-ajax عمومی (نه REST):** `aisaautopilot_cart_capture` (`email`) و `aisaautopilot_cart_forget`، برای مهمان و کاربر، با nonce `aisaautopilot_cart` که صفحهٔ تسویه‌حساب می‌سازد. admin-ajax انتخاب شد چون ووکامرس نشست و سبد را آنجا بار می‌کند. پاسخ `{ok, code}` با کدهای `off`، `staff`، `declined`، `invalid_email`، `empty`، `rate_limited` و `kept`.
 
 متدهای دیگر `WooCommerceAnalyticsController`، `WooCommerceContentController` و `WooCommerceOrderController`، از جمله تغییر وضعیت سفارش، refund و bulk، **ثبت نشده‌اند** و نباید بدون بستهٔ امنیتی مستقل Phase 2 (T48) فعال شوند.
 

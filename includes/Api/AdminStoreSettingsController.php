@@ -31,6 +31,9 @@ final class AdminStoreSettingsController {
 		$cart_funnel  = $request->has_param( 'cart_funnel' )
 			? rest_sanitize_boolean( $request->get_param( 'cart_funnel' ) )
 			: $saved['cart_funnel'];
+		$recovery     = $request->has_param( 'cart_recovery' )
+			? rest_sanitize_boolean( $request->get_param( 'cart_recovery' ) )
+			: $saved['cart_recovery'];
 		Settings::update(
 			array(
 				'woocommerce' => array(
@@ -40,6 +43,7 @@ final class AdminStoreSettingsController {
 					'enable_edit'         => false,
 					'enable_descriptions' => $descriptions,
 					'cart_funnel'         => $cart_funnel,
+					'cart_recovery'       => $recovery,
 				),
 			)
 		);

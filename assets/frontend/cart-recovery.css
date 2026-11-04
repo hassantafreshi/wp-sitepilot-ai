@@ -1,0 +1,23 @@
+/* Abandoned-cart reminders: the notice under the checkout email field. */
+.aisaautopilot-cart-notice {
+	margin: 6px 0 12px;
+	font-size: 0.8125em;
+	line-height: 1.5;
+	opacity: 0.85;
+}
+.aisaautopilot-cart-notice__decline {
+	display: inline-flex;
+	align-items: center;
+	min-height: 24px;
+	padding: 0 2px;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+}
+.aisaautopilot-cart-notice__decline:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}

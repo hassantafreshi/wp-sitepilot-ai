@@ -238,6 +238,10 @@ final class SettingsPage {
 				'label' => __( 'Undelivered form submissions', 'ai-site-assistant-autopilot' ),
 				'help'  => __( 'Counted from when the visitor sent the form. Kept only when "Keep a submission when its email cannot be sent" is on under Forms and delivery.', 'ai-site-assistant-autopilot' ),
 			),
+			'carts_days'         => array(
+				'label' => __( 'Abandoned carts', 'ai-site-assistant-autopilot' ),
+				'help'  => __( 'Counted from the last change to the cart, with the email the shopper typed at checkout. Kept only when Abandoned cart reminders is on in Store Copilot.', 'ai-site-assistant-autopilot' ),
+			),
 		);
 
 		Ui::grad_defs();

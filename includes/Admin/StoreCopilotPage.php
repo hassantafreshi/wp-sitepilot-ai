@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Admin;
 
 use AISAAutoPilot\Connectors\CartFunnel;
+use AISAAutoPilot\Connectors\CartRecovery;
 use AISAAutoPilot\Connectors\WooCommerceAnalyticsSkill;
 use AISAAutoPilot\Connectors\WooCommerceConnector;
 use AISAAutoPilot\Providers\ProviderManager;
@@ -54,6 +55,7 @@ final class StoreCopilotPage {
 			data-sp-store-search="<?php echo ! empty( $settings['enable_search'] ) ? '1' : '0'; ?>"
 			data-sp-store-descriptions="<?php echo ! empty( $settings['enable_descriptions'] ) ? '1' : '0'; ?>"
 			data-sp-store-cart-funnel="<?php echo ! empty( $settings['cart_funnel'] ) ? '1' : '0'; ?>"
+			data-sp-store-cart-recovery="<?php echo ! empty( $settings['cart_recovery'] ) ? '1' : '0'; ?>"
 			data-sp-store-provider="<?php echo $provider_ready ? '1' : '0'; ?>"
 			data-sp-store-can-manage="<?php echo $can_manage ? '1' : '0'; ?>"
 		>
@@ -99,40 +101,43 @@ final class StoreCopilotPage {
 		Ui::json_script(
 			'sp-store-i18n',
 			array(
-				'proposing'        => __( 'Writing the proposal...', 'ai-site-assistant-autopilot' ),
-				'proposal_ready'   => __( 'Read the proposal before creating the draft.', 'ai-site-assistant-autopilot' ),
-				'creating'         => __( 'Creating the WooCommerce draft...', 'ai-site-assistant-autopilot' ),
-				'draft_created'    => __( 'Draft created. Publishing remains a manual WooCommerce step.', 'ai-site-assistant-autopilot' ),
-				'network_error'    => __( 'Network error. Please try again.', 'ai-site-assistant-autopilot' ),
-				'prompt_required'  => __( 'Describe the product you want to draft.', 'ai-site-assistant-autopilot' ),
-				'proposal_expired' => __( 'This proposal expired before it was approved. Nothing was created.', 'ai-site-assistant-autopilot' ),
-				'draft_only'       => __( 'Draft only', 'ai-site-assistant-autopilot' ),
-				'not_managed'      => __( 'Not managed', 'ai-site-assistant-autopilot' ),
-				'settings_saved'   => __( 'Store Copilot settings saved.', 'ai-site-assistant-autopilot' ),
-				'settings_failed'  => __( 'The Store Copilot settings could not be saved.', 'ai-site-assistant-autopilot' ),
+				'proposing'           => __( 'Writing the proposal...', 'ai-site-assistant-autopilot' ),
+				'proposal_ready'      => __( 'Read the proposal before creating the draft.', 'ai-site-assistant-autopilot' ),
+				'creating'            => __( 'Creating the WooCommerce draft...', 'ai-site-assistant-autopilot' ),
+				'draft_created'       => __( 'Draft created. Publishing remains a manual WooCommerce step.', 'ai-site-assistant-autopilot' ),
+				'network_error'       => __( 'Network error. Please try again.', 'ai-site-assistant-autopilot' ),
+				'prompt_required'     => __( 'Describe the product you want to draft.', 'ai-site-assistant-autopilot' ),
+				'proposal_expired'    => __( 'This proposal expired before it was approved. Nothing was created.', 'ai-site-assistant-autopilot' ),
+				'draft_only'          => __( 'Draft only', 'ai-site-assistant-autopilot' ),
+				'not_managed'         => __( 'Not managed', 'ai-site-assistant-autopilot' ),
+				'settings_saved'      => __( 'Store Copilot settings saved.', 'ai-site-assistant-autopilot' ),
+				'settings_failed'     => __( 'The Store Copilot settings could not be saved.', 'ai-site-assistant-autopilot' ),
 				/* translators: %s: time left before the proposal expires, as m:ss. */
-				'expires_in'       => __( 'Expires in %s', 'ai-site-assistant-autopilot' ),
-				'review_draft'     => __( 'Review product draft', 'ai-site-assistant-autopilot' ),
-				'lock_simple'      => __( 'Phase 1 creates simple products only', 'ai-site-assistant-autopilot' ),
-				'lock_draft'       => __( 'Phase 1 always creates a draft', 'ai-site-assistant-autopilot' ),
-				'desc_loading'     => __( 'Loading products…', 'ai-site-assistant-autopilot' ),
-				'desc_none'        => __( 'Every product already has a description of at least 40 words. Clear the filter to rewrite one anyway.', 'ai-site-assistant-autopilot' ),
+				'expires_in'          => __( 'Expires in %s', 'ai-site-assistant-autopilot' ),
+				'review_draft'        => __( 'Review product draft', 'ai-site-assistant-autopilot' ),
+				'lock_simple'         => __( 'Phase 1 creates simple products only', 'ai-site-assistant-autopilot' ),
+				'lock_draft'          => __( 'Phase 1 always creates a draft', 'ai-site-assistant-autopilot' ),
+				'desc_loading'        => __( 'Loading products…', 'ai-site-assistant-autopilot' ),
+				'desc_none'           => __( 'Every product already has a description of at least 40 words. Clear the filter to rewrite one anyway.', 'ai-site-assistant-autopilot' ),
 				/* translators: %s: number of words in the current description. */
-				'desc_words'       => __( '%s words now', 'ai-site-assistant-autopilot' ),
-				'desc_empty'       => __( 'No description yet', 'ai-site-assistant-autopilot' ),
+				'desc_words'          => __( '%s words now', 'ai-site-assistant-autopilot' ),
+				'desc_empty'          => __( 'No description yet', 'ai-site-assistant-autopilot' ),
 				/* translators: 1: number of drafts written so far, 2: number of drafts asked for. */
-				'desc_writing'     => __( 'Writing draft %1$s of %2$s…', 'ai-site-assistant-autopilot' ),
-				'desc_written'     => __( 'Drafts are ready. Read each one, edit it if you like, then apply or skip it.', 'ai-site-assistant-autopilot' ),
-				'desc_limit'       => __( 'Pick up to 10 products at a time.', 'ai-site-assistant-autopilot' ),
-				'desc_current'     => __( 'Now', 'ai-site-assistant-autopilot' ),
-				'desc_draft'       => __( 'AI draft (you can edit it)', 'ai-site-assistant-autopilot' ),
-				'desc_apply'       => __( 'Apply', 'ai-site-assistant-autopilot' ),
-				'desc_skip'        => __( 'Skip', 'ai-site-assistant-autopilot' ),
-				'desc_undo'        => __( 'Undo', 'ai-site-assistant-autopilot' ),
-				'desc_applied'     => __( 'Applied', 'ai-site-assistant-autopilot' ),
-				'desc_skipped'     => __( 'Skipped. Nothing changed.', 'ai-site-assistant-autopilot' ),
-				'desc_failed'      => __( 'No draft for this product.', 'ai-site-assistant-autopilot' ),
-				'desc_edit_label'  => __( 'Description', 'ai-site-assistant-autopilot' ),
+				'desc_writing'        => __( 'Writing draft %1$s of %2$s…', 'ai-site-assistant-autopilot' ),
+				'desc_written'        => __( 'Drafts are ready. Read each one, edit it if you like, then apply or skip it.', 'ai-site-assistant-autopilot' ),
+				'desc_limit'          => __( 'Pick up to 10 products at a time.', 'ai-site-assistant-autopilot' ),
+				'desc_current'        => __( 'Now', 'ai-site-assistant-autopilot' ),
+				'desc_draft'          => __( 'AI draft (you can edit it)', 'ai-site-assistant-autopilot' ),
+				'desc_apply'          => __( 'Apply', 'ai-site-assistant-autopilot' ),
+				'desc_skip'           => __( 'Skip', 'ai-site-assistant-autopilot' ),
+				'desc_undo'           => __( 'Undo', 'ai-site-assistant-autopilot' ),
+				'desc_applied'        => __( 'Applied', 'ai-site-assistant-autopilot' ),
+				'desc_skipped'        => __( 'Skipped. Nothing changed.', 'ai-site-assistant-autopilot' ),
+				'desc_failed'         => __( 'No draft for this product.', 'ai-site-assistant-autopilot' ),
+				'desc_edit_label'     => __( 'Description', 'ai-site-assistant-autopilot' ),
+				'cart_confirm_remind' => __( 'Send the one reminder email for this cart now?', 'ai-site-assistant-autopilot' ),
+				'cart_confirm_delete' => __( 'Delete this cart and its email? The shopper is not told.', 'ai-site-assistant-autopilot' ),
+				'cart_reminded'       => __( 'Reminder sent', 'ai-site-assistant-autopilot' ),
 			)
 		);
 	}
@@ -332,6 +337,7 @@ final class StoreCopilotPage {
 						<?php $this->setting_toggle( 'enable_search', __( 'Smart product search', 'ai-site-assistant-autopilot' ), __( 'Controls the protected Store search endpoint. It does not add a visitor-facing search interface.', 'ai-site-assistant-autopilot' ), ! empty( $settings['enable_search'] ) ); ?>
 						<?php $this->setting_toggle( 'enable_descriptions', __( 'Product descriptions', 'ai-site-assistant-autopilot' ), __( 'Lets AutoPilot draft descriptions for products you already have. Each one waits for your approval, and Undo puts the old text back. Nothing else about a product is changed.', 'ai-site-assistant-autopilot' ), ! empty( $settings['enable_descriptions'] ) ); ?>
 						<?php $this->setting_toggle( 'cart_funnel', __( 'Count carts', 'ai-site-assistant-autopilot' ), __( 'Counts, per day, how many carts are started and how many reach checkout, so Orders can show where shoppers stop. Only the two numbers are stored: no name, email, address, IP address or cart content. Store staff are not counted.', 'ai-site-assistant-autopilot' ), ! empty( $settings['cart_funnel'] ) ); ?>
+						<?php $this->setting_toggle( 'cart_recovery', __( 'Abandoned cart reminders', 'ai-site-assistant-autopilot' ), __( 'Checkout shows a short note under the email field: the cart and that email are kept so you can send one reminder, with a button to decline. Carts left for an hour appear under Orders; nothing is sent until you press Send reminder. Kept carts are deleted when the shopper orders or declines, and after the Abandoned carts period in Data retention.', 'ai-site-assistant-autopilot' ), ! empty( $settings['cart_recovery'] ) ); ?>
 						<?php $this->locked_toggle( __( 'Product editing by AI', 'ai-site-assistant-autopilot' ), __( 'Prices, stock, titles and every other field are reserved for Phase 2. They cannot be switched on yet.', 'ai-site-assistant-autopilot' ), false ); ?>
 						<?php $this->locked_toggle( __( 'Always create as draft', 'ai-site-assistant-autopilot' ), __( 'Fixed in Phase 1. Publishing stays a manual step.', 'ai-site-assistant-autopilot' ), true ); ?>
 					</div>
@@ -480,6 +486,9 @@ final class StoreCopilotPage {
 		$manager_read = $active && $enabled && $can_manage;
 		if ( $manager_read ) {
 			$this->render_checkout_dropoff();
+			if ( CartRecovery::enabled() ) {
+				$this->render_abandoned_carts();
+			}
 		}
 		?>
 		<section class="sp-card sp-store-orders" data-sp-store-orders>
@@ -658,6 +667,86 @@ final class StoreCopilotPage {
 				</p>
 			<?php endif; ?>
 		</div>
+		<?php
+	}
+
+	/** Carts left at checkout with an email: the store manager sends the one reminder or deletes them. */
+	private function render_abandoned_carts(): void {
+		$recovery = new CartRecovery();
+		$carts    = $recovery->abandoned( 50 );
+		$days     = (int) \AISAAutoPilot\Support\Retention::periods()['carts_days'];
+		?>
+		<section class="sp-card sp-store-panel sp-store-carts" data-sp-store-carts>
+			<div class="sp-store-panel__head">
+				<h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( 'Abandoned carts', 'ai-site-assistant-autopilot' ); ?></h2>
+				<span class="sp-store-panel__sub"><?php esc_html_e( 'Carts left at checkout for an hour or more, with the email the shopper typed there.', 'ai-site-assistant-autopilot' ); ?></span>
+			</div>
+			<div class="sp-store-carts__body">
+				<?php if ( array() === $carts ) : ?>
+					<p class="sp-store-funnel__hint" data-sp-carts-empty><?php esc_html_e( 'No abandoned carts right now.', 'ai-site-assistant-autopilot' ); ?></p>
+				<?php else : ?>
+					<ul class="sp-store-carts__list">
+						<?php foreach ( $carts as $cart ) : ?>
+							<?php
+							$reminded = 'reminded' === $cart['status'];
+							$items    = implode(
+								', ',
+								array_map(
+									static function ( array $item ): string {
+										return number_format_i18n( $item['quantity'] ) . ' × ' . $item['name'];
+									},
+									$cart['items']
+								)
+							);
+							$changed  = (int) strtotime( $cart['updated_at'] . ' UTC' );
+							?>
+							<li class="sp-store-cart" data-sp-cart="<?php echo esc_attr( (string) $cart['id'] ); ?>">
+								<div class="sp-store-cart__main">
+									<span class="sp-store-cart__email" dir="ltr"><?php echo esc_html( $cart['email'] ); ?></span>
+									<span class="sp-store-cart__items" dir="auto"><?php echo esc_html( $items ); ?></span>
+									<span class="sp-store-funnel__hint">
+										<?php
+										echo esc_html(
+											sprintf(
+												/* translators: 1: cart total with currency, 2: time since the last change, such as "3 hours". */
+												__( '%1$s · left %2$s ago', 'ai-site-assistant-autopilot' ),
+												html_entity_decode( wp_strip_all_tags( wc_price( $cart['total'], array( 'currency' => $cart['currency'] ) ) ), ENT_QUOTES, 'UTF-8' ),
+												human_time_diff( $changed, time() )
+											)
+										);
+										?>
+									</span>
+								</div>
+								<div class="sp-store-cart__actions">
+									<?php if ( $reminded ) : ?>
+										<span class="sp-pill sp-pill--ok" data-sp-cart-reminded><?php esc_html_e( 'Reminder sent', 'ai-site-assistant-autopilot' ); ?></span>
+									<?php else : ?>
+										<button type="button" class="sp-btn sp-btn--sm" data-sp-cart-remind="<?php echo esc_attr( (string) $cart['id'] ); ?>"><?php esc_html_e( 'Send reminder', 'ai-site-assistant-autopilot' ); ?></button>
+									<?php endif; ?>
+									<button type="button" class="sp-btn sp-btn--sm sp-btn--ghost" data-sp-cart-delete="<?php echo esc_attr( (string) $cart['id'] ); ?>"><?php esc_html_e( 'Delete', 'ai-site-assistant-autopilot' ); ?></button>
+								</div>
+								<p class="sp-status-text sp-store-cart__note" role="status" aria-live="polite"></p>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
+			</div>
+			<div class="sp-store-panel__foot" data-sp-carts-foot>
+				<?php
+				echo esc_html(
+					sprintf(
+						/* translators: 1: number of orders placed after a reminder, 2: retention, such as "30 days". */
+						_n( 'Orders placed after a reminder: %1$s. One reminder per cart, sent only when you press Send reminder. Carts are deleted when the shopper orders or declines, and after %2$s.', 'Orders placed after a reminder: %1$s. One reminder per cart, sent only when you press Send reminder. Carts are deleted when the shopper orders or declines, and after %2$s.', $recovery->recovered(), 'ai-site-assistant-autopilot' ),
+						number_format_i18n( $recovery->recovered() ),
+						$days > 0
+							/* translators: %s: number of days. */
+							? sprintf( _n( '%s day', '%s days', $days, 'ai-site-assistant-autopilot' ), number_format_i18n( $days ) )
+							: __( 'you delete them', 'ai-site-assistant-autopilot' )
+					)
+				);
+				?>
+			</div>
+		</section>
 		<?php
 	}
 

@@ -53,9 +53,10 @@ final class WooCommerceConnector {
 	 * (ProductDescriptions).
 	 *
 	 * `cart_funnel` (off by default) lets CartFunnel count, anonymously, carts started
-	 * and carts that reached checkout.
+	 * and carts that reached checkout. `cart_recovery` (off by default) lets CartRecovery
+	 * keep a cart with the email typed at checkout, for one reminder the manager sends.
 	 *
-	 * @return array{enabled:bool,auto_draft:bool,enable_search:bool,enable_edit:bool,enable_descriptions:bool,cart_funnel:bool}
+	 * @return array{enabled:bool,auto_draft:bool,enable_search:bool,enable_edit:bool,enable_descriptions:bool,cart_funnel:bool,cart_recovery:bool}
 	 */
 	public static function get_settings(): array {
 
@@ -69,6 +70,7 @@ final class WooCommerceConnector {
 			'enable_edit'         => false,
 			'enable_descriptions' => ! empty( $stored['enable_descriptions'] ),
 			'cart_funnel'         => ! empty( $stored['cart_funnel'] ),
+			'cart_recovery'       => ! empty( $stored['cart_recovery'] ),
 		);
 	}
 

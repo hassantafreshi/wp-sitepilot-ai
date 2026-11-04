@@ -47,6 +47,9 @@ function aisaautopilot_uninstall_site(): void {
 	delete_option( 'aisaautopilot_retention_last_run' );
 	delete_option( 'aisaautopilot_form_outbox_schema' );
 	delete_option( 'aisaautopilot_cart_funnel_schema' );
+	delete_option( 'aisaautopilot_carts_schema' );
+	// How many orders followed a cart reminder: a number only (Connectors\CartRecovery).
+	delete_option( 'aisaautopilot_carts_recovered' );
 	// The encrypted Cloudflare Turnstile secret (Forms\Turnstile).
 	delete_option( 'aisaautopilot_turnstile_secret' );
 	// Marks a site of a network as set up (Activator::maybe_setup_site()).
@@ -75,6 +78,8 @@ function aisaautopilot_uninstall_site(): void {
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aisaautopilot_form_outbox" );
 	// Anonymous daily cart counts (Connectors\CartFunnel).
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aisaautopilot_cart_funnel" );
+	// Abandoned carts with the email typed at checkout (Connectors\CartRecovery).
+	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aisaautopilot_carts" );
 	// One-day replay locks of approved actions (ActionStore::claim_key()).
 	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $wpdb->esc_like( 'aisaautopilot_action_claim_' ) . '%' ) );
 	/*
@@ -139,7 +144,7 @@ if ( is_multisite() ) {
 	global $wpdb;
 	$aisaautopilot_tables = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->base_prefix ) . '%' . $wpdb->esc_like( '_aisaautopilot_' ) . '%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	foreach ( $aisaautopilot_tables as $aisaautopilot_table ) {
-		if ( preg_match( '/^' . preg_quote( $wpdb->base_prefix, '/' ) . '(\d+)_aisaautopilot_(kb|kb_chunks|kb_terms|chats|widget_chats|handoffs|form_outbox|cart_funnel)$/', (string) $aisaautopilot_table, $aisaautopilot_match ) && null === get_site( (int) $aisaautopilot_match[1] ) ) {
+		if ( preg_match( '/^' . preg_quote( $wpdb->base_prefix, '/' ) . '(\d+)_aisaautopilot_(kb|kb_chunks|kb_terms|chats|widget_chats|handoffs|form_outbox|cart_funnel|carts)$/', (string) $aisaautopilot_table, $aisaautopilot_match ) && null === get_site( (int) $aisaautopilot_match[1] ) ) {
 			$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $aisaautopilot_table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 		}
 	}

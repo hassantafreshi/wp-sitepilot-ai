@@ -90,8 +90,9 @@ The plugin registers with WordPress's privacy tools. Tools > Export Personal
 Data and Tools > Erase Personal Data find, by email address, the person's
 requests to talk to a person (with the contact details they left), the
 console conversations of a WordPress user with that address, recorded
-visitor conversations in which that address was written, and form submissions
-kept because their email could not be sent. Visitors are
+visitor conversations in which that address was written, form submissions
+kept because their email could not be sent, and abandoned carts kept for a
+reminder. Visitors are
 otherwise anonymous, so a recorded conversation without an email address in it
 cannot be matched to anyone. Erasing deletes the matching rows.
 
@@ -99,14 +100,19 @@ Settings > Privacy > Policy Guide offers suggested text for your privacy policy
 describing what the chat sends to the AI service, what it keeps and when.
 
 Visitor conversations are recorded only if you turn recording on, and the chat
-then says so. Questions the assistant could not answer are kept without any
+then says so. Abandoned carts are kept only if you turn on Abandoned cart
+reminders in Store Copilot: checkout then shows a note under the email field,
+with a button to decline, and a cart is kept (the email typed there, the
+products and the total) only once a valid email is in that field. No reminder is
+sent until you press Send reminder, and only one per cart. Questions the assistant could not answer are kept without any
 information about who asked.
 
 Visitor data is deleted automatically once a day after a period you set in
 Setup & Connection > Advanced settings > Data retention: recorded
 conversations after 30 days, requests to talk to a person after 180 days and
-unanswered questions (with cached answers) after 90 days, and undelivered
-form submissions after 30 days, unless you change them. 0 keeps that data until you delete it yourself. The same card has a
+unanswered questions (with cached answers) after 90 days, undelivered form
+submissions after 30 days and abandoned carts after 30 days, unless you change
+them. 0 keeps that data until you delete it yourself. The same card has a
 "Delete expired data now" button and shows when the cleanup last ran.
 
 == What deleting the plugin removes ==
@@ -127,6 +133,8 @@ Database tables (dropped):
   be sent (only used when you turn that on).
 * {prefix}aisaautopilot_cart_funnel - anonymous daily counts of carts started
   and carts that reached checkout (only used when you turn on Count carts).
+* {prefix}aisaautopilot_carts - abandoned carts with the email typed at
+  checkout (only used when you turn on Abandoned cart reminders).
 
 Options (deleted): aisaautopilot_settings, aisaautopilot_provider_key,
 aisaautopilot_embedding_key, aisaautopilot_handoff_secrets,
@@ -143,7 +151,8 @@ aisaautopilot_voice_usage_log, aisaautopilot_health_diagnostics,
 aisaautopilot_last_diagnostics, aisaautopilot_kb_schema, aisaautopilot_handoff_inbox_schema,
 aisaautopilot_widget_chat_schema, aisaautopilot_site_setup,
 aisaautopilot_retention_last_run, aisaautopilot_form_outbox_schema,
-aisaautopilot_cart_funnel_schema,
+aisaautopilot_cart_funnel_schema, aisaautopilot_carts_schema,
+aisaautopilot_carts_recovered,
 aisaautopilot_turnstile_secret, aisaautopilot_rebrand_migrated, and every aisaautopilot_action_claim_* replay
 lock.
 
@@ -394,6 +403,18 @@ secret key, and every native form shows the check (most visitors never see a
 puzzle) and confirms it with Cloudflare before the email is sent. Leave the
 keys empty to keep it off; see External services for what Cloudflare receives.
 
+= Can it remind shoppers who left their cart? =
+
+Yes, if you turn on Abandoned cart reminders under Store Copilot > What it can
+do (off by default). Checkout then shows a short note under the email field,
+with a button not to keep the cart. Once a shopper has typed a valid email, the
+cart is kept; after an hour it appears under Store Copilot > Orders, where you
+send the one reminder (with a link that refills the cart) or delete it. Nothing
+is sent automatically. Carts are deleted when the shopper orders or declines,
+and after the Abandoned carts period in Data retention (30 days). Without that
+switch, "Count carts" shows how many carts never reach checkout without
+storing anything about the shopper.
+
 = Can I make a payment, upload, login or multi-step form? =
 
 Not with the plugin's own native forms. Install Easy Form Builder for these.
@@ -490,6 +511,9 @@ editable text; nothing is sent until you press Send.
   cancelled) from WooCommerce's own orders, with payment methods and links.
 * Optional "Count carts": anonymous daily counts of carts started and carts
   that reached checkout, shown as a funnel beside paid orders.
+* Optional abandoned cart reminders: a note at checkout with a button to
+  decline, carts left for an hour listed under Orders, one reminder per cart
+  sent only by the store manager, and a link that refills the cart.
 * Form Studio keeps a plan under review across a page reload in the same tab.
 * Store Copilot > Descriptions: optional AI descriptions for existing
   products, approved one by one, with Undo (off by default).

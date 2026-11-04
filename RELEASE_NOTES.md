@@ -131,6 +131,15 @@ steps: carts started, carts that reached checkout, and paid. Only two numbers
 per day are stored, nothing about the shopper, and store staff are not
 counted.
 
+**Abandoned cart reminders** (off by default) — checkout shows a short note
+under the email field, with a "Do not keep my cart" button. Once a valid email
+is in the field, the cart is kept with that email; after an hour it appears
+under Store Copilot > Orders. The store manager sends the one reminder, whose
+link refills the cart and opens checkout, or deletes the cart. Nothing is sent
+automatically. A cart is deleted when the shopper orders (for that session or
+that email) or declines, and after the new "Abandoned carts" retention period
+(30 days). The privacy exporter, eraser and suggested policy text cover it.
+
 **Content Studio and Form Studio** — AI-drafted posts and pages with templates,
 history and CSV export; and forms described in text or voice, previewed field
 by field with a masked recipient, approved, then placed by shortcode. Form

@@ -3694,6 +3694,18 @@ button.sp-store-switch:focus-visible { outline: 2px solid var(--sp-primary); out
 .sp-store-funnel__steplist strong { color: #14152b; font-size: 18px; line-height: 1.3; }
 .sp-store-funnel__off { margin-block-end: 14px; }
 .sp-store-funnel__off a { display: inline-flex; align-items: center; min-block-size: 24px; font-weight: 600; }
+.sp-store-carts { max-inline-size: 640px; margin-block-end: 16px; }
+.sp-store-carts__body { padding: 8px 20px; }
+.sp-app .sp-store-carts__list { margin: 0; padding: 0; list-style: none; }
+.sp-store-cart { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 12px 0; border-block-end: 1px solid var(--sp-line-soft); }
+.sp-store-cart:last-child { border-block-end: 0; }
+.sp-store-cart__main { display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; min-inline-size: 0; }
+.sp-store-cart__email { color: #14152b; font-weight: 600; overflow-wrap: anywhere; }
+.sp-store-cart__items { color: #14152b; font-size: 13px; }
+.sp-store-cart__actions { display: flex; gap: 8px; align-items: center; }
+.sp-app .sp-store-cart__note { flex-basis: 100%; margin: 0; }
+.sp-app .sp-store-cart__note:empty { display: none; }
+.sp-store-cart.is-gone { opacity: .55; }
 .sp-app .sp-store-funnel__subhead { margin: 18px 0 8px; color: #14152b; font-size: 13px; font-weight: 700; }
 .sp-app .sp-store-funnel__methods { margin: 0 0 12px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
 .sp-store-funnel__methods li { display: flex; justify-content: space-between; gap: 10px; }
