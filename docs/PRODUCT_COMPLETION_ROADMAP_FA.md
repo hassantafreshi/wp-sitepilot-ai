@@ -763,6 +763,35 @@
 
 جدیدترین مورد بالا است. قالب: `تاریخ — task — نتیجه — گیت‌ها و شمارها — artifactها — بعدی`.
 
+- ۲۰۲۶-۱۱-۰۴ — T31 (S5.2) تشخیص افزونهٔ هم‌پوشان (A-18) — **تکمیل** (دستور مالک: «تسک بعدی را انجام بده»).
+  - **رفتار:** Integrations هشدار می‌دهد که افزونهٔ چت یا دستیار AI دیگری فعال است، با نام واقعی افزونه و CTA «Open Plugins».
+    - افزونهٔ چت فقط وقتی دکمهٔ چت Answer Desk روشن است گزارش می‌شود، با «may overlap».
+    - هر مدیر می‌تواند هشدار را با Enter یا Space پنهان کند. این انتخاب برای همان مدیر و همان سایت ماندگار است.
+    - افزونهٔ دیگری از فهرست که بعداً فعال شود، هشدار را برمی‌گرداند.
+  - **فهرست:** ۱۴ slug که هر کدام با API افزونه‌های WordPress.org تأیید شد، به‌همراه filter `aisaautopilot_conflicting_plugins`. تطبیق با نام فولدر است.
+  - **کد:**
+    - `includes/Core/ConflictDetector.php`
+    - `includes/Api/IntegrationsController.php`
+    - `POST /integrations/conflicts/dismiss` با `can_manage`. فقط افزونهٔ شناسایی‌شده پذیرفته می‌شود؛ بقیه 400 `not_detected`.
+    - `IntegrationsPage::render_conflicts` و `integrations.js`
+    - `uninstall.php`، برای حذف user option هر سایت.
+  - **گیت‌ها:**
+    - PHPUnit: ۲۳۰ آزمون و ۱۲۱۸ assertion؛ PHPStan صفر؛ PHPCS صفر.
+    - `wordpress_conflict_detector_integration`: 8/0. آزمون جهش هم انجام شد: با حذف شرط دکمهٔ چت و فهرست شناسایی، ۳ بررسی شکست خوردند.
+    - `conflict_browser_matrix`: en/fa، 19/0. شامل عرض 390، keyboard، focus پس از پنهان کردن، بقا پس از reload، صفر pageerror و صفر درخواست ناموفق.
+    - همهٔ ۶۹ مجموعه‌آزمون integration: ۶۷۷ PASS و ۰ FAIL، بدون پیام PHP.
+    - multisite: 7/0. smokeهای menu، assets و render: 6/0، 20/0 و 18/18.
+    - `release_smoke_browser_matrix`: 615/0. `admin_ia_browser_matrix`: 652/0. `admin_a11y_browser_matrix`: 1644/0.
+    - Plugin Check روی ZIP ساخته‌شده، در هر دو حالت: 0/0. یک هشدار `DynamicHooknameFound` پیدا شد و با نام literal hook رفع شد.
+    - fa_IR: 2280/2280.
+  - **اسناد:**
+    - readme (changelog و حذف user meta)، RELEASE_NOTES، MANUAL-TESTING 3.3 و 12.3؛
+    - REST_API_FA، DATA_MODEL_FA و ADMIN_SURFACES_FA؛
+    - گزارش شکاف: A-18 به بخش ۴ رفت و X-14 افزوده شد؛
+    - بخش T31 سند S5.
+  - **اصلاح در همین کار:** سه سند، یعنی readme، RELEASE_NOTES و DATA_MODEL_FA، می‌گفتند افزونه هیچ user meta نمی‌نویسد. اکنون تنها استثنا را نام می‌برند.
+  - **بعدی:** T32 (لحن Formal و Plain). یافتهٔ F-1 از T29 همچنان منتظر تأیید مالک است.
+
 - ۲۰۲۶-۱۱-۰۴ — T29 (S5.0) ممیزی و تأیید S5 — **تکمیل** (دستور مالک: «تسک بعدی»).
   - **D-13:** بسته (گزینهٔ ب). T25 تکمیل است، پس T29 اجراپذیر بود.
   - **ردیف‌ها:** همهٔ ۲۴ ردیف A، W، C و E به‌همراه X-04 روی HEAD `569dd8a` وارسی شدند.

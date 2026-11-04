@@ -58,7 +58,7 @@ final class ConflictDetector {
 	 * @return array<string, string> folder => kind
 	 */
 	public static function known(): array {
-		$list  = apply_filters( self::FILTER, self::KNOWN );
+		$list  = apply_filters( 'aisaautopilot_conflicting_plugins', self::KNOWN ); // Same name as self::FILTER.
 		$clean = array();
 		foreach ( is_array( $list ) ? $list : array() as $slug => $kind ) {
 			$slug = sanitize_key( (string) $slug );
