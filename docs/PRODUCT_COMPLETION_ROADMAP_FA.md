@@ -763,6 +763,26 @@
 
 جدیدترین مورد بالا است. قالب: `تاریخ — task — نتیجه — گیت‌ها و شمارها — artifactها — بعدی`.
 
+- ۲۰۲۶-۱۱-۰۵ — حالت «افزونهٔ لازم» برای WooCommerce و Easy Form Builder — **تکمیل** (درخواست مستقیم مالک: «اگر افزونه ووکامرس نصب نبود پیام مناسب به کاربر نمایش داده شود با یو ایکس مناسب همینطور برای ایزی فرم بیلدر و بقیه منوها که وابستگی دارند»). T32 هنوز شروع نشده است.
+  - **رفتار:**
+    - Store Copilot بدون WooCommerce به‌جای تب‌ها و فرم خاموش فقط یک کارت نشان می‌دهد: علت (نصب نیست، نصب است ولی غیرفعال، یا نسخهٔ قدیمی)، سه کاری که دستیار انجام می‌دهد و یک دکمه.
+    - صفحهٔ جزئیات دستیار Easy Form Builder همان کارت را بالای فهرست کارهای مجاز نشان می‌دهد.
+    - کارت‌های Integrations و Setup و پیوند EFB در Form Studio همان گام را پیشنهاد می‌کنند؛ دیگر برای افزونهٔ نصب‌شده «Install» نوشته نمی‌شود (این خطا پیش از این کار در Integrations دیده شد).
+    - Activate با یک کلیک افزونه را فعال می‌کند و به همان صفحه برمی‌گردد، با پیام تأیید. Install به نصب‌کنندهٔ خود وردپرس می‌رود. کاربر بدون اجازهٔ مدیریت افزونه به‌جای دکمه می‌بیند از چه کسی بخواهد.
+  - **کد:** `includes/Admin/PluginDependency.php` (وضعیت، کارت، handler در `admin-post.php?action=aisaautopilot_activate_dependency` با nonce، `activate_plugin` و فهرست ثابت صفحه‌های بازگشت)، و تغییر در `StoreCopilotPage`، `EasyFormBuilderPage`، `IntegrationsPage`، `SettingsPage`، `CopilotPage` و CSS.
+  - **وابستگی‌های دیگر:** در منوهای دیگر وابستگی به افزونهٔ دیگری نیست. وابستگی به اتصال AI (Content Studio، Form Studio، Site Knowledge، Store Copilot) از قبل حالت قفل و پیوند Setup دارد و تغییری نکرد.
+  - **گیت‌ها:**
+    - PHPUnit ۲۳۰ و ۱۲۱۸؛ PHPStan و PHPCS صفر.
+    - `wordpress_plugin_dependency_integration`: 11/0 (در process جداگانه با هر دو افزونهٔ غیرفعال و بازگرداندن دقیق). آزمون جهش: با حذف فهرست بازگشت و شرط تأیید، ۲ بررسی شکست خوردند.
+    - `dependency_browser_matrix`: en/fa، 18/0 (RTL، 390px، keyboard، Enter روی Activate و بازگشت با پیام).
+    - همهٔ ۷۰ مجموعه‌آزمون integration: ۶۸۸ PASS و ۰ FAIL، بدون پیام PHP؛ multisite 7/0؛ smokeها 6/0، 20/0 و 18/18.
+    - `release_smoke` 615/0، `admin_ia` 652/0، `admin_a11y` 1644/0، `conflict` 19/0، `efb_details` 28/0.
+    - در اجرای کامل، ورود fa_IR در `dependency_browser_matrix` پیش از هر بررسی از زمان ۲۴۰ ثانیه گذشت (سرور تک‌رشته‌ای `php -S` محیط محلی). اجرای دوبارهٔ همان ماتریس 18/0 شد.
+    - Plugin Check روی ZIP ساخته‌شده در هر دو حالت: 0/0.
+    - fa_IR: 2302/2302 (۳۲ متن تازه، ۱۰ متن قدیمی حذف شد).
+  - **اسناد:** readme (changelog)، RELEASE_NOTES، MANUAL-TESTING 8.1 و 9.0، ADMIN_SURFACES_FA.
+  - **بعدی:** T32 (لحن Formal و Plain). یافتهٔ F-1 از T29 همچنان منتظر تأیید مالک است.
+
 - ۲۰۲۶-۱۱-۰۴ — T31 (S5.2) تشخیص افزونهٔ هم‌پوشان (A-18) — **تکمیل** (دستور مالک: «تسک بعدی را انجام بده»).
   - **رفتار:** Integrations هشدار می‌دهد که افزونهٔ چت یا دستیار AI دیگری فعال است، با نام واقعی افزونه و CTA «Open Plugins».
     - افزونهٔ چت فقط وقتی دکمهٔ چت Answer Desk روشن است گزارش می‌شود، با «may overlap».
