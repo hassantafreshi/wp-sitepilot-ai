@@ -96,8 +96,10 @@ try {
 		&& false !== strpos( $html, 'Write a draft' )
 		&& false !== strpos( $html, 'maxlength="6000"' )
 		&& false !== strpos( $html, 'rows="4"' )
-		&& 3 === substr_count( $html, '<span class="sp-content-voice__chip ' ),
-		'Write follows the mockup empty-state, 78px composer, static voice chips, and draft CTA structure'
+		&& 1 === preg_match( '/role="radiogroup"[^>]*data-content-voice/', $html )
+		&& 3 === substr_count( $html, 'role="radio" class="sp-content-voice__chip"' )
+		&& 1 === substr_count( $html, 'aria-checked="true"' ),
+		'Write follows the mockup empty-state, 78px composer, voice choice (one of three chips as a radio group, T32), and draft CTA structure'
 	);
 	$check(
 		false !== strpos( $html, $prefix . ' post draft' )
