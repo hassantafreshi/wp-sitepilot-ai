@@ -70,6 +70,18 @@ extends the list. Each administrator can hide the warning on that site through
 `POST /integrations/conflicts/dismiss`, which accepts only plugins detected
 right now; another plugin from the list activated later brings it back. Nothing is sent anywhere.
 
+**When WooCommerce or Easy Form Builder is missing** — Store Copilot shows one
+clear step in place of its tabs, and the Easy Form Builder copilot page shows it
+above the list of what the copilot may change. The step depends on why the
+plugin is not usable: not installed (Install, through the WordPress installer),
+installed but inactive (Activate) or active but too old (Update). A button is
+shown only to someone allowed to take that step; others see who to ask.
+Activate goes through `admin-post.php?action=aisaautopilot_activate_dependency`
+with a nonce, the same capability check as the Plugins screen and a fixed list of
+AutoPilot screens to return to, then confirms on that screen. The Integrations
+and Setup cards and Form Studio's Easy Form Builder link offer the same step,
+so an installed plugin no longer shows "Install".
+
 **Site Knowledge** — indexing of published WordPress content, an entries list
 with single delete and full re-index, an "Ask your knowledge base" console,
 unanswered questions with "Write it" into Content Studio, saved answers,

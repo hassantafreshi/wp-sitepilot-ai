@@ -36,12 +36,18 @@ final class IntegrationsPage {
 		$store_on      = $woo_available && ! empty( $woo['enabled'] );
 		$all_off       = ! $answer_on && ! $form_on && ! $content_on && ( ! $efb_available || ! $efb_on ) && ( ! $woo_available || ! $store_on );
 
-		$install_efb_url = current_user_can( 'install_plugins' )
-			? admin_url( 'plugin-install.php?s=easy+form+builder&tab=search&type=term' )
-			: admin_url( 'admin.php?page=' . AdminMenu::SLUG_EFB );
-		$install_woo_url = current_user_can( 'install_plugins' )
-			? admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' )
-			: admin_url( 'admin.php?page=' . AdminMenu::SLUG_WC_DASHBOARD );
+		// The next step for a missing plugin: install, activate or update it. Without the
+		// right to take that step, the card opens the feature's own page, which explains.
+		$efb_dep  = PluginDependency::status( PluginDependency::EFB, AdminMenu::SLUG_INTEGRATIONS );
+		$woo_dep  = PluginDependency::status( PluginDependency::WOOCOMMERCE, AdminMenu::SLUG_INTEGRATIONS );
+		$efb_next = $efb_dep['action'] ?? array(
+			'label' => __( 'See what it needs', 'ai-site-assistant-autopilot' ),
+			'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_EFB ),
+		);
+		$woo_next = $woo_dep['action'] ?? array(
+			'label' => __( 'See what it needs', 'ai-site-assistant-autopilot' ),
+			'url'   => admin_url( 'admin.php?page=' . AdminMenu::SLUG_WC_DASHBOARD ),
+		);
 
 		$foundation = array(
 			array(
@@ -96,7 +102,7 @@ final class IntegrationsPage {
 				'title'        => __( 'Easy Form Builder Copilot', 'ai-site-assistant-autopilot' ),
 				'description'  => $efb_available
 					? __( 'Adds an approved AI helper to a compatible Easy Form Builder editor.', 'ai-site-assistant-autopilot' )
-					: __( 'A compatible Easy Form Builder installation is required before this helper can run.', 'ai-site-assistant-autopilot' ),
+					: PluginDependency::why( $efb_dep ) . ' ' . __( 'The helper needs Easy Form Builder 4.1 or newer.', 'ai-site-assistant-autopilot' ),
 				'status'       => $efb_available
 					? ( $efb_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) )
 					: __( 'Needs Easy Form Builder', 'ai-site-assistant-autopilot' ),
@@ -106,8 +112,8 @@ final class IntegrationsPage {
 				'enabled'      => $efb_on,
 				'toggle'       => $efb_available,
 				'action'       => $efb_available ? 'dialog' : 'link',
-				'action_label' => $efb_available ? __( 'Configure', 'ai-site-assistant-autopilot' ) : __( 'Install Easy Form Builder', 'ai-site-assistant-autopilot' ),
-				'action_url'   => $install_efb_url,
+				'action_label' => $efb_available ? __( 'Configure', 'ai-site-assistant-autopilot' ) : $efb_next['label'],
+				'action_url'   => $efb_next['url'],
 			),
 			array(
 				'id'           => 'content-studio',
@@ -131,7 +137,7 @@ final class IntegrationsPage {
 				'title'        => __( 'Store Copilot', 'ai-site-assistant-autopilot' ),
 				'description'  => $woo_available
 					? __( 'Creates reviewed simple-product drafts and presents safe store insights.', 'ai-site-assistant-autopilot' )
-					: __( 'WooCommerce must be installed and active before Store Copilot can be used.', 'ai-site-assistant-autopilot' ),
+					: PluginDependency::why( $woo_dep ) . ' ' . __( 'Store Copilot needs it to read products and create drafts.', 'ai-site-assistant-autopilot' ),
 				'status'       => $woo_available
 					? ( $store_on ? __( 'On', 'ai-site-assistant-autopilot' ) : __( 'Off', 'ai-site-assistant-autopilot' ) )
 					: __( 'Needs WooCommerce', 'ai-site-assistant-autopilot' ),
@@ -141,10 +147,10 @@ final class IntegrationsPage {
 				'enabled'      => $store_on,
 				'toggle'       => $woo_available,
 				'action'       => 'link',
-				'action_label' => $woo_available ? __( 'Open settings', 'ai-site-assistant-autopilot' ) : __( 'Install WooCommerce', 'ai-site-assistant-autopilot' ),
+				'action_label' => $woo_available ? __( 'Open settings', 'ai-site-assistant-autopilot' ) : $woo_next['label'],
 				'action_url'   => $woo_available
 					? admin_url( 'admin.php?page=' . AdminMenu::SLUG_WC_DASHBOARD . '&tab=capabilities' )
-					: $install_woo_url,
+					: $woo_next['url'],
 			),
 		);
 		?>
@@ -162,6 +168,7 @@ final class IntegrationsPage {
 					<?php if ( $saved ) : ?>
 						<?php Ui::alert( 'ok', 'check-circle', esc_html__( 'Integration settings saved.', 'ai-site-assistant-autopilot' ) ); ?>
 					<?php endif; ?>
+					<?php PluginDependency::render_result_notice(); ?>
 
 					<?php $this->render_conflicts(); ?>
 

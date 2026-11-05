@@ -663,6 +663,7 @@ final class SettingsPage {
 				<?php if ( '' !== $this->save_error ) : ?>
 					<?php Ui::alert( 'err', 'alert-circle', $this->save_error ); ?>
 				<?php endif; ?>
+				<?php PluginDependency::render_result_notice(); ?>
 
 				<form method="post" data-sp-setup-form novalidate>
 					<?php wp_nonce_field( 'aisaautopilot_settings_save', 'aisaautopilot_settings_nonce' ); ?>
@@ -1048,7 +1049,9 @@ final class SettingsPage {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function wizard_integrations( array $settings, bool $efb_ready, bool $woo_available, bool $woo_enabled ): array {
-		$widget = (array) ( $settings['widget'] ?? array() );
+		$widget  = (array) ( $settings['widget'] ?? array() );
+		$woo_dep = PluginDependency::status( PluginDependency::WOOCOMMERCE, AdminMenu::SLUG_SETUP );
+		$efb_dep = PluginDependency::status( PluginDependency::EFB, AdminMenu::SLUG_SETUP );
 
 		return array(
 			array(
@@ -1083,11 +1086,12 @@ final class SettingsPage {
 				'icon'     => 'cart-mock',
 				'desc'     => $woo_available
 					? __( 'Creates reviewed simple-product drafts and presents safe store insights.', 'ai-site-assistant-autopilot' )
-					: __( 'WooCommerce must be installed and active before Store Copilot can be used.', 'ai-site-assistant-autopilot' ),
+					: PluginDependency::why( $woo_dep ) . ' ' . __( 'Store Copilot needs it to read products and create drafts.', 'ai-site-assistant-autopilot' ),
 				'field'    => 'woocommerce[enabled]',
 				'on'       => $woo_available && $woo_enabled,
 				'requires' => $woo_available ? '' : 'WooCommerce',
-				'install'  => admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' ),
+				'next'     => $woo_dep['action'],
+				'note'     => $woo_dep['note'],
 			),
 			array(
 				'id'    => 'form-composer',
@@ -1103,11 +1107,12 @@ final class SettingsPage {
 				'icon'     => 'layers',
 				'desc'     => $efb_ready
 					? __( 'Adds an approved AI helper to a compatible Easy Form Builder editor.', 'ai-site-assistant-autopilot' )
-					: __( 'A compatible Easy Form Builder installation is required before this helper can run.', 'ai-site-assistant-autopilot' ),
+					: PluginDependency::why( $efb_dep ) . ' ' . __( 'The helper needs Easy Form Builder 4.1 or newer.', 'ai-site-assistant-autopilot' ),
 				'field'    => 'efb_copilot_enabled',
 				'on'       => $efb_ready && ! empty( $settings['efb_copilot_enabled'] ),
 				'requires' => $efb_ready ? '' : 'Easy Form Builder',
-				'install'  => admin_url( 'plugin-install.php?s=easy+form+builder&tab=search&type=term' ),
+				'next'     => $efb_dep['action'],
+				'note'     => $efb_dep['note'],
 			),
 			array(
 				'id'    => 'content-studio',
@@ -1154,6 +1159,9 @@ final class SettingsPage {
 						echo esc_html( sprintf( __( '%s is not active on this site', 'ai-site-assistant-autopilot' ), $requires ) );
 						?>
 					</div>
+					<?php if ( '' !== (string) ( $card['note'] ?? '' ) ) : ?>
+						<p class="sp-wizard-integration__desc" data-sp-dependency-note><?php echo esc_html( (string) $card['note'] ); ?></p>
+					<?php endif; ?>
 				<?php endif; ?>
 				<?php if ( ! empty( $card['sub'] ) && ( $core || $on || '' === $requires ) ) : ?>
 					<?php $sub = (array) $card['sub']; ?>
@@ -1166,12 +1174,10 @@ final class SettingsPage {
 				<?php endif; ?>
 			</div>
 			<?php if ( '' !== $requires ) : ?>
-				<a class="sp-wizard-btn sp-wizard-btn--outline sp-wizard-btn--sm" href="<?php echo esc_url( (string) $card['install'] ); ?>">
-					<?php
-					/* translators: %s: required plugin name. */
-					echo esc_html( sprintf( __( 'Install %s', 'ai-site-assistant-autopilot' ), $requires ) );
-					?>
-				</a>
+				<?php $next = is_array( $card['next'] ?? null ) ? $card['next'] : null; ?>
+				<?php if ( null !== $next ) : ?>
+					<a class="sp-wizard-btn sp-wizard-btn--outline sp-wizard-btn--sm" href="<?php echo esc_url( (string) $next['url'] ); ?>" data-sp-dependency-action="<?php echo esc_attr( (string) $next['kind'] ); ?>"><?php echo esc_html( (string) $next['label'] ); ?></a>
+				<?php endif; ?>
 			<?php elseif ( ! $core ) : ?>
 				<label class="sp-wizard-switch sp-wizard-switch--main">
 					<input type="hidden" name="<?php echo esc_attr( (string) $card['field'] ); ?>" value="0" />

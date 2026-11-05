@@ -6,6 +6,7 @@ namespace AISAAutoPilot\Core;
 use AISAAutoPilot\Admin\AdminMenu;
 use AISAAutoPilot\Admin\ContentStudioHistoryExport;
 use AISAAutoPilot\Admin\LogExport;
+use AISAAutoPilot\Admin\PluginDependency;
 use AISAAutoPilot\Api\RestRoutes;
 use AISAAutoPilot\Chat\VisitorConversationStore;
 use AISAAutoPilot\Connectors\ConnectorRegistry;
@@ -58,6 +59,8 @@ final class Plugin {
 		add_action( 'rest_api_init', array( $this->container->get( RestRoutes::class ), 'register' ) );
 		( new LogExport() )->register();
 		( new ContentStudioHistoryExport() )->register();
+		// Activate WooCommerce or Easy Form Builder from the screen that needs it.
+		( new PluginDependency() )->register();
 		// Tools > Export / Erase Personal Data, and the suggested privacy-policy text.
 		( new PrivacyTools() )->register();
 		// Daily deletion of visitor data older than the periods set in Advanced settings.

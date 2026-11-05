@@ -118,7 +118,12 @@ final class CopilotPage {
 							<?php if ( $efb_ready ) : ?>
 								<a href="<?php echo esc_url( $efb_url ); ?>"><?php esc_html_e( 'Open EFB', 'ai-site-assistant-autopilot' ); ?></a>
 							<?php else : ?>
-								<span class="sp-fc-advanced__locked"><?php esc_html_e( 'EFB unavailable', 'ai-site-assistant-autopilot' ); ?></span>
+								<?php $efb_next = PluginDependency::status( PluginDependency::EFB, AdminMenu::SLUG_FORM_STUDIO )['action']; ?>
+								<?php if ( null !== $efb_next ) : ?>
+									<a href="<?php echo esc_url( $efb_next['url'] ); ?>" data-sp-dependency-action="<?php echo esc_attr( $efb_next['kind'] ); ?>"><?php echo esc_html( $efb_next['label'] ); ?></a>
+								<?php else : ?>
+									<span class="sp-fc-advanced__locked"><?php esc_html_e( 'EFB unavailable', 'ai-site-assistant-autopilot' ); ?></span>
+								<?php endif; ?>
 							<?php endif; ?>
 						</div>
 					</section>

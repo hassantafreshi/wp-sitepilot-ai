@@ -524,6 +524,11 @@ editable text; nothing is sent until you press Send.
   name. A chat plugin is reported only while the Answer Desk chat button is on.
   Each administrator can hide the warning; another plugin from the list
   activated later brings it back. The check reads only this site's list of active plugins.
+* When WooCommerce or Easy Form Builder is missing, Store Copilot and the Easy
+  Form Builder copilot say which step is needed (install, activate or update)
+  and offer that one button, only to administrators allowed to take it.
+  Activate works in one click and returns to the same screen. Integrations and
+  Setup offer the same step instead of always saying Install.
 * Store Copilot > Descriptions: optional AI descriptions for existing
   products, approved one by one, with Undo (off by default).
 * Setup proposes a monthly spend cap of 2,000,000 tokens that you can change

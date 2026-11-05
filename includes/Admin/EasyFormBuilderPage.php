@@ -24,14 +24,12 @@ final class EasyFormBuilderPage {
 			wp_die( esc_html__( 'You do not have permission to view this page.', 'ai-site-assistant-autopilot' ) );
 		}
 
-		$health    = ( new EasyFormBuilderConnector() )->get_health();
-		$ready     = ! empty( $health['available'] );
-		$active    = ! empty( $health['active'] );
-		$installed = $active || file_exists( WP_PLUGIN_DIR . '/easy-form-builder/emsfb.php' );
-		$catalog   = $this->catalog_summary();
-		$writable  = $catalog['field_properties'] + $catalog['form_properties'];
-		$last      = $this->last_apply();
-		$check     = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 13 4.5 4.5L19 7"/></svg>';
+		$health   = ( new EasyFormBuilderConnector() )->get_health();
+		$ready    = ! empty( $health['available'] );
+		$catalog  = $this->catalog_summary();
+		$writable = $catalog['field_properties'] + $catalog['form_properties'];
+		$last     = $this->last_apply();
+		$check    = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 13 4.5 4.5L19 7"/></svg>';
 
 		Ui::grad_defs();
 		?>
@@ -51,6 +49,7 @@ final class EasyFormBuilderPage {
 				);
 				?>
 				<div class="sp-pagebody">
+				<?php PluginDependency::render_result_notice(); ?>
 				<div class="sp-efbx">
 
 				<?php if ( $ready ) : ?>
@@ -86,24 +85,18 @@ final class EasyFormBuilderPage {
 						<a class="sp-efbx-button" href="<?php echo esc_url( admin_url( 'admin.php?page=Emsfb' ) ); ?>"><?php esc_html_e( 'Open EFB forms', 'ai-site-assistant-autopilot' ); ?></a>
 					</section>
 				<?php else : ?>
-					<section class="sp-efbx-status is-off" data-sp-efb-status aria-labelledby="sp-efbx-status-title">
-						<div class="sp-efbx-status__body">
-							<h2 class="sp-efbx-status__title" id="sp-efbx-status-title">
-								<?php echo esc_html( $active ? __( 'Easy Form Builder needs attention', 'ai-site-assistant-autopilot' ) : __( 'Easy Form Builder is not active', 'ai-site-assistant-autopilot' ) ); ?>
-							</h2>
-							<?php if ( $active ) : ?>
-								<p class="sp-efbx-status__text"><?php echo esc_html( (string) ( $health['notes'] ?? '' ) ); ?></p>
-							<?php endif; ?>
-							<p class="sp-efbx-status__text"><?php esc_html_e( 'The copilot works inside the Easy Form Builder editor, version 4.1 or newer. Simple forms still work with Form Studio.', 'ai-site-assistant-autopilot' ); ?></p>
-						</div>
-						<?php if ( $active ) : ?>
-							<a class="sp-efbx-button is-primary" href="<?php echo esc_url( admin_url( 'plugins.php?s=easy+form+builder' ) ); ?>"><?php esc_html_e( 'Open Plugins to update it', 'ai-site-assistant-autopilot' ); ?></a>
-						<?php elseif ( $installed ) : ?>
-							<a class="sp-efbx-button is-primary" href="<?php echo esc_url( admin_url( 'plugins.php?s=easy+form+builder' ) ); ?>"><?php esc_html_e( 'Activate Easy Form Builder', 'ai-site-assistant-autopilot' ); ?></a>
-						<?php else : ?>
-							<a class="sp-efbx-button is-primary" href="<?php echo esc_url( admin_url( 'plugin-install.php?s=easy+form+builder&tab=search&type=term' ) ); ?>"><?php esc_html_e( 'Install Easy Form Builder', 'ai-site-assistant-autopilot' ); ?></a>
-						<?php endif; ?>
-					</section>
+					<?php
+					PluginDependency::render_required(
+						PluginDependency::status( PluginDependency::EFB, AdminMenu::SLUG_EFB ),
+						array(
+							/* translators: Used in "Install Easy Form Builder to use its AI copilot". */
+							'feature'     => __( 'its AI copilot', 'ai-site-assistant-autopilot' ),
+							'lead'        => __( 'The copilot works inside the Easy Form Builder editor, version 4.1 or newer. The list below shows what it will be allowed to change.', 'ai-site-assistant-autopilot' ),
+							'reassurance' => __( 'Simple forms still work with Form Studio.', 'ai-site-assistant-autopilot' ),
+							'attrs'       => array( 'data-sp-efb-status' => '' ),
+						)
+					);
+					?>
 				<?php endif; ?>
 
 					<div class="sp-efbx-grid">

@@ -3708,7 +3708,9 @@ async function efbDetailsHealthy( page ) {
 		);
 		const statusHref = ( await page.locator( '[data-sp-efb-status] a' ).getAttribute( 'href' ) ) || '';
 		check(
-			'available' === state ? statusHref.includes( 'page=Emsfb' ) : ( statusHref.includes( 'plugin-install.php' ) || statusHref.includes( 'plugins.php' ) ),
+			'available' === state
+				? statusHref.includes( 'page=Emsfb' )
+				: ( statusHref.includes( 'update.php?action=install-plugin' ) || statusHref.includes( 'aisaautopilot_activate_dependency' ) || statusHref.includes( 'plugins.php' ) ),
 			'The connection card offers the next real step: open the forms, or install, activate or update Easy Form Builder'
 		);
 

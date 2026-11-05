@@ -268,8 +268,13 @@
 
 ## Part 8 — Store Copilot (WooCommerce)
 
-- [ ] **8.1** بدون WooCommerce.
-  **Expected:** حالت واقعی «WooCommerce نصب نیست»، نه دادهٔ نمونه.
+- [ ] **8.1** WooCommerce را (بدون حذف) از صفحهٔ افزونه‌ها غیرفعال کنید و **Store Copilot** را باز کنید.
+  **Expected:**
+  - به‌جای تب‌ها و فرم، یک کارت «Activate WooCommerce to use Store Copilot» با سه کاری که دستیار فروشگاه انجام می‌دهد.
+  - دکمهٔ **Activate WooCommerce** را بزنید: ووکامرس فعال می‌شود، به همین صفحه برمی‌گردید، پیام سبز «WooCommerce is active» و پنج تب دیده می‌شوند.
+  - **Integrations** و **Setup** هم برای WooCommerce «Activate» نشان می‌دهند، نه «Install».
+  - (اختیاری) روی سایتی که WooCommerce اصلاً نصب نیست، عنوان «Install WooCommerce…» است و دکمه به نصب‌کنندهٔ خود وردپرس می‌رود.
+  - (اختیاری) با کاربری که اجازهٔ مدیریت افزونه‌ها را ندارد (مثلاً مدیر یک زیرسایت در multisite)، به‌جای دکمه نوشته می‌شود از چه کسی بخواهد.
 - [ ] **8.2** با WooCommerce فعال.
   **Expected:** نمای فقط‌خواندنی محصول‌ها و کارت قابلیت‌ها.
 - [ ] **8.3 (محیط واقعی)** یک محصول ساده بسازید.
@@ -303,6 +308,11 @@
 ---
 
 ## Part 9 — Easy Form Builder Copilot
+
+- [ ] **9.0** Easy Form Builder را غیرفعال کنید و **Integrations → Easy Form Builder Copilot → Activate Easy Form Builder** را بزنید.
+  **Expected:** پیش از زدن، صفحهٔ جزئیات دستیار کارت «Activate Easy Form Builder to use its AI copilot» را بالای فهرست کارهای مجاز نشان می‌دهد؛
+  Form Studio هم در کادر «Need file uploads…» دکمهٔ «Activate Easy Form Builder» دارد. پس از زدن، افزونه فعال است، به Integrations
+  برمی‌گردید و پیام سبز «Easy Form Builder is active» دیده می‌شود.
 
 > نیازمند Easy Form Builder فعال (4.3.x) و یک کلید AI. چک‌باکس رضایت و ۱۱ نوع فیلد تازه در EFB فقط روی
 > پلن **Free Plus یا Pro** ساخته می‌شوند؛ روی Free، دستیار آن‌ها را کنار می‌گذارد و نامشان را می‌برد.

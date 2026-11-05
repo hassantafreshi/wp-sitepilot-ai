@@ -11,7 +11,7 @@
 | 3 | Integrations | `aisaautopilot-integrations` | `IntegrationsPage` | `integrations.js` | چهار گروه و شش کارت قابلیت با dialog پیکربندی؛ هشدار «افزونهٔ چت یا AI دیگری فعال است» از `Core\ConflictDetector` با پنهان‌سازی برای هر مدیر (T31) | `wordpress_integrations_hub_integration`، `wordpress_conflict_detector_integration`، `conflict_browser_matrix`، `integrationsHealthy` |
 | 4 | Site Knowledge | `aisaautopilot-kb` | `KnowledgeBasePage` | `knowledge-base.js` | Overview، Collections، Queue، Sources؛ tabهای پنهان `ask` و `entries` | `wordpress_knowledge_hub_integration`، `knowledgeHealthy` |
 | 5 | Answer Desk | `aisaautopilot-conversations` | `AnswerConversationsPage` و برای tabها `AnswerDeskWidgetPage`، `AnswerDeskHandoffPage`، `AnswerDeskVoicePage` | `answer-widget.js`، `answer-handoff.js`، `answer-voice.js` | Conversations، Widget، Human handoff، Real-time voice | `wordpress_answer_*_integration`، `answer*Healthy` |
-| 6 | Store Copilot | `aisaautopilot-wc-dashboard` | `StoreCopilotPage` | `woocommerce.js` | حالت واقعی بدون WooCommerce، محصولات فقط‌خواندنی، قابلیت‌ها | `wordpress_store_copilot_*_integration`، `storeCopilotHealthy` |
+| 6 | Store Copilot | `aisaautopilot-wc-dashboard` | `StoreCopilotPage` | `woocommerce.js` | بدون WooCommerce فقط کارت «افزونهٔ لازم» (`PluginDependency`) بی‌تب؛ محصولات فقط‌خواندنی، قابلیت‌ها | `wordpress_store_copilot_*_integration`، `wordpress_plugin_dependency_integration`، `dependency_browser_matrix`، `storeCopilotHealthy` |
 | 7 | Content Studio | `aisaautopilot-form-builder` | `CopilotPage` | `content-studio.js`؛ در History هیچ | Write، Templates، History؛ لینک قدیمی `mode=forms` هنوز کار می‌کند اما دیگر مقصد تازه‌ای برایش ساخته نمی‌شود (زیر: Form Studio) | `wordpress_content_studio_*_integration`، `contentStudioNavigationHealthy` |
 | 8 | **Form Studio** (تا ۲۰۲۶-۰۹-۱۷: «Form Composer»، deep link زیر Content Studio) | `aisaautopilot-form-studio` | `CopilotPage::render_forms()` | `content-studio.js` | compose/review/result برای فرم‌های AI-محور | `wordpress_content_studio_navigation_integration`، `wordpress_form_composer_page_integration` |
 
@@ -47,6 +47,15 @@ Usage & Cost، Health و Activity Log تا ۲۰۲۶-۰۹-۱۷ سه آیتم مس
 | `aisaautopilot-usage` | `UsagePage` | Overview (تب) | `usage.js` | همان محتوای جدول تب‌های Overview بالا | همان‌جا |
 | `aisaautopilot-connections` | `ConnectionsPage` | Overview (تب) | `connections.js` | همان محتوای جدول تب‌های Overview بالا | همان‌جا |
 | `aisaautopilot-logs` | `LogsPage` | Overview (تب) | — | همان محتوای جدول تب‌های Overview بالا | همان‌جا |
+
+## افزونهٔ لازم: WooCommerce و Easy Form Builder
+
+`Admin\PluginDependency` یک منبع برای همهٔ صفحه‌هایی است که به افزونهٔ دیگری نیاز دارند.
+
+- `status( $id, $return_page )` یکی از چهار حالت را برمی‌گرداند: `ready`، `missing` (نصب نیست)، `inactive` (نصب است، فعال نیست) و `outdated` (فعال است اما Easy Form Builder پایین‌تر از ۴٫۱ یا جدولش ناقص است). همراهش یک `action` (نصب، فعال‌سازی یا به‌روزرسانی) فقط اگر کاربر قابلیت `install_plugins`، `activate_plugin` یا `update_plugins` را داشته باشد؛ وگرنه `note` می‌گوید از چه کسی بخواهد (در multisite: مدیر شبکه).
+- نصب: `update.php?action=install-plugin` خود وردپرس با nonce `install-plugin_{slug}` (در multisite در network admin).
+- فعال‌سازی: `admin-post.php?action=aisaautopilot_activate_dependency&dependency=…&return=…` با nonce `aisaautopilot_activate_dependency_{id}`، قابلیت `manage_options` و `activate_plugin` و `activate_plugin()` وردپرس. `return` فقط از یک فهرست ثابت صفحه‌های AutoPilot پذیرفته می‌شود و در غیر این صورت Integrations است. نتیجه با `aisaautopilot_dependency_result=activated|failed` روی همان صفحه نشان داده می‌شود و پیام «فعال شد» فقط وقتی می‌آید که افزونه واقعاً فعال باشد.
+- `render_required()` کارت کامل را می‌سازد (منطقه با `aria-labelledby` به h2، دکمهٔ اصلی ۴۴px، پیوند WordPress.org در زبانهٔ تازه). مصرف‌کننده‌ها: Store Copilot (به‌جای تب‌ها)، صفحهٔ جزئیات دستیار Easy Form Builder (بالای فهرست مجاز، با `data-sp-efb-status`)، کارت‌های Integrations و Setup و پیوند Easy Form Builder در Form Studio.
 
 ## قرارداد سطح‌های بازطراحی‌شده در بستهٔ «سطح‌های بیرون از موکاپ»
 

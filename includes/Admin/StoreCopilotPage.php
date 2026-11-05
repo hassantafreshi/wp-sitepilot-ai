@@ -66,31 +66,36 @@ final class StoreCopilotPage {
 					__( 'Propose one product at a time. You review it, AutoPilot saves a draft.', 'ai-site-assistant-autopilot' ),
 					array(
 						'chip'    => ConnectionChip::derive(),
-						'subtabs' => $this->subtabs( $tab ),
+						// Without WooCommerce every tab would be empty, so only the next step is shown.
+						'subtabs' => $active ? $this->subtabs( $tab ) : array(),
 					)
 				);
 				?>
 				<div class="sp-pagebody sp-store-page">
-					<?php $this->render_availability_notice( $active, $can_manage, $enabled ); ?>
-
 					<?php
-					switch ( $tab ) {
-						case 'capabilities':
-							$this->render_capabilities( $health, $settings, $provider_ready );
-							break;
-						case 'products':
-							$this->render_products( $active, $enabled );
-							break;
-						case 'descriptions':
-							$this->render_descriptions( $active && $enabled && $can_manage, ! empty( $settings['enable_descriptions'] ), $provider_ready );
-							break;
-						case 'orders':
-							$this->render_orders( $active, $enabled, $can_manage );
-							break;
-						case 'newproduct':
-						default:
-							$this->render_new_product( $proposal_ready, $active, $enabled, $can_manage, $provider_ready );
-							break;
+					PluginDependency::render_result_notice();
+					if ( ! $active ) {
+						$this->render_needs_woocommerce();
+					} else {
+						$this->render_availability_notice( $can_manage, $enabled );
+						switch ( $tab ) {
+							case 'capabilities':
+								$this->render_capabilities( $health, $settings, $provider_ready );
+								break;
+							case 'products':
+								$this->render_products( $active, $enabled );
+								break;
+							case 'descriptions':
+								$this->render_descriptions( $enabled && $can_manage, ! empty( $settings['enable_descriptions'] ), $provider_ready );
+								break;
+							case 'orders':
+								$this->render_orders( $active, $enabled, $can_manage );
+								break;
+							case 'newproduct':
+							default:
+								$this->render_new_product( $proposal_ready, $active, $enabled, $can_manage, $provider_ready );
+								break;
+						}
 					}
 					?>
 				</div>
@@ -173,21 +178,29 @@ final class StoreCopilotPage {
 		return $tabs;
 	}
 
-	private function render_availability_notice( bool $active, bool $can_manage, bool $enabled ): void {
-		if ( ! $active ) {
-			$install_url = admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
-			Ui::alert(
-				'warn',
-				'warning',
-				sprintf(
-					/* translators: %s: WooCommerce installation URL. */
-					__( 'WooCommerce is not active. Store Copilot cannot read products, orders, or create drafts until it is active. <a href="%s">Install WooCommerce</a>.', 'ai-site-assistant-autopilot' ),
-					esc_url( $install_url )
-				)
-			);
-			return;
-		}
+	/**
+	 * WooCommerce is not installed, not active or not loaded: say what Store Copilot does
+	 * with it and offer the one step this administrator can take.
+	 */
+	private function render_needs_woocommerce(): void {
+		$page = isset( $_GET['page'] ) && AdminMenu::SLUG_WC === sanitize_key( wp_unslash( $_GET['page'] ) ) ? AdminMenu::SLUG_WC : AdminMenu::SLUG_WC_DASHBOARD; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only: which screen to come back to.
+		PluginDependency::render_required(
+			PluginDependency::status( PluginDependency::WOOCOMMERCE, $page ),
+			array(
+				'feature'     => __( 'Store Copilot', 'ai-site-assistant-autopilot' ),
+				'lead'        => __( 'Store Copilot works with your WooCommerce products and orders, so it stays off until WooCommerce is active.', 'ai-site-assistant-autopilot' ),
+				'benefits'    => array(
+					__( 'Describe a product in a sentence. You read the proposal before a draft is saved.', 'ai-site-assistant-autopilot' ),
+					__( 'Write better descriptions for products you already have, one at a time.', 'ai-site-assistant-autopilot' ),
+					__( 'See how many checkouts end in a paid order, read from your own store.', 'ai-site-assistant-autopilot' ),
+				),
+				'reassurance' => __( 'Nothing in your store changes until you approve it.', 'ai-site-assistant-autopilot' ),
+				'attrs'       => array( 'data-sp-store-needs-woo' => '1' ),
+			)
+		);
+	}
 
+	private function render_availability_notice( bool $can_manage, bool $enabled ): void {
 		if ( ! $can_manage ) {
 			Ui::alert(
 				'warn',
