@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Execution;
 
+use AISAAutoPilot\Content\ContentTone;
 use AISAAutoPilot\Logging\Logger;
 
 /**
@@ -46,6 +47,8 @@ final class ActionStore {
 			'status'     => 'publish' === ( $execution_context['status'] ?? '' ) ? 'publish' : 'draft',
 			// The unanswered question a Content Studio draft answers, validated by the caller; empty otherwise.
 			'source_gap' => 1 === preg_match( '/^[a-f0-9]{32}$/', $source_gap ) ? $source_gap : '',
+			// The Content Studio voice the draft was written in; the default for anything else.
+			'tone'       => ContentTone::normalize( $execution_context['tone'] ?? '' ),
 		);
 		$record            = array(
 			'action_id'         => $action_id,

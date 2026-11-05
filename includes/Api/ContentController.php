@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Api;
 
+use AISAAutoPilot\Content\ContentTone;
 use AISAAutoPilot\Content\KbGaps;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Execution\ActionStore;
@@ -42,6 +43,13 @@ final class ContentController {
 		if ( '' !== $source_gap && null === ( new KbGaps() )->get( $source_gap ) ) {
 			return $this->respond( array( 'message' => __( 'The unanswered question this draft was for is no longer in the list. Open Write again to draft without linking it.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_source_gap' );
 		}
+		// The voice is checked here, not by the route schema, so the error has its own code.
+		$tone = $request->get_param( 'tone' );
+		$tone = null === $tone || '' === $tone ? ContentTone::DEFAULT : $tone;
+		if ( ! is_string( $tone ) || ! ContentTone::is_valid( $tone ) ) {
+			return $this->respond( array( 'message' => __( 'Choose one of the voices shown under the request.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_tone' );
+		}
+		ContentTone::remember( get_current_user_id(), $tone );
 		if ( ( new UsageTracker() )->is_exhausted() ) {
 			$this->logger->info( 'content.usage_cap_reached', 'Content planning was blocked because the token budget is exhausted.' );
 			return $this->respond( array( 'message' => __( 'Your AI usage cap has been reached. Increase or reset the budget before drafting content.', 'ai-site-assistant-autopilot' ) ), false, 429, 'usage_cap_reached' );
@@ -50,7 +58,7 @@ final class ContentController {
 			return $this->respond( array( 'message' => __( 'Connect an AI provider before drafting content.', 'ai-site-assistant-autopilot' ) ), false, 400, 'provider_not_configured' );
 		}
 		try {
-			$result = ( new ContentDraftSkill( $this->providers->make() ) )->plan( $prompt );
+			$result = ( new ContentDraftSkill( $this->providers->make() ) )->plan( $prompt, $tone );
 		} catch ( ProviderException $e ) {
 			$this->logger->error( 'content.provider_error', $e->getMessage(), array( 'code' => $e->error_code() ) );
 			return $this->respond( array( 'message' => $e->user_message() ), false, $e->status_code(), $e->error_code() );
@@ -66,13 +74,21 @@ final class ContentController {
 				'validation_failed'
 			);
 		}
-		$action_id = $this->store->create( $result->plan, 'content_draft', array( 'source_gap' => $source_gap ) );
+		$action_id = $this->store->create(
+			$result->plan,
+			'content_draft',
+			array(
+				'source_gap' => $source_gap,
+				'tone'       => $tone,
+			)
+		);
 		$this->logger->info(
 			'content.plan_created',
 			'Content Studio plan created.',
 			array(
 				'action_id' => $action_id,
 				'post_type' => $result->plan['post_type'],
+				'tone'      => $tone,
 			)
 		);
 		return $this->respond(
@@ -89,6 +105,8 @@ final class ContentController {
 					'risk_level'       => $result->plan['risk_level'],
 					'notes'            => $result->plan['notes'],
 					'status'           => 'draft',
+					'tone'             => $tone,
+					'tone_label'       => ContentTone::label( $tone ),
 				),
 			),
 			true

@@ -56,7 +56,7 @@ msgstr ""
 
 #: includes/Activity/ActivityTimeline.php:132
 #: includes/Activity/ActivityTimeline.php:142 includes/Admin/AdminMenu.php:71
-#: includes/Admin/CopilotPage.php:317 includes/Admin/CopilotPage.php:437
+#: includes/Admin/CopilotPage.php:319 includes/Admin/CopilotPage.php:443
 #: includes/Admin/HistoryPage.php:30 includes/Admin/HomePage.php:390
 #: includes/Admin/IntegrationsPage.php:121
 #: includes/Admin/IntegrationsPage.php:398
@@ -69,7 +69,7 @@ msgstr ""
 #: includes/Admin/AdminMenu.php:95 includes/Admin/HomePage.php:369
 #: includes/Admin/IntegrationsPage.php:137
 #: includes/Admin/SettingsPage.php:1085 includes/Admin/StoreCopilotPage.php:65
-#: includes/Admin/StoreCopilotPage.php:191
+#: includes/Admin/StoreCopilotPage.php:190
 msgid "Store Copilot"
 msgstr ""
 
@@ -109,7 +109,7 @@ msgid "Easy Form Builder Copilot"
 msgstr ""
 
 #: includes/Activity/ActivityTimeline.php:159 includes/Admin/AdminMenu.php:76
-#: includes/Admin/CopilotPage.php:80 includes/Admin/CopilotPage.php:93
+#: includes/Admin/CopilotPage.php:81 includes/Admin/CopilotPage.php:94
 #: includes/Admin/HomePage.php:376 includes/Admin/IntegrationsPage.php:88
 #: includes/Admin/IntegrationsPage.php:374
 #: includes/Admin/SettingsPage.php:1098
@@ -218,7 +218,7 @@ msgstr ""
 
 #: includes/Admin/AdminMenu.php:250
 #: includes/Admin/AnswerDeskHandoffPage.php:553
-#: includes/Admin/CopilotPage.php:199 includes/Admin/KnowledgeBasePage.php:437
+#: includes/Admin/CopilotPage.php:200 includes/Admin/KnowledgeBasePage.php:437
 #: includes/Admin/KnowledgeBasePage.php:500 includes/Admin/UsagePage.php:92
 msgid "Cancel"
 msgstr ""
@@ -265,8 +265,8 @@ msgid "Replace the key or check the custom endpoint."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:307 includes/Admin/ChatPage.php:286
-#: includes/Admin/CopilotPage.php:548 includes/Admin/SettingsPage.php:1326
-#: includes/Admin/StoreCopilotPage.php:114
+#: includes/Admin/CopilotPage.php:554 includes/Admin/SettingsPage.php:1326
+#: includes/Admin/StoreCopilotPage.php:113
 #: includes/Efb/EfbBuilderButton.php:91
 msgid "Network error. Please try again."
 msgstr ""
@@ -305,7 +305,7 @@ msgstr ""
 msgid "Test failed."
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:317 includes/Admin/CopilotPage.php:531
+#: includes/Admin/AdminMenu.php:317 includes/Admin/CopilotPage.php:537
 #: includes/Admin/NativeFormsPage.php:202 includes/Admin/SettingsPage.php:550
 #: includes/Admin/SettingsPage.php:555
 msgid "Copy"
@@ -529,7 +529,7 @@ msgstr ""
 msgid "Building a reviewable draft…"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:374 includes/Admin/CopilotPage.php:357
+#: includes/Admin/AdminMenu.php:374 includes/Admin/CopilotPage.php:362
 msgid "Write a draft"
 msgstr ""
 
@@ -551,7 +551,7 @@ msgid "Open draft in WordPress"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:379
-#: includes/Content/ContentStudioReadModel.php:163
+#: includes/Content/ContentStudioReadModel.php:171
 msgid "Draft saved"
 msgstr ""
 
@@ -656,8 +656,8 @@ msgstr ""
 #: includes/Admin/AnswerDeskHandoffPage.php:27
 #: includes/Admin/AnswerDeskVoicePage.php:19
 #: includes/Admin/AnswerDeskWidgetPage.php:18 includes/Admin/ChatPage.php:22
-#: includes/Admin/ConnectionsPage.php:17 includes/Admin/CopilotPage.php:24
-#: includes/Admin/CopilotPage.php:57 includes/Admin/EasyFormBuilderPage.php:24
+#: includes/Admin/ConnectionsPage.php:17 includes/Admin/CopilotPage.php:25
+#: includes/Admin/CopilotPage.php:58 includes/Admin/EasyFormBuilderPage.php:24
 #: includes/Admin/HandoffInboxPage.php:27 includes/Admin/HistoryPage.php:19
 #: includes/Admin/HomePage.php:27 includes/Admin/KnowledgeBasePage.php:26
 #: includes/Admin/LogsPage.php:25 includes/Admin/NativeFormsPage.php:20
@@ -688,8 +688,8 @@ msgid "Open Widget settings"
 msgstr ""
 
 #: includes/Admin/AnswerConversationsPage.php:109
-#: includes/Admin/CopilotPage.php:161 includes/Admin/CopilotPage.php:309
-#: includes/Admin/CopilotPage.php:572
+#: includes/Admin/CopilotPage.php:162 includes/Admin/CopilotPage.php:311
+#: includes/Admin/CopilotPage.php:578
 msgid "Open Integrations"
 msgstr ""
 
@@ -796,7 +796,7 @@ msgid "How it looks on your site"
 msgstr ""
 
 #: includes/Admin/AnswerConversationsPage.php:313
-#: includes/Admin/StoreCopilotPage.php:352
+#: includes/Admin/StoreCopilotPage.php:347
 msgid "Settings"
 msgstr ""
 
@@ -843,9 +843,9 @@ msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:97
 #: includes/Admin/AnswerDeskHandoffPage.php:193
-#: includes/Admin/CopilotPage.php:256 includes/Admin/CopilotPage.php:261
-#: includes/Admin/CopilotPage.php:266 includes/Admin/CopilotPage.php:271
-#: includes/Admin/CopilotPage.php:609 includes/Admin/HandoffInboxPage.php:319
+#: includes/Admin/CopilotPage.php:257 includes/Admin/CopilotPage.php:262
+#: includes/Admin/CopilotPage.php:267 includes/Admin/CopilotPage.php:272
+#: includes/Admin/CopilotPage.php:615 includes/Admin/HandoffInboxPage.php:319
 #: includes/Efb/EfbBuilderButton.php:292 includes/Support/HandoffEmail.php:61
 msgid "Email"
 msgstr ""
@@ -1124,8 +1124,8 @@ msgid ""
 msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:472
-#: includes/Admin/CopilotPage.php:256 includes/Admin/CopilotPage.php:266
-#: includes/Admin/CopilotPage.php:276 includes/Admin/CopilotPage.php:281
+#: includes/Admin/CopilotPage.php:257 includes/Admin/CopilotPage.php:267
+#: includes/Admin/CopilotPage.php:277 includes/Admin/CopilotPage.php:282
 #: includes/Support/PrivacyTools.php:91
 msgid "Name"
 msgstr ""
@@ -1208,7 +1208,7 @@ msgid "Save configuration"
 msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:555
-#: includes/Admin/CopilotPage.php:310 includes/Admin/SettingsPage.php:838
+#: includes/Admin/CopilotPage.php:312 includes/Admin/SettingsPage.php:838
 #: includes/Admin/SettingsPage.php:1269
 msgid "Check connection"
 msgstr ""
@@ -1590,7 +1590,7 @@ msgstr ""
 msgid "Record a question"
 msgstr ""
 
-#: includes/Admin/ChatPage.php:151 includes/Admin/CopilotPage.php:172
+#: includes/Admin/ChatPage.php:151 includes/Admin/CopilotPage.php:173
 #: includes/Core/Plugin.php:175 includes/Efb/EfbBuilderButton.php:355
 #: includes/Frontend/ChatWidget.php:164
 msgid "Send"
@@ -1877,569 +1877,555 @@ msgstr ""
 msgid "Templates"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:81
+#: includes/Admin/CopilotPage.php:82
 msgid ""
 "Simple forms, emailed to you. Describe one, check the plan, then create it."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:84
+#: includes/Admin/CopilotPage.php:85
 msgid "The recipient is set by you and cannot be changed by the AI."
 msgstr ""
 
 #. translators: %s: configured form notification email.
 #. translators: %s: email address.
-#: includes/Admin/CopilotPage.php:86 includes/Admin/CopilotPage.php:569
+#: includes/Admin/CopilotPage.php:87 includes/Admin/CopilotPage.php:575
 #, php-format
 msgid "Answers go to %s"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:87 includes/Admin/NativeFormsPage.php:93
+#: includes/Admin/CopilotPage.php:88 includes/Admin/NativeFormsPage.php:93
 msgid "Change"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:90 includes/Efb/EfbBuilderButton.php:214
+#: includes/Admin/CopilotPage.php:91 includes/Efb/EfbBuilderButton.php:214
 msgid "New form"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:94
+#: includes/Admin/CopilotPage.php:95
 msgid "Chat"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:95 includes/Admin/CopilotPage.php:487
+#: includes/Admin/CopilotPage.php:96 includes/Admin/CopilotPage.php:493
 msgid "Preview"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:101
+#: includes/Admin/CopilotPage.php:102
 msgid "Start from an example"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:102
+#: includes/Admin/CopilotPage.php:103
 msgid ""
 "Pick one and it lands in the chat, ready to edit. Or describe your own form "
 "there."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:117
+#: includes/Admin/CopilotPage.php:118
 msgid "Need file uploads, payments, dates, multi-step or logic?"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:117
+#: includes/Admin/CopilotPage.php:118
 msgid ""
 "Those belong in Easy Form Builder. Native forms stay simple and email-only."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:119
+#: includes/Admin/CopilotPage.php:120
 msgid "Open EFB"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:125
+#: includes/Admin/CopilotPage.php:126
 msgid "EFB unavailable"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:154 includes/Admin/CopilotPage.php:475
+#: includes/Admin/CopilotPage.php:155 includes/Admin/CopilotPage.php:481
 msgid "Form Assistant"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:155 includes/Admin/CopilotPage.php:576
+#: includes/Admin/CopilotPage.php:156 includes/Admin/CopilotPage.php:582
 msgid "New native form"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:155 includes/Admin/CopilotPage.php:577
+#: includes/Admin/CopilotPage.php:156 includes/Admin/CopilotPage.php:583
 msgid "Setup needed"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:161
+#: includes/Admin/CopilotPage.php:162
 msgid "Form Studio is turned off"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:167
+#: includes/Admin/CopilotPage.php:168
 msgid "Describe the form you want to create"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:168 includes/Admin/CopilotPage.php:615
+#: includes/Admin/CopilotPage.php:169 includes/Admin/CopilotPage.php:621
 msgid "Describe the form: who fills it in and what you need to know…"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:168 includes/Admin/CopilotPage.php:616
+#: includes/Admin/CopilotPage.php:169 includes/Admin/CopilotPage.php:622
 msgid "Finish the setup to start…"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:170
+#: includes/Admin/CopilotPage.php:171
 msgid "Start voice command"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:170 includes/Admin/CopilotPage.php:553
+#: includes/Admin/CopilotPage.php:171 includes/Admin/CopilotPage.php:559
 msgid "Speak"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:176
+#: includes/Admin/CopilotPage.php:177
 msgid "AI drafts a plan. Nothing is created until you approve."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:184
+#: includes/Admin/CopilotPage.php:185
 msgid "Publish this form immediately?"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:185
+#: includes/Admin/CopilotPage.php:186
 msgid ""
 "The form becomes visible to site visitors as soon as you confirm. You can "
 "unpublish it later."
 msgstr ""
 
 #. translators: %s: site host name.
-#: includes/Admin/CopilotPage.php:192
+#: includes/Admin/CopilotPage.php:193
 #, php-format
 msgid "I understand this creates a publicly visible form on %s"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:200 includes/Admin/CopilotPage.php:507
+#: includes/Admin/CopilotPage.php:201 includes/Admin/CopilotPage.php:513
 msgid "Approve & publish"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:254
+#: includes/Admin/CopilotPage.php:255
 msgid "Contact form"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:255
+#: includes/Admin/CopilotPage.php:256
 msgid "Create a contact form with name, email, phone, and message."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:256 includes/Admin/CopilotPage.php:610
+#: includes/Admin/CopilotPage.php:257 includes/Admin/CopilotPage.php:616
 #: includes/Efb/EfbBuilderButton.php:293
 msgid "Phone"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:256
+#: includes/Admin/CopilotPage.php:257
 #: includes/Frontend/ChatWidgetSettings.php:337
 msgid "Message"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:259
+#: includes/Admin/CopilotPage.php:260
 msgid "Newsletter signup"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:260
+#: includes/Admin/CopilotPage.php:261
 msgid ""
 "Make a newsletter signup with first name, email and the topics they want: "
 "news, offers or events."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:261
+#: includes/Admin/CopilotPage.php:262
 msgid "First name"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:261
+#: includes/Admin/CopilotPage.php:262
 msgid "Topics"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:264
+#: includes/Admin/CopilotPage.php:265
 msgid "Support request"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:265
+#: includes/Admin/CopilotPage.php:266
 msgid ""
 "Support request form with name, email, priority (low, medium, high) and "
 "details."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:266
+#: includes/Admin/CopilotPage.php:267
 msgid "Priority"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:266
+#: includes/Admin/CopilotPage.php:267
 msgid "Details"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:269
+#: includes/Admin/CopilotPage.php:270
 msgid "Job application"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:270
+#: includes/Admin/CopilotPage.php:271
 msgid ""
 "Build a job application form with full name, email, phone, the position they"
 " apply for as a dropdown, and a cover letter."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:271
+#: includes/Admin/CopilotPage.php:272
 msgid "Full name"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:271
+#: includes/Admin/CopilotPage.php:272
 #: includes/Frontend/ChatWidgetSettings.php:133
 msgid "Position"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:271
+#: includes/Admin/CopilotPage.php:272
 msgid "Cover letter"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:274
+#: includes/Admin/CopilotPage.php:275
 msgid "Event RSVP"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:275
+#: includes/Admin/CopilotPage.php:276
 msgid ""
 "An event RSVP form with name, email, whether they will come (yes or no), how"
 " many guests (0 to 3) and any dietary needs."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:276
+#: includes/Admin/CopilotPage.php:277
 msgid "Attending"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:276
+#: includes/Admin/CopilotPage.php:277
 msgid "Guests"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:276
+#: includes/Admin/CopilotPage.php:277
 msgid "Dietary needs"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:279
+#: includes/Admin/CopilotPage.php:280
 msgid "Quote request"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:280
+#: includes/Admin/CopilotPage.php:281
 msgid ""
 "A quote request form with name, email, phone, the service they need as a "
 "dropdown, a budget range and project details."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:281 includes/Admin/KnowledgeBasePage.php:583
+#: includes/Admin/CopilotPage.php:282 includes/Admin/KnowledgeBasePage.php:583
 #: includes/Admin/SettingsPage.php:294
 msgid "Service"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:281
+#: includes/Admin/CopilotPage.php:282
 msgid "Budget"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:281
+#: includes/Admin/CopilotPage.php:282
 msgid "Project details"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:302
+#: includes/Admin/CopilotPage.php:304
 msgid "Content Studio is turned off"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:303
+#: includes/Admin/CopilotPage.php:305
 msgid "AI usage cap reached"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:303
+#: includes/Admin/CopilotPage.php:305
 msgid "AI provider unavailable"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:305
+#: includes/Admin/CopilotPage.php:307
 msgid "Turn it on in Integrations before creating a reviewable draft."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:306
+#: includes/Admin/CopilotPage.php:308
 msgid "Increase or reset the usage budget before building a draft."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:306
+#: includes/Admin/CopilotPage.php:308
 msgid "Connect an AI provider before a draft can be built."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:310
+#: includes/Admin/CopilotPage.php:312
 msgid "Open Usage"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:318 includes/Admin/HistoryPage.php:31
+#: includes/Admin/CopilotPage.php:320 includes/Admin/HistoryPage.php:31
 msgid "Drafts written in the voice it learned from your site."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:322 includes/Admin/CopilotPage.php:442
+#: includes/Admin/CopilotPage.php:324 includes/Admin/CopilotPage.php:448
 #: includes/Admin/HistoryPage.php:35
 msgid "New draft"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:334 includes/Admin/HistoryPage.php:56
+#: includes/Admin/CopilotPage.php:336 includes/Admin/HistoryPage.php:56
 #: includes/Admin/HomePage.php:176
 msgid "Nothing written yet"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:335
+#: includes/Admin/CopilotPage.php:337
 msgid ""
 "Describe what you need in the box below and Content Studio writes a first "
 "draft in the voice it learned from your site. Drafts are never published on "
 "their own."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:343
+#: includes/Admin/CopilotPage.php:345
 msgid "Drafting an answer to:"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:348
+#: includes/Admin/CopilotPage.php:350
 msgid "What should it write?"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:349
+#: includes/Admin/CopilotPage.php:351
 msgid ""
 "A post about why multi-step forms convert better, for shop owners, around "
 "900 words…"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:351 includes/Admin/CopilotPage.php:352
-#: includes/Admin/SettingsPage.php:218 includes/Admin/SettingsPage.php:379
-#: includes/Frontend/ChatWidget.php:112
-#: includes/Frontend/ChatWidgetSettings.php:120
+#: includes/Admin/CopilotPage.php:354 includes/Admin/CopilotPage.php:383
+msgctxt "writing style of a Content Studio draft"
 msgid "Voice"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:353
-msgid "Learned from your site"
-msgstr ""
-
-#: includes/Admin/CopilotPage.php:354
-msgid "Formal"
-msgstr ""
-
-#: includes/Admin/CopilotPage.php:355
-msgid "Plain"
-msgstr ""
-
-#: includes/Admin/CopilotPage.php:374
+#: includes/Admin/CopilotPage.php:379
 msgid "Review the draft before saving"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:375 includes/Admin/StoreCopilotPage.php:117
+#: includes/Admin/CopilotPage.php:380 includes/Admin/StoreCopilotPage.php:116
 msgid "Draft only"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:378 includes/Admin/KnowledgeBasePage.php:379
+#: includes/Admin/CopilotPage.php:384 includes/Admin/KnowledgeBasePage.php:379
 #: includes/Frontend/ChatWidgetSettings.php:206
 #: includes/Support/PrivacyTools.php:341
 msgid "Title"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:379
+#: includes/Admin/CopilotPage.php:385
 msgid "URL slug"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:380 includes/Admin/CopilotPage.php:421
+#: includes/Admin/CopilotPage.php:386 includes/Admin/CopilotPage.php:427
 msgid "Meta description"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:381
+#: includes/Admin/CopilotPage.php:387
 msgid "Body"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:383
+#: includes/Admin/CopilotPage.php:389
 msgid "Approve & create draft"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:383 includes/Admin/KnowledgeBasePage.php:393
+#: includes/Admin/CopilotPage.php:389 includes/Admin/KnowledgeBasePage.php:393
 msgid "Start over"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:389
+#: includes/Admin/CopilotPage.php:395
 msgid "Recent drafts"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:411
+#: includes/Admin/CopilotPage.php:417
 msgid "Product description"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:412 includes/Admin/CopilotPage.php:413
+#: includes/Admin/CopilotPage.php:418 includes/Admin/CopilotPage.php:419
 msgid ""
 "Write 60–90 words for {product}. Lead with the material, then the use. No "
 "superlatives."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:416
+#: includes/Admin/CopilotPage.php:422
 msgid "Blog post outline"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:417 includes/Admin/CopilotPage.php:418
+#: includes/Admin/CopilotPage.php:423 includes/Admin/CopilotPage.php:424
 msgid ""
 "Outline a post on {topic} for {audience}. Six headings, one sentence each."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:422 includes/Admin/CopilotPage.php:423
+#: includes/Admin/CopilotPage.php:428 includes/Admin/CopilotPage.php:429
 msgid "Summarise {page} in under 155 characters. Say what the reader gets."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:426
+#: includes/Admin/CopilotPage.php:432
 msgid "Support answer"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:427 includes/Admin/CopilotPage.php:428
+#: includes/Admin/CopilotPage.php:433 includes/Admin/CopilotPage.php:434
 msgid ""
 "Answer {question} using only {sources}. If the answer is not there, say so."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:438
+#: includes/Admin/CopilotPage.php:444
 msgid "Reusable writing starting points."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:455
+#: includes/Admin/CopilotPage.php:461
 msgid "Built-in"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:458
+#: includes/Admin/CopilotPage.php:464
 msgid "Use template"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:476
+#: includes/Admin/CopilotPage.php:482
 msgid ""
 "Your form plan is ready. Review every field and the final status below; "
 "nothing is created until you approve."
 msgstr ""
 
 #. translators: %d: number of fields in the proposed form.
-#: includes/Admin/CopilotPage.php:478
+#: includes/Admin/CopilotPage.php:484
 #, php-format
 msgid "%d fields ready to review"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:479
+#: includes/Admin/CopilotPage.php:485
 msgid "Create with AI"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:480
+#: includes/Admin/CopilotPage.php:486
 msgid "Waiting for your approval"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:481 includes/Admin/CopilotPage.php:508
+#: includes/Admin/CopilotPage.php:487 includes/Admin/CopilotPage.php:514
 msgid "Expired"
 msgstr ""
 
 #. translators: %s: human-readable time remaining, e.g. "14 minutes".
-#: includes/Admin/CopilotPage.php:483
+#: includes/Admin/CopilotPage.php:489
 #, php-format
 msgid "Valid for %s more"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:484
+#: includes/Admin/CopilotPage.php:490
 msgid "This proposal has expired"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:485
+#: includes/Admin/CopilotPage.php:491
 msgid "Nothing changes on your site until you approve."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:486
+#: includes/Admin/CopilotPage.php:492
 msgid ""
 "This action expired and can no longer be approved. Rebuild the request to "
 "continue."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:488
+#: includes/Admin/CopilotPage.php:494
 msgid "Structure details"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:489
+#: includes/Admin/CopilotPage.php:495
 #: includes/Frontend/ChatWidgetSettings.php:383
 msgid "Desktop"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:490 includes/Admin/HandoffInboxPage.php:320
+#: includes/Admin/CopilotPage.php:496 includes/Admin/HandoffInboxPage.php:320
 #: includes/Frontend/ChatWidgetSettings.php:384
 #: includes/Support/HandoffEmail.php:62
 msgid "Mobile"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:491 includes/Efb/EfbBuilderButton.php:305
+#: includes/Admin/CopilotPage.php:497 includes/Efb/EfbBuilderButton.php:305
 msgid "required"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:492
+#: includes/Admin/CopilotPage.php:498
 msgid "optional"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:493
+#: includes/Admin/CopilotPage.php:499
 msgid "What will not be created"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:494
+#: includes/Admin/CopilotPage.php:500
 msgid "These were removed from the plan by policy and cannot be approved."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:495
+#: includes/Admin/CopilotPage.php:501
 msgid "Payment field — not allowed"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:496
+#: includes/Admin/CopilotPage.php:502
 msgid "Password field — not allowed"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:497
+#: includes/Admin/CopilotPage.php:503
 msgid "User registration — not allowed"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:498
+#: includes/Admin/CopilotPage.php:504
 msgid "What happens when you approve"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:499
+#: includes/Admin/CopilotPage.php:505
 msgid "Connector"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:500
+#: includes/Admin/CopilotPage.php:506
 msgid "Destination"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:501
+#: includes/Admin/CopilotPage.php:507
 msgid "State"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:502
+#: includes/Admin/CopilotPage.php:508
 msgid "Draft — not public"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:503
+#: includes/Admin/CopilotPage.php:509
 msgid "Published immediately"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:504
+#: includes/Admin/CopilotPage.php:510
 msgid "Risk level"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:505
+#: includes/Admin/CopilotPage.php:511
 msgid "Notifications"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:506
+#: includes/Admin/CopilotPage.php:512
 msgid "Approve & save as draft"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:509
+#: includes/Admin/CopilotPage.php:515
 msgid "Back and edit"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:510
+#: includes/Admin/CopilotPage.php:516
 msgid "Reject this proposal"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:511
+#: includes/Admin/CopilotPage.php:517
 msgid "Single use · creates exactly the reviewed status"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:512
+#: includes/Admin/CopilotPage.php:518
 msgid "Rebuild the request to continue."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:513
+#: includes/Admin/CopilotPage.php:519
 msgid "Proposal rejected. Nothing was created."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:514
+#: includes/Admin/CopilotPage.php:520
 msgid "Creating the form in WordPress"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:515
+#: includes/Admin/CopilotPage.php:521
 msgid "The form was created as a draft."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:516
+#: includes/Admin/CopilotPage.php:522
 msgid "The form was created and published."
 msgstr ""
 
 #. translators: %s: the title of the form that was created.
 #. translators: %s: title of the form that was created.
-#: includes/Admin/CopilotPage.php:519
+#: includes/Admin/CopilotPage.php:525
 #, php-format
 msgid ""
 "“%s” was saved as a draft. Open and publish it before its shortcode can show"
@@ -2447,335 +2433,335 @@ msgid ""
 msgstr ""
 
 #. translators: %s: title of the form that was created.
-#: includes/Admin/CopilotPage.php:521
+#: includes/Admin/CopilotPage.php:527
 #, php-format
 msgid ""
 "“%s” was published. Place the shortcode on a page to show it to visitors."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:522
+#: includes/Admin/CopilotPage.php:528
 msgid "The form was not created"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:523 includes/Admin/CopilotPage.php:582
+#: includes/Admin/CopilotPage.php:529 includes/Admin/CopilotPage.php:588
 msgid "Form created"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:524
+#: includes/Admin/CopilotPage.php:530
 msgid "Creation failed"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:525
+#: includes/Admin/CopilotPage.php:531
 msgid "Created in WordPress"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:526
+#: includes/Admin/CopilotPage.php:532
 msgid "Entries email to"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:527
+#: includes/Admin/CopilotPage.php:533
 msgid ""
 "Done. The form was saved as a draft. Open and publish it before its "
 "shortcode can display it to visitors."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:528
+#: includes/Admin/CopilotPage.php:534
 msgid ""
 "Done. The reviewed form was published and its shortcode is ready to place."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:529
+#: includes/Admin/CopilotPage.php:535
 msgid "The approved action could not be completed. Nothing new was created."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:530 includes/Admin/NativeFormsPage.php:161
+#: includes/Admin/CopilotPage.php:536 includes/Admin/NativeFormsPage.php:161
 msgid "Shortcode"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:532
+#: includes/Admin/CopilotPage.php:538
 msgid "Copied to clipboard"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:533
+#: includes/Admin/CopilotPage.php:539
 msgid "Open the draft"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:534
+#: includes/Admin/CopilotPage.php:540
 msgid "Open the form"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:535
+#: includes/Admin/CopilotPage.php:541
 msgid "Edit in Easy Form Builder"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:536 includes/Admin/KnowledgeBasePage.php:461
+#: includes/Admin/CopilotPage.php:542 includes/Admin/KnowledgeBasePage.php:461
 #: includes/Core/Plugin.php:174
 msgid "Try again"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:537
+#: includes/Admin/CopilotPage.php:543
 msgid "Build another form"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:538
+#: includes/Admin/CopilotPage.php:544
 msgid "View in activity"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:539
+#: includes/Admin/CopilotPage.php:545
 msgid "Low"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:540
+#: includes/Admin/CopilotPage.php:546
 msgid "Medium"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:541
+#: includes/Admin/CopilotPage.php:547
 msgid "High"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:542
+#: includes/Admin/CopilotPage.php:548
 msgid "Email to site admin"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:543
+#: includes/Admin/CopilotPage.php:549
 msgid "type"
 msgstr ""
 
 #. translators: %d: number of choices in a select or radio field.
-#: includes/Admin/CopilotPage.php:545
+#: includes/Admin/CopilotPage.php:551
 #, php-format
 msgid "%d options"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:546
+#: includes/Admin/CopilotPage.php:552
 msgid "Type or speak a description of the form first."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:547
+#: includes/Admin/CopilotPage.php:553
 msgid "Building a reviewable plan…"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:549
+#: includes/Admin/CopilotPage.php:555
 msgid "Could not generate a safe form."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:550
+#: includes/Admin/CopilotPage.php:556
 msgid "Ctrl + Enter to submit"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:551
+#: includes/Admin/CopilotPage.php:557
 msgid "Recording — the transcript will land in the box, editable."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:552 includes/Admin/Ui.php:439
+#: includes/Admin/CopilotPage.php:558 includes/Admin/Ui.php:439
 msgid "Stop"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:554
+#: includes/Admin/CopilotPage.php:560
 msgid "Transcribing your voice command…"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:555
+#: includes/Admin/CopilotPage.php:561
 msgid "Voice command added. Review the text, then generate the preview."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:556
+#: includes/Admin/CopilotPage.php:562
 msgid "Voice transcription failed. You can type the command instead."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:557
+#: includes/Admin/CopilotPage.php:563
 msgid ""
 "This browser does not support voice recording. Please type the command."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:558
+#: includes/Admin/CopilotPage.php:564
 msgid "Microphone access was not granted. Please type the command."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:560
+#: includes/Admin/CopilotPage.php:566
 msgid ""
 "Describe the form you need: who fills it in, and what do you need to know "
 "from them? Or pick an example; it lands here, ready to edit. I draft a plan,"
 " and nothing is created until you approve it."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:561
+#: includes/Admin/CopilotPage.php:567
 msgid "Almost ready. This is what I need before I can draft forms:"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:562
+#: includes/Admin/CopilotPage.php:568
 msgid "Form Studio is on"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:563
+#: includes/Admin/CopilotPage.php:569
 msgid "Turn on Form Studio"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:564
+#: includes/Admin/CopilotPage.php:570
 msgid "It is switched off in Integrations."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:565
+#: includes/Admin/CopilotPage.php:571
 msgid "An AI service is connected"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:566
+#: includes/Admin/CopilotPage.php:572
 msgid "Connect an AI service"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:567
+#: includes/Admin/CopilotPage.php:573
 msgid "Your own API key from OpenAI, Claude, Gemini and others."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:570
+#: includes/Admin/CopilotPage.php:576
 msgid "Choose where answers are emailed"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:571
+#: includes/Admin/CopilotPage.php:577
 msgid "Submissions are emailed to this address and not stored in WordPress."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:573
+#: includes/Admin/CopilotPage.php:579
 msgid "Set up"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:574 includes/Admin/NativeFormsPage.php:66
+#: includes/Admin/CopilotPage.php:580 includes/Admin/NativeFormsPage.php:66
 msgid "Set email"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:575
+#: includes/Admin/CopilotPage.php:581
 msgid "All set. Describe the form you need, or pick an example."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:578
+#: includes/Admin/CopilotPage.php:584
 msgid "Drafting a plan…"
 msgstr ""
 
 #. translators: %s: time left, such as 14:52.
-#: includes/Admin/CopilotPage.php:580
+#: includes/Admin/CopilotPage.php:586
 #, php-format
 msgid "Plan ready · valid for %s"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:581
+#: includes/Admin/CopilotPage.php:587
 msgid "Plan expired"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:583
+#: includes/Admin/CopilotPage.php:589
 msgid "Understood the request"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:584
+#: includes/Admin/CopilotPage.php:590
 msgid "Choosing the fields…"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:585
+#: includes/Admin/CopilotPage.php:591
 msgid "Checking them against the native-form rules"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:586
+#: includes/Admin/CopilotPage.php:592
 msgid "I could not build that yet"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:587
+#: includes/Admin/CopilotPage.php:593
 msgid "Say who fills it in and what you need from them. For example:"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:588
+#: includes/Admin/CopilotPage.php:594
 msgid ""
 "The plan is ready and shown on the canvas. Approve it, or ask me to change "
 "something."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:589
+#: includes/Admin/CopilotPage.php:595
 msgid ""
 "Here is the plan you were reviewing before the page reloaded. It is still "
 "waiting for your approval."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:590
+#: includes/Admin/CopilotPage.php:596
 msgid "Saved as a draft"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:591
+#: includes/Admin/CopilotPage.php:597
 msgid "Not visible on your site"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:592
+#: includes/Admin/CopilotPage.php:598
 msgid "Visible to visitors as soon as you confirm"
 msgstr ""
 
 #. translators: %s: masked email address.
-#: includes/Admin/CopilotPage.php:594
+#: includes/Admin/CopilotPage.php:600
 #, php-format
 msgid "Answers emailed to %s"
 msgstr ""
 
 #. translators: %s: Low, Medium or High.
-#: includes/Admin/CopilotPage.php:596
+#: includes/Admin/CopilotPage.php:602
 #, php-format
 msgid "Risk: %s"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:597
+#: includes/Admin/CopilotPage.php:603
 msgid "Native forms never include payments, passwords or sign-ups."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:598
+#: includes/Admin/CopilotPage.php:604
 msgid "Reject"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:599
+#: includes/Admin/CopilotPage.php:605
 msgid "This plan expired. Ask again to get a fresh one."
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:600
+#: includes/Admin/CopilotPage.php:606
 msgid "Draft it again"
 msgstr ""
 
 #. translators: 1: the current plan in short, 2: the change the administrator
 #. asked for.
-#: includes/Admin/CopilotPage.php:602
+#: includes/Admin/CopilotPage.php:608
 #, php-format
 msgid "Change this form plan. Current plan: %1$s. Change: %2$s"
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Admin/CopilotPage.php:604
+#: includes/Admin/CopilotPage.php:610
 #, php-format
 msgid "Make “%s” optional"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:605
+#: includes/Admin/CopilotPage.php:611
 msgid "Add a phone number field"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:606
+#: includes/Admin/CopilotPage.php:612
 msgid "Change the text of the send button"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:607
+#: includes/Admin/CopilotPage.php:613
 #: includes/Admin/EasyFormBuilderPage.php:256
 msgid "Fields"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:608 includes/Efb/EfbBuilderButton.php:291
+#: includes/Admin/CopilotPage.php:614 includes/Efb/EfbBuilderButton.php:291
 msgid "Text"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:611 includes/Efb/EfbBuilderButton.php:294
+#: includes/Admin/CopilotPage.php:617 includes/Efb/EfbBuilderButton.php:294
 msgid "Long text"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:612 includes/Efb/EfbBuilderButton.php:296
+#: includes/Admin/CopilotPage.php:618 includes/Efb/EfbBuilderButton.php:296
 msgid "Dropdown"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:613 includes/Efb/EfbBuilderButton.php:298
+#: includes/Admin/CopilotPage.php:619 includes/Efb/EfbBuilderButton.php:298
 msgid "Checkboxes"
 msgstr ""
 
-#: includes/Admin/CopilotPage.php:614 includes/Efb/EfbBuilderButton.php:297
+#: includes/Admin/CopilotPage.php:620 includes/Efb/EfbBuilderButton.php:297
 msgid "Choice"
 msgstr ""
 
@@ -3076,7 +3062,7 @@ msgstr ""
 #: includes/Admin/HandoffInboxPage.php:185
 #: includes/Admin/KnowledgeBasePage.php:382
 #: includes/Admin/NativeFormsPage.php:160
-#: includes/Admin/StoreCopilotPage.php:340
+#: includes/Admin/StoreCopilotPage.php:335
 #: includes/Support/PrivacyTools.php:95
 msgid "Status"
 msgstr ""
@@ -3115,7 +3101,7 @@ msgstr ""
 #. translators: %s: human-readable time difference, such as "8 mins".
 #. translators: %s: human-readable time difference, e.g. 2 minutes.
 #: includes/Admin/HandoffInboxPage.php:295
-#: includes/Content/ContentStudioReadModel.php:176
+#: includes/Content/ContentStudioReadModel.php:184
 #, php-format
 msgid "%s ago"
 msgstr ""
@@ -3520,6 +3506,12 @@ msgstr ""
 #: includes/Admin/HistoryPage.php:65
 #, php-format
 msgid "Open %s in WordPress"
+msgstr ""
+
+#. translators: %s: Content Studio voice (writing style), such as Formal.
+#: includes/Admin/HistoryPage.php:86
+#, php-format
+msgid "Voice: %s"
 msgstr ""
 
 #: includes/Admin/HomePage.php:60
@@ -4586,7 +4578,7 @@ msgstr ""
 
 #: includes/Admin/KnowledgeBasePage.php:508
 #: includes/Admin/NativeFormsPage.php:140
-#: includes/Admin/StoreCopilotPage.php:744
+#: includes/Admin/StoreCopilotPage.php:739
 msgid "Delete"
 msgstr ""
 
@@ -4847,7 +4839,7 @@ msgstr ""
 #. translators: The WooCommerce plugin's name, as WooCommerce's own
 #. translation writes it.
 #: includes/Admin/PluginDependency.php:89
-#: includes/Admin/StoreCopilotPage.php:342
+#: includes/Admin/StoreCopilotPage.php:337
 msgid "WooCommerce"
 msgstr ""
 
@@ -5001,6 +4993,12 @@ msgstr ""
 msgid "Semantic search"
 msgstr ""
 
+#: includes/Admin/SettingsPage.php:218 includes/Admin/SettingsPage.php:379
+#: includes/Frontend/ChatWidget.php:112
+#: includes/Frontend/ChatWidgetSettings.php:120
+msgid "Voice"
+msgstr ""
+
 #: includes/Admin/SettingsPage.php:219 includes/Admin/SettingsPage.php:398
 msgid "Forms and delivery"
 msgstr ""
@@ -5052,7 +5050,7 @@ msgid ""
 "submission when its email cannot be sent\" is on under Forms and delivery."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:242 includes/Admin/StoreCopilotPage.php:699
+#: includes/Admin/SettingsPage.php:242 includes/Admin/StoreCopilotPage.php:694
 #: includes/Support/PrivacyTools.php:132
 msgid "Abandoned carts"
 msgstr ""
@@ -5205,7 +5203,7 @@ msgstr ""
 msgid "Built in. Simple forms whose submissions are emailed to you."
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:410 includes/Admin/StoreCopilotPage.php:302
+#: includes/Admin/SettingsPage.php:410 includes/Admin/StoreCopilotPage.php:297
 msgid "Not active"
 msgstr ""
 
@@ -5415,7 +5413,7 @@ msgstr ""
 msgid "Unsaved changes on this page"
 msgstr ""
 
-#: includes/Admin/SettingsPage.php:570 includes/Admin/StoreCopilotPage.php:264
+#: includes/Admin/SettingsPage.php:570 includes/Admin/StoreCopilotPage.php:259
 #: includes/Efb/EfbBuilderButton.php:88
 #: includes/Frontend/ChatWidgetSettings.php:395
 msgid "Discard"
@@ -6187,433 +6185,433 @@ msgstr ""
 msgid "Propose one product at a time. You review it, AutoPilot saves a draft."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:110
+#: includes/Admin/StoreCopilotPage.php:109
 msgid "Writing the proposal..."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:111
+#: includes/Admin/StoreCopilotPage.php:110
 msgid "Read the proposal before creating the draft."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:112
+#: includes/Admin/StoreCopilotPage.php:111
 msgid "Creating the WooCommerce draft..."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:113
+#: includes/Admin/StoreCopilotPage.php:112
 msgid "Draft created. Publishing remains a manual WooCommerce step."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:115
+#: includes/Admin/StoreCopilotPage.php:114
 msgid "Describe the product you want to draft."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:116
+#: includes/Admin/StoreCopilotPage.php:115
 msgid "This proposal expired before it was approved. Nothing was created."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:118
+#: includes/Admin/StoreCopilotPage.php:117
 msgid "Not managed"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:119
+#: includes/Admin/StoreCopilotPage.php:118
 msgid "Store Copilot settings saved."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:120
+#: includes/Admin/StoreCopilotPage.php:119
 msgid "The Store Copilot settings could not be saved."
 msgstr ""
 
 #. translators: %s: time left before the proposal expires, as m:ss.
-#: includes/Admin/StoreCopilotPage.php:122
+#: includes/Admin/StoreCopilotPage.php:121
 #, php-format
 msgid "Expires in %s"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:123
+#: includes/Admin/StoreCopilotPage.php:122
 msgid "Review product draft"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:124
+#: includes/Admin/StoreCopilotPage.php:123
 msgid "Phase 1 creates simple products only"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:125
+#: includes/Admin/StoreCopilotPage.php:124
 msgid "Phase 1 always creates a draft"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:126
+#: includes/Admin/StoreCopilotPage.php:125
 msgid "Loading products…"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:127
+#: includes/Admin/StoreCopilotPage.php:126
 msgid ""
 "Every product already has a description of at least 40 words. Clear the "
 "filter to rewrite one anyway."
 msgstr ""
 
 #. translators: %s: number of words in the current description.
-#: includes/Admin/StoreCopilotPage.php:129
+#: includes/Admin/StoreCopilotPage.php:128
 #, php-format
 msgid "%s words now"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:130
+#: includes/Admin/StoreCopilotPage.php:129
 msgid "No description yet"
 msgstr ""
 
 #. translators: 1: number of drafts written so far, 2: number of drafts asked
 #. for.
-#: includes/Admin/StoreCopilotPage.php:132
+#: includes/Admin/StoreCopilotPage.php:131
 #, php-format
 msgid "Writing draft %1$s of %2$s…"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:133
+#: includes/Admin/StoreCopilotPage.php:132
 msgid ""
 "Drafts are ready. Read each one, edit it if you like, then apply or skip it."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:134
+#: includes/Admin/StoreCopilotPage.php:133
 msgid "Pick up to 10 products at a time."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:135
+#: includes/Admin/StoreCopilotPage.php:134
 msgid "Now"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:136
+#: includes/Admin/StoreCopilotPage.php:135
 msgid "AI draft (you can edit it)"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:137
+#: includes/Admin/StoreCopilotPage.php:136
 #: includes/Efb/EfbBuilderButton.php:158
 msgid "Apply"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:138
+#: includes/Admin/StoreCopilotPage.php:137
 msgid "Skip"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:139
+#: includes/Admin/StoreCopilotPage.php:138
 #: includes/Efb/EfbBuilderButton.php:156
 msgid "Undo"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:140
+#: includes/Admin/StoreCopilotPage.php:139
 msgid "Applied"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:141
+#: includes/Admin/StoreCopilotPage.php:140
 msgid "Skipped. Nothing changed."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:142
+#: includes/Admin/StoreCopilotPage.php:141
 msgid "No draft for this product."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:143
+#: includes/Admin/StoreCopilotPage.php:142
 msgid "Description"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:144
+#: includes/Admin/StoreCopilotPage.php:143
 msgid "Send the one reminder email for this cart now?"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:145
+#: includes/Admin/StoreCopilotPage.php:144
 msgid "Delete this cart and its email? The shopper is not told."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:146
-#: includes/Admin/StoreCopilotPage.php:740
+#: includes/Admin/StoreCopilotPage.php:145
+#: includes/Admin/StoreCopilotPage.php:735
 #: includes/Support/PrivacyTools.php:153
 msgid "Reminder sent"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:164
+#: includes/Admin/StoreCopilotPage.php:163
 msgid "New product"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:165
+#: includes/Admin/StoreCopilotPage.php:164
 msgid "What it can do"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:166
-#: includes/Admin/StoreCopilotPage.php:312
-#: includes/Admin/StoreCopilotPage.php:344
-#: includes/Admin/StoreCopilotPage.php:435
-#: includes/Admin/StoreCopilotPage.php:495
+#: includes/Admin/StoreCopilotPage.php:165
+#: includes/Admin/StoreCopilotPage.php:307
+#: includes/Admin/StoreCopilotPage.php:339
+#: includes/Admin/StoreCopilotPage.php:430
+#: includes/Admin/StoreCopilotPage.php:490
 #: includes/Support/PrivacyTools.php:140
 msgid "Products"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:167
+#: includes/Admin/StoreCopilotPage.php:166
 msgid "Descriptions"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:168
-#: includes/Admin/StoreCopilotPage.php:322
+#: includes/Admin/StoreCopilotPage.php:167
+#: includes/Admin/StoreCopilotPage.php:317
 msgid "Orders"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:192
+#: includes/Admin/StoreCopilotPage.php:191
 msgid ""
 "Store Copilot works with your WooCommerce products and orders, so it stays "
 "off until WooCommerce is active."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:194
+#: includes/Admin/StoreCopilotPage.php:193
 msgid ""
 "Describe a product in a sentence. You read the proposal before a draft is "
 "saved."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:195
+#: includes/Admin/StoreCopilotPage.php:194
 msgid ""
 "Write better descriptions for products you already have, one at a time."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:196
+#: includes/Admin/StoreCopilotPage.php:195
 msgid "See how many checkouts end in a paid order, read from your own store."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:198
+#: includes/Admin/StoreCopilotPage.php:197
 msgid "Nothing in your store changes until you approve it."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:213
+#: includes/Admin/StoreCopilotPage.php:208
 msgid ""
 "Your account does not have WooCommerce management access. Store Copilot "
 "remains read-only and cannot create a proposal."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:222
+#: includes/Admin/StoreCopilotPage.php:217
 msgid ""
 "The WooCommerce AI connector is paused. It cannot read store data or create "
 "a draft until you turn it on in What it can do."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:231
+#: includes/Admin/StoreCopilotPage.php:226
 msgid "Describe the product"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:232
+#: includes/Admin/StoreCopilotPage.php:227
 msgid ""
 "One product at a time. AutoPilot writes a proposal, you read it, and only "
 "then does it create a draft in WooCommerce."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:233
+#: includes/Admin/StoreCopilotPage.php:228
 msgid "Product draft prompt"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:234
+#: includes/Admin/StoreCopilotPage.php:229
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts..."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:236
+#: includes/Admin/StoreCopilotPage.php:231
 msgid "Write proposal"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:238
+#: includes/Admin/StoreCopilotPage.php:233
 msgid "Nothing is written to your store at this step."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:245
+#: includes/Admin/StoreCopilotPage.php:240
 msgid "Product examples"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:246
+#: includes/Admin/StoreCopilotPage.php:241
 msgid "Try one of these"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:247
+#: includes/Admin/StoreCopilotPage.php:242
 msgid ""
 "A simple 500g organic Arabic coffee, with a short description, SKU and "
 "introductory price."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:247
+#: includes/Admin/StoreCopilotPage.php:242
 msgid "A simple 500g organic Arabic coffee with a SKU and introductory price"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:248
+#: includes/Admin/StoreCopilotPage.php:243
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:248
+#: includes/Admin/StoreCopilotPage.php:243
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:249
+#: includes/Admin/StoreCopilotPage.php:244
 msgid ""
 "A simple ceramic travel mug, with a short description and stock status."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:249
+#: includes/Admin/StoreCopilotPage.php:244
 msgid "A simple ceramic travel mug with stock status"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:255
+#: includes/Admin/StoreCopilotPage.php:250
 msgid "Proposal - read it before approving"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:256
+#: includes/Admin/StoreCopilotPage.php:251
 msgid "Not created yet"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:262
+#: includes/Admin/StoreCopilotPage.php:257
 msgid "Approve - create the draft"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:263
+#: includes/Admin/StoreCopilotPage.php:258
 msgid "Propose again"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:265
+#: includes/Admin/StoreCopilotPage.php:260
 msgid "Creates a draft only. You publish it yourself."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:276
+#: includes/Admin/StoreCopilotPage.php:271
 msgid "Activate WooCommerce before Store Copilot can make a proposal."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:279
+#: includes/Admin/StoreCopilotPage.php:274
 msgid ""
 "WooCommerce management access is required before a proposal can be approved."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:282
+#: includes/Admin/StoreCopilotPage.php:277
 msgid ""
 "Turn on the WooCommerce AI connector in What it can do before writing a "
 "proposal."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:285
+#: includes/Admin/StoreCopilotPage.php:280
 msgid ""
 "Connect an AI provider in Setup before Store Copilot can write a proposal."
 msgstr ""
 
 #. translators: %s: active WooCommerce version.
-#: includes/Admin/StoreCopilotPage.php:299
+#: includes/Admin/StoreCopilotPage.php:294
 #, php-format
 msgid "Active · %s"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:307
+#: includes/Admin/StoreCopilotPage.php:302
 msgid "Phase 1 capabilities"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:308
+#: includes/Admin/StoreCopilotPage.php:303
 msgid "What the connector is allowed to do today"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:314
+#: includes/Admin/StoreCopilotPage.php:309
 msgid "Read your products and categories"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:315
+#: includes/Admin/StoreCopilotPage.php:310
 msgid "Propose one simple product as a draft"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:316
+#: includes/Admin/StoreCopilotPage.php:311
 msgid "Publish a product"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:316
-#: includes/Admin/StoreCopilotPage.php:317
-#: includes/Admin/StoreCopilotPage.php:318
-#: includes/Admin/StoreCopilotPage.php:325
-#: includes/Admin/StoreCopilotPage.php:326
-#: includes/Admin/StoreCopilotPage.php:519
+#: includes/Admin/StoreCopilotPage.php:311
+#: includes/Admin/StoreCopilotPage.php:312
+#: includes/Admin/StoreCopilotPage.php:313
+#: includes/Admin/StoreCopilotPage.php:320
+#: includes/Admin/StoreCopilotPage.php:321
+#: includes/Admin/StoreCopilotPage.php:514
 msgid "Phase 2"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:317
+#: includes/Admin/StoreCopilotPage.php:312
 msgid "Edit a product that already exists"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:318
+#: includes/Admin/StoreCopilotPage.php:313
 msgid "Change many products at once"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:324
+#: includes/Admin/StoreCopilotPage.php:319
 msgid "Read a recent order summary as a store manager"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:325
+#: includes/Admin/StoreCopilotPage.php:320
 msgid "Change an order"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:326
+#: includes/Admin/StoreCopilotPage.php:321
 msgid "Issue a refund"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:330
+#: includes/Admin/StoreCopilotPage.php:325
 msgid "Analytics"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:332
+#: includes/Admin/StoreCopilotPage.php:327
 msgid "Read store analytics"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:343
+#: includes/Admin/StoreCopilotPage.php:338
 msgid "Your access"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:345
+#: includes/Admin/StoreCopilotPage.php:340
 msgid "Categories"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:346
+#: includes/Admin/StoreCopilotPage.php:341
 msgid "Product tags"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:347
+#: includes/Admin/StoreCopilotPage.php:342
 msgid "Draft workflow"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:347
+#: includes/Admin/StoreCopilotPage.php:342
 msgid "Always draft (fixed in Phase 1)"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:347
+#: includes/Admin/StoreCopilotPage.php:342
 msgid "Connector paused"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:354
+#: includes/Admin/StoreCopilotPage.php:349
 msgid "WooCommerce AI connector"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:354
+#: includes/Admin/StoreCopilotPage.php:349
 msgid "Off means no proposals, drafts, or Store Copilot reads."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:355
+#: includes/Admin/StoreCopilotPage.php:350
 msgid "Smart product search"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:355
+#: includes/Admin/StoreCopilotPage.php:350
 msgid ""
 "Controls the protected Store search endpoint. It does not add a visitor-"
 "facing search interface."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:356
+#: includes/Admin/StoreCopilotPage.php:351
 msgid "Product descriptions"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:356
+#: includes/Admin/StoreCopilotPage.php:351
 msgid ""
 "Lets AutoPilot draft descriptions for products you already have. Each one "
 "waits for your approval, and Undo puts the old text back. Nothing else about"
 " a product is changed."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:357
+#: includes/Admin/StoreCopilotPage.php:352
 msgid "Count carts"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:357
+#: includes/Admin/StoreCopilotPage.php:352
 msgid ""
 "Counts, per day, how many carts are started and how many reach checkout, so "
 "Orders can show where shoppers stop. Only the two numbers are stored: no "
@@ -6621,11 +6619,11 @@ msgid ""
 "counted."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:358
+#: includes/Admin/StoreCopilotPage.php:353
 msgid "Abandoned cart reminders"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:358
+#: includes/Admin/StoreCopilotPage.php:353
 msgid ""
 "Checkout shows a short note under the email field: the cart and that email "
 "are kept so you can send one reminder, with a button to decline. Carts left "
@@ -6634,155 +6632,155 @@ msgid ""
 "after the Abandoned carts period in Data retention."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:359
+#: includes/Admin/StoreCopilotPage.php:354
 msgid "Product editing by AI"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:359
+#: includes/Admin/StoreCopilotPage.php:354
 msgid ""
 "Prices, stock, titles and every other field are reserved for Phase 2. They "
 "cannot be switched on yet."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:360
+#: includes/Admin/StoreCopilotPage.php:355
 msgid "Always create as draft"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:360
+#: includes/Admin/StoreCopilotPage.php:355
 msgid "Fixed in Phase 1. Publishing stays a manual step."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:403
+#: includes/Admin/StoreCopilotPage.php:398
 msgid "No store-management access"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:436
+#: includes/Admin/StoreCopilotPage.php:431
 msgid "Read-only in Phase 1 - AutoPilot cannot edit what already exists"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:439
+#: includes/Admin/StoreCopilotPage.php:434
 msgid ""
 "Products become available here when WooCommerce and its AI connector are "
 "active."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:441
+#: includes/Admin/StoreCopilotPage.php:436
 msgid ""
 "No WooCommerce products were found yet. Drafts created by AutoPilot will be "
 "marked here."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:454
+#: includes/Admin/StoreCopilotPage.php:449
 msgid ""
 "Drafts AutoPilot created are marked. Everything else it can read but not "
 "touch until Phase 2."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:468
+#: includes/Admin/StoreCopilotPage.php:463
 msgid "Descriptions for products you already have"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:469
+#: includes/Admin/StoreCopilotPage.php:464
 msgid ""
 "You approve each one. Only the description changes, and Undo puts the old "
 "text back."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:472
+#: includes/Admin/StoreCopilotPage.php:467
 msgid ""
 "Descriptions become available here when WooCommerce and its AI connector are"
 " active."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:475
+#: includes/Admin/StoreCopilotPage.php:470
 msgid ""
 "Product descriptions are off. Turn them on under What it can do, then pick "
 "the products to write for here."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:476
-#: includes/Admin/StoreCopilotPage.php:649
+#: includes/Admin/StoreCopilotPage.php:471
+#: includes/Admin/StoreCopilotPage.php:644
 msgid "Open What it can do"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:479
+#: includes/Admin/StoreCopilotPage.php:474
 msgid "Connect an AI service in Setup & Connection first."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:482
+#: includes/Admin/StoreCopilotPage.php:477
 msgid "Only products with a missing or short description"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:484
+#: includes/Admin/StoreCopilotPage.php:479
 msgid "Tone"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:486
+#: includes/Admin/StoreCopilotPage.php:481
 msgid "Professional"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:487
+#: includes/Admin/StoreCopilotPage.php:482
 msgid "Friendly"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:488
+#: includes/Admin/StoreCopilotPage.php:483
 msgid "Premium"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:489
+#: includes/Admin/StoreCopilotPage.php:484
 msgid "Technical"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:492
+#: includes/Admin/StoreCopilotPage.php:487
 msgid "Write drafts"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:498
+#: includes/Admin/StoreCopilotPage.php:493
 msgid ""
 "Up to 10 drafts at a time, one AI request each. A draft is valid for 15 "
 "minutes and is refused if someone changes that description meanwhile."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:513
+#: includes/Admin/StoreCopilotPage.php:508
 msgid "What it may read from an order"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:514
+#: includes/Admin/StoreCopilotPage.php:509
 msgid ""
 "The current order route is protected for a store manager. A visitor-facing "
 "order lookup is not registered in this release."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:516
+#: includes/Admin/StoreCopilotPage.php:511
 msgid "Recent order summary for a store manager"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:516
+#: includes/Admin/StoreCopilotPage.php:511
 msgid "Read only"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:516
+#: includes/Admin/StoreCopilotPage.php:511
 msgid "Unavailable"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:517
+#: includes/Admin/StoreCopilotPage.php:512
 msgid "Customer-facing order lookup"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:517
-#: includes/Admin/StoreCopilotPage.php:518
+#: includes/Admin/StoreCopilotPage.php:512
+#: includes/Admin/StoreCopilotPage.php:513
 msgid "Not registered"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:518
+#: includes/Admin/StoreCopilotPage.php:513
 msgid "Order items, notes, or personal details"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:519
+#: includes/Admin/StoreCopilotPage.php:514
 msgid "Change status, cancel, or refund"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:523
+#: includes/Admin/StoreCopilotPage.php:518
 msgid ""
 "Changing an order status, cancelling, and refunding are not registered as "
 "Store Copilot routes in Phase 1. No prompt in this UI can trigger them."
@@ -6790,90 +6788,90 @@ msgstr ""
 
 #. translators: %s: share of all checkouts in the period, as a percentage.
 #. translators: %s: share of carts started, as a percentage.
-#: includes/Admin/StoreCopilotPage.php:542
-#: includes/Admin/StoreCopilotPage.php:658
+#: includes/Admin/StoreCopilotPage.php:537
+#: includes/Admin/StoreCopilotPage.php:653
 #, php-format
 msgid "%s%%"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:545
-#: includes/Admin/StoreCopilotPage.php:663
+#: includes/Admin/StoreCopilotPage.php:540
+#: includes/Admin/StoreCopilotPage.php:658
 msgid "Paid"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:545
+#: includes/Admin/StoreCopilotPage.php:540
 msgid ""
 "Processing, completed, on hold for an offline payment, or refunded later."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:546
+#: includes/Admin/StoreCopilotPage.php:541
 msgid "Stopped at payment"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:546
+#: includes/Admin/StoreCopilotPage.php:541
 msgid "Pending payment: the customer placed the order but never paid."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:547
+#: includes/Admin/StoreCopilotPage.php:542
 msgid "Payment failed"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:547
+#: includes/Admin/StoreCopilotPage.php:542
 msgid "The payment provider declined or the payment did not go through."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:548
+#: includes/Admin/StoreCopilotPage.php:543
 msgid "Cancelled"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:548
+#: includes/Admin/StoreCopilotPage.php:543
 msgid ""
 "Usually an unpaid order that WooCommerce cancelled when its held stock "
 "expired."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:553
+#: includes/Admin/StoreCopilotPage.php:548
 msgid "Checkout drop-off"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:554
+#: includes/Admin/StoreCopilotPage.php:549
 msgid "Period"
 msgstr ""
 
 #. translators: %s: number of days.
-#: includes/Admin/StoreCopilotPage.php:559
+#: includes/Admin/StoreCopilotPage.php:554
 #, php-format
 msgid "%s days"
 msgstr ""
 
 #. translators: %s: number of days.
-#: includes/Admin/StoreCopilotPage.php:573
+#: includes/Admin/StoreCopilotPage.php:568
 #, php-format
 msgid "No customer placed an order at checkout in the last %s days."
 msgstr ""
 
 #. translators: 1: number of checkouts, 2: number of days, 3: percentage paid,
 #. 4: number not paid.
-#: includes/Admin/StoreCopilotPage.php:583
+#: includes/Admin/StoreCopilotPage.php:578
 #, php-format
 msgid "%1$s checkout in the last %2$s days: %3$s paid, %4$s not paid."
 msgid_plural "%1$s checkouts in the last %2$s days: %3$s paid, %4$s not paid."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/StoreCopilotPage.php:607
+#: includes/Admin/StoreCopilotPage.php:602
 msgid "View orders"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:614
+#: includes/Admin/StoreCopilotPage.php:609
 msgid "Unpaid and failed checkouts by payment method"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:621
+#: includes/Admin/StoreCopilotPage.php:616
 msgid "Based on the latest 200 unpaid and failed checkouts."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:629
+#: includes/Admin/StoreCopilotPage.php:624
 msgid ""
 "Orders are those customers placed at checkout in this period, read from "
 "WooCommerce on this page; orders you add yourself are left out. Carts "
@@ -6881,7 +6879,7 @@ msgid ""
 " carts is on, without anything about the shopper."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:631
+#: includes/Admin/StoreCopilotPage.php:626
 msgid ""
 "Counts orders that customers placed at checkout in this period, read from "
 "WooCommerce on this page. Orders you add yourself are left out, and carts "
@@ -6889,54 +6887,54 @@ msgid ""
 "them."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:648
+#: includes/Admin/StoreCopilotPage.php:643
 msgid ""
 "To also see carts that never reach checkout, turn on Count carts under What "
 "it can do."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:661
+#: includes/Admin/StoreCopilotPage.php:656
 msgid "Carts started"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:662
+#: includes/Admin/StoreCopilotPage.php:657
 msgid "Reached checkout"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:678
+#: includes/Admin/StoreCopilotPage.php:673
 msgid "Counting is on. Carts appear here once shoppers add something."
 msgstr ""
 
 #. translators: %s: the date counting started.
-#: includes/Admin/StoreCopilotPage.php:683
+#: includes/Admin/StoreCopilotPage.php:678
 #, php-format
 msgid "Carts are counted since %s, so this period is not complete yet."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:700
+#: includes/Admin/StoreCopilotPage.php:695
 msgid ""
 "Carts left at checkout for an hour or more, with the email the shopper typed"
 " there."
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:704
+#: includes/Admin/StoreCopilotPage.php:699
 msgid "No abandoned carts right now."
 msgstr ""
 
 #. translators: 1: cart total with currency, 2: time since the last change,
 #. such as "3 hours".
-#: includes/Admin/StoreCopilotPage.php:730
+#: includes/Admin/StoreCopilotPage.php:725
 #, php-format
 msgid "%1$s · left %2$s ago"
 msgstr ""
 
-#: includes/Admin/StoreCopilotPage.php:742
+#: includes/Admin/StoreCopilotPage.php:737
 msgid "Send reminder"
 msgstr ""
 
 #. translators: 1: number of orders placed after a reminder, 2: retention,
 #. such as "30 days".
-#: includes/Admin/StoreCopilotPage.php:757
+#: includes/Admin/StoreCopilotPage.php:752
 #, php-format
 msgid ""
 "Orders placed after a reminder: %1$s. One reminder per cart, sent only when "
@@ -6950,7 +6948,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of days.
-#: includes/Admin/StoreCopilotPage.php:761
+#: includes/Admin/StoreCopilotPage.php:756
 #: includes/Support/PrivacyTools.php:243
 #, php-format
 msgid "%s day"
@@ -6958,7 +6956,7 @@ msgid_plural "%s days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/StoreCopilotPage.php:762
+#: includes/Admin/StoreCopilotPage.php:757
 msgid "you delete them"
 msgstr ""
 
@@ -7341,43 +7339,47 @@ msgstr ""
 msgid "We could not send the request. Please try again later."
 msgstr ""
 
-#: includes/Api/ContentController.php:33
-#: includes/Api/ContentController.php:100
+#: includes/Api/ContentController.php:34
+#: includes/Api/ContentController.php:118
 msgid "Content Studio is turned off in Integrations."
 msgstr ""
 
-#: includes/Api/ContentController.php:37
+#: includes/Api/ContentController.php:38
 msgid ""
 "Describe the post or page you want to draft in 6,000 characters or fewer."
 msgstr ""
 
-#: includes/Api/ContentController.php:43
+#: includes/Api/ContentController.php:44
 msgid ""
 "The unanswered question this draft was for is no longer in the list. Open "
 "Write again to draft without linking it."
 msgstr ""
 
-#: includes/Api/ContentController.php:47
+#: includes/Api/ContentController.php:50
+msgid "Choose one of the voices shown under the request."
+msgstr ""
+
+#: includes/Api/ContentController.php:55
 msgid ""
 "Your AI usage cap has been reached. Increase or reset the budget before "
 "drafting content."
 msgstr ""
 
-#: includes/Api/ContentController.php:50
+#: includes/Api/ContentController.php:58
 msgid "Connect an AI provider before drafting content."
 msgstr ""
 
-#: includes/Api/ContentController.php:61
+#: includes/Api/ContentController.php:69
 msgid "The content proposal was not safe or complete."
 msgstr ""
 
-#: includes/Api/ContentController.php:104
+#: includes/Api/ContentController.php:122
 #: includes/Api/CopilotController.php:138
 #: includes/Api/EfbCopilotController.php:173
 msgid "Missing action reference."
 msgstr ""
 
-#: includes/Api/ContentController.php:108
+#: includes/Api/ContentController.php:126
 msgid "Draft creation failed."
 msgstr ""
 
@@ -8395,34 +8397,46 @@ msgid ""
 "Usage & Cost, then resume this indexing pass."
 msgstr ""
 
-#: includes/Content/ContentStudioReadModel.php:120
+#: includes/Content/ContentStudioReadModel.php:121
 msgid "Template not recorded"
 msgstr ""
 
-#: includes/Content/ContentStudioReadModel.php:121
+#: includes/Content/ContentStudioReadModel.php:122
 msgid "Usage not recorded"
 msgstr ""
 
-#: includes/Content/ContentStudioReadModel.php:142
+#: includes/Content/ContentStudioReadModel.php:150
 msgid "Published by you"
 msgstr ""
 
-#: includes/Content/ContentStudioReadModel.php:147
+#: includes/Content/ContentStudioReadModel.php:155
 msgid "Waiting for you"
 msgstr ""
 
-#: includes/Content/ContentStudioReadModel.php:152
+#: includes/Content/ContentStudioReadModel.php:160
 msgid "Scheduled by you"
 msgstr ""
 
-#: includes/Content/ContentStudioReadModel.php:157
+#: includes/Content/ContentStudioReadModel.php:165
 msgid "Private by you"
 msgstr ""
 
 #. translators: %s: localized time.
-#: includes/Content/ContentStudioReadModel.php:190
+#: includes/Content/ContentStudioReadModel.php:198
 #, php-format
 msgid "Today %s"
+msgstr ""
+
+#: includes/Content/ContentTone.php:38
+msgid "Formal"
+msgstr ""
+
+#: includes/Content/ContentTone.php:40
+msgid "Plain"
+msgstr ""
+
+#: includes/Content/ContentTone.php:42
+msgid "Learned from your site"
 msgstr ""
 
 #. translators: %s: how many times visitors asked the question.
@@ -9900,25 +9914,25 @@ msgstr ""
 msgid "The form could not be created."
 msgstr ""
 
-#: includes/Execution/ContentDraftExecutor.php:26
-#: includes/Execution/ContentDraftExecutor.php:33
+#: includes/Execution/ContentDraftExecutor.php:27
+#: includes/Execution/ContentDraftExecutor.php:34
 msgid "You are not allowed to approve this draft."
 msgstr ""
 
-#: includes/Execution/ContentDraftExecutor.php:30
+#: includes/Execution/ContentDraftExecutor.php:31
 msgid "This draft proposal has expired. Generate it again."
 msgstr ""
 
-#: includes/Execution/ContentDraftExecutor.php:36
+#: includes/Execution/ContentDraftExecutor.php:37
 msgid "This draft has already been processed."
 msgstr ""
 
-#: includes/Execution/ContentDraftExecutor.php:39
-#: includes/Execution/ContentDraftExecutor.php:44
+#: includes/Execution/ContentDraftExecutor.php:40
+#: includes/Execution/ContentDraftExecutor.php:45
 msgid "This approval does not belong to Content Studio."
 msgstr ""
 
-#: includes/Execution/ContentDraftExecutor.php:63
+#: includes/Execution/ContentDraftExecutor.php:64
 msgid "WordPress could not create the draft."
 msgstr ""
 

@@ -70,6 +70,17 @@ extends the list. Each administrator can hide the warning on that site through
 `POST /integrations/conflicts/dismiss`, which accepts only plugins detected
 right now; another plugin from the list activated later brings it back. Nothing is sent anywhere.
 
+**Content Studio voice** — Write offers three voices as a keyboard-accessible
+radio group: Learned from your site (the default, which sends exactly the same
+prompt as before), Formal and Plain. `POST /content/plan` takes `tone`
+(`site`, `formal` or `plain`; anything else is refused with 400 `invalid_tone`
+before any AI request). The voice is frozen in the proposal, so approval cannot
+change it, written to the draft as `_aisaautopilot_content_tone`, named in the
+preview and in History, and remembered per administrator and per site in the
+`{prefix}aisaautopilot_content_tone` user option. These are writing voices for
+pages and posts; Store Copilot > Descriptions keeps its own product-copy tones
+(Professional, Friendly, Premium, Technical).
+
 **When WooCommerce or Easy Form Builder is missing** — Store Copilot shows one
 clear step in place of its tabs, and the Easy Form Builder copilot page shows it
 above the list of what the copilot may change. The step depends on why the
@@ -245,14 +256,14 @@ Deactivating changes nothing. Deleting runs `uninstall.php`.
 | Tables | `{prefix}aisaautopilot_kb`, `{prefix}aisaautopilot_kb_chunks`, `{prefix}aisaautopilot_kb_terms`, `{prefix}aisaautopilot_chats`, `{prefix}aisaautopilot_widget_chats`, `{prefix}aisaautopilot_handoffs` |
 | Options | 32 named `aisaautopilot_*` options (settings, encrypted keys, handoff secrets, logs, usage and budget, knowledge gaps and saved answers, the passage index format and its rebuild cursor, schema stamps, the site-setup marker, the last retention run, the rebrand marker), every `aisaautopilot_action_claim_*` replay lock, and a final sweep of any remaining `aisaautopilot_*` row |
 | Transients | Rate-limit counters, the 15-minute action preview, the provider-test record and the delivery-test cooldown, by `_transient_aisaautopilot_*` prefix |
-| User meta | `{prefix}aisaautopilot_dismissed_conflicts`: the Integrations warnings about other chat or AI plugins that each administrator hid on that site |
+| User meta | `{prefix}aisaautopilot_dismissed_conflicts`: the Integrations warnings about other chat or AI plugins that each administrator hid on that site; `{prefix}aisaautopilot_content_tone`: the Content Studio voice each administrator last chose on that site |
 | Cron | `aisaautopilot_index_post` (every queued page), `aisaautopilot_kb_rebuild` and the daily `aisaautopilot_retention_cleanup` are unscheduled |
 
 | Kept on purpose | Why |
 |---|---|
 | `aisaautopilot_form` posts and their `_aisaautopilot_form_plan` meta | Your forms |
 | Legacy `aisaautopilot_entry` posts | Data an older version created |
-| Posts, pages and product drafts written through the plugin, with their `_aisaautopilot_generated`, `_aisaautopilot_meta_description` and `_aisaautopilot_source_gap` meta | Your content |
+| Posts, pages and product drafts written through the plugin, with their `_aisaautopilot_generated`, `_aisaautopilot_meta_description`, `_aisaautopilot_source_gap` and `_aisaautopilot_content_tone` meta | Your content |
 | Easy Form Builder forms | They belong to that plugin |
 
 On a multisite network all of this is removed from every site. The plugin

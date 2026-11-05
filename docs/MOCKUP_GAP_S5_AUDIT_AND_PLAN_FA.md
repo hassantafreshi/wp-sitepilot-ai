@@ -54,7 +54,7 @@
 | T29 | همه | ممیزی و تأیید D-13 | T14 | D-13 | تکمیل ۲۰۲۶-۱۱-۰۴ (بخش ۸) |
 | T30 | A-05 | پرسش‌های بی‌پاسخ و «Write it» | T29 | D-22 | تکمیل ۲۰۲۶-۰۹-۱۶ (دستور مالک؛ همراه پاسخ ذخیره‌شده) |
 | T31 | A-18 | تشخیص افزونهٔ هم‌پوشان | T29 | — | تکمیل ۲۰۲۶-۱۱-۰۴ |
-| T32 | A-14 | لحن Formal و Plain | T29 | — | منتظر |
+| T32 | A-14 | لحن Formal و Plain | T29 | — | تکمیل ۲۰۲۶-۱۱-۰۵ |
 | T33 | A-15 | شمار استفادهٔ الگو | T29 | — | منتظر |
 | T34 | A-15 | ویرایشگر الگوی سفارشی | T33 | — | منتظر |
 | T35 | A-01 | Reply length و timeout | T29 | — | منتظر |
@@ -155,6 +155,11 @@
   4. آخرین انتخاب هر کاربر در user meta `aisaautopilot_content_tone`.
 - **UI:** چیپ‌ها به radiogroup با `role="radiogroup"`، `aria-checked`، کلیدهای جهت و focus قابل‌مشاهده؛ برچسب لحن در کارت پیش‌نمایش.
 - **آزمون و گیت:** integration با `pre_http_request` canned که body را می‌خواند و وجود بند لحن را برای `formal` و `plain` و نبود تغییر برای `site` assert می‌کند؛ 400 برای مقدار نامعتبر؛ freeze در context؛ restore user meta. browser: keyboard روی چیپ‌ها و وجود `tone` در payload با `page.route`.
+- **اجرا (۲۰۲۶-۱۱-۰۵): تکمیل.**
+  - همان چهار گام backend. user meta با `update_user_option` ذخیره می‌شود، پس برای هر سایت جداست (`{prefix}aisaautopilot_content_tone`) و در `uninstall.php` پاک می‌شود. پیش‌نویس ساخته‌شده meta `_aisaautopilot_content_tone` می‌گیرد و History از آن «Voice: …» را نشان می‌دهد. CSV History تغییری نکرد.
+  - prompt پیش‌فرض با نسخهٔ پیشین بایت‌به‌بایت یکی است (با reflection روی نسخهٔ HEAD سنجیده شد).
+  - واژه‌های لحن با Store Descriptions یکی نشدند و اختلاف در گزارش شکاف (A-14، بخش ۴) ثبت شد.
+  - کنار کار: برچسب «Voice» در Content Studio در فارسی «صدا» ترجمه شده بود؛ اکنون با context جدا «لحن» است.
 
 ### T33 — S5.4 شمار استفادهٔ الگو (A-15)
 

@@ -58,11 +58,14 @@ const kbAnswersFixture = process.env.AISAAUTOPILOT_BROWSER_KB_ANSWERS_FIXTURE ||
 const widgetCustomiseFixture = process.env.AISAAUTOPILOT_BROWSER_WIDGET_CUSTOMISE_FIXTURE === '1';
 const advancedSettingsFixture = process.env.AISAAUTOPILOT_BROWSER_ADVANCED_SETTINGS_FIXTURE === '1';
 
-function check( condition, message ) {
+function check( condition, message, detail ) {
 	if ( condition ) {
 		console.log( 'PASS ' + message );
 	} else {
 		console.log( 'FAIL ' + message );
+		if ( undefined !== detail ) {
+			console.log( '    - ' + JSON.stringify( detail ) );
+		}
 		failures.push( message );
 	}
 }
@@ -1188,7 +1191,7 @@ async function contentStudioNavigationHealthy( page ) {
 			? chipTexts.length === 3 && chipTexts.every( ( chip ) => persianScript.test( chip ) )
 			: JSON.stringify( chipTexts ) === JSON.stringify( [ 'Learned from your site', 'Formal', 'Plain' ] ) )
 		&& ( persianAdmin ? persianScript.test( planLabel ) : planLabel === 'Write a draft' ),
-		'Content Studio Write matches the mockup composer, static voice chips, and truthful draft-list shell'
+		'Content Studio Write matches the mockup composer, voice chips, and truthful draft-list shell'
 	);
 	check(
 		await preview.isHidden() && await result.isHidden()
@@ -1202,6 +1205,7 @@ async function contentStudioNavigationHealthy( page ) {
 	let planRequests = 0;
 	let executeRequests = 0;
 	let workflowPromptReceived = false;
+	let workflowTone = '';
 	await page.route( routePattern, async ( route ) => {
 		const request = route.request();
 		const pathName = new URL( request.url() ).pathname;
@@ -1214,6 +1218,9 @@ async function contentStudioNavigationHealthy( page ) {
 		if ( pathName.endsWith( '/content/plan' ) ) {
 			planRequests++;
 			workflowPromptReceived = workflowPromptReceived || body.prompt === workflowBrief;
+			if ( body.prompt === workflowBrief ) {
+				workflowTone = body.tone || '';
+			}
 			if ( body.prompt === capBrief ) {
 				await route.fulfill( {
 					status: 429,
@@ -1233,6 +1240,8 @@ async function contentStudioNavigationHealthy( page ) {
 						slug: 'browser-qa-draft-title',
 						meta_description: 'A safe browser QA preview.',
 						body: 'This draft remains reviewable until explicit approval.',
+						tone: body.tone || 'site',
+						tone_label: 'Browser QA voice ' + ( body.tone || 'site' ),
 					},
 				} ),
 			} );
@@ -1255,6 +1264,27 @@ async function contentStudioNavigationHealthy( page ) {
 		}
 		await route.fallback();
 	} );
+	// Voice (T32): a radio group; arrows (mirrored in RTL), Home and End move the choice.
+	const voiceRadios = root.locator( '[data-content-voice] [role="radio"]' );
+	await voiceRadios.evaluateAll( ( radios ) => radios.forEach( ( radio ) => { radio.disabled = false; } ) );
+	const voiceState = () => voiceRadios.evaluateAll( ( radios ) => radios.map( ( radio ) => [ radio.dataset.contentVoiceOption, radio.getAttribute( 'aria-checked' ), radio.tabIndex, radio === document.activeElement ] ) );
+	const rtlVoice = await root.locator( '[data-content-voice]' ).evaluate( ( group ) => 'rtl' === getComputedStyle( group ).direction );
+	await root.locator( '[data-content-voice] [aria-checked="true"]' ).focus();
+	await page.keyboard.press( 'Home' );
+	const atHome = await voiceState();
+	await page.keyboard.press( rtlVoice ? 'ArrowLeft' : 'ArrowRight' );
+	const afterNext = await voiceState();
+	await page.keyboard.press( 'End' );
+	await page.keyboard.press( rtlVoice ? 'ArrowLeft' : 'ArrowRight' );
+	const wrapped = await voiceState();
+	await page.keyboard.press( rtlVoice ? 'ArrowLeft' : 'ArrowRight' );
+	const onlyChecked = ( state, id ) => state.every( ( [ option, checked, tab, focused ] ) => ( option === id ) === ( 'true' === checked && 0 === tab && focused ) );
+	check(
+		'radiogroup' === await root.locator( '[data-content-voice]' ).getAttribute( 'role' ) && 3 === await voiceRadios.count()
+		&& onlyChecked( atHome, 'site' ) && onlyChecked( afterNext, 'formal' ) && onlyChecked( wrapped, 'site' ),
+		'Content Studio voice is a radio group: Home, the forward arrow (mirrored in RTL) and End move the choice and focus, wrapping at the end',
+		{ atHome, afterNext, wrapped }
+	);
 	const rowsBeforePlan = await recentRows.count();
 	await prompt.evaluate( ( element ) => { element.disabled = false; } );
 	await planButton.evaluate( ( element ) => { element.disabled = false; } );
@@ -1266,6 +1296,11 @@ async function contentStudioNavigationHealthy( page ) {
 		&& await root.locator( '[data-content-compose]' ).isHidden()
 		&& rowsBeforePlan === await recentRows.count(),
 		'Content Studio plan shows a reviewable preview only and adds no draft before approval'
+	);
+	check(
+		'formal' === workflowTone && 'Browser QA voice formal' === ( await preview.locator( '[data-content-voice-label]' ).textContent() || '' ).trim(),
+		'Content Studio sends the chosen voice with the plan request and the preview names it',
+		{ workflowTone }
 	);
 	await root.locator( '[data-content-approve]' ).click();
 	await result.waitFor( { state: 'visible', timeout: 10000 } );

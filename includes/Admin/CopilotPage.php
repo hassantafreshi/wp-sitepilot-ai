@@ -5,6 +5,7 @@ namespace AISAAutoPilot\Admin;
 
 use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
 use AISAAutoPilot\Content\ContentStudioReadModel;
+use AISAAutoPilot\Content\ContentTone;
 use AISAAutoPilot\Core\Settings;
 use AISAAutoPilot\Core\SiteLanguage;
 use AISAAutoPilot\Providers\ProviderManager;
@@ -296,6 +297,7 @@ final class CopilotPage {
 		$source_gap       = ContentStudioNavigation::write_source_gap();
 		$gap              = '' !== $source_gap ? ( new \AISAAutoPilot\Content\KbGaps() )->get( $source_gap ) : null;
 		$source_gap       = null !== $gap ? $source_gap : '';
+		$tone             = ContentTone::preferred( get_current_user_id() );
 		$integrations_url = admin_url( 'admin.php?page=' . AdminMenu::SLUG_INTEGRATIONS );
 		$usage_url        = admin_url( 'admin.php?page=' . AdminMenu::SLUG_USAGE );
 		$disabled_title   = ! $content_enabled
@@ -348,11 +350,14 @@ final class CopilotPage {
 					<label class="sp-content-compose__label" for="aisaautopilot-content-prompt"><?php esc_html_e( 'What should it write?', 'ai-site-assistant-autopilot' ); ?></label>
 					<textarea id="aisaautopilot-content-prompt" class="sp-textarea sp-content-compose__prompt" rows="4" maxlength="6000" placeholder="<?php esc_attr_e( 'A post about why multi-step forms convert better, for shop owners, around 900 words…', 'ai-site-assistant-autopilot' ); ?>" <?php disabled( ! $ready ); ?>><?php echo esc_textarea( $brief ); ?></textarea>
 					<div class="sp-content-compose__footer">
-						<div class="sp-content-voice" aria-label="<?php esc_attr_e( 'Voice', 'ai-site-assistant-autopilot' ); ?>">
-							<span class="sp-content-voice__label"><?php esc_html_e( 'Voice', 'ai-site-assistant-autopilot' ); ?></span>
-							<span class="sp-content-voice__chip sp-content-voice__chip--active"><?php esc_html_e( 'Learned from your site', 'ai-site-assistant-autopilot' ); ?></span>
-							<span class="sp-content-voice__chip sp-content-voice__chip--locked"><?php esc_html_e( 'Formal', 'ai-site-assistant-autopilot' ); ?></span>
-							<span class="sp-content-voice__chip sp-content-voice__chip--locked"><?php esc_html_e( 'Plain', 'ai-site-assistant-autopilot' ); ?></span>
+						<div class="sp-content-voice">
+							<span class="sp-content-voice__label" id="sp-content-voice-label"><?php echo esc_html_x( 'Voice', 'writing style of a Content Studio draft', 'ai-site-assistant-autopilot' ); ?></span>
+							<div class="sp-content-voice__options" role="radiogroup" aria-labelledby="sp-content-voice-label" data-content-voice>
+								<?php foreach ( ContentTone::options() as $tone_id => $tone_label ) : ?>
+									<?php $checked = $tone_id === $tone; ?>
+									<button type="button" role="radio" class="sp-content-voice__chip" data-content-voice-option="<?php echo esc_attr( $tone_id ); ?>" aria-checked="<?php echo $checked ? 'true' : 'false'; ?>" tabindex="<?php echo $checked ? '0' : '-1'; ?>" <?php disabled( ! $ready ); ?>><?php echo esc_html( $tone_label ); ?></button>
+								<?php endforeach; ?>
+							</div>
 						</div>
 						<button type="button" class="sp-btn" id="aisaautopilot-content-plan" <?php disabled( ! $ready ); ?>><?php esc_html_e( 'Write a draft', 'ai-site-assistant-autopilot' ); ?></button>
 					</div>
@@ -375,6 +380,7 @@ final class CopilotPage {
 						<?php echo Ui::pill( __( 'Draft only', 'ai-site-assistant-autopilot' ), 'warn' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by Ui. ?>
 					</div>
 					<div class="sp-stack sp-stack--md">
+						<div><span class="sp-label"><?php echo esc_html_x( 'Voice', 'writing style of a Content Studio draft', 'ai-site-assistant-autopilot' ); ?></span><p data-content-voice-label></p></div>
 						<div><span class="sp-label"><?php esc_html_e( 'Title', 'ai-site-assistant-autopilot' ); ?></span><p data-content-title></p></div>
 						<div><span class="sp-label"><?php esc_html_e( 'URL slug', 'ai-site-assistant-autopilot' ); ?></span><p class="sp-mono" data-content-slug></p></div>
 						<div><span class="sp-label"><?php esc_html_e( 'Meta description', 'ai-site-assistant-autopilot' ); ?></span><p data-content-meta></p></div>

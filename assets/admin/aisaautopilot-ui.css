@@ -410,8 +410,12 @@ html[dir="rtl"] .sp-integration__toggle[aria-checked="true"] span { transform: t
 .sp-app[data-sp-content-studio] .sp-content-voice { display: flex; flex: 1 1 auto; align-items: center; gap: 9px; min-inline-size: 0; flex-wrap: wrap; }
 .sp-app[data-sp-content-studio] .sp-content-voice__label { color: var(--sp-muted); font-size: 12px; font-weight: 700; }
 .sp-app[data-sp-content-studio] .sp-content-voice__chip { display: inline-flex; align-items: center; min-block-size: 28px; box-sizing: border-box; padding: 5px 12px; border-radius: 20px; font-size: 12px; line-height: 1.2; white-space: nowrap; }
-.sp-app[data-sp-content-studio] .sp-content-voice__chip--active { background: var(--sp-primary-bg); color: var(--sp-primary); font-weight: 700; }
-.sp-app[data-sp-content-studio] .sp-content-voice__chip--locked { border: 1.5px solid var(--sp-line); color: var(--sp-faint); font-weight: 600; }
+.sp-app[data-sp-content-studio] .sp-content-voice__options { display: flex; flex-wrap: wrap; gap: 6px; }
+.sp-app[data-sp-content-studio] .sp-content-voice__chip { min-block-size: 32px; border: 1.5px solid var(--sp-line); background: #fff; color: var(--sp-muted); font-family: inherit; font-weight: 600; cursor: pointer; }
+.sp-app[data-sp-content-studio] .sp-content-voice__chip:hover:not(:disabled) { border-color: var(--sp-primary-line); color: var(--sp-primary); }
+.sp-app[data-sp-content-studio] .sp-content-voice__chip[aria-checked="true"] { border-color: var(--sp-primary-bg); background: var(--sp-primary-bg); color: var(--sp-primary); font-weight: 700; }
+.sp-app[data-sp-content-studio] .sp-content-voice__chip:focus-visible { outline: 2px solid var(--sp-primary); outline-offset: 2px; }
+.sp-app[data-sp-content-studio] .sp-content-voice__chip:disabled { cursor: not-allowed; opacity: .6; }
 .sp-app[data-sp-content-studio] .sp-content-compose__footer .sp-btn { flex: 0 0 auto; margin-inline-start: auto; white-space: nowrap; }
 .sp-app[data-sp-content-studio] .sp-content-compose__status { display: block; min-block-size: 1.3em; margin-block-start: 8px; }
 .sp-app[data-sp-content-studio] .sp-content-compose__notice { margin-block-start: 12px; }

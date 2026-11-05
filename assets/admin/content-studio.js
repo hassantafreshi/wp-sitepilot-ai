@@ -17,6 +17,37 @@
 	const approveButton = root.querySelector('[data-content-approve]');
 	if (!prompt || !planButton || !status || !compose || !preview || !result || !restartButton || !approveButton) return;
 
+	// Voice: a radio group of chips. Arrow keys move the choice (mirrored in right-to-left),
+	// Home and End jump to the ends; only the chosen chip is in the Tab order.
+	const voiceGroup = root.querySelector('[data-content-voice]');
+	const voiceOptions = voiceGroup ? Array.from(voiceGroup.querySelectorAll('[data-content-voice-option]')) : [];
+	const chooseVoice = (option, focus) => {
+		voiceOptions.forEach((item) => {
+			const on = item === option;
+			item.setAttribute('aria-checked', on ? 'true' : 'false');
+			item.tabIndex = on ? 0 : -1;
+		});
+		if (focus) option.focus();
+	};
+	const currentVoice = () => {
+		const checked = voiceOptions.find((item) => item.getAttribute('aria-checked') === 'true');
+		return checked ? checked.dataset.contentVoiceOption : 'site';
+	};
+	voiceOptions.forEach((option, index) => {
+		option.addEventListener('click', () => chooseVoice(option, false));
+		option.addEventListener('keydown', (event) => {
+			const rtl = getComputedStyle(voiceGroup).direction === 'rtl';
+			const keys = { ArrowDown: 1, ArrowUp: -1, ArrowRight: rtl ? -1 : 1, ArrowLeft: rtl ? 1 : -1 };
+			let next = -1;
+			if (event.key in keys) next = (index + keys[event.key] + voiceOptions.length) % voiceOptions.length;
+			else if (event.key === 'Home') next = 0;
+			else if (event.key === 'End') next = voiceOptions.length - 1;
+			if (next < 0) return;
+			event.preventDefault();
+			chooseVoice(voiceOptions[next], true);
+		});
+	});
+
 	let actionId = '';
 	let latestPreview = {};
 	let hasDrafts = root.dataset.contentHasDrafts === 'true';
@@ -35,6 +66,7 @@
 		isLocked = true;
 		prompt.disabled = true;
 		planButton.disabled = true;
+		voiceOptions.forEach((option) => { option.disabled = true; });
 	};
 	const request = async (path, data) => {
 		const response = await fetch(api.restUrl + path, {
@@ -91,7 +123,9 @@
 		try {
 			// A draft started from an unanswered question carries its reference; the server links the draft after approval.
 			const sourceGap = compose.dataset.contentSourceGap || '';
-			const payload = await request('content/plan', sourceGap ? { prompt: brief, source_gap: sourceGap } : { prompt: brief });
+			const data = { prompt: brief, tone: currentVoice() };
+			if (sourceGap) data.source_gap = sourceGap;
+			const payload = await request('content/plan', data);
 			actionId = payload.action_id || '';
 			if (!actionId) throw new Error(message('networkError', 'Network error. Please try again.'));
 			latestPreview = payload.preview || {};
@@ -99,6 +133,7 @@
 			write('[data-content-slug]', latestPreview.slug);
 			write('[data-content-meta]', latestPreview.meta_description);
 			write('[data-content-body]', latestPreview.body);
+			write('[data-content-voice-label]', latestPreview.tone_label);
 			compose.hidden = true;
 			setEmptyVisible(false);
 			preview.hidden = false;

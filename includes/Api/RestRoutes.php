@@ -56,6 +56,11 @@ final class RestRoutes {
 						'type'     => 'string',
 						'required' => true,
 					),
+					// site | formal | plain, checked by the controller (400 invalid_tone).
+					'tone'   => array(
+						'type'    => 'string',
+						'default' => 'site',
+					),
 				),
 			)
 		);

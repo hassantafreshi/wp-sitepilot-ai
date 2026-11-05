@@ -129,7 +129,7 @@
 
 | مسیر | متد | مجوز | کاربرد |
 |---|---|---|---|
-| `/content/plan` | POST | `can_manage_content_studio` | plan پیش‌نویس نوشته یا برگه. `source_gap` اختیاری باید hash پرسش بی‌پاسخِ باز باشد، وگرنه پیش از تماس با AI خطای 400 `invalid_source_gap` برمی‌گردد. |
+| `/content/plan` | POST | `can_manage_content_studio` | plan پیش‌نویس نوشته یا برگه. `source_gap` اختیاری باید hash پرسش بی‌پاسخِ باز باشد، وگرنه پیش از تماس با AI خطای 400 `invalid_source_gap` برمی‌گردد. `tone` اختیاری (`site` پیش‌فرض، `formal`، `plain`) لحن نوشته است؛ مقدار دیگر پیش از تماس با AI خطای 400 `invalid_tone` می‌دهد. لحن در proposal ثابت می‌شود و `/content/execute` لحن client را نمی‌پذیرد (T32). |
 | `/content/execute` | POST | `can_manage_content_studio` | ساخت فقط پیش‌نویس وردپرس از plan تأییدشده |
 | `/woocommerce/admin-settings` | POST | `can_manage` | دو ترجیح غیرمخرب Store Copilot |
 | `/woocommerce/check` | GET | `can_manage_woocommerce` | سلامت و قابلیت‌ها |

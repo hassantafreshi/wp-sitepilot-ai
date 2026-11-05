@@ -73,7 +73,7 @@ final class ContentStudioReadModel {
 	 * recorded by the executor, so those fields deliberately remain explicit
 	 * unknown values instead of inferred data.
 	 *
-	 * @return array<int,array{id:int,title:string,kind:string,when:string,created_at:int,created_at_iso:string,state:string,tone:string,post_status:string,edit_url:string,template:string,usage:string}>
+	 * @return array<int,array{id:int,title:string,kind:string,when:string,created_at:int,created_at_iso:string,state:string,tone:string,post_status:string,edit_url:string,voice:string,template:string,usage:string}>
 	 */
 	public function history( int $limit = 50 ): array {
 		$limit = min( 100, max( 1, $limit ) );
@@ -86,7 +86,7 @@ final class ContentStudioReadModel {
 				'order'                  => 'DESC',
 				'ignore_sticky_posts'    => true,
 				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
+				'update_post_meta_cache' => true,
 				'update_post_term_cache' => false,
 				'meta_query'             => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- bounded list over the plugin-owned generated marker.
 					array(
@@ -117,12 +117,20 @@ final class ContentStudioReadModel {
 				'tone'           => $state['tone'],
 				'post_status'    => (string) $post->post_status,
 				'edit_url'       => (string) get_edit_post_link( $post->ID, 'raw' ),
+				'voice'          => $this->voice( (int) $post->ID ),
 				'template'       => __( 'Template not recorded', 'ai-site-assistant-autopilot' ),
 				'usage'          => __( 'Usage not recorded', 'ai-site-assistant-autopilot' ),
 			);
 		}
 
 		return $rows;
+	}
+
+	/** The Content Studio voice label; '' for drafts made before the voice was recorded. */
+	private function voice( int $post_id ): string {
+		$tone = (string) get_post_meta( $post_id, ContentTone::POST_META, true );
+
+		return ContentTone::is_valid( $tone ) ? ContentTone::label( $tone ) : '';
 	}
 
 	private function kind( string $post_type ): string {

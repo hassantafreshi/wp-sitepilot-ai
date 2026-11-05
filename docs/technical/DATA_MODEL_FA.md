@@ -155,7 +155,7 @@
 |---|---|
 | نوشته‌های `aisaautopilot_form` و meta `_aisaautopilot_form_plan` | فرم‌های خود مدیر |
 | نوشته‌های `aisaautopilot_entry` | اگر نسخه‌ای قدیمی ساخته باشد؛ مسیر فعلی ارسال فرم چیزی ذخیره نمی‌کند |
-| نوشته، برگه و پیش‌نویس محصول ساخته‌شده با افزونه و metaهای `_aisaautopilot_generated`، `_aisaautopilot_meta_description` و `_aisaautopilot_source_gap` | محتوای خود سایت |
+| نوشته، برگه و پیش‌نویس محصول ساخته‌شده با افزونه و metaهای `_aisaautopilot_generated`، `_aisaautopilot_meta_description`، `_aisaautopilot_source_gap` و `_aisaautopilot_content_tone` (لحن Content Studio، T32) | محتوای خود سایت |
 | فرم‌های Easy Form Builder | مال آن افزونه است |
 
 ### چندسایته
@@ -170,6 +170,6 @@
 
 ### محدودیت‌های شناخته‌شده
 
-- افزونه **هیچ option شبکه‌ای (`update_site_option`) نمی‌نویسد**. تنها user meta آن `{prefix}aisaautopilot_dismissed_conflicts` است، یعنی هشدارهای Integrations دربارهٔ افزونهٔ چت یا AI دیگر که هر مدیر روی همان سایت پنهان کرده. این مقدار با `update_user_option` ذخیره می‌شود و پیشوند جدول سایت را دارد. `uninstall.php` آن را برای هر سایت پاک می‌کند (T31).
+- افزونه **هیچ option شبکه‌ای (`update_site_option`) نمی‌نویسد**. user metaهای آن دو تاست. اولی `{prefix}aisaautopilot_dismissed_conflicts` است، یعنی هشدارهای Integrations دربارهٔ افزونهٔ چت یا AI دیگر که هر مدیر روی همان سایت پنهان کرده. این مقدار با `update_user_option` ذخیره می‌شود و پیشوند جدول سایت را دارد. `uninstall.php` آن را برای هر سایت پاک می‌کند (T31). user meta دوم `{prefix}aisaautopilot_content_tone` است: آخرین لحن Content Studio که هر مدیر روی همان سایت انتخاب کرده (`site`، `formal` یا `plain`)، با همان روش ذخیره و پاک می‌شود (T32).
 - با object cache پایدار، transientها در کش می‌نشینند نه در جدول options؛ از قلاب uninstall در دسترس نیستند و خودشان حداکثر تا یک ساعت (بلندترین پنجرهٔ rate limit) منقضی می‌شوند. هیچ‌کدام دادهٔ شخصی ندارند.
 - افزونه `wp_cache_set`/`wp_cache_add` با کلید اختصاصی ندارد؛ تنها استفاده از object cache یک `wp_cache_delete` روی گروه `options` در `OptionLock` است که فقط کپی کهنهٔ خود وردپرس را می‌اندازد.

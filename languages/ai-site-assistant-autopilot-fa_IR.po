@@ -54,7 +54,7 @@ msgstr "ثبت‌شده"
 
 #: includes/Activity/ActivityTimeline.php:132
 #: includes/Activity/ActivityTimeline.php:142 includes/Admin/AdminMenu.php:71
-#: includes/Admin/CopilotPage.php:317 includes/Admin/CopilotPage.php:437
+#: includes/Admin/CopilotPage.php:319 includes/Admin/CopilotPage.php:443
 #: includes/Admin/HistoryPage.php:30 includes/Admin/HomePage.php:390
 #: includes/Admin/IntegrationsPage.php:121
 #: includes/Admin/IntegrationsPage.php:398
@@ -67,7 +67,7 @@ msgstr "استودیوی محتوا"
 #: includes/Admin/AdminMenu.php:95 includes/Admin/HomePage.php:369
 #: includes/Admin/IntegrationsPage.php:137
 #: includes/Admin/SettingsPage.php:1085 includes/Admin/StoreCopilotPage.php:65
-#: includes/Admin/StoreCopilotPage.php:191
+#: includes/Admin/StoreCopilotPage.php:190
 msgid "Store Copilot"
 msgstr "دستیار فروشگاه"
 
@@ -108,7 +108,7 @@ msgstr "دستیار Easy Form Builder"
 
 # D-23 rename (T54): the admin-facing name is now "Form Studio".
 #: includes/Activity/ActivityTimeline.php:159 includes/Admin/AdminMenu.php:76
-#: includes/Admin/CopilotPage.php:80 includes/Admin/CopilotPage.php:93
+#: includes/Admin/CopilotPage.php:81 includes/Admin/CopilotPage.php:94
 #: includes/Admin/HomePage.php:376 includes/Admin/IntegrationsPage.php:88
 #: includes/Admin/IntegrationsPage.php:374
 #: includes/Admin/SettingsPage.php:1098
@@ -217,7 +217,7 @@ msgstr "ادامه"
 
 #: includes/Admin/AdminMenu.php:250
 #: includes/Admin/AnswerDeskHandoffPage.php:553
-#: includes/Admin/CopilotPage.php:199 includes/Admin/KnowledgeBasePage.php:437
+#: includes/Admin/CopilotPage.php:200 includes/Admin/KnowledgeBasePage.php:437
 #: includes/Admin/KnowledgeBasePage.php:500 includes/Admin/UsagePage.php:92
 msgid "Cancel"
 msgstr "انصراف"
@@ -266,8 +266,8 @@ msgid "Replace the key or check the custom endpoint."
 msgstr "کلید را جایگزین کنید یا endpoint سفارشی را بررسی کنید."
 
 #: includes/Admin/AdminMenu.php:307 includes/Admin/ChatPage.php:286
-#: includes/Admin/CopilotPage.php:548 includes/Admin/SettingsPage.php:1326
-#: includes/Admin/StoreCopilotPage.php:114
+#: includes/Admin/CopilotPage.php:554 includes/Admin/SettingsPage.php:1326
+#: includes/Admin/StoreCopilotPage.php:113
 #: includes/Efb/EfbBuilderButton.php:91
 msgid "Network error. Please try again."
 msgstr "خطای شبکه. لطفاً دوباره تلاش کنید."
@@ -306,7 +306,7 @@ msgstr "%s پاسخ هنوز منتظر ایمیل شدن است"
 msgid "Test failed."
 msgstr "آزمون ناموفق بود."
 
-#: includes/Admin/AdminMenu.php:317 includes/Admin/CopilotPage.php:531
+#: includes/Admin/AdminMenu.php:317 includes/Admin/CopilotPage.php:537
 #: includes/Admin/NativeFormsPage.php:202 includes/Admin/SettingsPage.php:550
 #: includes/Admin/SettingsPage.php:555
 msgid "Copy"
@@ -538,7 +538,7 @@ msgstr "اول پیش‌نویس را توصیف کنید."
 msgid "Building a reviewable draft…"
 msgstr "در حال ساخت پیش‌نویسی برای بازبینی…"
 
-#: includes/Admin/AdminMenu.php:374 includes/Admin/CopilotPage.php:357
+#: includes/Admin/AdminMenu.php:374 includes/Admin/CopilotPage.php:362
 msgid "Write a draft"
 msgstr "نوشتن پیش‌نویس"
 
@@ -561,7 +561,7 @@ msgid "Open draft in WordPress"
 msgstr "باز کردن پیش‌نویس در وردپرس"
 
 #: includes/Admin/AdminMenu.php:379
-#: includes/Content/ContentStudioReadModel.php:163
+#: includes/Content/ContentStudioReadModel.php:171
 msgid "Draft saved"
 msgstr "پیش‌نویس ذخیره شد"
 
@@ -668,8 +668,8 @@ msgstr "این سرویس‌دهنده نقطهٔ دسترسی Embedding ندا�
 #: includes/Admin/AnswerDeskHandoffPage.php:27
 #: includes/Admin/AnswerDeskVoicePage.php:19
 #: includes/Admin/AnswerDeskWidgetPage.php:18 includes/Admin/ChatPage.php:22
-#: includes/Admin/ConnectionsPage.php:17 includes/Admin/CopilotPage.php:24
-#: includes/Admin/CopilotPage.php:57 includes/Admin/EasyFormBuilderPage.php:24
+#: includes/Admin/ConnectionsPage.php:17 includes/Admin/CopilotPage.php:25
+#: includes/Admin/CopilotPage.php:58 includes/Admin/EasyFormBuilderPage.php:24
 #: includes/Admin/HandoffInboxPage.php:27 includes/Admin/HistoryPage.php:19
 #: includes/Admin/HomePage.php:27 includes/Admin/KnowledgeBasePage.php:26
 #: includes/Admin/LogsPage.php:25 includes/Admin/NativeFormsPage.php:20
@@ -700,8 +700,8 @@ msgid "Open Widget settings"
 msgstr "باز کردن تنظیمات ویجت"
 
 #: includes/Admin/AnswerConversationsPage.php:109
-#: includes/Admin/CopilotPage.php:161 includes/Admin/CopilotPage.php:309
-#: includes/Admin/CopilotPage.php:572
+#: includes/Admin/CopilotPage.php:162 includes/Admin/CopilotPage.php:311
+#: includes/Admin/CopilotPage.php:578
 msgid "Open Integrations"
 msgstr "باز کردن یکپارچه‌سازی‌ها"
 
@@ -819,7 +819,7 @@ msgid "How it looks on your site"
 msgstr "نمای آن در سایت شما"
 
 #: includes/Admin/AnswerConversationsPage.php:313
-#: includes/Admin/StoreCopilotPage.php:352
+#: includes/Admin/StoreCopilotPage.php:347
 msgid "Settings"
 msgstr "تنظیمات"
 
@@ -876,9 +876,9 @@ msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:97
 #: includes/Admin/AnswerDeskHandoffPage.php:193
-#: includes/Admin/CopilotPage.php:256 includes/Admin/CopilotPage.php:261
-#: includes/Admin/CopilotPage.php:266 includes/Admin/CopilotPage.php:271
-#: includes/Admin/CopilotPage.php:609 includes/Admin/HandoffInboxPage.php:319
+#: includes/Admin/CopilotPage.php:257 includes/Admin/CopilotPage.php:262
+#: includes/Admin/CopilotPage.php:267 includes/Admin/CopilotPage.php:272
+#: includes/Admin/CopilotPage.php:615 includes/Admin/HandoffInboxPage.php:319
 #: includes/Efb/EfbBuilderButton.php:292 includes/Support/HandoffEmail.php:61
 msgid "Email"
 msgstr "ایمیل"
@@ -1190,8 +1190,8 @@ msgstr ""
 "جمع نشود که نمی‌توان با آن تحویل داد."
 
 #: includes/Admin/AnswerDeskHandoffPage.php:472
-#: includes/Admin/CopilotPage.php:256 includes/Admin/CopilotPage.php:266
-#: includes/Admin/CopilotPage.php:276 includes/Admin/CopilotPage.php:281
+#: includes/Admin/CopilotPage.php:257 includes/Admin/CopilotPage.php:267
+#: includes/Admin/CopilotPage.php:277 includes/Admin/CopilotPage.php:282
 #: includes/Support/PrivacyTools.php:91
 msgid "Name"
 msgstr "نام"
@@ -1278,7 +1278,7 @@ msgid "Save configuration"
 msgstr "ذخیرهٔ پیکربندی"
 
 #: includes/Admin/AnswerDeskHandoffPage.php:555
-#: includes/Admin/CopilotPage.php:310 includes/Admin/SettingsPage.php:838
+#: includes/Admin/CopilotPage.php:312 includes/Admin/SettingsPage.php:838
 #: includes/Admin/SettingsPage.php:1269
 msgid "Check connection"
 msgstr "بررسی اتصال"
@@ -1694,7 +1694,7 @@ msgstr "پرسش شما"
 msgid "Record a question"
 msgstr "ضبط سؤال"
 
-#: includes/Admin/ChatPage.php:151 includes/Admin/CopilotPage.php:172
+#: includes/Admin/ChatPage.php:151 includes/Admin/CopilotPage.php:173
 #: includes/Core/Plugin.php:175 includes/Efb/EfbBuilderButton.php:355
 #: includes/Frontend/ChatWidget.php:164
 msgid "Send"
@@ -2004,45 +2004,45 @@ msgstr "نوشتن"
 msgid "Templates"
 msgstr "الگوها"
 
-#: includes/Admin/CopilotPage.php:81
+#: includes/Admin/CopilotPage.php:82
 msgid ""
 "Simple forms, emailed to you. Describe one, check the plan, then create it."
 msgstr ""
 "فرم‌های ساده که پاسخ‌هایشان برایتان ایمیل می‌شود. فرم را توصیف کنید، طرح را "
 "بررسی کنید و بعد بسازید."
 
-#: includes/Admin/CopilotPage.php:84
+#: includes/Admin/CopilotPage.php:85
 msgid "The recipient is set by you and cannot be changed by the AI."
 msgstr "گیرنده را شما تعیین می‌کنید و هوش مصنوعی نمی‌تواند آن را تغییر دهد."
 
 #. translators: %s: configured form notification email.
 #. translators: %s: email address.
-#: includes/Admin/CopilotPage.php:86 includes/Admin/CopilotPage.php:569
+#: includes/Admin/CopilotPage.php:87 includes/Admin/CopilotPage.php:575
 #, php-format
 msgid "Answers go to %s"
 msgstr "پاسخ‌ها به %s می‌رود"
 
-#: includes/Admin/CopilotPage.php:87 includes/Admin/NativeFormsPage.php:93
+#: includes/Admin/CopilotPage.php:88 includes/Admin/NativeFormsPage.php:93
 msgid "Change"
 msgstr "تغییر"
 
-#: includes/Admin/CopilotPage.php:90 includes/Efb/EfbBuilderButton.php:214
+#: includes/Admin/CopilotPage.php:91 includes/Efb/EfbBuilderButton.php:214
 msgid "New form"
 msgstr "فرم جدید"
 
-#: includes/Admin/CopilotPage.php:94
+#: includes/Admin/CopilotPage.php:95
 msgid "Chat"
 msgstr "گفت‌وگو"
 
-#: includes/Admin/CopilotPage.php:95 includes/Admin/CopilotPage.php:487
+#: includes/Admin/CopilotPage.php:96 includes/Admin/CopilotPage.php:493
 msgid "Preview"
 msgstr "پیش‌نمایش"
 
-#: includes/Admin/CopilotPage.php:101
+#: includes/Admin/CopilotPage.php:102
 msgid "Start from an example"
 msgstr "شروع از یک نمونه"
 
-#: includes/Admin/CopilotPage.php:102
+#: includes/Admin/CopilotPage.php:103
 msgid ""
 "Pick one and it lands in the chat, ready to edit. Or describe your own form "
 "there."
@@ -2050,72 +2050,72 @@ msgstr ""
 "یکی را انتخاب کنید تا آمادهٔ ویرایش در گفت‌وگو قرار بگیرد. یا فرم خودتان را "
 "همان‌جا توصیف کنید."
 
-#: includes/Admin/CopilotPage.php:117
+#: includes/Admin/CopilotPage.php:118
 msgid "Need file uploads, payments, dates, multi-step or logic?"
 msgstr ""
 "به بارگذاری فایل، پرداخت، تاریخ، فرم چندمرحله‌ای یا منطق شرطی نیاز دارید؟"
 
-#: includes/Admin/CopilotPage.php:117
+#: includes/Admin/CopilotPage.php:118
 msgid ""
 "Those belong in Easy Form Builder. Native forms stay simple and email-only."
 msgstr ""
 "این‌ها کار Easy Form Builder است. فرم‌های بومی ساده می‌مانند و فقط ایمیل "
 "می‌شوند."
 
-#: includes/Admin/CopilotPage.php:119
+#: includes/Admin/CopilotPage.php:120
 msgid "Open EFB"
 msgstr "باز کردن EFB"
 
-#: includes/Admin/CopilotPage.php:125
+#: includes/Admin/CopilotPage.php:126
 msgid "EFB unavailable"
 msgstr "EFB در دسترس نیست"
 
-#: includes/Admin/CopilotPage.php:154 includes/Admin/CopilotPage.php:475
+#: includes/Admin/CopilotPage.php:155 includes/Admin/CopilotPage.php:481
 msgid "Form Assistant"
 msgstr "دستیار فرم"
 
-#: includes/Admin/CopilotPage.php:155 includes/Admin/CopilotPage.php:576
+#: includes/Admin/CopilotPage.php:156 includes/Admin/CopilotPage.php:582
 msgid "New native form"
 msgstr "فرم بومی جدید"
 
-#: includes/Admin/CopilotPage.php:155 includes/Admin/CopilotPage.php:577
+#: includes/Admin/CopilotPage.php:156 includes/Admin/CopilotPage.php:583
 msgid "Setup needed"
 msgstr "نیاز به راه‌اندازی"
 
-#: includes/Admin/CopilotPage.php:161
+#: includes/Admin/CopilotPage.php:162
 msgid "Form Studio is turned off"
 msgstr "استودیوی فرم خاموش است"
 
-#: includes/Admin/CopilotPage.php:167
+#: includes/Admin/CopilotPage.php:168
 msgid "Describe the form you want to create"
 msgstr "فرمی را که می‌خواهید بسازید توضیح دهید"
 
-#: includes/Admin/CopilotPage.php:168 includes/Admin/CopilotPage.php:615
+#: includes/Admin/CopilotPage.php:169 includes/Admin/CopilotPage.php:621
 msgid "Describe the form: who fills it in and what you need to know…"
 msgstr ""
 "فرم را توصیف کنید: چه کسی آن را پر می‌کند و چه چیزی باید از او بدانید…"
 
-#: includes/Admin/CopilotPage.php:168 includes/Admin/CopilotPage.php:616
+#: includes/Admin/CopilotPage.php:169 includes/Admin/CopilotPage.php:622
 msgid "Finish the setup to start…"
 msgstr "برای شروع، راه‌اندازی را تمام کنید…"
 
-#: includes/Admin/CopilotPage.php:170
+#: includes/Admin/CopilotPage.php:171
 msgid "Start voice command"
 msgstr "شروع فرمان صوتی"
 
-#: includes/Admin/CopilotPage.php:170 includes/Admin/CopilotPage.php:553
+#: includes/Admin/CopilotPage.php:171 includes/Admin/CopilotPage.php:559
 msgid "Speak"
 msgstr "صحبت کنید"
 
-#: includes/Admin/CopilotPage.php:176
+#: includes/Admin/CopilotPage.php:177
 msgid "AI drafts a plan. Nothing is created until you approve."
 msgstr "هوش مصنوعی طرحی پیشنهاد می‌کند. تا تأیید نکنید چیزی ساخته نمی‌شود."
 
-#: includes/Admin/CopilotPage.php:184
+#: includes/Admin/CopilotPage.php:185
 msgid "Publish this form immediately?"
 msgstr "این فرم بلافاصله منتشر شود؟"
 
-#: includes/Admin/CopilotPage.php:185
+#: includes/Admin/CopilotPage.php:186
 msgid ""
 "The form becomes visible to site visitors as soon as you confirm. You can "
 "unpublish it later."
@@ -2124,38 +2124,38 @@ msgstr ""
 "می‌توانید آن را از انتشار خارج کنید."
 
 #. translators: %s: site host name.
-#: includes/Admin/CopilotPage.php:192
+#: includes/Admin/CopilotPage.php:193
 #, php-format
 msgid "I understand this creates a publicly visible form on %s"
 msgstr "می‌دانم که این کار یک فرم قابل مشاهدهٔ عمومی روی %s می‌سازد"
 
-#: includes/Admin/CopilotPage.php:200 includes/Admin/CopilotPage.php:507
+#: includes/Admin/CopilotPage.php:201 includes/Admin/CopilotPage.php:513
 msgid "Approve & publish"
 msgstr "تأیید و انتشار"
 
-#: includes/Admin/CopilotPage.php:254
+#: includes/Admin/CopilotPage.php:255
 msgid "Contact form"
 msgstr "فرم تماس"
 
-#: includes/Admin/CopilotPage.php:255
+#: includes/Admin/CopilotPage.php:256
 msgid "Create a contact form with name, email, phone, and message."
 msgstr "یک فرم تماس با نام، ایمیل، تلفن و پیام بسازید."
 
-#: includes/Admin/CopilotPage.php:256 includes/Admin/CopilotPage.php:610
+#: includes/Admin/CopilotPage.php:257 includes/Admin/CopilotPage.php:616
 #: includes/Efb/EfbBuilderButton.php:293
 msgid "Phone"
 msgstr "تلفن"
 
-#: includes/Admin/CopilotPage.php:256
+#: includes/Admin/CopilotPage.php:257
 #: includes/Frontend/ChatWidgetSettings.php:337
 msgid "Message"
 msgstr "پیام"
 
-#: includes/Admin/CopilotPage.php:259
+#: includes/Admin/CopilotPage.php:260
 msgid "Newsletter signup"
 msgstr "عضویت در خبرنامه"
 
-#: includes/Admin/CopilotPage.php:260
+#: includes/Admin/CopilotPage.php:261
 msgid ""
 "Make a newsletter signup with first name, email and the topics they want: "
 "news, offers or events."
@@ -2163,38 +2163,38 @@ msgstr ""
 "یک فرم عضویت در خبرنامه با نام، ایمیل و موضوع‌های دلخواه بساز: اخبار، "
 "پیشنهادها یا رویدادها."
 
-#: includes/Admin/CopilotPage.php:261
+#: includes/Admin/CopilotPage.php:262
 msgid "First name"
 msgstr "نام"
 
-#: includes/Admin/CopilotPage.php:261
+#: includes/Admin/CopilotPage.php:262
 msgid "Topics"
 msgstr "موضوع‌ها"
 
-#: includes/Admin/CopilotPage.php:264
+#: includes/Admin/CopilotPage.php:265
 msgid "Support request"
 msgstr "درخواست پشتیبانی"
 
-#: includes/Admin/CopilotPage.php:265
+#: includes/Admin/CopilotPage.php:266
 msgid ""
 "Support request form with name, email, priority (low, medium, high) and "
 "details."
 msgstr ""
 "فرم درخواست پشتیبانی با نام، ایمیل، اولویت (کم، متوسط، زیاد) و جزئیات."
 
-#: includes/Admin/CopilotPage.php:266
+#: includes/Admin/CopilotPage.php:267
 msgid "Priority"
 msgstr "اولویت"
 
-#: includes/Admin/CopilotPage.php:266
+#: includes/Admin/CopilotPage.php:267
 msgid "Details"
 msgstr "جزئیات"
 
-#: includes/Admin/CopilotPage.php:269
+#: includes/Admin/CopilotPage.php:270
 msgid "Job application"
 msgstr "درخواست همکاری"
 
-#: includes/Admin/CopilotPage.php:270
+#: includes/Admin/CopilotPage.php:271
 msgid ""
 "Build a job application form with full name, email, phone, the position they"
 " apply for as a dropdown, and a cover letter."
@@ -2202,24 +2202,24 @@ msgstr ""
 "یک فرم درخواست همکاری بساز با نام کامل، ایمیل، تلفن، سمت درخواستی به‌صورت "
 "فهرست کشویی و یک نامهٔ همراه."
 
-#: includes/Admin/CopilotPage.php:271
+#: includes/Admin/CopilotPage.php:272
 msgid "Full name"
 msgstr "نام کامل"
 
-#: includes/Admin/CopilotPage.php:271
+#: includes/Admin/CopilotPage.php:272
 #: includes/Frontend/ChatWidgetSettings.php:133
 msgid "Position"
 msgstr "موقعیت"
 
-#: includes/Admin/CopilotPage.php:271
+#: includes/Admin/CopilotPage.php:272
 msgid "Cover letter"
 msgstr "نامهٔ همراه"
 
-#: includes/Admin/CopilotPage.php:274
+#: includes/Admin/CopilotPage.php:275
 msgid "Event RSVP"
 msgstr "حضور در رویداد"
 
-#: includes/Admin/CopilotPage.php:275
+#: includes/Admin/CopilotPage.php:276
 msgid ""
 "An event RSVP form with name, email, whether they will come (yes or no), how"
 " many guests (0 to 3) and any dietary needs."
@@ -2227,23 +2227,23 @@ msgstr ""
 "یک فرم حضور در رویداد با نام، ایمیل، این‌که می‌آید یا نه (بله یا خیر)، تعداد"
 " مهمان‌ها (۰ تا ۳) و رژیم غذایی خاص."
 
-#: includes/Admin/CopilotPage.php:276
+#: includes/Admin/CopilotPage.php:277
 msgid "Attending"
 msgstr "حضور"
 
-#: includes/Admin/CopilotPage.php:276
+#: includes/Admin/CopilotPage.php:277
 msgid "Guests"
 msgstr "مهمان‌ها"
 
-#: includes/Admin/CopilotPage.php:276
+#: includes/Admin/CopilotPage.php:277
 msgid "Dietary needs"
 msgstr "رژیم غذایی خاص"
 
-#: includes/Admin/CopilotPage.php:279
+#: includes/Admin/CopilotPage.php:280
 msgid "Quote request"
 msgstr "درخواست قیمت"
 
-#: includes/Admin/CopilotPage.php:280
+#: includes/Admin/CopilotPage.php:281
 msgid ""
 "A quote request form with name, email, phone, the service they need as a "
 "dropdown, a budget range and project details."
@@ -2251,62 +2251,62 @@ msgstr ""
 "یک فرم درخواست قیمت با نام، ایمیل، تلفن، خدمت موردنیاز به‌صورت فهرست کشویی، "
 "بازهٔ بودجه و جزئیات پروژه."
 
-#: includes/Admin/CopilotPage.php:281 includes/Admin/KnowledgeBasePage.php:583
+#: includes/Admin/CopilotPage.php:282 includes/Admin/KnowledgeBasePage.php:583
 #: includes/Admin/SettingsPage.php:294
 msgid "Service"
 msgstr "خدمت"
 
-#: includes/Admin/CopilotPage.php:281
+#: includes/Admin/CopilotPage.php:282
 msgid "Budget"
 msgstr "بودجه"
 
-#: includes/Admin/CopilotPage.php:281
+#: includes/Admin/CopilotPage.php:282
 msgid "Project details"
 msgstr "جزئیات پروژه"
 
-#: includes/Admin/CopilotPage.php:302
+#: includes/Admin/CopilotPage.php:304
 msgid "Content Studio is turned off"
 msgstr "استودیوی محتوا خاموش است"
 
-#: includes/Admin/CopilotPage.php:303
+#: includes/Admin/CopilotPage.php:305
 msgid "AI usage cap reached"
 msgstr "سقف مصرف هوش مصنوعی پر شده است"
 
-#: includes/Admin/CopilotPage.php:303
+#: includes/Admin/CopilotPage.php:305
 msgid "AI provider unavailable"
 msgstr "ارائه‌دهندهٔ AI در دسترس نیست"
 
-#: includes/Admin/CopilotPage.php:305
+#: includes/Admin/CopilotPage.php:307
 msgid "Turn it on in Integrations before creating a reviewable draft."
 msgstr "پیش از ساخت پیش‌نویس، آن را در یکپارچه‌سازی‌ها روشن کنید."
 
-#: includes/Admin/CopilotPage.php:306
+#: includes/Admin/CopilotPage.php:308
 msgid "Increase or reset the usage budget before building a draft."
 msgstr "پیش از ساخت پیش‌نویس، سقف مصرف را افزایش دهید یا بازنشانی کنید."
 
-#: includes/Admin/CopilotPage.php:306
+#: includes/Admin/CopilotPage.php:308
 msgid "Connect an AI provider before a draft can be built."
 msgstr "پیش از ساخت پیش‌نویس، یک سرویس‌دهندهٔ هوش مصنوعی وصل کنید."
 
-#: includes/Admin/CopilotPage.php:310
+#: includes/Admin/CopilotPage.php:312
 msgid "Open Usage"
 msgstr "باز کردن مصرف"
 
-#: includes/Admin/CopilotPage.php:318 includes/Admin/HistoryPage.php:31
+#: includes/Admin/CopilotPage.php:320 includes/Admin/HistoryPage.php:31
 msgid "Drafts written in the voice it learned from your site."
 msgstr "پیش‌نویس‌هایی با لحنی که از سایت شما آموخته است."
 
-#: includes/Admin/CopilotPage.php:322 includes/Admin/CopilotPage.php:442
+#: includes/Admin/CopilotPage.php:324 includes/Admin/CopilotPage.php:448
 #: includes/Admin/HistoryPage.php:35
 msgid "New draft"
 msgstr "پیش‌نویس تازه"
 
-#: includes/Admin/CopilotPage.php:334 includes/Admin/HistoryPage.php:56
+#: includes/Admin/CopilotPage.php:336 includes/Admin/HistoryPage.php:56
 #: includes/Admin/HomePage.php:176
 msgid "Nothing written yet"
 msgstr "هنوز چیزی نوشته نشده"
 
-#: includes/Admin/CopilotPage.php:335
+#: includes/Admin/CopilotPage.php:337
 msgid ""
 "Describe what you need in the box below and Content Studio writes a first "
 "draft in the voice it learned from your site. Drafts are never published on "
@@ -2315,15 +2315,15 @@ msgstr ""
 "آنچه لازم دارید را در کادر زیر بنویسید تا استودیوی محتوا یک پیش‌نویس اولیه "
 "با لحن سایت شما بنویسد. پیش‌نویس‌ها هیچ‌وقت خودبه‌خود منتشر نمی‌شوند."
 
-#: includes/Admin/CopilotPage.php:343
+#: includes/Admin/CopilotPage.php:345
 msgid "Drafting an answer to:"
 msgstr "در حال نوشتن پاسخ برای:"
 
-#: includes/Admin/CopilotPage.php:348
+#: includes/Admin/CopilotPage.php:350
 msgid "What should it write?"
 msgstr "چه بنویسد؟"
 
-#: includes/Admin/CopilotPage.php:349
+#: includes/Admin/CopilotPage.php:351
 msgid ""
 "A post about why multi-step forms convert better, for shop owners, around "
 "900 words…"
@@ -2331,68 +2331,54 @@ msgstr ""
 "نوشته‌ای دربارهٔ اینکه چرا فرم‌های چندمرحله‌ای نتیجهٔ بهتری دارند، برای "
 "صاحبان فروشگاه، حدود ۹۰۰ کلمه…"
 
-#: includes/Admin/CopilotPage.php:351 includes/Admin/CopilotPage.php:352
-#: includes/Admin/SettingsPage.php:218 includes/Admin/SettingsPage.php:379
-#: includes/Frontend/ChatWidget.php:112
-#: includes/Frontend/ChatWidgetSettings.php:120
+#: includes/Admin/CopilotPage.php:354 includes/Admin/CopilotPage.php:383
+msgctxt "writing style of a Content Studio draft"
 msgid "Voice"
-msgstr "صدا"
+msgstr "لحن"
 
-#: includes/Admin/CopilotPage.php:353
-msgid "Learned from your site"
-msgstr "آموخته از سایت شما"
-
-#: includes/Admin/CopilotPage.php:354
-msgid "Formal"
-msgstr "رسمی"
-
-#: includes/Admin/CopilotPage.php:355
-msgid "Plain"
-msgstr "ساده"
-
-#: includes/Admin/CopilotPage.php:374
+#: includes/Admin/CopilotPage.php:379
 msgid "Review the draft before saving"
 msgstr "پیش از ذخیره، پیش‌نویس را بازبینی کنید"
 
-#: includes/Admin/CopilotPage.php:375 includes/Admin/StoreCopilotPage.php:117
+#: includes/Admin/CopilotPage.php:380 includes/Admin/StoreCopilotPage.php:116
 msgid "Draft only"
 msgstr "فقط پیش‌نویس"
 
-#: includes/Admin/CopilotPage.php:378 includes/Admin/KnowledgeBasePage.php:379
+#: includes/Admin/CopilotPage.php:384 includes/Admin/KnowledgeBasePage.php:379
 #: includes/Frontend/ChatWidgetSettings.php:206
 #: includes/Support/PrivacyTools.php:341
 msgid "Title"
 msgstr "عنوان"
 
-#: includes/Admin/CopilotPage.php:379
+#: includes/Admin/CopilotPage.php:385
 msgid "URL slug"
 msgstr "نامک نشانی"
 
-#: includes/Admin/CopilotPage.php:380 includes/Admin/CopilotPage.php:421
+#: includes/Admin/CopilotPage.php:386 includes/Admin/CopilotPage.php:427
 msgid "Meta description"
 msgstr "توضیح متا"
 
-#: includes/Admin/CopilotPage.php:381
+#: includes/Admin/CopilotPage.php:387
 msgid "Body"
 msgstr "متن"
 
-#: includes/Admin/CopilotPage.php:383
+#: includes/Admin/CopilotPage.php:389
 msgid "Approve & create draft"
 msgstr "تأیید و ساخت پیش‌نویس"
 
-#: includes/Admin/CopilotPage.php:383 includes/Admin/KnowledgeBasePage.php:393
+#: includes/Admin/CopilotPage.php:389 includes/Admin/KnowledgeBasePage.php:393
 msgid "Start over"
 msgstr "شروع دوباره"
 
-#: includes/Admin/CopilotPage.php:389
+#: includes/Admin/CopilotPage.php:395
 msgid "Recent drafts"
 msgstr "پیش‌نویس‌های اخیر"
 
-#: includes/Admin/CopilotPage.php:411
+#: includes/Admin/CopilotPage.php:417
 msgid "Product description"
 msgstr "توضیح محصول"
 
-#: includes/Admin/CopilotPage.php:412 includes/Admin/CopilotPage.php:413
+#: includes/Admin/CopilotPage.php:418 includes/Admin/CopilotPage.php:419
 msgid ""
 "Write 60–90 words for {product}. Lead with the material, then the use. No "
 "superlatives."
@@ -2400,46 +2386,46 @@ msgstr ""
 "برای {product} بین ۶۰ تا ۹۰ کلمه بنویس. اول جنس، بعد کاربرد. بدون صفت‌های "
 "اغراق‌آمیز."
 
-#: includes/Admin/CopilotPage.php:416
+#: includes/Admin/CopilotPage.php:422
 msgid "Blog post outline"
 msgstr "طرح کلی نوشتهٔ وبلاگ"
 
-#: includes/Admin/CopilotPage.php:417 includes/Admin/CopilotPage.php:418
+#: includes/Admin/CopilotPage.php:423 includes/Admin/CopilotPage.php:424
 msgid ""
 "Outline a post on {topic} for {audience}. Six headings, one sentence each."
 msgstr ""
 "برای {audience} طرح کلی یک نوشته دربارهٔ {topic} بنویس. شش عنوان، هر کدام یک"
 " جمله."
 
-#: includes/Admin/CopilotPage.php:422 includes/Admin/CopilotPage.php:423
+#: includes/Admin/CopilotPage.php:428 includes/Admin/CopilotPage.php:429
 msgid "Summarise {page} in under 155 characters. Say what the reader gets."
 msgstr ""
 "{page} را در کمتر از ۱۵۵ نویسه خلاصه کن. بگو خواننده چه چیزی به دست می‌آورد."
 
-#: includes/Admin/CopilotPage.php:426
+#: includes/Admin/CopilotPage.php:432
 msgid "Support answer"
 msgstr "پاسخ پشتیبانی"
 
-#: includes/Admin/CopilotPage.php:427 includes/Admin/CopilotPage.php:428
+#: includes/Admin/CopilotPage.php:433 includes/Admin/CopilotPage.php:434
 msgid ""
 "Answer {question} using only {sources}. If the answer is not there, say so."
 msgstr ""
 "به {question} فقط با استفاده از {sources} پاسخ بده. اگر پاسخ آنجا نیست، همین"
 " را بگو."
 
-#: includes/Admin/CopilotPage.php:438
+#: includes/Admin/CopilotPage.php:444
 msgid "Reusable writing starting points."
 msgstr "نقطه‌های شروع قابل استفادهٔ دوباره برای نوشتن."
 
-#: includes/Admin/CopilotPage.php:455
+#: includes/Admin/CopilotPage.php:461
 msgid "Built-in"
 msgstr "داخلی"
 
-#: includes/Admin/CopilotPage.php:458
+#: includes/Admin/CopilotPage.php:464
 msgid "Use template"
 msgstr "استفاده از الگو"
 
-#: includes/Admin/CopilotPage.php:476
+#: includes/Admin/CopilotPage.php:482
 msgid ""
 "Your form plan is ready. Review every field and the final status below; "
 "nothing is created until you approve."
@@ -2449,38 +2435,38 @@ msgstr ""
 
 # Form Composer specialist shell.
 #. translators: %d: number of fields in the proposed form.
-#: includes/Admin/CopilotPage.php:478
+#: includes/Admin/CopilotPage.php:484
 #, php-format
 msgid "%d fields ready to review"
 msgstr "%d فیلد آمادهٔ بازبینی است"
 
-#: includes/Admin/CopilotPage.php:479
+#: includes/Admin/CopilotPage.php:485
 msgid "Create with AI"
 msgstr "ساخت با هوش مصنوعی"
 
-#: includes/Admin/CopilotPage.php:480
+#: includes/Admin/CopilotPage.php:486
 msgid "Waiting for your approval"
 msgstr "منتظر بررسی و تأیید شما"
 
-#: includes/Admin/CopilotPage.php:481 includes/Admin/CopilotPage.php:508
+#: includes/Admin/CopilotPage.php:487 includes/Admin/CopilotPage.php:514
 msgid "Expired"
 msgstr "منقضی‌شده"
 
 #. translators: %s: human-readable time remaining, e.g. "14 minutes".
-#: includes/Admin/CopilotPage.php:483
+#: includes/Admin/CopilotPage.php:489
 #, php-format
 msgid "Valid for %s more"
 msgstr "تا %s دیگر معتبر است"
 
-#: includes/Admin/CopilotPage.php:484
+#: includes/Admin/CopilotPage.php:490
 msgid "This proposal has expired"
 msgstr "این پیشنهاد منقضی شده است"
 
-#: includes/Admin/CopilotPage.php:485
+#: includes/Admin/CopilotPage.php:491
 msgid "Nothing changes on your site until you approve."
 msgstr "تا زمان تأیید شما هیچ تغییری در سایت انجام نمی‌شود."
 
-#: includes/Admin/CopilotPage.php:486
+#: includes/Admin/CopilotPage.php:492
 msgid ""
 "This action expired and can no longer be approved. Rebuild the request to "
 "continue."
@@ -2488,120 +2474,120 @@ msgstr ""
 "این اقدام منقضی شده و دیگر قابل تأیید نیست. برای ادامه، درخواست را دوباره "
 "بسازید."
 
-#: includes/Admin/CopilotPage.php:488
+#: includes/Admin/CopilotPage.php:494
 msgid "Structure details"
 msgstr "جزئیات ساختار"
 
-#: includes/Admin/CopilotPage.php:489
+#: includes/Admin/CopilotPage.php:495
 #: includes/Frontend/ChatWidgetSettings.php:383
 msgid "Desktop"
 msgstr "دسکتاپ"
 
-#: includes/Admin/CopilotPage.php:490 includes/Admin/HandoffInboxPage.php:320
+#: includes/Admin/CopilotPage.php:496 includes/Admin/HandoffInboxPage.php:320
 #: includes/Frontend/ChatWidgetSettings.php:384
 #: includes/Support/HandoffEmail.php:62
 msgid "Mobile"
 msgstr "موبایل"
 
-#: includes/Admin/CopilotPage.php:491 includes/Efb/EfbBuilderButton.php:305
+#: includes/Admin/CopilotPage.php:497 includes/Efb/EfbBuilderButton.php:305
 msgid "required"
 msgstr "الزامی"
 
-#: includes/Admin/CopilotPage.php:492
+#: includes/Admin/CopilotPage.php:498
 msgid "optional"
 msgstr "اختیاری"
 
-#: includes/Admin/CopilotPage.php:493
+#: includes/Admin/CopilotPage.php:499
 msgid "What will not be created"
 msgstr "چه چیزهایی ایجاد نمی‌شوند"
 
-#: includes/Admin/CopilotPage.php:494
+#: includes/Admin/CopilotPage.php:500
 msgid "These were removed from the plan by policy and cannot be approved."
 msgstr "این موارد بر اساس سیاست از طرح حذف شده‌اند و قابل تأیید نیستند."
 
-#: includes/Admin/CopilotPage.php:495
+#: includes/Admin/CopilotPage.php:501
 msgid "Payment field — not allowed"
 msgstr "فیلد پرداخت — مجاز نیست"
 
-#: includes/Admin/CopilotPage.php:496
+#: includes/Admin/CopilotPage.php:502
 msgid "Password field — not allowed"
 msgstr "فیلد گذرواژه — مجاز نیست"
 
-#: includes/Admin/CopilotPage.php:497
+#: includes/Admin/CopilotPage.php:503
 msgid "User registration — not allowed"
 msgstr "ثبت‌نام کاربر — مجاز نیست"
 
-#: includes/Admin/CopilotPage.php:498
+#: includes/Admin/CopilotPage.php:504
 msgid "What happens when you approve"
 msgstr "با تأیید شما چه اتفاقی می‌افتد"
 
-#: includes/Admin/CopilotPage.php:499
+#: includes/Admin/CopilotPage.php:505
 msgid "Connector"
 msgstr "اتصال‌دهنده"
 
-#: includes/Admin/CopilotPage.php:500
+#: includes/Admin/CopilotPage.php:506
 msgid "Destination"
 msgstr "مقصد"
 
-#: includes/Admin/CopilotPage.php:501
+#: includes/Admin/CopilotPage.php:507
 msgid "State"
 msgstr "وضعیت"
 
-#: includes/Admin/CopilotPage.php:502
+#: includes/Admin/CopilotPage.php:508
 msgid "Draft — not public"
 msgstr "پیش‌نویس — عمومی نمی‌شود"
 
-#: includes/Admin/CopilotPage.php:503
+#: includes/Admin/CopilotPage.php:509
 msgid "Published immediately"
 msgstr "بلافاصله منتشر می‌شود"
 
-#: includes/Admin/CopilotPage.php:504
+#: includes/Admin/CopilotPage.php:510
 msgid "Risk level"
 msgstr "سطح ریسک"
 
-#: includes/Admin/CopilotPage.php:505
+#: includes/Admin/CopilotPage.php:511
 msgid "Notifications"
 msgstr "اعلان‌ها"
 
-#: includes/Admin/CopilotPage.php:506
+#: includes/Admin/CopilotPage.php:512
 msgid "Approve & save as draft"
 msgstr "تأیید و ذخیره به‌صورت پیش‌نویس"
 
-#: includes/Admin/CopilotPage.php:509
+#: includes/Admin/CopilotPage.php:515
 msgid "Back and edit"
 msgstr "بازگشت و ویرایش"
 
-#: includes/Admin/CopilotPage.php:510
+#: includes/Admin/CopilotPage.php:516
 msgid "Reject this proposal"
 msgstr "رد کردن پیشنهاد"
 
-#: includes/Admin/CopilotPage.php:511
+#: includes/Admin/CopilotPage.php:517
 msgid "Single use · creates exactly the reviewed status"
 msgstr "یک‌بار مصرف · دقیقاً با وضعیت بازبینی‌شده ایجاد می‌شود"
 
-#: includes/Admin/CopilotPage.php:512
+#: includes/Admin/CopilotPage.php:518
 msgid "Rebuild the request to continue."
 msgstr "برای ادامه، درخواست را دوباره بسازید."
 
-#: includes/Admin/CopilotPage.php:513
+#: includes/Admin/CopilotPage.php:519
 msgid "Proposal rejected. Nothing was created."
 msgstr "پیشنهاد رد شد. چیزی ساخته نشد."
 
-#: includes/Admin/CopilotPage.php:514
+#: includes/Admin/CopilotPage.php:520
 msgid "Creating the form in WordPress"
 msgstr "در حال ساخت فرم در وردپرس"
 
-#: includes/Admin/CopilotPage.php:515
+#: includes/Admin/CopilotPage.php:521
 msgid "The form was created as a draft."
 msgstr "فرم با موفقیت به‌صورت پیش‌نویس ساخته شد."
 
-#: includes/Admin/CopilotPage.php:516
+#: includes/Admin/CopilotPage.php:522
 msgid "The form was created and published."
 msgstr "فرم ساخته و منتشر شد."
 
 #. translators: %s: the title of the form that was created.
 #. translators: %s: title of the form that was created.
-#: includes/Admin/CopilotPage.php:519
+#: includes/Admin/CopilotPage.php:525
 #, php-format
 msgid ""
 "“%s” was saved as a draft. Open and publish it before its shortcode can show"
@@ -2611,7 +2597,7 @@ msgstr ""
 "بازدیدکنندگان، آن را باز و منتشر کنید."
 
 #. translators: %s: title of the form that was created.
-#: includes/Admin/CopilotPage.php:521
+#: includes/Admin/CopilotPage.php:527
 #, php-format
 msgid ""
 "“%s” was published. Place the shortcode on a page to show it to visitors."
@@ -2619,27 +2605,27 @@ msgstr ""
 "«%s» منتشر شد. برای نمایش آن به بازدیدکنندگان، شورت‌کد را در یک برگه قرار "
 "دهید."
 
-#: includes/Admin/CopilotPage.php:522
+#: includes/Admin/CopilotPage.php:528
 msgid "The form was not created"
 msgstr "فرم ساخته نشد"
 
-#: includes/Admin/CopilotPage.php:523 includes/Admin/CopilotPage.php:582
+#: includes/Admin/CopilotPage.php:529 includes/Admin/CopilotPage.php:588
 msgid "Form created"
 msgstr "فرم ایجاد شد"
 
-#: includes/Admin/CopilotPage.php:524
+#: includes/Admin/CopilotPage.php:530
 msgid "Creation failed"
 msgstr "ایجاد فرم ناموفق بود"
 
-#: includes/Admin/CopilotPage.php:525
+#: includes/Admin/CopilotPage.php:531
 msgid "Created in WordPress"
 msgstr "در وردپرس ایجاد شد"
 
-#: includes/Admin/CopilotPage.php:526
+#: includes/Admin/CopilotPage.php:532
 msgid "Entries email to"
 msgstr "ارسال پاسخ‌ها به"
 
-#: includes/Admin/CopilotPage.php:527
+#: includes/Admin/CopilotPage.php:533
 msgid ""
 "Done. The form was saved as a draft. Open and publish it before its "
 "shortcode can display it to visitors."
@@ -2647,120 +2633,120 @@ msgstr ""
 "انجام شد. فرم به‌صورت پیش‌نویس ذخیره شد. پیش از نمایش آن با شورت‌کد به "
 "بازدیدکنندگان، فرم را باز و منتشر کنید."
 
-#: includes/Admin/CopilotPage.php:528
+#: includes/Admin/CopilotPage.php:534
 msgid ""
 "Done. The reviewed form was published and its shortcode is ready to place."
 msgstr "انجام شد. فرم بازبینی‌شده منتشر شد و شورت‌کد آن آمادهٔ استفاده است."
 
-#: includes/Admin/CopilotPage.php:529
+#: includes/Admin/CopilotPage.php:535
 msgid "The approved action could not be completed. Nothing new was created."
 msgstr "عملیات تأییدشده کامل نشد. مورد جدیدی ایجاد نشد."
 
-#: includes/Admin/CopilotPage.php:530 includes/Admin/NativeFormsPage.php:161
+#: includes/Admin/CopilotPage.php:536 includes/Admin/NativeFormsPage.php:161
 msgid "Shortcode"
 msgstr "شورت‌کد"
 
-#: includes/Admin/CopilotPage.php:532
+#: includes/Admin/CopilotPage.php:538
 msgid "Copied to clipboard"
 msgstr "در کلیپ‌بورد کپی شد"
 
-#: includes/Admin/CopilotPage.php:533
+#: includes/Admin/CopilotPage.php:539
 msgid "Open the draft"
 msgstr "باز کردن پیش‌نویس"
 
-#: includes/Admin/CopilotPage.php:534
+#: includes/Admin/CopilotPage.php:540
 msgid "Open the form"
 msgstr "باز کردن فرم"
 
-#: includes/Admin/CopilotPage.php:535
+#: includes/Admin/CopilotPage.php:541
 msgid "Edit in Easy Form Builder"
 msgstr "ویرایش در Easy Form Builder"
 
-#: includes/Admin/CopilotPage.php:536 includes/Admin/KnowledgeBasePage.php:461
+#: includes/Admin/CopilotPage.php:542 includes/Admin/KnowledgeBasePage.php:461
 #: includes/Core/Plugin.php:174
 msgid "Try again"
 msgstr "تلاش دوباره"
 
-#: includes/Admin/CopilotPage.php:537
+#: includes/Admin/CopilotPage.php:543
 msgid "Build another form"
 msgstr "یک فرم دیگر بسازید"
 
-#: includes/Admin/CopilotPage.php:538
+#: includes/Admin/CopilotPage.php:544
 msgid "View in activity"
 msgstr "مشاهده در فعالیت"
 
-#: includes/Admin/CopilotPage.php:539
+#: includes/Admin/CopilotPage.php:545
 msgid "Low"
 msgstr "کم"
 
-#: includes/Admin/CopilotPage.php:540
+#: includes/Admin/CopilotPage.php:546
 msgid "Medium"
 msgstr "متوسط"
 
-#: includes/Admin/CopilotPage.php:541
+#: includes/Admin/CopilotPage.php:547
 msgid "High"
 msgstr "زیاد"
 
-#: includes/Admin/CopilotPage.php:542
+#: includes/Admin/CopilotPage.php:548
 msgid "Email to site admin"
 msgstr "ایمیل به مدیر سایت"
 
-#: includes/Admin/CopilotPage.php:543
+#: includes/Admin/CopilotPage.php:549
 msgid "type"
 msgstr "نوع"
 
 #. translators: %d: number of choices in a select or radio field.
-#: includes/Admin/CopilotPage.php:545
+#: includes/Admin/CopilotPage.php:551
 #, php-format
 msgid "%d options"
 msgstr "%d گزینه"
 
-#: includes/Admin/CopilotPage.php:546
+#: includes/Admin/CopilotPage.php:552
 msgid "Type or speak a description of the form first."
 msgstr "ابتدا توضیح فرم را بنویسید یا بگویید."
 
-#: includes/Admin/CopilotPage.php:547
+#: includes/Admin/CopilotPage.php:553
 msgid "Building a reviewable plan…"
 msgstr "در حال ساخت طرح قابل بررسی…"
 
-#: includes/Admin/CopilotPage.php:549
+#: includes/Admin/CopilotPage.php:555
 msgid "Could not generate a safe form."
 msgstr "ساخت یک فرم امن ممکن نشد."
 
-#: includes/Admin/CopilotPage.php:550
+#: includes/Admin/CopilotPage.php:556
 msgid "Ctrl + Enter to submit"
 msgstr "Ctrl + Enter برای ارسال"
 
-#: includes/Admin/CopilotPage.php:551
+#: includes/Admin/CopilotPage.php:557
 msgid "Recording — the transcript will land in the box, editable."
 msgstr "در حال ضبط — متن پیاده‌شده در همین کادر و قابل ویرایش قرار می‌گیرد."
 
-#: includes/Admin/CopilotPage.php:552 includes/Admin/Ui.php:439
+#: includes/Admin/CopilotPage.php:558 includes/Admin/Ui.php:439
 msgid "Stop"
 msgstr "توقف"
 
-#: includes/Admin/CopilotPage.php:554
+#: includes/Admin/CopilotPage.php:560
 msgid "Transcribing your voice command…"
 msgstr "در حال تبدیل صدای شما به متن…"
 
-#: includes/Admin/CopilotPage.php:555
+#: includes/Admin/CopilotPage.php:561
 msgid "Voice command added. Review the text, then generate the preview."
 msgstr "فرمان صوتی افزوده شد. متن را بررسی و سپس پیش‌نمایش را بسازید."
 
-#: includes/Admin/CopilotPage.php:556
+#: includes/Admin/CopilotPage.php:562
 msgid "Voice transcription failed. You can type the command instead."
 msgstr "تبدیل صدا به متن ناموفق بود. می‌توانید فرمان را تایپ کنید."
 
-#: includes/Admin/CopilotPage.php:557
+#: includes/Admin/CopilotPage.php:563
 msgid ""
 "This browser does not support voice recording. Please type the command."
 msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند. لطفاً فرمان را تایپ کنید."
 
-#: includes/Admin/CopilotPage.php:558
+#: includes/Admin/CopilotPage.php:564
 msgid "Microphone access was not granted. Please type the command."
 msgstr "دسترسی به میکروفون داده نشد. لطفاً فرمان را تایپ کنید."
 
-#: includes/Admin/CopilotPage.php:560
+#: includes/Admin/CopilotPage.php:566
 msgid ""
 "Describe the form you need: who fills it in, and what do you need to know "
 "from them? Or pick an example; it lands here, ready to edit. I draft a plan,"
@@ -2770,90 +2756,90 @@ msgstr ""
 "او بدانید؟ یا یک نمونه انتخاب کنید تا آمادهٔ ویرایش همین‌جا قرار بگیرد. من "
 "طرحی پیشنهاد می‌کنم و تا تأییدش نکنید چیزی ساخته نمی‌شود."
 
-#: includes/Admin/CopilotPage.php:561
+#: includes/Admin/CopilotPage.php:567
 msgid "Almost ready. This is what I need before I can draft forms:"
 msgstr "تقریباً آماده است. پیش از پیشنهاد فرم به این‌ها نیاز دارم:"
 
-#: includes/Admin/CopilotPage.php:562
+#: includes/Admin/CopilotPage.php:568
 msgid "Form Studio is on"
 msgstr "استودیوی فرم روشن است"
 
-#: includes/Admin/CopilotPage.php:563
+#: includes/Admin/CopilotPage.php:569
 msgid "Turn on Form Studio"
 msgstr "استودیوی فرم را روشن کنید"
 
-#: includes/Admin/CopilotPage.php:564
+#: includes/Admin/CopilotPage.php:570
 msgid "It is switched off in Integrations."
 msgstr "در یکپارچه‌سازی‌ها خاموش است."
 
-#: includes/Admin/CopilotPage.php:565
+#: includes/Admin/CopilotPage.php:571
 msgid "An AI service is connected"
 msgstr "یک سرویس هوش مصنوعی وصل است"
 
-#: includes/Admin/CopilotPage.php:566
+#: includes/Admin/CopilotPage.php:572
 msgid "Connect an AI service"
 msgstr "یک سرویس هوش مصنوعی وصل کنید"
 
-#: includes/Admin/CopilotPage.php:567
+#: includes/Admin/CopilotPage.php:573
 msgid "Your own API key from OpenAI, Claude, Gemini and others."
 msgstr "کلید API خودتان از OpenAI، Claude، Gemini و دیگران."
 
-#: includes/Admin/CopilotPage.php:570
+#: includes/Admin/CopilotPage.php:576
 msgid "Choose where answers are emailed"
 msgstr "انتخاب کنید پاسخ‌ها به کجا ایمیل شوند"
 
-#: includes/Admin/CopilotPage.php:571
+#: includes/Admin/CopilotPage.php:577
 msgid "Submissions are emailed to this address and not stored in WordPress."
 msgstr "پاسخ‌ها به این نشانی ایمیل می‌شوند و در وردپرس ذخیره نمی‌شوند."
 
-#: includes/Admin/CopilotPage.php:573
+#: includes/Admin/CopilotPage.php:579
 msgid "Set up"
 msgstr "راه‌اندازی"
 
-#: includes/Admin/CopilotPage.php:574 includes/Admin/NativeFormsPage.php:66
+#: includes/Admin/CopilotPage.php:580 includes/Admin/NativeFormsPage.php:66
 msgid "Set email"
 msgstr "تنظیم ایمیل"
 
-#: includes/Admin/CopilotPage.php:575
+#: includes/Admin/CopilotPage.php:581
 msgid "All set. Describe the form you need, or pick an example."
 msgstr ""
 "همه‌چیز آماده است. فرمی را که لازم دارید توصیف کنید یا یک نمونه انتخاب کنید."
 
-#: includes/Admin/CopilotPage.php:578
+#: includes/Admin/CopilotPage.php:584
 msgid "Drafting a plan…"
 msgstr "در حال آماده‌کردن طرح…"
 
 #. translators: %s: time left, such as 14:52.
-#: includes/Admin/CopilotPage.php:580
+#: includes/Admin/CopilotPage.php:586
 #, php-format
 msgid "Plan ready · valid for %s"
 msgstr "طرح آماده است · معتبر تا %s"
 
-#: includes/Admin/CopilotPage.php:581
+#: includes/Admin/CopilotPage.php:587
 msgid "Plan expired"
 msgstr "طرح منقضی شد"
 
-#: includes/Admin/CopilotPage.php:583
+#: includes/Admin/CopilotPage.php:589
 msgid "Understood the request"
 msgstr "درخواست را فهمیدم"
 
-#: includes/Admin/CopilotPage.php:584
+#: includes/Admin/CopilotPage.php:590
 msgid "Choosing the fields…"
 msgstr "در حال انتخاب فیلدها…"
 
-#: includes/Admin/CopilotPage.php:585
+#: includes/Admin/CopilotPage.php:591
 msgid "Checking them against the native-form rules"
 msgstr "بررسی آن‌ها با قواعد فرم بومی"
 
-#: includes/Admin/CopilotPage.php:586
+#: includes/Admin/CopilotPage.php:592
 msgid "I could not build that yet"
 msgstr "هنوز نتوانستم آن را بسازم"
 
-#: includes/Admin/CopilotPage.php:587
+#: includes/Admin/CopilotPage.php:593
 msgid "Say who fills it in and what you need from them. For example:"
 msgstr "بگویید چه کسی آن را پر می‌کند و چه چیزی از او لازم دارید. برای نمونه:"
 
-#: includes/Admin/CopilotPage.php:588
+#: includes/Admin/CopilotPage.php:594
 msgid ""
 "The plan is ready and shown on the canvas. Approve it, or ask me to change "
 "something."
@@ -2861,7 +2847,7 @@ msgstr ""
 "طرح آماده است و روی بوم نمایش داده شده. تأییدش کنید یا بخواهید چیزی را تغییر"
 " دهم."
 
-#: includes/Admin/CopilotPage.php:589
+#: includes/Admin/CopilotPage.php:595
 msgid ""
 "Here is the plan you were reviewing before the page reloaded. It is still "
 "waiting for your approval."
@@ -2869,89 +2855,89 @@ msgstr ""
 "این همان طرحی است که پیش از بارگذاری دوبارهٔ صفحه بررسی می‌کردید. هنوز منتظر"
 " تأیید شماست."
 
-#: includes/Admin/CopilotPage.php:590
+#: includes/Admin/CopilotPage.php:596
 msgid "Saved as a draft"
 msgstr "به‌صورت پیش‌نویس ذخیره شد"
 
-#: includes/Admin/CopilotPage.php:591
+#: includes/Admin/CopilotPage.php:597
 msgid "Not visible on your site"
 msgstr "در سایت شما دیده نمی‌شود"
 
-#: includes/Admin/CopilotPage.php:592
+#: includes/Admin/CopilotPage.php:598
 msgid "Visible to visitors as soon as you confirm"
 msgstr "به‌محض تأیید شما برای بازدیدکنندگان دیده می‌شود"
 
 #. translators: %s: masked email address.
-#: includes/Admin/CopilotPage.php:594
+#: includes/Admin/CopilotPage.php:600
 #, php-format
 msgid "Answers emailed to %s"
 msgstr "پاسخ‌ها به %s ایمیل می‌شود"
 
 #. translators: %s: Low, Medium or High.
-#: includes/Admin/CopilotPage.php:596
+#: includes/Admin/CopilotPage.php:602
 #, php-format
 msgid "Risk: %s"
 msgstr "ریسک: %s"
 
-#: includes/Admin/CopilotPage.php:597
+#: includes/Admin/CopilotPage.php:603
 msgid "Native forms never include payments, passwords or sign-ups."
 msgstr "فرم‌های بومی هرگز پرداخت، رمز عبور یا ثبت‌نام ندارند."
 
-#: includes/Admin/CopilotPage.php:598
+#: includes/Admin/CopilotPage.php:604
 msgid "Reject"
 msgstr "رد کردن"
 
-#: includes/Admin/CopilotPage.php:599
+#: includes/Admin/CopilotPage.php:605
 msgid "This plan expired. Ask again to get a fresh one."
 msgstr "این طرح منقضی شد. دوباره بخواهید تا طرح تازه‌ای بگیرید."
 
-#: includes/Admin/CopilotPage.php:600
+#: includes/Admin/CopilotPage.php:606
 msgid "Draft it again"
 msgstr "دوباره پیشنهاد بده"
 
 #. translators: 1: the current plan in short, 2: the change the administrator
 #. asked for.
-#: includes/Admin/CopilotPage.php:602
+#: includes/Admin/CopilotPage.php:608
 #, php-format
 msgid "Change this form plan. Current plan: %1$s. Change: %2$s"
 msgstr "این طرح فرم را تغییر بده. طرح فعلی: %1$s. تغییر: %2$s"
 
 #. translators: %s: field label.
-#: includes/Admin/CopilotPage.php:604
+#: includes/Admin/CopilotPage.php:610
 #, php-format
 msgid "Make “%s” optional"
 msgstr "«%s» را اختیاری کن"
 
-#: includes/Admin/CopilotPage.php:605
+#: includes/Admin/CopilotPage.php:611
 msgid "Add a phone number field"
 msgstr "یک فیلد شماره تلفن اضافه کن"
 
-#: includes/Admin/CopilotPage.php:606
+#: includes/Admin/CopilotPage.php:612
 msgid "Change the text of the send button"
 msgstr "متن دکمهٔ ارسال را تغییر بده"
 
-#: includes/Admin/CopilotPage.php:607
+#: includes/Admin/CopilotPage.php:613
 #: includes/Admin/EasyFormBuilderPage.php:256
 msgid "Fields"
 msgstr "فیلدها"
 
-#: includes/Admin/CopilotPage.php:608 includes/Efb/EfbBuilderButton.php:291
+#: includes/Admin/CopilotPage.php:614 includes/Efb/EfbBuilderButton.php:291
 msgid "Text"
 msgstr "متن"
 
-#: includes/Admin/CopilotPage.php:611 includes/Efb/EfbBuilderButton.php:294
+#: includes/Admin/CopilotPage.php:617 includes/Efb/EfbBuilderButton.php:294
 msgid "Long text"
 msgstr "متن بلند"
 
-#: includes/Admin/CopilotPage.php:612 includes/Efb/EfbBuilderButton.php:296
+#: includes/Admin/CopilotPage.php:618 includes/Efb/EfbBuilderButton.php:296
 msgid "Dropdown"
 msgstr "فهرست کشویی"
 
-#: includes/Admin/CopilotPage.php:613 includes/Efb/EfbBuilderButton.php:298
+#: includes/Admin/CopilotPage.php:619 includes/Efb/EfbBuilderButton.php:298
 msgid "Checkboxes"
 msgstr "چندگزینه‌ای"
 
-#: includes/Admin/CopilotPage.php:614 includes/Efb/EfbBuilderButton.php:297
+#: includes/Admin/CopilotPage.php:620 includes/Efb/EfbBuilderButton.php:297
 msgid "Choice"
 msgstr "تک‌گزینه‌ای"
 
@@ -3273,7 +3259,7 @@ msgstr "پیکربندی کانال‌ها"
 #: includes/Admin/HandoffInboxPage.php:185
 #: includes/Admin/KnowledgeBasePage.php:382
 #: includes/Admin/NativeFormsPage.php:160
-#: includes/Admin/StoreCopilotPage.php:340
+#: includes/Admin/StoreCopilotPage.php:335
 #: includes/Support/PrivacyTools.php:95
 msgid "Status"
 msgstr "وضعیت"
@@ -3314,7 +3300,7 @@ msgstr "ارسال ناموفق بود"
 #. translators: %s: human-readable time difference, such as "8 mins".
 #. translators: %s: human-readable time difference, e.g. 2 minutes.
 #: includes/Admin/HandoffInboxPage.php:295
-#: includes/Content/ContentStudioReadModel.php:176
+#: includes/Content/ContentStudioReadModel.php:184
 #, php-format
 msgid "%s ago"
 msgstr "%s پیش"
@@ -3743,6 +3729,12 @@ msgstr ""
 #, php-format
 msgid "Open %s in WordPress"
 msgstr "باز کردن %s در وردپرس"
+
+#. translators: %s: Content Studio voice (writing style), such as Formal.
+#: includes/Admin/HistoryPage.php:86
+#, php-format
+msgid "Voice: %s"
+msgstr "لحن: %s"
 
 #: includes/Admin/HomePage.php:60
 msgid "What AutoPilot did on your site, and what needs you."
@@ -4895,7 +4887,7 @@ msgstr "پاسخ ذخیره شد."
 
 #: includes/Admin/KnowledgeBasePage.php:508
 #: includes/Admin/NativeFormsPage.php:140
-#: includes/Admin/StoreCopilotPage.php:744
+#: includes/Admin/StoreCopilotPage.php:739
 msgid "Delete"
 msgstr "حذف"
 
@@ -5179,7 +5171,7 @@ msgstr "بخش‌های نمای کلی"
 #. translators: The WooCommerce plugin's name, as WooCommerce's own
 #. translation writes it.
 #: includes/Admin/PluginDependency.php:89
-#: includes/Admin/StoreCopilotPage.php:342
+#: includes/Admin/StoreCopilotPage.php:337
 msgid "WooCommerce"
 msgstr "ووکامرس"
 
@@ -5336,6 +5328,12 @@ msgstr "اتصال"
 msgid "Semantic search"
 msgstr "جست‌وجوی معنایی"
 
+#: includes/Admin/SettingsPage.php:218 includes/Admin/SettingsPage.php:379
+#: includes/Frontend/ChatWidget.php:112
+#: includes/Frontend/ChatWidgetSettings.php:120
+msgid "Voice"
+msgstr "صدا"
+
 #: includes/Admin/SettingsPage.php:219 includes/Admin/SettingsPage.php:398
 msgid "Forms and delivery"
 msgstr "فرم‌ها و تحویل"
@@ -5395,7 +5393,7 @@ msgstr ""
 "از زمانی که بازدیدکننده فرم را فرستاد حساب می‌شود. فقط وقتی نگه داشته می‌شود"
 " که «نگه‌داشتن پاسخی که ایمیلش فرستاده نشد» در بخش فرم‌ها و تحویل روشن باشد."
 
-#: includes/Admin/SettingsPage.php:242 includes/Admin/StoreCopilotPage.php:699
+#: includes/Admin/SettingsPage.php:242 includes/Admin/StoreCopilotPage.php:694
 #: includes/Support/PrivacyTools.php:132
 msgid "Abandoned carts"
 msgstr "سبدهای رهاشده"
@@ -5566,7 +5564,7 @@ msgstr "فعال"
 msgid "Built in. Simple forms whose submissions are emailed to you."
 msgstr "داخلی. فرم‌های ساده‌ای که پاسخ‌هایشان برای شما ایمیل می‌شود."
 
-#: includes/Admin/SettingsPage.php:410 includes/Admin/StoreCopilotPage.php:302
+#: includes/Admin/SettingsPage.php:410 includes/Admin/StoreCopilotPage.php:297
 msgid "Not active"
 msgstr "فعال نیست"
 
@@ -5819,7 +5817,7 @@ msgstr "تغییرات ذخیره‌نشده"
 msgid "Unsaved changes on this page"
 msgstr "تغییرهای ذخیره‌نشده در این صفحه"
 
-#: includes/Admin/SettingsPage.php:570 includes/Admin/StoreCopilotPage.php:264
+#: includes/Admin/SettingsPage.php:570 includes/Admin/StoreCopilotPage.php:259
 #: includes/Efb/EfbBuilderButton.php:88
 #: includes/Frontend/ChatWidgetSettings.php:395
 msgid "Discard"
@@ -6652,65 +6650,65 @@ msgstr ""
 "هر بار یک محصول پیشنهاد می‌شود. شما بازبینی می‌کنید و AutoPilot پیش‌نویس را "
 "ذخیره می‌کند."
 
-#: includes/Admin/StoreCopilotPage.php:110
+#: includes/Admin/StoreCopilotPage.php:109
 msgid "Writing the proposal..."
 msgstr "در حال نوشتن پیشنهاد..."
 
-#: includes/Admin/StoreCopilotPage.php:111
+#: includes/Admin/StoreCopilotPage.php:110
 msgid "Read the proposal before creating the draft."
 msgstr "پیش از ساخت پیش‌نویس، پیشنهاد را بخوانید."
 
-#: includes/Admin/StoreCopilotPage.php:112
+#: includes/Admin/StoreCopilotPage.php:111
 msgid "Creating the WooCommerce draft..."
 msgstr "در حال ساخت پیش‌نویس ووکامرس..."
 
-#: includes/Admin/StoreCopilotPage.php:113
+#: includes/Admin/StoreCopilotPage.php:112
 msgid "Draft created. Publishing remains a manual WooCommerce step."
 msgstr "پیش‌نویس ساخته شد. انتشار همچنان یک گام دستی در ووکامرس است."
 
-#: includes/Admin/StoreCopilotPage.php:115
+#: includes/Admin/StoreCopilotPage.php:114
 msgid "Describe the product you want to draft."
 msgstr "محصولی را که می‌خواهید پیش‌نویسش ساخته شود توصیف کنید."
 
-#: includes/Admin/StoreCopilotPage.php:116
+#: includes/Admin/StoreCopilotPage.php:115
 msgid "This proposal expired before it was approved. Nothing was created."
 msgstr "این پیشنهاد پیش از تأیید منقضی شد. چیزی ساخته نشد."
 
-#: includes/Admin/StoreCopilotPage.php:118
+#: includes/Admin/StoreCopilotPage.php:117
 msgid "Not managed"
 msgstr "مدیریت‌نشده"
 
-#: includes/Admin/StoreCopilotPage.php:119
+#: includes/Admin/StoreCopilotPage.php:118
 msgid "Store Copilot settings saved."
 msgstr "تنظیمات دستیار فروشگاه ذخیره شد."
 
-#: includes/Admin/StoreCopilotPage.php:120
+#: includes/Admin/StoreCopilotPage.php:119
 msgid "The Store Copilot settings could not be saved."
 msgstr "تنظیمات دستیار فروشگاه ذخیره نشد."
 
 #. translators: %s: time left before the proposal expires, as m:ss.
-#: includes/Admin/StoreCopilotPage.php:122
+#: includes/Admin/StoreCopilotPage.php:121
 #, php-format
 msgid "Expires in %s"
 msgstr "انقضا در %s"
 
-#: includes/Admin/StoreCopilotPage.php:123
+#: includes/Admin/StoreCopilotPage.php:122
 msgid "Review product draft"
 msgstr "بازبینی پیش‌نویس محصول"
 
-#: includes/Admin/StoreCopilotPage.php:124
+#: includes/Admin/StoreCopilotPage.php:123
 msgid "Phase 1 creates simple products only"
 msgstr "فاز ۱ فقط محصول ساده می‌سازد"
 
-#: includes/Admin/StoreCopilotPage.php:125
+#: includes/Admin/StoreCopilotPage.php:124
 msgid "Phase 1 always creates a draft"
 msgstr "فاز ۱ همیشه پیش‌نویس می‌سازد"
 
-#: includes/Admin/StoreCopilotPage.php:126
+#: includes/Admin/StoreCopilotPage.php:125
 msgid "Loading products…"
 msgstr "در حال بارگذاری محصولات…"
 
-#: includes/Admin/StoreCopilotPage.php:127
+#: includes/Admin/StoreCopilotPage.php:126
 msgid ""
 "Every product already has a description of at least 40 words. Clear the "
 "filter to rewrite one anyway."
@@ -6719,112 +6717,112 @@ msgstr ""
 "بردارید."
 
 #. translators: %s: number of words in the current description.
-#: includes/Admin/StoreCopilotPage.php:129
+#: includes/Admin/StoreCopilotPage.php:128
 #, php-format
 msgid "%s words now"
 msgstr "اکنون %s کلمه"
 
-#: includes/Admin/StoreCopilotPage.php:130
+#: includes/Admin/StoreCopilotPage.php:129
 msgid "No description yet"
 msgstr "هنوز توضیحی ندارد"
 
 #. translators: 1: number of drafts written so far, 2: number of drafts asked
 #. for.
-#: includes/Admin/StoreCopilotPage.php:132
+#: includes/Admin/StoreCopilotPage.php:131
 #, php-format
 msgid "Writing draft %1$s of %2$s…"
 msgstr "در حال نوشتن پیش‌نویس %1$s از %2$s…"
 
-#: includes/Admin/StoreCopilotPage.php:133
+#: includes/Admin/StoreCopilotPage.php:132
 msgid ""
 "Drafts are ready. Read each one, edit it if you like, then apply or skip it."
 msgstr ""
 "پیش‌نویس‌ها آماده‌اند. هر کدام را بخوانید، اگر خواستید ویرایش کنید و سپس "
 "اعمال یا رد کنید."
 
-#: includes/Admin/StoreCopilotPage.php:134
+#: includes/Admin/StoreCopilotPage.php:133
 msgid "Pick up to 10 products at a time."
 msgstr "هر بار حداکثر ۱۰ محصول انتخاب کنید."
 
-#: includes/Admin/StoreCopilotPage.php:135
+#: includes/Admin/StoreCopilotPage.php:134
 msgid "Now"
 msgstr "اکنون"
 
-#: includes/Admin/StoreCopilotPage.php:136
+#: includes/Admin/StoreCopilotPage.php:135
 msgid "AI draft (you can edit it)"
 msgstr "پیش‌نویس هوش مصنوعی (قابل ویرایش)"
 
-#: includes/Admin/StoreCopilotPage.php:137
+#: includes/Admin/StoreCopilotPage.php:136
 #: includes/Efb/EfbBuilderButton.php:158
 msgid "Apply"
 msgstr "اعمال"
 
-#: includes/Admin/StoreCopilotPage.php:138
+#: includes/Admin/StoreCopilotPage.php:137
 msgid "Skip"
 msgstr "رد کردن"
 
-#: includes/Admin/StoreCopilotPage.php:139
+#: includes/Admin/StoreCopilotPage.php:138
 #: includes/Efb/EfbBuilderButton.php:156
 msgid "Undo"
 msgstr "واگرد"
 
-#: includes/Admin/StoreCopilotPage.php:140
+#: includes/Admin/StoreCopilotPage.php:139
 msgid "Applied"
 msgstr "اعمال شد"
 
-#: includes/Admin/StoreCopilotPage.php:141
+#: includes/Admin/StoreCopilotPage.php:140
 msgid "Skipped. Nothing changed."
 msgstr "رد شد. چیزی تغییر نکرد."
 
-#: includes/Admin/StoreCopilotPage.php:142
+#: includes/Admin/StoreCopilotPage.php:141
 msgid "No draft for this product."
 msgstr "برای این محصول پیش‌نویسی نوشته نشد."
 
-#: includes/Admin/StoreCopilotPage.php:143
+#: includes/Admin/StoreCopilotPage.php:142
 msgid "Description"
 msgstr "توضیح"
 
-#: includes/Admin/StoreCopilotPage.php:144
+#: includes/Admin/StoreCopilotPage.php:143
 msgid "Send the one reminder email for this cart now?"
 msgstr "همین حالا تنها ایمیل یادآوری این سبد فرستاده شود؟"
 
-#: includes/Admin/StoreCopilotPage.php:145
+#: includes/Admin/StoreCopilotPage.php:144
 msgid "Delete this cart and its email? The shopper is not told."
 msgstr "این سبد و ایمیل آن حذف شود؟ به خریدار اطلاعی داده نمی‌شود."
 
-#: includes/Admin/StoreCopilotPage.php:146
-#: includes/Admin/StoreCopilotPage.php:740
+#: includes/Admin/StoreCopilotPage.php:145
+#: includes/Admin/StoreCopilotPage.php:735
 #: includes/Support/PrivacyTools.php:153
 msgid "Reminder sent"
 msgstr "یادآوری فرستاده شد"
 
-#: includes/Admin/StoreCopilotPage.php:164
+#: includes/Admin/StoreCopilotPage.php:163
 msgid "New product"
 msgstr "محصول تازه"
 
-#: includes/Admin/StoreCopilotPage.php:165
+#: includes/Admin/StoreCopilotPage.php:164
 msgid "What it can do"
 msgstr "چه کارهایی می‌تواند"
 
-#: includes/Admin/StoreCopilotPage.php:166
-#: includes/Admin/StoreCopilotPage.php:312
-#: includes/Admin/StoreCopilotPage.php:344
-#: includes/Admin/StoreCopilotPage.php:435
-#: includes/Admin/StoreCopilotPage.php:495
+#: includes/Admin/StoreCopilotPage.php:165
+#: includes/Admin/StoreCopilotPage.php:307
+#: includes/Admin/StoreCopilotPage.php:339
+#: includes/Admin/StoreCopilotPage.php:430
+#: includes/Admin/StoreCopilotPage.php:490
 #: includes/Support/PrivacyTools.php:140
 msgid "Products"
 msgstr "محصولات"
 
-#: includes/Admin/StoreCopilotPage.php:167
+#: includes/Admin/StoreCopilotPage.php:166
 msgid "Descriptions"
 msgstr "توضیح‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:168
-#: includes/Admin/StoreCopilotPage.php:322
+#: includes/Admin/StoreCopilotPage.php:167
+#: includes/Admin/StoreCopilotPage.php:317
 msgid "Orders"
 msgstr "سفارش‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:192
+#: includes/Admin/StoreCopilotPage.php:191
 msgid ""
 "Store Copilot works with your WooCommerce products and orders, so it stays "
 "off until WooCommerce is active."
@@ -6832,7 +6830,7 @@ msgstr ""
 "دستیار فروشگاه با محصولات و سفارش‌های ووکامرس شما کار می‌کند، پس تا وقتی "
 "ووکامرس فعال نشود خاموش می‌ماند."
 
-#: includes/Admin/StoreCopilotPage.php:194
+#: includes/Admin/StoreCopilotPage.php:193
 msgid ""
 "Describe a product in a sentence. You read the proposal before a draft is "
 "saved."
@@ -6840,22 +6838,22 @@ msgstr ""
 "محصول را در یک جمله توصیف کنید. پیش از ذخیرهٔ پیش‌نویس، پیشنهاد را "
 "می‌خوانید."
 
-#: includes/Admin/StoreCopilotPage.php:195
+#: includes/Admin/StoreCopilotPage.php:194
 msgid ""
 "Write better descriptions for products you already have, one at a time."
 msgstr "برای محصولاتی که دارید، یکی‌یکی توضیحات بهتری بنویسید."
 
-#: includes/Admin/StoreCopilotPage.php:196
+#: includes/Admin/StoreCopilotPage.php:195
 msgid "See how many checkouts end in a paid order, read from your own store."
 msgstr ""
 "ببینید چند تسویه‌حساب به سفارش پرداخت‌شده می‌رسد؛ از داده‌های فروشگاه "
 "خودتان."
 
-#: includes/Admin/StoreCopilotPage.php:198
+#: includes/Admin/StoreCopilotPage.php:197
 msgid "Nothing in your store changes until you approve it."
 msgstr "تا شما تأیید نکنید، چیزی در فروشگاهتان تغییر نمی‌کند."
 
-#: includes/Admin/StoreCopilotPage.php:213
+#: includes/Admin/StoreCopilotPage.php:208
 msgid ""
 "Your account does not have WooCommerce management access. Store Copilot "
 "remains read-only and cannot create a proposal."
@@ -6863,7 +6861,7 @@ msgstr ""
 "حساب شما دسترسی مدیریت ووکامرس ندارد. دستیار فروشگاه فقط‌خواندنی می‌ماند و "
 "نمی‌تواند پیشنهاد بسازد."
 
-#: includes/Admin/StoreCopilotPage.php:222
+#: includes/Admin/StoreCopilotPage.php:217
 msgid ""
 "The WooCommerce AI connector is paused. It cannot read store data or create "
 "a draft until you turn it on in What it can do."
@@ -6871,11 +6869,11 @@ msgstr ""
 "رابط هوش مصنوعی ووکامرس متوقف است. تا آن را در «چه کارهایی می‌تواند» روشن "
 "نکنید، نه داده‌های فروشگاه را می‌خواند و نه پیش‌نویس می‌سازد."
 
-#: includes/Admin/StoreCopilotPage.php:231
+#: includes/Admin/StoreCopilotPage.php:226
 msgid "Describe the product"
 msgstr "محصول را توصیف کنید"
 
-#: includes/Admin/StoreCopilotPage.php:232
+#: includes/Admin/StoreCopilotPage.php:227
 msgid ""
 "One product at a time. AutoPilot writes a proposal, you read it, and only "
 "then does it create a draft in WooCommerce."
@@ -6883,31 +6881,31 @@ msgstr ""
 "هر بار یک محصول. AutoPilot پیشنهاد می‌نویسد، شما آن را می‌خوانید و فقط پس از"
 " آن پیش‌نویس در ووکامرس ساخته می‌شود."
 
-#: includes/Admin/StoreCopilotPage.php:233
+#: includes/Admin/StoreCopilotPage.php:228
 msgid "Product draft prompt"
 msgstr "توضیح پیش‌نویس محصول"
 
-#: includes/Admin/StoreCopilotPage.php:234
+#: includes/Admin/StoreCopilotPage.php:229
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts..."
 msgstr "یک پیراهن کتان یقه‌کوبایی تابستانی، ۸۹ یورو، در دستهٔ پیراهن‌ها..."
 
-#: includes/Admin/StoreCopilotPage.php:236
+#: includes/Admin/StoreCopilotPage.php:231
 msgid "Write proposal"
 msgstr "نوشتن پیشنهاد"
 
-#: includes/Admin/StoreCopilotPage.php:238
+#: includes/Admin/StoreCopilotPage.php:233
 msgid "Nothing is written to your store at this step."
 msgstr "در این گام چیزی در فروشگاه شما نوشته نمی‌شود."
 
-#: includes/Admin/StoreCopilotPage.php:245
+#: includes/Admin/StoreCopilotPage.php:240
 msgid "Product examples"
 msgstr "نمونه‌های محصول"
 
-#: includes/Admin/StoreCopilotPage.php:246
+#: includes/Admin/StoreCopilotPage.php:241
 msgid "Try one of these"
 msgstr "یکی از این‌ها را امتحان کنید"
 
-#: includes/Admin/StoreCopilotPage.php:247
+#: includes/Admin/StoreCopilotPage.php:242
 msgid ""
 "A simple 500g organic Arabic coffee, with a short description, SKU and "
 "introductory price."
@@ -6915,57 +6913,57 @@ msgstr ""
 "یک قهوهٔ عربی ارگانیک ساده ۵۰۰ گرمی، با توضیح کوتاه، شناسهٔ کالا و قیمت "
 "معرفی."
 
-#: includes/Admin/StoreCopilotPage.php:247
+#: includes/Admin/StoreCopilotPage.php:242
 msgid "A simple 500g organic Arabic coffee with a SKU and introductory price"
 msgstr "یک قهوهٔ عربی ارگانیک ساده ۵۰۰ گرمی با شناسهٔ کالا و قیمت معرفی"
 
-#: includes/Admin/StoreCopilotPage.php:248
+#: includes/Admin/StoreCopilotPage.php:243
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts."
 msgstr "یک پیراهن کتان یقه‌کوبایی تابستانی، ۸۹ یورو، در دستهٔ پیراهن‌ها."
 
-#: includes/Admin/StoreCopilotPage.php:248
+#: includes/Admin/StoreCopilotPage.php:243
 msgid "A linen camp collar shirt for summer, 89 euros, in Shirts"
 msgstr "یک پیراهن کتان یقه‌کوبایی تابستانی، ۸۹ یورو، در دستهٔ پیراهن‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:249
+#: includes/Admin/StoreCopilotPage.php:244
 msgid ""
 "A simple ceramic travel mug, with a short description and stock status."
 msgstr "یک ماگ سفری سرامیکی ساده، با توضیح کوتاه و وضعیت موجودی."
 
-#: includes/Admin/StoreCopilotPage.php:249
+#: includes/Admin/StoreCopilotPage.php:244
 msgid "A simple ceramic travel mug with stock status"
 msgstr "یک ماگ سفری سرامیکی ساده با وضعیت موجودی"
 
-#: includes/Admin/StoreCopilotPage.php:255
+#: includes/Admin/StoreCopilotPage.php:250
 msgid "Proposal - read it before approving"
 msgstr "پیشنهاد — پیش از تأیید آن را بخوانید"
 
-#: includes/Admin/StoreCopilotPage.php:256
+#: includes/Admin/StoreCopilotPage.php:251
 msgid "Not created yet"
 msgstr "هنوز ساخته نشده"
 
-#: includes/Admin/StoreCopilotPage.php:262
+#: includes/Admin/StoreCopilotPage.php:257
 msgid "Approve - create the draft"
 msgstr "تأیید — ساخت پیش‌نویس"
 
-#: includes/Admin/StoreCopilotPage.php:263
+#: includes/Admin/StoreCopilotPage.php:258
 msgid "Propose again"
 msgstr "پیشنهاد دوباره"
 
-#: includes/Admin/StoreCopilotPage.php:265
+#: includes/Admin/StoreCopilotPage.php:260
 msgid "Creates a draft only. You publish it yourself."
 msgstr "فقط پیش‌نویس می‌سازد. انتشار با خود شماست."
 
-#: includes/Admin/StoreCopilotPage.php:276
+#: includes/Admin/StoreCopilotPage.php:271
 msgid "Activate WooCommerce before Store Copilot can make a proposal."
 msgstr "پیش از آنکه دستیار فروشگاه پیشنهاد بدهد، ووکامرس را فعال کنید."
 
-#: includes/Admin/StoreCopilotPage.php:279
+#: includes/Admin/StoreCopilotPage.php:274
 msgid ""
 "WooCommerce management access is required before a proposal can be approved."
 msgstr "برای تأیید پیشنهاد، دسترسی مدیریت ووکامرس لازم است."
 
-#: includes/Admin/StoreCopilotPage.php:282
+#: includes/Admin/StoreCopilotPage.php:277
 msgid ""
 "Turn on the WooCommerce AI connector in What it can do before writing a "
 "proposal."
@@ -6973,7 +6971,7 @@ msgstr ""
 "پیش از نوشتن پیشنهاد، رابط هوش مصنوعی ووکامرس را در «چه کارهایی می‌تواند» "
 "روشن کنید."
 
-#: includes/Admin/StoreCopilotPage.php:285
+#: includes/Admin/StoreCopilotPage.php:280
 msgid ""
 "Connect an AI provider in Setup before Store Copilot can write a proposal."
 msgstr ""
@@ -6981,106 +6979,106 @@ msgstr ""
 " مصنوعی وصل کنید."
 
 #. translators: %s: active WooCommerce version.
-#: includes/Admin/StoreCopilotPage.php:299
+#: includes/Admin/StoreCopilotPage.php:294
 #, php-format
 msgid "Active · %s"
 msgstr "فعال · %s"
 
-#: includes/Admin/StoreCopilotPage.php:307
+#: includes/Admin/StoreCopilotPage.php:302
 msgid "Phase 1 capabilities"
 msgstr "قابلیت‌های فاز ۱"
 
-#: includes/Admin/StoreCopilotPage.php:308
+#: includes/Admin/StoreCopilotPage.php:303
 msgid "What the connector is allowed to do today"
 msgstr "کارهایی که رابط امروز اجازه دارد انجام دهد"
 
-#: includes/Admin/StoreCopilotPage.php:314
+#: includes/Admin/StoreCopilotPage.php:309
 msgid "Read your products and categories"
 msgstr "خواندن محصولات و دسته‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:315
+#: includes/Admin/StoreCopilotPage.php:310
 msgid "Propose one simple product as a draft"
 msgstr "پیشنهاد یک محصول ساده به‌صورت پیش‌نویس"
 
-#: includes/Admin/StoreCopilotPage.php:316
+#: includes/Admin/StoreCopilotPage.php:311
 msgid "Publish a product"
 msgstr "انتشار محصول"
 
-#: includes/Admin/StoreCopilotPage.php:316
-#: includes/Admin/StoreCopilotPage.php:317
-#: includes/Admin/StoreCopilotPage.php:318
-#: includes/Admin/StoreCopilotPage.php:325
-#: includes/Admin/StoreCopilotPage.php:326
-#: includes/Admin/StoreCopilotPage.php:519
+#: includes/Admin/StoreCopilotPage.php:311
+#: includes/Admin/StoreCopilotPage.php:312
+#: includes/Admin/StoreCopilotPage.php:313
+#: includes/Admin/StoreCopilotPage.php:320
+#: includes/Admin/StoreCopilotPage.php:321
+#: includes/Admin/StoreCopilotPage.php:514
 msgid "Phase 2"
 msgstr "فاز ۲"
 
-#: includes/Admin/StoreCopilotPage.php:317
+#: includes/Admin/StoreCopilotPage.php:312
 msgid "Edit a product that already exists"
 msgstr "ویرایش محصول موجود"
 
-#: includes/Admin/StoreCopilotPage.php:318
+#: includes/Admin/StoreCopilotPage.php:313
 msgid "Change many products at once"
 msgstr "تغییر هم‌زمان چند محصول"
 
-#: includes/Admin/StoreCopilotPage.php:324
+#: includes/Admin/StoreCopilotPage.php:319
 msgid "Read a recent order summary as a store manager"
 msgstr "خواندن خلاصهٔ سفارش‌های اخیر به‌عنوان مدیر فروشگاه"
 
-#: includes/Admin/StoreCopilotPage.php:325
+#: includes/Admin/StoreCopilotPage.php:320
 msgid "Change an order"
 msgstr "تغییر سفارش"
 
-#: includes/Admin/StoreCopilotPage.php:326
+#: includes/Admin/StoreCopilotPage.php:321
 msgid "Issue a refund"
 msgstr "بازپرداخت وجه"
 
-#: includes/Admin/StoreCopilotPage.php:330
+#: includes/Admin/StoreCopilotPage.php:325
 msgid "Analytics"
 msgstr "آنالیتیکس"
 
-#: includes/Admin/StoreCopilotPage.php:332
+#: includes/Admin/StoreCopilotPage.php:327
 msgid "Read store analytics"
 msgstr "خواندن آمار فروشگاه"
 
-#: includes/Admin/StoreCopilotPage.php:343
+#: includes/Admin/StoreCopilotPage.php:338
 msgid "Your access"
 msgstr "دسترسی شما"
 
-#: includes/Admin/StoreCopilotPage.php:345
+#: includes/Admin/StoreCopilotPage.php:340
 msgid "Categories"
 msgstr "دسته‌بندی‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:346
+#: includes/Admin/StoreCopilotPage.php:341
 msgid "Product tags"
 msgstr "برچسب‌های محصول"
 
-#: includes/Admin/StoreCopilotPage.php:347
+#: includes/Admin/StoreCopilotPage.php:342
 msgid "Draft workflow"
 msgstr "روند پیش‌نویس"
 
-#: includes/Admin/StoreCopilotPage.php:347
+#: includes/Admin/StoreCopilotPage.php:342
 msgid "Always draft (fixed in Phase 1)"
 msgstr "همیشه پیش‌نویس (ثابت در فاز ۱)"
 
-#: includes/Admin/StoreCopilotPage.php:347
+#: includes/Admin/StoreCopilotPage.php:342
 msgid "Connector paused"
 msgstr "رابط متوقف است"
 
-#: includes/Admin/StoreCopilotPage.php:354
+#: includes/Admin/StoreCopilotPage.php:349
 msgid "WooCommerce AI connector"
 msgstr "رابط هوش مصنوعی ووکامرس"
 
-#: includes/Admin/StoreCopilotPage.php:354
+#: includes/Admin/StoreCopilotPage.php:349
 msgid "Off means no proposals, drafts, or Store Copilot reads."
 msgstr ""
 "خاموش یعنی نه پیشنهاد، نه پیش‌نویس و نه خواندن داده توسط دستیار فروشگاه."
 
-#: includes/Admin/StoreCopilotPage.php:355
+#: includes/Admin/StoreCopilotPage.php:350
 msgid "Smart product search"
 msgstr "جست‌وجوی هوشمند محصول"
 
-#: includes/Admin/StoreCopilotPage.php:355
+#: includes/Admin/StoreCopilotPage.php:350
 msgid ""
 "Controls the protected Store search endpoint. It does not add a visitor-"
 "facing search interface."
@@ -7088,11 +7086,11 @@ msgstr ""
 "نقطهٔ دسترسی محافظت‌شدهٔ جست‌وجوی فروشگاه را کنترل می‌کند. رابط جست‌وجو برای"
 " بازدیدکنندگان اضافه نمی‌کند."
 
-#: includes/Admin/StoreCopilotPage.php:356
+#: includes/Admin/StoreCopilotPage.php:351
 msgid "Product descriptions"
 msgstr "توضیح محصولات"
 
-#: includes/Admin/StoreCopilotPage.php:356
+#: includes/Admin/StoreCopilotPage.php:351
 msgid ""
 "Lets AutoPilot draft descriptions for products you already have. Each one "
 "waits for your approval, and Undo puts the old text back. Nothing else about"
@@ -7102,11 +7100,11 @@ msgstr ""
 "منتظر تأیید شماست و «واگرد» متن قبلی را برمی‌گرداند. چیز دیگری از محصول "
 "تغییر نمی‌کند."
 
-#: includes/Admin/StoreCopilotPage.php:357
+#: includes/Admin/StoreCopilotPage.php:352
 msgid "Count carts"
 msgstr "شمارش سبدها"
 
-#: includes/Admin/StoreCopilotPage.php:357
+#: includes/Admin/StoreCopilotPage.php:352
 msgid ""
 "Counts, per day, how many carts are started and how many reach checkout, so "
 "Orders can show where shoppers stop. Only the two numbers are stored: no "
@@ -7118,11 +7116,11 @@ msgstr ""
 "نه ایمیل، نه نشانی، نه نشانی IP و نه محتوای سبد. کارکنان فروشگاه شمرده "
 "نمی‌شوند."
 
-#: includes/Admin/StoreCopilotPage.php:358
+#: includes/Admin/StoreCopilotPage.php:353
 msgid "Abandoned cart reminders"
 msgstr "یادآوری سبد رهاشده"
 
-#: includes/Admin/StoreCopilotPage.php:358
+#: includes/Admin/StoreCopilotPage.php:353
 msgid ""
 "Checkout shows a short note under the email field: the cart and that email "
 "are kept so you can send one reminder, with a button to decline. Carts left "
@@ -7137,11 +7135,11 @@ msgstr ""
 "خریدار سفارش دهد یا نپذیرد، و پس از دورهٔ «سبدهای رهاشده» در نگهداری "
 "داده‌ها، حذف می‌شوند."
 
-#: includes/Admin/StoreCopilotPage.php:359
+#: includes/Admin/StoreCopilotPage.php:354
 msgid "Product editing by AI"
 msgstr "ویرایش محصول با هوش مصنوعی"
 
-#: includes/Admin/StoreCopilotPage.php:359
+#: includes/Admin/StoreCopilotPage.php:354
 msgid ""
 "Prices, stock, titles and every other field are reserved for Phase 2. They "
 "cannot be switched on yet."
@@ -7149,23 +7147,23 @@ msgstr ""
 "قیمت، موجودی، عنوان و هر فیلد دیگر برای فاز ۲ کنار گذاشته شده و هنوز قابل "
 "روشن کردن نیست."
 
-#: includes/Admin/StoreCopilotPage.php:360
+#: includes/Admin/StoreCopilotPage.php:355
 msgid "Always create as draft"
 msgstr "همیشه به‌صورت پیش‌نویس بساز"
 
-#: includes/Admin/StoreCopilotPage.php:360
+#: includes/Admin/StoreCopilotPage.php:355
 msgid "Fixed in Phase 1. Publishing stays a manual step."
 msgstr "در فاز ۱ ثابت است. انتشار یک گام دستی می‌ماند."
 
-#: includes/Admin/StoreCopilotPage.php:403
+#: includes/Admin/StoreCopilotPage.php:398
 msgid "No store-management access"
 msgstr "بدون دسترسی مدیریت فروشگاه"
 
-#: includes/Admin/StoreCopilotPage.php:436
+#: includes/Admin/StoreCopilotPage.php:431
 msgid "Read-only in Phase 1 - AutoPilot cannot edit what already exists"
 msgstr "فقط‌خواندنی در فاز ۱ — AutoPilot نمی‌تواند موارد موجود را ویرایش کند"
 
-#: includes/Admin/StoreCopilotPage.php:439
+#: includes/Admin/StoreCopilotPage.php:434
 msgid ""
 "Products become available here when WooCommerce and its AI connector are "
 "active."
@@ -7173,7 +7171,7 @@ msgstr ""
 "وقتی ووکامرس و رابط هوش مصنوعی آن فعال باشند، محصولات اینجا نمایش داده "
 "می‌شوند."
 
-#: includes/Admin/StoreCopilotPage.php:441
+#: includes/Admin/StoreCopilotPage.php:436
 msgid ""
 "No WooCommerce products were found yet. Drafts created by AutoPilot will be "
 "marked here."
@@ -7181,7 +7179,7 @@ msgstr ""
 "هنوز محصولی در ووکامرس پیدا نشد. پیش‌نویس‌هایی که AutoPilot بسازد اینجا "
 "علامت می‌خورند."
 
-#: includes/Admin/StoreCopilotPage.php:454
+#: includes/Admin/StoreCopilotPage.php:449
 msgid ""
 "Drafts AutoPilot created are marked. Everything else it can read but not "
 "touch until Phase 2."
@@ -7189,11 +7187,11 @@ msgstr ""
 "پیش‌نویس‌های ساخت AutoPilot علامت خورده‌اند. بقیه را تا فاز ۲ فقط می‌خواند و"
 " تغییر نمی‌دهد."
 
-#: includes/Admin/StoreCopilotPage.php:468
+#: includes/Admin/StoreCopilotPage.php:463
 msgid "Descriptions for products you already have"
 msgstr "توضیح برای محصولاتی که دارید"
 
-#: includes/Admin/StoreCopilotPage.php:469
+#: includes/Admin/StoreCopilotPage.php:464
 msgid ""
 "You approve each one. Only the description changes, and Undo puts the old "
 "text back."
@@ -7201,14 +7199,14 @@ msgstr ""
 "هر کدام را خودتان تأیید می‌کنید. فقط توضیح تغییر می‌کند و «واگرد» متن قبلی "
 "را برمی‌گرداند."
 
-#: includes/Admin/StoreCopilotPage.php:472
+#: includes/Admin/StoreCopilotPage.php:467
 msgid ""
 "Descriptions become available here when WooCommerce and its AI connector are"
 " active."
 msgstr ""
 "وقتی ووکامرس و اتصال هوش مصنوعی آن فعال باشند، توضیح‌ها اینجا در دسترس‌اند."
 
-#: includes/Admin/StoreCopilotPage.php:475
+#: includes/Admin/StoreCopilotPage.php:470
 msgid ""
 "Product descriptions are off. Turn them on under What it can do, then pick "
 "the products to write for here."
@@ -7216,44 +7214,44 @@ msgstr ""
 "توضیح محصولات خاموش است. آن را در «چه کارهایی می‌کند» روشن کنید و سپس "
 "محصولات را اینجا انتخاب کنید."
 
-#: includes/Admin/StoreCopilotPage.php:476
-#: includes/Admin/StoreCopilotPage.php:649
+#: includes/Admin/StoreCopilotPage.php:471
+#: includes/Admin/StoreCopilotPage.php:644
 msgid "Open What it can do"
 msgstr "باز کردن «چه کارهایی می‌کند»"
 
-#: includes/Admin/StoreCopilotPage.php:479
+#: includes/Admin/StoreCopilotPage.php:474
 msgid "Connect an AI service in Setup & Connection first."
 msgstr "اول در راه‌اندازی و اتصال یک سرویس هوش مصنوعی وصل کنید."
 
-#: includes/Admin/StoreCopilotPage.php:482
+#: includes/Admin/StoreCopilotPage.php:477
 msgid "Only products with a missing or short description"
 msgstr "فقط محصولات بدون توضیح یا با توضیح کوتاه"
 
-#: includes/Admin/StoreCopilotPage.php:484
+#: includes/Admin/StoreCopilotPage.php:479
 msgid "Tone"
 msgstr "لحن"
 
-#: includes/Admin/StoreCopilotPage.php:486
+#: includes/Admin/StoreCopilotPage.php:481
 msgid "Professional"
 msgstr "حرفه‌ای"
 
-#: includes/Admin/StoreCopilotPage.php:487
+#: includes/Admin/StoreCopilotPage.php:482
 msgid "Friendly"
 msgstr "صمیمی"
 
-#: includes/Admin/StoreCopilotPage.php:488
+#: includes/Admin/StoreCopilotPage.php:483
 msgid "Premium"
 msgstr "لوکس"
 
-#: includes/Admin/StoreCopilotPage.php:489
+#: includes/Admin/StoreCopilotPage.php:484
 msgid "Technical"
 msgstr "فنی"
 
-#: includes/Admin/StoreCopilotPage.php:492
+#: includes/Admin/StoreCopilotPage.php:487
 msgid "Write drafts"
 msgstr "نوشتن پیش‌نویس‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:498
+#: includes/Admin/StoreCopilotPage.php:493
 msgid ""
 "Up to 10 drafts at a time, one AI request each. A draft is valid for 15 "
 "minutes and is refused if someone changes that description meanwhile."
@@ -7261,11 +7259,11 @@ msgstr ""
 "هر بار حداکثر ۱۰ پیش‌نویس، هر کدام یک درخواست هوش مصنوعی. پیش‌نویس ۱۵ دقیقه "
 "اعتبار دارد و اگر کسی در این فاصله آن توضیح را تغییر دهد، پذیرفته نمی‌شود."
 
-#: includes/Admin/StoreCopilotPage.php:513
+#: includes/Admin/StoreCopilotPage.php:508
 msgid "What it may read from an order"
 msgstr "آنچه از یک سفارش می‌تواند بخواند"
 
-#: includes/Admin/StoreCopilotPage.php:514
+#: includes/Admin/StoreCopilotPage.php:509
 msgid ""
 "The current order route is protected for a store manager. A visitor-facing "
 "order lookup is not registered in this release."
@@ -7273,36 +7271,36 @@ msgstr ""
 "مسیر فعلی سفارش فقط برای مدیر فروشگاه محافظت شده است. جست‌وجوی سفارش برای "
 "بازدیدکنندگان در این نسخه ثبت نشده است."
 
-#: includes/Admin/StoreCopilotPage.php:516
+#: includes/Admin/StoreCopilotPage.php:511
 msgid "Recent order summary for a store manager"
 msgstr "خلاصهٔ سفارش‌های اخیر برای مدیر فروشگاه"
 
-#: includes/Admin/StoreCopilotPage.php:516
+#: includes/Admin/StoreCopilotPage.php:511
 msgid "Read only"
 msgstr "فقط‌خواندنی"
 
-#: includes/Admin/StoreCopilotPage.php:516
+#: includes/Admin/StoreCopilotPage.php:511
 msgid "Unavailable"
 msgstr "در دسترس نیست"
 
-#: includes/Admin/StoreCopilotPage.php:517
+#: includes/Admin/StoreCopilotPage.php:512
 msgid "Customer-facing order lookup"
 msgstr "جست‌وجوی سفارش برای مشتری"
 
-#: includes/Admin/StoreCopilotPage.php:517
-#: includes/Admin/StoreCopilotPage.php:518
+#: includes/Admin/StoreCopilotPage.php:512
+#: includes/Admin/StoreCopilotPage.php:513
 msgid "Not registered"
 msgstr "ثبت نشده"
 
-#: includes/Admin/StoreCopilotPage.php:518
+#: includes/Admin/StoreCopilotPage.php:513
 msgid "Order items, notes, or personal details"
 msgstr "اقلام سفارش، یادداشت‌ها یا اطلاعات شخصی"
 
-#: includes/Admin/StoreCopilotPage.php:519
+#: includes/Admin/StoreCopilotPage.php:514
 msgid "Change status, cancel, or refund"
 msgstr "تغییر وضعیت، لغو یا بازپرداخت"
 
-#: includes/Admin/StoreCopilotPage.php:523
+#: includes/Admin/StoreCopilotPage.php:518
 msgid ""
 "Changing an order status, cancelling, and refunding are not registered as "
 "Store Copilot routes in Phase 1. No prompt in this UI can trigger them."
@@ -7312,44 +7310,44 @@ msgstr ""
 
 #. translators: %s: share of all checkouts in the period, as a percentage.
 #. translators: %s: share of carts started, as a percentage.
-#: includes/Admin/StoreCopilotPage.php:542
-#: includes/Admin/StoreCopilotPage.php:658
+#: includes/Admin/StoreCopilotPage.php:537
+#: includes/Admin/StoreCopilotPage.php:653
 #, php-format
 msgid "%s%%"
 msgstr "٪%s"
 
-#: includes/Admin/StoreCopilotPage.php:545
-#: includes/Admin/StoreCopilotPage.php:663
+#: includes/Admin/StoreCopilotPage.php:540
+#: includes/Admin/StoreCopilotPage.php:658
 msgid "Paid"
 msgstr "پرداخت‌شده"
 
-#: includes/Admin/StoreCopilotPage.php:545
+#: includes/Admin/StoreCopilotPage.php:540
 msgid ""
 "Processing, completed, on hold for an offline payment, or refunded later."
 msgstr ""
 "در حال انجام، تکمیل‌شده، در انتظار پرداخت آفلاین، یا بعداً بازپرداخت‌شده."
 
-#: includes/Admin/StoreCopilotPage.php:546
+#: includes/Admin/StoreCopilotPage.php:541
 msgid "Stopped at payment"
 msgstr "توقف در مرحلهٔ پرداخت"
 
-#: includes/Admin/StoreCopilotPage.php:546
+#: includes/Admin/StoreCopilotPage.php:541
 msgid "Pending payment: the customer placed the order but never paid."
 msgstr "در انتظار پرداخت: مشتری سفارش را ثبت کرد اما هرگز پرداخت نکرد."
 
-#: includes/Admin/StoreCopilotPage.php:547
+#: includes/Admin/StoreCopilotPage.php:542
 msgid "Payment failed"
 msgstr "پرداخت ناموفق"
 
-#: includes/Admin/StoreCopilotPage.php:547
+#: includes/Admin/StoreCopilotPage.php:542
 msgid "The payment provider declined or the payment did not go through."
 msgstr "درگاه پرداخت آن را رد کرد یا پرداخت انجام نشد."
 
-#: includes/Admin/StoreCopilotPage.php:548
+#: includes/Admin/StoreCopilotPage.php:543
 msgid "Cancelled"
 msgstr "لغوشده"
 
-#: includes/Admin/StoreCopilotPage.php:548
+#: includes/Admin/StoreCopilotPage.php:543
 msgid ""
 "Usually an unpaid order that WooCommerce cancelled when its held stock "
 "expired."
@@ -7357,29 +7355,29 @@ msgstr ""
 "معمولاً سفارشی پرداخت‌نشده که ووکامرس پس از پایان زمان نگه‌داری موجودی لغو "
 "کرده است."
 
-#: includes/Admin/StoreCopilotPage.php:553
+#: includes/Admin/StoreCopilotPage.php:548
 msgid "Checkout drop-off"
 msgstr "ریزش در تسویه‌حساب"
 
-#: includes/Admin/StoreCopilotPage.php:554
+#: includes/Admin/StoreCopilotPage.php:549
 msgid "Period"
 msgstr "بازه"
 
 #. translators: %s: number of days.
-#: includes/Admin/StoreCopilotPage.php:559
+#: includes/Admin/StoreCopilotPage.php:554
 #, php-format
 msgid "%s days"
 msgstr "%s روز"
 
 #. translators: %s: number of days.
-#: includes/Admin/StoreCopilotPage.php:573
+#: includes/Admin/StoreCopilotPage.php:568
 #, php-format
 msgid "No customer placed an order at checkout in the last %s days."
 msgstr "در %s روز گذشته هیچ مشتری‌ای در تسویه‌حساب سفارشی ثبت نکرده است."
 
 #. translators: 1: number of checkouts, 2: number of days, 3: percentage paid,
 #. 4: number not paid.
-#: includes/Admin/StoreCopilotPage.php:583
+#: includes/Admin/StoreCopilotPage.php:578
 #, php-format
 msgid "%1$s checkout in the last %2$s days: %3$s paid, %4$s not paid."
 msgid_plural "%1$s checkouts in the last %2$s days: %3$s paid, %4$s not paid."
@@ -7388,19 +7386,19 @@ msgstr[0] ""
 msgstr[1] ""
 "%1$s تسویه‌حساب در %2$s روز گذشته: %3$s پرداخت‌شده، %4$s پرداخت‌نشده."
 
-#: includes/Admin/StoreCopilotPage.php:607
+#: includes/Admin/StoreCopilotPage.php:602
 msgid "View orders"
 msgstr "دیدن سفارش‌ها"
 
-#: includes/Admin/StoreCopilotPage.php:614
+#: includes/Admin/StoreCopilotPage.php:609
 msgid "Unpaid and failed checkouts by payment method"
 msgstr "تسویه‌حساب‌های پرداخت‌نشده و ناموفق بر اساس روش پرداخت"
 
-#: includes/Admin/StoreCopilotPage.php:621
+#: includes/Admin/StoreCopilotPage.php:616
 msgid "Based on the latest 200 unpaid and failed checkouts."
 msgstr "بر اساس ۲۰۰ تسویه‌حساب پرداخت‌نشده و ناموفق اخیر."
 
-#: includes/Admin/StoreCopilotPage.php:629
+#: includes/Admin/StoreCopilotPage.php:624
 msgid ""
 "Orders are those customers placed at checkout in this period, read from "
 "WooCommerce on this page; orders you add yourself are left out. Carts "
@@ -7412,7 +7410,7 @@ msgstr ""
 " نمی‌شوند. سبدهای ساخته‌شده و رسیده به تسویه‌حساب را AutoPilot تا وقتی "
 "«شمارش سبدها» روشن است می‌شمارد، بدون هیچ اطلاعاتی دربارهٔ خریدار."
 
-#: includes/Admin/StoreCopilotPage.php:631
+#: includes/Admin/StoreCopilotPage.php:626
 msgid ""
 "Counts orders that customers placed at checkout in this period, read from "
 "WooCommerce on this page. Orders you add yourself are left out, and carts "
@@ -7424,7 +7422,7 @@ msgstr ""
 "نمی‌شوند، و سبدهایی که پیش از تسویه‌حساب رها شده‌اند هم شمرده نمی‌شوند، چون "
 "ووکامرس آن‌ها را ثبت نمی‌کند."
 
-#: includes/Admin/StoreCopilotPage.php:648
+#: includes/Admin/StoreCopilotPage.php:643
 msgid ""
 "To also see carts that never reach checkout, turn on Count carts under What "
 "it can do."
@@ -7432,26 +7430,26 @@ msgstr ""
 "برای دیدن سبدهایی که هرگز به تسویه‌حساب نمی‌رسند، «شمارش سبدها» را در What "
 "it can do روشن کنید."
 
-#: includes/Admin/StoreCopilotPage.php:661
+#: includes/Admin/StoreCopilotPage.php:656
 msgid "Carts started"
 msgstr "سبدهای ساخته‌شده"
 
-#: includes/Admin/StoreCopilotPage.php:662
+#: includes/Admin/StoreCopilotPage.php:657
 msgid "Reached checkout"
 msgstr "رسیده به تسویه‌حساب"
 
-#: includes/Admin/StoreCopilotPage.php:678
+#: includes/Admin/StoreCopilotPage.php:673
 msgid "Counting is on. Carts appear here once shoppers add something."
 msgstr ""
 "شمارش روشن است. وقتی خریداران چیزی به سبد اضافه کنند، اینجا دیده می‌شود."
 
 #. translators: %s: the date counting started.
-#: includes/Admin/StoreCopilotPage.php:683
+#: includes/Admin/StoreCopilotPage.php:678
 #, php-format
 msgid "Carts are counted since %s, so this period is not complete yet."
 msgstr "سبدها از %s شمرده می‌شوند، پس این بازه هنوز کامل نیست."
 
-#: includes/Admin/StoreCopilotPage.php:700
+#: includes/Admin/StoreCopilotPage.php:695
 msgid ""
 "Carts left at checkout for an hour or more, with the email the shopper typed"
 " there."
@@ -7459,24 +7457,24 @@ msgstr ""
 "سبدهایی که یک ساعت یا بیشتر در تسویه‌حساب رها شده‌اند، همراه با ایمیلی که "
 "خریدار آنجا وارد کرده است."
 
-#: includes/Admin/StoreCopilotPage.php:704
+#: includes/Admin/StoreCopilotPage.php:699
 msgid "No abandoned carts right now."
 msgstr "اکنون سبد رهاشده‌ای نیست."
 
 #. translators: 1: cart total with currency, 2: time since the last change,
 #. such as "3 hours".
-#: includes/Admin/StoreCopilotPage.php:730
+#: includes/Admin/StoreCopilotPage.php:725
 #, php-format
 msgid "%1$s · left %2$s ago"
 msgstr "%1$s · رهاشده از %2$s پیش"
 
-#: includes/Admin/StoreCopilotPage.php:742
+#: includes/Admin/StoreCopilotPage.php:737
 msgid "Send reminder"
 msgstr "ارسال یادآوری"
 
 #. translators: 1: number of orders placed after a reminder, 2: retention,
 #. such as "30 days".
-#: includes/Admin/StoreCopilotPage.php:757
+#: includes/Admin/StoreCopilotPage.php:752
 #, php-format
 msgid ""
 "Orders placed after a reminder: %1$s. One reminder per cart, sent only when "
@@ -7496,7 +7494,7 @@ msgstr[1] ""
 "%2$s حذف می‌شوند."
 
 #. translators: %s: number of days.
-#: includes/Admin/StoreCopilotPage.php:761
+#: includes/Admin/StoreCopilotPage.php:756
 #: includes/Support/PrivacyTools.php:243
 #, php-format
 msgid "%s day"
@@ -7504,7 +7502,7 @@ msgid_plural "%s days"
 msgstr[0] "%s روز"
 msgstr[1] "%s روز"
 
-#: includes/Admin/StoreCopilotPage.php:762
+#: includes/Admin/StoreCopilotPage.php:757
 msgid "you delete them"
 msgstr "تا وقتی خودتان حذفشان کنید"
 
@@ -7908,19 +7906,19 @@ msgstr "درخواست شما برای تیم پشتیبانی ارسال شد."
 msgid "We could not send the request. Please try again later."
 msgstr "نتوانستیم درخواست را بفرستیم. لطفاً بعداً تلاش کنید."
 
-#: includes/Api/ContentController.php:33
-#: includes/Api/ContentController.php:100
+#: includes/Api/ContentController.php:34
+#: includes/Api/ContentController.php:118
 msgid "Content Studio is turned off in Integrations."
 msgstr "استودیوی محتوا در یکپارچه‌سازی‌ها خاموش است."
 
-#: includes/Api/ContentController.php:37
+#: includes/Api/ContentController.php:38
 msgid ""
 "Describe the post or page you want to draft in 6,000 characters or fewer."
 msgstr ""
 "نوشته یا برگه‌ای را که می‌خواهید پیش‌نویس شود در حداکثر ۶٬۰۰۰ نویسه توصیف "
 "کنید."
 
-#: includes/Api/ContentController.php:43
+#: includes/Api/ContentController.php:44
 msgid ""
 "The unanswered question this draft was for is no longer in the list. Open "
 "Write again to draft without linking it."
@@ -7928,7 +7926,11 @@ msgstr ""
 "پرسش بی‌پاسخی که این پیش‌نویس برایش بود دیگر در فهرست نیست. برای نوشتن "
 "پیش‌نویس بدون پیوند، «نوشتن» را دوباره باز کنید."
 
-#: includes/Api/ContentController.php:47
+#: includes/Api/ContentController.php:50
+msgid "Choose one of the voices shown under the request."
+msgstr "یکی از لحن‌هایی را که زیر درخواست آمده انتخاب کنید."
+
+#: includes/Api/ContentController.php:55
 msgid ""
 "Your AI usage cap has been reached. Increase or reset the budget before "
 "drafting content."
@@ -7936,21 +7938,21 @@ msgstr ""
 "سقف مصرف هوش مصنوعی پر شده است. پیش از نوشتن محتوا، بودجه را افزایش دهید یا "
 "بازنشانی کنید."
 
-#: includes/Api/ContentController.php:50
+#: includes/Api/ContentController.php:58
 msgid "Connect an AI provider before drafting content."
 msgstr "پیش از نوشتن محتوا، یک سرویس‌دهندهٔ هوش مصنوعی وصل کنید."
 
-#: includes/Api/ContentController.php:61
+#: includes/Api/ContentController.php:69
 msgid "The content proposal was not safe or complete."
 msgstr "پیشنهاد محتوا امن یا کامل نبود."
 
-#: includes/Api/ContentController.php:104
+#: includes/Api/ContentController.php:122
 #: includes/Api/CopilotController.php:138
 #: includes/Api/EfbCopilotController.php:173
 msgid "Missing action reference."
 msgstr "ارجاع اقدام موجود نیست."
 
-#: includes/Api/ContentController.php:108
+#: includes/Api/ContentController.php:126
 msgid "Draft creation failed."
 msgstr "ساخت پیش‌نویس ناموفق بود."
 
@@ -9054,35 +9056,47 @@ msgstr ""
 "سقف مصرف هوش مصنوعی پر شده است. سقف توکن را در «مصرف و هزینه» افزایش دهید یا"
 " بازنشانی کنید و سپس نمایه‌سازی را ادامه دهید."
 
-#: includes/Content/ContentStudioReadModel.php:120
+#: includes/Content/ContentStudioReadModel.php:121
 msgid "Template not recorded"
 msgstr "الگو ثبت نشده"
 
-#: includes/Content/ContentStudioReadModel.php:121
+#: includes/Content/ContentStudioReadModel.php:122
 msgid "Usage not recorded"
 msgstr "مصرف ثبت نشده"
 
-#: includes/Content/ContentStudioReadModel.php:142
+#: includes/Content/ContentStudioReadModel.php:150
 msgid "Published by you"
 msgstr "منتشرشده توسط شما"
 
-#: includes/Content/ContentStudioReadModel.php:147
+#: includes/Content/ContentStudioReadModel.php:155
 msgid "Waiting for you"
 msgstr "منتظر شما"
 
-#: includes/Content/ContentStudioReadModel.php:152
+#: includes/Content/ContentStudioReadModel.php:160
 msgid "Scheduled by you"
 msgstr "زمان‌بندی‌شده توسط شما"
 
-#: includes/Content/ContentStudioReadModel.php:157
+#: includes/Content/ContentStudioReadModel.php:165
 msgid "Private by you"
 msgstr "خصوصی‌شده توسط شما"
 
 #. translators: %s: localized time.
-#: includes/Content/ContentStudioReadModel.php:190
+#: includes/Content/ContentStudioReadModel.php:198
 #, php-format
 msgid "Today %s"
 msgstr "امروز %s"
+
+#: includes/Content/ContentTone.php:38
+msgid "Formal"
+msgstr "رسمی"
+
+#: includes/Content/ContentTone.php:40
+msgid "Plain"
+msgstr "ساده"
+
+#: includes/Content/ContentTone.php:42
+msgid "Learned from your site"
+msgstr "آموخته از سایت شما"
 
 #. translators: %s: how many times visitors asked the question.
 #: includes/Content/KbGaps.php:168
@@ -10674,25 +10688,25 @@ msgstr ""
 msgid "The form could not be created."
 msgstr "فرم ساخته نشد."
 
-#: includes/Execution/ContentDraftExecutor.php:26
-#: includes/Execution/ContentDraftExecutor.php:33
+#: includes/Execution/ContentDraftExecutor.php:27
+#: includes/Execution/ContentDraftExecutor.php:34
 msgid "You are not allowed to approve this draft."
 msgstr "اجازهٔ تأیید این پیش‌نویس را ندارید."
 
-#: includes/Execution/ContentDraftExecutor.php:30
+#: includes/Execution/ContentDraftExecutor.php:31
 msgid "This draft proposal has expired. Generate it again."
 msgstr "این پیشنهاد پیش‌نویس منقضی شده است. دوباره آن را بسازید."
 
-#: includes/Execution/ContentDraftExecutor.php:36
+#: includes/Execution/ContentDraftExecutor.php:37
 msgid "This draft has already been processed."
 msgstr "این پیش‌نویس قبلاً پردازش شده است."
 
-#: includes/Execution/ContentDraftExecutor.php:39
-#: includes/Execution/ContentDraftExecutor.php:44
+#: includes/Execution/ContentDraftExecutor.php:40
+#: includes/Execution/ContentDraftExecutor.php:45
 msgid "This approval does not belong to Content Studio."
 msgstr "این تأیید متعلق به استودیوی محتوا نیست."
 
-#: includes/Execution/ContentDraftExecutor.php:63
+#: includes/Execution/ContentDraftExecutor.php:64
 msgid "WordPress could not create the draft."
 msgstr "وردپرس نتوانست پیش‌نویس را بسازد."
 

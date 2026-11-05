@@ -186,12 +186,14 @@ Kept on purpose, because it is your content:
 * Legacy aisaautopilot_entry posts, if an older version created any.
 * Posts, pages and WooCommerce product drafts written through Content Studio
   or Store Copilot, and their _aisaautopilot_generated,
-  _aisaautopilot_meta_description and _aisaautopilot_source_gap meta.
+  _aisaautopilot_meta_description, _aisaautopilot_source_gap and
+  _aisaautopilot_content_tone meta.
 * Forms created in Easy Form Builder. They belong to that plugin.
 
 User meta (deleted): {prefix}aisaautopilot_dismissed_conflicts, the
 Integrations warnings about other chat or AI plugins that each administrator
-hid on that site.
+hid on that site, and {prefix}aisaautopilot_content_tone, the Content Studio
+voice each administrator last chose on that site.
 
 The plugin stores no other user meta and no site-wide (network) options.
 
@@ -524,6 +526,9 @@ editable text; nothing is sent until you press Send.
   name. A chat plugin is reported only while the Answer Desk chat button is on.
   Each administrator can hide the warning; another plugin from the list
   activated later brings it back. The check reads only this site's list of active plugins.
+* Content Studio > Write has a Voice choice: the site's usual voice, Formal
+  or Plain. The choice is kept with the proposal, shown in the preview and in
+  History, and remembered for each administrator.
 * When WooCommerce or Easy Form Builder is missing, Store Copilot and the Easy
   Form Builder copilot say which step is needed (install, activate or update)
   and offer that one button, only to administrators allowed to take it.

@@ -113,6 +113,8 @@ function aisaautopilot_uninstall_site(): void {
 	delete_post_meta_by_key( '_aisaautopilot_previous_description' );
 	// Integrations warnings each administrator hid on this site (a per-site user option).
 	delete_metadata( 'user', 0, $wpdb->get_blog_prefix() . 'aisaautopilot_dismissed_conflicts', '', true );
+	// The Content Studio voice each administrator last chose on this site (a per-site user option).
+	delete_metadata( 'user', 0, $wpdb->get_blog_prefix() . 'aisaautopilot_content_tone', '', true );
 }
 
 /*

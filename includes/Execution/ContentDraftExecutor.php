@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AISAAutoPilot\Execution;
 
+use AISAAutoPilot\Content\ContentTone;
 use AISAAutoPilot\Content\KbGaps;
 use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Skills\ContentPlanValidator;
@@ -70,6 +71,8 @@ final class ContentDraftExecutor {
 			update_post_meta( (int) $post_id, '_aisaautopilot_meta_description', $meta );
 		}
 		update_post_meta( (int) $post_id, '_aisaautopilot_generated', '1' );
+		// The voice is taken from the stored proposal, never from the approval request.
+		update_post_meta( (int) $post_id, ContentTone::POST_META, ContentTone::normalize( $record['execution_context']['tone'] ?? '' ) );
 		// A draft written from an unanswered question is linked to it, so the gap offers "Open draft".
 		$source_gap = (string) ( $record['execution_context']['source_gap'] ?? '' );
 		if ( '' !== $source_gap && ( new KbGaps() )->link_draft( $source_gap, (int) $post_id ) ) {

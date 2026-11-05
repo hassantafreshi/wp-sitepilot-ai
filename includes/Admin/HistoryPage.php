@@ -79,6 +79,14 @@ final class HistoryPage {
 												<span class="sp-content-history__title"><?php echo esc_html( (string) $row['title'] ); ?></span>
 											<?php endif; ?>
 											<p class="sp-content-history__meta" dir="auto">
+												<?php if ( '' !== (string) ( $row['voice'] ?? '' ) ) : ?>
+													<span data-sp-history-voice>
+													<?php
+													/* translators: %s: Content Studio voice (writing style), such as Formal. */
+													echo esc_html( sprintf( __( 'Voice: %s', 'ai-site-assistant-autopilot' ), (string) $row['voice'] ) );
+													?>
+													</span><span aria-hidden="true">&nbsp;·&nbsp;</span>
+												<?php endif; ?>
 												<span><?php echo esc_html( (string) $row['template'] ); ?></span><span aria-hidden="true">&nbsp;·&nbsp;</span><span><?php echo esc_html( (string) $row['usage'] ); ?></span>
 											</p>
 										</div>
