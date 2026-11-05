@@ -763,6 +763,31 @@
 
 جدیدترین مورد بالا است. قالب: `تاریخ — task — نتیجه — گیت‌ها و شمارها — artifactها — بعدی`.
 
+- ۲۰۲۶-۱۱-۰۵ — T32 (S5.3) لحن Formal و Plain (A-14) — **تکمیل** (دستور مالک: «T32»).
+  - **رفتار:** چیپ‌های Voice در Content Studio › Write انتخاب‌پذیر شدند: «Learned from your site» (پیش‌فرض)، Formal و Plain.
+    - radiogroup قابل‌دسترسی: کلیدهای جهت (آینه در RTL)، Home و End، فقط چیپ انتخاب‌شده در ترتیب Tab.
+    - پیش‌نمایش ردیف Voice دارد و History «Voice: …» را کنار پیش‌نویس می‌نویسد.
+    - آخرین انتخاب هر مدیر روی همان سایت به خاطر سپرده می‌شود.
+  - **کد:**
+    - `includes/Content/ContentTone.php` (تازه)؛ `ContentDraftSkill::TONES` و `tone_instruction()`.
+    - `/content/plan` پارامتر `tone`؛ مقدار نامعتبر 400 `invalid_tone` پیش از هر تماس AI.
+    - `ActionStore::create` لحن را در execution_context ثابت می‌کند؛ `ContentDraftExecutor` آن را از proposal در `_aisaautopilot_content_tone` می‌نویسد و لحن ارسالی با approval نادیده گرفته می‌شود.
+    - user option `{prefix}aisaautopilot_content_tone`؛ `uninstall.php` آن را برای هر سایت پاک می‌کند.
+    - `content-studio.js`، `CopilotPage`، `HistoryPage`، `ContentStudioReadModel` و CSS.
+  - **گیت‌ها:**
+    - PHPUnit ۲۳۰ و ۱۲۱۸؛ PHPStan و PHPCS صفر.
+    - `wordpress_content_tone_integration`: 7/0. prompt پیش‌فرض با نسخهٔ HEAD بایت‌به‌بایت برابر است. آزمون جهش: با حذف لحن از proposal و از فراخوانی skill، ۳ بررسی شکست خوردند.
+    - بررسی‌های مرورگر Content Studio (en/fa): radiogroup با keyboard و `tone` در payload.
+    - همهٔ ۷۱ مجموعه‌آزمون integration: ۶۹۵ PASS و ۰ FAIL، بدون پیام PHP. تنها شکست اجرای کامل، قرارداد قدیمی «چیپ‌های ثابت» در `wordpress_content_studio_write_page_integration` بود که به radiogroup به‌روز شد (3/0).
+    - multisite 7/0؛ smokeها 6/0، 20/0 و 18/18.
+    - `release_smoke` 619/0، `admin_ia` 652/0، `admin_a11y` 1644/0، `conflict` 19/0، `dependency` 18/0، `efb_details` 28/0.
+    - Plugin Check روی ZIP ساخته‌شده در هر دو حالت: 0/0.
+    - fa_IR: 2305/2305.
+  - **اصلاح در همین کار:** برچسب «Voice» در Content Studio در فارسی «صدا» ترجمه شده بود؛ اکنون با context جدا «لحن» است.
+  - **یافتهٔ تازه F-6 (منتظر تصمیم مالک):** «Learned from your site» و زیرعنوان «Drafts written in the voice it learned from your site» می‌گویند لحن از سایت آموخته شده، اما `ContentDraftSkill` هیچ محتوایی از سایت به AI نمی‌دهد. این برچسب از موکاپ است و پیش از T32 هم بود؛ T32 آن را تغییر نداد.
+  - **اسناد:** readme، RELEASE_NOTES، MANUAL-TESTING 5.5، REST_API_FA، DATA_MODEL_FA، گزارش شکاف (A-14 به بخش ۴)، بخش T32 سند S5.
+  - **بعدی:** T33 (شمار استفادهٔ الگو). F-1 و F-6 منتظر تأیید مالک‌اند.
+
 - ۲۰۲۶-۱۱-۰۵ — حالت «افزونهٔ لازم» برای WooCommerce و Easy Form Builder — **تکمیل** (درخواست مستقیم مالک: «اگر افزونه ووکامرس نصب نبود پیام مناسب به کاربر نمایش داده شود با یو ایکس مناسب همینطور برای ایزی فرم بیلدر و بقیه منوها که وابستگی دارند»). T32 هنوز شروع نشده است.
   - **رفتار:**
     - Store Copilot بدون WooCommerce به‌جای تب‌ها و فرم خاموش فقط یک کارت نشان می‌دهد: علت (نصب نیست، نصب است ولی غیرفعال، یا نسخهٔ قدیمی)، سه کاری که دستیار انجام می‌دهد و یک دکمه.
