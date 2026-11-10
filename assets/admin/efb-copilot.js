@@ -936,8 +936,10 @@
 						box.setAttribute( 'data-sp-efb-install-state', 'installed' );
 						clientLog( makeTraceId(), 'addon_installed', 'Add-on installed from the copilot after the administrator agreed.', { addon: String( offer.code ) } );
 						status.textContent = unsaved > 0 ? t( 'addonInstalledSave', 'Installed. Save the form, then reload the page to use it.' ) : t( 'addonInstalled', 'Installed. Reloading so Easy Form Builder can load it…' );
-						var last = history.length ? history[ history.length - 1 ] : null;
-						try { if ( last && 'user' === last.role ) { sessionStorage.setItem( RESUME_KEY, JSON.stringify( { text: last.text, at: Date.now() } ) ); } } catch ( e ) {}
+						// The request that needed the add-on: the administrator's last message, not the reply after it.
+						var last = null;
+						for ( var h = history.length - 1; h >= 0; h-- ) { if ( history[ h ] && 'user' === history[ h ].role ) { last = history[ h ]; break; } }
+						try { if ( last ) { sessionStorage.setItem( RESUME_KEY, JSON.stringify( { text: last.text, at: Date.now() } ) ); } } catch ( e ) {}
 						if ( unsaved === 0 ) { leaving = true; setTimeout( function () { window.location.reload(); }, 900 ); }
 						return;
 					}
