@@ -104,6 +104,27 @@ payment gets `form_type = payment`. One gateway per form. The preview of a new
 form lists every price. The help lookup no longer matches on common words, so a
 payment question is not answered with an unrelated article.
 
+**EFB logic, add-on install and field placement** — `create_form` takes
+`form.logic` (the same rule objects as `add_logic_rule`); rules are resolved
+against the ids the form is saved with (`EfbFormConverter::logic_catalog`),
+explained in the preview (`preview.logic`) and saved in the form settings
+(`logic_rules`, `logic: true`). A rule about a field added in the same message
+is resolved after that field gets its id. A refusal that needs an add-on
+returns `install` offers (`EfbAddons`: code, name, whether the plan allows it);
+the copilot asks, then posts to EFB's own `add_addons_Emsfb` installer, which
+checks nonce, capability and plan again, and puts the request back in the
+composer after the reload. Free Plus limits (3 rules × 2 conditions) and
+Free's two pages are explained with a link to Pro. `add_field` takes
+`after`/`before`, a new `move_field` operation places fields by EFB's `amount`
+order, and the operation cap is 60 so a whole form can be translated. Form
+Studio plans list `needs_efb` (payment, file_upload, conditional_logic,
+multi_step, signature, calculation, rating) and hand the request to the EFB
+copilot through this tab's session storage. Native text and phone fields take
+`min_length`, `max_length` and `digits_only`. Store Copilot's Products copy no
+longer contradicts Descriptions (F-1), and the default Content Studio voice is
+called Standard (F-6). Live QA: 202 scenarios on the demo site, see
+`docs/qa/LIVE_AI_QA_2026-11-10.md`.
+
 **Content Studio voice** — Write offers three voices as a keyboard-accessible
 radio group: Standard (the default, which sends exactly the same
 prompt as before), Formal and Plain. `POST /content/plan` takes `tone`

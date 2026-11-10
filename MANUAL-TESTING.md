@@ -345,6 +345,19 @@
 - [ ] **9.P4** فرم تازه: «booking form with a 50 dollar deposit by Stripe».
   **Expected:** پیش‌نمایش ردیف «Booking deposit — 50 USD» و «Stripe · USD» را نشان می‌دهد؛ پس از Create فرم با نوع payment ذخیره می‌شود.
 
+**منطق شرطی، نصب افزونه و ترتیب فیلد**
+
+- [ ] **9.L1** با افزونهٔ Conditional Logic خاموش، روی فرم باز بنویسید «Company فقط برای مشتری Business نمایش داده شود».
+  **Expected:** تغییری اعمال نمی‌شود؛ کارت «This needs the Conditional Logic add-on» با «Install Conditional Logic» و «Not now» می‌آید. با «Install»، EFB افزونه را نصب می‌کند، صفحه دوباره بارگذاری می‌شود و همان درخواست ارسال‌نشده در کادر پیام است. روی پلن Free کارت می‌گوید افزونه با Free Plus و Pro است و دکمهٔ نصب ندارد.
+- [ ] **9.L2** فرم تازه: «فرم ثبت‌نام با نوع مشتری (حقیقی، حقوقی) و فیلد نام شرکت فقط برای حقوقی».
+  **Expected:** پیش‌نمایش بخش «Conditional logic» با جملهٔ قانون دارد؛ پس از Create، قانون در فرم ذخیره شده و در صفحهٔ سایت کار می‌کند.
+- [ ] **9.L3** روی Free Plus چهار قانون بخواهید.
+  **Expected:** سه قانون اعمال می‌شود؛ پیام می‌گوید Free Plus سه قانون و دو شرط دارد و Pro بخرید یا فرم را ساده کنید، با دکمهٔ «See EFB Pro».
+- [ ] **9.L4** «add a Website field after Email» و «move Message after Email».
+  **Expected:** فیلد دقیقاً بعد از Email می‌آید و Message جابه‌جا می‌شود؛ پیام دروغ دربارهٔ جای فیلد نمی‌دهد.
+- [ ] **9.L5** در Form Studio بنویسید «فرم رزرو با پرداخت بیعانه و آپلود پاسپورت».
+  **Expected:** فرم بومی بدون پرداخت و آپلود ساخته می‌شود و کارت «This part needs Easy Form Builder» آن‌ها را نام می‌برد؛ دکمهٔ «Build it in Easy Form Builder» به صفحهٔ Create در EFB می‌رود و درخواست ارسال‌نشده در Copilot آماده است. بدون EFB دکمهٔ نصب یا فعال‌سازی آن نشان داده می‌شود.
+
 **ساخت فرم تازه**
 
 - [ ] **9.1** `admin.php?page=Emsfb` و `admin.php?page=Emsfb_create` را باز کنید.

@@ -428,7 +428,8 @@ address, number, date, choices and consent, and arrive by email). Install Easy
 Form Builder for the rest. With it, the copilot can build multi-step forms and
 file uploads on any EFB plan, and drag-and-drop uploads, signatures, ratings,
 matrix questions and consent checkboxes on EFB's Free Plus or Pro plan. With
-EFB's Conditional Logic add-on it can also add show/hide rules. With EFB Pro
+EFB's Conditional Logic add-on it can also add show/hide rules (and it offers to
+install that add-on, with your permission, when it is missing). With EFB Pro
 and the Stripe, PayPal or ZarinPal add-on switched on, it can add online
 payment: priced choices or an amount, the total and the gateway field, using
 only the prices and the currency you give it. It never reads or writes your
