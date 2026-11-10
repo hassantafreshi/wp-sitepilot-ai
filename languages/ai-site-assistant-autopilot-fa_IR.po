@@ -54,7 +54,7 @@ msgstr "ثبت‌شده"
 
 #: includes/Activity/ActivityTimeline.php:132
 #: includes/Activity/ActivityTimeline.php:142 includes/Admin/AdminMenu.php:71
-#: includes/Admin/CopilotPage.php:319 includes/Admin/CopilotPage.php:443
+#: includes/Admin/CopilotPage.php:323 includes/Admin/CopilotPage.php:447
 #: includes/Admin/HistoryPage.php:30 includes/Admin/HomePage.php:390
 #: includes/Admin/IntegrationsPage.php:121
 #: includes/Admin/IntegrationsPage.php:398
@@ -266,9 +266,9 @@ msgid "Replace the key or check the custom endpoint."
 msgstr "کلید را جایگزین کنید یا endpoint سفارشی را بررسی کنید."
 
 #: includes/Admin/AdminMenu.php:307 includes/Admin/ChatPage.php:286
-#: includes/Admin/CopilotPage.php:554 includes/Admin/SettingsPage.php:1326
+#: includes/Admin/CopilotPage.php:558 includes/Admin/SettingsPage.php:1326
 #: includes/Admin/StoreCopilotPage.php:113
-#: includes/Efb/EfbBuilderButton.php:91
+#: includes/Efb/EfbBuilderButton.php:92
 msgid "Network error. Please try again."
 msgstr "خطای شبکه. لطفاً دوباره تلاش کنید."
 
@@ -306,7 +306,7 @@ msgstr "%s پاسخ هنوز منتظر ایمیل شدن است"
 msgid "Test failed."
 msgstr "آزمون ناموفق بود."
 
-#: includes/Admin/AdminMenu.php:317 includes/Admin/CopilotPage.php:537
+#: includes/Admin/AdminMenu.php:317 includes/Admin/CopilotPage.php:541
 #: includes/Admin/NativeFormsPage.php:202 includes/Admin/SettingsPage.php:550
 #: includes/Admin/SettingsPage.php:555
 msgid "Copy"
@@ -400,7 +400,7 @@ msgstr "اتصال"
 #: includes/Admin/AdminMenu.php:337 includes/Admin/HandoffInboxPage.php:180
 #: includes/Admin/HandoffInboxPage.php:202
 #: includes/Admin/IntegrationsPage.php:457
-#: includes/Efb/EfbBuilderButton.php:345
+#: includes/Efb/EfbBuilderButton.php:373
 msgid "Close"
 msgstr "بستن"
 
@@ -538,7 +538,7 @@ msgstr "اول پیش‌نویس را توصیف کنید."
 msgid "Building a reviewable draft…"
 msgstr "در حال ساخت پیش‌نویسی برای بازبینی…"
 
-#: includes/Admin/AdminMenu.php:374 includes/Admin/CopilotPage.php:362
+#: includes/Admin/AdminMenu.php:374 includes/Admin/CopilotPage.php:366
 msgid "Write a draft"
 msgstr "نوشتن پیش‌نویس"
 
@@ -700,8 +700,8 @@ msgid "Open Widget settings"
 msgstr "باز کردن تنظیمات ویجت"
 
 #: includes/Admin/AnswerConversationsPage.php:109
-#: includes/Admin/CopilotPage.php:162 includes/Admin/CopilotPage.php:311
-#: includes/Admin/CopilotPage.php:578
+#: includes/Admin/CopilotPage.php:162 includes/Admin/CopilotPage.php:315
+#: includes/Admin/CopilotPage.php:582
 msgid "Open Integrations"
 msgstr "باز کردن یکپارچه‌سازی‌ها"
 
@@ -876,10 +876,10 @@ msgstr ""
 
 #: includes/Admin/AnswerDeskHandoffPage.php:97
 #: includes/Admin/AnswerDeskHandoffPage.php:193
-#: includes/Admin/CopilotPage.php:257 includes/Admin/CopilotPage.php:262
-#: includes/Admin/CopilotPage.php:267 includes/Admin/CopilotPage.php:272
-#: includes/Admin/CopilotPage.php:665 includes/Admin/HandoffInboxPage.php:319
-#: includes/Efb/EfbBuilderButton.php:294 includes/Support/HandoffEmail.php:61
+#: includes/Admin/CopilotPage.php:261 includes/Admin/CopilotPage.php:266
+#: includes/Admin/CopilotPage.php:271 includes/Admin/CopilotPage.php:276
+#: includes/Admin/CopilotPage.php:681 includes/Admin/HandoffInboxPage.php:319
+#: includes/Efb/EfbBuilderButton.php:300 includes/Support/HandoffEmail.php:61
 msgid "Email"
 msgstr "ایمیل"
 
@@ -1190,8 +1190,8 @@ msgstr ""
 "جمع نشود که نمی‌توان با آن تحویل داد."
 
 #: includes/Admin/AnswerDeskHandoffPage.php:472
-#: includes/Admin/CopilotPage.php:257 includes/Admin/CopilotPage.php:267
-#: includes/Admin/CopilotPage.php:277 includes/Admin/CopilotPage.php:282
+#: includes/Admin/CopilotPage.php:261 includes/Admin/CopilotPage.php:271
+#: includes/Admin/CopilotPage.php:281 includes/Admin/CopilotPage.php:286
 #: includes/Support/PrivacyTools.php:91
 msgid "Name"
 msgstr "نام"
@@ -1246,7 +1246,7 @@ msgid "Optional"
 msgstr "اختیاری"
 
 #: includes/Admin/AnswerDeskHandoffPage.php:480
-#: includes/Admin/CopilotPage.php:658
+#: includes/Admin/CopilotPage.php:674
 msgid "Required"
 msgstr "الزامی"
 
@@ -1279,7 +1279,7 @@ msgid "Save configuration"
 msgstr "ذخیرهٔ پیکربندی"
 
 #: includes/Admin/AnswerDeskHandoffPage.php:555
-#: includes/Admin/CopilotPage.php:312 includes/Admin/SettingsPage.php:838
+#: includes/Admin/CopilotPage.php:316 includes/Admin/SettingsPage.php:838
 #: includes/Admin/SettingsPage.php:1269
 msgid "Check connection"
 msgstr "بررسی اتصال"
@@ -1696,7 +1696,7 @@ msgid "Record a question"
 msgstr "ضبط سؤال"
 
 #: includes/Admin/ChatPage.php:151 includes/Admin/CopilotPage.php:173
-#: includes/Core/Plugin.php:175 includes/Efb/EfbBuilderButton.php:361
+#: includes/Core/Plugin.php:175 includes/Efb/EfbBuilderButton.php:389
 #: includes/Frontend/ChatWidget.php:164
 msgid "Send"
 msgstr "ارسال"
@@ -1920,7 +1920,7 @@ msgstr ""
 "متن آماده است — بررسی‌اش کنید، سپس ارسال کنید. هیچ چیزی خودکار ارسال "
 "نمی‌شود."
 
-#: includes/Admin/ChatPage.php:299 includes/Efb/EfbBuilderButton.php:97
+#: includes/Admin/ChatPage.php:299 includes/Efb/EfbBuilderButton.php:98
 msgid "Voice transcription failed. Please try again."
 msgstr "تبدیل گفتار به متن ناموفق بود. لطفاً دوباره تلاش کنید."
 
@@ -2018,7 +2018,7 @@ msgstr "گیرنده را شما تعیین می‌کنید و هوش مصنوع
 
 #. translators: %s: configured form notification email.
 #. translators: %s: email address.
-#: includes/Admin/CopilotPage.php:87 includes/Admin/CopilotPage.php:575
+#: includes/Admin/CopilotPage.php:87 includes/Admin/CopilotPage.php:579
 #, php-format
 msgid "Answers go to %s"
 msgstr "پاسخ‌ها به %s می‌رود"
@@ -2027,7 +2027,7 @@ msgstr "پاسخ‌ها به %s می‌رود"
 msgid "Change"
 msgstr "تغییر"
 
-#: includes/Admin/CopilotPage.php:91 includes/Efb/EfbBuilderButton.php:216
+#: includes/Admin/CopilotPage.php:91 includes/Efb/EfbBuilderButton.php:222
 msgid "New form"
 msgstr "فرم جدید"
 
@@ -2035,7 +2035,7 @@ msgstr "فرم جدید"
 msgid "Chat"
 msgstr "گفت‌وگو"
 
-#: includes/Admin/CopilotPage.php:96 includes/Admin/CopilotPage.php:493
+#: includes/Admin/CopilotPage.php:96 includes/Admin/CopilotPage.php:497
 msgid "Preview"
 msgstr "پیش‌نمایش"
 
@@ -2070,15 +2070,15 @@ msgstr "باز کردن EFB"
 msgid "EFB unavailable"
 msgstr "EFB در دسترس نیست"
 
-#: includes/Admin/CopilotPage.php:155 includes/Admin/CopilotPage.php:481
+#: includes/Admin/CopilotPage.php:155 includes/Admin/CopilotPage.php:485
 msgid "Form Assistant"
 msgstr "دستیار فرم"
 
-#: includes/Admin/CopilotPage.php:156 includes/Admin/CopilotPage.php:582
+#: includes/Admin/CopilotPage.php:156 includes/Admin/CopilotPage.php:586
 msgid "New native form"
 msgstr "فرم بومی جدید"
 
-#: includes/Admin/CopilotPage.php:156 includes/Admin/CopilotPage.php:583
+#: includes/Admin/CopilotPage.php:156 includes/Admin/CopilotPage.php:587
 msgid "Setup needed"
 msgstr "نیاز به راه‌اندازی"
 
@@ -2090,12 +2090,12 @@ msgstr "استودیوی فرم خاموش است"
 msgid "Describe the form you want to create"
 msgstr "فرمی را که می‌خواهید بسازید توضیح دهید"
 
-#: includes/Admin/CopilotPage.php:169 includes/Admin/CopilotPage.php:671
+#: includes/Admin/CopilotPage.php:169 includes/Admin/CopilotPage.php:687
 msgid "Describe the form: who fills it in and what you need to know…"
 msgstr ""
 "فرم را توصیف کنید: چه کسی آن را پر می‌کند و چه چیزی باید از او بدانید…"
 
-#: includes/Admin/CopilotPage.php:169 includes/Admin/CopilotPage.php:672
+#: includes/Admin/CopilotPage.php:169 includes/Admin/CopilotPage.php:688
 msgid "Finish the setup to start…"
 msgstr "برای شروع، راه‌اندازی را تمام کنید…"
 
@@ -2103,7 +2103,7 @@ msgstr "برای شروع، راه‌اندازی را تمام کنید…"
 msgid "Start voice command"
 msgstr "شروع فرمان صوتی"
 
-#: includes/Admin/CopilotPage.php:171 includes/Admin/CopilotPage.php:559
+#: includes/Admin/CopilotPage.php:171 includes/Admin/CopilotPage.php:563
 msgid "Speak"
 msgstr "صحبت کنید"
 
@@ -2129,33 +2129,33 @@ msgstr ""
 msgid "I understand this creates a publicly visible form on %s"
 msgstr "می‌دانم که این کار یک فرم قابل مشاهدهٔ عمومی روی %s می‌سازد"
 
-#: includes/Admin/CopilotPage.php:201 includes/Admin/CopilotPage.php:513
+#: includes/Admin/CopilotPage.php:201 includes/Admin/CopilotPage.php:517
 msgid "Approve & publish"
 msgstr "تأیید و انتشار"
 
-#: includes/Admin/CopilotPage.php:255
+#: includes/Admin/CopilotPage.php:259
 msgid "Contact form"
 msgstr "فرم تماس"
 
-#: includes/Admin/CopilotPage.php:256
+#: includes/Admin/CopilotPage.php:260
 msgid "Create a contact form with name, email, phone, and message."
 msgstr "یک فرم تماس با نام، ایمیل، تلفن و پیام بسازید."
 
-#: includes/Admin/CopilotPage.php:257 includes/Admin/CopilotPage.php:666
-#: includes/Efb/EfbBuilderButton.php:295
+#: includes/Admin/CopilotPage.php:261 includes/Admin/CopilotPage.php:682
+#: includes/Efb/EfbBuilderButton.php:301
 msgid "Phone"
 msgstr "تلفن"
 
-#: includes/Admin/CopilotPage.php:257
+#: includes/Admin/CopilotPage.php:261
 #: includes/Frontend/ChatWidgetSettings.php:337
 msgid "Message"
 msgstr "پیام"
 
-#: includes/Admin/CopilotPage.php:260
+#: includes/Admin/CopilotPage.php:264
 msgid "Newsletter signup"
 msgstr "عضویت در خبرنامه"
 
-#: includes/Admin/CopilotPage.php:261
+#: includes/Admin/CopilotPage.php:265
 msgid ""
 "Make a newsletter signup with first name, email and the topics they want: "
 "news, offers or events."
@@ -2163,38 +2163,38 @@ msgstr ""
 "یک فرم عضویت در خبرنامه با نام، ایمیل و موضوع‌های دلخواه بساز: اخبار، "
 "پیشنهادها یا رویدادها."
 
-#: includes/Admin/CopilotPage.php:262
+#: includes/Admin/CopilotPage.php:266
 msgid "First name"
 msgstr "نام"
 
-#: includes/Admin/CopilotPage.php:262
+#: includes/Admin/CopilotPage.php:266
 msgid "Topics"
 msgstr "موضوع‌ها"
 
-#: includes/Admin/CopilotPage.php:265
+#: includes/Admin/CopilotPage.php:269
 msgid "Support request"
 msgstr "درخواست پشتیبانی"
 
-#: includes/Admin/CopilotPage.php:266
+#: includes/Admin/CopilotPage.php:270
 msgid ""
 "Support request form with name, email, priority (low, medium, high) and "
 "details."
 msgstr ""
 "فرم درخواست پشتیبانی با نام، ایمیل، اولویت (کم، متوسط، زیاد) و جزئیات."
 
-#: includes/Admin/CopilotPage.php:267
+#: includes/Admin/CopilotPage.php:271
 msgid "Priority"
 msgstr "اولویت"
 
-#: includes/Admin/CopilotPage.php:267
+#: includes/Admin/CopilotPage.php:271
 msgid "Details"
 msgstr "جزئیات"
 
-#: includes/Admin/CopilotPage.php:270
+#: includes/Admin/CopilotPage.php:274
 msgid "Job application"
 msgstr "درخواست همکاری"
 
-#: includes/Admin/CopilotPage.php:271
+#: includes/Admin/CopilotPage.php:275
 msgid ""
 "Build a job application form with full name, email, phone, the position they"
 " apply for as a dropdown, and a cover letter."
@@ -2202,24 +2202,24 @@ msgstr ""
 "یک فرم درخواست همکاری بساز با نام کامل، ایمیل، تلفن، سمت درخواستی به‌صورت "
 "فهرست کشویی و یک نامهٔ همراه."
 
-#: includes/Admin/CopilotPage.php:272
+#: includes/Admin/CopilotPage.php:276
 msgid "Full name"
 msgstr "نام کامل"
 
-#: includes/Admin/CopilotPage.php:272
+#: includes/Admin/CopilotPage.php:276
 #: includes/Frontend/ChatWidgetSettings.php:133
 msgid "Position"
 msgstr "موقعیت"
 
-#: includes/Admin/CopilotPage.php:272
+#: includes/Admin/CopilotPage.php:276
 msgid "Cover letter"
 msgstr "نامهٔ همراه"
 
-#: includes/Admin/CopilotPage.php:275
+#: includes/Admin/CopilotPage.php:279
 msgid "Event RSVP"
 msgstr "حضور در رویداد"
 
-#: includes/Admin/CopilotPage.php:276
+#: includes/Admin/CopilotPage.php:280
 msgid ""
 "An event RSVP form with name, email, whether they will come (yes or no), how"
 " many guests (0 to 3) and any dietary needs."
@@ -2227,23 +2227,23 @@ msgstr ""
 "یک فرم حضور در رویداد با نام، ایمیل، این‌که می‌آید یا نه (بله یا خیر)، تعداد"
 " مهمان‌ها (۰ تا ۳) و رژیم غذایی خاص."
 
-#: includes/Admin/CopilotPage.php:277
+#: includes/Admin/CopilotPage.php:281
 msgid "Attending"
 msgstr "حضور"
 
-#: includes/Admin/CopilotPage.php:277
+#: includes/Admin/CopilotPage.php:281
 msgid "Guests"
 msgstr "مهمان‌ها"
 
-#: includes/Admin/CopilotPage.php:277
+#: includes/Admin/CopilotPage.php:281
 msgid "Dietary needs"
 msgstr "رژیم غذایی خاص"
 
-#: includes/Admin/CopilotPage.php:280
+#: includes/Admin/CopilotPage.php:284
 msgid "Quote request"
 msgstr "درخواست قیمت"
 
-#: includes/Admin/CopilotPage.php:281
+#: includes/Admin/CopilotPage.php:285
 msgid ""
 "A quote request form with name, email, phone, the service they need as a "
 "dropdown, a budget range and project details."
@@ -2251,79 +2251,78 @@ msgstr ""
 "یک فرم درخواست قیمت با نام، ایمیل، تلفن، خدمت موردنیاز به‌صورت فهرست کشویی، "
 "بازهٔ بودجه و جزئیات پروژه."
 
-#: includes/Admin/CopilotPage.php:282 includes/Admin/KnowledgeBasePage.php:583
+#: includes/Admin/CopilotPage.php:286 includes/Admin/KnowledgeBasePage.php:583
 #: includes/Admin/SettingsPage.php:294
 msgid "Service"
 msgstr "خدمت"
 
-#: includes/Admin/CopilotPage.php:282
+#: includes/Admin/CopilotPage.php:286
 msgid "Budget"
 msgstr "بودجه"
 
-#: includes/Admin/CopilotPage.php:282
+#: includes/Admin/CopilotPage.php:286
 msgid "Project details"
 msgstr "جزئیات پروژه"
 
-#: includes/Admin/CopilotPage.php:304
+#: includes/Admin/CopilotPage.php:308
 msgid "Content Studio is turned off"
 msgstr "استودیوی محتوا خاموش است"
 
-#: includes/Admin/CopilotPage.php:305
+#: includes/Admin/CopilotPage.php:309
 msgid "AI usage cap reached"
 msgstr "سقف مصرف هوش مصنوعی پر شده است"
 
-#: includes/Admin/CopilotPage.php:305
+#: includes/Admin/CopilotPage.php:309
 msgid "AI provider unavailable"
 msgstr "ارائه‌دهندهٔ AI در دسترس نیست"
 
-#: includes/Admin/CopilotPage.php:307
+#: includes/Admin/CopilotPage.php:311
 msgid "Turn it on in Integrations before creating a reviewable draft."
 msgstr "پیش از ساخت پیش‌نویس، آن را در یکپارچه‌سازی‌ها روشن کنید."
 
-#: includes/Admin/CopilotPage.php:308
+#: includes/Admin/CopilotPage.php:312
 msgid "Increase or reset the usage budget before building a draft."
 msgstr "پیش از ساخت پیش‌نویس، سقف مصرف را افزایش دهید یا بازنشانی کنید."
 
-#: includes/Admin/CopilotPage.php:308
+#: includes/Admin/CopilotPage.php:312
 msgid "Connect an AI provider before a draft can be built."
 msgstr "پیش از ساخت پیش‌نویس، یک سرویس‌دهندهٔ هوش مصنوعی وصل کنید."
 
-#: includes/Admin/CopilotPage.php:312
+#: includes/Admin/CopilotPage.php:316
 msgid "Open Usage"
 msgstr "باز کردن مصرف"
 
-#: includes/Admin/CopilotPage.php:320 includes/Admin/HistoryPage.php:31
-msgid "Drafts written in the voice it learned from your site."
-msgstr "پیش‌نویس‌هایی با لحنی که از سایت شما آموخته است."
+#: includes/Admin/CopilotPage.php:324 includes/Admin/HistoryPage.php:31
+msgid "Drafts written for your site, in the voice you choose."
+msgstr "پیش‌نویس‌هایی برای سایت شما، با لحنی که انتخاب می‌کنید."
 
-#: includes/Admin/CopilotPage.php:324 includes/Admin/CopilotPage.php:448
+#: includes/Admin/CopilotPage.php:328 includes/Admin/CopilotPage.php:452
 #: includes/Admin/HistoryPage.php:35
 msgid "New draft"
 msgstr "پیش‌نویس تازه"
 
-#: includes/Admin/CopilotPage.php:336 includes/Admin/HistoryPage.php:56
+#: includes/Admin/CopilotPage.php:340 includes/Admin/HistoryPage.php:56
 #: includes/Admin/HomePage.php:176
 msgid "Nothing written yet"
 msgstr "هنوز چیزی نوشته نشده"
 
-#: includes/Admin/CopilotPage.php:337
+#: includes/Admin/CopilotPage.php:341
 msgid ""
 "Describe what you need in the box below and Content Studio writes a first "
-"draft in the voice it learned from your site. Drafts are never published on "
-"their own."
+"draft in the voice you choose. Drafts are never published on their own."
 msgstr ""
-"آنچه لازم دارید را در کادر زیر بنویسید تا استودیوی محتوا یک پیش‌نویس اولیه "
-"با لحن سایت شما بنویسد. پیش‌نویس‌ها هیچ‌وقت خودبه‌خود منتشر نمی‌شوند."
+"آنچه لازم دارید را در کادر زیر بنویسید تا Content Studio یک پیش‌نویس اولیه "
+"با لحنی که انتخاب می‌کنید بنویسد. پیش‌نویس‌ها هرگز خودبه‌خود منتشر نمی‌شوند."
 
-#: includes/Admin/CopilotPage.php:345
+#: includes/Admin/CopilotPage.php:349
 msgid "Drafting an answer to:"
 msgstr "در حال نوشتن پاسخ برای:"
 
-#: includes/Admin/CopilotPage.php:350
+#: includes/Admin/CopilotPage.php:354
 msgid "What should it write?"
 msgstr "چه بنویسد؟"
 
-#: includes/Admin/CopilotPage.php:351
+#: includes/Admin/CopilotPage.php:355
 msgid ""
 "A post about why multi-step forms convert better, for shop owners, around "
 "900 words…"
@@ -2331,54 +2330,54 @@ msgstr ""
 "نوشته‌ای دربارهٔ اینکه چرا فرم‌های چندمرحله‌ای نتیجهٔ بهتری دارند، برای "
 "صاحبان فروشگاه، حدود ۹۰۰ کلمه…"
 
-#: includes/Admin/CopilotPage.php:354 includes/Admin/CopilotPage.php:383
+#: includes/Admin/CopilotPage.php:358 includes/Admin/CopilotPage.php:387
 msgctxt "writing style of a Content Studio draft"
 msgid "Voice"
 msgstr "لحن"
 
-#: includes/Admin/CopilotPage.php:379
+#: includes/Admin/CopilotPage.php:383
 msgid "Review the draft before saving"
 msgstr "پیش از ذخیره، پیش‌نویس را بازبینی کنید"
 
-#: includes/Admin/CopilotPage.php:380 includes/Admin/StoreCopilotPage.php:116
+#: includes/Admin/CopilotPage.php:384 includes/Admin/StoreCopilotPage.php:116
 msgid "Draft only"
 msgstr "فقط پیش‌نویس"
 
-#: includes/Admin/CopilotPage.php:384 includes/Admin/KnowledgeBasePage.php:379
+#: includes/Admin/CopilotPage.php:388 includes/Admin/KnowledgeBasePage.php:379
 #: includes/Frontend/ChatWidgetSettings.php:206
 #: includes/Support/PrivacyTools.php:341
 msgid "Title"
 msgstr "عنوان"
 
-#: includes/Admin/CopilotPage.php:385
+#: includes/Admin/CopilotPage.php:389
 msgid "URL slug"
 msgstr "نامک نشانی"
 
-#: includes/Admin/CopilotPage.php:386 includes/Admin/CopilotPage.php:427
+#: includes/Admin/CopilotPage.php:390 includes/Admin/CopilotPage.php:431
 msgid "Meta description"
 msgstr "توضیح متا"
 
-#: includes/Admin/CopilotPage.php:387
+#: includes/Admin/CopilotPage.php:391
 msgid "Body"
 msgstr "متن"
 
-#: includes/Admin/CopilotPage.php:389
+#: includes/Admin/CopilotPage.php:393
 msgid "Approve & create draft"
 msgstr "تأیید و ساخت پیش‌نویس"
 
-#: includes/Admin/CopilotPage.php:389 includes/Admin/KnowledgeBasePage.php:393
+#: includes/Admin/CopilotPage.php:393 includes/Admin/KnowledgeBasePage.php:393
 msgid "Start over"
 msgstr "شروع دوباره"
 
-#: includes/Admin/CopilotPage.php:395
+#: includes/Admin/CopilotPage.php:399
 msgid "Recent drafts"
 msgstr "پیش‌نویس‌های اخیر"
 
-#: includes/Admin/CopilotPage.php:417
+#: includes/Admin/CopilotPage.php:421
 msgid "Product description"
 msgstr "توضیح محصول"
 
-#: includes/Admin/CopilotPage.php:418 includes/Admin/CopilotPage.php:419
+#: includes/Admin/CopilotPage.php:422 includes/Admin/CopilotPage.php:423
 msgid ""
 "Write 60–90 words for {product}. Lead with the material, then the use. No "
 "superlatives."
@@ -2386,46 +2385,46 @@ msgstr ""
 "برای {product} بین ۶۰ تا ۹۰ کلمه بنویس. اول جنس، بعد کاربرد. بدون صفت‌های "
 "اغراق‌آمیز."
 
-#: includes/Admin/CopilotPage.php:422
+#: includes/Admin/CopilotPage.php:426
 msgid "Blog post outline"
 msgstr "طرح کلی نوشتهٔ وبلاگ"
 
-#: includes/Admin/CopilotPage.php:423 includes/Admin/CopilotPage.php:424
+#: includes/Admin/CopilotPage.php:427 includes/Admin/CopilotPage.php:428
 msgid ""
 "Outline a post on {topic} for {audience}. Six headings, one sentence each."
 msgstr ""
 "برای {audience} طرح کلی یک نوشته دربارهٔ {topic} بنویس. شش عنوان، هر کدام یک"
 " جمله."
 
-#: includes/Admin/CopilotPage.php:428 includes/Admin/CopilotPage.php:429
+#: includes/Admin/CopilotPage.php:432 includes/Admin/CopilotPage.php:433
 msgid "Summarise {page} in under 155 characters. Say what the reader gets."
 msgstr ""
 "{page} را در کمتر از ۱۵۵ نویسه خلاصه کن. بگو خواننده چه چیزی به دست می‌آورد."
 
-#: includes/Admin/CopilotPage.php:432
+#: includes/Admin/CopilotPage.php:436
 msgid "Support answer"
 msgstr "پاسخ پشتیبانی"
 
-#: includes/Admin/CopilotPage.php:433 includes/Admin/CopilotPage.php:434
+#: includes/Admin/CopilotPage.php:437 includes/Admin/CopilotPage.php:438
 msgid ""
 "Answer {question} using only {sources}. If the answer is not there, say so."
 msgstr ""
 "به {question} فقط با استفاده از {sources} پاسخ بده. اگر پاسخ آنجا نیست، همین"
 " را بگو."
 
-#: includes/Admin/CopilotPage.php:444
+#: includes/Admin/CopilotPage.php:448
 msgid "Reusable writing starting points."
 msgstr "نقطه‌های شروع قابل استفادهٔ دوباره برای نوشتن."
 
-#: includes/Admin/CopilotPage.php:461
+#: includes/Admin/CopilotPage.php:465
 msgid "Built-in"
 msgstr "داخلی"
 
-#: includes/Admin/CopilotPage.php:464
+#: includes/Admin/CopilotPage.php:468
 msgid "Use template"
 msgstr "استفاده از الگو"
 
-#: includes/Admin/CopilotPage.php:482
+#: includes/Admin/CopilotPage.php:486
 msgid ""
 "Your form plan is ready. Review every field and the final status below; "
 "nothing is created until you approve."
@@ -2435,38 +2434,38 @@ msgstr ""
 
 # Form Composer specialist shell.
 #. translators: %d: number of fields in the proposed form.
-#: includes/Admin/CopilotPage.php:484
+#: includes/Admin/CopilotPage.php:488
 #, php-format
 msgid "%d fields ready to review"
 msgstr "%d فیلد آمادهٔ بازبینی است"
 
-#: includes/Admin/CopilotPage.php:485
+#: includes/Admin/CopilotPage.php:489
 msgid "Create with AI"
 msgstr "ساخت با هوش مصنوعی"
 
-#: includes/Admin/CopilotPage.php:486
+#: includes/Admin/CopilotPage.php:490
 msgid "Waiting for your approval"
 msgstr "منتظر بررسی و تأیید شما"
 
-#: includes/Admin/CopilotPage.php:487 includes/Admin/CopilotPage.php:514
+#: includes/Admin/CopilotPage.php:491 includes/Admin/CopilotPage.php:518
 msgid "Expired"
 msgstr "منقضی‌شده"
 
 #. translators: %s: human-readable time remaining, e.g. "14 minutes".
-#: includes/Admin/CopilotPage.php:489
+#: includes/Admin/CopilotPage.php:493
 #, php-format
 msgid "Valid for %s more"
 msgstr "تا %s دیگر معتبر است"
 
-#: includes/Admin/CopilotPage.php:490
+#: includes/Admin/CopilotPage.php:494
 msgid "This proposal has expired"
 msgstr "این پیشنهاد منقضی شده است"
 
-#: includes/Admin/CopilotPage.php:491
+#: includes/Admin/CopilotPage.php:495
 msgid "Nothing changes on your site until you approve."
 msgstr "تا زمان تأیید شما هیچ تغییری در سایت انجام نمی‌شود."
 
-#: includes/Admin/CopilotPage.php:492
+#: includes/Admin/CopilotPage.php:496
 msgid ""
 "This action expired and can no longer be approved. Rebuild the request to "
 "continue."
@@ -2474,120 +2473,120 @@ msgstr ""
 "این اقدام منقضی شده و دیگر قابل تأیید نیست. برای ادامه، درخواست را دوباره "
 "بسازید."
 
-#: includes/Admin/CopilotPage.php:494
+#: includes/Admin/CopilotPage.php:498
 msgid "Structure details"
 msgstr "جزئیات ساختار"
 
-#: includes/Admin/CopilotPage.php:495
+#: includes/Admin/CopilotPage.php:499
 #: includes/Frontend/ChatWidgetSettings.php:383
 msgid "Desktop"
 msgstr "دسکتاپ"
 
-#: includes/Admin/CopilotPage.php:496 includes/Admin/HandoffInboxPage.php:320
+#: includes/Admin/CopilotPage.php:500 includes/Admin/HandoffInboxPage.php:320
 #: includes/Frontend/ChatWidgetSettings.php:384
 #: includes/Support/HandoffEmail.php:62
 msgid "Mobile"
 msgstr "موبایل"
 
-#: includes/Admin/CopilotPage.php:497 includes/Efb/EfbBuilderButton.php:311
+#: includes/Admin/CopilotPage.php:501 includes/Efb/EfbBuilderButton.php:339
 msgid "required"
 msgstr "الزامی"
 
-#: includes/Admin/CopilotPage.php:498
+#: includes/Admin/CopilotPage.php:502
 msgid "optional"
 msgstr "اختیاری"
 
-#: includes/Admin/CopilotPage.php:499
+#: includes/Admin/CopilotPage.php:503
 msgid "What will not be created"
 msgstr "چه چیزهایی ایجاد نمی‌شوند"
 
-#: includes/Admin/CopilotPage.php:500
+#: includes/Admin/CopilotPage.php:504
 msgid "These were removed from the plan by policy and cannot be approved."
 msgstr "این موارد بر اساس سیاست از طرح حذف شده‌اند و قابل تأیید نیستند."
 
-#: includes/Admin/CopilotPage.php:501
+#: includes/Admin/CopilotPage.php:505
 msgid "Payment field — not allowed"
 msgstr "فیلد پرداخت — مجاز نیست"
 
-#: includes/Admin/CopilotPage.php:502
+#: includes/Admin/CopilotPage.php:506
 msgid "Password field — not allowed"
 msgstr "فیلد گذرواژه — مجاز نیست"
 
-#: includes/Admin/CopilotPage.php:503
+#: includes/Admin/CopilotPage.php:507
 msgid "User registration — not allowed"
 msgstr "ثبت‌نام کاربر — مجاز نیست"
 
-#: includes/Admin/CopilotPage.php:504
+#: includes/Admin/CopilotPage.php:508
 msgid "What happens when you approve"
 msgstr "با تأیید شما چه اتفاقی می‌افتد"
 
-#: includes/Admin/CopilotPage.php:505
+#: includes/Admin/CopilotPage.php:509
 msgid "Connector"
 msgstr "اتصال‌دهنده"
 
-#: includes/Admin/CopilotPage.php:506
+#: includes/Admin/CopilotPage.php:510
 msgid "Destination"
 msgstr "مقصد"
 
-#: includes/Admin/CopilotPage.php:507
+#: includes/Admin/CopilotPage.php:511
 msgid "State"
 msgstr "وضعیت"
 
-#: includes/Admin/CopilotPage.php:508
+#: includes/Admin/CopilotPage.php:512
 msgid "Draft — not public"
 msgstr "پیش‌نویس — عمومی نمی‌شود"
 
-#: includes/Admin/CopilotPage.php:509
+#: includes/Admin/CopilotPage.php:513
 msgid "Published immediately"
 msgstr "بلافاصله منتشر می‌شود"
 
-#: includes/Admin/CopilotPage.php:510
+#: includes/Admin/CopilotPage.php:514
 msgid "Risk level"
 msgstr "سطح ریسک"
 
-#: includes/Admin/CopilotPage.php:511
+#: includes/Admin/CopilotPage.php:515
 msgid "Notifications"
 msgstr "اعلان‌ها"
 
-#: includes/Admin/CopilotPage.php:512
+#: includes/Admin/CopilotPage.php:516
 msgid "Approve & save as draft"
 msgstr "تأیید و ذخیره به‌صورت پیش‌نویس"
 
-#: includes/Admin/CopilotPage.php:515
+#: includes/Admin/CopilotPage.php:519
 msgid "Back and edit"
 msgstr "بازگشت و ویرایش"
 
-#: includes/Admin/CopilotPage.php:516
+#: includes/Admin/CopilotPage.php:520
 msgid "Reject this proposal"
 msgstr "رد کردن پیشنهاد"
 
-#: includes/Admin/CopilotPage.php:517
+#: includes/Admin/CopilotPage.php:521
 msgid "Single use · creates exactly the reviewed status"
 msgstr "یک‌بار مصرف · دقیقاً با وضعیت بازبینی‌شده ایجاد می‌شود"
 
-#: includes/Admin/CopilotPage.php:518
+#: includes/Admin/CopilotPage.php:522
 msgid "Rebuild the request to continue."
 msgstr "برای ادامه، درخواست را دوباره بسازید."
 
-#: includes/Admin/CopilotPage.php:519
+#: includes/Admin/CopilotPage.php:523
 msgid "Proposal rejected. Nothing was created."
 msgstr "پیشنهاد رد شد. چیزی ساخته نشد."
 
-#: includes/Admin/CopilotPage.php:520
+#: includes/Admin/CopilotPage.php:524
 msgid "Creating the form in WordPress"
 msgstr "در حال ساخت فرم در وردپرس"
 
-#: includes/Admin/CopilotPage.php:521
+#: includes/Admin/CopilotPage.php:525
 msgid "The form was created as a draft."
 msgstr "فرم با موفقیت به‌صورت پیش‌نویس ساخته شد."
 
-#: includes/Admin/CopilotPage.php:522
+#: includes/Admin/CopilotPage.php:526
 msgid "The form was created and published."
 msgstr "فرم ساخته و منتشر شد."
 
 #. translators: %s: the title of the form that was created.
 #. translators: %s: title of the form that was created.
-#: includes/Admin/CopilotPage.php:525
+#: includes/Admin/CopilotPage.php:529
 #, php-format
 msgid ""
 "“%s” was saved as a draft. Open and publish it before its shortcode can show"
@@ -2597,7 +2596,7 @@ msgstr ""
 "بازدیدکنندگان، آن را باز و منتشر کنید."
 
 #. translators: %s: title of the form that was created.
-#: includes/Admin/CopilotPage.php:527
+#: includes/Admin/CopilotPage.php:531
 #, php-format
 msgid ""
 "“%s” was published. Place the shortcode on a page to show it to visitors."
@@ -2605,27 +2604,27 @@ msgstr ""
 "«%s» منتشر شد. برای نمایش آن به بازدیدکنندگان، شورت‌کد را در یک برگه قرار "
 "دهید."
 
-#: includes/Admin/CopilotPage.php:528
+#: includes/Admin/CopilotPage.php:532
 msgid "The form was not created"
 msgstr "فرم ساخته نشد"
 
-#: includes/Admin/CopilotPage.php:529 includes/Admin/CopilotPage.php:588
+#: includes/Admin/CopilotPage.php:533 includes/Admin/CopilotPage.php:592
 msgid "Form created"
 msgstr "فرم ایجاد شد"
 
-#: includes/Admin/CopilotPage.php:530
+#: includes/Admin/CopilotPage.php:534
 msgid "Creation failed"
 msgstr "ایجاد فرم ناموفق بود"
 
-#: includes/Admin/CopilotPage.php:531
+#: includes/Admin/CopilotPage.php:535
 msgid "Created in WordPress"
 msgstr "در وردپرس ایجاد شد"
 
-#: includes/Admin/CopilotPage.php:532
+#: includes/Admin/CopilotPage.php:536
 msgid "Entries email to"
 msgstr "ارسال پاسخ‌ها به"
 
-#: includes/Admin/CopilotPage.php:533
+#: includes/Admin/CopilotPage.php:537
 msgid ""
 "Done. The form was saved as a draft. Open and publish it before its "
 "shortcode can display it to visitors."
@@ -2633,120 +2632,120 @@ msgstr ""
 "انجام شد. فرم به‌صورت پیش‌نویس ذخیره شد. پیش از نمایش آن با شورت‌کد به "
 "بازدیدکنندگان، فرم را باز و منتشر کنید."
 
-#: includes/Admin/CopilotPage.php:534
+#: includes/Admin/CopilotPage.php:538
 msgid ""
 "Done. The reviewed form was published and its shortcode is ready to place."
 msgstr "انجام شد. فرم بازبینی‌شده منتشر شد و شورت‌کد آن آمادهٔ استفاده است."
 
-#: includes/Admin/CopilotPage.php:535
+#: includes/Admin/CopilotPage.php:539
 msgid "The approved action could not be completed. Nothing new was created."
 msgstr "عملیات تأییدشده کامل نشد. مورد جدیدی ایجاد نشد."
 
-#: includes/Admin/CopilotPage.php:536 includes/Admin/NativeFormsPage.php:161
+#: includes/Admin/CopilotPage.php:540 includes/Admin/NativeFormsPage.php:161
 msgid "Shortcode"
 msgstr "شورت‌کد"
 
-#: includes/Admin/CopilotPage.php:538
+#: includes/Admin/CopilotPage.php:542
 msgid "Copied to clipboard"
 msgstr "در کلیپ‌بورد کپی شد"
 
-#: includes/Admin/CopilotPage.php:539
+#: includes/Admin/CopilotPage.php:543
 msgid "Open the draft"
 msgstr "باز کردن پیش‌نویس"
 
-#: includes/Admin/CopilotPage.php:540
+#: includes/Admin/CopilotPage.php:544
 msgid "Open the form"
 msgstr "باز کردن فرم"
 
-#: includes/Admin/CopilotPage.php:541
+#: includes/Admin/CopilotPage.php:545
 msgid "Edit in Easy Form Builder"
 msgstr "ویرایش در Easy Form Builder"
 
-#: includes/Admin/CopilotPage.php:542 includes/Admin/KnowledgeBasePage.php:461
+#: includes/Admin/CopilotPage.php:546 includes/Admin/KnowledgeBasePage.php:461
 #: includes/Core/Plugin.php:174
 msgid "Try again"
 msgstr "تلاش دوباره"
 
-#: includes/Admin/CopilotPage.php:543
+#: includes/Admin/CopilotPage.php:547
 msgid "Build another form"
 msgstr "یک فرم دیگر بسازید"
 
-#: includes/Admin/CopilotPage.php:544
+#: includes/Admin/CopilotPage.php:548
 msgid "View in activity"
 msgstr "مشاهده در فعالیت"
 
-#: includes/Admin/CopilotPage.php:545
+#: includes/Admin/CopilotPage.php:549
 msgid "Low"
 msgstr "کم"
 
-#: includes/Admin/CopilotPage.php:546
+#: includes/Admin/CopilotPage.php:550
 msgid "Medium"
 msgstr "متوسط"
 
-#: includes/Admin/CopilotPage.php:547
+#: includes/Admin/CopilotPage.php:551
 msgid "High"
 msgstr "زیاد"
 
-#: includes/Admin/CopilotPage.php:548
+#: includes/Admin/CopilotPage.php:552
 msgid "Email to site admin"
 msgstr "ایمیل به مدیر سایت"
 
-#: includes/Admin/CopilotPage.php:549
+#: includes/Admin/CopilotPage.php:553
 msgid "type"
 msgstr "نوع"
 
 #. translators: %d: number of choices in a select or radio field.
-#: includes/Admin/CopilotPage.php:551
+#: includes/Admin/CopilotPage.php:555
 #, php-format
 msgid "%d options"
 msgstr "%d گزینه"
 
-#: includes/Admin/CopilotPage.php:552
+#: includes/Admin/CopilotPage.php:556
 msgid "Type or speak a description of the form first."
 msgstr "ابتدا توضیح فرم را بنویسید یا بگویید."
 
-#: includes/Admin/CopilotPage.php:553
+#: includes/Admin/CopilotPage.php:557
 msgid "Building a reviewable plan…"
 msgstr "در حال ساخت طرح قابل بررسی…"
 
-#: includes/Admin/CopilotPage.php:555
+#: includes/Admin/CopilotPage.php:559
 msgid "Could not generate a safe form."
 msgstr "ساخت یک فرم امن ممکن نشد."
 
-#: includes/Admin/CopilotPage.php:556
+#: includes/Admin/CopilotPage.php:560
 msgid "Ctrl + Enter to submit"
 msgstr "Ctrl + Enter برای ارسال"
 
-#: includes/Admin/CopilotPage.php:557
+#: includes/Admin/CopilotPage.php:561
 msgid "Recording — the transcript will land in the box, editable."
 msgstr "در حال ضبط — متن پیاده‌شده در همین کادر و قابل ویرایش قرار می‌گیرد."
 
-#: includes/Admin/CopilotPage.php:558 includes/Admin/Ui.php:439
+#: includes/Admin/CopilotPage.php:562 includes/Admin/Ui.php:439
 msgid "Stop"
 msgstr "توقف"
 
-#: includes/Admin/CopilotPage.php:560
+#: includes/Admin/CopilotPage.php:564
 msgid "Transcribing your voice command…"
 msgstr "در حال تبدیل صدای شما به متن…"
 
-#: includes/Admin/CopilotPage.php:561
+#: includes/Admin/CopilotPage.php:565
 msgid "Voice command added. Review the text, then generate the preview."
 msgstr "فرمان صوتی افزوده شد. متن را بررسی و سپس پیش‌نمایش را بسازید."
 
-#: includes/Admin/CopilotPage.php:562
+#: includes/Admin/CopilotPage.php:566
 msgid "Voice transcription failed. You can type the command instead."
 msgstr "تبدیل صدا به متن ناموفق بود. می‌توانید فرمان را تایپ کنید."
 
-#: includes/Admin/CopilotPage.php:563
+#: includes/Admin/CopilotPage.php:567
 msgid ""
 "This browser does not support voice recording. Please type the command."
 msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند. لطفاً فرمان را تایپ کنید."
 
-#: includes/Admin/CopilotPage.php:564
+#: includes/Admin/CopilotPage.php:568
 msgid "Microphone access was not granted. Please type the command."
 msgstr "دسترسی به میکروفون داده نشد. لطفاً فرمان را تایپ کنید."
 
-#: includes/Admin/CopilotPage.php:566
+#: includes/Admin/CopilotPage.php:570
 msgid ""
 "Describe the form you need: who fills it in, and what do you need to know "
 "from them? Or pick an example; it lands here, ready to edit. I draft a plan,"
@@ -2756,90 +2755,90 @@ msgstr ""
 "او بدانید؟ یا یک نمونه انتخاب کنید تا آمادهٔ ویرایش همین‌جا قرار بگیرد. من "
 "طرحی پیشنهاد می‌کنم و تا تأییدش نکنید چیزی ساخته نمی‌شود."
 
-#: includes/Admin/CopilotPage.php:567
+#: includes/Admin/CopilotPage.php:571
 msgid "Almost ready. This is what I need before I can draft forms:"
 msgstr "تقریباً آماده است. پیش از پیشنهاد فرم به این‌ها نیاز دارم:"
 
-#: includes/Admin/CopilotPage.php:568
+#: includes/Admin/CopilotPage.php:572
 msgid "Form Studio is on"
 msgstr "استودیوی فرم روشن است"
 
-#: includes/Admin/CopilotPage.php:569
+#: includes/Admin/CopilotPage.php:573
 msgid "Turn on Form Studio"
 msgstr "استودیوی فرم را روشن کنید"
 
-#: includes/Admin/CopilotPage.php:570
+#: includes/Admin/CopilotPage.php:574
 msgid "It is switched off in Integrations."
 msgstr "در یکپارچه‌سازی‌ها خاموش است."
 
-#: includes/Admin/CopilotPage.php:571
+#: includes/Admin/CopilotPage.php:575
 msgid "An AI service is connected"
 msgstr "یک سرویس هوش مصنوعی وصل است"
 
-#: includes/Admin/CopilotPage.php:572
+#: includes/Admin/CopilotPage.php:576
 msgid "Connect an AI service"
 msgstr "یک سرویس هوش مصنوعی وصل کنید"
 
-#: includes/Admin/CopilotPage.php:573
+#: includes/Admin/CopilotPage.php:577
 msgid "Your own API key from OpenAI, Claude, Gemini and others."
 msgstr "کلید API خودتان از OpenAI، Claude، Gemini و دیگران."
 
-#: includes/Admin/CopilotPage.php:576
+#: includes/Admin/CopilotPage.php:580
 msgid "Choose where answers are emailed"
 msgstr "انتخاب کنید پاسخ‌ها به کجا ایمیل شوند"
 
-#: includes/Admin/CopilotPage.php:577
+#: includes/Admin/CopilotPage.php:581
 msgid "Submissions are emailed to this address and not stored in WordPress."
 msgstr "پاسخ‌ها به این نشانی ایمیل می‌شوند و در وردپرس ذخیره نمی‌شوند."
 
-#: includes/Admin/CopilotPage.php:579
+#: includes/Admin/CopilotPage.php:583
 msgid "Set up"
 msgstr "راه‌اندازی"
 
-#: includes/Admin/CopilotPage.php:580 includes/Admin/NativeFormsPage.php:66
+#: includes/Admin/CopilotPage.php:584 includes/Admin/NativeFormsPage.php:66
 msgid "Set email"
 msgstr "تنظیم ایمیل"
 
-#: includes/Admin/CopilotPage.php:581
+#: includes/Admin/CopilotPage.php:585
 msgid "All set. Describe the form you need, or pick an example."
 msgstr ""
 "همه‌چیز آماده است. فرمی را که لازم دارید توصیف کنید یا یک نمونه انتخاب کنید."
 
-#: includes/Admin/CopilotPage.php:584
+#: includes/Admin/CopilotPage.php:588
 msgid "Drafting a plan…"
 msgstr "در حال آماده‌کردن طرح…"
 
 #. translators: %s: time left, such as 14:52.
-#: includes/Admin/CopilotPage.php:586
+#: includes/Admin/CopilotPage.php:590
 #, php-format
 msgid "Plan ready · valid for %s"
 msgstr "طرح آماده است · معتبر تا %s"
 
-#: includes/Admin/CopilotPage.php:587
+#: includes/Admin/CopilotPage.php:591
 msgid "Plan expired"
 msgstr "طرح منقضی شد"
 
-#: includes/Admin/CopilotPage.php:589
+#: includes/Admin/CopilotPage.php:593
 msgid "Understood the request"
 msgstr "درخواست را فهمیدم"
 
-#: includes/Admin/CopilotPage.php:590
+#: includes/Admin/CopilotPage.php:594
 msgid "Choosing the fields…"
 msgstr "در حال انتخاب فیلدها…"
 
-#: includes/Admin/CopilotPage.php:591
+#: includes/Admin/CopilotPage.php:595
 msgid "Checking them against the native-form rules"
 msgstr "بررسی آن‌ها با قواعد فرم بومی"
 
-#: includes/Admin/CopilotPage.php:592
+#: includes/Admin/CopilotPage.php:596
 msgid "I could not build that yet"
 msgstr "هنوز نتوانستم آن را بسازم"
 
-#: includes/Admin/CopilotPage.php:593
+#: includes/Admin/CopilotPage.php:597
 msgid "Say who fills it in and what you need from them. For example:"
 msgstr "بگویید چه کسی آن را پر می‌کند و چه چیزی از او لازم دارید. برای نمونه:"
 
-#: includes/Admin/CopilotPage.php:594
+#: includes/Admin/CopilotPage.php:598
 msgid ""
 "The plan is ready and shown on the canvas. Approve it, or ask me to change "
 "something."
@@ -2847,7 +2846,7 @@ msgstr ""
 "طرح آماده است و روی بوم نمایش داده شده. تأییدش کنید یا بخواهید چیزی را تغییر"
 " دهم."
 
-#: includes/Admin/CopilotPage.php:595
+#: includes/Admin/CopilotPage.php:599
 msgid ""
 "Here is the plan you were reviewing before the page reloaded. It is still "
 "waiting for your approval."
@@ -2855,43 +2854,43 @@ msgstr ""
 "این همان طرحی است که پیش از بارگذاری دوبارهٔ صفحه بررسی می‌کردید. هنوز منتظر"
 " تأیید شماست."
 
-#: includes/Admin/CopilotPage.php:596
+#: includes/Admin/CopilotPage.php:600
 msgid "Saved as a draft"
 msgstr "به‌صورت پیش‌نویس ذخیره شد"
 
-#: includes/Admin/CopilotPage.php:597
+#: includes/Admin/CopilotPage.php:601
 msgid "Not visible on your site"
 msgstr "در سایت شما دیده نمی‌شود"
 
-#: includes/Admin/CopilotPage.php:598
+#: includes/Admin/CopilotPage.php:602
 msgid "Visible to visitors as soon as you confirm"
 msgstr "به‌محض تأیید شما برای بازدیدکنندگان دیده می‌شود"
 
 #. translators: %s: masked email address.
-#: includes/Admin/CopilotPage.php:600
+#: includes/Admin/CopilotPage.php:604
 #, php-format
 msgid "Answers emailed to %s"
 msgstr "پاسخ‌ها به %s ایمیل می‌شود"
 
 #. translators: %s: Low, Medium or High.
-#: includes/Admin/CopilotPage.php:602
+#: includes/Admin/CopilotPage.php:606
 #, php-format
 msgid "Risk: %s"
 msgstr "ریسک: %s"
 
-#: includes/Admin/CopilotPage.php:603
+#: includes/Admin/CopilotPage.php:607
 msgid "Native forms never include payments, passwords or sign-ups."
 msgstr "فرم‌های بومی هرگز پرداخت، رمز عبور یا ثبت‌نام ندارند."
 
-#: includes/Admin/CopilotPage.php:604
+#: includes/Admin/CopilotPage.php:608
 msgid "Reject"
 msgstr "رد کردن"
 
-#: includes/Admin/CopilotPage.php:605
+#: includes/Admin/CopilotPage.php:609
 msgid "This plan expired. Ask again to get a fresh one."
 msgstr "این طرح منقضی شد. دوباره بخواهید تا طرح تازه‌ای بگیرید."
 
-#: includes/Admin/CopilotPage.php:606
+#: includes/Admin/CopilotPage.php:610
 msgid "Draft it again"
 msgstr "دوباره پیشنهاد بده"
 
@@ -2899,66 +2898,122 @@ msgstr "دوباره پیشنهاد بده"
 #. asked for.
 #. translators: %s: field label.
 #. translators: %s: label of a form field.
-#: includes/Admin/CopilotPage.php:609 includes/Admin/CopilotPage.php:644
+#: includes/Admin/CopilotPage.php:613 includes/Admin/CopilotPage.php:660
 #, php-format
 msgid "Make “%s” optional"
 msgstr "«%s» را اختیاری کن"
 
-#: includes/Admin/CopilotPage.php:610
+#: includes/Admin/CopilotPage.php:614
 msgid "Add a phone number field"
 msgstr "یک فیلد شماره تلفن اضافه کن"
 
-#: includes/Admin/CopilotPage.php:611
+#: includes/Admin/CopilotPage.php:615
 msgid "Put some fields side by side"
 msgstr "چند فیلد را کنار هم بگذار"
 
-#: includes/Admin/CopilotPage.php:612
+#: includes/Admin/CopilotPage.php:616
+msgid "This part needs Easy Form Builder"
+msgstr "این بخش به Easy Form Builder نیاز دارد"
+
+#. translators: %s: list of features, e.g. "payment, file upload".
+#: includes/Admin/CopilotPage.php:618
+#, php-format
+msgid ""
+"Native forms stay simple and are emailed to you, so they leave out: %s. Easy"
+" Form Builder can build the whole form, and its AI copilot will start from "
+"your request."
+msgstr ""
+"فرم‌های بومی ساده می‌مانند و به ایمیل شما فرستاده می‌شوند، پس این‌ها را "
+"ندارند: %s. Easy Form Builder می‌تواند کل فرم را بسازد و دستیار هوشمندش از "
+"همین درخواست شما شروع می‌کند."
+
+#: includes/Admin/CopilotPage.php:619
+msgid ""
+"Install and activate Easy Form Builder to build these. This native form "
+"works without them."
+msgstr ""
+"برای ساختن این‌ها Easy Form Builder را نصب و فعال کنید. این فرم بومی بدون "
+"آن‌ها کار می‌کند."
+
+#: includes/Admin/CopilotPage.php:620
+msgid "Build it in Easy Form Builder"
+msgstr "ساختن در Easy Form Builder"
+
+#: includes/Admin/CopilotPage.php:621
+msgid "payment"
+msgstr "پرداخت"
+
+#: includes/Admin/CopilotPage.php:622
+msgid "file upload"
+msgstr "آپلود فایل"
+
+#: includes/Admin/CopilotPage.php:623
+msgid "conditional logic"
+msgstr "منطق شرطی"
+
+#: includes/Admin/CopilotPage.php:624
+msgid "multiple steps"
+msgstr "چند مرحله"
+
+#: includes/Admin/CopilotPage.php:625
+msgid "signature"
+msgstr "امضا"
+
+#: includes/Admin/CopilotPage.php:626
+msgid "calculations"
+msgstr "محاسبه"
+
+#: includes/Admin/CopilotPage.php:627
+msgid "rating"
+msgstr "امتیازدهی"
+
+#: includes/Admin/CopilotPage.php:628
 msgid "Web address"
 msgstr "آدرس وب"
 
-#: includes/Admin/CopilotPage.php:613 includes/Efb/EfbBuilderButton.php:297
+#: includes/Admin/CopilotPage.php:629 includes/Efb/EfbBuilderButton.php:303
 msgid "Number"
 msgstr "عدد"
 
-#: includes/Admin/CopilotPage.php:614 includes/Efb/EfbBuilderButton.php:301
+#: includes/Admin/CopilotPage.php:630 includes/Efb/EfbBuilderButton.php:307
 msgid "Date"
 msgstr "تاریخ"
 
-#: includes/Admin/CopilotPage.php:615
+#: includes/Admin/CopilotPage.php:631
 msgid "Full width"
 msgstr "تمام‌عرض"
 
-#: includes/Admin/CopilotPage.php:616
+#: includes/Admin/CopilotPage.php:632
 msgid "Three quarters"
 msgstr "سه‌چهارم"
 
-#: includes/Admin/CopilotPage.php:617
+#: includes/Admin/CopilotPage.php:633
 msgid "Two thirds"
 msgstr "دوسوم"
 
-#: includes/Admin/CopilotPage.php:618
+#: includes/Admin/CopilotPage.php:634
 msgid "Half"
 msgstr "نیم"
 
-#: includes/Admin/CopilotPage.php:619
+#: includes/Admin/CopilotPage.php:635
 msgid "One third"
 msgstr "یک‌سوم"
 
-#: includes/Admin/CopilotPage.php:620
+#: includes/Admin/CopilotPage.php:636
 msgid "One quarter"
 msgstr "یک‌چهارم"
 
 #. translators: %s: width of a form field, e.g. "Half".
-#: includes/Admin/CopilotPage.php:622
+#: includes/Admin/CopilotPage.php:638
 #, php-format
 msgid "Width: %s"
 msgstr "عرض: %s"
 
-#: includes/Admin/CopilotPage.php:623
+#: includes/Admin/CopilotPage.php:639
 msgid "Width"
 msgstr "عرض"
 
-#: includes/Admin/CopilotPage.php:624
+#: includes/Admin/CopilotPage.php:640
 msgid ""
 "Click a field, here or in the preview, to change it or to ask the assistant "
 "about it."
@@ -2966,151 +3021,151 @@ msgstr ""
 "روی یک فیلد کلیک کنید، اینجا یا در پیش‌نمایش، تا آن را تغییر دهید یا از "
 "دستیار دربارهٔ آن بپرسید."
 
-#: includes/Admin/CopilotPage.php:625 includes/Admin/StoreCopilotPage.php:138
-#: includes/Efb/EfbBuilderButton.php:156
+#: includes/Admin/CopilotPage.php:641 includes/Admin/StoreCopilotPage.php:138
+#: includes/Efb/EfbBuilderButton.php:157
 msgid "Undo"
 msgstr "واگرد"
 
-#: includes/Admin/CopilotPage.php:626
+#: includes/Admin/CopilotPage.php:642
 msgid "Take back the last change"
 msgstr "آخرین تغییر را برگردان"
 
-#: includes/Admin/CopilotPage.php:627
+#: includes/Admin/CopilotPage.php:643
 msgid "Change taken back"
 msgstr "تغییر برگردانده شد"
 
-#: includes/Admin/CopilotPage.php:628
+#: includes/Admin/CopilotPage.php:644
 msgid "Nothing to take back, or it has expired."
 msgstr "چیزی برای برگرداندن نیست یا منقضی شده است."
 
 #. translators: %s: label of a form field.
-#: includes/Admin/CopilotPage.php:630
+#: includes/Admin/CopilotPage.php:646
 #, php-format
 msgid "Select the field “%s”"
 msgstr "انتخاب فیلد «%s»"
 
 #. translators: %s: label of a form field.
-#: includes/Admin/CopilotPage.php:632
+#: includes/Admin/CopilotPage.php:648
 #, php-format
 msgid "Selected “%s”. Your next message is about this field."
 msgstr "«%s» انتخاب شد. پیام بعدی شما دربارهٔ همین فیلد است."
 
 #. translators: %s: label of a form field.
-#: includes/Admin/CopilotPage.php:634
+#: includes/Admin/CopilotPage.php:650
 #, php-format
 msgid "Tell me what to change about “%s”…"
 msgstr "بگویید دربارهٔ «%s» چه چیزی عوض شود…"
 
-#: includes/Admin/CopilotPage.php:635
+#: includes/Admin/CopilotPage.php:651
 msgid "Ask for a change to the form…"
 msgstr "یک تغییر در فرم بخواهید…"
 
 #. translators: %s: label of a form field.
 #. translators: %s: form name.
-#: includes/Admin/CopilotPage.php:637 includes/Efb/EfbBuilderButton.php:214
+#: includes/Admin/CopilotPage.php:653 includes/Efb/EfbBuilderButton.php:220
 #, php-format
 msgid "Editing “%s”"
 msgstr "در حال ویرایش «%s»"
 
-#: includes/Admin/CopilotPage.php:638
+#: includes/Admin/CopilotPage.php:654
 msgid "Stop editing this field"
 msgstr "ویرایش این فیلد را رها کن"
 
-#: includes/Admin/CopilotPage.php:639
+#: includes/Admin/CopilotPage.php:655
 msgid "Editing the field"
 msgstr "ویرایش فیلد"
 
-#: includes/Admin/CopilotPage.php:640
+#: includes/Admin/CopilotPage.php:656
 msgid "Editing"
 msgstr "در حال ویرایش"
 
 #. translators: %s: label of the form field a chat message is about.
-#: includes/Admin/CopilotPage.php:642
+#: includes/Admin/CopilotPage.php:658
 #, php-format
 msgid "About: %s"
 msgstr "دربارهٔ: %s"
 
 #. translators: %s: label of a form field.
 #. translators: %s: field label.
-#: includes/Admin/CopilotPage.php:646 includes/Efb/EfbBuilderButton.php:274
+#: includes/Admin/CopilotPage.php:662 includes/Efb/EfbBuilderButton.php:280
 #, php-format
 msgid "Make “%s” required"
 msgstr "«%s» را الزامی کن"
 
 #. translators: %s: label of a form field.
-#: includes/Admin/CopilotPage.php:648
+#: includes/Admin/CopilotPage.php:664
 #, php-format
 msgid "Put “%s” next to the field after it"
 msgstr "«%s» را کنار فیلد بعدی‌اش بگذار"
 
 #. translators: %s: label of a form field.
-#: includes/Admin/CopilotPage.php:650
+#: includes/Admin/CopilotPage.php:666
 #, php-format
 msgid "Turn “%s” into a dropdown"
 msgstr "«%s» را به لیست کشویی تبدیل کن"
 
 #. translators: %s: label of a form field.
-#: includes/Admin/CopilotPage.php:652
+#: includes/Admin/CopilotPage.php:668
 #, php-format
 msgid "Add an option to “%s”"
 msgstr "یک گزینه به «%s» اضافه کن"
 
 #. translators: %s: label of a form field.
-#: includes/Admin/CopilotPage.php:654
+#: includes/Admin/CopilotPage.php:670
 #, php-format
 msgid "Rename “%s”"
 msgstr "نام «%s» را عوض کن"
 
-#: includes/Admin/CopilotPage.php:655
+#: includes/Admin/CopilotPage.php:671
 msgid "Move up"
 msgstr "بالا ببر"
 
-#: includes/Admin/CopilotPage.php:656
+#: includes/Admin/CopilotPage.php:672
 msgid "Move down"
 msgstr "پایین ببر"
 
-#: includes/Admin/CopilotPage.php:657 includes/Admin/KnowledgeBasePage.php:466
+#: includes/Admin/CopilotPage.php:673 includes/Admin/KnowledgeBasePage.php:466
 msgid "Remove"
 msgstr "حذف"
 
-#: includes/Admin/CopilotPage.php:659 includes/Efb/EfbBuilderButton.php:81
+#: includes/Admin/CopilotPage.php:675 includes/Efb/EfbBuilderButton.php:82
 msgid "Label"
 msgstr "برچسب"
 
-#: includes/Admin/CopilotPage.php:660
+#: includes/Admin/CopilotPage.php:676
 msgid "Placeholder"
 msgstr "متن راهنمای داخل فیلد"
 
-#: includes/Admin/CopilotPage.php:661
+#: includes/Admin/CopilotPage.php:677
 msgid "Hint under the field"
 msgstr "راهنمای زیر فیلد"
 
-#: includes/Admin/CopilotPage.php:662
+#: includes/Admin/CopilotPage.php:678
 msgid "Change the text of the send button"
 msgstr "متن دکمهٔ ارسال را تغییر بده"
 
-#: includes/Admin/CopilotPage.php:663
-#: includes/Admin/EasyFormBuilderPage.php:257
+#: includes/Admin/CopilotPage.php:679
+#: includes/Admin/EasyFormBuilderPage.php:258
 msgid "Fields"
 msgstr "فیلدها"
 
-#: includes/Admin/CopilotPage.php:664 includes/Efb/EfbBuilderButton.php:293
+#: includes/Admin/CopilotPage.php:680 includes/Efb/EfbBuilderButton.php:299
 msgid "Text"
 msgstr "متن"
 
-#: includes/Admin/CopilotPage.php:667 includes/Efb/EfbBuilderButton.php:296
+#: includes/Admin/CopilotPage.php:683 includes/Efb/EfbBuilderButton.php:302
 msgid "Long text"
 msgstr "متن بلند"
 
-#: includes/Admin/CopilotPage.php:668 includes/Efb/EfbBuilderButton.php:298
+#: includes/Admin/CopilotPage.php:684 includes/Efb/EfbBuilderButton.php:304
 msgid "Dropdown"
 msgstr "فهرست کشویی"
 
-#: includes/Admin/CopilotPage.php:669 includes/Efb/EfbBuilderButton.php:300
+#: includes/Admin/CopilotPage.php:685 includes/Efb/EfbBuilderButton.php:306
 msgid "Checkboxes"
 msgstr "چندگزینه‌ای"
 
-#: includes/Admin/CopilotPage.php:670 includes/Efb/EfbBuilderButton.php:299
+#: includes/Admin/CopilotPage.php:686 includes/Efb/EfbBuilderButton.php:305
 msgid "Choice"
 msgstr "تک‌گزینه‌ای"
 
@@ -3272,23 +3327,27 @@ msgstr ""
 " همان درگاه و نسخهٔ Pro نیاز دارد و هرگز به کلیدها دست نمی‌زند"
 
 #: includes/Admin/EasyFormBuilderPage.php:245
+msgid "Move a field before or after another field"
+msgstr "جابه‌جایی یک فیلد پیش یا پس از فیلد دیگر"
+
+#: includes/Admin/EasyFormBuilderPage.php:246
 msgid "Remove a field and its settings"
 msgstr "حذف یک فیلد و تنظیماتش"
 
-#: includes/Admin/EasyFormBuilderPage.php:246
+#: includes/Admin/EasyFormBuilderPage.php:247
 msgid "Add a choice to a select, radio or checkbox"
 msgstr "افزودن گزینه به select، radio یا checkbox"
 
-#: includes/Admin/EasyFormBuilderPage.php:247
+#: includes/Admin/EasyFormBuilderPage.php:248
 msgid "Remove a choice"
 msgstr "حذف یک گزینه"
 
-#: includes/Admin/EasyFormBuilderPage.php:248
+#: includes/Admin/EasyFormBuilderPage.php:249
 msgid "Rename a choice; answers and logic that point at it stay linked"
 msgstr ""
 "تغییر نام یک گزینه؛ پاسخ‌ها و منطقی که به آن اشاره می‌کنند پیوسته می‌مانند"
 
-#: includes/Admin/EasyFormBuilderPage.php:249
+#: includes/Admin/EasyFormBuilderPage.php:250
 msgid ""
 "Show, hide, require or skip to a field or step from another answer, when "
 "Easy Form Builder’s Conditional Logic add-on is active"
@@ -3296,71 +3355,72 @@ msgstr ""
 "نمایش، پنهان کردن، الزامی کردن یا پرش به یک فیلد یا مرحله بر اساس پاسخی "
 "دیگر، وقتی افزونهٔ جانبی «منطق شرطی» Easy Form Builder فعال است"
 
-#: includes/Admin/EasyFormBuilderPage.php:253
+#: includes/Admin/EasyFormBuilderPage.php:254
 #: includes/Admin/NativeFormsPage.php:159 includes/Efb/EfbFormConverter.php:38
-#: includes/Frontend/FormShortcode.php:295
+#: includes/Frontend/FormShortcode.php:307
 #: includes/Support/PrivacyTools.php:121
 msgid "Form"
 msgstr "فرم"
 
-#: includes/Admin/EasyFormBuilderPage.php:261
+#: includes/Admin/EasyFormBuilderPage.php:262
 msgid "Choices"
 msgstr "گزینه‌ها"
 
-#: includes/Admin/EasyFormBuilderPage.php:265
+#: includes/Admin/EasyFormBuilderPage.php:266
+#: includes/Efb/EfbBuilderButton.php:316
 msgid "Conditional logic"
 msgstr "منطق شرطی"
 
-#: includes/Admin/EasyFormBuilderPage.php:283
+#: includes/Admin/EasyFormBuilderPage.php:284
 msgid "Only in Easy Form Builder"
 msgstr "فقط در Easy Form Builder"
 
-#: includes/Admin/EasyFormBuilderPage.php:290
+#: includes/Admin/EasyFormBuilderPage.php:291
 msgid "Never"
 msgstr "هرگز"
 
-#: includes/Admin/EasyFormBuilderPage.php:306
+#: includes/Admin/EasyFormBuilderPage.php:307
 msgid "Easy Form Builder global settings"
 msgstr "تنظیمات سراسری Easy Form Builder"
 
-#: includes/Admin/EasyFormBuilderPage.php:307
+#: includes/Admin/EasyFormBuilderPage.php:308
 msgid "Turning add-ons on or off"
 msgstr "روشن یا خاموش کردن افزونه‌های جانبی"
 
-#: includes/Admin/EasyFormBuilderPage.php:308
+#: includes/Admin/EasyFormBuilderPage.php:309
 msgid "Credentials and API keys"
 msgstr "اطلاعات ورود و کلیدهای API"
 
-#: includes/Admin/EasyFormBuilderPage.php:309
+#: includes/Admin/EasyFormBuilderPage.php:310
 msgid "Payment keys and account details"
 msgstr "کلیدهای پرداخت و اطلاعات حساب"
 
-#: includes/Admin/EasyFormBuilderPage.php:310
+#: includes/Admin/EasyFormBuilderPage.php:311
 msgid "Raw HTML"
 msgstr "HTML خام"
 
-#: includes/Admin/EasyFormBuilderPage.php:311
+#: includes/Admin/EasyFormBuilderPage.php:312
 msgid "Links to addresses that are not allowed"
 msgstr "پیوند به نشانی‌های غیرمجاز"
 
-#: includes/Admin/EasyFormBuilderPage.php:312
+#: includes/Admin/EasyFormBuilderPage.php:313
 msgid ""
 "Conditional rules for notifications, confirmations, webhooks and prices"
 msgstr "قاعده‌های شرطی برای اعلان‌ها، تأییدیه‌ها، وب‌هوک‌ها و قیمت‌ها"
 
-#: includes/Admin/EasyFormBuilderPage.php:313
+#: includes/Admin/EasyFormBuilderPage.php:314
 msgid "Logic that writes values or calculates"
 msgstr "منطقی که مقدار می‌نویسد یا محاسبه می‌کند"
 
-#: includes/Admin/EasyFormBuilderPage.php:314
+#: includes/Admin/EasyFormBuilderPage.php:315
 msgid "Choosing who receives notifications"
 msgstr "انتخاب گیرندگان اعلان‌ها"
 
-#: includes/Admin/EasyFormBuilderPage.php:315
+#: includes/Admin/EasyFormBuilderPage.php:316
 msgid "Submitted entries"
 msgstr "پاسخ‌های ارسال‌شده"
 
-#: includes/Admin/EasyFormBuilderPage.php:337
+#: includes/Admin/EasyFormBuilderPage.php:338
 msgid "A change was applied in the editor."
 msgstr "یک تغییر در ویرایشگر اعمال شد."
 
@@ -3493,7 +3553,7 @@ msgid "No contact details left — reply in your usual channel"
 msgstr "اطلاعات تماسی گذاشته نشده — از راه معمول خودتان پاسخ دهید"
 
 #: includes/Admin/HandoffInboxPage.php:321
-#: includes/Efb/EfbBuilderButton.php:303
+#: includes/Efb/EfbBuilderButton.php:309
 #: includes/Frontend/FormShortcode.php:84 includes/Support/HandoffEmail.php:63
 msgid "Website"
 msgstr "وب‌سایت"
@@ -4295,7 +4355,7 @@ msgstr "روشن کردن %s"
 #. translators: %s: a plugin name.
 #. translators: %s: an example request, shown in quotation marks.
 #: includes/Admin/IntegrationsPage.php:292
-#: includes/Efb/EfbBuilderButton.php:221
+#: includes/Efb/EfbBuilderButton.php:227
 #, php-format
 msgid "“%s”"
 msgstr "«%s»"
@@ -4807,7 +4867,7 @@ msgid "All categories"
 msgstr "همهٔ دسته‌بندی‌ها"
 
 #: includes/Admin/KnowledgeBasePage.php:380
-#: includes/Efb/EfbBuilderButton.php:82
+#: includes/Efb/EfbBuilderButton.php:83
 msgid "Type"
 msgstr "نوع"
 
@@ -5355,7 +5415,9 @@ msgid "WooCommerce"
 msgstr "ووکامرس"
 
 #. translators: %s: plugin name, such as WooCommerce.
+#. translators: %s: Easy Form Builder add-on name.
 #: includes/Admin/PluginDependency.php:119
+#: includes/Efb/EfbBuilderButton.php:323
 #, php-format
 msgid "Install %s"
 msgstr "نصب %s"
@@ -5997,7 +6059,7 @@ msgid "Unsaved changes on this page"
 msgstr "تغییرهای ذخیره‌نشده در این صفحه"
 
 #: includes/Admin/SettingsPage.php:570 includes/Admin/StoreCopilotPage.php:259
-#: includes/Efb/EfbBuilderButton.php:88
+#: includes/Efb/EfbBuilderButton.php:89
 #: includes/Frontend/ChatWidgetSettings.php:395
 msgid "Discard"
 msgstr "رد کردن"
@@ -6020,7 +6082,7 @@ msgstr "کنار گذاشتن تغییرات"
 msgid "Deleting expired data…"
 msgstr "در حال پاک کردن داده‌های منقضی…"
 
-#: includes/Admin/SettingsPage.php:588 includes/Efb/EfbBuilderButton.php:114
+#: includes/Admin/SettingsPage.php:588 includes/Efb/EfbBuilderButton.php:115
 msgid "Done."
 msgstr "انجام شد."
 
@@ -6269,7 +6331,7 @@ msgstr "هنوز در دسترس نیست"
 msgid "Short"
 msgstr "کوتاه"
 
-#: includes/Admin/SettingsPage.php:916
+#: includes/Admin/SettingsPage.php:916 includes/Content/ContentTone.php:42
 msgid "Standard"
 msgstr "استاندارد"
 
@@ -6932,7 +6994,7 @@ msgid "AI draft (you can edit it)"
 msgstr "پیش‌نویس هوش مصنوعی (قابل ویرایش)"
 
 #: includes/Admin/StoreCopilotPage.php:136
-#: includes/Efb/EfbBuilderButton.php:158
+#: includes/Efb/EfbBuilderButton.php:159
 msgid "Apply"
 msgstr "اعمال"
 
@@ -7188,12 +7250,16 @@ msgid "Phase 2"
 msgstr "فاز ۲"
 
 #: includes/Admin/StoreCopilotPage.php:312
-msgid "Edit a product that already exists"
-msgstr "ویرایش محصول موجود"
+msgid ""
+"Change the price, stock or other details of an existing product (its long "
+"description can be rewritten in Descriptions)"
+msgstr ""
+"تغییر قیمت، موجودی یا جزئیات دیگر یک محصول موجود (توضیح بلند آن را می‌توان "
+"در Descriptions بازنویسی کرد)"
 
 #: includes/Admin/StoreCopilotPage.php:313
-msgid "Change many products at once"
-msgstr "تغییر هم‌زمان چند محصول"
+msgid "Change the details of many products at once (descriptions excepted)"
+msgstr "تغییر هم‌زمان جزئیات چند محصول (به‌جز توضیحات)"
 
 #: includes/Admin/StoreCopilotPage.php:319
 msgid "Read a recent order summary as a store manager"
@@ -7334,8 +7400,11 @@ msgid "No store-management access"
 msgstr "بدون دسترسی مدیریت فروشگاه"
 
 #: includes/Admin/StoreCopilotPage.php:431
-msgid "Read-only in Phase 1 - AutoPilot cannot edit what already exists"
-msgstr "فقط‌خواندنی در فاز ۱ — AutoPilot نمی‌تواند موارد موجود را ویرایش کند"
+msgid ""
+"Read-only here - to rewrite a product description, use the Descriptions tab"
+msgstr ""
+"اینجا فقط‌خواندنی است - برای بازنویسی توضیح محصول از زبانهٔ Descriptions "
+"استفاده کنید"
 
 #: includes/Admin/StoreCopilotPage.php:434
 msgid ""
@@ -7355,11 +7424,13 @@ msgstr ""
 
 #: includes/Admin/StoreCopilotPage.php:449
 msgid ""
-"Drafts AutoPilot created are marked. Everything else it can read but not "
-"touch until Phase 2."
+"Drafts AutoPilot created are marked. Other products are read-only here; only"
+" their long description can be rewritten, in Descriptions, after you review "
+"it."
 msgstr ""
-"پیش‌نویس‌های ساخت AutoPilot علامت خورده‌اند. بقیه را تا فاز ۲ فقط می‌خواند و"
-" تغییر نمی‌دهد."
+"پیش‌نویس‌هایی که AutoPilot ساخته علامت دارند. محصولات دیگر اینجا "
+"فقط‌خواندنی‌اند؛ فقط توضیح بلندشان را می‌توان در Descriptions و پس از "
+"بازبینی شما بازنویسی کرد."
 
 #: includes/Admin/StoreCopilotPage.php:463
 msgid "Descriptions for products you already have"
@@ -8122,7 +8193,7 @@ msgstr "پیشنهاد محتوا امن یا کامل نبود."
 
 #: includes/Api/ContentController.php:122
 #: includes/Api/CopilotController.php:237
-#: includes/Api/EfbCopilotController.php:174
+#: includes/Api/EfbCopilotController.php:175
 msgid "Missing action reference."
 msgstr "ارجاع اقدام موجود نیست."
 
@@ -8137,19 +8208,19 @@ msgid "Form Studio is turned off in Integrations."
 msgstr "استودیوی فرم در یکپارچه‌سازی‌ها خاموش است."
 
 #: includes/Api/CopilotController.php:47
-#: includes/Api/EfbCopilotController.php:47
+#: includes/Api/EfbCopilotController.php:48
 msgid "Please describe the form you want."
 msgstr "لطفاً فرمی را که می‌خواهید توضیح دهید."
 
 #: includes/Api/CopilotController.php:50
-#: includes/Api/EfbCopilotController.php:50
+#: includes/Api/EfbCopilotController.php:51
 msgid "Your request is too long."
 msgstr "درخواست پشتیبانی ارسال شد."
 
 #: includes/Api/CopilotController.php:55
-#: includes/Api/EfbCopilotController.php:54
-#: includes/Api/EfbCopilotController.php:264
-#: includes/Api/EfbCopilotController.php:1370
+#: includes/Api/EfbCopilotController.php:55
+#: includes/Api/EfbCopilotController.php:265
+#: includes/Api/EfbCopilotController.php:1579
 msgid ""
 "Add your AI provider API key in AI Site Assistant AutoPilot → Settings "
 "first."
@@ -8165,7 +8236,7 @@ msgstr ""
 
 #: includes/Api/CopilotController.php:87
 #: includes/Api/CopilotController.php:134
-#: includes/Api/EfbCopilotController.php:77
+#: includes/Api/EfbCopilotController.php:78
 msgid "The form plan was not safe or complete."
 msgstr "طرح فرم امن یا کامل نبود."
 
@@ -8204,13 +8275,13 @@ msgstr "این سرویس‌دهنده فهرست مدل‌ها را منتشر 
 msgid "%s models loaded from the provider."
 msgstr "%s مدل از سرویس‌دهنده بارگذاری شد."
 
-#: includes/Api/EfbCopilotController.php:63
-#: includes/Api/EfbCopilotController.php:193
+#: includes/Api/EfbCopilotController.php:64
+#: includes/Api/EfbCopilotController.php:194
 #: includes/Connectors/EasyFormBuilderConnector.php:159
 msgid "Easy Form Builder is not active."
 msgstr "Easy Form Builder فعال نیست."
 
-#: includes/Api/EfbCopilotController.php:142
+#: includes/Api/EfbCopilotController.php:143
 #, php-format
 msgid ""
 "I left out %s — that field needs Easy Form Builder Free Plus or Pro. "
@@ -8225,31 +8296,31 @@ msgstr[1] ""
 "%s را کنار گذاشتم — آن فیلدها به Easy Form Builder Free Plus یا Pro نیاز "
 "دارند. بقیه آماده است."
 
-#: includes/Api/EfbCopilotController.php:179
+#: includes/Api/EfbCopilotController.php:180
 #: includes/Execution/ActionExecutor.php:37
 msgid "This proposal has expired. Please generate the form again."
 msgstr "این پیشنهاد منقضی شده است. لطفاً فرم را دوباره بسازید."
 
-#: includes/Api/EfbCopilotController.php:182
+#: includes/Api/EfbCopilotController.php:183
 #: includes/Execution/ActionExecutor.php:30
 #: includes/Execution/ActionExecutor.php:42
 msgid "You are not allowed to approve this action."
 msgstr "شما اجازهٔ تأیید این اقدام را ندارید."
 
-#: includes/Api/EfbCopilotController.php:185
+#: includes/Api/EfbCopilotController.php:186
 #: includes/Execution/ActionExecutor.php:45
 msgid "This proposal is already being processed or has already been used."
 msgstr "این پیشنهاد در حال پردازش است یا قبلاً استفاده شده است."
 
-#: includes/Api/EfbCopilotController.php:188
+#: includes/Api/EfbCopilotController.php:189
 msgid "This approval does not belong to Easy Form Builder."
 msgstr "این تأیید متعلق به Easy Form Builder نیست."
 
-#: includes/Api/EfbCopilotController.php:210
+#: includes/Api/EfbCopilotController.php:211
 msgid "Creation failed."
 msgstr "ساخت ناموفق بود."
 
-#: includes/Api/EfbCopilotController.php:246
+#: includes/Api/EfbCopilotController.php:247
 msgid ""
 "Tell me what form you need, ask me to change the open form, or ask how to do"
 " something."
@@ -8257,27 +8328,27 @@ msgstr ""
 "بگویید چه فرمی می‌خواهید، از من بخواهید فرم باز را تغییر دهم، یا بپرسید چطور"
 " کاری را انجام دهید."
 
-#: includes/Api/EfbCopilotController.php:255
+#: includes/Api/EfbCopilotController.php:256
 msgid "That message is a bit long — please shorten it."
 msgstr "این پیام کمی طولانی است — لطفاً کوتاهش کنید."
 
-#: includes/Api/EfbCopilotController.php:373
+#: includes/Api/EfbCopilotController.php:376
 msgid "Here are topics I can walk you through:"
 msgstr "این موضوع‌ها را می‌توانم قدم‌به‌قدم راهنمایی کنم:"
 
-#: includes/Api/EfbCopilotController.php:411
+#: includes/Api/EfbCopilotController.php:414
 msgid "Here is what this form’s conditional logic does:"
 msgstr "منطق شرطی این فرم این کارها را انجام می‌دهد:"
 
-#: includes/Api/EfbCopilotController.php:412
+#: includes/Api/EfbCopilotController.php:415
 msgid "This form has no conditional logic rules yet."
 msgstr "این فرم هنوز هیچ قاعدهٔ منطق شرطی ندارد."
 
-#: includes/Api/EfbCopilotController.php:479
+#: includes/Api/EfbCopilotController.php:482
 msgid "I did not change the form."
 msgstr "فرم را تغییر ندادم."
 
-#: includes/Api/EfbCopilotController.php:484
+#: includes/Api/EfbCopilotController.php:487
 msgid ""
 "I could not turn that into a change. Try e.g. \"add a mobile field\" or "
 "\"make Email required\"."
@@ -8285,51 +8356,70 @@ msgstr ""
 "نتوانستم آن را به تغییر تبدیل کنم. مثلاً امتحان کنید «یک فیلد موبایل اضافه "
 "کن» یا «ایمیل را الزامی کن»."
 
-#: includes/Api/EfbCopilotController.php:539
+#: includes/Api/EfbCopilotController.php:554
 msgid "Done — applying your change."
 msgstr "انجام شد — در حال اعمال تغییر شما."
 
-#: includes/Api/EfbCopilotController.php:566
+#: includes/Api/EfbCopilotController.php:585
 msgid ""
 "I could not build a safe form from that. Could you add a bit more detail?"
 msgstr "نتوانستم از آن یک فرم امن بسازم. می‌توانید کمی جزئیات بیشتر بدهید؟"
 
-#: includes/Api/EfbCopilotController.php:613
+#. translators: %d: number of pages the request asked for.
+#: includes/Api/EfbCopilotController.php:636
+#, php-format
+msgid ""
+"You asked for %d pages, but Easy Form Builder Free shows two at most, so the"
+" later pages are on page two. Buy Free Plus or Pro for more pages, or keep "
+"it as it is."
+msgstr ""
+"%d صفحه خواستید، اما Easy Form Builder رایگان حداکثر دو صفحه نشان می‌دهد، پس"
+" صفحه‌های بعدی در صفحهٔ دوم آمده‌اند. برای صفحه‌های بیشتر Free Plus یا Pro "
+"بخرید، یا همین را نگه دارید."
+
+#: includes/Api/EfbCopilotController.php:641
+#: includes/Api/EfbCopilotController.php:1081
+#: includes/Api/EfbCopilotController.php:1177
+msgid "See EFB Pro"
+msgstr "دیدن EFB Pro"
+
+#: includes/Api/EfbCopilotController.php:680
 msgid "Here is the form I designed — review it and approve to create it."
 msgstr "این فرمی است که طراحی کردم — بررسی کنید و برای ساخت، تأیید بزنید."
 
-#: includes/Api/EfbCopilotController.php:647
+#: includes/Api/EfbCopilotController.php:722
 msgid "How can I help with your form?"
 msgstr "چطور می‌توانم در ساخت فرم کمکتان کنم؟"
 
-#: includes/Api/EfbCopilotController.php:685
+#: includes/Api/EfbCopilotController.php:760
 msgid "Step"
 msgstr "مرحله"
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:903
+#: includes/Api/EfbCopilotController.php:1112
 #, php-format
 msgid ""
-"%s needs its Easy Form Builder add-on. Turn it on under Easy Form Builder → "
-"Add-ons, reload this form and ask me again."
+"%s needs its Easy Form Builder add-on, which is not installed or not active."
+" I can install it for you if you allow it; the form reloads afterwards, so "
+"save your changes first."
 msgstr ""
-"%s به افزونهٔ خودش در Easy Form Builder نیاز دارد. آن را در Easy Form "
-"Builder ← افزونه‌ها روشن کنید، این فرم را دوباره باز کنید و دوباره از من "
-"بخواهید."
+"%s به افزونهٔ خودش در Easy Form Builder نیاز دارد که نصب یا فعال نیست. اگر "
+"اجازه دهید آن را برایتان نصب می‌کنم؛ پس از آن فرم دوباره بارگذاری می‌شود، پس"
+" اول تغییراتتان را ذخیره کنید."
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:906
+#: includes/Api/EfbCopilotController.php:1115
 #, php-format
 msgid "Online payment with %s is part of Easy Form Builder Pro."
 msgstr "پرداخت آنلاین با %s بخشی از Easy Form Builder نسخهٔ Pro است."
 
 #. translators: 1: payment gateway name, 2: currency code.
-#: includes/Api/EfbCopilotController.php:909
+#: includes/Api/EfbCopilotController.php:1118
 #, php-format
 msgid "%1$s cannot take payments in %2$s. Tell me another currency."
 msgstr "%1$s پرداخت با %2$s را نمی‌پذیرد. ارز دیگری بگویید."
 
-#: includes/Api/EfbCopilotController.php:911
+#: includes/Api/EfbCopilotController.php:1120
 msgid ""
 "I need the price before I can add payment: how much is it, or which options "
 "cost how much, and in which currency? I never guess a price."
@@ -8338,7 +8428,7 @@ msgstr ""
 "دارد، و با چه ارزی؟ من هرگز قیمت را حدس نمی‌زنم."
 
 #. translators: %s: payment gateway name already used by the form.
-#: includes/Api/EfbCopilotController.php:914
+#: includes/Api/EfbCopilotController.php:1123
 #, php-format
 msgid ""
 "This form already takes payment through %s, and a form can use only one "
@@ -8347,18 +8437,18 @@ msgstr ""
 "این فرم از قبل با %s پرداخت می‌گیرد و هر فرم فقط یک درگاه می‌تواند داشته "
 "باشد. ابتدا آن فیلد پرداخت را حذف کنید، یا همان را نگه دارید."
 
-#: includes/Api/EfbCopilotController.php:916
+#: includes/Api/EfbCopilotController.php:1125
 msgid ""
 "I added one payment to the form; a second one in the same message was left "
 "out."
 msgstr "یک پرداخت به فرم اضافه کردم؛ پرداخت دوم در همین پیام کنار گذاشته شد."
 
-#: includes/Api/EfbCopilotController.php:918
+#: includes/Api/EfbCopilotController.php:1127
 msgid "Tell me which payment gateway to use: Stripe, PayPal or ZarinPal."
 msgstr "بگویید از کدام درگاه استفاده شود: Stripe، PayPal یا زرین‌پال."
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:939
+#: includes/Api/EfbCopilotController.php:1148
 #, php-format
 msgid ""
 "%s needs your account keys before this can take a real payment. Add them in "
@@ -8368,7 +8458,7 @@ msgstr ""
 "صفحهٔ تنظیمات همین درگاه در Easy Form Builder وارد کنید؛ من هرگز کلیدها را "
 "نمی‌بینم و تغییر نمی‌دهم."
 
-#: includes/Api/EfbCopilotController.php:942
+#: includes/Api/EfbCopilotController.php:1151
 msgid ""
 "Prices and the currency are in the form now. Check them, then save the form "
 "in Easy Form Builder."
@@ -8376,7 +8466,7 @@ msgstr ""
 "قیمت‌ها و ارز اکنون در فرم هستند. آن‌ها را بررسی کنید و سپس فرم را در Easy "
 "Form Builder ذخیره کنید."
 
-#: includes/Api/EfbCopilotController.php:943
+#: includes/Api/EfbCopilotController.php:1152
 msgid ""
 "The prices and the currency are shown in the preview. Check them before you "
 "create the form."
@@ -8384,32 +8474,28 @@ msgstr ""
 "قیمت‌ها و ارز در پیش‌نمایش نشان داده شده‌اند. پیش از ساخت فرم آن‌ها را بررسی"
 " کنید."
 
-#: includes/Api/EfbCopilotController.php:963
+#: includes/Api/EfbCopilotController.php:1172
 msgid "Open EFB Add-ons"
 msgstr "باز کردن افزونه‌های EFB"
 
-#: includes/Api/EfbCopilotController.php:968
-msgid "See EFB Pro"
-msgstr "دیدن EFB Pro"
-
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:981
+#: includes/Api/EfbCopilotController.php:1190
 #, php-format
 msgid "Open %s settings"
 msgstr "باز کردن تنظیمات %s"
 
 #. translators: %s: field type.
-#: includes/Api/EfbCopilotController.php:1004
+#: includes/Api/EfbCopilotController.php:1213
 #, php-format
 msgid "Field type \"%s\" is not supported in Easy Form Builder."
 msgstr "نوع فیلد «%s» در Easy Form Builder پشتیبانی نمی‌شود."
 
-#: includes/Api/EfbCopilotController.php:1006
+#: includes/Api/EfbCopilotController.php:1215
 msgid "A choice field needs at least one option — tell me the options."
 msgstr "فیلد انتخابی حداقل به یک گزینه نیاز دارد — گزینه‌ها را بگویید."
 
 #. translators: %s: field name.
-#: includes/Api/EfbCopilotController.php:1011
+#: includes/Api/EfbCopilotController.php:1220
 #, php-format
 msgid ""
 "I can configure a \"%s\" field but not add one — drag it in from the Easy "
@@ -8418,44 +8504,53 @@ msgstr ""
 "می‌توانم فیلد «%s» را پیکربندی کنم اما نمی‌توانم آن را اضافه کنم — آن را از "
 "پالت Easy Form Builder بکشید و دوباره از من بخواهید."
 
-#: includes/Api/EfbCopilotController.php:1015
+#: includes/Api/EfbCopilotController.php:1224
 msgid ""
-"Conditional logic needs Easy Form Builder’s Conditional Logic add-on. "
-"Activate it under Easy Form Builder → Add-ons, reload this form and ask me "
-"again."
+"Conditional logic needs Easy Form Builder’s Conditional Logic add-on, which "
+"is not installed or not active. I can install it for you if you allow it; "
+"the form reloads afterwards, so save your changes first."
 msgstr ""
-"منطق شرطی به افزونهٔ جانبی «منطق شرطی» Easy Form Builder نیاز دارد. آن را در"
-" Easy Form Builder ← افزونه‌های جانبی فعال کنید، این فرم را دوباره بارگذاری "
-"کنید و دوباره از من بخواهید."
+"منطق شرطی به افزونهٔ Conditional Logic در Easy Form Builder نیاز دارد که نصب"
+" یا فعال نیست. اگر اجازه دهید آن را برایتان نصب می‌کنم؛ پس از آن فرم دوباره "
+"بارگذاری می‌شود، پس اول تغییراتتان را ذخیره کنید."
 
-#: includes/Api/EfbCopilotController.php:1017
-msgid "Conditional logic rules need Easy Form Builder Free Plus or Pro."
+#: includes/Api/EfbCopilotController.php:1226
+msgid ""
+"Conditional logic rules need Easy Form Builder Free Plus or Pro. Upgrade, or"
+" change the form so it does not depend on logic: for example ask every "
+"question, or use a separate form for each case."
 msgstr ""
-"قاعده‌های منطق شرطی به Easy Form Builder نسخهٔ Free Plus یا Pro نیاز دارند."
+"قانون‌های منطق شرطی به Easy Form Builder نسخهٔ Free Plus یا Pro نیاز دارند. "
+"ارتقا دهید، یا فرم را طوری تغییر دهید که به منطق وابسته نباشد: مثلاً همهٔ "
+"پرسش‌ها را بپرسید یا برای هر حالت فرم جداگانه بسازید."
 
 #. translators: %d: rule limit.
-#: includes/Api/EfbCopilotController.php:1020
+#: includes/Api/EfbCopilotController.php:1229
 #, php-format
 msgid ""
-"Easy Form Builder Free Plus allows %d conditional logic rules per form. "
-"Remove one or upgrade to Pro for more."
+"Easy Form Builder Free Plus allows %d conditional logic rules per form, so "
+"the rest were left out. Buy Pro for unlimited rules, or change the form: "
+"combine rules that show the same fields, move a branch to its own step, or "
+"split it into separate forms."
 msgstr ""
-"Easy Form Builder نسخهٔ Free Plus در هر فرم %d قاعدهٔ منطق شرطی را مجاز "
-"می‌داند. یکی را حذف کنید یا برای قاعده‌های بیشتر به Pro ارتقا دهید."
+"Easy Form Builder نسخهٔ Free Plus در هر فرم %d قانون شرطی را می‌پذیرد، پس "
+"بقیه کنار گذاشته شد. برای قانون‌های نامحدود Pro بخرید، یا فرم را تغییر دهید:"
+" قانون‌هایی که فیلدهای یکسانی را نشان می‌دهند ادغام کنید، یک شاخه را به "
+"مرحلهٔ جدا ببرید یا فرم را به چند فرم تقسیم کنید."
 
 #. translators: %d: condition limit.
-#: includes/Api/EfbCopilotController.php:1023
+#: includes/Api/EfbCopilotController.php:1232
 #, php-format
 msgid ""
-"Easy Form Builder Free Plus allows %d conditions per rule. Split the rule or"
-" upgrade to Pro."
+"Easy Form Builder Free Plus allows %d conditions in one rule. Buy Pro, or "
+"split the rule into simpler rules."
 msgstr ""
-"Easy Form Builder نسخهٔ Free Plus در هر قاعده %d شرط را مجاز می‌داند. قاعده "
-"را به چند قاعده تقسیم کنید یا به Pro ارتقا دهید."
+"Easy Form Builder نسخهٔ Free Plus در هر قانون %d شرط را می‌پذیرد. Pro بخرید "
+"یا قانون را به چند قانون ساده‌تر تقسیم کنید."
 
 #. translators: 1: number of applied operations, 2: number of skipped
 #. operations.
-#: includes/Api/EfbCopilotController.php:1031
+#: includes/Api/EfbCopilotController.php:1240
 #, php-format
 msgid ""
 "That was too many changes at once: I applied the first %1$d and skipped "
@@ -8465,31 +8560,31 @@ msgstr ""
 "کردم. برای بقیه دوباره درخواست دهید."
 
 #. translators: %s: field name the AI referred to.
-#: includes/Api/EfbCopilotController.php:1052
+#: includes/Api/EfbCopilotController.php:1261
 #, php-format
 msgid "I could not add that rule: this form has no field called “%s”."
 msgstr "نتوانستم آن قاعده را اضافه کنم: این فرم فیلدی به نام «%s» ندارد."
 
 #. translators: %s: option text.
-#: includes/Api/EfbCopilotController.php:1055
+#: includes/Api/EfbCopilotController.php:1264
 #, php-format
 msgid "I could not add that rule: “%s” is not one of that field’s options."
 msgstr "نتوانستم آن قاعده را اضافه کنم: «%s» یکی از گزینه‌های آن فیلد نیست."
 
 #. translators: %s: step name or number.
-#: includes/Api/EfbCopilotController.php:1058
+#: includes/Api/EfbCopilotController.php:1267
 #, php-format
 msgid "I could not add that rule: this form has no step “%s”."
 msgstr "نتوانستم آن قاعده را اضافه کنم: این فرم مرحلهٔ «%s» را ندارد."
 
-#: includes/Api/EfbCopilotController.php:1060
+#: includes/Api/EfbCopilotController.php:1269
 msgid ""
 "I could not add that rule: a field cannot show, hide or require itself."
 msgstr ""
 "نتوانستم آن قاعده را اضافه کنم: یک فیلد نمی‌تواند خودش را نمایش دهد، پنهان "
 "کند یا الزامی کند."
 
-#: includes/Api/EfbCopilotController.php:1062
+#: includes/Api/EfbCopilotController.php:1271
 msgid ""
 "I could not add that rule: it would show and hide (or require and un-"
 "require) the same field at once."
@@ -8497,7 +8592,7 @@ msgstr ""
 "نتوانستم آن قاعده را اضافه کنم: یک فیلد را هم‌زمان نمایش می‌داد و پنهان "
 "می‌کرد (یا الزامی و اختیاری می‌کرد)."
 
-#: includes/Api/EfbCopilotController.php:1064
+#: includes/Api/EfbCopilotController.php:1273
 msgid ""
 "I could not turn that into a valid conditional logic rule. Name the field, "
 "the answer and what should happen."
@@ -8505,32 +8600,35 @@ msgstr ""
 "نتوانستم آن را به یک قاعدهٔ معتبر منطق شرطی تبدیل کنم. نام فیلد، پاسخ و کاری"
 " را که باید انجام شود بگویید."
 
-#: includes/Api/EfbCopilotController.php:1078
+#: includes/Api/EfbCopilotController.php:1287
 msgid ""
-"Easy Form Builder Free supports up to two steps. Upgrade to add more steps."
+"Easy Form Builder Free supports up to two steps. Buy Free Plus or Pro for "
+"more, or change the form: merge pages so it fits in two, or make it a single"
+" page."
 msgstr ""
-"نسخهٔ رایگان Easy Form Builder حداکثر دو مرحله را پشتیبانی می‌کند. برای "
-"مراحل بیشتر ارتقا دهید."
+"Easy Form Builder رایگان حداکثر دو مرحله دارد. برای بیشتر Free Plus یا Pro "
+"بخرید، یا فرم را تغییر دهید: صفحه‌ها را در دو صفحه ادغام کنید یا "
+"تک‌صفحه‌ای‌اش کنید."
 
-#: includes/Api/EfbCopilotController.php:1080
+#: includes/Api/EfbCopilotController.php:1289
 msgid ""
 "The mobile layout settings are part of the Pro version of Easy Form Builder."
 msgstr "تنظیمات چیدمان موبایل بخشی از نسخهٔ Pro در Easy Form Builder است."
 
-#: includes/Api/EfbCopilotController.php:1082
+#: includes/Api/EfbCopilotController.php:1291
 msgid "This field is available in the Pro version of Easy Form Builder."
 msgstr "این فیلد در نسخهٔ Pro از Easy Form Builder در دسترس است."
 
-#: includes/Api/EfbCopilotController.php:1237
+#: includes/Api/EfbCopilotController.php:1446
 msgid "I checked the form. Here is what I would improve:"
 msgstr "فرم را بررسی کردم. این موارد را بهتر می‌کنم:"
 
-#: includes/Api/EfbCopilotController.php:1238
+#: includes/Api/EfbCopilotController.php:1447
 msgid "I checked the form and found nothing to fix."
 msgstr "فرم را بررسی کردم و چیزی برای اصلاح پیدا نکردم."
 
 #. translators: %s: field label.
-#: includes/Api/EfbCopilotController.php:1260
+#: includes/Api/EfbCopilotController.php:1469
 #, php-format
 msgid ""
 "Two rules on the same condition both show and hide (or require and un-"
@@ -8540,19 +8638,19 @@ msgstr ""
 " الزامی و هم اختیاری می‌کنند)؛ فقط آخری اثر دارد. پنل «منطق شرطی» را بررسی "
 "کنید."
 
-#: includes/Api/EfbCopilotController.php:1334
+#: includes/Api/EfbCopilotController.php:1543
 msgid "Ask a question, e.g. \"how do I make a field required?\""
 msgstr "سؤالی بپرسید، مثلاً «چطور یک فیلد را الزامی کنم؟»"
 
-#: includes/Api/EfbCopilotController.php:1342
+#: includes/Api/EfbCopilotController.php:1551
 msgid "I could not match that exactly. Try one of these topics:"
 msgstr "دقیقاً موردی مطابق پیدا نکردم. یکی از این موضوع‌ها را امتحان کنید:"
 
-#: includes/Api/EfbCopilotController.php:1367
+#: includes/Api/EfbCopilotController.php:1576
 msgid "Type what you want to change."
 msgstr "بنویسید چه چیزی را می‌خواهید تغییر دهید."
 
-#: includes/Api/EfbCopilotController.php:1392
+#: includes/Api/EfbCopilotController.php:1601
 msgid ""
 "I could not turn that into a change. Try being more specific, e.g. \"make "
 "Email required\" or \"rename the form to Contact us\"."
@@ -8560,19 +8658,19 @@ msgstr ""
 "نتوانستم آن را به تغییر تبدیل کنم. دقیق‌تر بگویید، مثلاً «ایمیل را الزامی "
 "کن» یا «نام فرم را به تماس با ما تغییر بده»."
 
-#: includes/Api/EfbCopilotController.php:1419
+#: includes/Api/EfbCopilotController.php:1628
 msgid "Invalid save request."
 msgstr "درخواست ذخیره نامعتبر است."
 
-#: includes/Api/EfbCopilotController.php:1425
+#: includes/Api/EfbCopilotController.php:1634
 msgid "Unsafe content rejected."
 msgstr "محتوای ناامن رد شد."
 
-#: includes/Api/EfbCopilotController.php:1446
+#: includes/Api/EfbCopilotController.php:1655
 msgid "Could not save the form."
 msgstr "فرم ذخیره نشد."
 
-#: includes/Api/EfbCopilotController.php:1480
+#: includes/Api/EfbCopilotController.php:1689
 #: includes/Efb/EfbFormConverter.php:51
 msgid "Choose an option"
 msgstr "یک گزینه را انتخاب کنید"
@@ -9382,10 +9480,6 @@ msgstr "رسمی"
 msgid "Plain"
 msgstr "ساده"
 
-#: includes/Content/ContentTone.php:42
-msgid "Learned from your site"
-msgstr "آموخته از سایت شما"
-
 #. translators: %s: how many times visitors asked the question.
 #: includes/Content/KbGaps.php:168
 #, php-format
@@ -9819,22 +9913,22 @@ msgid "No API key configured"
 msgstr "کلید API پیکربندی نشده است"
 
 # EFB Copilot specialist shell.
-#: includes/Efb/EfbBuilderButton.php:64 includes/Efb/EfbBuilderButton.php:342
+#: includes/Efb/EfbBuilderButton.php:65 includes/Efb/EfbBuilderButton.php:370
 msgid "Editing the current form"
 msgstr "در حال ویرایش فرم فعلی"
 
-#: includes/Efb/EfbBuilderButton.php:65
+#: includes/Efb/EfbBuilderButton.php:66
 msgid "Designing a new form"
 msgstr "در حال طراحی فرم جدید"
 
 #. translators: %s: selected Easy Form Builder field label.
-#: includes/Efb/EfbBuilderButton.php:67
+#: includes/Efb/EfbBuilderButton.php:68
 #, php-format
 msgid "Working on %s"
 msgstr "در حال کار روی %s"
 
 #. translators: %s: selected Easy Form Builder field label.
-#: includes/Efb/EfbBuilderButton.php:69
+#: includes/Efb/EfbBuilderButton.php:70
 #, php-format
 msgid ""
 "You selected “%s”. Tell me what to change — make it required, rename it, or "
@@ -9843,7 +9937,7 @@ msgstr ""
 "«%s» را انتخاب کرده‌اید. بگویید چه چیزی تغییر کند — اجباری شود، نامش تغییر "
 "کند یا متن راهنما بگیرد."
 
-#: includes/Efb/EfbBuilderButton.php:70
+#: includes/Efb/EfbBuilderButton.php:71
 msgid ""
 "Hi! I can change this form, design a new one, or explain how to do something"
 " in Easy Form Builder."
@@ -9851,7 +9945,7 @@ msgstr ""
 "سلام! می‌توانم این فرم را تغییر دهم، فرم تازه‌ای طراحی کنم یا روش انجام کاری"
 " در Easy Form Builder را توضیح دهم."
 
-#: includes/Efb/EfbBuilderButton.php:71
+#: includes/Efb/EfbBuilderButton.php:72
 msgid ""
 "Hi! Tell me what form you need and I will design a complete one, or ask me "
 "an Easy Form Builder question."
@@ -9859,144 +9953,144 @@ msgstr ""
 "سلام! بگویید چه فرمی نیاز دارید تا یک فرم کامل طراحی کنم، یا دربارهٔ Easy "
 "Form Builder سؤال بپرسید."
 
-#: includes/Efb/EfbBuilderButton.php:72
+#: includes/Efb/EfbBuilderButton.php:73
 msgid "Make Email required"
 msgstr "فیلد ایمیل را اجباری کن"
 
-#: includes/Efb/EfbBuilderButton.php:73
+#: includes/Efb/EfbBuilderButton.php:74
 msgid "Rename the form to Contact us"
 msgstr "نام فرم را به تماس با ما تغییر بده"
 
-#: includes/Efb/EfbBuilderButton.php:74
+#: includes/Efb/EfbBuilderButton.php:75
 msgid "How do I add options to a dropdown?"
 msgstr "چطور به فهرست کشویی گزینه اضافه کنم؟"
 
-#: includes/Efb/EfbBuilderButton.php:75
+#: includes/Efb/EfbBuilderButton.php:76
 msgid "Build a contact form"
 msgstr "یک فرم تماس بساز"
 
-#: includes/Efb/EfbBuilderButton.php:76
+#: includes/Efb/EfbBuilderButton.php:77
 msgid "A booking form for a dental clinic"
 msgstr "فرم رزرو برای کلینیک دندان‌پزشکی"
 
-#: includes/Efb/EfbBuilderButton.php:77
+#: includes/Efb/EfbBuilderButton.php:78
 msgid "Job application form"
 msgstr "فرم درخواست استخدام"
 
-#: includes/Efb/EfbBuilderButton.php:78
+#: includes/Efb/EfbBuilderButton.php:79
 msgid "How do I turn on email notifications?"
 msgstr "چطور اعلان‌های ایمیلی را فعال کنم؟"
 
-#: includes/Efb/EfbBuilderButton.php:79
+#: includes/Efb/EfbBuilderButton.php:80
 msgid "Upgrade to EFB Pro"
 msgstr "ارتقا به EFB Pro"
 
-#: includes/Efb/EfbBuilderButton.php:80
+#: includes/Efb/EfbBuilderButton.php:81
 msgid "View pricing"
 msgstr "مشاهده قیمت‌ها"
 
-#: includes/Efb/EfbBuilderButton.php:83
+#: includes/Efb/EfbBuilderButton.php:84
 msgid "Req."
 msgstr "الزامی"
 
-#: includes/Efb/EfbBuilderButton.php:84
+#: includes/Efb/EfbBuilderButton.php:85
 msgid "W"
 msgstr "عرض"
 
 #. translators: %s: number of form fields.
-#: includes/Efb/EfbBuilderButton.php:86
+#: includes/Efb/EfbBuilderButton.php:87
 #, php-format
 msgid "%s fields"
 msgstr "%s فیلد"
 
-#: includes/Efb/EfbBuilderButton.php:87
+#: includes/Efb/EfbBuilderButton.php:88
 msgid "Approve & create"
 msgstr "تأیید و ایجاد"
 
-#: includes/Efb/EfbBuilderButton.php:89
+#: includes/Efb/EfbBuilderButton.php:90
 msgid "Creating…"
 msgstr "در حال ایجاد…"
 
-#: includes/Efb/EfbBuilderButton.php:90
+#: includes/Efb/EfbBuilderButton.php:91
 msgid "Created! Opening the editor…"
 msgstr "ایجاد شد! ویرایشگر در حال باز شدن است…"
 
-#: includes/Efb/EfbBuilderButton.php:92
+#: includes/Efb/EfbBuilderButton.php:93
 msgid ""
 "Voice recording is not supported by this browser. Please type your message."
 msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند. لطفاً پیام را تایپ کنید."
 
-#: includes/Efb/EfbBuilderButton.php:93
+#: includes/Efb/EfbBuilderButton.php:94
 msgid "No audio was captured."
 msgstr "صدایی ضبط نشد."
 
-#: includes/Efb/EfbBuilderButton.php:94
+#: includes/Efb/EfbBuilderButton.php:95
 msgid "That recording is too large. Please record a shorter message."
 msgstr "فایل ضبط‌شده بیش از حد بزرگ است. لطفاً پیام کوتاه‌تری ضبط کنید."
 
-#: includes/Efb/EfbBuilderButton.php:95
+#: includes/Efb/EfbBuilderButton.php:96
 msgid "Transcribing…"
 msgstr "در حال تبدیل گفتار به متن…"
 
-#: includes/Efb/EfbBuilderButton.php:96
+#: includes/Efb/EfbBuilderButton.php:97
 msgid "Transcript ready. Review it, then send."
 msgstr "متن پیاده‌شده آماده است. آن را بازبینی و سپس ارسال کنید."
 
-#: includes/Efb/EfbBuilderButton.php:98
+#: includes/Efb/EfbBuilderButton.php:99
 msgid "Recording — words appear in the message box. Stops after 45 seconds."
 msgstr ""
 "در حال ضبط — واژه‌ها در کادر پیام ظاهر می‌شوند. پس از ۴۵ ثانیه متوقف می‌شود."
 
-#: includes/Efb/EfbBuilderButton.php:99
+#: includes/Efb/EfbBuilderButton.php:100
 msgid "Microphone permission was denied. You can type your message instead."
 msgstr "اجازهٔ دسترسی به میکروفن داده نشد. می‌توانید پیام را تایپ کنید."
 
 #. translators: %s: Easy Form Builder steps style name, such as Pills.
-#: includes/Efb/EfbBuilderButton.php:101
+#: includes/Efb/EfbBuilderButton.php:102
 #, php-format
 msgid "Steps style set to %s"
 msgstr "سبک ردیف مراحل روی «%s» تنظیم شد"
 
 #. translators: %s: Easy Form Builder progress bar style name, such as Ring.
-#: includes/Efb/EfbBuilderButton.php:103
+#: includes/Efb/EfbBuilderButton.php:104
 #, php-format
 msgid "Progress bar style set to %s"
 msgstr "سبک نوار پیشرفت روی «%s» تنظیم شد"
 
-#: includes/Efb/EfbBuilderButton.php:104
+#: includes/Efb/EfbBuilderButton.php:105
 msgid "Steps row hidden"
 msgstr "ردیف مراحل پنهان شد"
 
-#: includes/Efb/EfbBuilderButton.php:105
+#: includes/Efb/EfbBuilderButton.php:106
 msgid "Steps row shown"
 msgstr "ردیف مراحل نمایش داده می‌شود"
 
-#: includes/Efb/EfbBuilderButton.php:106
+#: includes/Efb/EfbBuilderButton.php:107
 msgid "Progress bar hidden"
 msgstr "نوار پیشرفت پنهان شد"
 
-#: includes/Efb/EfbBuilderButton.php:107
+#: includes/Efb/EfbBuilderButton.php:108
 msgid "Progress bar shown"
 msgstr "نوار پیشرفت نمایش داده می‌شود"
 
 # EFB Copilot results, notes and fallbacks built in the browser (T03).
-#: includes/Efb/EfbBuilderButton.php:109
+#: includes/Efb/EfbBuilderButton.php:110
 msgid "Invalid server response."
 msgstr "پاسخ سرور نامعتبر است."
 
-#: includes/Efb/EfbBuilderButton.php:110
+#: includes/Efb/EfbBuilderButton.php:111
 msgid "Sorry, something went wrong."
 msgstr "متأسفم، مشکلی پیش آمد."
 
-#: includes/Efb/EfbBuilderButton.php:111
+#: includes/Efb/EfbBuilderButton.php:112
 msgid "The request could not be completed."
 msgstr "درخواست کامل نشد."
 
-#: includes/Efb/EfbBuilderButton.php:112
+#: includes/Efb/EfbBuilderButton.php:113
 msgid "The form could not be created. Please try again."
 msgstr "فرم ایجاد نشد. لطفاً دوباره تلاش کنید."
 
-#: includes/Efb/EfbBuilderButton.php:113
+#: includes/Efb/EfbBuilderButton.php:114
 msgid ""
 "Open a form in the editor first (create one here, or open Easy Form Builder "
 "→ Forms and edit a form), then ask me to change it."
@@ -10005,133 +10099,133 @@ msgstr ""
 "Builder ← فرم‌ها یک فرم را ویرایش کنید)، سپس از من بخواهید آن را تغییر دهم."
 
 #. translators: %s: new form name.
-#: includes/Efb/EfbBuilderButton.php:116
+#: includes/Efb/EfbBuilderButton.php:117
 #, php-format
 msgid "Renamed the form to “%s”"
 msgstr "نام فرم به «%s» تغییر کرد"
 
-#: includes/Efb/EfbBuilderButton.php:117
+#: includes/Efb/EfbBuilderButton.php:118
 msgid "Updated the confirmation message"
 msgstr "پیام تأیید ارسال به‌روز شد"
 
 #. translators: 1: current field label or ID, 2: new field label.
-#: includes/Efb/EfbBuilderButton.php:119
+#: includes/Efb/EfbBuilderButton.php:120
 #, php-format
 msgid "Renamed “%1$s” to “%2$s”"
 msgstr "نام «%1$s» به «%2$s» تغییر کرد"
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:121
+#: includes/Efb/EfbBuilderButton.php:122
 #, php-format
 msgid "Made “%s” required"
 msgstr "«%s» اجباری شد"
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:123
+#: includes/Efb/EfbBuilderButton.php:124
 #, php-format
 msgid "Made “%s” optional"
 msgstr "«%s» اختیاری شد"
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:125
+#: includes/Efb/EfbBuilderButton.php:126
 #, php-format
 msgid "Set the placeholder of “%s”"
 msgstr "متن نگهدارندهٔ «%s» تنظیم شد"
 
 #. translators: 1: field label or ID, 2: width name, such as half width.
-#: includes/Efb/EfbBuilderButton.php:127
+#: includes/Efb/EfbBuilderButton.php:128
 #, php-format
 msgid "Set the width of “%1$s” to %2$s"
 msgstr "عرض «%1$s» روی %2$s تنظیم شد"
 
-#: includes/Efb/EfbBuilderButton.php:128
+#: includes/Efb/EfbBuilderButton.php:129
 msgid "full width"
 msgstr "تمام‌عرض"
 
-#: includes/Efb/EfbBuilderButton.php:129
+#: includes/Efb/EfbBuilderButton.php:130
 msgid "half width"
 msgstr "نیم‌عرض"
 
-#: includes/Efb/EfbBuilderButton.php:130
+#: includes/Efb/EfbBuilderButton.php:131
 msgid "one third"
 msgstr "یک‌سوم"
 
-#: includes/Efb/EfbBuilderButton.php:131
+#: includes/Efb/EfbBuilderButton.php:132
 msgid "one quarter"
 msgstr "یک‌چهارم"
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:133
+#: includes/Efb/EfbBuilderButton.php:134
 #, php-format
 msgid "Set the help text of “%s”"
 msgstr "متن راهنمای «%s» تنظیم شد"
 
 #. translators: 1: Easy Form Builder setting key, such as button color, 2:
 #. field label or ID.
-#: includes/Efb/EfbBuilderButton.php:135
+#: includes/Efb/EfbBuilderButton.php:136
 #, php-format
 msgid "Updated %1$s for “%2$s”"
 msgstr "تنظیم %1$s برای «%2$s» به‌روز شد"
 
 #. translators: %s: Easy Form Builder form setting key, such as button color.
-#: includes/Efb/EfbBuilderButton.php:137
+#: includes/Efb/EfbBuilderButton.php:138
 #, php-format
 msgid "Updated the form setting “%s”"
 msgstr "تنظیم فرم «%s» به‌روز شد"
 
 #. translators: %s: label of the added field.
-#: includes/Efb/EfbBuilderButton.php:139
+#: includes/Efb/EfbBuilderButton.php:140
 #, php-format
 msgid "Added “%s”"
 msgstr "«%s» اضافه شد"
 
-#: includes/Efb/EfbBuilderButton.php:140
+#: includes/Efb/EfbBuilderButton.php:141
 msgid "New field"
 msgstr "فیلد تازه"
 
 #. translators: %s: step title.
-#: includes/Efb/EfbBuilderButton.php:142
+#: includes/Efb/EfbBuilderButton.php:143
 #, php-format
 msgid "Added the step “%s”"
 msgstr "مرحلهٔ «%s» اضافه شد"
 
 #. translators: %s: step number.
-#: includes/Efb/EfbBuilderButton.php:144
+#: includes/Efb/EfbBuilderButton.php:145
 #, php-format
 msgid "Step %s"
 msgstr "مرحلهٔ %s"
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:146
+#: includes/Efb/EfbBuilderButton.php:147
 #, php-format
 msgid "Removed “%s”"
 msgstr "«%s» حذف شد"
 
 #. translators: 1: option text, 2: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:148
+#: includes/Efb/EfbBuilderButton.php:149
 #, php-format
 msgid "Added the option “%1$s” to “%2$s”"
 msgstr "گزینهٔ «%1$s» به «%2$s» اضافه شد"
 
 #. translators: 1: option text, 2: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:150
+#: includes/Efb/EfbBuilderButton.php:151
 #, php-format
 msgid "Removed the option “%1$s” from “%2$s”"
 msgstr "گزینهٔ «%1$s» از «%2$s» حذف شد"
 
 #. translators: 1: old option text, 2: new option text.
-#: includes/Efb/EfbBuilderButton.php:152
+#: includes/Efb/EfbBuilderButton.php:153
 #, php-format
 msgid "Renamed the option “%1$s” to “%2$s”"
 msgstr "نام گزینهٔ «%1$s» به «%2$s» تغییر کرد"
 
 #. translators: %s: plain-language description of the rule.
-#: includes/Efb/EfbBuilderButton.php:154
+#: includes/Efb/EfbBuilderButton.php:155
 #, php-format
 msgid "Added the rule: %s"
 msgstr "قاعده اضافه شد: %s"
 
-#: includes/Efb/EfbBuilderButton.php:155
+#: includes/Efb/EfbBuilderButton.php:156
 msgid ""
 "Open Conditional Logic to review the rule and test it in Preview before you "
 "save."
@@ -10139,54 +10233,54 @@ msgstr ""
 "پیش از ذخیره، «منطق شرطی» را باز کنید تا قاعده را بازبینی کنید و آن را در "
 "پیش‌نمایش بیازمایید."
 
-#: includes/Efb/EfbBuilderButton.php:157
+#: includes/Efb/EfbBuilderButton.php:158
 msgid "Undone. The canvas is back to how it was before this change."
 msgstr "واگرد شد. بوم به حالت پیش از این تغییر برگشت."
 
-#: includes/Efb/EfbBuilderButton.php:159
+#: includes/Efb/EfbBuilderButton.php:160
 msgid "Applied the suggestion."
 msgstr "پیشنهاد اعمال شد."
 
 #. translators: %s: page title.
-#: includes/Efb/EfbBuilderButton.php:161
+#: includes/Efb/EfbBuilderButton.php:162
 #, php-format
 msgid "New page: %s"
 msgstr "صفحهٔ تازه: %s"
 
 #. translators: %s: submit button text.
-#: includes/Efb/EfbBuilderButton.php:163
+#: includes/Efb/EfbBuilderButton.php:164
 #, php-format
 msgid "Button: %s"
 msgstr "دکمه: %s"
 
 #. translators: %s: email address.
-#: includes/Efb/EfbBuilderButton.php:165
+#: includes/Efb/EfbBuilderButton.php:166
 #, php-format
 msgid "Each submission is emailed to %s"
 msgstr "هر ارسال به %s ایمیل می‌شود"
 
-#: includes/Efb/EfbBuilderButton.php:166
+#: includes/Efb/EfbBuilderButton.php:167
 msgid "The person who fills it in gets a confirmation email"
 msgstr "کسی که فرم را پر می‌کند ایمیل تأیید دریافت می‌کند"
 
 #. translators: %s: reason the change was not applied.
-#: includes/Efb/EfbBuilderButton.php:168
+#: includes/Efb/EfbBuilderButton.php:169
 #, php-format
 msgid "No change was applied: %s."
 msgstr "هیچ تغییری اعمال نشد: %s."
 
 #. translators: %s: reason the change was not applied.
-#: includes/Efb/EfbBuilderButton.php:170
+#: includes/Efb/EfbBuilderButton.php:171
 #, php-format
 msgid "Not applied: %s"
 msgstr "اعمال نشد: %s"
 
-#: includes/Efb/EfbBuilderButton.php:171
+#: includes/Efb/EfbBuilderButton.php:172
 msgid "Click Save at the top of Easy Form Builder to keep the changes."
 msgstr "برای نگه‌داشتن تغییرات، بالای Easy Form Builder روی «ذخیره» بزنید."
 
 #. translators: %s: trace ID to look up in the Activity Log.
-#: includes/Efb/EfbBuilderButton.php:173
+#: includes/Efb/EfbBuilderButton.php:174
 #, php-format
 msgid ""
 "The Easy Form Builder canvas could not redraw, so the editor reloads now. "
@@ -10197,91 +10291,107 @@ msgstr ""
 "می‌شود. پیش از ذخیره، فرم را بررسی کنید؛ ردیاب %s در AI Site Assistant "
 "AutoPilot ← لاگ فعالیت است."
 
-#: includes/Efb/EfbBuilderButton.php:174
+#: includes/Efb/EfbBuilderButton.php:175
 msgid "the operation was malformed"
 msgstr "ساختار عملیات نادرست بود"
 
-#: includes/Efb/EfbBuilderButton.php:175
+#: includes/Efb/EfbBuilderButton.php:176
 msgid "the field was not found in this form"
 msgstr "فیلد در این فرم پیدا نشد"
 
-#: includes/Efb/EfbBuilderButton.php:176
+#: includes/Efb/EfbBuilderButton.php:177
 msgid "that field setting cannot be changed here"
 msgstr "این تنظیم فیلد از اینجا تغییر نمی‌کند"
 
-#: includes/Efb/EfbBuilderButton.php:177
+#: includes/Efb/EfbBuilderButton.php:178
 msgid "that setting is not available for this field type"
 msgstr "این تنظیم برای این نوع فیلد در دسترس نیست"
 
-#: includes/Efb/EfbBuilderButton.php:178
+#: includes/Efb/EfbBuilderButton.php:179
 msgid "the colour or setting value is not valid"
 msgstr "مقدار رنگ یا تنظیم معتبر نیست"
 
-#: includes/Efb/EfbBuilderButton.php:179
+#: includes/Efb/EfbBuilderButton.php:180
 msgid "that form setting is not available"
 msgstr "این تنظیم فرم در دسترس نیست"
 
-#: includes/Efb/EfbBuilderButton.php:180
+#: includes/Efb/EfbBuilderButton.php:181
 msgid "Easy Form Builder does not accept that value"
 msgstr "Easy Form Builder این مقدار را نمی‌پذیرد"
 
-#: includes/Efb/EfbBuilderButton.php:181
+#: includes/Efb/EfbBuilderButton.php:182
 msgid "the step template was missing from the reply"
 msgstr "الگوی مرحله در پاسخ نبود"
 
-#: includes/Efb/EfbBuilderButton.php:182
+#: includes/Efb/EfbBuilderButton.php:183
 msgid "the field template was missing from the reply"
 msgstr "الگوی فیلد در پاسخ نبود"
 
-#: includes/Efb/EfbBuilderButton.php:183
+#: includes/Efb/EfbBuilderButton.php:184
 msgid "the new field was invalid or its ID already exists"
 msgstr "فیلد تازه نامعتبر بود یا شناسهٔ آن از قبل وجود دارد"
 
-#: includes/Efb/EfbBuilderButton.php:184
+#: includes/Efb/EfbBuilderButton.php:185
 msgid "options can only be added to a choice field"
 msgstr "گزینه فقط به فیلد انتخابی اضافه می‌شود"
 
-#: includes/Efb/EfbBuilderButton.php:185
+#: includes/Efb/EfbBuilderButton.php:186
 msgid "the option was not found"
 msgstr "گزینه پیدا نشد"
 
-#: includes/Efb/EfbBuilderButton.php:186
+#: includes/Efb/EfbBuilderButton.php:187
 msgid "the Conditional Logic add-on is not active on this form"
 msgstr "افزونهٔ جانبی «منطق شرطی» روی این فرم فعال نیست"
 
-#: includes/Efb/EfbBuilderButton.php:187
+#: includes/Efb/EfbBuilderButton.php:188
+msgid "the field to place it next to is not on this form"
+msgstr "فیلدی که باید کنارش قرار بگیرد در این فرم نیست"
+
+#. translators: 1: moved field, 2: field it now follows.
+#: includes/Efb/EfbBuilderButton.php:190
+#, php-format
+msgid "Moved “%1$s” after “%2$s”"
+msgstr "«%1$s» به بعد از «%2$s» منتقل شد"
+
+#. translators: 1: moved field, 2: field it now precedes.
+#: includes/Efb/EfbBuilderButton.php:192
+#, php-format
+msgid "Moved “%1$s” before “%2$s”"
+msgstr "«%1$s» به پیش از «%2$s» منتقل شد"
+
+#: includes/Efb/EfbBuilderButton.php:193
 msgid "this form already takes payment through another gateway"
 msgstr "این فرم از قبل با درگاه دیگری پرداخت می‌گیرد"
 
-#: includes/Efb/EfbBuilderButton.php:188
+#: includes/Efb/EfbBuilderButton.php:194
 msgid "the payment fields could not be prepared"
 msgstr "فیلدهای پرداخت آماده نشدند"
 
-#: includes/Efb/EfbBuilderButton.php:189
+#: includes/Efb/EfbBuilderButton.php:195
 msgid "this change is not supported"
 msgstr "این تغییر پشتیبانی نمی‌شود"
 
-#: includes/Efb/EfbBuilderButton.php:190
+#: includes/Efb/EfbBuilderButton.php:196
 msgid "the reply contained no change to apply"
 msgstr "پاسخ هیچ تغییری برای اعمال نداشت"
 
-#: includes/Efb/EfbBuilderButton.php:191
+#: includes/Efb/EfbBuilderButton.php:197
 msgid "an unexpected error stopped this change"
 msgstr "خطای پیش‌بینی‌نشده‌ای این تغییر را متوقف کرد"
 
-#: includes/Efb/EfbBuilderButton.php:192
+#: includes/Efb/EfbBuilderButton.php:198
 msgid "the Easy Form Builder canvas could not redraw"
 msgstr "بوم Easy Form Builder دوباره رسم نشد"
 
-#: includes/Efb/EfbBuilderButton.php:193
+#: includes/Efb/EfbBuilderButton.php:199
 msgid "this change could not be applied"
 msgstr "این تغییر اعمال نشد"
 
-#: includes/Efb/EfbBuilderButton.php:195
+#: includes/Efb/EfbBuilderButton.php:201
 msgid "Ask AI to change this form"
 msgstr "از هوش مصنوعی بخواهید این فرم را تغییر دهد"
 
-#: includes/Efb/EfbBuilderButton.php:196
+#: includes/Efb/EfbBuilderButton.php:202
 msgid ""
 "Add fields, show or hide them with logic, or get a review. Nothing is saved "
 "until you click Save."
@@ -10289,11 +10399,11 @@ msgstr ""
 "فیلد اضافه کنید، با منطق شرطی نمایش یا پنهانشان کنید، یا بازبینی بگیرید. تا "
 "روی «ذخیره» نزنید چیزی ذخیره نمی‌شود."
 
-#: includes/Efb/EfbBuilderButton.php:197
+#: includes/Efb/EfbBuilderButton.php:203
 msgid "Ask AI to build a form"
 msgstr "از هوش مصنوعی بخواهید فرم بسازد"
 
-#: includes/Efb/EfbBuilderButton.php:198
+#: includes/Efb/EfbBuilderButton.php:204
 msgid ""
 "Describe the form you need. I draft it for you to check, and nothing is "
 "created until you click Create."
@@ -10301,35 +10411,36 @@ msgstr ""
 "فرمی را که لازم دارید توصیف کنید. پیش‌نویسی برای بررسی شما آماده می‌کنم و تا"
 " روی «ساخت» نزنید چیزی ساخته نمی‌شود."
 
-#: includes/Efb/EfbBuilderButton.php:199
+#: includes/Efb/EfbBuilderButton.php:205
 msgid "opens it from anywhere"
 msgstr "از هر جا بازش می‌کند"
 
-#: includes/Efb/EfbBuilderButton.php:200
+#: includes/Efb/EfbBuilderButton.php:206
 msgid "NEW"
 msgstr "جدید"
 
-#: includes/Efb/EfbBuilderButton.php:201
+#: includes/Efb/EfbBuilderButton.php:207
 msgid "Describe a change, I do the clicking"
 msgstr "تغییر را بگویید، کلیک‌ها با من"
 
-#: includes/Efb/EfbBuilderButton.php:202
+#: includes/Efb/EfbBuilderButton.php:208
 msgid "“Add a phone field after Email and make it required.”"
 msgstr "«یک فیلد تلفن بعد از ایمیل اضافه کن و الزامی‌اش کن.»"
 
-#: includes/Efb/EfbBuilderButton.php:203
+#: includes/Efb/EfbBuilderButton.php:209
 msgid "Try it"
 msgstr "امتحانش کنید"
 
-#: includes/Efb/EfbBuilderButton.php:204 includes/Frontend/ChatWidget.php:247
+#: includes/Efb/EfbBuilderButton.php:210 includes/Efb/EfbBuilderButton.php:324
+#: includes/Frontend/ChatWidget.php:247
 msgid "Not now"
 msgstr "حالا نه"
 
-#: includes/Efb/EfbBuilderButton.php:205
+#: includes/Efb/EfbBuilderButton.php:211
 msgid "AI is not connected yet"
 msgstr "هوش مصنوعی هنوز وصل نیست"
 
-#: includes/Efb/EfbBuilderButton.php:206
+#: includes/Efb/EfbBuilderButton.php:212
 msgid ""
 "Connect a service once (about 2 minutes) and the assistant can change this "
 "form for you."
@@ -10337,17 +10448,17 @@ msgstr ""
 "یک بار سرویسی وصل کنید (حدود ۲ دقیقه) تا دستیار بتواند این فرم را برایتان "
 "تغییر دهد."
 
-#: includes/Efb/EfbBuilderButton.php:207
+#: includes/Efb/EfbBuilderButton.php:213
 msgid "1 AI change is not saved yet"
 msgstr "۱ تغییر هوش مصنوعی هنوز ذخیره نشده"
 
 #. translators: %s: number of changes.
-#: includes/Efb/EfbBuilderButton.php:209
+#: includes/Efb/EfbBuilderButton.php:215
 #, php-format
 msgid "%s AI changes are not saved yet"
 msgstr "%s تغییر هوش مصنوعی هنوز ذخیره نشده"
 
-#: includes/Efb/EfbBuilderButton.php:210
+#: includes/Efb/EfbBuilderButton.php:216
 msgid ""
 "Click Save at the top of Easy Form Builder to keep them, or open the "
 "assistant to undo."
@@ -10356,240 +10467,240 @@ msgstr ""
 "دستیار را باز کنید."
 
 #. translators: %s: field label.
-#: includes/Efb/EfbBuilderButton.php:212
+#: includes/Efb/EfbBuilderButton.php:218
 #, php-format
 msgid "Ask AI about “%s”"
 msgstr "از هوش مصنوعی دربارهٔ «%s» بپرسید"
 
-#: includes/Efb/EfbBuilderButton.php:215
+#: includes/Efb/EfbBuilderButton.php:221
 msgid "1 field"
 msgstr "۱ فیلد"
 
-#: includes/Efb/EfbBuilderButton.php:217
+#: includes/Efb/EfbBuilderButton.php:223
 msgid "Not connected yet"
 msgstr "هنوز وصل نیست"
 
-#: includes/Efb/EfbBuilderButton.php:218
+#: includes/Efb/EfbBuilderButton.php:224
 msgid "Add or change fields"
 msgstr "افزودن یا تغییر فیلدها"
 
-#: includes/Efb/EfbBuilderButton.php:219
+#: includes/Efb/EfbBuilderButton.php:225
 msgid "Add a phone field after Email"
 msgstr "یک فیلد تلفن بعد از ایمیل اضافه کن"
 
-#: includes/Efb/EfbBuilderButton.php:222
+#: includes/Efb/EfbBuilderButton.php:228
 msgid "Show or hide fields"
 msgstr "نمایش یا پنهان کردن فیلدها"
 
-#: includes/Efb/EfbBuilderButton.php:223
+#: includes/Efb/EfbBuilderButton.php:229
 msgid "Show Company only for business customers"
 msgstr "فیلد شرکت را فقط برای مشتریان تجاری نشان بده"
 
-#: includes/Efb/EfbBuilderButton.php:224 includes/Efb/EfbBuilderButton.php:277
+#: includes/Efb/EfbBuilderButton.php:230 includes/Efb/EfbBuilderButton.php:283
 msgid "Review this form"
 msgstr "این فرم را بازبینی کن"
 
-#: includes/Efb/EfbBuilderButton.php:225
+#: includes/Efb/EfbBuilderButton.php:231
 msgid "Missing consent, spam protection, too many questions"
 msgstr "رضایت‌نامهٔ جاافتاده، محافظت از هرزنامه، پرسش‌های زیاد"
 
-#: includes/Efb/EfbBuilderButton.php:226
+#: includes/Efb/EfbBuilderButton.php:232
 msgid "How do I…?"
 msgstr "چطور…؟"
 
-#: includes/Efb/EfbBuilderButton.php:227
+#: includes/Efb/EfbBuilderButton.php:233
 msgid "Ask anything about Easy Form Builder"
 msgstr "هر سؤالی دربارهٔ Easy Form Builder بپرسید"
 
-#: includes/Efb/EfbBuilderButton.php:228
+#: includes/Efb/EfbBuilderButton.php:234
 msgid "How do I "
 msgstr "چطور "
 
 #. translators: %s: number of fields.
-#: includes/Efb/EfbBuilderButton.php:230
+#: includes/Efb/EfbBuilderButton.php:236
 #, php-format
 msgid "Read your form (%s fields)"
 msgstr "خواندن فرم شما (%s فیلد)"
 
-#: includes/Efb/EfbBuilderButton.php:231
+#: includes/Efb/EfbBuilderButton.php:237
 msgid "Read your request"
 msgstr "خواندن درخواست شما"
 
-#: includes/Efb/EfbBuilderButton.php:232
+#: includes/Efb/EfbBuilderButton.php:238
 msgid "Working out the answer…"
 msgstr "در حال یافتن پاسخ…"
 
 #. translators: %s: Easy Form Builder plan, such as Free Plus.
-#: includes/Efb/EfbBuilderButton.php:234
+#: includes/Efb/EfbBuilderButton.php:240
 #, php-format
 msgid "Check it against your Easy Form Builder plan (%s)"
 msgstr "بررسی با پلن Easy Form Builder شما (%s)"
 
-#: includes/Efb/EfbBuilderButton.php:235
+#: includes/Efb/EfbBuilderButton.php:241
 msgid "Free"
 msgstr "رایگان"
 
-#: includes/Efb/EfbBuilderButton.php:236
+#: includes/Efb/EfbBuilderButton.php:242
 msgid "Free Plus"
 msgstr "Free Plus"
 
-#: includes/Efb/EfbBuilderButton.php:237
+#: includes/Efb/EfbBuilderButton.php:243
 msgid "Pro"
 msgstr "Pro"
 
-#: includes/Efb/EfbBuilderButton.php:238
+#: includes/Efb/EfbBuilderButton.php:244
 msgid "1 change on the form"
 msgstr "۱ تغییر روی فرم"
 
 #. translators: %s: number of changes.
-#: includes/Efb/EfbBuilderButton.php:240
+#: includes/Efb/EfbBuilderButton.php:246
 #, php-format
 msgid "%s changes on the form"
 msgstr "%s تغییر روی فرم"
 
-#: includes/Efb/EfbBuilderButton.php:241
+#: includes/Efb/EfbBuilderButton.php:247
 msgid "Not saved yet"
 msgstr "هنوز ذخیره نشده"
 
-#: includes/Efb/EfbBuilderButton.php:242
+#: includes/Efb/EfbBuilderButton.php:248
 msgid "Show on form"
 msgstr "نمایش روی فرم"
 
-#: includes/Efb/EfbBuilderButton.php:243
+#: includes/Efb/EfbBuilderButton.php:249
 msgid "AI · new"
 msgstr "هوش مصنوعی · جدید"
 
-#: includes/Efb/EfbBuilderButton.php:244
+#: includes/Efb/EfbBuilderButton.php:250
 msgid "AI · changed"
 msgstr "هوش مصنوعی · تغییرکرده"
 
-#: includes/Efb/EfbBuilderButton.php:245
+#: includes/Efb/EfbBuilderButton.php:251
 msgid "Nothing changed"
 msgstr "چیزی تغییر نکرد"
 
-#: includes/Efb/EfbBuilderButton.php:246
+#: includes/Efb/EfbBuilderButton.php:252
 msgid "Your form is exactly as it was."
 msgstr "فرم شما دقیقاً همان‌طور است که بود."
 
-#: includes/Efb/EfbBuilderButton.php:247
+#: includes/Efb/EfbBuilderButton.php:253
 msgid "New conditional rule"
 msgstr "قاعدهٔ شرطی جدید"
 
-#: includes/Efb/EfbBuilderButton.php:248
+#: includes/Efb/EfbBuilderButton.php:254
 msgid "IF"
 msgstr "اگر"
 
-#: includes/Efb/EfbBuilderButton.php:249
+#: includes/Efb/EfbBuilderButton.php:255
 msgid "THEN"
 msgstr "آنگاه"
 
-#: includes/Efb/EfbBuilderButton.php:250
+#: includes/Efb/EfbBuilderButton.php:256
 msgid "and"
 msgstr "و"
 
-#: includes/Efb/EfbBuilderButton.php:251
+#: includes/Efb/EfbBuilderButton.php:257
 msgid "or"
 msgstr "یا"
 
-#: includes/Efb/EfbBuilderButton.php:252
+#: includes/Efb/EfbBuilderButton.php:258
 msgid "Test in Preview"
 msgstr "آزمودن در پیش‌نمایش"
 
-#: includes/Efb/EfbBuilderButton.php:253
+#: includes/Efb/EfbBuilderButton.php:259
 msgid "1 suggestion"
 msgstr "۱ پیشنهاد"
 
 #. translators: %s: number of suggestions.
-#: includes/Efb/EfbBuilderButton.php:255
+#: includes/Efb/EfbBuilderButton.php:261
 #, php-format
 msgid "%s suggestions"
 msgstr "%s پیشنهاد"
 
 #. translators: %s: number of fields.
-#: includes/Efb/EfbBuilderButton.php:257
+#: includes/Efb/EfbBuilderButton.php:263
 #, php-format
 msgid "%s fields checked"
 msgstr "%s فیلد بررسی شد"
 
-#: includes/Efb/EfbBuilderButton.php:258
+#: includes/Efb/EfbBuilderButton.php:264
 msgid "How?"
 msgstr "چطور؟"
 
 #. translators: %s: a review finding.
-#: includes/Efb/EfbBuilderButton.php:260
+#: includes/Efb/EfbBuilderButton.php:266
 #, php-format
 msgid "How do I fix this: %s"
 msgstr "این را چطور درست کنم: %s"
 
-#: includes/Efb/EfbBuilderButton.php:261
+#: includes/Efb/EfbBuilderButton.php:267
 msgid "1 page"
 msgstr "۱ صفحه"
 
 #. translators: %s: number of pages.
-#: includes/Efb/EfbBuilderButton.php:263
+#: includes/Efb/EfbBuilderButton.php:269
 #, php-format
 msgid "%s pages"
 msgstr "%s صفحه"
 
-#: includes/Efb/EfbBuilderButton.php:264
+#: includes/Efb/EfbBuilderButton.php:270
 msgid "Create this form"
 msgstr "ساخت این فرم"
 
-#: includes/Efb/EfbBuilderButton.php:265 includes/Efb/EfbBuilderButton.php:357
+#: includes/Efb/EfbBuilderButton.php:271 includes/Efb/EfbBuilderButton.php:385
 msgid "Describe a change, or click a field on the form…"
 msgstr "تغییری را توصیف کنید یا روی یک فیلد فرم بزنید…"
 
-#: includes/Efb/EfbBuilderButton.php:266
+#: includes/Efb/EfbBuilderButton.php:272
 msgid "Describe the form you need…"
 msgstr "فرمی را که لازم دارید توصیف کنید…"
 
-#: includes/Efb/EfbBuilderButton.php:267
+#: includes/Efb/EfbBuilderButton.php:273
 msgid "Ask for another change…"
 msgstr "تغییر دیگری بخواهید…"
 
-#: includes/Efb/EfbBuilderButton.php:268
+#: includes/Efb/EfbBuilderButton.php:274
 msgid "Ask for a change before creating it…"
 msgstr "پیش از ساخت، تغییری بخواهید…"
 
-#: includes/Efb/EfbBuilderButton.php:269
+#: includes/Efb/EfbBuilderButton.php:275
 msgid "Connect an AI service to start…"
 msgstr "برای شروع، یک سرویس هوش مصنوعی وصل کنید…"
 
-#: includes/Efb/EfbBuilderButton.php:270
+#: includes/Efb/EfbBuilderButton.php:276
 msgid "Working on it…"
 msgstr "در حال انجام…"
 
-#: includes/Efb/EfbBuilderButton.php:271 includes/Efb/EfbBuilderButton.php:365
+#: includes/Efb/EfbBuilderButton.php:277 includes/Efb/EfbBuilderButton.php:393
 msgid "AI suggests, you decide. Nothing is saved until you click Save."
 msgstr ""
 "هوش مصنوعی پیشنهاد می‌دهد، تصمیم با شماست. تا روی «ذخیره» نزنید چیزی ذخیره "
 "نمی‌شود."
 
-#: includes/Efb/EfbBuilderButton.php:272
+#: includes/Efb/EfbBuilderButton.php:278
 msgid "AI suggests, you decide. Nothing is created until you click Create."
 msgstr ""
 "هوش مصنوعی پیشنهاد می‌دهد، تصمیم با شماست. تا روی «ساخت» نزنید چیزی ساخته "
 "نمی‌شود."
 
 #. translators: %s: field label.
-#: includes/Efb/EfbBuilderButton.php:276
+#: includes/Efb/EfbBuilderButton.php:282
 #, php-format
 msgid "Add help text to “%s”"
 msgstr "به «%s» متن راهنما اضافه کن"
 
-#: includes/Efb/EfbBuilderButton.php:278
+#: includes/Efb/EfbBuilderButton.php:284
 msgid "Make the phone number optional"
 msgstr "شماره تلفن را اختیاری کن"
 
-#: includes/Efb/EfbBuilderButton.php:279
+#: includes/Efb/EfbBuilderButton.php:285
 msgid "Split it into 2 steps"
 msgstr "آن را به ۲ مرحله تقسیم کن"
 
-#: includes/Efb/EfbBuilderButton.php:280
+#: includes/Efb/EfbBuilderButton.php:286
 msgid "Connect an AI service to start"
 msgstr "برای شروع، یک سرویس هوش مصنوعی وصل کنید"
 
-#: includes/Efb/EfbBuilderButton.php:281
+#: includes/Efb/EfbBuilderButton.php:287
 msgid ""
 "I can change this form for you: add fields, show or hide them with logic, "
 "review it, or answer Easy Form Builder questions. First I need an AI "
@@ -10599,7 +10710,7 @@ msgstr ""
 " پنهانشان کنم، بازبینی‌اش کنم یا به سؤال‌های Easy Form Builder پاسخ دهم. اول"
 " به یک سرویس هوش مصنوعی نیاز دارم."
 
-#: includes/Efb/EfbBuilderButton.php:282
+#: includes/Efb/EfbBuilderButton.php:288
 msgid ""
 "The assistant needs an AI service such as OpenAI, Claude or Gemini. You use "
 "your own API key; it is stored encrypted on this site and used only for your"
@@ -10609,27 +10720,27 @@ msgstr ""
 "کلید API خودتان استفاده می‌کنید؛ رمزنگاری‌شده در همین سایت ذخیره می‌شود و "
 "فقط برای درخواست‌های شما به کار می‌رود."
 
-#: includes/Efb/EfbBuilderButton.php:283
+#: includes/Efb/EfbBuilderButton.php:289
 msgid "Pick a service"
 msgstr "یک سرویس انتخاب کنید"
 
-#: includes/Efb/EfbBuilderButton.php:284
+#: includes/Efb/EfbBuilderButton.php:290
 msgid "Paste its API key"
 msgstr "کلید API آن را بچسبانید"
 
-#: includes/Efb/EfbBuilderButton.php:285
+#: includes/Efb/EfbBuilderButton.php:291
 msgid "Test the connection"
 msgstr "اتصال را بیازمایید"
 
-#: includes/Efb/EfbBuilderButton.php:286
+#: includes/Efb/EfbBuilderButton.php:292
 msgid "about 2 minutes"
 msgstr "حدود ۲ دقیقه"
 
-#: includes/Efb/EfbBuilderButton.php:287
+#: includes/Efb/EfbBuilderButton.php:293
 msgid "Set up AI"
 msgstr "راه‌اندازی هوش مصنوعی"
 
-#: includes/Efb/EfbBuilderButton.php:288
+#: includes/Efb/EfbBuilderButton.php:294
 msgid ""
 "Setup opens in a new tab, so nothing on this form is lost. Come back here "
 "and I will be ready."
@@ -10638,77 +10749,164 @@ msgstr ""
 "اینجا برگردید؛ من آماده خواهم بود."
 
 #. translators: 1: AI service name, 2: model name.
-#: includes/Efb/EfbBuilderButton.php:290
+#: includes/Efb/EfbBuilderButton.php:296
 #, php-format
 msgid "Connected to %1$s · %2$s"
 msgstr "وصل به %1$s · %2$s"
 
-#: includes/Efb/EfbBuilderButton.php:291
+#: includes/Efb/EfbBuilderButton.php:297
 msgid "You are all set. Tell me what to change on this form."
 msgstr "همه‌چیز آماده است. بگویید چه چیزی در این فرم تغییر کند."
 
-#: includes/Efb/EfbBuilderButton.php:292
+#: includes/Efb/EfbBuilderButton.php:298
 msgid "I could not do that"
 msgstr "نتوانستم آن را انجام دهم"
 
-#: includes/Efb/EfbBuilderButton.php:302
+#: includes/Efb/EfbBuilderButton.php:308
 msgid "File upload"
 msgstr "بارگذاری فایل"
 
-#: includes/Efb/EfbBuilderButton.php:304
+#: includes/Efb/EfbBuilderButton.php:310
 msgid "Rating"
 msgstr "امتیاز"
 
-#: includes/Efb/EfbBuilderButton.php:305 includes/Efb/EfbFormReview.php:105
+#: includes/Efb/EfbBuilderButton.php:311 includes/Efb/EfbFormReview.php:105
 msgid "Consent"
 msgstr "رضایت"
 
-#: includes/Efb/EfbBuilderButton.php:306
+#: includes/Efb/EfbBuilderButton.php:312
 msgid "Priced choice"
 msgstr "گزینهٔ قیمت‌دار"
 
-#: includes/Efb/EfbBuilderButton.php:307 includes/Efb/EfbFormConverter.php:52
+#: includes/Efb/EfbBuilderButton.php:313 includes/Efb/EfbFormConverter.php:52
 msgid "Amount"
 msgstr "مبلغ"
 
-#: includes/Efb/EfbBuilderButton.php:308 includes/Efb/EfbFormConverter.php:53
+#: includes/Efb/EfbBuilderButton.php:314 includes/Efb/EfbFormConverter.php:53
 #: includes/Support/PrivacyTools.php:151
 msgid "Total"
 msgstr "جمع"
 
-#: includes/Efb/EfbBuilderButton.php:309
+#: includes/Efb/EfbBuilderButton.php:315
 msgid "Payment"
 msgstr "پرداخت"
 
-#: includes/Efb/EfbBuilderButton.php:310
+#. translators: %s: Easy Form Builder add-on name.
+#: includes/Efb/EfbBuilderButton.php:318
+#, php-format
+msgid "%s needs a higher Easy Form Builder plan"
+msgstr "%s به پلن بالاتری از Easy Form Builder نیاز دارد"
+
+#: includes/Efb/EfbBuilderButton.php:319
+msgid "This add-on comes with Easy Form Builder Free Plus and Pro."
+msgstr "این افزونه با Easy Form Builder نسخهٔ Free Plus و Pro ارائه می‌شود."
+
+#: includes/Efb/EfbBuilderButton.php:320
+msgid "This add-on comes with Easy Form Builder Pro."
+msgstr "این افزونه با Easy Form Builder نسخهٔ Pro ارائه می‌شود."
+
+#: includes/Efb/EfbBuilderButton.php:321
+msgid "See plans"
+msgstr "دیدن پلن‌ها"
+
+#. translators: %s: Easy Form Builder add-on name.
+#: includes/Efb/EfbBuilderButton.php:326
+#, php-format
+msgid "This needs the %s add-on"
+msgstr "این کار به افزونهٔ %s نیاز دارد"
+
+#. translators: %s: Easy Form Builder add-on name.
+#: includes/Efb/EfbBuilderButton.php:328
+#, php-format
+msgid ""
+"May I install the %s add-on from Easy Form Builder now? The page reloads "
+"when it is done."
+msgstr ""
+"اجازه می‌دهید افزونهٔ %s را از Easy Form Builder همین حالا نصب کنم؟ پس از "
+"نصب، صفحه دوباره بارگذاری می‌شود."
+
+#. translators: %s: number of unsaved changes.
+#: includes/Efb/EfbBuilderButton.php:330
+#, php-format
+msgid ""
+"Save the form in Easy Form Builder first: %s change(s) are not saved yet and"
+" a reload would lose them."
+msgstr ""
+"اول فرم را در Easy Form Builder ذخیره کنید: %s تغییر هنوز ذخیره نشده و "
+"بارگذاری دوباره آن‌ها را از بین می‌برد."
+
+#: includes/Efb/EfbBuilderButton.php:331
+msgid "Nothing was installed."
+msgstr "چیزی نصب نشد."
+
+#: includes/Efb/EfbBuilderButton.php:332
+msgid "Installing…"
+msgstr "در حال نصب…"
+
+#: includes/Efb/EfbBuilderButton.php:333
+msgid "Installed. Save the form, then reload the page to use it."
+msgstr ""
+"نصب شد. فرم را ذخیره کنید و سپس صفحه را دوباره بارگذاری کنید تا از آن "
+"استفاده کنید."
+
+#: includes/Efb/EfbBuilderButton.php:334
+msgid "Installed. Reloading so Easy Form Builder can load it…"
+msgstr ""
+"نصب شد. صفحه دوباره بارگذاری می‌شود تا Easy Form Builder آن را بارگذاری کند…"
+
+#: includes/Efb/EfbBuilderButton.php:335
+msgid ""
+"Easy Form Builder could not install it. Try again from Easy Form Builder → "
+"Add-ons."
+msgstr ""
+"Easy Form Builder نتوانست آن را نصب کند. دوباره از Easy Form Builder ← "
+"افزونه‌ها امتحان کنید."
+
+#: includes/Efb/EfbBuilderButton.php:336
+msgid ""
+"Your request from Form Studio is in the message box. Send it and I will "
+"build the full form here."
+msgstr ""
+"درخواست شما از Form Studio در کادر پیام است. آن را بفرستید تا فرم کامل را "
+"اینجا بسازم."
+
+#: includes/Efb/EfbBuilderButton.php:337
+msgid ""
+"The add-on is ready. Your request is in the message box: send it again when "
+"you are ready."
+msgstr ""
+"افزونه آماده است. درخواست شما در کادر پیام است؛ هر وقت آماده بودید دوباره "
+"بفرستید."
+
+#: includes/Efb/EfbBuilderButton.php:338
 msgid "Yes / No"
 msgstr "بله / خیر"
 
-#: includes/Efb/EfbBuilderButton.php:324
+#: includes/Efb/EfbBuilderButton.php:352
 msgid "Ask AI"
 msgstr "بپرس از هوش مصنوعی"
 
-#: includes/Efb/EfbBuilderButton.php:336 includes/Efb/EfbBuilderButton.php:341
+#: includes/Efb/EfbBuilderButton.php:364 includes/Efb/EfbBuilderButton.php:369
 msgid "AI Site Assistant"
 msgstr "دستیار هوشمند سایت"
 
-#: includes/Efb/EfbBuilderButton.php:344
+#: includes/Efb/EfbBuilderButton.php:372
 msgid "New chat"
 msgstr "گفت‌وگوی تازه"
 
-#: includes/Efb/EfbBuilderButton.php:345
+#: includes/Efb/EfbBuilderButton.php:373
 msgid "Close (Esc)"
 msgstr "بستن (Esc)"
 
-#: includes/Efb/EfbBuilderButton.php:354
+#: includes/Efb/EfbBuilderButton.php:382
 msgid "Clear the selected field"
 msgstr "پاک کردن فیلد انتخاب‌شده"
 
-#: includes/Efb/EfbBuilderButton.php:357
+#: includes/Efb/EfbBuilderButton.php:385
 msgid "Message AI Site Assistant"
 msgstr "پیام به دستیار هوشمند سایت"
 
-#: includes/Efb/EfbBuilderButton.php:359
+#: includes/Efb/EfbBuilderButton.php:387
 msgid "Speak a message"
 msgstr "پیام را بگویید"
 
@@ -11630,47 +11828,47 @@ msgstr "سپاسگزاریم."
 msgid "— Select —"
 msgstr "— انتخاب کنید —"
 
-#: includes/Frontend/FormShortcode.php:227
+#: includes/Frontend/FormShortcode.php:239
 msgid "Invalid form submission."
 msgstr "ارسال فرم نامعتبر است."
 
-#: includes/Frontend/FormShortcode.php:232
-#: includes/Frontend/FormShortcode.php:237
+#: includes/Frontend/FormShortcode.php:244
+#: includes/Frontend/FormShortcode.php:249
 msgid "Form not found."
 msgstr "فرم یافت نشد."
 
-#: includes/Frontend/FormShortcode.php:302
+#: includes/Frontend/FormShortcode.php:314
 msgid "New AISAAutoPilot Form submission"
 msgstr "ارسال تازه از فرم AISAAutoPilot"
 
 #. translators: %s: the title of the submitted form.
-#: includes/Frontend/FormShortcode.php:304
+#: includes/Frontend/FormShortcode.php:316
 #, php-format
 msgid "Form: %s"
 msgstr "فرم: %s"
 
-#: includes/Frontend/FormShortcode.php:316
+#: includes/Frontend/FormShortcode.php:328
 msgid "(No optional fields were completed.)"
 msgstr "(هیچ فیلد اختیاری‌ای پر نشده است.)"
 
-#: includes/Frontend/FormShortcode.php:367
+#: includes/Frontend/FormShortcode.php:379
 msgid "Please check the required fields and try again."
 msgstr "لطفاً فیلدهای الزامی را بررسی و دوباره تلاش کنید."
 
-#: includes/Frontend/FormShortcode.php:368
+#: includes/Frontend/FormShortcode.php:380
 msgid "Too many submissions. Please wait a few minutes and try again."
 msgstr "ارسال‌های زیاد. لطفاً چند دقیقه صبر کنید و دوباره تلاش کنید."
 
-#: includes/Frontend/FormShortcode.php:369
+#: includes/Frontend/FormShortcode.php:381
 msgid ""
 "Please complete the spam check above the button and send the form again."
 msgstr "لطفاً بررسی اسپم بالای دکمه را کامل کنید و فرم را دوباره بفرستید."
 
-#: includes/Frontend/FormShortcode.php:370
+#: includes/Frontend/FormShortcode.php:382
 msgid "We could not send your submission. Please try again later."
 msgstr "ارسال فرم شما ممکن نشد. لطفاً بعداً دوباره تلاش کنید."
 
-#: includes/Frontend/FormShortcode.php:372
+#: includes/Frontend/FormShortcode.php:384
 msgid "We could not process your submission. Please try again."
 msgstr "پردازش ارسال شما ممکن نشد. لطفاً دوباره تلاش کنید."
 

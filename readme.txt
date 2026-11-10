@@ -490,6 +490,16 @@ editable text; nothing is sent until you press Send.
   a plain request, in any language. It checks the add-on, the Pro licence and
   whether keys are saved (never reading them), asks for a price instead of
   guessing, shows every price in the preview, and saves a payment form.
+* The Easy Form Builder copilot plans conditional logic for new forms as well
+  as open ones (show, hide, require, show a step, jump to a step, any/all,
+  number thresholds, empty or not), places new fields after or before a named
+  field and moves fields. When a request needs an add-on (Conditional Logic,
+  Stripe, PayPal, ZarinPal) it asks first, then installs it through Easy Form
+  Builder's own installer. It explains Free Plus limits (three rules of two
+  conditions) and Free's two pages, and suggests Pro or a simpler form.
+* Form Studio names what a native form leaves out (payment, upload, logic,
+  steps, signature) and carries the request into the Easy Form Builder
+  copilot, or offers to install Easy Form Builder.
 * Admin rebuilt around eight screens: Overview (with Usage & Cost, Health and
   Activity Log as tabs), Setup & Connection, Integrations, Site Knowledge,
   Answer Desk, Store Copilot, Content Studio and Form Studio.
