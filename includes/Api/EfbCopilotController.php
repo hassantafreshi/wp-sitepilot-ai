@@ -587,7 +587,8 @@ final class EfbCopilotController {
 									'payment' => $payment_check['payment'],
 								),
 							),
-							$pay_status
+							$pay_status,
+							false
 						)
 					);
 				} else {

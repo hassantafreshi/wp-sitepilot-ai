@@ -423,12 +423,17 @@ storing anything about the shopper.
 
 = Can I make a payment, upload, login or multi-step form? =
 
-Not with the plugin's own native forms. Install Easy Form Builder for these.
-With it, the copilot can build multi-step forms and file uploads on any EFB
-plan, and drag-and-drop uploads, signatures, ratings, matrix questions and
-consent checkboxes on EFB's Free Plus or Pro plan. With EFB's Conditional Logic
-add-on it can also add show/hide rules. Payments, prices, login and registration forms are
-never set up by AI; configure them in Easy Form Builder yourself.
+Not with the plugin's own native forms (they take text, email, phone, web
+address, number, date, choices and consent, and arrive by email). Install Easy
+Form Builder for the rest. With it, the copilot can build multi-step forms and
+file uploads on any EFB plan, and drag-and-drop uploads, signatures, ratings,
+matrix questions and consent checkboxes on EFB's Free Plus or Pro plan. With
+EFB's Conditional Logic add-on it can also add show/hide rules. With EFB Pro
+and the Stripe, PayPal or ZarinPal add-on switched on, it can add online
+payment: priced choices or an amount, the total and the gateway field, using
+only the prices and the currency you give it. It never reads or writes your
+payment keys (add those in the gateway's own EFB settings page), and login and
+registration forms are never set up by AI.
 
 = Can AI choose the email recipient? =
 
@@ -473,6 +478,18 @@ editable text; nothing is sent until you press Send.
 
 = 0.0.1 =
 * First release.
+* Form Studio puts fields in columns (full, three quarters, two thirds, half, a
+  third or a quarter) in the preview and on the published form, and the AI sets
+  them from words like "first and last name side by side". Click a field in the
+  list or the preview to select it: the chat shows what you are editing, and a
+  message about it ("make this required") reaches the AI with the whole form.
+  Width, required, label, placeholder, hint, order and removal change with a
+  click and no AI call, and Undo takes a change back. Native forms gain number,
+  date and web-address fields with limits checked on the server.
+* The Easy Form Builder copilot can add Stripe, PayPal or ZarinPal payment from
+  a plain request, in any language. It checks the add-on, the Pro licence and
+  whether keys are saved (never reading them), asks for a price instead of
+  guessing, shows every price in the preview, and saves a payment form.
 * Admin rebuilt around eight screens: Overview (with Usage & Cost, Health and
   Activity Log as tabs), Setup & Connection, Integrations, Site Knowledge,
   Answer Desk, Store Copilot, Content Studio and Form Studio.

@@ -170,6 +170,10 @@ try {
 		&& 4 === count( $pf ) && 'payRadio' === ( $pf[2]['type'] ?? '' ) && array( 'Booking deposit — 50 USD' ) === ( $pf[2]['options'] ?? array() ) && 'stripe' === ( $pf[3]['type'] ?? '' ),
 		'A new payment form is previewed with every price in plain sight'
 	);
+	$check(
+		false !== strpos( implode( ' ', (array) ( $new['errors'] ?? array() ) ), 'shown in the preview' ) && false === strpos( implode( ' ', (array) ( $new['errors'] ?? array() ) ), 'in the form now' ),
+		'A new form says the prices are in the preview to check before creating, not that they are already in the form'
+	);
 	$request = new WP_REST_Request( 'POST', '/aisaautopilot/v1/efb/create' );
 	$request->set_param( 'action_id', (string) ( $new['action_id'] ?? '' ) );
 	$done    = rest_do_request( $request )->get_data();

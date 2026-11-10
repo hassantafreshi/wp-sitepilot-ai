@@ -109,7 +109,8 @@
 
 | مسیر | متد | مجوز | کاربرد |
 |---|---|---|---|
-| `/forms/plan` | POST | `can_manage_form_composer` | تبدیل درخواست به plan اعتبارسنجی‌شده و ذخیرهٔ پیشنهاد در `ActionStore` برای 15 دقیقه |
+| `/forms/plan` | POST | `can_manage_form_composer` | تبدیل درخواست به plan اعتبارسنجی‌شده و ذخیرهٔ پیشنهاد در `ActionStore` برای 15 دقیقه. پارامترهای اختیاری `revise_of` (شناسهٔ proposal در حال تغییر؛ سرور کل plan را به مدل می‌دهد) و `selected` (کلید فیلد انتخاب‌شده؛ فقط اگر فیلد همان plan باشد پاس داده می‌شود) |
+| `/forms/edit` | POST | `can_manage_form_composer` | تا ۲۰ عملیات قطعی روی یک proposal همان مدیر (`set_width`، `set_required`، `set_text`، `move`، `remove`، `add_option`، `remove_option`، `set_form`) بدون تماس با AI؛ validator دوباره اجرا می‌شود و proposal تازه برمی‌گردد (قبلی تا انقضا معتبر می‌ماند و Undo از آن استفاده می‌کند). proposal منقضی یا متعلق به مدیر دیگر: 410 `plan_expired` |
 | `/forms/execute` | POST | `can_manage_form_composer` | تأیید و اجرای پیشنهاد: claim اتمی، اعتبارسنجی دوباره، connector و لاگ |
 | `/forms/voice/transcribe` | POST | `can_manage_form_composer` | تبدیل گفتار Form Composer |
 | `/forms/delivery/test` | POST | `can_manage` | ایمیل آزمون به نشانی ذخیره‌شدهٔ دریافت پاسخ فرم |

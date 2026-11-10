@@ -70,6 +70,40 @@ extends the list. Each administrator can hide the warning on that site through
 `POST /integrations/conflicts/dismiss`, which accepts only plugins detected
 right now; another plugin from the list activated later brings it back. Nothing is sent anywhere.
 
+**Form Studio columns, selection and click edits** — Every field has a width
+in twelfths of a row (`full`, `three_quarters`, `two_thirds`, `half`, `third`,
+`quarter`); fields flow left to right and wrap, in the preview and on the
+published form (`aisaautopilot-form__row--{width}`, a 12-column grid that pairs
+thirds and quarters in a column under 560px and stacks everything under 360px).
+Clicking a field selects it in the list and the preview; the chat shows an
+"Editing" chip, names it on the message ("About: Email"), and `POST /forms/plan`
+takes `revise_of` (the proposal being changed) and `selected` (a field key) so
+the server hands the model the whole current plan, not a summary. `POST
+/forms/edit` applies up to 20 deterministic operations (`set_width`,
+`set_required`, `set_text`, `move`, `remove`, `add_option`, `remove_option`,
+`set_form`) to a proposal of the same administrator, re-validates it and returns
+a new proposal; the earlier one stays valid until it expires, which is what Undo
+uses. An expired or foreign proposal answers 410 `plan_expired` and costs no AI
+request. Native forms add `number`, `date` and `url` fields; a field that already
+has a key keeps it through a change. Hints render under their field and are
+linked with `aria-describedby`.
+
+**Easy Form Builder payment** — The copilot plans online payment with a new
+`add_payment` operation (and a `payment` object on a new form): `gateway`
+(`stripe`, `paypal`, `zarinpal`), `currency`, priced `items` or an
+`amount_label`. `EfbPayments` validates it: a known gateway, EFB Pro, the
+gateway's add-on switched on (the browser reports only on or off for `AdnSPF`,
+`AdnPAP` and `AdnPPF`), a currency that gateway accepts, and a price that came
+from the request; anything else is refused with a plain reason and the link that
+fixes it (Add-ons, Pro, or the gateway's settings page). Keys are never read into
+the prompt: only whether `stripePKey`, `stripeSKey` or `paypalPKey` has a value.
+The fields are built like EFB's own (priced choice with `price` on each option,
+a total, the gateway field) and the form takes the settings EFB writes itself
+(`type: payment`, `getway`, `currency`, `paymentmethod`); a form saved with a
+payment gets `form_type = payment`. One gateway per form. The preview of a new
+form lists every price. The help lookup no longer matches on common words, so a
+payment question is not answered with an unrelated article.
+
 **Content Studio voice** — Write offers three voices as a keyboard-accessible
 radio group: Learned from your site (the default, which sends exactly the same
 prompt as before), Formal and Plain. `POST /content/plan` takes `tone`
