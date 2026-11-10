@@ -1,8 +1,34 @@
 /* AI Site Assistant AutoPilot — front-end form styles. Minimal, inherits theme fonts. */
 
 .aisaautopilot-form {
-	max-width: 560px;
+	max-width: 720px;
 	margin: 1.5em 0;
+	container-type: inline-size;
+}
+
+/* Fields flow left to right in twelfths of a row and wrap; a narrow form stacks them. */
+.aisaautopilot-form__fields {
+	display: grid;
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	column-gap: 16px;
+}
+.aisaautopilot-form__row { grid-column: span 12; min-width: 0; }
+.aisaautopilot-form__row--three_quarters { grid-column: span 9; }
+.aisaautopilot-form__row--two_thirds { grid-column: span 8; }
+.aisaautopilot-form__row--half { grid-column: span 6; }
+.aisaautopilot-form__row--third { grid-column: span 4; }
+.aisaautopilot-form__row--quarter { grid-column: span 3; }
+@container (max-width: 520px) {
+	.aisaautopilot-form__row[class*="aisaautopilot-form__row--"] { grid-column: span 12; }
+}
+@media (max-width: 520px) {
+	.aisaautopilot-form__row[class*="aisaautopilot-form__row--"] { grid-column: span 12; }
+}
+
+.aisaautopilot-form__help {
+	color: #646970;
+	font-size: 13px;
+	line-height: 1.4;
 }
 
 .aisaautopilot-form__desc {
@@ -28,6 +54,9 @@
 .aisaautopilot-form input[type="text"],
 .aisaautopilot-form input[type="email"],
 .aisaautopilot-form input[type="tel"],
+.aisaautopilot-form input[type="url"],
+.aisaautopilot-form input[type="number"],
+.aisaautopilot-form input[type="date"],
 .aisaautopilot-form select,
 .aisaautopilot-form textarea {
 	width: 100%;

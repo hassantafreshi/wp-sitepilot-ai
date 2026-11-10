@@ -14,6 +14,8 @@ use AISAAutoPilot\Providers\ModelCatalogInterface;
 use AISAAutoPilot\Providers\ProviderException;
 use AISAAutoPilot\Providers\ProviderManager;
 use AISAAutoPilot\Skills\CreateFormSkill;
+use AISAAutoPilot\Skills\FormPlanEditor;
+use AISAAutoPilot\Skills\FormPlanValidator;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -59,8 +61,20 @@ final class CopilotController {
 
 		$skill = new CreateFormSkill( $this->providers->make() );
 
+		// A change to the plan already on the canvas: the server holds the full plan, so the model
+		// gets every detail of it (widths, hints, order) and not a summary the browser rebuilt.
+		$revise_of = sanitize_text_field( (string) $request->get_param( 'revise_of' ) );
+		$base      = null;
+		if ( '' !== $revise_of ) {
+			$base = $this->own_plan( $revise_of );
+			if ( null === $base ) {
+				return $this->respond( array( 'message' => __( 'That draft has expired. Describe the form again to start a new one.', 'ai-site-assistant-autopilot' ) ), false, 410, 'plan_expired' );
+			}
+		}
+		$selected_key = $this->field_key( (string) $request->get_param( 'selected' ), $base );
+
 		try {
-			$result = $skill->plan( $prompt );
+			$result = null === $base ? $skill->plan( $prompt ) : $skill->revise( $base, $prompt, $selected_key );
 		} catch ( ProviderException $e ) {
 			$this->logger->error( 'plan.provider_error', $e->getMessage(), array( 'code' => $e->error_code() ) );
 
@@ -89,6 +103,91 @@ final class CopilotController {
 			return $this->respond( array( 'message' => __( 'AISAAutoPilot Forms is not available on this site.', 'ai-site-assistant-autopilot' ) ), false, 400, 'connector_not_available' );
 		}
 
+		return $this->finish_plan( $result->plan, $connector, 'plan.created', null !== $base );
+	}
+
+	/**
+	 * Deterministic edits to the plan on the canvas (width, required, text, order, remove). No AI
+	 * call, so a click costs nothing; the result is validated like any other plan.
+	 */
+	public function edit( WP_REST_Request $request ): WP_REST_Response {
+		if ( ! Settings::get( 'form_composer_enabled', true ) ) {
+			return $this->respond( array( 'message' => __( 'Form Studio is turned off in Integrations.', 'ai-site-assistant-autopilot' ) ), false, 403, 'integration_disabled' );
+		}
+		$base = $this->own_plan( sanitize_text_field( (string) $request->get_param( 'action_id' ) ) );
+		if ( null === $base ) {
+			return $this->respond( array( 'message' => __( 'That draft has expired. Describe the form again to start a new one.', 'ai-site-assistant-autopilot' ) ), false, 410, 'plan_expired' );
+		}
+		$ops = $request->get_param( 'ops' );
+		if ( ! is_array( $ops ) || array() === $ops || count( $ops ) > 20 ) {
+			return $this->respond( array( 'message' => __( 'Nothing to change.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_payload' );
+		}
+
+		$edited = FormPlanEditor::apply( $base, $ops );
+		if ( null === $edited ) {
+			return $this->respond( array( 'message' => __( 'That change could not be applied to the form.', 'ai-site-assistant-autopilot' ) ), false, 422, 'edit_failed' );
+		}
+		$result = ( new FormPlanValidator() )->validate( $edited );
+		if ( ! $result->ok ) {
+			return $this->respond(
+				array(
+					'message' => __( 'The form plan was not safe or complete.', 'ai-site-assistant-autopilot' ),
+					'errors'  => $result->errors,
+				),
+				false,
+				422,
+				'validation_failed'
+			);
+		}
+		$connector = $this->registry()->get( 'native_form' );
+		if ( null === $connector || ! $connector->is_available() ) {
+			return $this->respond( array( 'message' => __( 'AISAAutoPilot Forms is not available on this site.', 'ai-site-assistant-autopilot' ) ), false, 400, 'connector_not_available' );
+		}
+
+		return $this->finish_plan( $result->plan, $connector, 'plan.edited', true );
+	}
+
+	/**
+	 * The stored plan of an unexpired proposal this administrator made for native forms.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	private function own_plan( string $action_id ): ?array {
+		if ( '' === $action_id ) {
+			return null;
+		}
+		$record = $this->store->get( $action_id );
+		if ( null === $record || (int) ( $record['user_id'] ?? 0 ) !== get_current_user_id() || 'native_form' !== ( $record['connector_id'] ?? '' ) ) {
+			return null;
+		}
+
+		return is_array( $record['plan'] ?? null ) ? $record['plan'] : null;
+	}
+
+	/**
+	 * A selected field is only passed on when it really is a field of the plan.
+	 *
+	 * @param array<string,mixed>|null $plan
+	 */
+	private function field_key( string $key, ?array $plan ): ?string {
+		if ( null === $plan || '' === $key ) {
+			return null;
+		}
+		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
+			if ( is_array( $field ) && ( $field['key'] ?? '' ) === $key ) {
+				return $key;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store a validated plan as a pending proposal and answer with its preview.
+	 *
+	 * @param array<string,mixed> $plan
+	 */
+	private function finish_plan( array $plan, \AISAAutoPilot\Connectors\ConnectorInterface $connector, string $event, bool $revised ): WP_REST_Response {
 		$notification_email = Settings::form_notification_email();
 		if ( '' === $notification_email ) {
 			return $this->respond(
@@ -99,7 +198,6 @@ final class CopilotController {
 			);
 		}
 
-		$plan                       = $result->plan;
 		$plan['notification_email'] = $notification_email;
 
 		$default_status = 'publish' === Settings::get( 'default_form_status', 'draft' ) ? 'publish' : 'draft';
@@ -109,11 +207,12 @@ final class CopilotController {
 			array( 'status' => $default_status )
 		);
 		$this->logger->info(
-			'plan.created',
+			$event,
 			'Form plan generated.',
 			array(
 				'connector'   => $connector->get_id(),
 				'field_count' => count( $plan['fields'] ),
+				'revised'     => $revised,
 			)
 		);
 		return $this->respond(
@@ -273,10 +372,15 @@ final class CopilotController {
 			'fields'               => array_map(
 				static function ( array $f ): array {
 					return array(
-						'label'    => $f['label'],
-						'type'     => $f['type'],
-						'required' => (bool) $f['required'],
-						'options'  => $f['options'],
+						'key'         => $f['key'],
+						'label'       => $f['label'],
+						'type'        => $f['type'],
+						'required'    => (bool) $f['required'],
+						'placeholder' => $f['placeholder'] ?? '',
+						'help'        => $f['help'] ?? '',
+						'width'       => $f['width'] ?? 'full',
+						'options'     => $f['options'],
+						'settings'    => $f['settings'] ?? array(),
 					);
 				},
 				$plan['fields']

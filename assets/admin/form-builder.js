@@ -20,8 +20,13 @@
 	var expiresAt = null;
 	var expiryTimer = null;
 	var lastPrompt = '';
+	var lastExtra = null;
 	var working = false;
 	var checking = false;
+	// The field the administrator clicked: the chat then talks about it ("make this required").
+	var selectedKey = '';
+	// Earlier versions of the plan, newest last, so a change can be taken back while it is still valid.
+	var undoStack = [];
 
 	// The open plan survives a reload in this tab until it is approved, rejected or expires.
 	var SAVED_PLAN = 'aisaautopilot.formStudio.plan';
@@ -105,7 +110,7 @@
 
 	function setCtx( text ) { var node = document.querySelector( '[data-sp-fc-ctx]' ); if ( node ) { node.textContent = text; } }
 
-	var TYPES = { text: [ 'typeText', 'Text', 'text' ], email: [ 'typeEmail', 'Email', 'mail' ], tel: [ 'typeTel', 'Phone', 'phone' ], textarea: [ 'typeTextarea', 'Long text', 'para' ], select: [ 'typeSelect', 'Dropdown', 'select' ], checkbox: [ 'typeCheckbox', 'Checkboxes', 'checkbox' ], radio: [ 'typeRadio', 'Choice', 'radio' ] };
+	var TYPES = { text: [ 'typeText', 'Text', 'text' ], email: [ 'typeEmail', 'Email', 'mail' ], tel: [ 'typeTel', 'Phone', 'phone' ], url: [ 'typeUrl', 'Web address', 'link' ], number: [ 'typeNumber', 'Number', 'hash' ], date: [ 'typeDate', 'Date', 'calendar' ], textarea: [ 'typeTextarea', 'Long text', 'para' ], select: [ 'typeSelect', 'Dropdown', 'select' ], checkbox: [ 'typeCheckbox', 'Checkboxes', 'checkbox' ], radio: [ 'typeRadio', 'Choice', 'radio' ] };
 	function typeLabel( type ) { var entry = TYPES[ type ]; return entry ? t( entry[ 0 ], entry[ 1 ] ) : String( type || '' ); }
 	function typeIcon( type ) { var entry = TYPES[ type ]; return entry ? entry[ 2 ] : 'text'; }
 
@@ -113,8 +118,10 @@
 
 	function thread() { return byId( 'aisaautopilot-thread' ); }
 	function scrollDown() { var node = thread(); if ( node ) { node.scrollTop = node.scrollHeight; } }
-	function addUser( text ) {
-		thread().appendChild( el( 'div', { class: 'aisa-ai-user', dir: 'auto', text: text } ) );
+	function addUser( text, about ) {
+		// A message about a picked field says so, so the thread reads back as it was meant.
+		var node = el( 'div', { class: 'aisa-ai-user', dir: 'auto' }, [ about ? el( 'small', { class: 'aisa-ai-user__about', 'data-sp-about': '', text: t( 'aboutField', 'About: %s', about ) } ) : null, el( 'span', { text: text } ) ] );
+		thread().appendChild( node );
 		scrollDown();
 	}
 	function addAi( content ) {
@@ -190,34 +197,51 @@
 		if ( 'preview' === tab ) { var dot = document.querySelector( '[data-sp-fc-tab-dot]' ); if ( dot ) { dot.hidden = true; } }
 	}
 
+	// Column widths in twelfths of a row, the same table the server and the visitor's form use.
+	var WIDTHS = { full: 12, three_quarters: 9, two_thirds: 8, half: 6, third: 4, quarter: 3 };
+	var WIDTH_CHOICES = [ [ 'full', '1', 'widthFull', 'Full width' ], [ 'three_quarters', '¾', 'widthThreeQuarters', 'Three quarters' ], [ 'two_thirds', '⅔', 'widthTwoThirds', 'Two thirds' ], [ 'half', '½', 'widthHalf', 'Half' ], [ 'third', '⅓', 'widthThird', 'One third' ], [ 'quarter', '¼', 'widthQuarter', 'One quarter' ] ];
+	function widthOf( field ) { return WIDTHS[ field && field.width ] ? field.width : 'full'; }
+	function widthBadge( field ) { var w = widthOf( field ); var found = WIDTH_CHOICES.filter( function ( c ) { return c[ 0 ] === w; } )[ 0 ]; return found ? found[ 1 ] : '1'; }
+	function fieldByKey( key ) { var list = ( preview && preview.fields ) || []; for ( var i = 0; i < list.length; i++ ) { if ( list[ i ].key === key ) { return list[ i ]; } } return null; }
+
 	function renderPlanCanvas( plan ) {
 		var content = byId( 'aisaautopilot-review-content' );
 		content.textContent = '';
 		var rows = el( 'ul', { class: 'sp-fc-fieldlist' } );
 		( plan.fields || [] ).forEach( function ( field ) {
 			var meta = typeLabel( field.type ) + ( ( field.options || [] ).length ? ' · ' + field.options.join( ', ' ) : '' );
-			rows.appendChild( el( 'li', {}, [
+			var pick = el( 'button', { type: 'button', class: 'sp-fc-fieldlist__pick', 'data-sp-field-key': field.key || '', 'aria-pressed': 'false' }, [
 				el( 'span', { class: 'aisa-ai-ic' }, [ icon( typeIcon( field.type ), 14 ) ] ),
-				el( 'span', { class: 'sp-fc-fieldlist__main', dir: 'auto' }, [ field.label || '', field.required ? el( 'span', { class: 'sp-fc-req', text: ' *' } ) : null, el( 'small', { text: meta } ) ] )
-			] ) );
+				el( 'span', { class: 'sp-fc-fieldlist__main', dir: 'auto' }, [ field.label || '', field.required ? el( 'span', { class: 'sp-fc-req', text: ' *' } ) : null, el( 'small', { text: meta } ) ] ),
+				'full' === widthOf( field ) ? null : el( 'span', { class: 'sp-fc-fieldlist__width', 'data-sp-field-width': widthOf( field ), title: t( 'widthTitle', 'Width: %s', widthName( widthOf( field ) ) ), text: widthBadge( field ) } )
+			] );
+			pick.addEventListener( 'click', function () { selectField( field.key === selectedKey ? '' : field.key ); } );
+			rows.appendChild( el( 'li', {}, [ pick ] ) );
 		} );
 		var formNode = previewForm( plan );
 		var desktop = el( 'button', { type: 'button', class: 'sp-seg__btn is-on', 'aria-pressed': 'true' }, [ icon( 'monitor', 14 ), el( 'span', { text: t( 'desktop', 'Desktop' ) } ) ] );
 		var mobile = el( 'button', { type: 'button', class: 'sp-seg__btn', 'aria-pressed': 'false' }, [ icon( 'mobile', 14 ), el( 'span', { text: t( 'mobile', 'Mobile' ) } ) ] );
 		desktop.addEventListener( 'click', function () { desktop.classList.add( 'is-on' ); mobile.classList.remove( 'is-on' ); desktop.setAttribute( 'aria-pressed', 'true' ); mobile.setAttribute( 'aria-pressed', 'false' ); formNode.classList.remove( 'is-mobile' ); } );
 		mobile.addEventListener( 'click', function () { mobile.classList.add( 'is-on' ); desktop.classList.remove( 'is-on' ); mobile.setAttribute( 'aria-pressed', 'true' ); desktop.setAttribute( 'aria-pressed', 'false' ); formNode.classList.add( 'is-mobile' ); } );
+		var undo = el( 'button', { type: 'button', class: 'sp-seg__btn sp-fc-undo', 'data-sp-fc-undo': '', disabled: undoStack.length ? null : true, title: t( 'undoTitle', 'Take back the last change' ) }, [ icon( 'undo', 14 ), el( 'span', { text: t( 'undo', 'Undo' ) } ) ] );
+		undo.addEventListener( 'click', undoChange );
 		content.appendChild( el( 'div', { class: 'sp-fc-plan__grid', 'data-sp-form-review-canvas': '' }, [
 			el( 'section', { class: 'sp-fc-plan__fields', 'aria-label': t( 'fields', 'Fields' ) }, [
 				el( 'h2', {}, [ t( 'fields', 'Fields' ), el( 'span', { class: 'aisa-ai-tag', text: String( ( plan.fields || [] ).length ) } ) ] ),
+				el( 'p', { class: 'sp-fc-plan__hint' }, [ t( 'pickHint', 'Click a field, here or in the preview, to change it or to ask the assistant about it.' ) ] ),
 				rows,
+				el( 'div', { class: 'sp-fc-inspector', 'data-sp-field-inspector': '', hidden: true } ),
 				el( 'p', { class: 'sp-fc-plan__never' }, [ icon( 'shield', 14 ), el( 'span', { text: t( 'neverIncluded', 'Native forms never include payments, passwords or sign-ups.' ) } ) ] )
 			] ),
 			el( 'section', { class: 'sp-fc-plan__preview', 'aria-label': t( 'preview', 'Preview' ) }, [
-				el( 'div', { class: 'sp-fc-plan__bar' }, [ el( 'span', { text: t( 'preview', 'Preview' ) } ), el( 'div', { class: 'sp-seg' }, [ desktop, mobile ] ) ] ),
+				el( 'div', { class: 'sp-fc-plan__bar' }, [ el( 'span', { text: t( 'preview', 'Preview' ) } ), el( 'div', { class: 'sp-fc-plan__tools' }, [ undo, el( 'div', { class: 'sp-seg' }, [ desktop, mobile ] ) ] ) ] ),
 				el( 'div', { class: 'sp-preview' }, [ formNode ] )
 			] )
 		] ) );
+		renderSelection();
 	}
+
+	function widthName( width ) { var found = WIDTH_CHOICES.filter( function ( c ) { return c[ 0 ] === width; } )[ 0 ]; return found ? t( found[ 2 ], found[ 3 ] ) : width; }
 
 	function previewForm( plan ) {
 		// Visitors read the form in the site language and direction, which may differ from the admin's.
@@ -227,7 +251,9 @@
 			el( 'h3', { class: 'sp-preview__title', dir: 'auto', text: plan.title || '' } ),
 			plan.description ? el( 'p', { class: 'sp-preview__lede', dir: 'auto', text: plan.description } ) : null
 		] ) );
-		( plan.fields || [] ).forEach( function ( field, index ) { form.appendChild( previewField( field, index ) ); } );
+		var grid = el( 'div', { class: 'sp-preview__fields' } );
+		( plan.fields || [] ).forEach( function ( field, index ) { grid.appendChild( previewField( field, index ) ); } );
+		form.appendChild( grid );
 		form.appendChild( el( 'button', { type: 'button', class: 'sp-preview__submit', text: plan.submit_button || 'Send' } ) );
 		return form;
 	}
@@ -237,23 +263,154 @@
 		var control;
 		var options = field.options || [];
 		if ( 'textarea' === field.type ) {
-			control = el( 'textarea', { id: id, disabled: true } );
+			control = el( 'textarea', { id: id, disabled: true, placeholder: field.placeholder || null, tabindex: '-1' } );
 		} else if ( 'select' === field.type ) {
-			control = el( 'select', { id: id, disabled: true } );
+			control = el( 'select', { id: id, disabled: true, tabindex: '-1' } );
 			options.forEach( function ( option ) { control.appendChild( el( 'option', { text: option } ) ); } );
 		} else if ( 'radio' === field.type || 'checkbox' === field.type ) {
 			control = el( 'div', { class: 'sp-stack sp-stack--sm' } );
+			if ( 'checkbox' === field.type && ! options.length ) { options = [ field.label || '' ]; }
 			options.forEach( function ( option, i ) {
-				control.appendChild( el( 'label', { class: 'sp-check' }, [ el( 'input', { type: field.type, name: id, id: id + '-' + i, disabled: true } ), el( 'span', { text: option } ) ] ) );
+				control.appendChild( el( 'span', { class: 'sp-check' }, [ el( 'input', { type: field.type, name: id, id: id + '-' + i, disabled: true, tabindex: '-1' } ), el( 'span', { text: option } ) ] ) );
 			} );
 		} else {
-			var type = [ 'email', 'tel', 'text' ].indexOf( field.type ) !== -1 ? field.type : 'text';
-			control = el( 'input', { id: id, type: type, dir: 'text' === type ? null : 'ltr', disabled: true } );
+			var type = [ 'email', 'tel', 'text', 'url', 'number', 'date' ].indexOf( field.type ) !== -1 ? field.type : 'text';
+			control = el( 'input', { id: id, type: type, dir: 'text' === type ? null : 'ltr', disabled: true, placeholder: field.placeholder || null, tabindex: '-1' } );
 		}
-		return el( 'label', { class: 'sp-preview__field', for: id }, [
+		var node = el( 'div', { class: 'sp-preview__field', 'data-sp-field-key': field.key || '', 'data-sp-field-width': widthOf( field ), role: 'button', tabindex: '0', 'aria-pressed': 'false', style: 'grid-column: span ' + WIDTHS[ widthOf( field ) ] }, [
 			el( 'span', { class: 'sp-preview__label', dir: 'auto' }, [ el( 'span', { text: field.label || '' } ), field.required ? el( 'span', { class: 'sp-preview__req', text: ' *' } ) : null ] ),
-			control
+			control,
+			field.help ? el( 'small', { class: 'sp-preview__help', dir: 'auto', text: field.help } ) : null
 		] );
+		node.setAttribute( 'aria-label', t( 'selectField', 'Select the field “%s”', field.label || '' ) );
+		node.addEventListener( 'click', function () { selectField( field.key === selectedKey ? '' : field.key ); } );
+		node.addEventListener( 'keydown', function ( event ) { if ( 'Enter' === event.key || ' ' === event.key ) { event.preventDefault(); selectField( field.key === selectedKey ? '' : field.key ); } } );
+		return node;
+	}
+
+	// ── a field picked on the canvas ────────────────────────────
+
+	/* One place keeps the field list, the preview, the inspector, the chat chip and the composer in step. */
+	function selectField( key ) {
+		selectedKey = key && fieldByKey( key ) ? key : '';
+		renderSelection();
+		var field = selectedKey ? fieldByKey( selectedKey ) : null;
+		if ( field ) {
+			setSuggestions( selectedSuggestions( field ) );
+			announce( t( 'fieldSelected', 'Selected “%s”. Your next message is about this field.', field.label || '' ) );
+		} else if ( preview ) {
+			setSuggestions( nextSuggestions( preview ) );
+		}
+	}
+
+	function announce( message ) { var node = byId( 'aisaautopilot-status' ); if ( node ) { node.textContent = message || ''; } }
+
+	function renderSelection() {
+		var field = selectedKey ? fieldByKey( selectedKey ) : null;
+		if ( selectedKey && ! field ) { selectedKey = ''; }
+		Array.prototype.forEach.call( document.querySelectorAll( '[data-sp-field-key]' ), function ( node ) {
+			var on = !! selectedKey && node.getAttribute( 'data-sp-field-key' ) === selectedKey;
+			node.classList.toggle( 'is-selected', on );
+			node.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
+		} );
+		renderInspector( field );
+		renderChip( field );
+		var input = byId( 'aisaautopilot-prompt' );
+		if ( input && isReady() ) {
+			input.placeholder = field ? t( 'placeholderSelected', 'Tell me what to change about “%s”…', field.label || '' ) : ( preview ? t( 'placeholderRevise', 'Ask for a change to the form…' ) : t( 'placeholderReady', 'Describe the form: who fills it in and what you need to know…' ) );
+		}
+		if ( actionId && preview && ! isExpired() ) { setCtx( field ? t( 'ctxSelected', 'Editing “%s”', field.label || '' ) : t( 'ctxPlan', 'Plan ready · valid for %s', clockLabel() ) ); }
+	}
+
+	function renderChip( field ) {
+		var host = document.querySelector( '.aisa-ai-input' );
+		if ( ! host ) { return; }
+		var chipNode = host.querySelector( '[data-sp-fc-selected]' );
+		if ( ! field ) { if ( chipNode ) { chipNode.remove(); } return; }
+		var clear = el( 'button', { type: 'button', class: 'sp-fc-selected__x', 'aria-label': t( 'clearSelection', 'Stop editing this field' ) }, [ icon( 'x', 12, 2.4 ) ] );
+		clear.addEventListener( 'click', function () { selectField( '' ); var input = byId( 'aisaautopilot-prompt' ); if ( input ) { input.focus(); } } );
+		var fresh = el( 'div', { class: 'sp-fc-selected', 'data-sp-fc-selected': field.key, role: 'group', 'aria-label': t( 'editingField', 'Editing the field' ) }, [
+			el( 'span', { class: 'aisa-ai-ic' }, [ icon( typeIcon( field.type ), 13 ) ] ),
+			el( 'span', { class: 'sp-fc-selected__text', dir: 'auto' }, [ el( 'small', { text: t( 'editing', 'Editing' ) } ), el( 'strong', { text: field.label || '' } ), el( 'small', { text: typeLabel( field.type ) } ) ] ),
+			clear
+		] );
+		if ( chipNode ) { chipNode.replaceWith( fresh ); } else { host.insertBefore( fresh, host.firstChild ); }
+	}
+
+	function selectedSuggestions( field ) {
+		var list = [];
+		var label = field.label || '';
+		list.push( field.required ? t( 'selOptional', 'Make “%s” optional', label ) : t( 'selRequired', 'Make “%s” required', label ) );
+		if ( 'full' === widthOf( field ) ) { list.push( t( 'selHalf', 'Put “%s” next to the field after it', label ) ); }
+		if ( 'text' === field.type ) { list.push( t( 'selDropdown', 'Turn “%s” into a dropdown', label ) ); } else if ( 'select' === field.type || 'radio' === field.type ) { list.push( t( 'selOption', 'Add an option to “%s”', label ) ); } else { list.push( t( 'selRename', 'Rename “%s”', label ) ); }
+		return list;
+	}
+
+	function renderInspector( field ) {
+		var box = document.querySelector( '[data-sp-field-inspector]' );
+		if ( ! box ) { return; }
+		box.textContent = '';
+		box.hidden = ! field;
+		if ( ! field ) { return; }
+		var key = field.key;
+		var fields = ( preview && preview.fields ) || [];
+		var at = fields.indexOf( field );
+		var widths = el( 'div', { class: 'sp-seg sp-fc-inspector__widths', role: 'group', 'aria-label': t( 'width', 'Width' ) } );
+		WIDTH_CHOICES.forEach( function ( choice ) {
+			var on = widthOf( field ) === choice[ 0 ];
+			var btn = el( 'button', { type: 'button', class: 'sp-seg__btn' + ( on ? ' is-on' : '' ), 'aria-pressed': on ? 'true' : 'false', 'data-sp-width': choice[ 0 ], 'aria-label': widthName( choice[ 0 ] ), title: widthName( choice[ 0 ] ), text: choice[ 1 ] } );
+			btn.addEventListener( 'click', function () { if ( ! on ) { editPlan( [ { op: 'set_width', key: key, value: choice[ 0 ] } ] ); } } );
+			widths.appendChild( btn );
+		} );
+		var required = el( 'input', { type: 'checkbox', 'data-sp-inspector-required': '', checked: field.required ? true : null } );
+		required.addEventListener( 'change', function () { editPlan( [ { op: 'set_required', key: key, value: required.checked } ] ); } );
+		function text( prop, label, value ) {
+			var input = el( 'input', { type: 'text', class: 'sp-input', dir: 'auto', value: value || '', 'data-sp-inspector-text': prop, maxlength: 'label' === prop ? '120' : '200' } );
+			var commit = function () { var next = input.value.trim(); if ( next !== ( value || '' ) && ( next || 'label' !== prop ) ) { editPlan( [ { op: 'set_text', key: key, prop: prop, value: next } ] ); } else { input.value = value || ''; } };
+			input.addEventListener( 'change', commit );
+			input.addEventListener( 'keydown', function ( event ) { if ( 'Enter' === event.key ) { event.preventDefault(); commit(); } } );
+			return el( 'label', { class: 'sp-fc-inspector__field' }, [ el( 'span', { text: label } ), input ] );
+		}
+		var up = button( t( 'moveUp', 'Move up' ), { size: 'sm', icon: 'up', attrs: { 'data-sp-move': 'up', disabled: at <= 0 ? true : null }, onClick: function () { editPlan( [ { op: 'move', key: key, direction: 'up' } ] ); } } );
+		var down = button( t( 'moveDown', 'Move down' ), { size: 'sm', attrs: { 'data-sp-move': 'down', disabled: at >= fields.length - 1 ? true : null }, onClick: function () { editPlan( [ { op: 'move', key: key, direction: 'down' } ] ); } } );
+		var remove = button( t( 'removeField', 'Remove' ), { size: 'sm', icon: 'trash', attrs: { 'data-sp-remove': '', disabled: fields.length <= 1 ? true : null }, onClick: function () { selectedKey = ''; editPlan( [ { op: 'remove', key: key } ] ); } } );
+		box.appendChild( el( 'div', { class: 'sp-fc-inspector__head' }, [ el( 'strong', { dir: 'auto', text: field.label || '' } ), el( 'small', { text: typeLabel( field.type ) } ) ] ) );
+		box.appendChild( el( 'div', { class: 'sp-fc-inspector__row' }, [ el( 'span', { class: 'sp-fc-inspector__lbl', text: t( 'width', 'Width' ) } ), widths ] ) );
+		box.appendChild( el( 'label', { class: 'sp-fc-inspector__row sp-fc-inspector__req' }, [ required, el( 'span', { text: t( 'requiredField', 'Required' ) } ) ] ) );
+		box.appendChild( text( 'label', t( 'fieldLabel', 'Label' ), field.label ) );
+		if ( [ 'text', 'email', 'tel', 'url', 'number', 'textarea' ].indexOf( field.type ) !== -1 ) { box.appendChild( text( 'placeholder', t( 'fieldPlaceholder', 'Placeholder' ), field.placeholder ) ); }
+		box.appendChild( text( 'help', t( 'fieldHelp', 'Hint under the field' ), field.help ) );
+		box.appendChild( el( 'div', { class: 'sp-fc-inspector__actions' }, [ up, down, remove ] ) );
+	}
+
+	/* A click-sized change: no AI, applied by the server so the plan stays valid, and it can be undone. */
+	function editPlan( ops ) {
+		if ( working || ! actionId || isExpired() ) { return; }
+		working = true;
+		var keep = selectedKey;
+		request( 'forms/edit', { action_id: actionId, ops: ops } ).then( function ( response ) {
+			working = false;
+			if ( ! response.ok || ! response.data.ok ) { toast( ( response.data && response.data.message ) || t( 'genericError' ) ); return; }
+			planned( response.data, { quiet: true, undoable: true } );
+			if ( keep && fieldByKey( keep ) ) { selectField( keep ); }
+		} ).catch( function () { working = false; toast( t( 'networkError' ) ); } );
+	}
+
+	function pushUndo() {
+		if ( ! actionId || ! preview ) { return; }
+		undoStack.push( { action_id: actionId, preview: preview, expires_at: expiresAt } );
+		if ( undoStack.length > 20 ) { undoStack.shift(); }
+	}
+
+	function undoChange() {
+		if ( working ) { return; }
+		var previous = undoStack.pop();
+		while ( previous && Number( previous.expires_at ) <= Date.now() + 2000 ) { previous = undoStack.pop(); }
+		if ( ! previous ) { toast( t( 'nothingToUndo', 'Nothing to take back, or it has expired.' ) ); renderPlanCanvas( preview ); return; }
+		var keep = selectedKey;
+		planned( { action_id: previous.action_id, preview: previous.preview, expires_at: Number( previous.expires_at ) / 1000 }, { quiet: true } );
+		if ( keep && fieldByKey( keep ) ) { selectField( keep ); }
+		toast( t( 'undone', 'Change taken back' ) );
 	}
 
 	function renderResultCanvas( result ) {
@@ -352,29 +509,28 @@
 		setCtx( t( 'ctxSetup', 'Setup needed' ) );
 	}
 
-	function planSummary( plan ) {
-		var fields = ( plan.fields || [] ).map( function ( field ) {
-			return field.label + ' (' + field.type + ( field.required ? ', required' : '' ) + ( ( field.options || [] ).length ? ', options: ' + field.options.join( '/' ) : '' ) + ')';
-		} );
-		return '“' + ( plan.title || '' ) + '” with ' + fields.join( '; ' ) + ( plan.submit_button ? '; button “' + plan.submit_button + '”' : '' );
-	}
-
 	function submit() {
 		var input = byId( 'aisaautopilot-prompt' );
 		var text = input ? ( input.value || '' ).trim() : '';
 		if ( ! text ) { setStatus( t( 'promptFirst' ) ); return; }
 		if ( working || ! isReady() ) { return; }
-		addUser( text );
+		var field = selectedKey ? fieldByKey( selectedKey ) : null;
+		addUser( text, field ? field.label : '' );
 		input.value = '';
 		Dock.autoGrow( input, 180 );
-		// With a plan on the canvas, the message asks for a change to it.
-		var prompt = actionId && preview && ! isExpired() ? t( 'revisePrompt', 'Change this form plan. Current plan: %1$s. Change: %2$s', [ planSummary( preview ), text ] ) : text;
-		draft( prompt.slice( 0, 2000 ) );
+		// With a plan on the canvas, the message asks for a change to it; the server holds the whole
+		// plan, and the field the administrator picked is named so "this" and "it" mean that field.
+		if ( actionId && preview && ! isExpired() ) {
+			draft( text.slice( 0, 2000 ), { revise_of: actionId, selected: field ? field.key : '' } );
+		} else {
+			draft( text.slice( 0, 2000 ) );
+		}
 	}
 
-	function draft( prompt ) {
+	function draft( prompt, extra ) {
 		working = true;
 		lastPrompt = prompt;
+		lastExtra = extra || null;
 		setSuggestions( [] );
 		setStatus( '' );
 		var hadPlan = !! actionId;
@@ -383,10 +539,10 @@
 		steps.parentNode.setAttribute( 'data-sp-fc-thinking', '' );
 		setCanvas( 'drafting' );
 		setCtx( t( 'ctxDrafting', 'Drafting a plan…' ) );
-		request( 'forms/plan', { prompt: prompt } ).then( function ( response ) {
+		request( 'forms/plan', Object.assign( { prompt: prompt }, extra || {} ) ).then( function ( response ) {
 			finishDraft( steps );
 			if ( ! response.ok || ! response.data.ok ) { failed( response.data || {}, hadPlan ); return; }
-			planned( response.data );
+			planned( response.data, { undoable: !! ( extra && extra.revise_of ) } );
 		} ).catch( function () {
 			finishDraft( steps );
 			failed( { message: t( 'networkError' ) }, hadPlan );
@@ -407,7 +563,7 @@
 		addAi( card( Dock.cardHead( 'warn', 'alert', t( 'notBuilt', 'I could not build that yet' ) ), [
 			el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { dir: 'auto', text: message } ), errors.length ? el( 'p', { dir: 'auto', text: errors.join( ' ' ) } ) : null, el( 'p', { text: t( 'tryExamples' ) } ) ] ),
 			el( 'div', { class: 'aisa-ai-card__foot' }, examples.map( function ( example ) { return chip( example.prompt, example.title ); } ).concat( [
-				button( t( 'tryAgain', 'Try again' ), { size: 'sm', icon: 'refresh', onClick: function () { if ( lastPrompt && ! working ) { draft( lastPrompt ); } } } )
+				button( t( 'tryAgain', 'Try again' ), { size: 'sm', icon: 'refresh', onClick: function () { if ( lastPrompt && ! working ) { draft( lastPrompt, lastExtra ); } } } )
 			] ) )
 		], { 'data-sp-fc-error': '' } ) );
 		if ( hadPlan && preview && ! isExpired() ) { setCanvas( 'plan' ); startExpiryTimer(); } else { setCanvas( 'start' ); setCtx( t( 'ctxNew', 'New native form' ) ); }
@@ -421,8 +577,13 @@
 		} );
 	}
 
-	function planned( data, restored ) {
-		retirePlanCards();
+	function planned( data, opts ) {
+		opts = opts || {};
+		var restored = !! opts.restored;
+		var quiet = !! opts.quiet;
+		// What is on the canvas now is what Undo brings back.
+		if ( opts.undoable ) { pushUndo(); }
+		if ( ! quiet ) { retirePlanCards(); }
 		actionId = data.action_id;
 		preview = data.preview;
 		expiresAt = data.expires_at ? Number( data.expires_at ) * 1000 : Date.now() + 900000;
@@ -437,8 +598,14 @@
 		var approve = button( draftOnly ? t( 'approveDraft' ) : t( 'approvePublish' ), { kind: 'primary', size: 'lg', grow: true, icon: 'check', stroke: 2.4, attrs: { id: 'aisaautopilot-approve' }, onClick: function () { if ( draftOnly ) { approvePlan(); } else { openConfirm(); } } } );
 		var reject = button( t( 'reject', 'Reject' ), { kind: 'quiet', size: 'lg', onClick: rejectPlan } );
 		var planCard = card( Dock.cardHead( 'plan', 'doc', preview.title || t( 'createWithAi' ), t( 'fieldCount', '%d fields ready to review', ( preview.fields || [] ).length ) ), [ list, el( 'div', { class: 'aisa-ai-card__foot' }, [ approve, reject ] ) ], { 'data-sp-fc-plan-card': '' } );
-		addAi( [ restored ? t( 'planRestored' ) : t( 'planReady' ), preview.notes ? String( preview.notes ) : '', planCard ] );
 		planCard.setAttribute( 'data-sp-fc-restored', restored ? '1' : '0' );
+		var existing = quiet ? document.querySelector( '[data-sp-fc-plan-card]' ) : null;
+		if ( existing ) {
+			// A click-sized change updates the card that is already in the thread instead of adding another.
+			existing.parentNode.replaceChild( planCard, existing );
+		} else {
+			addAi( [ restored ? t( 'planRestored' ) : t( 'planReady' ), preview.notes ? String( preview.notes ) : '', planCard ] );
+		}
 		renderPlanCanvas( preview );
 		setCanvas( 'plan' );
 		stickyBar();
@@ -450,6 +617,7 @@
 	function nextSuggestions( plan ) {
 		var next = [];
 		var fields = plan.fields || [];
+		if ( fields.length >= 3 && ! fields.some( function ( field ) { return 'full' !== widthOf( field ); } ) ) { next.push( t( 'nextColumns', 'Put some fields side by side' ) ); }
 		var optional = fields.filter( function ( field ) { return field.required && 'email' !== field.type; } )[ 1 ];
 		if ( optional ) { next.push( t( 'nextOptional', 'Make “%s” optional', optional.label ) ); }
 		if ( ! fields.some( function ( field ) { return 'tel' === field.type; } ) ) { next.push( t( 'nextPhone', 'Add a phone number field' ) ); }
@@ -490,7 +658,7 @@
 		var saved = savedPlan();
 		if ( ! saved || ! isReady() ) { return false; }
 		lastPrompt = String( saved.prompt || '' );
-		planned( { action_id: saved.action_id, preview: saved.preview, expires_at: Number( saved.expires_at ) / 1000 }, true );
+		planned( { action_id: saved.action_id, preview: saved.preview, expires_at: Number( saved.expires_at ) / 1000 }, { restored: true } );
 		return true;
 	}
 
@@ -512,7 +680,8 @@
 				expirePlan();
 				return;
 			}
-			setCtx( t( 'ctxPlan', 'Plan ready · valid for %s', clockLabel() ) );
+			var picked = selectedKey ? fieldByKey( selectedKey ) : null;
+			setCtx( picked ? t( 'ctxSelected', 'Editing “%s”', picked.label || '' ) : t( 'ctxPlan', 'Plan ready · valid for %s', clockLabel() ) );
 		};
 		tick();
 		expiryTimer = window.setInterval( tick, 1000 );
@@ -526,13 +695,16 @@
 		if ( bar ) { bar.hidden = true; }
 		addAi( card( Dock.cardHead( 'warn', 'alert', t( 'ctxExpired', 'Plan expired' ) ), [
 			el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { text: t( 'planExpired' ) } ) ] ),
-			el( 'div', { class: 'aisa-ai-card__foot' }, [ button( t( 'askAgain', 'Draft it again' ), { size: 'sm', icon: 'refresh', onClick: function () { if ( lastPrompt && ! working ) { draft( lastPrompt ); } } } ) ] )
+			el( 'div', { class: 'aisa-ai-card__foot' }, [ button( t( 'askAgain', 'Draft it again' ), { size: 'sm', icon: 'refresh', onClick: function () { if ( lastPrompt && ! working ) { draft( lastPrompt, lastExtra ); } } } ) ] )
 		], { 'data-sp-fc-expired': '' } ) );
 	}
 
 	// ── decisions ───────────────────────────────────────────────
 
+	function resetEditing() { selectedKey = ''; undoStack = []; renderChip( null ); }
+
 	function rejectPlan() {
+		resetEditing();
 		forgetPlan();
 		retirePlanCards();
 		actionId = null;
@@ -570,6 +742,7 @@
 	}
 
 	function created( result ) {
+		resetEditing();
 		forgetPlan();
 		retirePlanCards();
 		window.clearInterval( expiryTimer );
@@ -587,6 +760,7 @@
 	}
 
 	function newForm() {
+		resetEditing();
 		forgetPlan();
 		retirePlanCards();
 		actionId = null;

@@ -115,7 +115,7 @@ final class FormPlanValidator {
 				continue;
 			}
 
-			$key = $this->unique_key( $label, $used_keys );
+			$key = $this->unique_key( $label, $used_keys, (string) ( $raw_field['key'] ?? '' ) );
 
 			$field = array(
 				'key'         => $key,
@@ -243,7 +243,14 @@ final class FormPlanValidator {
 	/**
 	 * @param array<string,bool> $used
 	 */
-	private function unique_key( string $label, array &$used ): string {
+	private function unique_key( string $label, array &$used, string $preferred = '' ): string {
+		// A field that already has a key (a form being changed) keeps it, so a selection or a
+		// reference to it stays valid; a new or clashing key is derived from the label.
+		$preferred = strtolower( trim( $preferred ) );
+		if ( 1 === preg_match( '/^[a-z0-9_]{1,40}$/', $preferred ) && ! isset( $used[ $preferred ] ) ) {
+			$used[ $preferred ] = true;
+			return $preferred;
+		}
 		$base = strtolower( $label );
 		$base = preg_replace( '/[^a-z0-9]+/', '_', $base ) ?? '';
 		$base = trim( $base, '_' );
@@ -264,15 +271,22 @@ final class FormPlanValidator {
 	}
 
 	private function normalize_width( string $value ): string {
-		$v = strtolower( trim( $value ) );
-		if ( in_array( $v, array( 'half', '50', '1/2', 'two', '2' ), true ) ) {
+		// A bare number counts columns (2 = half, 3 = third, 4 = quarter), as before.
+		$v = strtolower( trim( str_replace( array( '%', ' ', '-' ), array( '', '', '_' ), $value ) ) );
+		if ( in_array( $v, array( 'half', '50', '1/2', 'two', '2', 'one_half' ), true ) ) {
 			return 'half';
 		}
-		if ( in_array( $v, array( 'third', '33', '1/3', '3' ), true ) ) {
+		if ( in_array( $v, array( 'third', '33', '1/3', '3', 'one_third' ), true ) ) {
 			return 'third';
 		}
-		if ( in_array( $v, array( 'quarter', '25', '1/4', '4' ), true ) ) {
+		if ( in_array( $v, array( 'two_thirds', '66', '67', '2/3', 'two_third' ), true ) ) {
+			return 'two_thirds';
+		}
+		if ( in_array( $v, array( 'quarter', '25', '1/4', 'one_quarter' ), true ) ) {
 			return 'quarter';
+		}
+		if ( in_array( $v, array( 'three_quarters', '75', '3/4', 'three_quarter' ), true ) ) {
+			return 'three_quarters';
 		}
 
 		return 'full';

@@ -16,7 +16,20 @@ final class FormPlanSchema {
 	 * a single-step, email-only form flow; uploads, payments, passwords and
 	 * account fields belong in an advanced form product instead.
 	 */
-	public const ALLOWED_FIELD_TYPES = array( 'text', 'email', 'tel', 'textarea', 'select', 'checkbox', 'radio' );
+	public const ALLOWED_FIELD_TYPES = array( 'text', 'email', 'tel', 'url', 'number', 'date', 'textarea', 'select', 'checkbox', 'radio' );
+
+	/**
+	 * Column width of a field, in twelfths of the row. Fields flow left to right and wrap when a
+	 * row is full, so half + half sit side by side and third + third + third make three columns.
+	 */
+	public const WIDTHS = array(
+		'full'           => 12,
+		'three_quarters' => 9,
+		'two_thirds'     => 8,
+		'half'           => 6,
+		'third'          => 4,
+		'quarter'        => 3,
+	);
 
 	/** Field types explicitly forbidden for safety in the MVP. */
 	public const FORBIDDEN_FIELD_TYPES = array( 'password', 'payment', 'credit_card', 'card', 'registration', 'user', 'ssn' );
@@ -39,11 +52,15 @@ final class FormPlanSchema {
 				'    "description": "string (optional)",',
 				'    "fields": [',
 				'      {',
-				'        "type": "one of: text | email | tel | textarea | select | checkbox | radio",',
+				'        "key": "keep the key of an existing field when changing a form; omit for a new field",',
+				'        "type": "one of: text | email | tel | url | number | date | textarea | select | checkbox | radio",',
 				'        "label": "string (required)",',
 				'        "required": true,',
 				'        "placeholder": "string (optional)",',
-				'        "options": ["only for select | radio | checkbox groups"]',
+				'        "help": "short hint shown under the field (optional)",',
+				'        "width": "full | half | third | quarter | two_thirds | three_quarters (default full)",',
+				'        "options": ["only for select | radio | checkbox groups"],',
+				'        "settings": { "min": "number or YYYY-MM-DD", "max": "number or YYYY-MM-DD", "step": "number" }',
 				'      }',
 				'    ],',
 				'    "submit_button": "string (optional, defaults to Submit)",',

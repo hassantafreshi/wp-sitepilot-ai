@@ -1489,13 +1489,66 @@ async function formComposerHealthy( page ) {
 	const formUrl = baseUrl + '/wp-admin/admin.php?page=aisaautopilot-form-studio';
 	const aliasUrl = baseUrl + '/wp-admin/admin.php?page=aisaautopilot-form-builder&mode=forms';
 	const routePattern = '**/wp-json/aisaautopilot/v1/forms/**';
+	// A script error on the workspace is a failure of its own, not a puzzling timeout further on.
+	const scriptErrors = [];
+	page.on( 'pageerror', ( error ) => scriptErrors.push( String( error.message || error ) ) );
 	const planPrompts = [];
+	const planBodies = [];
+	const editBodies = [];
 	const executedIds = [];
 	let executeRequests = 0;
+	// A form with columns, kept here so click-sized edits and changes by message behave like the server's.
+	let layout = null;
+	let layoutVersion = 0;
+	const layoutPreview = () => ( {
+		title: 'Browser QA layout form', description: '',
+		fields: layout.map( ( f ) => ( { options: [], placeholder: '', help: '', settings: {}, ...f } ) ),
+		submit_button: 'Send', confirmation_message: 'Thanks.', risk_level: 'low', notes: '',
+		connector: 'AISAAutoPilot Built-in Forms', notification_email: 'a***@example.test',
+		field_count: layout.length, default_status: 'draft',
+	} );
+	const layoutReply = () => ( { ok: true, action_id: 'form-browser-qa-layout-' + ( ++layoutVersion ), expires_at: Math.floor( Date.now() / 1000 ) + 900, preview: layoutPreview() } );
 	let plannedStatus = 'draft';
 	await page.route( routePattern, async ( route ) => {
 		const request = route.request();
 		const pathname = new URL( request.url() ).pathname;
+		if ( pathname.endsWith( '/forms/edit' ) ) {
+			const body = request.postDataJSON();
+			editBodies.push( body );
+			for ( const op of body.ops ) {
+				const i = layout.findIndex( ( f ) => f.key === op.key );
+				if ( i < 0 ) { continue; }
+				if ( 'set_width' === op.op ) { layout[ i ].width = op.value; }
+				if ( 'set_required' === op.op ) { layout[ i ].required = !! op.value; }
+				if ( 'set_text' === op.op ) { layout[ i ][ op.prop ] = op.value; }
+				if ( 'remove' === op.op ) { layout.splice( i, 1 ); }
+				if ( 'move' === op.op ) { const [ item ] = layout.splice( i, 1 ); layout.splice( 'up' === op.direction ? Math.max( 0, i - 1 ) : i + 1, 0, item ); }
+			}
+			await route.fulfill( { contentType: 'application/json', body: JSON.stringify( layoutReply() ) } );
+			return;
+		}
+		if ( pathname.endsWith( '/forms/plan' ) && /columns/i.test( String( request.postDataJSON().prompt || '' ) ) ) {
+			const body = request.postDataJSON();
+			planBodies.push( body );
+			layout = [
+				{ key: 'first', type: 'text', label: 'First name', required: true, width: 'half' },
+				{ key: 'last', type: 'text', label: 'Last name', required: true, width: 'half' },
+				{ key: 'email', type: 'email', label: 'Email', required: false, width: 'full', help: 'We reply within a day' },
+				{ key: 'city', type: 'text', label: 'City', required: false, width: 'third' },
+				{ key: 'state', type: 'text', label: 'State', required: false, width: 'third' },
+				{ key: 'zip', type: 'text', label: 'Postal code', required: false, width: 'third' },
+			];
+			await route.fulfill( { contentType: 'application/json', body: JSON.stringify( layoutReply() ) } );
+			return;
+		}
+		if ( pathname.endsWith( '/forms/plan' ) && layout && request.postDataJSON().revise_of ) {
+			const body = request.postDataJSON();
+			planBodies.push( body );
+			const target = layout.find( ( f ) => f.key === body.selected );
+			if ( target && /required/i.test( body.prompt ) ) { target.required = true; }
+			await route.fulfill( { contentType: 'application/json', body: JSON.stringify( layoutReply() ) } );
+			return;
+		}
 		if ( pathname.endsWith( '/forms/plan' ) ) {
 			const requestBody = request.postDataJSON();
 			planPrompts.push( String( requestBody.prompt || '' ) );
@@ -1609,10 +1662,10 @@ async function formComposerHealthy( page ) {
 		await page.waitForFunction( () => document.querySelectorAll( '[data-aisaautopilot-copilot] .aisa-ai-card.is-retired' ).length >= 1, null, { timeout: 10000 } );
 		const revision = planPrompts[ 1 ] || '';
 		check(
-			planPrompts.length === 2 && /Make Name optional/.test( revision ) && /Browser QA contact form/.test( revision )
+			planPrompts.length === 2 && /Make Name optional/.test( revision ) && ! /Current plan/.test( revision )
 			&& await approve.count() === 1 && executeRequests === 0
 			&& await review.locator( '.sp-preview__field' ).first().locator( '.sp-preview__req' ).count() === 0,
-			'Asking for a change sends the current plan with the change and replaces the plan; the old one can no longer be approved'
+			'Asking for a change sends only the change (the server holds the plan) and replaces the plan; the old one can no longer be approved'
 		);
 
 		// A reload keeps the plan under review (this tab only, until it is approved, rejected or expires).
@@ -1650,6 +1703,112 @@ async function formComposerHealthy( page ) {
 			await root.locator( '[data-sp-form-empty]' ).isVisible() && 0 === await thread.locator( '[data-sp-fc-plan-card]' ).count(),
 			'An approved plan is not brought back by a reload'
 		);
+
+		// Columns, a field picked on the canvas, click-sized edits and Undo.
+		await prompt.fill( 'Make a form with columns: names side by side, city, state and postal code in one row.' );
+		await prompt.press( 'Enter' );
+		await review.waitFor( { state: 'visible', timeout: 10000 } );
+		const fieldBox = async ( key ) => review.locator( '.sp-preview__field[data-sp-field-key="' + key + '"]' ).boundingBox();
+		const [ bFirst, bLast, bEmail, bCity, bState, bZip ] = await Promise.all( [ 'first', 'last', 'email', 'city', 'state', 'zip' ].map( fieldBox ) );
+		const sameRow = ( a, b ) => Math.abs( a.y - b.y ) < 4 && Math.abs( a.height - b.height ) < 40;
+		// Columns run in the direction of the form's site language, not the administrator's.
+		const formRtl = 'rtl' === await review.locator( '.sp-preview__form' ).getAttribute( 'dir' );
+		check( 0 === scriptErrors.length, 'The Form Studio workspace raises no script errors', scriptErrors );
+		check(
+			sameRow( bFirst, bLast ) && sameRow( bCity, bState ) && sameRow( bState, bZip ) && bEmail.y > bFirst.y + 20 && bCity.y > bEmail.y
+			&& Math.abs( bFirst.width - bLast.width ) < 3 && bCity.width < bFirst.width && Math.abs( bCity.width - bZip.width ) < 3
+			&& ( formRtl ? bFirst.x > bLast.x : bFirst.x < bLast.x ),
+			'Fields sit in columns by their widths: two in one row, three in one row, and the full-width field on its own row',
+			{ bFirst, bLast, bEmail, bCity, bState, bZip }
+		);
+		check(
+			await review.locator( '.sp-fc-fieldlist__width' ).count() === 5 && await review.locator( '.sp-preview__help', { hasText: 'We reply within a day' } ).count() === 1,
+			'The field list marks the narrow fields and the preview shows the field hint'
+		);
+
+		// Pick a field: it shows everywhere, and the chat knows.
+		const emailField = review.locator( '.sp-preview__field[data-sp-field-key="email"]' );
+		await emailField.click();
+		const chip = root.locator( '[data-sp-fc-selected="email"]' );
+		const inspector = review.locator( '[data-sp-field-inspector]' );
+		check(
+			await chip.isVisible() && ( await chip.innerText() ).includes( 'Email' )
+			&& await emailField.getAttribute( 'aria-pressed' ) === 'true'
+			&& await review.locator( '.sp-fc-fieldlist__pick[data-sp-field-key="email"]' ).getAttribute( 'aria-pressed' ) === 'true'
+			&& await review.locator( '.sp-preview__field.is-selected' ).count() === 1 && await inspector.isVisible()
+			&& ( await prompt.getAttribute( 'placeholder' ) ).includes( 'Email' ) && ( await root.locator( '[data-sp-fc-ctx]' ).innerText() ).includes( 'Email' ),
+			'Clicking a field selects it in the preview and the list, shows it above the message box, and the chat names it'
+		);
+		// Keyboard: a field is a button, Enter toggles it.
+		await emailField.focus();
+		await page.keyboard.press( 'Enter' );
+		check( await root.locator( '[data-sp-fc-selected]' ).count() === 0 && ! await inspector.isVisible(), 'Enter on a focused field clears the selection' );
+		await review.locator( '.sp-fc-fieldlist__pick[data-sp-field-key="email"]' ).click();
+		check( await chip.isVisible(), 'Picking from the field list selects the same field' );
+
+		// A message about the picked field names it, and the server is told which one.
+		await prompt.fill( 'make it required' );
+		await prompt.press( 'Enter' );
+		await page.waitForFunction( () => document.querySelectorAll( '[data-aisaautopilot-copilot] .aisa-ai-card.is-retired' ).length >= 1 && document.querySelector( '[data-sp-about]' ), null, { timeout: 10000 } );
+		const aboutBody = planBodies[ planBodies.length - 1 ];
+		check(
+			aboutBody.selected === 'email' && /^form-browser-qa-layout-\d+$/.test( aboutBody.revise_of ) && aboutBody.prompt === 'make it required'
+			&& ( await thread.locator( '[data-sp-about]' ).last().innerText() ).includes( 'Email' )
+			&& await review.locator( '.sp-preview__field[data-sp-field-key="email"] .sp-preview__req' ).count() === 1,
+			'A message about the picked field says so in the thread and sends that field to the server with the plan reference'
+		);
+		check( await root.locator( '[data-sp-fc-selected="email"]' ).isVisible(), 'The field stays selected after the plan is changed' );
+
+		// Click-sized edits: no chat message, one card, selection kept.
+		const cardsBefore = await thread.locator( '[data-sp-fc-plan-card]' ).count();
+		const rowsBefore = await thread.locator( '.aisa-ai-row' ).count();
+		await inspector.locator( '[data-sp-width="half"]' ).click();
+		await page.waitForFunction( () => document.querySelector( '.sp-preview__field[data-sp-field-key="email"]' ).getAttribute( 'data-sp-field-width' ) === 'half', null, { timeout: 10000 } );
+		const edited = editBodies[ editBodies.length - 1 ];
+		check(
+			edited.ops.length === 1 && edited.ops[ 0 ].op === 'set_width' && edited.ops[ 0 ].key === 'email' && edited.ops[ 0 ].value === 'half'
+			&& await thread.locator( '[data-sp-fc-plan-card]' ).count() === cardsBefore && await thread.locator( '.aisa-ai-row' ).count() === rowsBefore
+			&& await root.locator( '[data-sp-fc-selected="email"]' ).isVisible()
+			&& await inspector.locator( '[data-sp-width="half"]' ).getAttribute( 'aria-pressed' ) === 'true',
+			'A width button changes the field with one request, adds no chat message, and keeps the field selected'
+		);
+		const requiredBox = inspector.locator( '[data-sp-inspector-required]' );
+		await requiredBox.uncheck();
+		await page.waitForFunction( () => document.querySelectorAll( '.sp-preview__field[data-sp-field-key="email"] .sp-preview__req' ).length === 0, null, { timeout: 10000 } );
+		await inspector.locator( '[data-sp-inspector-text="help"]' ).fill( 'Never shared' );
+		await inspector.locator( '[data-sp-inspector-text="help"]' ).press( 'Enter' );
+		await page.waitForFunction( () => document.querySelector( '.sp-preview__field[data-sp-field-key="email"] .sp-preview__help' )?.textContent === 'Never shared', null, { timeout: 10000 } );
+		const orderBefore = await review.locator( '.sp-preview__field' ).evaluateAll( ( n ) => n.map( ( x ) => x.getAttribute( 'data-sp-field-key' ) ) );
+		await inspector.locator( '[data-sp-move="down"]' ).click();
+		await page.waitForFunction( ( before ) => JSON.stringify( [ ...document.querySelectorAll( '.sp-preview__field' ) ].map( ( x ) => x.getAttribute( 'data-sp-field-key' ) ) ) !== before, JSON.stringify( orderBefore ), { timeout: 10000 } );
+		const orderAfter = await review.locator( '.sp-preview__field' ).evaluateAll( ( n ) => n.map( ( x ) => x.getAttribute( 'data-sp-field-key' ) ) );
+		check(
+			orderAfter.indexOf( 'email' ) === orderBefore.indexOf( 'email' ) + 1 && orderAfter.length === orderBefore.length
+			&& await root.locator( '[data-sp-fc-selected="email"]' ).isVisible(),
+			'Required, hint and Move down each change the picked field and keep it selected'
+		);
+
+		// Undo takes the last change back, one step at a time, with no request.
+		const editsBeforeUndo = editBodies.length;
+		const undo = review.locator( '[data-sp-fc-undo]' );
+		check( await undo.isEnabled(), 'Undo is available after a change' );
+		await undo.click();
+		await page.waitForFunction( ( before ) => JSON.stringify( [ ...document.querySelectorAll( '.sp-preview__field' ) ].map( ( x ) => x.getAttribute( 'data-sp-field-key' ) ) ) === before, JSON.stringify( orderBefore ), { timeout: 10000 } );
+		check( editBodies.length === editsBeforeUndo && await root.locator( '[data-sp-fc-selected="email"]' ).isVisible(), 'Undo restores the earlier plan without a request and keeps the selection' );
+		// Remove, then clear the selection from the chip.
+		await inspector.locator( '[data-sp-remove]' ).click();
+		await page.waitForFunction( () => ! document.querySelector( '.sp-preview__field[data-sp-field-key="email"]' ), null, { timeout: 10000 } );
+		check( await root.locator( '[data-sp-fc-selected]' ).count() === 0 && ! await inspector.isVisible(), 'Removing the picked field clears the selection' );
+		await review.locator( '.sp-preview__field[data-sp-field-key="city"]' ).click();
+		await root.locator( '[data-sp-fc-selected] button' ).click();
+		check( await root.locator( '[data-sp-fc-selected]' ).count() === 0 && await review.locator( '.sp-preview__field.is-selected' ).count() === 0, 'The chip clears the selection everywhere' );
+		// Phone width: every field stacks.
+		await review.locator( '.sp-seg__btn', { hasText: /Mobile|موبایل/ } ).click();
+		const mFirst = await fieldBox( 'first' );
+		const mLast = await fieldBox( 'last' );
+		check( mLast.y > mFirst.y + 20 && Math.abs( mFirst.width - mLast.width ) < 3, 'In the phone preview every field takes a full row' );
+		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-layout-desktop.png' ), fullPage: true } );
+		await root.locator( '[data-sp-form-new]' ).click();
 
 		await prompt.fill( 'Build and publish a contact form for browser QA.' );
 		await prompt.press( 'Control+Enter' );

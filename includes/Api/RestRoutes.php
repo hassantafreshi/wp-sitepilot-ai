@@ -21,8 +21,29 @@ final class RestRoutes {
 				'callback'            => array( $copilot, 'plan' ),
 				'permission_callback' => array( $this, 'can_manage_form_composer' ),
 				'args'                => array(
-					'prompt' => array(
+					'prompt'    => array(
 						'type'     => 'string',
+						'required' => true,
+					),
+					'revise_of' => array( 'type' => 'string' ),
+					'selected'  => array( 'type' => 'string' ),
+				),
+			)
+		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/forms/edit',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $copilot, 'edit' ),
+				'permission_callback' => array( $this, 'can_manage_form_composer' ),
+				'args'                => array(
+					'action_id' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'ops'       => array(
+						'type'     => 'array',
 						'required' => true,
 					),
 				),

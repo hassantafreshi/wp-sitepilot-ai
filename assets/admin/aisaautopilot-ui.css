@@ -1376,9 +1376,20 @@ html[dir="rtl"] .sp-wizard__next svg { transform: scaleX(-1); }
 }
 
 .sp-preview__form.is-mobile { max-width: 375px; }
+/* Fields flow left to right in twelfths of a row, as they do on the visitor's page. */
+.sp-preview__form { container-type: inline-size; }
+.sp-preview__fields { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 10px 14px; }
+.sp-preview__form.is-mobile .sp-preview__field { grid-column: span 12 !important; }
+@container (max-width: 300px) { .sp-preview__field { grid-column: span 12 !important; } }
+.sp-preview__help { color: var(--sp-muted); font-size: 12px; line-height: 1.4; }
 .sp-preview__title { font-size: 18px; font-weight: 700; margin: 0 0 5px !important; }
 .sp-preview__lede { margin: 0; font-size: 13px; color: var(--sp-muted); }
-.sp-preview__field { display: flex; flex-direction: column; gap: 6px; }
+.sp-preview__field { display: flex; flex-direction: column; gap: 6px; min-inline-size: 0; padding: 7px 8px; border: 1px solid transparent; border-radius: 10px; cursor: pointer; }
+.sp-preview__field:hover { border-color: #d7dbea; }
+/* Disabled controls swallow clicks in some browsers; the whole field is the target. */
+.sp-preview__field input, .sp-preview__field select, .sp-preview__field textarea, .sp-preview__field .sp-check { pointer-events: none; }
+.sp-preview__field:focus-visible { outline: 2px solid #202a8d; outline-offset: 1px; }
+.sp-preview__field.is-selected { border-color: #202a8d; background: #f6f7ff; box-shadow: 0 0 0 3px rgba(32, 42, 141, .12); }
 .sp-preview__label { font-size: 13px; font-weight: 600; }
 .sp-preview__req { color: var(--sp-err); }
 .sp-app .sp-preview__field input,
@@ -4309,7 +4320,38 @@ html[dir="rtl"] .sp-fc-example__field--select::after { background-position: left
 .sp-fc-plan__fields { position: sticky; top: 0; padding: 14px; border: 1px solid #e2e4ee; border-radius: 14px; background: #fff; }
 .sp-app .sp-fc-plan__fields h2 { display: flex; align-items: center; justify-content: space-between; margin: 0 0 8px; padding: 0; color: #14152b; font-size: 14px; font-weight: 800; }
 .sp-fc-fieldlist { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.sp-fc-fieldlist li { display: flex; align-items: center; gap: 9px; margin: 0; padding: 7px 8px; border: 1px solid #eef0f5; border-radius: 10px; }
+.sp-fc-fieldlist li { display: flex; margin: 0; padding: 0; border: 1px solid #eef0f5; border-radius: 10px; }
+.sp-fc-fieldlist__pick { display: flex; align-items: center; gap: 9px; inline-size: 100%; margin: 0; padding: 7px 8px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; text-align: start; cursor: pointer; }
+.sp-fc-fieldlist__pick:hover { background: #f6f7fc; }
+.sp-fc-fieldlist__pick:focus-visible { outline: 2px solid #202a8d; outline-offset: 1px; }
+.sp-fc-fieldlist__pick.is-selected { background: #eef0ff; box-shadow: inset 0 0 0 2px #202a8d; }
+.sp-fc-fieldlist__width { flex: none; min-inline-size: 26px; padding: 1px 6px; border-radius: 999px; background: #e8eaff; color: #202a8d; font-size: 12px; font-weight: 800; text-align: center; }
+.sp-fc-plan__hint { margin: 0 0 10px; color: #5b5e7d; font-size: 12px; line-height: 1.45; }
+.sp-fc-plan__tools { display: flex; align-items: center; gap: 8px; }
+.sp-fc-undo[disabled] { opacity: .45; cursor: default; }
+
+/* The field that is picked: inspector in the list, outline in the preview, chip above the message box. */
+.sp-fc-inspector { display: flex; flex-direction: column; gap: 9px; margin-block-start: 12px; padding: 12px; border: 1px solid #c9ceff; border-radius: 12px; background: #f6f7ff; }
+.sp-fc-inspector[hidden] { display: none; }
+.sp-fc-inspector__head { display: flex; flex-direction: column; gap: 1px; color: #14152b; font-size: 13px; }
+.sp-fc-inspector__head small { color: #5b5e7d; font-size: 11.5px; }
+.sp-fc-inspector__row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; font-size: 12.5px; }
+.sp-fc-inspector__lbl { color: #5b5e7d; font-weight: 600; }
+.sp-fc-inspector__req { justify-content: flex-start; font-weight: 600; cursor: pointer; }
+.sp-fc-inspector__widths { display: inline-flex; flex-wrap: wrap; gap: 3px; }
+.sp-fc-inspector__widths .sp-seg__btn { min-inline-size: 30px; padding: 4px 6px; font-size: 13px; font-weight: 700; }
+.sp-fc-inspector__field { display: flex; flex-direction: column; gap: 3px; margin: 0; color: #5b5e7d; font-size: 11.5px; font-weight: 600; }
+.sp-app .sp-fc-inspector__field input { inline-size: 100%; margin: 0; padding: 6px 9px; border: 1px solid #d7dbea; border-radius: 8px; background: #fff; font-size: 13px; box-shadow: none; }
+.sp-fc-inspector__actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.sp-fc-selected { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 6px 8px; border: 1px solid #c9ceff; border-radius: 10px; background: #eef0ff; }
+.sp-fc-selected__text { display: flex; flex: 1; align-items: baseline; gap: 6px; min-inline-size: 0; overflow: hidden; color: #14152b; font-size: 12.5px; white-space: nowrap; }
+.sp-fc-selected__text strong { overflow: hidden; text-overflow: ellipsis; }
+.sp-fc-selected__text small { color: #5b5e7d; font-size: 11px; }
+.sp-fc-selected__x { display: inline-flex; flex: none; align-items: center; justify-content: center; inline-size: 22px; block-size: 22px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: #202a8d; cursor: pointer; }
+.sp-fc-selected__x:hover { background: #dfe2ff; }
+.sp-fc-selected__x:focus-visible { outline: 2px solid #202a8d; }
+.aisa-ai-user__about { display: block; margin-block-end: 3px; opacity: .8; font-size: 11.5px; font-weight: 700; }
+
 .sp-fc-fieldlist__main { min-inline-size: 0; flex: 1; color: #14152b; font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
 .sp-fc-fieldlist__main small { display: block; color: #5b5e7d; font-size: 11.5px; font-weight: 500; }
 .sp-fc-req { color: #be123c; }

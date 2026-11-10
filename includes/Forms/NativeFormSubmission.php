@@ -35,7 +35,7 @@ final class NativeFormSubmission {
 			}
 
 			$raw   = $input[ 'sp_field_' . $key ] ?? null;
-			$value = $this->field_value( $type, $raw, (array) ( $field['options'] ?? array() ) );
+			$value = $this->field_value( $type, $raw, (array) ( $field['options'] ?? array() ), (array) ( $field['settings'] ?? array() ) );
 
 			if ( null === $value ) {
 				$errors[] = 'invalid_' . $key;
@@ -60,10 +60,11 @@ final class NativeFormSubmission {
 	/**
 	 * Returns an email-safe, plain-text value or null for a tampered value.
 	 *
-	 * @param mixed    $raw
-	 * @param string[] $options
+	 * @param mixed                $raw
+	 * @param string[]             $options
+	 * @param array<string,mixed>  $settings
 	 */
-	private function field_value( string $type, $raw, array $options ): ?string {
+	private function field_value( string $type, $raw, array $options, array $settings = array() ): ?string {
 		if ( null === $raw ) {
 			return '';
 		}
@@ -81,6 +82,15 @@ final class NativeFormSubmission {
 			return '';
 		}
 		if ( 'email' === $type && false === filter_var( $value, FILTER_VALIDATE_EMAIL ) ) {
+			return null;
+		}
+		if ( 'url' === $type && ! $this->is_web_address( $value ) ) {
+			return null;
+		}
+		if ( 'number' === $type && ! $this->number_in_range( $value, $settings ) ) {
+			return null;
+		}
+		if ( 'date' === $type && ! $this->date_in_range( $value, $settings ) ) {
 			return null;
 		}
 		if ( in_array( $type, array( 'select', 'radio' ), true ) && ! in_array( $value, $this->options( $options ), true ) ) {
@@ -125,6 +135,52 @@ final class NativeFormSubmission {
 		}
 
 		return implode( ', ', $selected );
+	}
+
+	private function is_web_address( string $value ): bool {
+		if ( false === filter_var( $value, FILTER_VALIDATE_URL ) ) {
+			return false;
+		}
+
+		return in_array( strtolower( (string) wp_parse_url( $value, PHP_URL_SCHEME ) ), array( 'http', 'https' ), true );
+	}
+
+	/** @param array<string,mixed> $settings */
+	private function number_in_range( string $value, array $settings ): bool {
+		// Digits only, with an optional sign and decimals; no exponent, no hex, no separators.
+		if ( 1 !== preg_match( '/^-?\d+(\.\d+)?$/', $value ) ) {
+			return false;
+		}
+		$number = (float) $value;
+		if ( isset( $settings['min'] ) && is_numeric( $settings['min'] ) && $number < (float) $settings['min'] ) {
+			return false;
+		}
+		if ( isset( $settings['max'] ) && is_numeric( $settings['max'] ) && $number > (float) $settings['max'] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/** @param array<string,mixed> $settings */
+	private function date_in_range( string $value, array $settings ): bool {
+		if ( 1 !== preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $value, $m ) || ! checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ) {
+			return false;
+		}
+		$min = self::date_limit( $settings['min'] ?? '' );
+		$max = self::date_limit( $settings['max'] ?? '' );
+
+		return ( null === $min || $value >= $min ) && ( null === $max || $value <= $max );
+	}
+
+	/** The earliest or latest day a date field accepts: YYYY-MM-DD, or "today"; anything else is no limit. */
+	public static function date_limit( $limit ): ?string {
+		$limit = strtolower( trim( (string) $limit ) );
+		if ( 'today' === $limit ) {
+			return function_exists( 'wp_date' ) ? wp_date( 'Y-m-d' ) : gmdate( 'Y-m-d' );
+		}
+
+		return 1 === preg_match( '/^\d{4}-\d{2}-\d{2}$/', $limit ) ? $limit : null;
 	}
 
 	/** @param string[] $options @return string[] */

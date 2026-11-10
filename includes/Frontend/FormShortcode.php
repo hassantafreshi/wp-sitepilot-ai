@@ -9,6 +9,7 @@ use AISAAutoPilot\Forms\NativeFormSubmission;
 use AISAAutoPilot\Forms\Turnstile;
 use AISAAutoPilot\Logging\Logger;
 use AISAAutoPilot\Security\ClientAddress;
+use AISAAutoPilot\Skills\FormPlanSchema;
 
 /**
  * Renders [aisaautopilot_form id="123"] and delivers submissions by email only.
@@ -83,7 +84,9 @@ final class FormShortcode {
 						<label for="sp-website-<?php echo esc_attr( (string) $id ); ?>"><?php esc_html_e( 'Website', 'ai-site-assistant-autopilot' ); ?></label>
 						<input id="sp-website-<?php echo esc_attr( (string) $id ); ?>" type="text" name="sp_website" tabindex="-1" autocomplete="off" />
 					</div>
-					<?php echo $this->render_fields( (array) $plan['fields'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every dynamic field value is escaped below. ?>
+					<div class="aisaautopilot-form__fields">
+						<?php echo $this->render_fields( (array) $plan['fields'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every dynamic field value is escaped below. ?>
+					</div>
 					<?php echo Turnstile::widget(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attributes escaped in Turnstile::widget(). ?>
 					<button type="submit" class="aisaautopilot-form__submit">
 						<?php echo esc_html( (string) ( $plan['submit_button'] ?? __( 'Submit', 'ai-site-assistant-autopilot' ) ) ); ?>
@@ -115,15 +118,22 @@ final class FormShortcode {
 				continue;
 			}
 
-			$html .= '<div class="aisaautopilot-form__row">';
+			// Column width: fields flow left to right in twelfths of a row; an unknown width is a full row.
+			$width    = isset( FormPlanSchema::WIDTHS[ (string) ( $field['width'] ?? '' ) ] ) ? (string) $field['width'] : 'full';
+			$help     = trim( (string) ( $field['help'] ?? '' ) );
+			$help_id  = 'sp-help-' . $key;
+			$describe = '' !== $help ? ' aria-describedby="' . esc_attr( $help_id ) . '"' : '';
+			$attrs    = self::input_attributes( $type, (array) ( $field['settings'] ?? array() ) );
+
+			$html .= '<div class="aisaautopilot-form__row aisaautopilot-form__row--' . esc_attr( $width ) . '">';
 			switch ( $type ) {
 				case 'textarea':
 					$html .= '<label for="' . esc_attr( $id_attr ) . '">' . $label . $req_mark . '</label>';
-					$html .= '<textarea id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" placeholder="' . $ph . '"' . $req_attr . '></textarea>';
+					$html .= '<textarea id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" placeholder="' . $ph . '"' . $req_attr . $describe . '></textarea>';
 					break;
 				case 'select':
 					$html .= '<label for="' . esc_attr( $id_attr ) . '">' . $label . $req_mark . '</label>';
-					$html .= '<select id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '"' . $req_attr . '>';
+					$html .= '<select id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '"' . $req_attr . $describe . '>';
 					$html .= '<option value="">' . esc_html__( '— Select —', 'ai-site-assistant-autopilot' ) . '</option>';
 					foreach ( (array) ( $field['options'] ?? array() ) as $opt ) {
 						$html .= '<option value="' . esc_attr( (string) $opt ) . '">' . esc_html( (string) $opt ) . '</option>';
@@ -132,15 +142,21 @@ final class FormShortcode {
 					break;
 				case 'radio':
 				case 'checkbox':
-					$html .= $this->render_choice_field( $field, $name, $id_attr, $label, $required, $req_mark );
+					$html .= $this->render_choice_field( $field, $name, $id_attr, $label, $required, $req_mark, $describe );
 					break;
 				case 'email':
 				case 'tel':
+				case 'url':
+				case 'number':
+				case 'date':
 				case 'text':
 				default:
-					$input_type = in_array( $type, array( 'email', 'tel' ), true ) ? $type : 'text';
+					$input_type = in_array( $type, array( 'email', 'tel', 'url', 'number', 'date' ), true ) ? $type : 'text';
 					$html      .= '<label for="' . esc_attr( $id_attr ) . '">' . $label . $req_mark . '</label>';
-					$html      .= '<input type="' . esc_attr( $input_type ) . '" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" placeholder="' . $ph . '"' . $req_attr . ' />';
+					$html      .= '<input type="' . esc_attr( $input_type ) . '" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" placeholder="' . $ph . '"' . $req_attr . $describe . $attrs . ' />';
+			}
+			if ( '' !== $help ) {
+				$html .= '<small class="aisaautopilot-form__help" id="' . esc_attr( $help_id ) . '">' . esc_html( $help ) . '</small>';
 			}
 			$html .= '</div>';
 		}
@@ -148,11 +164,38 @@ final class FormShortcode {
 		return $html;
 	}
 
+	/**
+	 * The min, max and step a number or date field carries, as HTML attributes (already escaped).
+	 *
+	 * @param array<string,mixed> $settings
+	 */
+	private static function input_attributes( string $type, array $settings ): string {
+		$out = '';
+		if ( 'number' === $type ) {
+			foreach ( array( 'min', 'max' ) as $name ) {
+				if ( isset( $settings[ $name ] ) && is_numeric( $settings[ $name ] ) ) {
+					$out .= ' ' . $name . '="' . esc_attr( (string) $settings[ $name ] ) . '"';
+				}
+			}
+			$step = isset( $settings['step'] ) && is_numeric( $settings['step'] ) && (float) $settings['step'] > 0 ? (string) $settings['step'] : 'any';
+			$out .= ' step="' . esc_attr( $step ) . '" inputmode="decimal"';
+		} elseif ( 'date' === $type ) {
+			foreach ( array( 'min', 'max' ) as $name ) {
+				$limit = NativeFormSubmission::date_limit( $settings[ $name ] ?? '' );
+				if ( null !== $limit ) {
+					$out .= ' ' . $name . '="' . esc_attr( $limit ) . '"';
+				}
+			}
+		}
+
+		return $out;
+	}
+
 	/** @param array<string,mixed> $field */
-	private function render_choice_field( array $field, string $name, string $id_attr, string $label, bool $required, string $req_mark ): string {
+	private function render_choice_field( array $field, string $name, string $id_attr, string $label, bool $required, string $req_mark, string $describe = '' ): string {
 		$type    = (string) $field['type'];
 		$options = (array) ( $field['options'] ?? array() );
-		$html    = '<fieldset class="aisaautopilot-form__choices"><legend>' . $label . $req_mark . '</legend>';
+		$html    = '<fieldset class="aisaautopilot-form__choices"' . $describe . '><legend>' . $label . $req_mark . '</legend>';
 
 		if ( 'checkbox' === $type && array() === $options ) {
 			$html .= '<label class="aisaautopilot-form__check" for="' . esc_attr( $id_attr ) . '">';
