@@ -15,7 +15,7 @@ use AISAAutoPilot\Providers\ProviderInterface;
  */
 final class EfbCustomizeSkill {
 
-	public const OPS     = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_step', 'remove_field', 'add_option', 'remove_option', 'rename_option', 'add_logic_rule' );
+	public const OPS     = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_payment', 'add_step', 'remove_field', 'add_option', 'remove_option', 'rename_option', 'add_logic_rule' );
 	private const PROPS  = array( 'label', 'required', 'placeholder', 'width', 'help' );
 	private const WIDTHS = array( 'full', 'half', 'third', 'quarter' );
 
@@ -292,6 +292,56 @@ final class EfbCustomizeSkill {
 						$add['step_ref'] = $step_ref;
 					}
 					$out[] = $add;
+					break;
+
+				case 'add_payment':
+					// Online payment: validated as a whole by EfbPayments (gateway, add-on, licence, currency
+					// and a price that came from the request), then expanded into fields by the controller.
+					$request = is_array( $op['payment'] ?? null ) ? $op['payment'] : $op;
+					$check   = EfbPayments::validate_payment( $request, is_array( $context['payment'] ?? null ) ? $context['payment'] : array(), ! empty( $context['has_pro'] ) );
+					if ( ! $check['ok'] ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => (string) ( $check['reason'] ?? 'payment_invalid' ),
+						);
+						break;
+					}
+					$payment = $check['payment'];
+					$has_own = false;
+					$clash   = '';
+					foreach ( $fields as $existing ) {
+						$owner = EfbPayments::gateway_of_field( (string) ( $existing['type'] ?? '' ) );
+						if ( null === $owner ) {
+							continue;
+						}
+						if ( $owner === $payment['gateway'] ) {
+							$has_own = true;
+						} else {
+							$clash = $owner;
+						}
+					}
+					if ( '' !== $clash ) {
+						// EFB takes payment through one gateway per form.
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'payment_gateway_conflict:' . $clash,
+						);
+						break;
+					}
+					foreach ( $out as $earlier ) {
+						if ( 'add_payment' === $earlier['op'] ) {
+							$dropped[] = array(
+								'op'     => $name,
+								'reason' => 'payment_duplicate',
+							);
+							break 2;
+						}
+					}
+					$out[] = array(
+						'op'          => 'add_payment',
+						'payment'     => $payment,
+						'has_gateway' => $has_own,
+					);
 					break;
 
 				case 'add_step':

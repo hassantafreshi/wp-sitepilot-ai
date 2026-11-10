@@ -10,6 +10,7 @@ use AISAAutoPilot\Efb\EfbChatSkill;
 use AISAAutoPilot\Efb\EfbCustomizeSkill;
 use AISAAutoPilot\Efb\EfbFormConverter;
 use AISAAutoPilot\Efb\EfbLicense;
+use AISAAutoPilot\Efb\EfbPayments;
 use AISAAutoPilot\Efb\EfbFormModel;
 use AISAAutoPilot\Efb\EfbFormReview;
 use AISAAutoPilot\Efb\EfbFormSkill;
@@ -281,6 +282,9 @@ final class EfbCopilotController {
 		$captcha     = $request->get_param( 'captcha' );
 		$shield      = (bool) $request->get_param( 'spam_shield' );
 		$explained   = EfbLogicRules::explain( $logic_rules, $fields, $steps );
+		// Which payment gateways are switched on in the open editor (on or off, nothing else) and whether
+		// their keys were saved at all; the keys themselves are never read into a variable here.
+		$pay_status = EfbPayments::status( $request->get_param( 'addons' ) );
 		$this->logger->info(
 			'efb.chat.received',
 			'Chat request received.',
@@ -308,6 +312,7 @@ final class EfbCopilotController {
 				array(
 					'logic'       => $logic,
 					'logic_rules' => $explained,
+					'payment'     => $pay_status,
 				)
 			);
 		} catch ( ProviderException $e ) {
@@ -427,6 +432,8 @@ final class EfbCopilotController {
 					'steps'          => $steps,
 					'tier'           => (string) $license['tier'],
 					'existing_rules' => count( $logic_rules ),
+					'payment'        => $pay_status,
+					'has_pro'        => ! empty( $license['has_pro_features'] ),
 				)
 			);
 			$ops     = $verbose['ops'];
@@ -472,14 +479,17 @@ final class EfbCopilotController {
 					$reply = __( 'I did not change the form.', 'ai-site-assistant-autopilot' );
 				}
 
-				return $this->respond(
-					array(
-						'type'   => 'message',
-						'reply'  => '' !== $reply ? $reply : __( 'I could not turn that into a change. Try e.g. "add a mobile field" or "make Email required".', 'ai-site-assistant-autopilot' ),
-						'errors' => $notes,
-					),
-					true
+				$message_payload = array(
+					'type'   => 'message',
+					'reply'  => '' !== $reply ? $reply : __( 'I could not turn that into a change. Try e.g. "add a mobile field" or "make Email required".', 'ai-site-assistant-autopilot' ),
+					'errors' => $notes,
 				);
+				$pay_links       = $this->payment_links( $dropped, array(), $pay_status );
+				if ( array() !== $pay_links ) {
+					$message_payload['links'] = $pay_links;
+				}
+
+				return $this->respond( $message_payload, true );
 			}
 
 			$ops     = $this->bind_new_step_references( $ops );
@@ -499,6 +509,8 @@ final class EfbCopilotController {
 			}
 
 			$ops = $this->expand_add_fields( $ops, $fields );
+			// A payment goes in even when its keys are not saved yet; say what is still missing.
+			$notes = array_merge( $notes, $this->payment_follow_up( $ops, $pay_status ) );
 
 			// A new rule that drives a field the opposite way to an existing rule
 			// on the same condition is applied, but never silently.
@@ -530,13 +542,21 @@ final class EfbCopilotController {
 			if ( array() !== $notes ) {
 				$payload['errors'] = $notes;
 			}
+			$pay_links = $this->payment_links( $dropped, $ops, $pay_status );
+			if ( array() !== $pay_links ) {
+				$payload['links'] = $pay_links;
+			}
 
 			return $this->respond( $payload, true );
 		}
 
 		if ( 'create_form' === $action && is_array( $raw['form'] ?? null ) ) {
 			$validator = $this->efb_validator();
-			$result    = $validator->validate( (array) $raw['form'] );
+			// A payment the model planned is checked on its own (gateway, add-on, licence, currency, a given price);
+			// the fields themselves go through the usual validator.
+			$payment_raw   = is_array( $raw['form']['payment'] ?? null ) ? $raw['form']['payment'] : null;
+			$payment_check = null === $payment_raw ? null : EfbPayments::validate_payment( $payment_raw, $pay_status, ! empty( $license['has_pro_features'] ) );
+			$result        = $validator->validate( (array) $raw['form'] );
 			if ( ! $result->ok ) {
 				// The model's reply describes the form it meant to build; none was
 				// built, so that reply must not be shown as if one had been.
@@ -553,6 +573,26 @@ final class EfbCopilotController {
 			$plan  = $this->finalize_plan( $split['plan'] );
 			if ( array() === ( $plan['fields'] ?? array() ) ) {
 				return $this->pro_required_response( $this->pro_blocked_from_fields( $split['pro_fields'] ) );
+			}
+			$payment_notes = array();
+			if ( null !== $payment_check ) {
+				if ( $payment_check['ok'] ) {
+					$plan['payment'] = $payment_check['payment'];
+					$payment_notes   = array_merge(
+						$payment_notes,
+						$this->payment_follow_up(
+							array(
+								array(
+									'op'      => 'add_payment',
+									'payment' => $payment_check['payment'],
+								),
+							),
+							$pay_status
+						)
+					);
+				} else {
+					$payment_notes[] = $this->payment_note( (string) ( $payment_check['reason'] ?? '' ) );
+				}
 			}
 			$connector = $this->registry()->get( 'easy_form_builder' );
 			$name      = ( null !== $connector ) ? $connector->get_name() : 'Easy Form Builder';
@@ -573,6 +613,28 @@ final class EfbCopilotController {
 				'action_id' => $action_id,
 				'preview'   => $this->build_preview( $plan, $name, $shield ),
 			);
+
+			if ( array() !== $payment_notes ) {
+				$payload['errors'] = $payment_notes;
+			}
+			$pay_links = $this->payment_links(
+				null !== $payment_check && ! $payment_check['ok'] ? array(
+					array(
+						'op'     => 'add_payment',
+						'reason' => (string) ( $payment_check['reason'] ?? '' ),
+					),
+				) : array(),
+				isset( $plan['payment'] ) ? array(
+					array(
+						'op'      => 'add_payment',
+						'payment' => $plan['payment'],
+					),
+				) : array(),
+				$pay_status
+			);
+			if ( array() !== $pay_links ) {
+				$payload['links'] = $pay_links;
+			}
 
 			return $this->respond( $this->with_pro_upsell( $payload, $split['pro_fields'] ), true );
 		}
@@ -606,6 +668,15 @@ final class EfbCopilotController {
 				}
 				$items       = $converter->build_field( $op['field'], $existing );
 				$op['items'] = $items;
+				foreach ( $items as $item ) {
+					$existing[] = (string) ( $item['id_'] ?? '' );
+				}
+			} elseif ( 'add_payment' === ( $op['op'] ?? '' ) && is_array( $op['payment'] ?? null ) ) {
+				$items       = $converter->build_payment( $op['payment'], $existing, empty( $op['has_gateway'] ) );
+				$op['items'] = $items;
+				// The same form-level settings EFB's own builder writes when its gateway field is added.
+				$op['form_settings'] = EfbPayments::form_settings( (string) $op['payment']['gateway'], (string) $op['payment']['currency'] );
+				$op['field']         = array( 'label' => (string) ( EfbPayments::GATEWAYS[ $op['payment']['gateway'] ]['label'] ?? '' ) );
 				foreach ( $items as $item ) {
 					$existing[] = (string) ( $item['id_'] ?? '' );
 				}
@@ -818,6 +889,103 @@ final class EfbCopilotController {
 		return $blocked;
 	}
 
+	/** Plain-language explanation of why a payment request was not applied. */
+	private function payment_note( string $reason ): string {
+		$parts   = explode( ':', $reason );
+		$kind    = $parts[0];
+		$gateway = (string) ( $parts[1] ?? '' );
+		$label   = (string) ( EfbPayments::GATEWAYS[ $gateway ]['label'] ?? '' );
+
+		switch ( $kind ) {
+			case 'payment_addon_inactive':
+				/* translators: %s: payment gateway name, e.g. Stripe. */
+				return sprintf( __( '%s needs its Easy Form Builder add-on. Turn it on under Easy Form Builder → Add-ons, reload this form and ask me again.', 'ai-site-assistant-autopilot' ), $label );
+			case 'payment_requires_pro':
+				/* translators: %s: payment gateway name, e.g. Stripe. */
+				return sprintf( __( 'Online payment with %s is part of Easy Form Builder Pro.', 'ai-site-assistant-autopilot' ), $label );
+			case 'payment_currency_unsupported':
+				/* translators: 1: payment gateway name, 2: currency code. */
+				return sprintf( __( '%1$s cannot take payments in %2$s. Tell me another currency.', 'ai-site-assistant-autopilot' ), $label, strtoupper( (string) ( $parts[2] ?? '' ) ) );
+			case 'payment_needs_price':
+				return __( 'I need the price before I can add payment: how much is it, or which options cost how much, and in which currency? I never guess a price.', 'ai-site-assistant-autopilot' );
+			case 'payment_gateway_conflict':
+				/* translators: %s: payment gateway name already used by the form. */
+				return sprintf( __( 'This form already takes payment through %s, and a form can use only one gateway. Remove that payment field first, or keep it.', 'ai-site-assistant-autopilot' ), $label );
+			case 'payment_duplicate':
+				return __( 'I added one payment to the form; a second one in the same message was left out.', 'ai-site-assistant-autopilot' );
+			default:
+				return __( 'Tell me which payment gateway to use: Stripe, PayPal or ZarinPal.', 'ai-site-assistant-autopilot' );
+		}
+	}
+
+	/**
+	 * What is still missing after a payment was added: a gateway's keys. Never says what a key is.
+	 *
+	 * @param array<int,array<string,mixed>>             $ops
+	 * @param array<string,array<string,mixed>>          $status
+	 * @return string[]
+	 */
+	private function payment_follow_up( array $ops, array $status, bool $live = true ): array {
+		$notes = array();
+		foreach ( $ops as $op ) {
+			if ( 'add_payment' !== ( $op['op'] ?? '' ) ) {
+				continue;
+			}
+			$gateway = (string) ( $op['payment']['gateway'] ?? '' );
+			$label   = (string) ( EfbPayments::GATEWAYS[ $gateway ]['label'] ?? '' );
+			if ( false === ( $status[ $gateway ]['keys_saved'] ?? null ) ) {
+				/* translators: %s: payment gateway name, e.g. Stripe. */
+				$notes[] = sprintf( __( '%s needs your account keys before this can take a real payment. Add them in its Easy Form Builder settings page; I never see or change keys.', 'ai-site-assistant-autopilot' ), $label );
+			}
+			$notes[] = $live
+				? __( 'Prices and the currency are in the form now. Check them, then save the form in Easy Form Builder.', 'ai-site-assistant-autopilot' )
+				: __( 'The prices and the currency are shown in the preview. Check them before you create the form.', 'ai-site-assistant-autopilot' );
+		}
+
+		return $notes;
+	}
+
+	/**
+	 * Buttons that go with a payment answer: the add-on page, the gateway's settings, or the upgrade page.
+	 *
+	 * @param array<int,array{op:string,reason:string}> $dropped
+	 * @param array<int,array<string,mixed>>            $ops
+	 * @param array<string,array<string,mixed>>         $status
+	 * @return array<int,array{label:string,url:string}>
+	 */
+	private function payment_links( array $dropped, array $ops, array $status ): array {
+		$links = array();
+		foreach ( $dropped as $d ) {
+			$parts = explode( ':', (string) ( $d['reason'] ?? '' ) );
+			if ( 'payment_addon_inactive' === $parts[0] ) {
+				$links[] = array(
+					'label' => __( 'Open EFB Add-ons', 'ai-site-assistant-autopilot' ),
+					'url'   => admin_url( 'admin.php?page=Emsfb_addon' ),
+				);
+			} elseif ( 'payment_requires_pro' === $parts[0] ) {
+				$links[] = array(
+					'label' => __( 'See EFB Pro', 'ai-site-assistant-autopilot' ),
+					'url'   => EfbLicense::upgrade_url(),
+				);
+			}
+		}
+		foreach ( $ops as $op ) {
+			if ( 'add_payment' !== ( $op['op'] ?? '' ) ) {
+				continue;
+			}
+			$gateway = (string) ( $op['payment']['gateway'] ?? '' );
+			if ( false === ( $status[ $gateway ]['keys_saved'] ?? null ) && ! empty( $status[ $gateway ]['page'] ) ) {
+				$links[] = array(
+					/* translators: %s: payment gateway name, e.g. Stripe. */
+					'label' => sprintf( __( 'Open %s settings', 'ai-site-assistant-autopilot' ), (string) ( $status[ $gateway ]['label'] ?? '' ) ),
+					'url'   => admin_url( 'admin.php?page=' . (string) $status[ $gateway ]['page'] ),
+				);
+			}
+		}
+
+		return array_values( array_unique( $links, SORT_REGULAR ) );
+	}
+
 	/**
 	 * Turn validation rejections into sentences for the admin. Used whether the
 	 * batch was refused outright or only partly applied — either way the reply
@@ -840,6 +1008,8 @@ final class EfbCopilotController {
 				$definition = EfbFormModel::field_type( $type );
 				/* translators: %s: field name. */
 				$notes[] = sprintf( __( 'I can configure a "%s" field but not add one — drag it in from the Easy Form Builder palette, then ask me again.', 'ai-site-assistant-autopilot' ), (string) ( $definition['label'] ?? $type ) );
+			} elseif ( str_starts_with( $reason, 'payment_' ) ) {
+				$notes[] = $this->payment_note( $reason );
 			} elseif ( 'logic_addon_inactive' === $reason ) {
 				$notes[] = __( 'Conditional logic needs Easy Form Builder’s Conditional Logic add-on. Activate it under Easy Form Builder → Add-ons, reload this form and ask me again.', 'ai-site-assistant-autopilot' );
 			} elseif ( 'logic_needs_plan' === $reason ) {
@@ -1291,26 +1461,79 @@ final class EfbCopilotController {
 	 * @param array<string, mixed> $plan
 	 * @return array<string, mixed>
 	 */
+	/**
+	 * The payment as rows of the preview, with every price in plain sight so approving the form is approving the prices.
+	 *
+	 * @param array<string,mixed> $payment
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function payment_preview_rows( array $payment ): array {
+		if ( array() === $payment ) {
+			return array();
+		}
+		$currency = strtoupper( (string) ( $payment['currency'] ?? '' ) );
+		$rows     = array();
+		$items    = is_array( $payment['items'] ?? null ) ? $payment['items'] : array();
+		if ( array() !== $items ) {
+			$rows[] = array(
+				'label'    => '' !== (string) ( $payment['label'] ?? '' ) ? (string) $payment['label'] : __( 'Choose an option', 'ai-site-assistant-autopilot' ),
+				'type'     => (string) ( EfbPayments::CHOICE_FIELDS[ (string) ( $payment['choice_type'] ?? 'radio' ) ] ?? 'payRadio' ),
+				'required' => true,
+				'width'    => 'full',
+				'help'     => '',
+				'options'  => array_map( static fn ( array $item ): string => $item['label'] . ' — ' . rtrim( rtrim( number_format( (float) $item['price'], 2, '.', '' ), '0' ), '.' ) . ' ' . $currency, $items ),
+			);
+		} else {
+			$rows[] = array(
+				'label'    => (string) ( $payment['amount_label'] ?? '' ),
+				'type'     => 'prcfld',
+				'required' => true,
+				'width'    => 'full',
+				'help'     => '',
+				'options'  => array(),
+			);
+		}
+		$gateway = (string) ( $payment['gateway'] ?? '' );
+		$rows[]  = array(
+			'label'    => (string) ( EfbPayments::GATEWAYS[ $gateway ]['label'] ?? '' ) . ' · ' . $currency,
+			'type'     => (string) ( EfbPayments::gateway_field( $gateway ) ?? 'stripe' ),
+			'required' => true,
+			'width'    => 'full',
+			'help'     => '',
+			'options'  => array(),
+		);
+
+		return $rows;
+	}
+
 	private function build_preview( array $plan, string $connector_name, bool $shield = false ): array {
 		$fields    = (array) $plan['fields'];
 		$has_email = (bool) array_filter( $fields, static fn ( $f ): bool => is_array( $f ) && 'email' === ( $f['type'] ?? '' ) );
+		$pay_rows  = $this->payment_preview_rows( is_array( $plan['payment'] ?? null ) ? $plan['payment'] : array() );
 		$steps     = 1 + count( array_filter( $fields, static fn ( $f ): bool => is_array( $f ) && in_array( $f['type'] ?? '', array( 'steps', 'step' ), true ) ) );
 
 		return array(
 			'title'                => $plan['title'],
-			'fields'               => array_map(
-				static function ( array $f ): array {
-					return array(
-						'label'    => $f['label'],
-						'type'     => $f['type'],
-						'required' => (bool) $f['required'],
-						'width'    => $f['width'] ?? 'full',
-						'help'     => (string) ( $f['help'] ?? '' ),
-						'options'  => $f['options'],
-					);
-				},
-				$fields
+			'fields'               => array_merge(
+				array_map(
+					static function ( array $f ): array {
+						return array(
+							'label'    => $f['label'],
+							'type'     => $f['type'],
+							'required' => (bool) $f['required'],
+							'width'    => $f['width'] ?? 'full',
+							'help'     => (string) ( $f['help'] ?? '' ),
+							'options'  => $f['options'],
+						);
+					},
+					$fields
+				),
+				$pay_rows
 			),
+			'payment'              => is_array( $plan['payment'] ?? null ) ? array(
+				'gateway'  => (string) ( EfbPayments::GATEWAYS[ $plan['payment']['gateway'] ]['label'] ?? '' ),
+				'currency' => strtoupper( (string) $plan['payment']['currency'] ),
+			) : null,
 			'submit_button'        => (string) ( $plan['submit_button'] ?? '' ),
 			'confirmation_message' => $plan['confirmation_message'] ?? '',
 			// Shown before approval so the admin sees exactly who will be emailed.

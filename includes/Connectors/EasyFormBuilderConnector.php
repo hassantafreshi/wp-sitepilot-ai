@@ -105,6 +105,8 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 		$items = ( new EfbFormConverter() )->convert( $plan );
 		$value = EfbFormConverter::encode_for_storage( $items );
 		$title = (string) ( $plan['title'] ?? 'Form' );
+		// EFB keeps the kind of form in its own column too; a form with online payment is a payment form.
+		$form_type = 'payment' === ( $items[0]['type'] ?? '' ) ? 'payment' : 'form';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$ok = $wpdb->insert(
@@ -113,7 +115,7 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 				'form_name'        => $title,
 				'form_structer'    => $value,
 				'form_email'       => '',
-				'form_type'        => 'form',
+				'form_type'        => $form_type,
 				'form_created_by'  => (string) get_current_user_id(),
 				'form_access_by'   => '',
 				'form_create_date' => gmdate( 'Y-m-d H:i:s' ),

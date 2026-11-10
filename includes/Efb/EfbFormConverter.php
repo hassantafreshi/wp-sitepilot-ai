@@ -48,6 +48,12 @@ final class EfbFormConverter {
 					'done'          => __( 'You’re all done', 'ai-site-assistant-autopilot' ),
 					'tracking_code' => __( 'Confirmation Code', 'ai-site-assistant-autopilot' ),
 					'fill_required' => __( 'Please fill in all required fields.', 'ai-site-assistant-autopilot' ),
+					'pay_choose'    => __( 'Choose an option', 'ai-site-assistant-autopilot' ),
+					'pay_amount'    => __( 'Amount', 'ai-site-assistant-autopilot' ),
+					'pay_total'     => __( 'Total', 'ai-site-assistant-autopilot' ),
+					'pay_stripe'    => __( 'Pay by card', 'ai-site-assistant-autopilot' ),
+					'pay_paypal'    => __( 'Pay with PayPal', 'ai-site-assistant-autopilot' ),
+					'pay_zarinpal'  => __( 'Pay online', 'ai-site-assistant-autopilot' ),
 				)
 			);
 		}
@@ -154,6 +160,19 @@ final class EfbFormConverter {
 			}
 		}
 
+		// Online payment goes on the last page: the priced fields, the total, then the gateway itself.
+		if ( is_array( $plan['payment'] ?? null ) ) {
+			$payment = $plan['payment'];
+			foreach ( $this->build_payment( $payment, array_map( 'strval', array_keys( $used_ids ) ) ) as $item ) {
+				++$amount;
+				++$step_contents;
+				$item['step']   = (string) $step_no;
+				$item['amount'] = (string) $amount;
+				$items[]        = $item;
+			}
+			$items[0] = array_merge( $items[0], EfbPayments::form_settings( (string) $payment['gateway'], (string) ( $payment['currency'] ?? '' ) ) );
+		}
+
 		// A break after the last field would ship an empty final page.
 		if ( 0 === $step_contents && $step_no > 1 ) {
 			array_splice( $items, $step_index, 1 );
@@ -192,6 +211,79 @@ final class EfbFormConverter {
 		}
 
 		return $items;
+	}
+
+	/**
+	 * The fields of an online payment, in the order EFB's own builder lays them out: the priced choices
+	 * (or a free amount), the total, and the gateway field. A validated payment from EfbPayments only:
+	 * every price in it came from the request, and no key or secret is ever part of a form.
+	 *
+	 * @param array<string,mixed> $payment       Result of EfbPayments::validate_payment().
+	 * @param string[]            $existing_ids  IDs already present in the form.
+	 * @param bool                $with_gateway  False when the open form already has this gateway's field.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function build_payment( array $payment, array $existing_ids = array(), bool $with_gateway = true ): array {
+		$texts   = self::texts();
+		$gateway = (string) ( $payment['gateway'] ?? '' );
+		$used    = $existing_ids;
+		$out     = array();
+		$push    = function ( array $field ) use ( &$used, &$out ): array {
+			$built = $this->build_field( $field, $used );
+			foreach ( $built as $item ) {
+				$used[] = (string) ( $item['id_'] ?? '' );
+			}
+			$out = array_merge( $out, $built );
+
+			return $built;
+		};
+
+		$items = is_array( $payment['items'] ?? null ) ? $payment['items'] : array();
+		if ( array() !== $items ) {
+			$type  = EfbPayments::CHOICE_FIELDS[ (string) ( $payment['choice_type'] ?? 'radio' ) ] ?? 'payRadio';
+			$built = $push(
+				array(
+					'type'     => $type,
+					'label'    => '' !== (string) ( $payment['label'] ?? '' ) ? (string) $payment['label'] : $texts['pay_choose'],
+					'required' => true,
+					'options'  => array_map( static fn ( array $item ): string => (string) $item['label'], $items ),
+				)
+			);
+			// The n-th option carries the n-th price, written the way EFB's builder keeps one.
+			$n = 0;
+			foreach ( $out as $index => $item ) {
+				if ( 'option' === ( $item['type'] ?? '' ) && isset( $items[ $n ] ) && ( $item['parent'] ?? '' ) === ( $built[0]['id_'] ?? '' ) ) {
+					$out[ $index ]['price'] = rtrim( rtrim( number_format( (float) $items[ $n ]['price'], 2, '.', '' ), '0' ), '.' );
+					++$n;
+				}
+			}
+		} else {
+			$push(
+				array(
+					'type'     => 'prcfld',
+					'label'    => '' !== (string) ( $payment['amount_label'] ?? '' ) ? (string) $payment['amount_label'] : $texts['pay_amount'],
+					'required' => true,
+				)
+			);
+		}
+		$push(
+			array(
+				'type'     => 'ttlprc',
+				'label'    => $texts['pay_total'],
+				'required' => false,
+			)
+		);
+		if ( $with_gateway && null !== EfbPayments::gateway_field( $gateway ) ) {
+			$push(
+				array(
+					'type'     => (string) EfbPayments::gateway_field( $gateway ),
+					'label'    => $texts[ 'pay_' . $gateway ] ?? $texts['pay_stripe'],
+					'required' => true,
+				)
+			);
+		}
+
+		return $out;
 	}
 
 	/**
@@ -298,7 +390,7 @@ final class EfbFormConverter {
 			foreach ( $options as $row ) {
 				$children[] = $this->child( 'matrix_row', $key, ++$n, $row, $used );
 			}
-		} elseif ( array() !== $options && in_array( $type, EfbFormModel::option_types(), true ) ) {
+		} elseif ( array() !== $options && in_array( $type, array_merge( EfbFormModel::option_types(), array_values( EfbPayments::CHOICE_FIELDS ) ), true ) ) {
 			$el = $this->apply_selection_cap( $el, count( $options ) );
 			$n  = 0;
 			foreach ( $options as $opt ) {

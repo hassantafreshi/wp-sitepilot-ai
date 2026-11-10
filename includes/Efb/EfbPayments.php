@@ -71,10 +71,10 @@ final class EfbPayments {
 	public static function resolve_gateway( string $name ): ?string {
 		$needle = strtolower( preg_replace( '/[^a-z]/i', '', $name ) ?? '' );
 		$map    = array(
-			'stripe'      => 'stripe',
-			'paypal'      => 'paypal',
-			'zarinpal'    => 'zarinpal',
-			'persiapay'   => 'zarinpal',
+			'stripe'        => 'stripe',
+			'paypal'        => 'paypal',
+			'zarinpal'      => 'zarinpal',
+			'persiapay'     => 'zarinpal',
 			'persiapayment' => 'zarinpal',
 		);
 
@@ -123,7 +123,23 @@ final class EfbPayments {
 	public static function price( $raw ): ?float {
 		if ( is_string( $raw ) ) {
 			// "$20", "20.50", "1,200" and Persian digits are all things people type.
-			$raw = strtr( $raw, array( '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9', '٫' => '.', '٬' => '' ) );
+			$raw = strtr(
+				$raw,
+				array(
+					'۰' => '0',
+					'۱' => '1',
+					'۲' => '2',
+					'۳' => '3',
+					'۴' => '4',
+					'۵' => '5',
+					'۶' => '6',
+					'۷' => '7',
+					'۸' => '8',
+					'۹' => '9',
+					'٫' => '.',
+					'٬' => '',
+				)
+			);
 			$raw = preg_replace( '/[^0-9.]/', '', str_replace( ',', '', $raw ) ) ?? '';
 		}
 		if ( ! is_numeric( $raw ) ) {
@@ -216,5 +232,113 @@ final class EfbPayments {
 		}
 
 		return implode( "\n", $lines );
+	}
+
+	/**
+	 * Check a payment request from the model and turn it into something safe to build.
+	 *
+	 * Nothing here invents a price: every amount must come from the request. A request is refused, with a
+	 * reason the chat can explain, when the gateway is unknown, the licence has no Pro fields, the gateway's
+	 * add-on is off, the currency is one the gateway cannot charge, or no price or amount was given.
+	 *
+	 * @param mixed                                                                                       $raw
+	 * @param array<string,array{label:string,addon_active:bool,keys_saved:?bool,field:string,page:string,default_currency:string}> $status Result of status().
+	 * @return array{ok:bool,reason?:string,payment?:array{gateway:string,currency:string,label:string,choice_type:string,items:array<int,array{label:string,price:float}>,amount_label:string}}
+	 */
+	public static function validate_payment( $raw, array $status, bool $has_pro ): array {
+		$raw     = is_array( $raw ) ? $raw : array();
+		$gateway = self::resolve_gateway( (string) ( $raw['gateway'] ?? '' ) );
+		if ( null === $gateway ) {
+			return array(
+				'ok'     => false,
+				'reason' => 'payment_gateway_unknown',
+			);
+		}
+		if ( ! $has_pro ) {
+			return array(
+				'ok'     => false,
+				'reason' => 'payment_requires_pro:' . $gateway,
+			);
+		}
+		if ( empty( $status[ $gateway ]['addon_active'] ) ) {
+			return array(
+				'ok'     => false,
+				'reason' => 'payment_addon_inactive:' . $gateway,
+			);
+		}
+
+		$requested = trim( (string) ( $raw['currency'] ?? '' ) );
+		if ( '' !== $requested && ! self::supports_currency( $gateway, $requested ) ) {
+			return array(
+				'ok'     => false,
+				'reason' => 'payment_currency_unsupported:' . $gateway . ':' . strtolower( substr( $requested, 0, 8 ) ),
+			);
+		}
+
+		$items = array();
+		foreach ( (array) ( $raw['items'] ?? array() ) as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			$label = trim( (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( (string) ( $item['label'] ?? '' ) ) ) );
+			$price = self::price( $item['price'] ?? null );
+			if ( '' === $label || null === $price ) {
+				return array(
+					'ok'     => false,
+					'reason' => 'payment_needs_price',
+				);
+			}
+			$items[] = array(
+				'label' => function_exists( 'mb_substr' ) ? mb_substr( $label, 0, 80 ) : substr( $label, 0, 80 ),
+				'price' => $price,
+			);
+		}
+		$items        = array_slice( $items, 0, 20 );
+		$amount_label = trim( (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( (string) ( $raw['amount_label'] ?? '' ) ) ) );
+		if ( array() === $items && '' === $amount_label ) {
+			return array(
+				'ok'     => false,
+				'reason' => 'payment_needs_price',
+			);
+		}
+
+		$choice = strtolower( trim( (string) ( $raw['choice_type'] ?? 'radio' ) ) );
+		if ( ! isset( self::CHOICE_FIELDS[ $choice ] ) ) {
+			$choice = 'radio';
+		}
+		$label = trim( (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( (string) ( $raw['label'] ?? '' ) ) ) );
+
+		return array(
+			'ok'      => true,
+			'payment' => array(
+				'gateway'      => $gateway,
+				'currency'     => self::currency( $gateway, $requested ),
+				'label'        => function_exists( 'mb_substr' ) ? mb_substr( $label, 0, 120 ) : substr( $label, 0, 120 ),
+				'choice_type'  => $choice,
+				// A list of priced options wins over a free amount; both at once would ask twice.
+				'items'        => $items,
+				'amount_label' => array() === $items ? ( function_exists( 'mb_substr' ) ? mb_substr( $amount_label, 0, 120 ) : substr( $amount_label, 0, 120 ) ) : '',
+			),
+		);
+	}
+
+	/**
+	 * The form-level settings EFB itself writes when a gateway field is added in its builder
+	 * (val-efb.js and admin-efb.js: type, getway, currency, paymentmethod, and persiaPay for ZarinPal).
+	 *
+	 * @return array<string,string>
+	 */
+	public static function form_settings( string $gateway, string $currency ): array {
+		$settings = array(
+			'type'          => 'payment',
+			'getway'        => 'zarinpal' === $gateway ? 'persiaPay' : $gateway,
+			'currency'      => self::currency( $gateway, $currency ),
+			'paymentmethod' => 'charge',
+		);
+		if ( 'zarinpal' === $gateway ) {
+			$settings['persiaPay'] = 'zarinPal';
+		}
+
+		return $settings;
 	}
 }

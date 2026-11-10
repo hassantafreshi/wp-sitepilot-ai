@@ -170,7 +170,10 @@
 		checkbox: [ 'typeCheckboxes', 'Checkboxes', 'checkbox' ], chlCheckBox: [ 'typeCheckboxes', 'Checkboxes', 'checkbox' ],
 		date: [ 'typeDate', 'Date', 'calendar' ], file: [ 'typeFile', 'File upload', 'upload' ], dadfile: [ 'typeFile', 'File upload', 'upload' ],
 		url: [ 'typeWebsite', 'Website', 'link' ], rating: [ 'typeRating', 'Rating', 'star' ], trmCheckbox: [ 'typeConsent', 'Consent', 'shield' ],
-		yesNo: [ 'typeYesNo', 'Yes / No', 'radio' ], switch: [ 'typeYesNo', 'Yes / No', 'radio' ]
+		yesNo: [ 'typeYesNo', 'Yes / No', 'radio' ], switch: [ 'typeYesNo', 'Yes / No', 'radio' ],
+		payRadio: [ 'typePayChoice', 'Priced choice', 'radio' ], paySelect: [ 'typePayChoice', 'Priced choice', 'select' ], payCheckbox: [ 'typePayChoice', 'Priced choice', 'checkbox' ], payMultiselect: [ 'typePayChoice', 'Priced choice', 'select' ],
+		prcfld: [ 'typePayAmount', 'Amount', 'hash' ], ttlprc: [ 'typePayTotal', 'Total', 'hash' ],
+		stripe: [ 'typePayment', 'Payment', 'key' ], paypal: [ 'typePayment', 'Payment', 'key' ], persiaPay: [ 'typePayment', 'Payment', 'key' ]
 	};
 	function typeLabel( type ) { var entry = TYPE_LABELS[ type ]; return entry ? t( entry[ 0 ], entry[ 1 ] ) : String( type || '' ); }
 	function typeIcon( type ) { var entry = TYPE_LABELS[ type ]; return entry ? entry[ 2 ] : 'text'; }
@@ -186,6 +189,13 @@
 		} );
 	}
 	// EFB only loads its Conditional Logic runtime when the AdnSMF add-on is active.
+	/* Which payment add-ons Easy Form Builder has switched on: three codes, on or off, nothing else leaves the page. */
+	function paymentAddons() {
+		var out = {};
+		if ( typeof efb_var === 'undefined' || ! efb_var || ! efb_var.addons ) { return out; }
+		[ 'AdnSPF', 'AdnPAP', 'AdnPPF' ].forEach( function ( code ) { out[ code ] = Number( efb_var.addons[ code ] ) >= 1 ? 1 : 0; } );
+		return out;
+	}
 	function logicAddonActive() { return typeof efb_var !== 'undefined' && !! efb_var && !! efb_var.addons && Number( efb_var.addons.AdnSMF ) >= 1; }
 	function liveLogicRules() { return hasLiveForm() && Array.isArray( valj_efb[ 0 ].logic_rules ) ? valj_efb[ 0 ].logic_rules : []; }
 	// Human Shield (AdnHSH) is site-wide spam protection: active means every form is covered.
@@ -380,6 +390,8 @@
 		target_is_not_a_choice_field: [ 'reasonNotChoiceField', 'options can only be added to a choice field' ],
 		option_not_found: [ 'reasonOptionNotFound', 'the option was not found' ],
 		logic_addon_inactive: [ 'reasonLogicAddonInactive', 'the Conditional Logic add-on is not active on this form' ],
+		payment_gateway_conflict: [ 'reasonPaymentConflict', 'this form already takes payment through another gateway' ],
+		payment_template_missing: [ 'reasonPaymentTemplate', 'the payment fields could not be prepared' ],
 		unsupported_operation: [ 'reasonUnsupportedOperation', 'this change is not supported' ],
 		no_operation: [ 'reasonNoOperation', 'the reply contained no change to apply' ],
 		exception: [ 'reasonException', 'an unexpected error stopped this change' ],
@@ -473,6 +485,22 @@
 		done( report, t( 'fieldAdded', 'Added “%s”', fieldLabel ), 'add', String( main.id_ ), { type: String( main.type ), required: main.required === true || main.required === '1' || main.required === 1, label: fieldLabel, options: items.filter( function ( it ) { return it.type === 'option'; } ).map( function ( it ) { return String( it.value || '' ); } ) } );
 		report.changed = true;
 	}
+	/* Online payment: the priced fields and the gateway field go in as items, and the form takes the same
+	   settings Easy Form Builder writes itself when its gateway field is added (type, getway, currency, paymentmethod).
+	   A form has one gateway; no key or secret is ever touched. */
+	function applyPayment( op, report, index ) {
+		var form = valj_efb[ 0 ] || {};
+		var settings = op.form_settings && typeof op.form_settings === 'object' ? op.form_settings : null;
+		if ( ! settings || ! settings.getway || ! Array.isArray( op.items ) || ! op.items.length ) { failure( report, index, op, 'payment_template_missing' ); return; }
+		if ( form.getway && form.type === 'payment' && form.getway !== settings.getway ) { failure( report, index, op, 'payment_gateway_conflict' ); return; }
+		var before = report.items.length;
+		addFieldItems( op, report, index, '' );
+		if ( ! report.changed && report.items.length === before ) { return; }
+		Object.keys( settings ).forEach( function ( key ) { form[ key ] = settings[ key ]; } );
+		form.type = 'payment';
+		try { if ( typeof form_type_emsFormBuilder !== 'undefined' ) { form_type_emsFormBuilder = 'payment'; } } catch ( e ) {}
+		report.changed = true;
+	}
 	function addStepItem( op, report, index ) {
 		var source = op && op.item && typeof op.item === 'object' ? op.item : null;
 		if ( ! source || source.type !== 'step' ) { failure( report, index, op || {}, 'step_template_missing' ); return ''; }
@@ -549,6 +577,7 @@
 				}
 				else if ( op.op === 'add_step' ) { var newStep = addStepItem( op, report, index ); if ( newStep && op.step_ref ) { stepRefs[ op.step_ref ] = newStep; } }
 				else if ( op.op === 'add_field' ) { addFieldItems( op, report, index, op.step_ref ? stepRefs[ op.step_ref ] : '' ); }
+				else if ( op.op === 'add_payment' ) { applyPayment( op, report, index ); }
 				else if ( op.op === 'remove_field' ) { var rf = findField( op.target ); if ( ! rf ) { failure( report, index, op, 'field_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return it !== rf && it.parent !== rf.id_; } ); window.valj_efb = valj_efb; done( report, t( 'fieldRemoved', 'Removed “%s”', op.target ), 'remove', '' ); report.changed = true; }
 				else if ( op.op === 'add_option' ) {
 					var af = findField( op.target ); if ( ! af ) { failure( report, index, op, 'field_not_found' ); return; }
@@ -849,6 +878,14 @@
 		else if ( data.type === 'help' ) { renderHelp( data ); }
 		else if ( data.type === 'list' ) { renderList( data, traceId ); }
 		else { renderMessage( data ); }
+		// Where to go next when a payment needs an add-on, a licence or keys: plain links, opened in a new tab.
+		if ( Array.isArray( data.links ) && data.links.length ) {
+			var row = el( 'div', { class: 'aisa-ai-card__foot', 'data-sp-efb-links': '' } );
+			data.links.slice( 0, 3 ).forEach( function ( link ) {
+				if ( link && /^https?:\/\//i.test( String( link.url || '' ) ) ) { row.appendChild( el( 'a', { class: 'aisa-ai-btn aisa-ai-btn--sm aisaautopilot-efb-btn', href: link.url, target: '_blank', rel: 'noopener noreferrer' }, [ el( 'span', { text: String( link.label || '' ) } ), icon( 'ext', 13 ) ] ) ); }
+			} );
+			if ( row.childNodes.length ) { addAi( row ); }
+		}
 		// Cards are added after their turn, so the thread scrolls once they are in.
 		scrollDown();
 	}
@@ -891,7 +928,7 @@
 		var selected = selectedLiveField();
 		var selectedId = selected ? String( selected.id_ ) : '';
 		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, step_count: steps.length, selected_field: selectedId, field_ids: fields.map( function ( field ) { return field.id; } ) } );
-		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps, selected_field: selectedId, logic_addon: logicAddonActive(), logic_rules: liveLogicRules(), captcha: liveCaptcha(), spam_shield: spamShieldActive() } )
+		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps, selected_field: selectedId, logic_addon: logicAddonActive(), addons: paymentAddons(), logic_rules: liveLogicRules(), captcha: liveCaptcha(), spam_shield: spamShieldActive() } )
 			.then( function ( res ) {
 				removeTyping(); setBusy( false );
 				var data = res.data || { type: 'message', reply: t( 'genericError', 'Sorry, something went wrong.' ) };

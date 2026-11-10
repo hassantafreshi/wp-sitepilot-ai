@@ -23,11 +23,12 @@ final class EfbChatSkill {
 	 * @param array<int,array{id:string,label:string}>             $steps
 	 * @param array<string,mixed>                                  $license
 	 * @param array{id:string,label:string,type:string}|null        $selected_field
-	 * @param array{logic?:bool, logic_rules?:string[]}             $form_context Whether EFB's Conditional Logic add-on is active, and the open form's rules in plain language.
+	 * @param array{logic?:bool, logic_rules?:string[], payment?:array<string,mixed>} $form_context Whether EFB's Conditional Logic add-on is active, and the open form's rules in plain language.
 	 * @return array<string,mixed>
 	 * @throws \AISAAutoPilot\Providers\ProviderException
 	 */
 	public function respond( string $message, array $history, bool $has_form, array $fields, array $steps = array(), array $license = array(), ?array $selected_field = null, array $form_context = array() ): array {
+		// Whatever the browser reports about payment is already reduced to on/off by EfbPayments::status().
 		return $this->provider->generate_structured_output(
 			$this->system_prompt(),
 			$this->user_prompt( $message, $history, $has_form, $fields, $steps, $license, $selected_field, $form_context )
@@ -76,7 +77,20 @@ final class EfbChatSkill {
 				'Allowed new-form field types:',
 				"{$caps}",
 				'Design a complete, useful form with at most 30 fields; split long forms (more than about 10 questions) into',
-				'steps. Never add payment, passwords, login, or registration fields to a new form automatically.',
+				'steps. Never add passwords, login, or registration fields to a new form.',
+				'ONLINE PAYMENT: when the user asks for Stripe, PayPal, ZarinPal, "payment", "pay online", "payment gateway", a deposit,',
+				'a donation, an order with prices, tickets or a paid booking (in any language, e.g. "درگاه پرداخت"), they want a payment',
+				'in the form. Use the "payment" object below; never answer such a request with answer_help or "do it yourself".',
+				'Read PAYMENT_STATUS: if the gateway add-on is not active the server explains how to turn it on, so still emit the payment.',
+				'Use only prices, amounts and a currency the user wrote. Never invent, round or guess a price. If they did not give a price',
+				'or amount (or named no gateway when several are active), use action "ask" with ONE short question that asks for exactly',
+				'what is missing (the price or packages, and the currency if unclear). Never write keys, secrets or account ids.',
+				'ZarinPal charges in rials (currency "irr"). If the user gives a price in tomans, write it in rials (tomans x 10) and say so in the reply.',
+				'"payment": { "gateway": "stripe|paypal|zarinpal", "currency": "usd", "choice_type": "radio|select|checkbox",',
+				'  "label": "Choose a package", "items": [ { "label": "Basic", "price": 20 } ], "amount_label": "Donation amount" }',
+				'Use items for fixed prices (one item for a single fixed fee such as a $50 deposit) and amount_label instead of items when the',
+				'person pays any amount they choose. The server adds the total and the gateway field. With create_form put "payment"',
+				'inside "form" next to "fields"; with customize use { "op": "add_payment", ...the same keys... }.',
 				'notify_admin emails each submission to the site administrator; confirm_to_respondent emails the person who',
 				'filled the form (needs an email field). They are switches only: never write an email address.',
 				'When the form collects personal data (email, phone, uploads, signature), end it with a required trmCheckbox',
@@ -85,6 +99,8 @@ final class EfbChatSkill {
 				'options and required flags; rewrite text only when asked to improve it.',
 				'',
 				'OPERATIONS for customize. Use the exact label or id from CURRENT_FIELDS for target:',
+				'- { "op": "add_payment", "gateway": "stripe|paypal|zarinpal", "currency": "usd", "choice_type": "radio",',
+				'      "label": "Choose a package", "items": [ { "label": "Basic", "price": 20 } ] }   (see ONLINE PAYMENT)',
 				'- { "op": "add_field", "field": { "type": "...", "label": "...", "required": true,',
 				'      "placeholder": "...", "width": "full|half", "options": ["for choice fields"] } }',
 				'- { "op": "add_step", "label": "Personal information", "step_ref": "personal_info" }',
@@ -123,10 +139,11 @@ final class EfbChatSkill {
 				'- Use add_field only for IDs marked add_field in the catalogue. For a Pro field, emit that exact',
 				'  add_field operation; the server will display EFB\'s official Pro message and purchase link on Free.',
 				'- An ID marked "recognized; do not auto-create" needs an add-on, credentials, raw content, or special',
-				'  child data. Use answer_help; never substitute another field and never claim it was added.',
+				'  child data. Use answer_help; never substitute another field and never claim it was added. Payment IDs (stripe, paypal,',
+				'  payRadio, paySelect, payCheckbox, prcfld, ttlprc) are added only through add_payment, never with add_field.',
 				'- To replace a field, emit remove_field and add_field in the same operations array.',
-				'- Never guess or configure add-on credentials, payment credentials, SMTP, raw HTML, external URLs,',
-				'  notification recipients, or captcha. Route those requests to answer_help.',
+				'- Never guess or configure add-on credentials, payment credentials or keys, SMTP, raw HTML, external URLs,',
+				'  notification recipients, or captcha. Route those requests to answer_help. Adding a payment to the form is NOT one of them: use add_payment.',
 				'- Conditional logic: use add_logic_rule only when LOGIC_ADDON=yes and EFB_PLAN is pro or free_plus (Free Plus:',
 				'  at most 3 rules per form, 2 conditions per rule). EFB hides every field or step a show rule targets and',
 				'  applies a rule only while its condition holds, so "show X only when…" is ONE show_field rule and needs no',
@@ -157,6 +174,9 @@ final class EfbChatSkill {
 	private function user_prompt( string $message, array $history, bool $has_form, array $fields, array $steps, array $license, ?array $selected_field, array $form_context = array() ): string {
 		$ctx  = 'FORM_OPEN=' . ( $has_form ? 'yes' : 'no' ) . "\n";
 		$ctx .= 'EFB_PLAN=' . (string) ( $license['tier'] ?? 'unknown' ) . "\n";
+		if ( is_array( $form_context['payment'] ?? null ) && array() !== $form_context['payment'] ) {
+			$ctx .= "PAYMENT_STATUS:\n" . EfbPayments::prompt_block( $form_context['payment'] ) . "\n";
+		}
 		if ( $has_form ) {
 			$ctx .= 'LOGIC_ADDON=' . ( ! empty( $form_context['logic'] ) ? 'yes' : 'no' ) . "\n";
 		}

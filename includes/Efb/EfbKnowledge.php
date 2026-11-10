@@ -41,7 +41,10 @@ final class EfbKnowledge {
 		if ( '' === $q ) {
 			return self::suggestions();
 		}
-		$tokens = array_filter( explode( ' ', $q ), static fn ( $t ) => strlen( $t ) >= 2 );
+		// Common words match half the entries ("how do I add the form ..."), so only words that say
+		// something count; a question that shares none is answered with the topic list, not a wrong article.
+		$stop   = array( 'the', 'and', 'for', 'how', 'can', 'you', 'your', 'with', 'this', 'that', 'form', 'forms', 'field', 'fields', 'add', 'set', 'make', 'change', 'want', 'need', 'please', 'into', 'from', 'what', 'where', 'does', 'its', 'are', 'not', 'use' );
+		$tokens = array_filter( explode( ' ', $q ), static fn ( $t ) => strlen( $t ) >= 3 && ! in_array( $t, $stop, true ) );
 
 		$best       = null;
 		$best_score = 0;
@@ -61,8 +64,9 @@ final class EfbKnowledge {
 					$score += 5 + substr_count( $a, ' ' );
 				}
 				// Token overlap (weaker signal).
+				$alias_words = explode( ' ', $a );
 				foreach ( $tokens as $t ) {
-					if ( str_contains( $a, $t ) ) {
+					if ( in_array( $t, $alias_words, true ) ) {
 						++$score;
 					}
 				}
@@ -74,7 +78,7 @@ final class EfbKnowledge {
 			}
 		}
 
-		if ( null === $best || $best_score < 2 ) {
+		if ( null === $best || $best_score < 3 ) {
 			return self::suggestions();
 		}
 

@@ -74,4 +74,74 @@ final class EfbPaymentsTest extends TestCase {
 		self::assertStringNotContainsString( 'pk_test', $block );
 		self::assertStringContainsString( 'ZarinPal (zarinpal): add-on not active, keys unknown', $block );
 	}
+
+	/** @return array<string,array<string,mixed>> */
+	private function payment_status( array $addons = array( 'AdnSPF' => 1, 'AdnPAP' => 1 ) ): array {
+		return EfbPayments::status( $addons, '{"stripePKey":"pk_test_abcdef123","stripeSKey":"sk_test_abcdef123"}' );
+	}
+
+	public function test_a_complete_request_becomes_a_clean_payment(): void {
+		$result = EfbPayments::validate_payment(
+			array(
+				'gateway'     => 'Stripe',
+				'currency'    => 'EUR',
+				'choice_type' => 'select',
+				'label'       => 'Choose a package',
+				'items'       => array( array( 'label' => 'Basic', 'price' => '$20' ), array( 'label' => '<b>Pro</b>', 'price' => 50 ) ),
+			),
+			$this->payment_status(),
+			true
+		);
+		self::assertTrue( $result['ok'] );
+		self::assertSame( 'stripe', $result['payment']['gateway'] );
+		self::assertSame( 'eur', $result['payment']['currency'] );
+		self::assertSame( 'select', $result['payment']['choice_type'] );
+		self::assertSame( array( array( 'label' => 'Basic', 'price' => 20.0 ), array( 'label' => 'Pro', 'price' => 50.0 ) ), $result['payment']['items'] );
+		self::assertSame( '', $result['payment']['amount_label'] );
+	}
+
+	public function test_a_free_amount_is_allowed_when_no_options_are_priced(): void {
+		$result = EfbPayments::validate_payment( array( 'gateway' => 'paypal', 'amount_label' => 'Donation amount' ), $this->payment_status(), true );
+		self::assertTrue( $result['ok'] );
+		self::assertSame( 'Donation amount', $result['payment']['amount_label'] );
+		self::assertSame( 'usd', $result['payment']['currency'] );
+		self::assertSame( array(), $result['payment']['items'] );
+	}
+
+	/** @return array<string,array{0:array<string,mixed>,1:array<string,array<string,mixed>>,2:bool,3:string}> */
+	public static function refusals(): array {
+		$on = array( 'AdnSPF' => 1, 'AdnPAP' => 1 );
+
+		return array(
+			'unknown gateway'  => array( array( 'gateway' => 'bitcoin', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, true, 'payment_gateway_unknown' ),
+			'no gateway'       => array( array( 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, true, 'payment_gateway_unknown' ),
+			'free licence'     => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, false, 'payment_requires_pro:stripe' ),
+			'add-on off'       => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), array(), true, 'payment_addon_inactive:stripe' ),
+			'other add-on off' => array( array( 'gateway' => 'zarinpal', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, true, 'payment_addon_inactive:zarinpal' ),
+			'bad currency'     => array( array( 'gateway' => 'paypal', 'currency' => 'inr', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, true, 'payment_currency_unsupported:paypal:inr' ),
+			'no price at all'  => array( array( 'gateway' => 'stripe' ), $on, true, 'payment_needs_price' ),
+			'item without price' => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic' ) ) ), $on, true, 'payment_needs_price' ),
+			'zero price'       => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic', 'price' => 0 ) ) ), $on, true, 'payment_needs_price' ),
+			'negative price'   => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic', 'price' => -3 ) ) ), $on, true, 'payment_needs_price' ),
+			'price in words'   => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic', 'price' => 'cheap' ) ) ), $on, true, 'payment_needs_price' ),
+			'empty label'      => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => ' ', 'price' => 5 ) ) ), $on, true, 'payment_needs_price' ),
+		);
+	}
+
+	/**
+	 * @dataProvider refusals
+	 * @param array<string,mixed> $raw
+	 * @param array<string,mixed> $addons
+	 */
+	public function test_an_incomplete_or_impossible_request_is_refused_with_a_reason( array $raw, array $addons, bool $pro, string $reason ): void {
+		$result = EfbPayments::validate_payment( $raw, EfbPayments::status( $addons, '' ), $pro );
+		self::assertFalse( $result['ok'] );
+		self::assertSame( $reason, $result['reason'] );
+	}
+
+	public function test_form_settings_match_what_the_builder_writes(): void {
+		self::assertSame( array( 'type' => 'payment', 'getway' => 'stripe', 'currency' => 'gbp', 'paymentmethod' => 'charge' ), EfbPayments::form_settings( 'stripe', 'GBP' ) );
+		self::assertSame( array( 'type' => 'payment', 'getway' => 'paypal', 'currency' => 'usd', 'paymentmethod' => 'charge' ), EfbPayments::form_settings( 'paypal', 'doge' ) );
+		self::assertSame( array( 'type' => 'payment', 'getway' => 'persiaPay', 'currency' => 'irr', 'paymentmethod' => 'charge', 'persiaPay' => 'zarinPal' ), EfbPayments::form_settings( 'zarinpal', 'usd' ) );
+	}
 }
