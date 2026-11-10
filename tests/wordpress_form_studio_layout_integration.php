@@ -219,7 +219,7 @@ try {
 	);
 	$css = (string) file_get_contents( AISAAUTOPILOT_DIR . 'assets/frontend/form.css' );
 	$check(
-		false !== strpos( $css, 'repeat(12' ) && false !== strpos( $css, '@container' ) && false !== strpos( $css, '@media (max-width: 520px)' ),
+		false !== strpos( $css, 'repeat(12' ) && false !== strpos( $css, '@container' ) && false !== strpos( $css, '@media (max-width: 400px)' ),
 		'The form stylesheet is a twelve-column grid that stacks on a narrow form'
 	);
 } catch ( Throwable $error ) {

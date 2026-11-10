@@ -195,12 +195,15 @@ final class FormShortcode {
 	private function render_choice_field( array $field, string $name, string $id_attr, string $label, bool $required, string $req_mark, string $describe = '' ): string {
 		$type    = (string) $field['type'];
 		$options = (array) ( $field['options'] ?? array() );
-		$html    = '<fieldset class="aisaautopilot-form__choices"' . $describe . '><legend>' . $label . $req_mark . '</legend>';
+		// One checkbox with no options is a single agreement: its sentence is the label, so the legend only
+		// names the group for assistive technology instead of printing the same words twice.
+		$single = 'checkbox' === $type && array() === $options;
+		$html   = '<fieldset class="aisaautopilot-form__choices"' . $describe . '><legend' . ( $single ? ' class="aisaautopilot-form__sr"' : '' ) . '>' . $label . ( $single ? '' : $req_mark ) . '</legend>';
 
-		if ( 'checkbox' === $type && array() === $options ) {
+		if ( $single ) {
 			$html .= '<label class="aisaautopilot-form__check" for="' . esc_attr( $id_attr ) . '">';
 			$html .= '<input type="checkbox" id="' . esc_attr( $id_attr ) . '" name="' . esc_attr( $name ) . '" value="1"' . ( $required ? ' required' : '' ) . ' /> ';
-			$html .= $label . '</label>';
+			$html .= '<span>' . $label . $req_mark . '</span></label>';
 			return $html . '</fieldset>';
 		}
 
