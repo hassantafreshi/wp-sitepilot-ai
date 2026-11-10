@@ -126,7 +126,7 @@ try {
 	$next[] = $reply_for( $stripe_op );
 	$off    = $chat( array_merge( $open_form, array( 'message' => 'add stripe', 'addons' => array( 'AdnSPF' => 0 ) ) ) );
 	$check(
-		empty( $off['operations'] ) && false !== strpos( implode( ' ', (array) ( $off['errors'] ?? array() ) ), 'Add-ons' ) && false !== strpos( implode( ' ', array_column( $off['links'] ?? array(), 'url' ) ), 'page=Emsfb_addon' ),
+		empty( $off['operations'] ) && false !== strpos( implode( ' ', (array) ( $off['errors'] ?? array() ) ), 'install it for you' ) && false !== strpos( implode( ' ', array_column( $off['links'] ?? array(), 'url' ) ), 'page=Emsfb_addon' ),
 		'A gateway whose add-on is off is refused with the add-on page as the way forward'
 	);
 	$no_price = $stripe_op;
@@ -194,7 +194,7 @@ try {
 	$next[] = array( 'reply' => 'A booking form.', 'action' => 'create_form', 'form' => array( 'title' => 'Booking', 'fields' => array( array( 'type' => 'text', 'label' => 'Name' ) ), 'payment' => array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Deposit', 'price' => 50 ) ) ) ) );
 	$off_new = $chat( array( 'has_form' => false, 'message' => 'booking with stripe deposit', 'addons' => array() ) );
 	$check(
-		'preview' === ( $off_new['type'] ?? '' ) && empty( $off_new['preview']['payment'] ) && false !== strpos( implode( ' ', (array) ( $off_new['errors'] ?? array() ) ), 'Add-ons' ) && ! empty( $off_new['links'] ),
+		'preview' === ( $off_new['type'] ?? '' ) && empty( $off_new['preview']['payment'] ) && false !== strpos( implode( ' ', (array) ( $off_new['errors'] ?? array() ) ), 'install it for you' ) && ! empty( $off_new['links'] ),
 		'A new form whose payment add-on is off is still built, without a payment that could not work, and says what to turn on'
 	);
 

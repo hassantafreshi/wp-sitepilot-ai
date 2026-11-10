@@ -517,6 +517,13 @@ final class EfbCopilotController {
 			}
 
 			$ops = $this->expand_add_fields( $ops, $fields );
+			// Rules about a field this message adds: resolved now that the field has its id.
+			if ( array() !== $verbose['deferred'] ) {
+				$late    = $this->resolve_deferred_rules( $verbose['deferred'], $ops, $fields, $steps, (string) $license['tier'], count( $logic_rules ) );
+				$ops     = array_merge( $ops, $late['ops'] );
+				$dropped = array_merge( $dropped, $late['dropped'] );
+				$notes   = array_merge( $notes, $this->customize_notes( $late['dropped'] ) );
+			}
 			// A payment goes in even when its keys are not saved yet; say what is still missing.
 			$notes = array_merge( $notes, $this->payment_follow_up( $ops, $pay_status ) );
 
@@ -1005,6 +1012,60 @@ final class EfbCopilotController {
 	}
 
 	/**
+	 * Build the rules that named a field added in the same message, against the open form plus the new fields.
+	 *
+	 * @param array<int,mixed>                 $rules
+	 * @param array<int,array<string,mixed>>   $ops    Expanded operations (add_field ops carry their items).
+	 * @param array<int,array<string,mixed>>   $fields
+	 * @param array<int,array<string,mixed>>   $steps
+	 * @return array{ops:array<int,array<string,mixed>>, dropped:array<int,array{op:string,reason:string}>}
+	 */
+	private function resolve_deferred_rules( array $rules, array $ops, array $fields, array $steps, string $tier, int $existing_rules ): array {
+		$items = array();
+		$added = 0;
+		foreach ( $ops as $op ) {
+			if ( 'add_logic_rule' === ( $op['op'] ?? '' ) ) {
+				++$added;
+			}
+			if ( 'add_field' === ( $op['op'] ?? '' ) && is_array( $op['items'] ?? null ) ) {
+				$items = array_merge( $items, $op['items'] );
+			}
+		}
+		$catalog = array_merge( $fields, EfbFormConverter::logic_catalog( $items )['fields'] );
+		$out     = array(
+			'ops'     => array(),
+			'dropped' => array(),
+		);
+		foreach ( $rules as $raw ) {
+			$built = EfbLogicRules::build( $raw, $catalog, $steps );
+			if ( empty( $built['ok'] ) || ! isset( $built['rule'] ) ) {
+				$out['dropped'][] = array(
+					'op'     => 'add_logic_rule',
+					'reason' => 'invalid_logic_rule:' . (string) ( $built['error'] ?? 'unknown' ),
+				);
+				continue;
+			}
+			$refusal = EfbLogicRules::plan_refusal( $tier, $existing_rules + $added, count( $built['rule']['conditions']['items'] ) );
+			if ( '' !== $refusal ) {
+				$out['dropped'][] = array(
+					'op'     => 'add_logic_rule',
+					'reason' => $refusal,
+				);
+				continue;
+			}
+			++$added;
+			$out['ops'][] = array(
+				'op'      => 'add_logic_rule',
+				'rule'    => $built['rule'],
+				'summary' => (string) ( $built['summary'] ?? '' ),
+				'display' => (array) ( $built['display'] ?? array() ),
+			);
+		}
+
+		return $out;
+	}
+
+	/**
 	 * A plan limit in the way gets the way past it as a button: EFB Pro.
 	 *
 	 * @param array<string,mixed>                       $payload
@@ -1048,7 +1109,7 @@ final class EfbCopilotController {
 		switch ( $kind ) {
 			case 'payment_addon_inactive':
 				/* translators: %s: payment gateway name, e.g. Stripe. */
-				return sprintf( __( '%s needs its Easy Form Builder add-on. Turn it on under Easy Form Builder → Add-ons, reload this form and ask me again.', 'ai-site-assistant-autopilot' ), $label );
+				return sprintf( __( '%s needs its Easy Form Builder add-on, which is not installed or not active. I can install it for you if you allow it; the form reloads afterwards, so save your changes first.', 'ai-site-assistant-autopilot' ), $label );
 			case 'payment_requires_pro':
 				/* translators: %s: payment gateway name, e.g. Stripe. */
 				return sprintf( __( 'Online payment with %s is part of Easy Form Builder Pro.', 'ai-site-assistant-autopilot' ), $label );

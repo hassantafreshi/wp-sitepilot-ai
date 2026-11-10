@@ -174,6 +174,24 @@ try {
 	$gh     = $chat( array( 'has_form' => false, 'message' => 'ghost rule', 'addons' => array( 'AdnSMF' => 1 ) ) );
 	$check( array() === (array) ( $gh['preview']['logic'] ?? array() ) && false !== strpos( $text( $gh ), '“Country”' ), 'A rule about a field the form does not have is refused, naming the field' );
 
+	// 5b. A rule about a field added in the same message is resolved against that new field.
+	$next[] = array(
+		'reply'      => 'Added Country and the rule.',
+		'action'     => 'customize',
+		'operations' => array(
+			array( 'op' => 'add_field', 'field' => array( 'type' => 'text', 'label' => 'Country' ) ),
+			array( 'op' => 'add_logic_rule', 'rule' => array( 'name' => 'Biz country', 'match' => 'all', 'when' => array( array( 'field' => 'Customer type', 'compare' => 'is', 'value' => 'Business' ) ), 'then' => array( array( 'action' => 'show_field', 'target' => 'Country' ) ) ) ),
+		),
+	);
+	$same   = $chat( array( 'has_form' => true, 'logic_addon' => true, 'message' => 'show a Country field for business customers', 'addons' => array( 'AdnSMF' => 1 ), 'fields' => array( array( 'id' => 'ct', 'label' => 'Customer type', 'type' => 'radio', 'options' => array( array( 'id' => 'ct_o1', 'value' => 'Individual' ), array( 'id' => 'ct_o2', 'value' => 'Business' ) ) ) ) ) );
+	$names  = array_column( (array) ( $same['operations'] ?? array() ), 'op' );
+	$added  = array_values( array_filter( (array) ( $same['operations'] ?? array() ), static fn ( $o ): bool => 'add_field' === ( $o['op'] ?? '' ) ) );
+	$rule   = array_values( array_filter( (array) ( $same['operations'] ?? array() ), static fn ( $o ): bool => 'add_logic_rule' === ( $o['op'] ?? '' ) ) );
+	$check(
+		array( 'add_field', 'add_logic_rule' ) === $names && isset( $rule[0]['rule']['actions'][0]['target'], $added[0]['items'][0]['id_'] ) && $rule[0]['rule']['actions'][0]['target'] === $added[0]['items'][0]['id_'] && empty( $same['errors'] ),
+		'A rule about a field added in the same message points at that new field, instead of being dropped while the reply claims it'
+	);
+
 	// 6. A payment whose add-on is off offers that gateway's add-on.
 	$next[] = array( 'reply' => 'Added.', 'action' => 'customize', 'operations' => array( array( 'op' => 'add_payment', 'gateway' => 'paypal', 'items' => array( array( 'label' => 'Ticket', 'price' => 10 ) ) ) ) );
 	$pay    = $chat( array( 'has_form' => true, 'message' => 'paypal ticket 10', 'addons' => array( 'AdnPAP' => 0 ), 'fields' => array( array( 'id' => 'f1', 'label' => 'Name', 'type' => 'text' ) ) ) );

@@ -390,6 +390,7 @@
 		target_is_not_a_choice_field: [ 'reasonNotChoiceField', 'options can only be added to a choice field' ],
 		option_not_found: [ 'reasonOptionNotFound', 'the option was not found' ],
 		logic_addon_inactive: [ 'reasonLogicAddonInactive', 'the Conditional Logic add-on is not active on this form' ],
+		anchor_not_found: [ 'reasonAnchorNotFound', 'the field to place it next to is not on this form' ],
 		payment_gateway_conflict: [ 'reasonPaymentConflict', 'this form already takes payment through another gateway' ],
 		payment_template_missing: [ 'reasonPaymentTemplate', 'the payment fields could not be prepared' ],
 		unsupported_operation: [ 'reasonUnsupportedOperation', 'this change is not supported' ],
@@ -481,6 +482,13 @@
 			item.step = step;
 			valj_efb.push( item );
 		} );
+		// "After Email" / "before Message": EFB orders the canvas by amount, so the new items take the anchor's place.
+		var placeAt = op.after || op.before;
+		if ( placeAt ) {
+			var anchor = findField( placeAt );
+			var pushed = valj_efb.slice( valj_efb.length - items.length );
+			if ( anchor ) { placeItems( pushed, anchor, op.after ? 'after' : 'before' ); }
+		}
 		var main = items.filter( function ( it ) { return it.type !== 'option'; } )[ 0 ] || items[ 0 ];
 		done( report, t( 'fieldAdded', 'Added “%s”', fieldLabel ), 'add', String( main.id_ ), { type: String( main.type ), required: main.required === true || main.required === '1' || main.required === 1, label: fieldLabel, options: items.filter( function ( it ) { return it.type === 'option'; } ).map( function ( it ) { return String( it.value || '' ); } ) } );
 		report.changed = true;
@@ -499,6 +507,35 @@
 		Object.keys( settings ).forEach( function ( key ) { form[ key ] = settings[ key ]; } );
 		form.type = 'payment';
 		try { if ( typeof form_type_emsFormBuilder !== 'undefined' ) { form_type_emsFormBuilder = 'payment'; } } catch ( e ) {}
+		report.changed = true;
+	}
+	/* Put a group of items (a field and its options) right before or after another field and its options, on that
+	   field's step, by moving every later item's amount along: EFB draws the canvas in amount order. */
+	function placeItems( group, anchor, where ) {
+		var anchorGroup = valj_efb.filter( function ( it ) { return it === anchor || ( it && it.parent === anchor.id_ ); } );
+		var amounts = anchorGroup.map( function ( it ) { return Number( it.amount ) || 0; } );
+		var at = 'before' === where ? Math.min.apply( null, amounts ) : Math.max.apply( null, amounts ) + 1;
+		var size = group.length;
+		// The form's own settings sit first whatever their type ("form", or "payment" on a payment form).
+		var settings = valj_efb[ 0 ];
+		valj_efb.forEach( function ( it ) {
+			if ( it && it !== settings && group.indexOf( it ) === -1 && ( Number( it.amount ) || 0 ) >= at ) { it.amount = String( ( Number( it.amount ) || 0 ) + size ); }
+		} );
+		group.slice().sort( function ( a, b ) { return ( Number( a.amount ) || 0 ) - ( Number( b.amount ) || 0 ); } ).forEach( function ( it, i ) {
+			it.amount = String( at + i );
+			if ( anchor.step !== undefined ) { it.step = anchor.step; }
+		} );
+		valj_efb.sort( function ( a, b ) { if ( a === settings ) { return -1; } if ( b === settings ) { return 1; } return ( Number( a.amount ) || 0 ) - ( Number( b.amount ) || 0 ); } );
+		window.valj_efb = valj_efb;
+	}
+	function moveField( op, report, index ) {
+		var field = findField( op.target );
+		var anchor = findField( op.after || op.before );
+		if ( ! field ) { failure( report, index, op, 'field_not_found' ); return; }
+		if ( ! anchor || anchor === field ) { failure( report, index, op, 'anchor_not_found' ); return; }
+		var group = valj_efb.filter( function ( it ) { return it === field || ( it && it.parent === field.id_ ); } );
+		placeItems( group, anchor, op.after ? 'after' : 'before' );
+		done( report, t( op.after ? 'fieldMovedAfter' : 'fieldMovedBefore', op.after ? 'Moved “%1$s” after “%2$s”' : 'Moved “%1$s” before “%2$s”', [ op.target, op.after || op.before ] ), 'edit', String( field.id_ ) );
 		report.changed = true;
 	}
 	function addStepItem( op, report, index ) {
@@ -578,6 +615,7 @@
 				else if ( op.op === 'add_step' ) { var newStep = addStepItem( op, report, index ); if ( newStep && op.step_ref ) { stepRefs[ op.step_ref ] = newStep; } }
 				else if ( op.op === 'add_field' ) { addFieldItems( op, report, index, op.step_ref ? stepRefs[ op.step_ref ] : '' ); }
 				else if ( op.op === 'add_payment' ) { applyPayment( op, report, index ); }
+				else if ( op.op === 'move_field' ) { moveField( op, report, index ); }
 				else if ( op.op === 'remove_field' ) { var rf = findField( op.target ); if ( ! rf ) { failure( report, index, op, 'field_not_found' ); return; } valj_efb = valj_efb.filter( function ( it ) { return it !== rf && it.parent !== rf.id_; } ); window.valj_efb = valj_efb; done( report, t( 'fieldRemoved', 'Removed “%s”', op.target ), 'remove', '' ); report.changed = true; }
 				else if ( op.op === 'add_option' ) {
 					var af = findField( op.target ); if ( ! af ) { failure( report, index, op, 'field_not_found' ); return; }

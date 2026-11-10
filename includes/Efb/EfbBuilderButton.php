@@ -185,6 +185,11 @@ final class EfbBuilderButton {
 					'reasonNotChoiceField'           => __( 'options can only be added to a choice field', 'ai-site-assistant-autopilot' ),
 					'reasonOptionNotFound'           => __( 'the option was not found', 'ai-site-assistant-autopilot' ),
 					'reasonLogicAddonInactive'       => __( 'the Conditional Logic add-on is not active on this form', 'ai-site-assistant-autopilot' ),
+					'reasonAnchorNotFound'           => __( 'the field to place it next to is not on this form', 'ai-site-assistant-autopilot' ),
+					/* translators: 1: moved field, 2: field it now follows. */
+					'fieldMovedAfter'                => __( 'Moved “%1$s” after “%2$s”', 'ai-site-assistant-autopilot' ),
+					/* translators: 1: moved field, 2: field it now precedes. */
+					'fieldMovedBefore'               => __( 'Moved “%1$s” before “%2$s”', 'ai-site-assistant-autopilot' ),
 					'reasonPaymentConflict'          => __( 'this form already takes payment through another gateway', 'ai-site-assistant-autopilot' ),
 					'reasonPaymentTemplate'          => __( 'the payment fields could not be prepared', 'ai-site-assistant-autopilot' ),
 					'reasonUnsupportedOperation'     => __( 'this change is not supported', 'ai-site-assistant-autopilot' ),

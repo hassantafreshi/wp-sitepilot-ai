@@ -179,6 +179,18 @@ final class FormShortcode {
 			}
 			$step = isset( $settings['step'] ) && is_numeric( $settings['step'] ) && (float) $settings['step'] > 0 ? (string) $settings['step'] : 'any';
 			$out .= ' step="' . esc_attr( $step ) . '" inputmode="decimal"';
+		} elseif ( in_array( $type, array( 'text', 'tel' ), true ) ) {
+			foreach ( array(
+				'min_length' => 'minlength',
+				'max_length' => 'maxlength',
+			) as $setting => $attribute ) {
+				if ( isset( $settings[ $setting ] ) && is_numeric( $settings[ $setting ] ) && (int) $settings[ $setting ] > 0 ) {
+					$out .= ' ' . $attribute . '="' . esc_attr( (string) (int) $settings[ $setting ] ) . '"';
+				}
+			}
+			if ( ! empty( $settings['digits_only'] ) && in_array( $settings['digits_only'], array( true, 'true', '1', 1 ), true ) ) {
+				$out .= ' inputmode="numeric" pattern="[0-9\u06F0-\u06F9\u0660-\u0669]*" dir="ltr"';
+			}
 		} elseif ( 'date' === $type ) {
 			foreach ( array( 'min', 'max' ) as $name ) {
 				$limit = NativeFormSubmission::date_limit( $settings[ $name ] ?? '' );

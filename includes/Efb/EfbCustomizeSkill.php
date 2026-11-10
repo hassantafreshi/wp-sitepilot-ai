@@ -15,12 +15,12 @@ use AISAAutoPilot\Providers\ProviderInterface;
  */
 final class EfbCustomizeSkill {
 
-	public const OPS     = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_payment', 'add_step', 'remove_field', 'add_option', 'remove_option', 'rename_option', 'add_logic_rule' );
+	public const OPS     = array( 'set_form_name', 'set_confirmation', 'set_field', 'set_field_property', 'set_form_property', 'add_field', 'add_payment', 'add_step', 'move_field', 'remove_field', 'add_option', 'remove_option', 'rename_option', 'add_logic_rule' );
 	private const PROPS  = array( 'label', 'required', 'placeholder', 'width', 'help' );
 	private const WIDTHS = array( 'full', 'half', 'third', 'quarter' );
 
 	/** Most edits are a handful of ops; a longer batch is truncated and reported. */
-	private const MAX_OPS = 20;
+	private const MAX_OPS = 60;
 	private const CHOICE  = array( 'select', 'radio', 'checkbox', 'multiselect' );
 
 	private ProviderInterface $provider;
@@ -68,13 +68,15 @@ final class EfbCustomizeSkill {
 	 * @param array<mixed>                                                                    $ops
 	 * @param array<int, array<string, mixed>>                                                $fields
 	 * @param array{logic?:bool, steps?:array<int, mixed>, tier?:string, existing_rules?:int} $context
-	 * @return array{ops: array<int, array<string, mixed>>, dropped: array<int, array{op:string, reason:string}>}
+	 * @return array{ops: array<int, array<string, mixed>>, dropped: array<int, array{op:string, reason:string}>, deferred: array<int, mixed>}
 	 */
 	public static function validate_ops_verbose( array $ops, array $fields = array(), array $context = array() ): array {
 		$out         = array();
 		$dropped     = array();
+		$deferred    = array();
 		$seen        = 0;
 		$added_rules = 0;
+		$adds_fields = (bool) array_filter( $ops, static fn ( $candidate ): bool => is_array( $candidate ) && 'add_field' === ( $candidate['op'] ?? '' ) );
 
 		foreach ( $ops as $op ) {
 			++$seen;
@@ -291,6 +293,14 @@ final class EfbCustomizeSkill {
 					if ( '' !== $step_ref ) {
 						$add['step_ref'] = $step_ref;
 					}
+					// Where it goes: right after or before a field of the open form (the browser resolves the name).
+					foreach ( array( 'after', 'before' ) as $where ) {
+						$anchor = self::clean( (string) ( $op[ $where ] ?? ( $f[ $where ] ?? '' ) ), 120 );
+						if ( '' !== $anchor ) {
+							$add[ $where ] = $anchor;
+							break;
+						}
+					}
 					$out[] = $add;
 					break;
 
@@ -342,6 +352,29 @@ final class EfbCustomizeSkill {
 						'payment'     => $payment,
 						'has_gateway' => $has_own,
 					);
+					break;
+
+				case 'move_field':
+					$target = self::clean( (string) ( $op['target'] ?? '' ), 120 );
+					$after  = self::clean( (string) ( $op['after'] ?? '' ), 120 );
+					$before = self::clean( (string) ( $op['before'] ?? '' ), 120 );
+					if ( '' === $target || ( '' === $after && '' === $before ) ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => '' === $target ? 'missing_target' : 'missing_position',
+						);
+						break;
+					}
+					$move = array(
+						'op'     => 'move_field',
+						'target' => $target,
+					);
+					if ( '' !== $after ) {
+						$move['after'] = $after;
+					} else {
+						$move['before'] = $before;
+					}
+					$out[] = $move;
 					break;
 
 				case 'add_step':
@@ -425,6 +458,12 @@ final class EfbCustomizeSkill {
 						break;
 					}
 					$built = EfbLogicRules::build( $op['rule'] ?? null, $fields, is_array( $context['steps'] ?? null ) ? $context['steps'] : array() );
+					// A rule about a field this same message adds cannot be resolved yet: the caller resolves it once
+					// the new field has its id, instead of adding the field and dropping the rule the reply promised.
+					if ( empty( $built['ok'] ) && $adds_fields && 1 === preg_match( '/^(unknown_condition_field|unknown_action_target|unknown_option)\b/', (string) ( $built['error'] ?? '' ) ) ) {
+						$deferred[] = $op['rule'];
+						break;
+					}
 					if ( empty( $built['ok'] ) || ! isset( $built['rule'] ) ) {
 						$dropped[] = array(
 							'op'     => $name,
@@ -469,8 +508,10 @@ final class EfbCustomizeSkill {
 		}
 
 		return array(
-			'ops'     => $out,
-			'dropped' => $dropped,
+			'ops'      => $out,
+			'dropped'  => $dropped,
+			// Rules about a field added in this same batch, resolved by the caller once that field has an id.
+			'deferred' => $deferred,
 		);
 	}
 
@@ -492,6 +533,7 @@ final class EfbCustomizeSkill {
 				'- { "op": "add_step", "label": "Step title", "step_ref": "optional_key" }',
 				'- { "op": "add_field", "step_ref": "optional_key", "field": { "type": "...", "label": "..." } }',
 				'- { "op": "remove_field", "target": "<field label or id>" }',
+				'- { "op": "move_field", "target": "<field>", "after": "<field>" } or "before": "<field>"',
 				'- { "op": "add_option", "target": "<choice field label or id>", "value": "Option text" }',
 				'- { "op": "remove_option", "target": "<choice field label or id>", "value": "Option text" }',
 				'- { "op": "rename_option", "target": "<choice field label or id>", "from": "Current option text", "value": "New option text" }',

@@ -311,7 +311,7 @@ final class EfbFormConverter {
 				);
 				continue;
 			}
-			if ( in_array( $type, array( 'form', 'option', 'r_matrix', 'heading', '' ), true ) || ! isset( $item['id_'] ) ) {
+			if ( in_array( $type, array( 'form', 'option', 'r_matrix', '' ), true ) || ! isset( $item['id_'] ) ) {
 				continue;
 			}
 			$options = array();
@@ -325,7 +325,8 @@ final class EfbFormConverter {
 			}
 			$fields[] = array(
 				'id'      => (string) $item['id_'],
-				'label'   => (string) ( $item['name'] ?? '' ),
+				// A heading keeps its text in value; the editor reports name, else value, the same way.
+				'label'   => (string) ( '' !== (string) ( $item['name'] ?? '' ) ? $item['name'] : ( $item['value'] ?? '' ) ),
 				'type'    => $type,
 				'options' => $options,
 			);

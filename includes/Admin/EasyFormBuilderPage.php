@@ -242,6 +242,7 @@ final class EasyFormBuilderPage {
 				$checked,
 			),
 			'add_payment'        => array( 'fields', __( 'Add online payment with Stripe, PayPal or ZarinPal: priced choices or an amount, the total and the gateway field, using only prices and a currency you gave. Needs the gateway’s add-on and Pro; never touches keys', 'ai-site-assistant-autopilot' ), $allowed ),
+			'move_field'         => array( 'fields', __( 'Move a field before or after another field', 'ai-site-assistant-autopilot' ), $checked ),
 			'remove_field'       => array( 'fields', __( 'Remove a field and its settings', 'ai-site-assistant-autopilot' ), $checked ),
 			'add_option'         => array( 'choices', __( 'Add a choice to a select, radio or checkbox', 'ai-site-assistant-autopilot' ), $allowed ),
 			'remove_option'      => array( 'choices', __( 'Remove a choice', 'ai-site-assistant-autopilot' ), $checked ),

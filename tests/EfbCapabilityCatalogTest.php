@@ -449,19 +449,20 @@ final class EfbCapabilityCatalogTest extends TestCase {
 	public function test_batch_truncation_is_reported_not_silent(): void {
 		$fields = array( array( 'id' => 'when', 'label' => 'Appointment', 'type' => 'date' ) );
 		$ops    = array();
-		for ( $i = 0; $i < 25; $i++ ) {
+		// The cap fits a whole-form translation (a label, a hint and options per field) and still stops a runaway batch.
+		for ( $i = 0; $i < 65; $i++ ) {
 			$ops[] = array( 'op' => 'set_field_property', 'target' => 'Appointment', 'property' => 'label', 'value' => 'Date ' . $i );
 		}
 
 		$result = EfbCustomizeSkill::validate_ops_verbose( $ops, $fields );
 
-		$this->assertCount( 20, $result['ops'] );
+		$this->assertCount( 60, $result['ops'] );
 		$this->assertSame( 'batch', $result['dropped'][0]['op'] );
-		$this->assertSame( 'operation_limit_reached:20:5_skipped', $result['dropped'][0]['reason'] );
+		$this->assertSame( 'operation_limit_reached:60:5_skipped', $result['dropped'][0]['reason'] );
 
 		// A batch that fits must not claim anything was skipped.
-		$exact = EfbCustomizeSkill::validate_ops_verbose( array_slice( $ops, 0, 20 ), $fields );
-		$this->assertCount( 20, $exact['ops'] );
+		$exact = EfbCustomizeSkill::validate_ops_verbose( array_slice( $ops, 0, 60 ), $fields );
+		$this->assertCount( 60, $exact['ops'] );
 		$this->assertSame( array(), $exact['dropped'] );
 	}
 

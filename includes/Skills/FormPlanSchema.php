@@ -63,7 +63,7 @@ final class FormPlanSchema {
 				'        "help": "short hint shown under the field (optional)",',
 				'        "width": "full | half | third | quarter | two_thirds | three_quarters (default full)",',
 				'        "options": ["only for select | radio | checkbox groups"],',
-				'        "settings": { "min": "number or YYYY-MM-DD", "max": "number or YYYY-MM-DD", "step": "number" }',
+				'        "settings": { "min": "number or YYYY-MM-DD", "max": "number or YYYY-MM-DD", "step": "number", "min_length": 10, "max_length": 10, "digits_only": true }',
 				'      }',
 				'    ],',
 				'    "submit_button": "string (optional, defaults to Submit)",',

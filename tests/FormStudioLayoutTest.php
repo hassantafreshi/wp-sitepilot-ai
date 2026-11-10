@@ -193,4 +193,14 @@ final class FormStudioLayoutTest extends TestCase {
 		$plain = ( new FormPlanValidator() )->validate( array( 'form' => array( 'title' => 'A', 'fields' => array( array( 'type' => 'text', 'label' => 'A' ) ) ) ) );
 		self::assertSame( array(), $plain->plan['needs_efb'] );
 	}
+
+	public function test_codes_keep_their_length_and_digits(): void {
+		$fields = array( array( 'key' => 'postal', 'type' => 'text', 'label' => 'Postal code', 'required' => true, 'settings' => array( 'digits_only' => true, 'min_length' => '10', 'max_length' => '10' ) ) );
+		$check  = static fn ( string $v ): bool => ( new NativeFormSubmission() )->validate( $fields, array( 'sp_field_postal' => $v ) )['ok'];
+		self::assertTrue( $check( '0123456789' ), 'leading zero kept' );
+		self::assertTrue( $check( '۱۲۳۴۵۶۷۸۹۰' ), 'Persian digits' );
+		self::assertFalse( $check( '12345' ), 'too short' );
+		self::assertFalse( $check( '12345678901' ), 'too long' );
+		self::assertFalse( $check( '12345abcde' ), 'letters' );
+	}
 }

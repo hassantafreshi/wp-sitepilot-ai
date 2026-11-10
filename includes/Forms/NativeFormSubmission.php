@@ -84,6 +84,9 @@ final class NativeFormSubmission {
 		if ( 'email' === $type && false === filter_var( $value, FILTER_VALIDATE_EMAIL ) ) {
 			return null;
 		}
+		if ( in_array( $type, array( 'text', 'tel' ), true ) && ! $this->text_fits( $value, $settings ) ) {
+			return null;
+		}
 		if ( 'url' === $type && ! $this->is_web_address( $value ) ) {
 			return null;
 		}
@@ -135,6 +138,26 @@ final class NativeFormSubmission {
 		}
 
 		return implode( ', ', $selected );
+	}
+
+	/**
+	 * Length and digits-only rules on a short text (a postal code, a national id): Persian and Arabic digits count.
+	 *
+	 * @param array<string,mixed> $settings
+	 */
+	private function text_fits( string $value, array $settings ): bool {
+		$length = function_exists( 'mb_strlen' ) ? mb_strlen( $value ) : strlen( $value );
+		if ( isset( $settings['min_length'] ) && is_numeric( $settings['min_length'] ) && $length < (int) $settings['min_length'] ) {
+			return false;
+		}
+		if ( isset( $settings['max_length'] ) && is_numeric( $settings['max_length'] ) && $length > (int) $settings['max_length'] ) {
+			return false;
+		}
+		if ( ! empty( $settings['digits_only'] ) && in_array( $settings['digits_only'], array( true, 'true', '1', 1 ), true ) ) {
+			return 1 === preg_match( '/^[0-9\x{06F0}-\x{06F9}\x{0660}-\x{0669}]+$/u', $value );
+		}
+
+		return true;
 	}
 
 	private function is_web_address( string $value ): bool {
