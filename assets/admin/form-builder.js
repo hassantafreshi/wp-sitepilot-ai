@@ -624,6 +624,8 @@
 		if ( boot.efbReady && boot.efbCreate ) {
 			foot.push( button( t( 'efbContinue', 'Build it in Easy Form Builder' ), { kind: 'primary', size: 'sm', attrs: { 'data-sp-fc-efb-handoff': '' }, onClick: function () {
 				try { window.sessionStorage.setItem( 'aisaautopilot.efb.resume', JSON.stringify( { text: String( lastPrompt || '' ), at: Date.now(), from: 'form_studio' } ) ); } catch ( e ) {}
+				// The request moves to Easy Form Builder: the native plan is not brought back on the next visit.
+				forgetPlan();
 				window.location.href = boot.efbCreate;
 			} } ) );
 		} else if ( boot.efbAction && boot.efbAction.url ) {
