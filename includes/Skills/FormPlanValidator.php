@@ -181,9 +181,36 @@ final class FormPlanValidator {
 			'notify_admin'          => $this->to_bool( $form['notify_admin'] ?? ( $raw['notify_admin'] ?? false ) ),
 			'confirm_to_respondent' => $this->to_bool( $form['confirm_to_respondent'] ?? ( $raw['confirm_to_respondent'] ?? false ) ),
 			'requires_approval'     => true,
+			// What the request needed that a native form cannot do, so Form Studio can offer Easy Form Builder.
+			'needs_efb'             => $this->efb_features( $raw['needs_efb'] ?? ( $form['needs_efb'] ?? array() ) ),
 		);
 
 		return ValidationResult::success( $plan );
+	}
+
+	/**
+	 * @param mixed $raw
+	 * @return string[]
+	 */
+	private function efb_features( $raw ): array {
+		$out = array();
+		foreach ( is_array( $raw ) ? $raw : array() as $feature ) {
+			$name = strtolower( str_replace( array( ' ', '-' ), '_', trim( (string) ( is_scalar( $feature ) ? $feature : '' ) ) ) );
+			$name = array(
+				'upload'     => 'file_upload',
+				'file'       => 'file_upload',
+				'logic'      => 'conditional_logic',
+				'conditions' => 'conditional_logic',
+				'steps'      => 'multi_step',
+				'multistep'  => 'multi_step',
+				'payments'   => 'payment',
+			)[ $name ] ?? $name;
+			if ( in_array( $name, FormPlanSchema::EFB_FEATURES, true ) && ! in_array( $name, $out, true ) ) {
+				$out[] = $name;
+			}
+		}
+
+		return $out;
 	}
 
 	private function clean_text( string $value, int $max ): string {

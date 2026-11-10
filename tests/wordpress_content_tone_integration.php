@@ -1,6 +1,6 @@
 <?php
 /**
- * Local WordPress checks for the Content Studio voice (T32): Learned from your site, Formal
+ * Local WordPress checks for the Content Studio voice (T32): Standard, Formal
  * or Plain. No request leaves the site: `pre_http_request` answers the AI call with a canned
  * draft and keeps the request body, so the system prompt that would have been sent can be read.
  *

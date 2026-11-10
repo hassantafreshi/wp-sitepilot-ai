@@ -173,6 +173,12 @@ final class EfbFormConverter {
 			$items[0] = array_merge( $items[0], EfbPayments::form_settings( (string) $payment['gateway'], (string) ( $payment['currency'] ?? '' ) ) );
 		}
 
+		// Conditional logic planned with the form, already resolved against these same ids.
+		if ( is_array( $plan['logic_rules'] ?? null ) && array() !== $plan['logic_rules'] ) {
+			$items[0]['logic_rules'] = array_values( $plan['logic_rules'] );
+			$items[0]['logic']       = true;
+		}
+
 		// A break after the last field would ship an empty final page.
 		if ( 0 === $step_contents && $step_no > 1 ) {
 			array_splice( $items, $step_index, 1 );
@@ -284,6 +290,51 @@ final class EfbFormConverter {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * The fields and steps of converted items, in the shape the browser reports for an open form, so
+	 * logic for a new form is resolved exactly as it would be for one already in the editor.
+	 *
+	 * @param array<int, array<string, mixed>> $items
+	 * @return array{fields: array<int, array<string, mixed>>, steps: array<int, array<string, mixed>>}
+	 */
+	public static function logic_catalog( array $items ): array {
+		$fields = array();
+		$steps  = array();
+		foreach ( $items as $item ) {
+			$type = (string) ( $item['type'] ?? '' );
+			if ( 'step' === $type ) {
+				$steps[] = array(
+					'id'    => (string) ( $item['id_'] ?? '' ),
+					'label' => (string) ( $item['name'] ?? '' ),
+				);
+				continue;
+			}
+			if ( in_array( $type, array( 'form', 'option', 'r_matrix', 'heading', '' ), true ) || ! isset( $item['id_'] ) ) {
+				continue;
+			}
+			$options = array();
+			foreach ( $items as $child ) {
+				if ( 'option' === ( $child['type'] ?? '' ) && (string) ( $child['parent'] ?? '' ) === (string) $item['id_'] ) {
+					$options[] = array(
+						'id'    => (string) $child['id_'],
+						'value' => (string) ( $child['value'] ?? '' ),
+					);
+				}
+			}
+			$fields[] = array(
+				'id'      => (string) $item['id_'],
+				'label'   => (string) ( $item['name'] ?? '' ),
+				'type'    => $type,
+				'options' => $options,
+			);
+		}
+
+		return array(
+			'fields' => $fields,
+			'steps'  => $steps,
+		);
 	}
 
 	/**

@@ -212,6 +212,10 @@ final class CopilotPage {
 				'historyUrl' => admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ),
 				'efbUrl'     => $efb_url,
 				'efbReady'   => $efb_ready,
+				// Where a request that needs Easy Form Builder continues: its create screen, where the copilot opens with it.
+				'efbCreate'  => admin_url( 'admin.php?page=Emsfb_create' ),
+				// When EFB is missing or off: the install or activate step, or null when this administrator cannot do it.
+				'efbAction'  => $efb_ready ? null : PluginDependency::status( PluginDependency::EFB, AdminMenu::SLUG_FORM_STUDIO )['action'],
 				// Binds a plan kept across a reload (sessionStorage) to the administrator who drafted it.
 				'user'       => get_current_user_id(),
 				// The preview shows the form as visitors read it: in the site language and direction.
@@ -317,7 +321,7 @@ final class CopilotPage {
 		<?php
 		Ui::page_header(
 			__( 'Content Studio', 'ai-site-assistant-autopilot' ),
-			__( 'Drafts written in the voice it learned from your site.', 'ai-site-assistant-autopilot' ),
+			__( 'Drafts written for your site, in the voice you choose.', 'ai-site-assistant-autopilot' ),
 			array(
 				'chip'    => ConnectionChip::derive(),
 				'action'  => array(
@@ -334,7 +338,7 @@ final class CopilotPage {
 						<?php echo Ui::icon( 'doc', 21, '#5c5f80', 1.9 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 					</div>
 					<h2 class="sp-content-empty__title"><?php esc_html_e( 'Nothing written yet', 'ai-site-assistant-autopilot' ); ?></h2>
-					<p class="sp-content-empty__copy"><?php esc_html_e( 'Describe what you need in the box below and Content Studio writes a first draft in the voice it learned from your site. Drafts are never published on their own.', 'ai-site-assistant-autopilot' ); ?></p>
+					<p class="sp-content-empty__copy"><?php esc_html_e( 'Describe what you need in the box below and Content Studio writes a first draft in the voice you choose. Drafts are never published on their own.', 'ai-site-assistant-autopilot' ); ?></p>
 				</div>
 
 				<div class="sp-card sp-content-compose" data-content-compose data-content-source-gap="<?php echo esc_attr( $source_gap ); ?>">
@@ -609,6 +613,18 @@ final class CopilotPage {
 			'nextOptional'        => __( 'Make “%s” optional', 'ai-site-assistant-autopilot' ),
 			'nextPhone'           => __( 'Add a phone number field', 'ai-site-assistant-autopilot' ),
 			'nextColumns'         => __( 'Put some fields side by side', 'ai-site-assistant-autopilot' ),
+			'efbNeededTitle'      => __( 'This part needs Easy Form Builder', 'ai-site-assistant-autopilot' ),
+			/* translators: %s: list of features, e.g. "payment, file upload". */
+			'efbNeededBody'       => __( 'Native forms stay simple and are emailed to you, so they leave out: %s. Easy Form Builder can build the whole form, and its AI copilot will start from your request.', 'ai-site-assistant-autopilot' ),
+			'efbMissingBody'      => __( 'Install and activate Easy Form Builder to build these. This native form works without them.', 'ai-site-assistant-autopilot' ),
+			'efbContinue'         => __( 'Build it in Easy Form Builder', 'ai-site-assistant-autopilot' ),
+			'featPayment'         => __( 'payment', 'ai-site-assistant-autopilot' ),
+			'featFileUpload'      => __( 'file upload', 'ai-site-assistant-autopilot' ),
+			'featLogic'           => __( 'conditional logic', 'ai-site-assistant-autopilot' ),
+			'featMultiStep'       => __( 'multiple steps', 'ai-site-assistant-autopilot' ),
+			'featSignature'       => __( 'signature', 'ai-site-assistant-autopilot' ),
+			'featCalculation'     => __( 'calculations', 'ai-site-assistant-autopilot' ),
+			'featRating'          => __( 'rating', 'ai-site-assistant-autopilot' ),
 			'typeUrl'             => __( 'Web address', 'ai-site-assistant-autopilot' ),
 			'typeNumber'          => __( 'Number', 'ai-site-assistant-autopilot' ),
 			'typeDate'            => __( 'Date', 'ai-site-assistant-autopilot' ),

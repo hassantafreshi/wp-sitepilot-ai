@@ -389,6 +389,7 @@ final class CopilotController {
 			'confirmation_message' => $plan['confirmation_message'],
 			'risk_level'           => $plan['risk_level'],
 			'notes'                => $plan['notes'],
+			'needs_efb'            => array_values( (array) ( $plan['needs_efb'] ?? array() ) ),
 			'connector'            => $connector_name,
 			'notification_email'   => $this->mask_email( (string) ( $plan['notification_email'] ?? '' ) ),
 			'field_count'          => count( $plan['fields'] ),

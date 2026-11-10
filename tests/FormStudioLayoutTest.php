@@ -180,4 +180,17 @@ final class FormStudioLayoutTest extends TestCase {
 		// An optional date or url may be left empty.
 		self::assertTrue( $check( array( 'sp_field_guests' => '2' ) )['ok'] );
 	}
+
+	public function test_what_needs_easy_form_builder_is_named_from_a_closed_list(): void {
+		$result = ( new FormPlanValidator() )->validate(
+			array(
+				'form'      => array( 'title' => 'Booking', 'fields' => array( array( 'type' => 'text', 'label' => 'Name' ) ) ),
+				'needs_efb' => array( 'Payment', 'file upload', 'logic', 'payment', 'teleport', array( 'x' ) ),
+			)
+		);
+		self::assertTrue( $result->ok );
+		self::assertSame( array( 'payment', 'file_upload', 'conditional_logic' ), $result->plan['needs_efb'] );
+		$plain = ( new FormPlanValidator() )->validate( array( 'form' => array( 'title' => 'A', 'fields' => array( array( 'type' => 'text', 'label' => 'A' ) ) ) ) );
+		self::assertSame( array(), $plain->plan['needs_efb'] );
+	}
 }

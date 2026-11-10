@@ -189,11 +189,11 @@
 		} );
 	}
 	// EFB only loads its Conditional Logic runtime when the AdnSMF add-on is active.
-	/* Which payment add-ons Easy Form Builder has switched on: three codes, on or off, nothing else leaves the page. */
+	/* Which of the add-ons the copilot can use Easy Form Builder has switched on: four codes, on or off, nothing else leaves the page. */
 	function paymentAddons() {
 		var out = {};
 		if ( typeof efb_var === 'undefined' || ! efb_var || ! efb_var.addons ) { return out; }
-		[ 'AdnSPF', 'AdnPAP', 'AdnPPF' ].forEach( function ( code ) { out[ code ] = Number( efb_var.addons[ code ] ) >= 1 ? 1 : 0; } );
+		[ 'AdnSMF', 'AdnSPF', 'AdnPAP', 'AdnPPF' ].forEach( function ( code ) { out[ code ] = Number( efb_var.addons[ code ] ) >= 1 ? 1 : 0; } );
 		return out;
 	}
 	function logicAddonActive() { return typeof efb_var !== 'undefined' && !! efb_var && !! efb_var.addons && Number( efb_var.addons.AdnSMF ) >= 1; }
@@ -661,7 +661,11 @@
 		var approve = button( t( 'createThisForm', 'Create this form' ), { kind: 'primary', size: 'lg', grow: true, icon: 'check', stroke: 2.4, extra: 'aisaautopilot-efb-btn--primary', attrs: { 'data-sp-efb-create': '1' } } );
 		var discard = button( t( 'discard', 'Discard' ), { kind: 'quiet', size: 'lg', extra: 'aisaautopilot-efb-btn--ghost' } );
 		var countText = t( 'fieldsCount', '%s fields', p.field_count ) + ' · ' + ( 1 === pages ? t( 'onePage', '1 page' ) : t( 'pagesCount', '%s pages', pages ) );
-		var box = card( Dock.cardHead( 'plan', 'doc', p.title, countText ), [ mini, facts ].concat( advice, [
+		// Conditional logic planned with the form, in plain sentences, so approving the form approves the rules.
+		var logicBox = Array.isArray( p.logic ) && p.logic.length ? el( 'div', { class: 'aisa-ai-mini aisaautopilot-efb-logic', 'data-sp-efb-preview-logic': '' }, [ el( 'div', { class: 'aisa-ai-mini__step', text: t( 'previewLogic', 'Conditional logic' ) } ) ].concat( p.logic.map( function ( line ) {
+			return el( 'div', { class: 'aisa-ai-mini__f' }, [ el( 'span', { class: 'aisa-ai-ic' }, [ icon( 'logic', 14 ) ] ), el( 'span', { class: 'aisa-ai-mini__l', dir: 'auto', text: line } ) ] );
+		} ) ) ) : null;
+		var box = card( Dock.cardHead( 'plan', 'doc', p.title, countText ), [ mini, logicBox, facts ].concat( advice, [
 			data.errors && data.errors.length ? note( data.errors.join( ' ' ), 'server' ) : null,
 			el( 'div', { class: 'aisa-ai-card__foot aisaautopilot-efb-actions' }, [ approve, discard, status ] )
 		] ), { 'data-sp-efb-state': 'preview' } );
@@ -886,8 +890,75 @@
 			} );
 			if ( row.childNodes.length ) { addAi( row ); }
 		}
+		if ( Array.isArray( data.install ) && data.install.length ) { data.install.slice( 0, 2 ).forEach( function ( offer ) { renderInstallOffer( offer ); } ); }
 		// Cards are added after their turn, so the thread scrolls once they are in.
 		scrollDown();
+	}
+	/* An Easy Form Builder add-on the request needs: installed only after the administrator says so, through EFB's own
+	   installer (it checks the nonce, the capability and the plan again). The page reloads afterwards, so unsaved changes
+	   are named first and the request waits in the composer for the administrator to send again. */
+	var RESUME_KEY = 'aisaautopilot.efb.resume';
+	function renderInstallOffer( offer ) {
+		if ( ! offer || ! offer.code ) { return; }
+		var name = String( offer.name || offer.code );
+		if ( ! offer.allowed ) {
+			var locked = card( Dock.cardHead( 'warn', 'plug', t( 'addonNeedsPlan', '%s needs a higher Easy Form Builder plan', name ) ), [
+				el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { text: 'free_plus' === offer.plan ? t( 'addonPlanFreePlus', 'This add-on comes with Easy Form Builder Free Plus and Pro.' ) : t( 'addonPlanPro', 'This add-on comes with Easy Form Builder Pro.' ) } ) ] ),
+				offer.upgrade_url ? el( 'div', { class: 'aisa-ai-card__foot' }, [ el( 'a', { class: 'aisa-ai-btn aisa-ai-btn--sm aisaautopilot-efb-btn', href: offer.upgrade_url, target: '_blank', rel: 'noopener noreferrer' }, [ el( 'span', { text: t( 'seePlans', 'See plans' ) } ), icon( 'ext', 13 ) ] ) ] ) : null
+			], { 'data-sp-efb-install': offer.code, 'data-sp-efb-install-state': 'plan' } );
+			addAi( locked );
+			return;
+		}
+		var status = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
+		var install = button( t( 'installAddon', 'Install %s', name ), { kind: 'primary', size: 'sm', icon: 'plug', attrs: { 'data-sp-efb-install-go': offer.code } } );
+		var later = button( t( 'notNow', 'Not now' ), { kind: 'quiet', size: 'sm' } );
+		var box = card( Dock.cardHead( 'warn', 'plug', t( 'addonNeeded', 'This needs the %s add-on', name ) ), [
+			el( 'div', { class: 'aisa-ai-card__body' }, [
+				el( 'p', { text: t( 'addonAsk', 'May I install the %s add-on from Easy Form Builder now? The page reloads when it is done.', name ) } ),
+				unsaved > 0 ? el( 'p', { class: 'aisa-ai-req', text: t( 'addonSaveFirst', 'Save the form in Easy Form Builder first: %s change(s) are not saved yet and a reload would lose them.', unsaved ) } ) : null,
+				status
+			] ),
+			el( 'div', { class: 'aisa-ai-card__foot' }, [ install, later ] )
+		], { 'data-sp-efb-install': offer.code, 'data-sp-efb-install-state': 'ask' } );
+		later.addEventListener( 'click', function () { box.setAttribute( 'data-sp-efb-install-state', 'declined' ); install.disabled = true; later.disabled = true; status.textContent = t( 'addonDeclined', 'Nothing was installed.' ); } );
+		install.addEventListener( 'click', function () {
+			install.disabled = true; later.disabled = true;
+			status.textContent = t( 'addonInstalling', 'Installing…' );
+			var body = new URLSearchParams();
+			body.append( 'action', 'add_addons_Emsfb' );
+			body.append( 'value', String( offer.code ) );
+			body.append( 'nonce', ( typeof _efb_nonce_ !== 'undefined' && _efb_nonce_ ) ? _efb_nonce_ : cfg.nonce );
+			fetch( window.ajaxurl || ( cfg.ajaxUrl || '/wp-admin/admin-ajax.php' ), { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, body: body.toString() } )
+				.then( function ( r ) { return r.json().catch( function () { return {}; } ); } )
+				.then( function ( res ) {
+					var data = res && res.data ? res.data : {};
+					if ( 'done' === data.r && data.success ) {
+						box.setAttribute( 'data-sp-efb-install-state', 'installed' );
+						clientLog( makeTraceId(), 'addon_installed', 'Add-on installed from the copilot after the administrator agreed.', { addon: String( offer.code ) } );
+						status.textContent = unsaved > 0 ? t( 'addonInstalledSave', 'Installed. Save the form, then reload the page to use it.' ) : t( 'addonInstalled', 'Installed. Reloading so Easy Form Builder can load it…' );
+						var last = history.length ? history[ history.length - 1 ] : null;
+						try { if ( last && 'user' === last.role ) { sessionStorage.setItem( RESUME_KEY, JSON.stringify( { text: last.text, at: Date.now() } ) ); } } catch ( e ) {}
+						if ( unsaved === 0 ) { leaving = true; setTimeout( function () { window.location.reload(); }, 900 ); }
+						return;
+					}
+					box.setAttribute( 'data-sp-efb-install-state', 'failed' );
+					install.disabled = false; later.disabled = false;
+					clientLog( makeTraceId(), 'addon_install_failed', 'Easy Form Builder did not install the add-on.', { failed: [ { reason: String( data.code || data.m || 'install_failed' ).slice( 0, 160 ) } ] } );
+					status.textContent = 'addon_plan_required' === data.code ? t( 'addonPlanPro', 'This add-on comes with Easy Form Builder Pro.' ) : ( data.m ? String( data.m ).replace( /<[^>]*>/g, '' ) : t( 'addonInstallFailed', 'Easy Form Builder could not install it. Try again from Easy Form Builder → Add-ons.' ) );
+				} )
+				.catch( function () { install.disabled = false; later.disabled = false; box.setAttribute( 'data-sp-efb-install-state', 'failed' ); status.textContent = t( 'networkError', 'Network error. Please try again.' ); } );
+		} );
+		addAi( box );
+	}
+	/* After an install reload: the request the administrator made waits in the composer; nothing is sent by itself. */
+	function resumeAfterInstall() {
+		var saved = null;
+		try { saved = JSON.parse( sessionStorage.getItem( RESUME_KEY ) || 'null' ); sessionStorage.removeItem( RESUME_KEY ); } catch ( e ) { saved = null; }
+		if ( ! saved || ! saved.text || Date.now() - Number( saved.at || 0 ) > 600000 ) { return; }
+		open( false );
+		addAi( 'form_studio' === saved.from ? t( 'handoffResume', 'Your request from Form Studio is in the message box. Send it and I will build the full form here.' ) : t( 'addonResume', 'The add-on is ready. Your request is in the message box: send it again when you are ready.' ) );
+		var input = $( 'aisaautopilot-efb-input' );
+		if ( input ) { input.value = String( saved.text ); autoGrow(); input.focus(); }
 	}
 	/* ---------- send ---------- */
 	function setBusy( on ) {
@@ -1207,6 +1278,7 @@
 		watchSaves();
 		setOffline( ! configured );
 		updateSelection();
+		if ( configured ) { setTimeout( resumeAfterInstall, 400 ); }
 		// The short introduction appears once, on the first visit, and only when AI is connected.
 		if ( configured && ! storage( NUDGE_KEY ) && launch ) { setTimeout( function () { offerNudge( 0 ); }, 1200 ); }
 	}

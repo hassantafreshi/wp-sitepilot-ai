@@ -38,6 +38,9 @@ final class FormPlanSchema {
 
 	public const RISK_LEVELS = array( 'low', 'medium', 'high' );
 
+	/** What a native form cannot do and Easy Form Builder can: named so Form Studio can hand the request over. */
+	public const EFB_FEATURES = array( 'payment', 'file_upload', 'conditional_logic', 'multi_step', 'signature', 'calculation', 'rating' );
+
 	/**
 	 * The JSON shape we instruct the model to return.
 	 */
@@ -67,6 +70,7 @@ final class FormPlanSchema {
 				'    "confirmation_message": "string (optional)"',
 				'  },',
 				'  "risk_level": "low | medium | high",',
+				'  "needs_efb": ["features you had to leave out: payment | file_upload | conditional_logic | multi_step | signature | calculation | rating"],',
 				'  "notes": "short note to the admin (optional)"',
 				'}',
 			)

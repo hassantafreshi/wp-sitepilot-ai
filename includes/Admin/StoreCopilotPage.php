@@ -309,8 +309,8 @@ final class StoreCopilotPage {
 						array( __( 'Read your products and categories', 'ai-site-assistant-autopilot' ), ! empty( $capabilities['products']['read'] ), '' ),
 						array( __( 'Propose one simple product as a draft', 'ai-site-assistant-autopilot' ), ! empty( $capabilities['products']['create_draft'] ) && $provider_ready, '' ),
 						array( __( 'Publish a product', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
-						array( __( 'Edit a product that already exists', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
-						array( __( 'Change many products at once', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
+						array( __( 'Change the price, stock or other details of an existing product (its long description can be rewritten in Descriptions)', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
+						array( __( 'Change the details of many products at once (descriptions excepted)', 'ai-site-assistant-autopilot' ), false, __( 'Phase 2', 'ai-site-assistant-autopilot' ) ),
 					)
 				);
 				$this->capability_group(
@@ -428,7 +428,7 @@ final class StoreCopilotPage {
 		<section class="sp-card sp-store-panel sp-store-products" data-sp-store-products>
 			<div class="sp-store-panel__head">
 				<h2 class="sp-h2 sp-h2--md sp-mb0"><?php esc_html_e( 'Products', 'ai-site-assistant-autopilot' ); ?></h2>
-				<span class="sp-store-panel__sub"><?php esc_html_e( 'Read-only in Phase 1 - AutoPilot cannot edit what already exists', 'ai-site-assistant-autopilot' ); ?></span>
+				<span class="sp-store-panel__sub"><?php esc_html_e( 'Read-only here - to rewrite a product description, use the Descriptions tab', 'ai-site-assistant-autopilot' ); ?></span>
 			</div>
 			<?php if ( ! $active || ! $enabled ) : ?>
 				<p class="sp-empty sp-store-empty"><?php esc_html_e( 'Products become available here when WooCommerce and its AI connector are active.', 'ai-site-assistant-autopilot' ); ?></p>
@@ -446,7 +446,7 @@ final class StoreCopilotPage {
 					</div>
 				<?php endforeach; ?>
 			<?php endif; ?>
-			<div class="sp-store-panel__foot"><?php esc_html_e( 'Drafts AutoPilot created are marked. Everything else it can read but not touch until Phase 2.', 'ai-site-assistant-autopilot' ); ?></div>
+			<div class="sp-store-panel__foot"><?php esc_html_e( 'Drafts AutoPilot created are marked. Other products are read-only here; only their long description can be rewritten, in Descriptions, after you review it.', 'ai-site-assistant-autopilot' ); ?></div>
 		</section>
 		<?php
 	}

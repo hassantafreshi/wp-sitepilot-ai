@@ -71,9 +71,10 @@ final class EfbChatSkill {
 				'{ "title": "...", "submit_button": "...", "confirmation_message": "...",',
 				'  "notify_admin": true, "confirm_to_respondent": false, "fields": [',
 				'  { "type": "...", "label": "...", "required": true, "placeholder": "...", "help": "short hint under the field",',
-				'    "width": "full|half", "options": ["for choice fields"], "settings": { } },',
+				'    "width": "full|half|third|quarter", "options": ["for choice fields"], "settings": { } },',
+				'  (width: fields flow left to right; "side by side" or two in a row = half, three in a row = third, four = quarter)',
 				'  { "type": "steps", "label": "Next page title" }',
-				'] }',
+				'], "logic": [ { "name": "...", "match": "all|any", "when": [ ... ], "then": [ ... ] } ] }',
 				'Allowed new-form field types:',
 				"{$caps}",
 				'Design a complete, useful form with at most 30 fields; split long forms (more than about 10 questions) into',
@@ -149,7 +150,14 @@ final class EfbChatSkill {
 				'  applies a rule only while its condition holds, so "show X only when…" is ONE show_field rule and needs no',
 				'  opposite rule. For "X is required only when…" also make X optional with set_field. Use the exact option',
 				'  text from CURRENT_FIELDS as the value. Never make a field depend on itself.',
-				'  When LOGIC_ADDON=no, answer_help: the Conditional Logic add-on must be activated in Easy Form Builder first.',
+				'  When LOGIC_ADDON=no or EFB_PLAN=free, still emit the rules the user asked for: the server explains the add-on or plan,',
+				'  offers to install the add-on with the user\'s permission, and never applies a rule that cannot work. Never answer a',
+				'  logic request with answer_help or "do it yourself".',
+				'- NEW FORMS WITH LOGIC: with create_form, put the rules in "form.logic" as a list of the same rule objects',
+				'  ({ "name", "match", "when", "then" }), referring to fields by the exact labels you gave them in "fields" and to',
+				'  steps by number ("2") or by the label of their step break. Typical patterns: show a follow-up only for one answer',
+				'  ("Other" shows "Please specify"); require a field only for an answer; show a whole step for one answer; jump to a',
+				'  step; any/all of several answers; numeric thresholds (gt/lt on a number); empty / not empty.',
 				'- Translating the open form means set_field label/placeholder/help, rename_option for every option,',
 				'  set_form_name and set_confirmation, all in the requested language.',
 				'- If uncertain, use ask with a short question rather than guessing.',
@@ -177,9 +185,7 @@ final class EfbChatSkill {
 		if ( is_array( $form_context['payment'] ?? null ) && array() !== $form_context['payment'] ) {
 			$ctx .= "PAYMENT_STATUS:\n" . EfbPayments::prompt_block( $form_context['payment'] ) . "\n";
 		}
-		if ( $has_form ) {
-			$ctx .= 'LOGIC_ADDON=' . ( ! empty( $form_context['logic'] ) ? 'yes' : 'no' ) . "\n";
-		}
+		$ctx .= 'LOGIC_ADDON=' . ( ! empty( $form_context['logic'] ) ? 'yes' : 'no' ) . "\n";
 		if ( $has_form && null !== $selected_field ) {
 			$ctx .= sprintf(
 				'SELECTED_FIELD: id="%s" label="%s" type=%s' . "\n",

@@ -67,7 +67,7 @@ try {
 	);
 	$check(
 		false !== strpos( $products, 'data-sp-store-products' )
-		&& false !== strpos( $products, 'Read-only in Phase 1' )
+		&& false !== strpos( $products, 'Read-only here' ) && false !== strpos( $products, 'Descriptions tab' )
 		&& false === strpos( $products, 'sp-stat-revenue' )
 		&& false === strpos( $products, 'sp-sales-chart' )
 		&& false === strpos( $products, 'sp-top-products' ),

@@ -28,7 +28,7 @@ final class HistoryPage {
 				<?php
 				Ui::page_header(
 					__( 'Content Studio', 'ai-site-assistant-autopilot' ),
-					__( 'Drafts written in the voice it learned from your site.', 'ai-site-assistant-autopilot' ),
+					__( 'Drafts written for your site, in the voice you choose.', 'ai-site-assistant-autopilot' ),
 					array(
 						'chip'    => ConnectionChip::derive(),
 						'action'  => array(

@@ -9,6 +9,7 @@ use AISAAutoPilot\Core\SiteLanguage;
 use AISAAutoPilot\Efb\EfbChatSkill;
 use AISAAutoPilot\Efb\EfbCustomizeSkill;
 use AISAAutoPilot\Efb\EfbFormConverter;
+use AISAAutoPilot\Efb\EfbAddons;
 use AISAAutoPilot\Efb\EfbLicense;
 use AISAAutoPilot\Efb\EfbPayments;
 use AISAAutoPilot\Efb\EfbFormModel;
@@ -277,7 +278,9 @@ final class EfbCopilotController {
 		$license  = EfbLicense::status();
 		// The browser reports whether EFB loaded its Conditional Logic add-on on
 		// this form; rules it proposes are still re-validated by EFB on Save.
-		$logic       = $has_form && (bool) $request->get_param( 'logic_addon' );
+		// An open form reports its own add-on state; with no form open, the editor's add-on list says it.
+		$addons_seen = is_array( $request->get_param( 'addons' ) ) ? (array) $request->get_param( 'addons' ) : array();
+		$logic       = $has_form ? (bool) $request->get_param( 'logic_addon' ) : (int) ( $addons_seen['AdnSMF'] ?? 0 ) >= 1;
 		$logic_rules = $this->clean_logic_rules( $request->get_param( 'logic_rules' ) );
 		$captcha     = $request->get_param( 'captcha' );
 		$shield      = (bool) $request->get_param( 'spam_shield' );
@@ -488,6 +491,11 @@ final class EfbCopilotController {
 				if ( array() !== $pay_links ) {
 					$message_payload['links'] = $pay_links;
 				}
+				$offers = EfbAddons::offers( array_column( $dropped, 'reason' ) );
+				if ( array() !== $offers ) {
+					$message_payload['install'] = $offers;
+				}
+				$message_payload = $this->with_plan_links( $message_payload, $dropped );
 
 				return $this->respond( $message_payload, true );
 			}
@@ -546,8 +554,12 @@ final class EfbCopilotController {
 			if ( array() !== $pay_links ) {
 				$payload['links'] = $pay_links;
 			}
+			$offers = EfbAddons::offers( array_column( $dropped, 'reason' ) );
+			if ( array() !== $offers ) {
+				$payload['install'] = $offers;
+			}
 
-			return $this->respond( $payload, true );
+			return $this->respond( $this->with_plan_links( $payload, $dropped ), true );
 		}
 
 		if ( 'create_form' === $action && is_array( $raw['form'] ?? null ) ) {
@@ -595,6 +607,54 @@ final class EfbCopilotController {
 					$payment_notes[] = $this->payment_note( (string) ( $payment_check['reason'] ?? '' ) );
 				}
 			}
+			// EFB Free renders two pages at most: later page breaks are folded into page two, and the admin is told
+			// how to get more (Free Plus or Pro) or that the form now fits.
+			$step_links = array();
+			if ( empty( $license['has_pro_features'] ) ) {
+				$breaks = 0;
+				$kept   = array();
+				foreach ( (array) $plan['fields'] as $field ) {
+					if ( is_array( $field ) && in_array( $field['type'] ?? '', array( 'steps', 'step' ), true ) ) {
+						++$breaks;
+						if ( $breaks > 1 ) {
+							continue;
+						}
+					}
+					$kept[] = $field;
+				}
+				if ( $breaks > 1 ) {
+					$plan['fields']  = $kept;
+					$payment_notes[] = sprintf(
+						/* translators: %d: number of pages the request asked for. */
+						__( 'You asked for %d pages, but Easy Form Builder Free shows two at most, so the later pages are on page two. Buy Free Plus or Pro for more pages, or keep it as it is.', 'ai-site-assistant-autopilot' ),
+						$breaks + 1
+					);
+					$step_links = array(
+						array(
+							'label' => __( 'See EFB Pro', 'ai-site-assistant-autopilot' ),
+							'url'   => EfbLicense::upgrade_url(),
+						),
+					);
+				}
+			}
+
+			// Conditional logic planned with the form: resolved against the ids this plan will be saved with,
+			// within the add-on's plan limits, or explained and offered instead.
+			$logic_dropped = array();
+			if ( is_array( $raw['form']['logic'] ?? null ) && array() !== $raw['form']['logic'] ) {
+				$built         = $this->plan_logic( $plan, array_values( (array) $raw['form']['logic'] ), $logic, (string) $license['tier'] );
+				$logic_dropped = $built['dropped'];
+				if ( array() !== $built['rules'] ) {
+					$plan['logic_rules'] = $built['rules'];
+				}
+				$payment_notes = array_merge( $payment_notes, $this->customize_notes( $logic_dropped ) );
+			}
+			if ( null !== $payment_check && ! $payment_check['ok'] ) {
+				$logic_dropped[] = array(
+					'op'     => 'add_payment',
+					'reason' => (string) ( $payment_check['reason'] ?? '' ),
+				);
+			}
 			$connector = $this->registry()->get( 'easy_form_builder' );
 			$name      = ( null !== $connector ) ? $connector->get_name() : 'Easy Form Builder';
 			$action_id = $this->store->create( $plan, 'easy_form_builder' );
@@ -635,6 +695,14 @@ final class EfbCopilotController {
 			);
 			if ( array() !== $pay_links ) {
 				$payload['links'] = $pay_links;
+			}
+			$offers = EfbAddons::offers( array_column( $logic_dropped, 'reason' ) );
+			if ( array() !== $offers ) {
+				$payload['install'] = $offers;
+			}
+			$payload = $this->with_plan_links( $payload, $logic_dropped );
+			if ( array() !== $step_links ) {
+				$payload['links'] = array_values( array_unique( array_merge( is_array( $payload['links'] ?? null ) ? $payload['links'] : array(), $step_links ), SORT_REGULAR ) );
 			}
 
 			return $this->respond( $this->with_pro_upsell( $payload, $split['pro_fields'] ), true );
@@ -890,6 +958,86 @@ final class EfbCopilotController {
 		return $blocked;
 	}
 
+	/**
+	 * Resolve the logic a new form was planned with against the ids it will be saved with.
+	 *
+	 * @param array<string,mixed> $plan
+	 * @param array<int,mixed>    $raw_rules
+	 * @return array{rules:array<int,array<string,mixed>>, dropped:array<int,array{op:string,reason:string}>, summaries:string[]}
+	 */
+	private function plan_logic( array $plan, array $raw_rules, bool $addon_active, string $tier ): array {
+		$out = array(
+			'rules'     => array(),
+			'dropped'   => array(),
+			'summaries' => array(),
+		);
+		if ( ! $addon_active ) {
+			$out['dropped'][] = array(
+				'op'     => 'add_logic_rule',
+				'reason' => 'logic_addon_inactive',
+			);
+			return $out;
+		}
+		$catalog = EfbFormConverter::logic_catalog( ( new EfbFormConverter() )->convert( $plan ) );
+		foreach ( array_slice( $raw_rules, 0, 12 ) as $raw ) {
+			$conditions = is_array( $raw['when'] ?? null ) ? count( (array) $raw['when'] ) : 0;
+			$refusal    = EfbLogicRules::plan_refusal( $tier, count( $out['rules'] ), $conditions );
+			if ( '' !== $refusal ) {
+				$out['dropped'][] = array(
+					'op'     => 'add_logic_rule',
+					'reason' => $refusal,
+				);
+				continue;
+			}
+			$built = EfbLogicRules::build( $raw, $catalog['fields'], $catalog['steps'] );
+			if ( empty( $built['ok'] ) ) {
+				$out['dropped'][] = array(
+					'op'     => 'add_logic_rule',
+					'reason' => 'invalid_logic_rule:' . (string) ( $built['error'] ?? '' ),
+				);
+				continue;
+			}
+			$out['rules'][]     = $built['rule'];
+			$out['summaries'][] = (string) ( $built['summary'] ?? '' );
+		}
+
+		return $out;
+	}
+
+	/**
+	 * A plan limit in the way gets the way past it as a button: EFB Pro.
+	 *
+	 * @param array<string,mixed>                       $payload
+	 * @param array<int,array{op:string,reason:string}> $dropped
+	 * @return array<string,mixed>
+	 */
+	private function with_plan_links( array $payload, array $dropped ): array {
+		foreach ( $dropped as $d ) {
+			$reason = (string) ( $d['reason'] ?? '' );
+			if ( 'logic_needs_plan' === $reason || str_starts_with( $reason, 'logic_rule_limit:' ) || str_starts_with( $reason, 'logic_condition_limit:' ) ) {
+				$links            = is_array( $payload['links'] ?? null ) ? $payload['links'] : array();
+				$links[]          = array(
+					'label' => __( 'See EFB Pro', 'ai-site-assistant-autopilot' ),
+					'url'   => EfbLicense::upgrade_url(),
+				);
+				$payload['links'] = array_values( array_unique( $links, SORT_REGULAR ) );
+				break;
+			}
+		}
+
+		return $payload;
+	}
+
+	/**
+	 * @param array<string,mixed> $plan
+	 * @return string[]
+	 */
+	private function explain_planned_logic( array $plan ): array {
+		$catalog = EfbFormConverter::logic_catalog( ( new EfbFormConverter() )->convert( $plan ) );
+
+		return EfbLogicRules::explain( (array) $plan['logic_rules'], $catalog['fields'], $catalog['steps'] );
+	}
+
 	/** Plain-language explanation of why a payment request was not applied. */
 	private function payment_note( string $reason ): string {
 		$parts   = explode( ':', $reason );
@@ -1012,15 +1160,15 @@ final class EfbCopilotController {
 			} elseif ( str_starts_with( $reason, 'payment_' ) ) {
 				$notes[] = $this->payment_note( $reason );
 			} elseif ( 'logic_addon_inactive' === $reason ) {
-				$notes[] = __( 'Conditional logic needs Easy Form Builder’s Conditional Logic add-on. Activate it under Easy Form Builder → Add-ons, reload this form and ask me again.', 'ai-site-assistant-autopilot' );
+				$notes[] = __( 'Conditional logic needs Easy Form Builder’s Conditional Logic add-on, which is not installed or not active. I can install it for you if you allow it; the form reloads afterwards, so save your changes first.', 'ai-site-assistant-autopilot' );
 			} elseif ( 'logic_needs_plan' === $reason ) {
-				$notes[] = __( 'Conditional logic rules need Easy Form Builder Free Plus or Pro.', 'ai-site-assistant-autopilot' );
+				$notes[] = __( 'Conditional logic rules need Easy Form Builder Free Plus or Pro. Upgrade, or change the form so it does not depend on logic: for example ask every question, or use a separate form for each case.', 'ai-site-assistant-autopilot' );
 			} elseif ( str_starts_with( $reason, 'logic_rule_limit:' ) ) {
 				/* translators: %d: rule limit. */
-				$notes[] = sprintf( __( 'Easy Form Builder Free Plus allows %d conditional logic rules per form. Remove one or upgrade to Pro for more.', 'ai-site-assistant-autopilot' ), (int) substr( $reason, strlen( 'logic_rule_limit:' ) ) );
+				$notes[] = sprintf( __( 'Easy Form Builder Free Plus allows %d conditional logic rules per form, so the rest were left out. Buy Pro for unlimited rules, or change the form: combine rules that show the same fields, move a branch to its own step, or split it into separate forms.', 'ai-site-assistant-autopilot' ), (int) substr( $reason, strlen( 'logic_rule_limit:' ) ) );
 			} elseif ( str_starts_with( $reason, 'logic_condition_limit:' ) ) {
 				/* translators: %d: condition limit. */
-				$notes[] = sprintf( __( 'Easy Form Builder Free Plus allows %d conditions per rule. Split the rule or upgrade to Pro.', 'ai-site-assistant-autopilot' ), (int) substr( $reason, strlen( 'logic_condition_limit:' ) ) );
+				$notes[] = sprintf( __( 'Easy Form Builder Free Plus allows %d conditions in one rule. Buy Pro, or split the rule into simpler rules.', 'ai-site-assistant-autopilot' ), (int) substr( $reason, strlen( 'logic_condition_limit:' ) ) );
 			} elseif ( str_starts_with( $reason, 'invalid_logic_rule:' ) ) {
 				$notes[] = $this->logic_rule_note( substr( $reason, strlen( 'invalid_logic_rule:' ) ) );
 			} elseif ( str_starts_with( $reason, 'operation_limit_reached:' ) ) {
@@ -1075,7 +1223,7 @@ final class EfbCopilotController {
 		$is_step_limit = (bool) array_filter( $blocked, static fn ( array $item ): bool => 'step_limit' === ( $item['kind'] ?? '' ) );
 		$is_setting    = ! $is_step_limit && (bool) array_filter( $blocked, static fn ( array $item ): bool => 'setting' === ( $item['kind'] ?? '' ) );
 		if ( $is_step_limit ) {
-			$default = __( 'Easy Form Builder Free supports up to two steps. Upgrade to add more steps.', 'ai-site-assistant-autopilot' );
+			$default = __( 'Easy Form Builder Free supports up to two steps. Buy Free Plus or Pro for more, or change the form: merge pages so it fits in two, or make it a single page.', 'ai-site-assistant-autopilot' );
 		} elseif ( $is_setting ) {
 			$default = __( 'The mobile layout settings are part of the Pro version of Easy Form Builder.', 'ai-site-assistant-autopilot' );
 		} else {
@@ -1531,6 +1679,8 @@ final class EfbCopilotController {
 				),
 				$pay_rows
 			),
+			// The rules planned with the form, in the same plain sentences "explain the logic" uses.
+			'logic'                => is_array( $plan['logic_rules'] ?? null ) && array() !== $plan['logic_rules'] ? $this->explain_planned_logic( $plan ) : array(),
 			'payment'              => is_array( $plan['payment'] ?? null ) ? array(
 				'gateway'  => (string) ( EfbPayments::GATEWAYS[ $plan['payment']['gateway'] ]['label'] ?? '' ),
 				'currency' => strtoupper( (string) $plan['payment']['currency'] ),

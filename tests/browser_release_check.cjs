@@ -1189,7 +1189,7 @@ async function contentStudioNavigationHealthy( page ) {
 		&& await prompt.getAttribute( 'rows' ) === '4'
 		&& ( persianAdmin
 			? chipTexts.length === 3 && chipTexts.every( ( chip ) => persianScript.test( chip ) )
-			: JSON.stringify( chipTexts ) === JSON.stringify( [ 'Learned from your site', 'Formal', 'Plain' ] ) )
+			: JSON.stringify( chipTexts ) === JSON.stringify( [ 'Standard', 'Formal', 'Plain' ] ) )
 		&& ( persianAdmin ? persianScript.test( planLabel ) : planLabel === 'Write a draft' ),
 		'Content Studio Write matches the mockup composer, voice chips, and truthful draft-list shell'
 	);
@@ -1525,6 +1525,14 @@ async function formComposerHealthy( page ) {
 				if ( 'move' === op.op ) { const [ item ] = layout.splice( i, 1 ); layout.splice( 'up' === op.direction ? Math.max( 0, i - 1 ) : i + 1, 0, item ); }
 			}
 			await route.fulfill( { contentType: 'application/json', body: JSON.stringify( layoutReply() ) } );
+			return;
+		}
+		if ( pathname.endsWith( '/forms/plan' ) && /handoff/i.test( String( request.postDataJSON().prompt || '' ) ) ) {
+			await route.fulfill( { contentType: 'application/json', body: JSON.stringify( { ok: true, action_id: 'form-browser-qa-handoff', expires_at: Math.floor( Date.now() / 1000 ) + 900, preview: {
+				title: 'Browser QA booking', description: '', fields: [ { key: 'name', type: 'text', label: 'Name', required: true, width: 'full', options: [] } ],
+				submit_button: 'Send', confirmation_message: 'Thanks.', risk_level: 'high', notes: 'Payment and file upload need Easy Form Builder.', needs_efb: [ 'payment', 'file_upload' ],
+				connector: 'AISAAutoPilot Built-in Forms', notification_email: 'a***@example.test', field_count: 1, default_status: 'draft',
+			} } ) } );
 			return;
 		}
 		if ( pathname.endsWith( '/forms/plan' ) && /columns/i.test( String( request.postDataJSON().prompt || '' ) ) ) {
@@ -1872,6 +1880,26 @@ async function formComposerHealthy( page ) {
 		check( executeRequests === 3 && !mobileResultOverflow, 'Approving from the Preview tab creates the form once, without 390px overflow' );
 		await page.waitForTimeout( 350 );
 		await page.screenshot( { path: path.join( screenshotDir, 'aisaautopilot-form-composer-result-mobile.png' ), fullPage: true } );
+
+		// What a native form leaves out goes to Easy Form Builder with the request, which waits in its copilot unsent.
+		await page.setViewportSize( { width: 1440, height: 960 } );
+		await page.goto( formUrl, { waitUntil: 'domcontentloaded', timeout: 20000 } );
+		await root.locator( '#aisaautopilot-thread .aisa-ai-row' ).first().waitFor( { timeout: 10000 } );
+		const handoffText = 'Booking with a deposit and a passport upload (handoff QA)';
+		await prompt.fill( handoffText );
+		await prompt.press( 'Enter' );
+		const handoffCard = thread.locator( '[data-sp-fc-efb="payment,file_upload"]' );
+		await handoffCard.waitFor( { state: 'visible', timeout: 10000 } );
+		const handoffBody = await handoffCard.innerText();
+		const efbReady = await page.evaluate( () => !! JSON.parse( document.getElementById( 'sp-copilot-boot' ).textContent ).efbReady );
+		check( efbReady ? await handoffCard.locator( '[data-sp-fc-efb-handoff]' ).count() === 1 : true, 'A plan that left out payment and upload names them and offers Easy Form Builder', handoffBody );
+		if ( efbReady ) {
+			await Promise.all( [ page.waitForURL( /page=Emsfb_create/, { timeout: 20000 } ), handoffCard.locator( '[data-sp-fc-efb-handoff]' ).click() ] );
+			const efbInput = page.locator( '#aisaautopilot-efb-input' );
+			await efbInput.waitFor( { state: 'visible', timeout: 15000 } ).catch( () => {} );
+			const carried = await efbInput.inputValue().catch( () => '' );
+			check( carried === handoffText && await page.locator( '#aisaautopilot-efb-messages .aisaautopilot-efb-msg--user' ).count() === 0, 'The request waits in the Easy Form Builder copilot, unsent', carried );
+		}
 	} finally {
 		await page.unroute( routePattern );
 	}

@@ -46,6 +46,7 @@ final class EfbBuilderButton {
 			'AISAAutoPilotEFB',
 			array(
 				'restUrl'         => esc_url_raw( rest_url( RestRoutes::NAMESPACE . '/' ) ),
+				'ajaxUrl'         => esc_url_raw( admin_url( 'admin-ajax.php' ) ),
 				'nonce'           => wp_create_nonce( 'wp_rest' ),
 				'configured'      => ( new ProviderManager() )->is_configured(),
 				'settingsUrl'     => admin_url( 'admin.php?page=' . AdminMenu::SLUG_SETUP ),
@@ -307,6 +308,28 @@ final class EfbBuilderButton {
 					'typePayAmount'                  => __( 'Amount', 'ai-site-assistant-autopilot' ),
 					'typePayTotal'                   => __( 'Total', 'ai-site-assistant-autopilot' ),
 					'typePayment'                    => __( 'Payment', 'ai-site-assistant-autopilot' ),
+					'previewLogic'                   => __( 'Conditional logic', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: Easy Form Builder add-on name. */
+					'addonNeedsPlan'                 => __( '%s needs a higher Easy Form Builder plan', 'ai-site-assistant-autopilot' ),
+					'addonPlanFreePlus'              => __( 'This add-on comes with Easy Form Builder Free Plus and Pro.', 'ai-site-assistant-autopilot' ),
+					'addonPlanPro'                   => __( 'This add-on comes with Easy Form Builder Pro.', 'ai-site-assistant-autopilot' ),
+					'seePlans'                       => __( 'See plans', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: Easy Form Builder add-on name. */
+					'installAddon'                   => __( 'Install %s', 'ai-site-assistant-autopilot' ),
+					'notNow'                         => __( 'Not now', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: Easy Form Builder add-on name. */
+					'addonNeeded'                    => __( 'This needs the %s add-on', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: Easy Form Builder add-on name. */
+					'addonAsk'                       => __( 'May I install the %s add-on from Easy Form Builder now? The page reloads when it is done.', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: number of unsaved changes. */
+					'addonSaveFirst'                 => __( 'Save the form in Easy Form Builder first: %s change(s) are not saved yet and a reload would lose them.', 'ai-site-assistant-autopilot' ),
+					'addonDeclined'                  => __( 'Nothing was installed.', 'ai-site-assistant-autopilot' ),
+					'addonInstalling'                => __( 'Installing…', 'ai-site-assistant-autopilot' ),
+					'addonInstalledSave'             => __( 'Installed. Save the form, then reload the page to use it.', 'ai-site-assistant-autopilot' ),
+					'addonInstalled'                 => __( 'Installed. Reloading so Easy Form Builder can load it…', 'ai-site-assistant-autopilot' ),
+					'addonInstallFailed'             => __( 'Easy Form Builder could not install it. Try again from Easy Form Builder → Add-ons.', 'ai-site-assistant-autopilot' ),
+					'handoffResume'                  => __( 'Your request from Form Studio is in the message box. Send it and I will build the full form here.', 'ai-site-assistant-autopilot' ),
+					'addonResume'                    => __( 'The add-on is ready. Your request is in the message box: send it again when you are ready.', 'ai-site-assistant-autopilot' ),
 					'typeYesNo'                      => __( 'Yes / No', 'ai-site-assistant-autopilot' ),
 					'required'                       => __( 'required', 'ai-site-assistant-autopilot' ),
 				),

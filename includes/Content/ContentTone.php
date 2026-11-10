@@ -39,7 +39,7 @@ final class ContentTone {
 			case 'plain':
 				return __( 'Plain', 'ai-site-assistant-autopilot' );
 			default:
-				return __( 'Learned from your site', 'ai-site-assistant-autopilot' );
+				return __( 'Standard', 'ai-site-assistant-autopilot' );
 		}
 	}
 

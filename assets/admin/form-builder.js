@@ -606,12 +606,33 @@
 		} else {
 			addAi( [ restored ? t( 'planRestored' ) : t( 'planReady' ), preview.notes ? String( preview.notes ) : '', planCard ] );
 		}
+		if ( ! quiet && ! restored && Array.isArray( preview.needs_efb ) && preview.needs_efb.length ) { addAi( efbHandoffCard( preview.needs_efb ) ); }
 		renderPlanCanvas( preview );
 		setCanvas( 'plan' );
 		stickyBar();
 		setSuggestions( nextSuggestions( preview ) );
 		startExpiryTimer();
 		savePlan();
+	}
+
+	/* What a native form left out goes to Easy Form Builder: the request travels in this tab's session storage and waits
+	   in its copilot's message box; nothing is sent there by itself. Without EFB, the way to install it is offered. */
+	var FEATURES = { payment: [ 'featPayment', 'payment' ], file_upload: [ 'featFileUpload', 'file upload' ], conditional_logic: [ 'featLogic', 'conditional logic' ], multi_step: [ 'featMultiStep', 'multiple steps' ], signature: [ 'featSignature', 'signature' ], calculation: [ 'featCalculation', 'calculations' ], rating: [ 'featRating', 'rating' ] };
+	function efbHandoffCard( needs ) {
+		var names = needs.map( function ( key ) { var f = FEATURES[ key ]; return f ? t( f[ 0 ], f[ 1 ] ) : key; } ).join( ', ' );
+		var foot = [];
+		if ( boot.efbReady && boot.efbCreate ) {
+			foot.push( button( t( 'efbContinue', 'Build it in Easy Form Builder' ), { kind: 'primary', size: 'sm', attrs: { 'data-sp-fc-efb-handoff': '' }, onClick: function () {
+				try { window.sessionStorage.setItem( 'aisaautopilot.efb.resume', JSON.stringify( { text: String( lastPrompt || '' ), at: Date.now(), from: 'form_studio' } ) ); } catch ( e ) {}
+				window.location.href = boot.efbCreate;
+			} } ) );
+		} else if ( boot.efbAction && boot.efbAction.url ) {
+			foot.push( linkButton( boot.efbAction.label, boot.efbAction.url, { kind: 'primary', size: 'sm' } ) );
+		}
+		return card( Dock.cardHead( 'warn', 'plug', t( 'efbNeededTitle', 'This part needs Easy Form Builder' ) ), [
+			el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { dir: 'auto', text: t( 'efbNeededBody', 'Native forms leave out: %s.', names ) } ), boot.efbReady ? null : el( 'p', { text: t( 'efbMissingBody', 'Install and activate Easy Form Builder to build these.' ) } ) ] ),
+			foot.length ? el( 'div', { class: 'aisa-ai-card__foot' }, foot ) : null
+		], { 'data-sp-fc-efb': needs.join( ',' ) } );
 	}
 
 	function nextSuggestions( plan ) {

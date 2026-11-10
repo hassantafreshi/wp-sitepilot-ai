@@ -105,7 +105,7 @@ form lists every price. The help lookup no longer matches on common words, so a
 payment question is not answered with an unrelated article.
 
 **Content Studio voice** — Write offers three voices as a keyboard-accessible
-radio group: Learned from your site (the default, which sends exactly the same
+radio group: Standard (the default, which sends exactly the same
 prompt as before), Formal and Plain. `POST /content/plan` takes `tone`
 (`site`, `formal` or `plain`; anything else is refused with 400 `invalid_tone`
 before any AI request). The voice is frozen in the proposal, so approval cannot
