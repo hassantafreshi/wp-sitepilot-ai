@@ -62,6 +62,9 @@ final class EfbPayments {
 	/** The largest price or amount a single option may carry, a guard against a model's typo, not a business rule. */
 	public const MAX_PRICE = 1000000;
 
+	/** Rials are counted in large numbers (200,000 toman is 2,000,000 rials), so their guard is wider. */
+	public const MAX_PRICE_IRR = 100000000000;
+
 	/** @return string[] */
 	public static function gateway_ids(): array {
 		return array_keys( self::GATEWAYS );
@@ -120,7 +123,7 @@ final class EfbPayments {
 	 *
 	 * @param mixed $raw
 	 */
-	public static function price( $raw ): ?float {
+	public static function price( $raw, string $currency = '' ): ?float {
 		if ( is_string( $raw ) ) {
 			// "$20", "20.50", "1,200" and Persian digits are all things people type.
 			$raw = strtr(
@@ -147,7 +150,9 @@ final class EfbPayments {
 		}
 		$value = round( (float) $raw, 2 );
 
-		return $value > 0 && $value <= self::MAX_PRICE ? $value : null;
+		$max = 'irr' === strtolower( $currency ) ? self::MAX_PRICE_IRR : self::MAX_PRICE;
+
+		return $value > 0 && $value <= $max ? $value : null;
 	}
 
 	/**
@@ -281,7 +286,7 @@ final class EfbPayments {
 				continue;
 			}
 			$label = trim( (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( (string) ( $item['label'] ?? '' ) ) ) );
-			$price = self::price( $item['price'] ?? null );
+			$price = self::price( $item['price'] ?? null, '' !== $requested ? $requested : self::GATEWAYS[ $gateway ]['default'] );
 			if ( '' === $label || null === $price ) {
 				return array(
 					'ok'     => false,

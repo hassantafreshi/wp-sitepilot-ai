@@ -144,4 +144,12 @@ final class EfbPaymentsTest extends TestCase {
 		self::assertSame( array( 'type' => 'payment', 'getway' => 'paypal', 'currency' => 'usd', 'paymentmethod' => 'charge' ), EfbPayments::form_settings( 'paypal', 'doge' ) );
 		self::assertSame( array( 'type' => 'payment', 'getway' => 'persiaPay', 'currency' => 'irr', 'paymentmethod' => 'charge', 'persiaPay' => 'zarinPal' ), EfbPayments::form_settings( 'zarinpal', 'usd' ) );
 	}
+
+	public function test_rial_prices_may_be_large(): void {
+		self::assertNull( EfbPayments::price( 2000000 ), 'a two-million dollar option is a typo' );
+		self::assertSame( 2000000.0, EfbPayments::price( '۲٬۰۰۰٬۰۰۰', 'IRR' ) );
+		$result = EfbPayments::validate_payment( array( 'gateway' => 'zarinpal', 'items' => array( array( 'label' => 'Cake', 'price' => 2000000 ) ) ), EfbPayments::status( array( 'AdnPPF' => 1 ), '' ), true );
+		self::assertTrue( $result['ok'] );
+		self::assertSame( 'irr', $result['payment']['currency'] );
+	}
 }
