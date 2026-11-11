@@ -1080,6 +1080,8 @@ final class EfbCustomizeSkill {
 
 			case 'html':
 				$html = trim( (string) ( $field['html'] ?? '' ) );
+				// Code-carrying elements go with their contents; the filter below would keep the code as text.
+				$html = (string) preg_replace( '#<(script|style|iframe|object|embed|noscript|template)\b[^>]*>.*?</\1\s*>#is', '', $html );
 				$html = function_exists( 'wp_kses_post' ) ? wp_kses_post( $html ) : strip_tags( $html, '<p><br><strong><b><em><i><u><a><ul><ol><li><h2><h3><h4><span><div><img><hr><blockquote><small>' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- Fallback for unit tests without WordPress.
 				$html = trim( mb_substr( $html, 0, 5000 ) );
 

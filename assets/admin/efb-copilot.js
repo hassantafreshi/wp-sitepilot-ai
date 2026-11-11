@@ -174,7 +174,7 @@
 		payRadio: [ 'typePayChoice', 'Priced choice', 'radio' ], paySelect: [ 'typePayChoice', 'Priced choice', 'select' ], payCheckbox: [ 'typePayChoice', 'Priced choice', 'checkbox' ], payMultiselect: [ 'typePayChoice', 'Priced choice', 'select' ],
 		prcfld: [ 'typePayAmount', 'Amount', 'hash' ], ttlprc: [ 'typePayTotal', 'Total', 'hash' ],
 		stripe: [ 'typePayment', 'Payment', 'key' ], paypal: [ 'typePayment', 'Payment', 'key' ], persiaPay: [ 'typePayment', 'Payment', 'key' ],
-		maps: [ 'typeMap', 'Location picker', 'link' ], conturyList: [ 'typeCountry', 'Country', 'select' ], stateProvince: [ 'typeState', 'State / province', 'select' ], cityList: [ 'typeCity', 'City', 'select' ],
+		maps: [ 'typeMap', 'Location picker', 'link' ], conturyList: [ 'typeCountry', 'Country', 'select' ], stateProvince: [ 'typeState', 'State / Province', 'select' ], cityList: [ 'typeCity', 'City', 'select' ],
 		audio_recorder: [ 'typeAudio', 'Sound recorder', 'upload' ], video_recorder: [ 'typeVideo', 'Video recorder', 'upload' ], screen_recorder: [ 'typeScreen', 'Screen recorder', 'upload' ],
 		link: [ 'typeLink', 'Link', 'link' ], html: [ 'typeHtml', 'HTML block', 'para' ], heading: [ 'typeHeading', 'Heading', 'text' ], esign: [ 'typeSignature', 'Signature', 'text' ],
 		color: [ 'typeColor', 'Colour picker', 'text' ], pointr5: [ 'typeRating', 'Rating', 'star' ], pointr10: [ 'typeRating', 'Rating', 'star' ], table_matrix: [ 'typeMatrix', 'Matrix', 'checkbox' ], password: [ 'typePassword', 'Password', 'key' ]
@@ -186,7 +186,8 @@
 	function getFormId() { var m = /[?&]id=(\d+)/.exec( window.location.search ); return m ? Number( m[ 1 ] ) : 0; }
 	var GEO_TYPES = [ 'conturyList', 'stateProvince', 'cityList' ];
 	function isChildItem( it ) { return !! it && ( it.type === 'option' || it.type === 'r_matrix' ); }
-	function isFieldItem( it ) { return it && it.type && [ 'form', 'step', 'option', 'r_matrix' ].indexOf( it.type ) === -1; }
+	// The form's own settings are the first item whatever their type says ("form", "payment", "login", "survey"): never a field.
+	function isFieldItem( it ) { return it && it.type && it !== valj_efb[ 0 ] && [ 'form', 'step', 'option', 'r_matrix' ].indexOf( it.type ) === -1; }
 	function liveFields() {
 		if ( ! hasLiveForm() ) { return []; }
 		return valj_efb.filter( isFieldItem ).map( function ( it ) {

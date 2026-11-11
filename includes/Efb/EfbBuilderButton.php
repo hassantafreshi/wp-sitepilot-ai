@@ -337,7 +337,7 @@ final class EfbBuilderButton {
 					'typePayTotal'                   => __( 'Total', 'ai-site-assistant-autopilot' ),
 					'typeMap'                        => __( 'Location picker', 'ai-site-assistant-autopilot' ),
 					'typeCountry'                    => __( 'Country', 'ai-site-assistant-autopilot' ),
-					'typeState'                      => __( 'State / province', 'ai-site-assistant-autopilot' ),
+					'typeState'                      => __( 'State / Province', 'ai-site-assistant-autopilot' ),
 					'typeCity'                       => __( 'City', 'ai-site-assistant-autopilot' ),
 					'typeAudio'                      => __( 'Sound recorder', 'ai-site-assistant-autopilot' ),
 					'typeVideo'                      => __( 'Video recorder', 'ai-site-assistant-autopilot' ),

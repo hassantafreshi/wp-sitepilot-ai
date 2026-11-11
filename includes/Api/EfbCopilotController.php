@@ -467,7 +467,8 @@ final class EfbCopilotController {
 				);
 			}
 
-			$notes = $this->customize_notes( $dropped );
+			$notes        = $this->customize_notes( $dropped );
+			$refused_some = array() !== $notes;
 
 			// A Pro-only field is rejected during validation, so it never reaches
 			// the Pro check below. Answer with the real upgrade prompt instead of a
@@ -561,7 +562,12 @@ final class EfbCopilotController {
 				)
 			);
 
-			// A partly-applied batch must say so rather than answering a plain "Done".
+			// A partly-applied batch must say so rather than answering a plain "Done". The model wrote its
+			// reply before anything was checked, so when part of what it proposed was refused that reply
+			// would announce changes that were never made.
+			if ( $refused_some ) {
+				$reply = __( 'I applied part of this. What I left out, and why:', 'ai-site-assistant-autopilot' );
+			}
 			$payload = array(
 				'type'       => 'ops',
 				'reply'      => '' !== $reply ? $reply : __( 'Done — applying your change.', 'ai-site-assistant-autopilot' ),
