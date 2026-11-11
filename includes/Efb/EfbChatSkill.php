@@ -78,7 +78,7 @@ final class EfbChatSkill {
 				'Allowed new-form field types:',
 				"{$caps}",
 				'Design a complete, useful form with at most 30 fields; split long forms (more than about 10 questions) into',
-				'steps. Never add passwords, login, or registration fields to a new form.',
+				'steps. Never add password or registration fields to a new form.',
 				'ONLINE PAYMENT: when the user asks for Stripe, PayPal, ZarinPal, "payment", "pay online", "payment gateway", a deposit,',
 				'a donation, an order with prices, tickets or a paid booking (in any language, e.g. "درگاه پرداخت"), they want a payment',
 				'in the form. Use the "payment" object below; never answer such a request with answer_help or "do it yourself".',
@@ -103,7 +103,7 @@ final class EfbChatSkill {
 				'- { "op": "add_payment", "gateway": "stripe|paypal|zarinpal", "currency": "usd", "choice_type": "radio",',
 				'      "label": "Choose a package", "items": [ { "label": "Basic", "price": 20 } ] }   (see ONLINE PAYMENT)',
 				'- { "op": "add_field", "field": { "type": "...", "label": "...", "required": true,',
-				'      "placeholder": "...", "width": "full|half", "options": ["for choice fields"] } }',
+				'      "placeholder": "...", "width": "full|half", "options": ["for choice fields"], "url": "for a link", "html": "for an html block" } }',
 				'- { "op": "add_step", "label": "Personal information", "step_ref": "personal_info" }',
 				'- Fields intended for a new step must put that same step_ref at the top level of add_field.',
 				'- { "op": "set_form_name", "value": "..." }',
@@ -146,8 +146,34 @@ final class EfbChatSkill {
 				'  child data. Use answer_help; never substitute another field and never claim it was added. Payment IDs (stripe, paypal,',
 				'  payRadio, paySelect, payCheckbox, prcfld, ttlprc) are added only through add_payment, never with add_field.',
 				'- To replace a field, emit remove_field and add_field in the same operations array.',
-				'- Never guess or configure add-on credentials, payment credentials or keys, SMTP, raw HTML, external URLs,',
-				'  notification recipients, or captcha. Route those requests to answer_help. Adding a payment to the form is NOT one of them: use add_payment.',
+				'- Never guess or configure add-on credentials, payment credentials or keys, SMTP, notification email recipients,',
+				'  or captcha. Route those requests to answer_help. Adding a payment to the form is NOT one of them: use add_payment.',
+				'- VALUES THE ADMIN MUST GIVE: a web address (redirect, link) and SMS phone numbers are used only when the admin wrote',
+				'  them in this conversation; copy them exactly (you may add https://). "home page" / "صفحه اصلی" means SITE_HOME_URL.',
+				'  If the value is missing, use action "ask" with one short question; never invent an address or a number.',
+				'- FORM SETTINGS YOU CAN CHANGE with set_form_property (do it, do not explain how):',
+				'  · private / members-only / only logged-in users ("فرم خصوصی"): require_login true (false to make it public again).',
+				'  · the subject of the notification email ("عنوان/موضوع ایمیل"): email_subject with the text the admin gave.',
+				'  · after submit go to an address / redirect ("ریدایرکت", "بعد از ارسال برود به"): thank_you_redirect with that address.',
+				'    Back to showing a message: thank_you_mode "msg" (and set_confirmation when they gave new text).',
+				'  · form type: form_type "form" | "survey" | "login" (login turns the form into a WordPress sign-in form; the server adds',
+				'    the username and password fields). A payment form is add_payment. Registration is not switchable: say so in one sentence.',
+				'  · SMS ("پیامک", text message): sms_notification true/false; sms_admin_numbers for the numbers that are notified;',
+				'    sms_text_new_message / sms_text_received / sms_text_reply for the wording. To text the person who filled in the form,',
+				'    set_field_property sms_to_respondent true on a mobile field (add a mobile field first when the form has none) together',
+				'    with sms_notification true. When SMS_ADDON=no still emit these operations: the server explains the add-on and offers',
+				'    to install it. Never answer an SMS request with answer_help.',
+				'  When EFB_PLAN does not include a setting, still emit the operation: the server tells the admin which plan has it.',
+				'- NEW FIELD TYPES: "link" needs "url" (admin-given) and its label is the link text; "html" needs "html" with the markup',
+				'  to show (no scripts); "address" adds the whole country/state/city/address/postal-code block in one add_field;',
+				'  conturyList, stateProvince and cityList come with their lists ready (no "options"); "imgRadio" takes "options" as the',
+				'  captions and optional "descriptions"; "maps" is the location picker (one per form).',
+				'- CONVERSATION: read HISTORY. When your last message asked for a value (a text, an address, a number, a name) the',
+				'  admin\'s next message IS that value, even if it reads like a casual phrase ("all done", "ok thanks"): apply the change',
+				'  you asked about with exactly that text. Never answer a follow-up as if the conversation had just started.',
+				'- WORDING: never show internal names in "reply": no property keys, control ids, add-on codes or type ids such as',
+				'  email_sub, smsEnableEl, AdnSS, conturyList. Name things as the admin sees them ("the SMS add-on", "Email subject").',
+				'  When a plan or an add-on is the obstacle say it in one plain sentence; the server adds the details.',
 				'- Conditional logic: use add_logic_rule only when LOGIC_ADDON=yes and EFB_PLAN is pro or free_plus (Free Plus:',
 				'  at most 3 rules per form, 2 conditions per rule). EFB hides every field or step a show rule targets and',
 				'  applies a rule only while its condition holds, so "show X only when…" is ONE show_field rule and needs no',
@@ -184,7 +210,7 @@ final class EfbChatSkill {
 	 * @param array<int,array{id:string,label:string}>             $steps
 	 * @param array<string,mixed>                                  $license
 	 * @param array{id:string,label:string,type:string}|null        $selected_field
-	 * @param array{logic?:bool, logic_rules?:string[]}             $form_context
+	 * @param array<string,mixed>                                  $form_context
 	 */
 	private function user_prompt( string $message, array $history, bool $has_form, array $fields, array $steps, array $license, ?array $selected_field, array $form_context = array() ): string {
 		$ctx  = 'FORM_OPEN=' . ( $has_form ? 'yes' : 'no' ) . "\n";
@@ -193,6 +219,13 @@ final class EfbChatSkill {
 			$ctx .= "PAYMENT_STATUS:\n" . EfbPayments::prompt_block( $form_context['payment'] ) . "\n";
 		}
 		$ctx .= 'LOGIC_ADDON=' . ( ! empty( $form_context['logic'] ) ? 'yes' : 'no' ) . "\n";
+		$ctx .= 'SMS_ADDON=' . ( ! empty( $form_context['sms_addon'] ) ? 'yes' : 'no' ) . "\n";
+		if ( '' !== (string) ( $form_context['home_url'] ?? '' ) ) {
+			$ctx .= 'SITE_HOME_URL=' . (string) $form_context['home_url'] . "\n";
+		}
+		if ( $has_form && '' !== (string) ( $form_context['form_type'] ?? '' ) ) {
+			$ctx .= 'FORM_TYPE=' . (string) $form_context['form_type'] . "\n";
+		}
 		if ( $has_form && null !== $selected_field ) {
 			$ctx .= sprintf(
 				'SELECTED_FIELD: id="%s" label="%s" type=%s' . "\n",

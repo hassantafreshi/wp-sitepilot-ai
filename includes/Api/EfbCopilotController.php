@@ -12,6 +12,7 @@ use AISAAutoPilot\Efb\EfbFormConverter;
 use AISAAutoPilot\Efb\EfbAddons;
 use AISAAutoPilot\Efb\EfbLicense;
 use AISAAutoPilot\Efb\EfbPayments;
+use AISAAutoPilot\Efb\EfbReplyText;
 use AISAAutoPilot\Efb\EfbFormModel;
 use AISAAutoPilot\Efb\EfbFormReview;
 use AISAAutoPilot\Efb\EfbFormSkill;
@@ -92,6 +93,9 @@ final class EfbCopilotController {
 		if ( array() === ( $plan['fields'] ?? array() ) ) {
 			return $this->pro_required_response( $this->pro_blocked_from_fields( $split['pro_fields'] ) );
 		}
+		// This path has no chat to take a link address or HTML from, so those are left out; a state or city
+		// list still gets the field it follows.
+		$plan['fields'] = EfbCustomizeSkill::prepare_new_form_fields( array_values( (array) $plan['fields'] ), array(), array(), EfbFormConverter::geo_labels() )['fields'];
 
 		$action_id = $this->store->create( $plan, 'easy_form_builder' );
 		$this->logger->info(
@@ -316,6 +320,9 @@ final class EfbCopilotController {
 					'logic'       => $logic,
 					'logic_rules' => $explained,
 					'payment'     => $pay_status,
+					'home_url'    => home_url( '/' ),
+					'sms_addon'   => (int) ( $addons_seen['AdnSS'] ?? 0 ) >= 1,
+					'form_type'   => sanitize_key( (string) $request->get_param( 'form_type' ) ),
 				)
 			);
 		} catch ( ProviderException $e ) {
@@ -340,7 +347,7 @@ final class EfbCopilotController {
 			);
 		}
 
-		$reply  = trim( (string) ( $raw['reply'] ?? '' ) );
+		$reply  = EfbReplyText::clean( trim( (string) ( $raw['reply'] ?? '' ) ) );
 		$action = (string) ( $raw['action'] ?? 'chat' );
 
 		// Trace every turn: what the user asked, what the AI decided, raw op names.
@@ -437,6 +444,12 @@ final class EfbCopilotController {
 					'existing_rules' => count( $logic_rules ),
 					'payment'        => $pay_status,
 					'has_pro'        => ! empty( $license['has_pro_features'] ),
+					// Add-ons the open editor reports as running, for settings that only exist with one.
+					'addons'         => array_filter( array_map( 'intval', $addons_seen ) ),
+					// What the admin wrote in this conversation: an address or a phone number is only ever
+					// taken from here, never from the model.
+					'said'           => $this->admin_said( $message, $history ),
+					'home_url'       => home_url( '/' ),
 				)
 			);
 			$ops     = $verbose['ops'];
@@ -593,7 +606,18 @@ final class EfbCopilotController {
 			if ( array() === ( $plan['fields'] ?? array() ) ) {
 				return $this->pro_required_response( $this->pro_blocked_from_fields( $split['pro_fields'] ) );
 			}
-			$payment_notes = array();
+			// Links, HTML blocks and the country / state / city lists follow the same rules as in an open form.
+			$prepared       = EfbCustomizeSkill::prepare_new_form_fields(
+				array_values( (array) $plan['fields'] ),
+				array_values( (array) ( $raw['form']['fields'] ?? array() ) ),
+				array(
+					'said'     => $this->admin_said( $message, $history ),
+					'home_url' => home_url( '/' ),
+				),
+				EfbFormConverter::geo_labels()
+			);
+			$plan['fields'] = $prepared['fields'];
+			$payment_notes  = $this->customize_notes( $prepared['dropped'] );
 			if ( null !== $payment_check ) {
 				if ( $payment_check['ok'] ) {
 					$plan['payment'] = $payment_check['payment'];
@@ -730,11 +754,18 @@ final class EfbCopilotController {
 	 * items from the model templates, so the browser only splices them in.
 	 *
 	 * @param array<int, array<string, mixed>>                      $ops
-	 * @param array<int, array{id:string,label:string,type:string}> $fields
+	 * @param array<int, array<string, mixed>>                      $fields
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function expand_add_fields( array $ops, array $fields ): array {
-		$existing  = array_map( static fn ( $f ) => (string) $f['id'], $fields );
+		$existing = array();
+		foreach ( $fields as $f ) {
+			$existing[] = (string) $f['id'];
+			// Option ids share the form's id space (a second state list must not reuse the first one's ids).
+			foreach ( (array) ( $f['options'] ?? array() ) as $option ) {
+				$existing[] = (string) ( $option['id'] ?? '' );
+			}
+		}
 		$converter = new EfbFormConverter();
 
 		foreach ( $ops as &$op ) {
@@ -754,6 +785,12 @@ final class EfbCopilotController {
 				$op['form_settings'] = EfbPayments::form_settings( (string) $op['payment']['gateway'], (string) $op['payment']['currency'] );
 				$op['field']         = array( 'label' => (string) ( EfbPayments::GATEWAYS[ $op['payment']['gateway'] ]['label'] ?? '' ) );
 				foreach ( $items as $item ) {
+					$existing[] = (string) ( $item['id_'] ?? '' );
+				}
+			} elseif ( 'set_form_property' === ( $op['op'] ?? '' ) && 'form_type' === ( $op['property'] ?? '' ) && 'login' === ( $op['value'] ?? '' ) ) {
+				// EFB's sign-in form reads two fields with fixed ids; the ones still missing come along.
+				$op['items'] = $converter->build_login_fields( $existing );
+				foreach ( $op['items'] as $item ) {
 					$existing[] = (string) ( $item['id_'] ?? '' );
 				}
 			} elseif ( 'add_step' === ( $op['op'] ?? '' ) ) {
@@ -867,14 +904,16 @@ final class EfbCopilotController {
 	 */
 	private function blocked_customize_operations( array $ops, array $steps ): array {
 		$license = EfbLicense::status();
-		if ( ! empty( $license['has_pro_features'] ) ) {
+		if ( ! empty( $license['is_pro'] ) ) {
 			return array();
 		}
+		$plus = ! empty( $license['has_pro_features'] );
 
 		$blocked    = array();
 		$step_count = count( $steps );
 		foreach ( $ops as $op ) {
-			if ( 'add_field' === ( $op['op'] ?? '' ) && is_array( $op['field'] ?? null ) ) {
+			$name = (string) ( $op['op'] ?? '' );
+			if ( ! $plus && 'add_field' === $name && is_array( $op['field'] ?? null ) ) {
 				$type = (string) ( $op['field']['type'] ?? '' );
 				if ( EfbFormModel::requires_pro_to_create( $type ) ) {
 					$blocked[] = array(
@@ -884,7 +923,7 @@ final class EfbCopilotController {
 					);
 				}
 			}
-			if ( 'add_step' === ( $op['op'] ?? '' ) ) {
+			if ( ! $plus && 'add_step' === $name ) {
 				++$step_count;
 				if ( $step_count > 2 ) {
 					$blocked[] = array(
@@ -893,21 +932,20 @@ final class EfbCopilotController {
 					);
 				}
 			}
-			// EFB padlocks the whole mobile responsive block on Free, so writing
-			// those keys would move settings the admin can neither see nor undo.
-			if ( 'set_field_property' === ( $op['op'] ?? '' ) && EfbFormModel::requires_pro_property( (string) ( $op['property'] ?? '' ) ) ) {
-				$blocked[] = array(
-					'kind'  => 'setting',
-					'type'  => (string) $op['property'],
-					'label' => (string) ( $op['target'] ?? '' ),
-				);
-			}
-			if ( 'set_form_property' === ( $op['op'] ?? '' ) && EfbFormModel::requires_pro_form_property( (string) ( $op['property'] ?? '' ) ) ) {
-				$blocked[] = array(
-					'kind'  => 'setting',
-					'type'  => (string) $op['property'],
-					'label' => '',
-				);
+			// A setting EFB itself keeps behind a padlock on this plan: writing it would change something the
+			// admin can neither see nor undo in the builder. 'plus' opens on Free Plus, 'pro' only on Pro.
+			if ( 'set_field_property' === $name || 'set_form_property' === $name ) {
+				$key        = (string) ( $op['property'] ?? '' );
+				$definition = 'set_field_property' === $name ? EfbFormModel::field_property( $key ) : EfbFormModel::form_property( $key );
+				$needs      = EfbFormModel::plan_of( $definition );
+				if ( 'pro' === $needs || ( 'plus' === $needs && ! $plus ) ) {
+					$blocked[] = array(
+						'kind'  => 'setting',
+						'type'  => $key,
+						'label' => (string) ( $op['target'] ?? '' ),
+						'plan'  => $needs,
+					);
+				}
 			}
 		}
 
@@ -1218,6 +1256,20 @@ final class EfbCopilotController {
 				$definition = EfbFormModel::field_type( $type );
 				/* translators: %s: field name. */
 				$notes[] = sprintf( __( 'I can configure a "%s" field but not add one — drag it in from the Easy Form Builder palette, then ask me again.', 'ai-site-assistant-autopilot' ), (string) ( $definition['label'] ?? $type ) );
+			} elseif ( 'value_not_given:thank_you_redirect' === $reason ) {
+				$notes[] = __( 'Tell me the full address to send visitors to after they submit, for example https://example.com/thanks, or say “home page”.', 'ai-site-assistant-autopilot' );
+			} elseif ( 'value_not_given:link' === $reason ) {
+				$notes[] = __( 'Tell me the address the link should open, for example https://example.com/terms.', 'ai-site-assistant-autopilot' );
+			} elseif ( 'value_not_given:sms_admin_numbers' === $reason ) {
+				$notes[] = __( 'Tell me the mobile numbers that should get the SMS, in international form, for example +491701234567.', 'ai-site-assistant-autopilot' );
+			} elseif ( 'html_empty' === $reason ) {
+				$notes[] = __( 'Tell me what the HTML block should show. I keep safe formatting (text, links, lists, images) and leave out scripts.', 'ai-site-assistant-autopilot' );
+			} elseif ( 'map_exists' === $reason ) {
+				$notes[] = __( 'Easy Form Builder allows one location picker per form, and this form already has one.', 'ai-site-assistant-autopilot' );
+			} elseif ( 'invalid_property_value:form_type' === $reason ) {
+				$notes[] = __( 'I can switch this form between an ordinary form, a survey and a sign-in form. A payment form is made by adding a payment; a registration form starts from Easy Form Builder’s own Register template.', 'ai-site-assistant-autopilot' );
+			} elseif ( 'addon_inactive:AdnSS' === $reason ) {
+				$notes[] = __( 'SMS notifications need Easy Form Builder’s SMS add-on, which is not installed or not active. I can install it for you if you allow it; the form reloads afterwards, so save your changes first.', 'ai-site-assistant-autopilot' );
 			} elseif ( str_starts_with( $reason, 'payment_' ) ) {
 				$notes[] = $this->payment_note( $reason );
 			} elseif ( 'logic_addon_inactive' === $reason ) {
@@ -1286,7 +1338,7 @@ final class EfbCopilotController {
 		if ( $is_step_limit ) {
 			$default = __( 'Easy Form Builder Free supports up to two steps. Buy Free Plus or Pro for more, or change the form: merge pages so it fits in two, or make it a single page.', 'ai-site-assistant-autopilot' );
 		} elseif ( $is_setting ) {
-			$default = __( 'The mobile layout settings are part of the Pro version of Easy Form Builder.', 'ai-site-assistant-autopilot' );
+			$default = $this->setting_plan_message( $blocked );
 		} else {
 			$default = __( 'This field is available in the Pro version of Easy Form Builder.', 'ai-site-assistant-autopilot' );
 		}
@@ -1302,6 +1354,70 @@ final class EfbCopilotController {
 			),
 			true
 		);
+	}
+
+	/**
+	 * One plain sentence for a setting this plan does not include: what it is, which plan has it, and
+	 * that nothing was changed.
+	 *
+	 * @param array<int,array<string,mixed>> $blocked
+	 */
+	private function setting_plan_message( array $blocked ): string {
+		$names = array();
+		$needs = 'plus';
+		foreach ( $blocked as $item ) {
+			if ( 'setting' !== ( $item['kind'] ?? '' ) ) {
+				continue;
+			}
+			$names[] = $this->setting_name( (string) ( $item['type'] ?? '' ) );
+			if ( 'pro' === ( $item['plan'] ?? '' ) ) {
+				$needs = 'pro';
+			}
+		}
+		$names = implode( ', ', array_unique( array_filter( $names ) ) );
+		$tier  = EfbLicense::status()['tier'];
+		$now   = 'free_plus' === $tier ? __( 'Free Plus', 'ai-site-assistant-autopilot' ) : __( 'Free', 'ai-site-assistant-autopilot' );
+
+		if ( 'pro' === $needs ) {
+			/* translators: 1: setting name(s), 2: the site's current Easy Form Builder plan. */
+			return sprintf( __( '“%1$s” is part of Easy Form Builder Pro. This site is on %2$s, so I left it unchanged.', 'ai-site-assistant-autopilot' ), $names, $now );
+		}
+
+		/* translators: 1: setting name(s), 2: the site's current Easy Form Builder plan. */
+		return sprintf( __( '“%1$s” is part of Easy Form Builder Free Plus and Pro. This site is on %2$s, so I left it unchanged.', 'ai-site-assistant-autopilot' ), $names, $now );
+	}
+
+	/** A setting's name in the admin's words, never its storage key. */
+	private function setting_name( string $key ): string {
+		$names = array(
+			'email_subject'             => __( 'Email subject', 'ai-site-assistant-autopilot' ),
+			'thank_you_redirect'        => __( 'Redirect after submit', 'ai-site-assistant-autopilot' ),
+			'loading_type'              => __( 'Loading animation', 'ai-site-assistant-autopilot' ),
+			'loading_color'             => __( 'Loading animation colour', 'ai-site-assistant-autopilot' ),
+			'global_mobile_hide_labels' => __( 'Mobile layout', 'ai-site-assistant-autopilot' ),
+		);
+		if ( isset( $names[ $key ] ) ) {
+			return $names[ $key ];
+		}
+
+		return str_starts_with( $key, 'mobile_' ) ? __( 'Mobile layout', 'ai-site-assistant-autopilot' ) : ucfirst( str_replace( '_', ' ', $key ) );
+	}
+
+	/**
+	 * What the admin wrote in this conversation (this message and their earlier ones), for values that
+	 * must be theirs: an address, a phone number.
+	 *
+	 * @param array<int,array<string,string>> $history
+	 */
+	private function admin_said( string $message, array $history ): string {
+		$said = array( $message );
+		foreach ( $history as $turn ) {
+			if ( 'user' === ( $turn['role'] ?? '' ) ) {
+				$said[] = (string) ( $turn['text'] ?? '' );
+			}
+		}
+
+		return implode( "\n", $said );
 	}
 
 	/**

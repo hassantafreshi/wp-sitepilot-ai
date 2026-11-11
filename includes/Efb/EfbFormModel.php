@@ -64,6 +64,39 @@ final class EfbFormModel {
 	}
 
 	/**
+	 * The ready-made data EFB's palette gives its country, state and city fields.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function geo_presets(): array {
+		static $geo = null;
+		if ( null === $geo ) {
+			$raw = file_get_contents( __DIR__ . '/efb-geo-presets.json' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Bundled plugin file.
+			$geo = false === $raw ? array() : json_decode( $raw, true );
+			$geo = is_array( $geo ) ? $geo : array();
+		}
+
+		return $geo;
+	}
+
+	/**
+	 * The EFB plan a setting needs: 'pro' (Pro only: EFB locks it on Free Plus too), 'plus' (Free Plus or
+	 * Pro) or '' (every plan).
+	 *
+	 * @param array<string,mixed>|null $definition
+	 */
+	public static function plan_of( ?array $definition ): string {
+		if ( ! is_array( $definition ) ) {
+			return '';
+		}
+		if ( ! empty( $definition['requires_pro'] ) ) {
+			return 'pro';
+		}
+
+		return 'plus' === ( $definition['plan'] ?? '' ) ? 'plus' : '';
+	}
+
+	/**
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function field_properties(): array {
@@ -493,6 +526,8 @@ final class EfbFormModel {
 				'max_length'  => $definition['max_length'] ?? null,
 				// Keys EFB keeps identical to the main one, so the browser writes both.
 				'mirror_keys' => $definition['mirror_keys'] ?? null,
+				// A setting the browser applies with more than one key (a redirect, the form type, SMS).
+				'special'     => $definition['special'] ?? null,
 			);
 		}
 

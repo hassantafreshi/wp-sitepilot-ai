@@ -11,7 +11,7 @@ namespace AISAAutoPilot\Efb;
  */
 final class EfbLicense {
 
-	/** @return array{code:int,tier:string,has_pro_features:bool,upgrade_url:string} */
+	/** @return array{code:int,tier:string,has_pro_features:bool,is_pro:bool,upgrade_url:string} */
 	public static function status(): array {
 		$code = function_exists( 'get_option' ) ? (int) get_option( 'emsfb_pro', 2 ) : 2;
 		$tier = 1 === $code ? 'pro' : ( 3 === $code ? 'free_plus' : 'free' );
@@ -21,6 +21,8 @@ final class EfbLicense {
 			'tier'             => $tier,
 			// Same condition EFB uses for its `pro_efb` builder variable.
 			'has_pro_features' => in_array( $code, array( 1, 3 ), true ),
+			// Pro itself: the mobile layout block and most add-ons stay locked on Free Plus.
+			'is_pro'           => 1 === $code,
 			'upgrade_url'      => self::upgrade_url(),
 		);
 	}

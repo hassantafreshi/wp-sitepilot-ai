@@ -76,6 +76,12 @@ final class EfbCustomizeSkill {
 		$deferred    = array();
 		$seen        = 0;
 		$added_rules = 0;
+		// What the geographic fields added so far in this batch were, so a state follows its country.
+		$geo_state   = array(
+			'last' => '',
+			'maps' => 0,
+		);
+		$added       = array();
 		$adds_fields = (bool) array_filter( $ops, static fn ( $candidate ): bool => is_array( $candidate ) && 'add_field' === ( $candidate['op'] ?? '' ) );
 
 		foreach ( $ops as $op ) {
@@ -164,7 +170,8 @@ final class EfbCustomizeSkill {
 						);
 						break;
 					}
-					$field_type = self::field_type_for_target( $target, $fields );
+					// The target may be a field this same message adds a moment earlier.
+					$field_type = self::field_type_for_target( $target, array_merge( $fields, $added ) );
 					if ( array() !== $fields && null === $field_type ) {
 						$dropped[] = array(
 							'op'     => $name,
@@ -182,6 +189,14 @@ final class EfbCustomizeSkill {
 						break;
 					}
 					$valid = self::validate_catalog_value( $op['value'] ?? null, $definition, $field_type );
+					$addon = (string) ( $definition['requires_addon'] ?? '' );
+					if ( '' !== $addon && $valid['ok'] && false !== $valid['value'] && empty( $context['addons'][ $addon ] ) ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'addon_inactive:' . $addon,
+						);
+						break;
+					}
 					if ( ! $valid['ok'] || ( null !== $field_type && ! self::type_allows_value( $property, $field_type, $valid['value'] ) ) ) {
 						$dropped[] = array(
 							'op'     => $name,
@@ -214,11 +229,27 @@ final class EfbCustomizeSkill {
 						);
 						break;
 					}
-					$valid = self::validate_catalog_value( $op['value'] ?? null, $definition );
+					$valid = self::validate_catalog_value( $op['value'] ?? null, $definition, null, $context );
 					if ( ! $valid['ok'] ) {
 						$dropped[] = array(
 							'op'     => $name,
-							'reason' => 'invalid_property_value:' . $property,
+							'reason' => (string) ( $valid['reason'] ?? 'invalid_property_value' ) . ':' . $property,
+						);
+						break;
+					}
+					// A setting an add-on provides is only written while that add-on runs; EFB refuses to save it otherwise.
+					$addon = (string) ( $definition['requires_addon'] ?? '' );
+					if ( '' !== $addon && false !== $valid['value'] && empty( $context['addons'][ $addon ] ) ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'addon_inactive:' . $addon,
+						);
+						break;
+					}
+					if ( 'thank_you_mode' === $property && 'rdrct' === $valid['value'] ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => 'value_not_given:thank_you_redirect',
 						);
 						break;
 					}
@@ -277,9 +308,17 @@ final class EfbCustomizeSkill {
 						);
 						break;
 					}
+					$extra = self::extras_for_new_field( $type, $f, $fields, $context, $geo_state );
+					if ( isset( $extra['reason'] ) ) {
+						$dropped[] = array(
+							'op'     => $name,
+							'reason' => (string) $extra['reason'],
+						);
+						break;
+					}
 					$add      = array(
 						'op'    => 'add_field',
-						'field' => array(
+						'field' => $extra + array(
 							'type'        => $type,
 							'label'       => $label,
 							'required'    => self::to_bool( $f['required'] ?? false ),
@@ -301,7 +340,17 @@ final class EfbCustomizeSkill {
 							break;
 						}
 					}
-					$out[] = $add;
+					// A state or city list goes right after the field it follows, wherever that is.
+					if ( isset( $extra['after'] ) && ! isset( $add['before'] ) ) {
+						$add['after'] = (string) $extra['after'];
+						unset( $add['field']['after'] );
+					}
+					$out[]   = $add;
+					$added[] = array(
+						'id'    => '',
+						'label' => $label,
+						'type'  => $type,
+					);
 					break;
 
 				case 'add_payment':
@@ -728,8 +777,33 @@ final class EfbCustomizeSkill {
 	 * @param string|null          $field_type Target field type, when the op targets a field.
 	 * @return array{ok:bool,value:mixed}
 	 */
-	private static function validate_catalog_value( $raw, array $definition, ?string $field_type = null ): array {
+	private static function validate_catalog_value( $raw, array $definition, ?string $field_type = null, array $context = array() ): array {
 		$type = (string) ( $definition['value_type'] ?? 'string' );
+
+		if ( 'url' === $type ) {
+			$url = self::admin_url_value( (string) $raw, $context );
+
+			return array(
+				'ok'     => null !== $url,
+				'value'  => $url,
+				'reason' => 'value_not_given',
+			);
+		}
+
+		if ( 'phone_list' === $type ) {
+			$numbers = self::admin_phone_list( $raw, $context );
+
+			return array(
+				'ok'     => null !== $numbers,
+				'value'  => $numbers,
+				'reason' => 'value_not_given',
+			);
+		}
+
+		if ( ! empty( $definition['plain_text'] ) ) {
+			// EFB's own settings panel refuses these three characters in a text setting.
+			$raw = str_replace( array( '"', '<', '>' ), '', (string) $raw );
+		}
 		if ( 'boolean_flag' === $type ) {
 			return array(
 				'ok'    => true,
@@ -856,6 +930,198 @@ final class EfbCustomizeSkill {
 			'ok'    => '' !== $value,
 			'value' => $value,
 		);
+	}
+
+	/**
+	 * An address for the form (a redirect, a link), accepted only when it is the admin's own: typed in
+	 * their message, or this site's home page. The model may add the scheme; it may not invent the address.
+	 *
+	 * @param array<string,mixed> $context `said`: what the admin wrote; `home_url`: this site.
+	 */
+	public static function admin_url_value( string $raw, array $context ): ?string {
+		$url = trim( self::clean( $raw, 500 ) );
+		if ( '' === $url || (bool) preg_match( '/[\s"<>]/', $url ) ) {
+			return null;
+		}
+		if ( ! preg_match( '#^https?://#i', $url ) ) {
+			$url = 'https://' . ltrim( $url, '/' );
+		}
+		$parts = function_exists( 'wp_parse_url' ) ? wp_parse_url( $url ) : parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Unit tests run without WordPress.
+		if ( ! is_array( $parts ) || empty( $parts['host'] ) || ! str_contains( (string) $parts['host'], '.' ) && 'localhost' !== $parts['host'] ) {
+			return null;
+		}
+
+		$bare = static fn ( string $value ): string => rtrim( (string) preg_replace( '#^(https?:)?//(www\.)?#i', '', strtolower( trim( $value ) ) ), '/' );
+		$home = (string) ( $context['home_url'] ?? '' );
+		if ( '' !== $home && $bare( $home ) === $bare( $url ) ) {
+			return rtrim( $home, '/' ) . '/';
+		}
+		$said = strtolower( (string) ( $context['said'] ?? '' ) );
+
+		return '' !== $said && str_contains( $said, $bare( $url ) ) ? $url : null;
+	}
+
+	/**
+	 * SMS recipients, accepted only when the admin typed each number. EFB wants the international form.
+	 *
+	 * @param mixed               $raw
+	 * @param array<string,mixed> $context
+	 */
+	public static function admin_phone_list( $raw, array $context ): ?string {
+		$items = is_array( $raw ) ? $raw : preg_split( '/[,;\n]+/', (string) $raw );
+		$said  = (string) preg_replace( '/[^0-9]+/', '', self::latin_digits( (string) ( $context['said'] ?? '' ) ) );
+		$out   = array();
+		foreach ( (array) $items as $item ) {
+			$digits = (string) preg_replace( '/[^0-9]+/', '', self::latin_digits( (string) $item ) );
+			if ( '' === $digits ) {
+				continue;
+			}
+			$digits = ltrim( $digits, '0' );
+			if ( strlen( $digits ) < 8 || strlen( $digits ) > 15 || '' === $said || ! str_contains( $said, $digits ) ) {
+				return null;
+			}
+			$out[] = '+' . $digits;
+		}
+
+		return array() === $out ? null : implode( ',', array_slice( array_values( array_unique( $out ) ), 0, 10 ) );
+	}
+
+	private static function latin_digits( string $value ): string {
+		return strtr( $value, array_combine( array( '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩' ), array( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ) ) );
+	}
+
+	/**
+	 * The same rules for the fields of a brand-new form: a link keeps its (admin-given) address and an HTML
+	 * block its filtered markup, or is left out; a state list gets the country field it follows and a city
+	 * list its state; one location picker at most.
+	 *
+	 * @param array<int,array<string,mixed>> $fields   Validated plan fields.
+	 * @param array<int,mixed>               $raw      The fields as the model wrote them (for url / html).
+	 * @param array<string,mixed>            $context  `said`, `home_url`.
+	 * @param array<string,string>           $labels   Labels for a country / state field that has to be added.
+	 * @return array{fields:array<int,array<string,mixed>>,dropped:array<int,array{op:string,reason:string}>}
+	 */
+	public static function prepare_new_form_fields( array $fields, array $raw, array $context, array $labels ): array {
+		$content = array();
+		foreach ( $raw as $raw_field ) {
+			if ( is_array( $raw_field ) ) {
+				$type = EfbFormModel::resolve_field_type( (string) ( $raw_field['type'] ?? '' ) );
+				if ( 'link' === $type || 'html' === $type || 'imgRadio' === $type ) {
+					$content[ $type . '|' . self::clean( (string) ( $raw_field['label'] ?? '' ), 120 ) ] = $raw_field;
+				}
+			}
+		}
+
+		$out     = array();
+		$dropped = array();
+		$state   = array(
+			'last' => '',
+			'maps' => 0,
+		);
+		foreach ( $fields as $field ) {
+			$type  = (string) ( $field['type'] ?? '' );
+			$extra = self::extras_for_new_field( $type, (array) ( $content[ $type . '|' . (string) ( $field['label'] ?? '' ) ] ?? array() ), array(), $context, $state );
+			if ( isset( $extra['reason'] ) ) {
+				$dropped[] = array(
+					'op'     => 'add_field',
+					'reason' => (string) $extra['reason'],
+				);
+				continue;
+			}
+			foreach ( (array) ( $extra['with'] ?? array() ) as $companion ) {
+				$out[] = array(
+					'type'     => $companion,
+					'label'    => (string) ( $labels[ $companion ] ?? $companion ),
+					'required' => ! empty( $field['required'] ),
+					'width'    => (string) ( $field['width'] ?? 'full' ),
+				);
+			}
+			unset( $extra['with'], $extra['after'] );
+			$out[] = $extra + $field;
+		}
+
+		return array(
+			'fields'  => $out,
+			'dropped' => $dropped,
+		);
+	}
+
+	/**
+	 * What a new field of this type needs beyond a label: a link its address, an HTML block its (filtered)
+	 * markup, a state list the country field it follows. Returns the extra field keys, or a refusal reason.
+	 *
+	 * @param array<string,mixed>            $field
+	 * @param array<int,array<string,mixed>> $fields     The open form.
+	 * @param array<string,mixed>            $context
+	 * @param array{last:string,maps:int}    $geo_state  Carried across the batch.
+	 * @return array<string,mixed>
+	 */
+	private static function extras_for_new_field( string $type, array $field, array $fields, array $context, array &$geo_state ): array {
+		$previous          = $geo_state['last'];
+		$geo_state['last'] = $type;
+		$has               = static function ( string $wanted ) use ( $fields ): ?array {
+			foreach ( $fields as $index => $existing ) {
+				if ( ( $existing['type'] ?? '' ) === $wanted ) {
+					return array(
+						'id'   => (string) ( $existing['id'] ?? '' ),
+						'next' => (string) ( $fields[ $index + 1 ]['type'] ?? '' ),
+					);
+				}
+			}
+
+			return null;
+		};
+
+		switch ( $type ) {
+			case 'link':
+				$url = self::admin_url_value( (string) ( $field['url'] ?? ( $field['href'] ?? '' ) ), $context );
+
+				return null === $url ? array( 'reason' => 'value_not_given:link' ) : array( 'url' => $url );
+
+			case 'html':
+				$html = trim( (string) ( $field['html'] ?? '' ) );
+				$html = function_exists( 'wp_kses_post' ) ? wp_kses_post( $html ) : strip_tags( $html, '<p><br><strong><b><em><i><u><a><ul><ol><li><h2><h3><h4><span><div><img><hr><blockquote><small>' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- Fallback for unit tests without WordPress.
+				$html = trim( mb_substr( $html, 0, 5000 ) );
+
+				return '' === $html ? array( 'reason' => 'html_empty' ) : array( 'html' => $html );
+
+			case 'maps':
+				++$geo_state['maps'];
+
+				return null !== $has( 'maps' ) || $geo_state['maps'] > 1 ? array( 'reason' => 'map_exists' ) : array();
+
+			case 'stateProvince':
+				if ( 'conturyList' === $previous ) {
+					return array();
+				}
+				$country = $has( 'conturyList' );
+				if ( null !== $country && 'stateProvince' !== $country['next'] ) {
+					return array( 'after' => $country['id'] );
+				}
+
+				return array( 'with' => array( 'conturyList' ) );
+
+			case 'cityList':
+				if ( 'stateProvince' === $previous ) {
+					return array();
+				}
+				$state = $has( 'stateProvince' );
+				if ( null !== $state && 'cityList' !== $state['next'] ) {
+					return array( 'after' => $state['id'] );
+				}
+
+				return array( 'with' => array( 'conturyList', 'stateProvince' ) );
+
+			case 'imgRadio':
+				$descriptions = array();
+				foreach ( (array) ( $field['descriptions'] ?? array() ) as $text ) {
+					$descriptions[] = self::clean( (string) $text, 120 );
+				}
+
+				return array() === $descriptions ? array() : array( 'descriptions' => $descriptions );
+		}
+
+		return array();
 	}
 
 	/**

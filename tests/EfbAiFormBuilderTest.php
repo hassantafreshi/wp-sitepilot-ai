@@ -170,14 +170,24 @@ final class EfbAiFormBuilderTest extends TestCase {
 		$this->assertSame( 'One to five stars.', $rating['message'] );
 		$this->assertSame( '', self::of_type( $items, 'text' )[0]['pro'] );
 
-		// IDs stay unique and amounts strictly increase in document order.
+		// IDs stay unique; amounts never go down in document order, each field has its own number and an
+		// option or matrix row carries its field's number, exactly as EFB's own builder numbers them.
 		$ids = array_column( array_slice( $items, 1 ), 'id_' );
 		$this->assertSame( count( $ids ), count( array_unique( $ids ) ) );
-		$amounts = array_map( 'intval', array_column( array_slice( $items, 1 ), 'amount' ) );
+		$amounts = array_column( array_slice( $items, 1 ), 'amount' );
 		$sorted  = $amounts;
 		sort( $sorted );
 		$this->assertSame( $sorted, $amounts );
-		$this->assertSame( count( $amounts ), count( array_unique( $amounts ) ) );
+		$heads = array();
+		foreach ( array_slice( $items, 1 ) as $item ) {
+			$this->assertIsInt( $item['amount'] );
+			if ( in_array( $item['type'], array( 'option', 'r_matrix' ), true ) ) {
+				$this->assertSame( $heads[ $item['parent'] ], $item['amount'] );
+			} else {
+				$heads[ $item['id_'] ] = $item['amount'];
+			}
+		}
+		$this->assertSame( count( $heads ), count( array_unique( $heads ) ) );
 	}
 
 	public function test_consent_links_only_the_site_privacy_page(): void {
@@ -256,7 +266,7 @@ final class EfbAiFormBuilderTest extends TestCase {
 		$this->assertSame( 'option', $items[1]['type'] );
 		$this->assertSame( 'consent_2', $items[1]['parent'] );
 		$this->assertSame( 'I agree. ([Privacy](https://example.com/privacy/))', $items[1]['value'] );
-		$this->assertSame( '0', $items[1]['amount'] );
+		$this->assertSame( 0, $items[1]['amount'] );
 	}
 
 	public function test_review_flags_what_a_form_designer_would(): void {

@@ -44,6 +44,12 @@ $GLOBALS['aisa_offline_privacy'] = array(
 $GLOBALS['aisa_offline_script'] = array();
 
 // Defined before the bootstrap, whose stubs only stand in for missing functions.
+function home_url( string $path = '' ): string {
+	return 'https://example.test' . $path;
+}
+function sanitize_key( $key ): string {
+	return (string) preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $key ) );
+}
 function get_option( string $option, $default = false ) {
 	return $GLOBALS['aisa_offline_options'][ $option ] ?? $default;
 }

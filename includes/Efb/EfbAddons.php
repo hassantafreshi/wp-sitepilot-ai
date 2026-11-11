@@ -30,12 +30,19 @@ final class EfbAddons {
 			'name'    => 'ZarinPal / Persia Payment',
 			'package' => 1,
 		),
+		'AdnSS'  => array(
+			'name'    => 'SMS notifications',
+			'package' => 1,
+		),
 	);
 
 	/** The add-on a refusal reason points at, or null. */
 	public static function for_reason( string $reason ): ?string {
 		if ( 'logic_addon_inactive' === $reason ) {
 			return 'AdnSMF';
+		}
+		if ( str_starts_with( $reason, 'addon_inactive:' ) ) {
+			return substr( $reason, strlen( 'addon_inactive:' ) );
 		}
 		if ( str_starts_with( $reason, 'payment_addon_inactive:' ) ) {
 			$gateway = substr( $reason, strlen( 'payment_addon_inactive:' ) );

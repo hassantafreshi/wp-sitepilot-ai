@@ -1,5 +1,5 @@
 {
-  "model_version": "1.2",
+  "model_version": "1.3",
   "efb_version_target": "4.x",
   "note": "ai_capabilities is the compact catalog sent to the AI. templates hold the full EFB default properties (colors, width/mobile width, height, corner, per-type extras) applied locally by EfbFormConverter and are NEVER sent to the AI. Pro-plan types are created with pro=\"1\", as EFB's own palette does.",
 
@@ -29,7 +29,18 @@
     { "type": "dadfile",     "label": "Drag-and-drop file upload",     "needs_options": false },
     { "type": "chlCheckBox", "label": "Checklist with a quantity box per option (order lists)", "needs_options": true },
     { "type": "table_matrix", "label": "Rating matrix (each option is a statement rated 1 to 5)", "needs_options": true },
-    { "type": "steps",       "label": "Step break (everything after it becomes the next page)", "needs_options": false }
+    { "type": "imgRadio", "label": "Image picker (choose one option shown as an image card; \"options\" are the captions; the admin picks the images afterwards)", "needs_options": true },
+    { "type": "maps", "label": "Location picker (the visitor marks a place on a map; one per form)", "needs_options": false },
+    { "type": "address", "label": "Full address block: country, state/province, city, address line and postal code, as five linked fields", "needs_options": false },
+    { "type": "conturyList", "label": "Country dropdown (all countries, ready-made; no options needed)", "needs_options": false },
+    { "type": "stateProvince", "label": "State / province dropdown (linked to the country field before it; no options needed)", "needs_options": false },
+    { "type": "cityList", "label": "City dropdown (linked to the state field before it; no options needed)", "needs_options": false },
+    { "type": "audio_recorder", "label": "Sound recorder (the visitor records a voice message)", "needs_options": false },
+    { "type": "video_recorder", "label": "Video recorder (the visitor records a camera video)", "needs_options": false },
+    { "type": "screen_recorder", "label": "Screen recorder (the visitor records their screen)", "needs_options": false },
+    { "type": "link", "label": "Link shown in the form (display only; needs \"url\", the label is the link text)", "needs_options": false },
+    { "type": "html", "label": "HTML block (display only; needs \"html\": safe formatting markup such as p, strong, a, ul, img)", "needs_options": false },
+    { "type": "steps", "label": "Step break (everything after it becomes the next page)", "needs_options": false }
   ],
 
   "type_aliases": {
@@ -79,7 +90,43 @@
     "name": "text",
     "full_name": "text",
     "first_name": "text",
-    "last_name": "text"
+    "last_name": "text",
+    "image_picker": "imgRadio",
+    "image_choice": "imgRadio",
+    "image_radio": "imgRadio",
+    "picture_choice": "imgRadio",
+    "map": "maps",
+    "location": "maps",
+    "location_picker": "maps",
+    "map_picker": "maps",
+    "full_address": "address",
+    "address_block": "address",
+    "postal_address": "address",
+    "country": "conturyList",
+    "country_list": "conturyList",
+    "countries": "conturyList",
+    "countrylist": "conturyList",
+    "state": "stateProvince",
+    "province": "stateProvince",
+    "state_province": "stateProvince",
+    "city": "cityList",
+    "city_list": "cityList",
+    "cities": "cityList",
+    "audio": "audio_recorder",
+    "voice_recorder": "audio_recorder",
+    "sound_recorder": "audio_recorder",
+    "voice_message": "audio_recorder",
+    "video": "video_recorder",
+    "camera_recorder": "video_recorder",
+    "screen_recording": "screen_recorder",
+    "screen_capture": "screen_recorder",
+    "hyperlink": "link",
+    "html_code": "html",
+    "html_block": "html",
+    "custom_html": "html",
+    "picker": "color",
+    "slider": "range",
+    "range_slider": "range"
   },
 
   "forbidden_types": [
@@ -214,7 +261,18 @@
         "el_text_color": "text-dark",
         "el_align": "justify-content-start",
         "pro": ""
-      }
+      },
+      "range": { "elementId": "range" },
+      "imgRadio": { "elementId": "imgRadio" },
+      "maps": { "elementId": "maps", "lat": 49.24803870604257, "lng": -123.10512829684463, "mark": 1, "zoom": 12 },
+      "conturyList": { "elementId": "conturyList" },
+      "stateProvince": { "elementId": "stateProvince", "country": "GB" },
+      "cityList": { "elementId": "cityList", "country": "GB", "statePov": "Antrim_Newtownabbey" },
+      "audio_recorder": { "__drop__": ["elementId", "icon_input"], "value": "media", "file": "media", "message_text_size": "fs-7", "el_text_color": "text-dark", "max_duration": "90", "max_fsize": "20", "rec_countdown": "3", "rec_download": "1", "record_quality": "standard", "rec_noise": "1" },
+      "video_recorder": { "__drop__": ["elementId", "icon_input"], "value": "media", "file": "media", "message_text_size": "fs-7", "el_text_color": "text-dark", "max_duration": "90", "max_fsize": "20", "rec_countdown": "3", "rec_download": "1", "record_quality": "720p", "rec_facing": "user", "rec_mirror": "1", "rec_watermark": "1" },
+      "screen_recorder": { "__drop__": ["elementId", "icon_input"], "value": "media", "file": "media", "message_text_size": "fs-7", "el_text_color": "text-dark", "max_duration": "90", "max_fsize": "20", "rec_countdown": "3", "rec_download": "1", "record_quality": "720p", "rec_watermark": "1" },
+      "link": { "__replace__": true, "id_": "", "dataId": "", "type": "link", "classes": "", "value": "Link", "amount": "0", "step": "1", "el_text_size": "fs-3", "el_text_color": "text-primary", "el_align": "justify-content-start", "href": "", "pro": "1" },
+      "html": { "__replace__": true, "id_": "", "dataId": "", "type": "html", "value": "", "amount": "0", "step": "1", "pro": "1" }
     },
 
     "matrix_row": {

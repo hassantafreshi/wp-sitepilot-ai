@@ -136,6 +136,28 @@ final class EfbBuilderButton {
 					'fieldSettingSet'                => __( 'Updated %1$s for “%2$s”', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: Easy Form Builder form setting key, such as button color. */
 					'formPropertyUpdated'            => __( 'Updated the form setting “%s”', 'ai-site-assistant-autopilot' ),
+					'formPrivate'                    => __( 'The form is now private: only logged-in users can see and send it', 'ai-site-assistant-autopilot' ),
+					'formPublic'                     => __( 'The form is public again', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: the new subject. */
+					'emailSubjectSet'                => __( 'Email subject set to “%s”', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: a web address. */
+					'redirectSet'                    => __( 'After sending, visitors go to %s', 'ai-site-assistant-autopilot' ),
+					'thankYouMessageMode'            => __( 'After sending, visitors see the thank-you message', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: form type name. */
+					'formTypeSet'                    => __( 'Form type set to %s', 'ai-site-assistant-autopilot' ),
+					'formTypeForm'                   => __( 'form', 'ai-site-assistant-autopilot' ),
+					'formTypeSurvey'                 => __( 'survey', 'ai-site-assistant-autopilot' ),
+					'formTypeLogin'                  => __( 'sign-in form', 'ai-site-assistant-autopilot' ),
+					'formTypePayment'                => __( 'payment form', 'ai-site-assistant-autopilot' ),
+					'smsOn'                          => __( 'SMS notifications turned on', 'ai-site-assistant-autopilot' ),
+					'smsOff'                         => __( 'SMS notifications turned off', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: phone numbers. */
+					'smsNumbersSet'                  => __( 'SMS goes to %s', 'ai-site-assistant-autopilot' ),
+					'smsTextSet'                     => __( 'SMS wording updated', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: field label. */
+					'smsRespondentOn'                => __( 'A confirmation SMS goes to the number typed in “%s”', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: field label. */
+					'smsRespondentOff'               => __( 'No SMS goes to the number typed in “%s” any more', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: label of the added field. */
 					'fieldAdded'                     => __( 'Added “%s”', 'ai-site-assistant-autopilot' ),
 					'newFieldLabel'                  => __( 'New field', 'ai-site-assistant-autopilot' ),
@@ -193,6 +215,7 @@ final class EfbBuilderButton {
 					'reasonPaymentConflict'          => __( 'this form already takes payment through another gateway', 'ai-site-assistant-autopilot' ),
 					'reasonPaymentTemplate'          => __( 'the payment fields could not be prepared', 'ai-site-assistant-autopilot' ),
 					'reasonUnsupportedOperation'     => __( 'this change is not supported', 'ai-site-assistant-autopilot' ),
+					'reasonFormHasPayment'           => __( 'this form takes a payment, so it stays a payment form; remove the payment first', 'ai-site-assistant-autopilot' ),
 					'reasonNoOperation'              => __( 'the reply contained no change to apply', 'ai-site-assistant-autopilot' ),
 					'reasonException'                => __( 'an unexpected error stopped this change', 'ai-site-assistant-autopilot' ),
 					'reasonRender'                   => __( 'the Easy Form Builder canvas could not redraw', 'ai-site-assistant-autopilot' ),
@@ -312,6 +335,20 @@ final class EfbBuilderButton {
 					'typePayChoice'                  => __( 'Priced choice', 'ai-site-assistant-autopilot' ),
 					'typePayAmount'                  => __( 'Amount', 'ai-site-assistant-autopilot' ),
 					'typePayTotal'                   => __( 'Total', 'ai-site-assistant-autopilot' ),
+					'typeMap'                        => __( 'Location picker', 'ai-site-assistant-autopilot' ),
+					'typeCountry'                    => __( 'Country', 'ai-site-assistant-autopilot' ),
+					'typeState'                      => __( 'State / province', 'ai-site-assistant-autopilot' ),
+					'typeCity'                       => __( 'City', 'ai-site-assistant-autopilot' ),
+					'typeAudio'                      => __( 'Sound recorder', 'ai-site-assistant-autopilot' ),
+					'typeVideo'                      => __( 'Video recorder', 'ai-site-assistant-autopilot' ),
+					'typeScreen'                     => __( 'Screen recorder', 'ai-site-assistant-autopilot' ),
+					'typeLink'                       => __( 'Link', 'ai-site-assistant-autopilot' ),
+					'typeHtml'                       => __( 'HTML block', 'ai-site-assistant-autopilot' ),
+					'typeHeading'                    => __( 'Heading', 'ai-site-assistant-autopilot' ),
+					'typeSignature'                  => __( 'Signature', 'ai-site-assistant-autopilot' ),
+					'typeColor'                      => __( 'Colour picker', 'ai-site-assistant-autopilot' ),
+					'typeMatrix'                     => __( 'Matrix', 'ai-site-assistant-autopilot' ),
+					'typePassword'                   => __( 'Password', 'ai-site-assistant-autopilot' ),
 					'typePayment'                    => __( 'Payment', 'ai-site-assistant-autopilot' ),
 					'previewLogic'                   => __( 'Conditional logic', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: Easy Form Builder add-on name. */

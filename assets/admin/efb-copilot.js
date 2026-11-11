@@ -173,27 +173,34 @@
 		yesNo: [ 'typeYesNo', 'Yes / No', 'radio' ], switch: [ 'typeYesNo', 'Yes / No', 'radio' ],
 		payRadio: [ 'typePayChoice', 'Priced choice', 'radio' ], paySelect: [ 'typePayChoice', 'Priced choice', 'select' ], payCheckbox: [ 'typePayChoice', 'Priced choice', 'checkbox' ], payMultiselect: [ 'typePayChoice', 'Priced choice', 'select' ],
 		prcfld: [ 'typePayAmount', 'Amount', 'hash' ], ttlprc: [ 'typePayTotal', 'Total', 'hash' ],
-		stripe: [ 'typePayment', 'Payment', 'key' ], paypal: [ 'typePayment', 'Payment', 'key' ], persiaPay: [ 'typePayment', 'Payment', 'key' ]
+		stripe: [ 'typePayment', 'Payment', 'key' ], paypal: [ 'typePayment', 'Payment', 'key' ], persiaPay: [ 'typePayment', 'Payment', 'key' ],
+		maps: [ 'typeMap', 'Location picker', 'link' ], conturyList: [ 'typeCountry', 'Country', 'select' ], stateProvince: [ 'typeState', 'State / province', 'select' ], cityList: [ 'typeCity', 'City', 'select' ],
+		audio_recorder: [ 'typeAudio', 'Sound recorder', 'upload' ], video_recorder: [ 'typeVideo', 'Video recorder', 'upload' ], screen_recorder: [ 'typeScreen', 'Screen recorder', 'upload' ],
+		link: [ 'typeLink', 'Link', 'link' ], html: [ 'typeHtml', 'HTML block', 'para' ], heading: [ 'typeHeading', 'Heading', 'text' ], esign: [ 'typeSignature', 'Signature', 'text' ],
+		color: [ 'typeColor', 'Colour picker', 'text' ], pointr5: [ 'typeRating', 'Rating', 'star' ], pointr10: [ 'typeRating', 'Rating', 'star' ], table_matrix: [ 'typeMatrix', 'Matrix', 'checkbox' ], password: [ 'typePassword', 'Password', 'key' ]
 	};
 	function typeLabel( type ) { var entry = TYPE_LABELS[ type ]; return entry ? t( entry[ 0 ], entry[ 1 ] ) : String( type || '' ); }
 	function typeIcon( type ) { var entry = TYPE_LABELS[ type ]; return entry ? entry[ 2 ] : 'text'; }
 	/* ---------- EFB live structure helpers ---------- */
 	function hasLiveForm() { return typeof valj_efb !== 'undefined' && Array.isArray( valj_efb ) && valj_efb.length > 2; }
 	function getFormId() { var m = /[?&]id=(\d+)/.exec( window.location.search ); return m ? Number( m[ 1 ] ) : 0; }
+	var GEO_TYPES = [ 'conturyList', 'stateProvince', 'cityList' ];
+	function isChildItem( it ) { return !! it && ( it.type === 'option' || it.type === 'r_matrix' ); }
 	function isFieldItem( it ) { return it && it.type && [ 'form', 'step', 'option', 'r_matrix' ].indexOf( it.type ) === -1; }
 	function liveFields() {
 		if ( ! hasLiveForm() ) { return []; }
 		return valj_efb.filter( isFieldItem ).map( function ( it ) {
-			var options = valj_efb.filter( function ( o ) { return o && o.type === 'option' && o.parent === it.id_; } ).map( function ( o ) { return { id: String( o.id_ ), value: String( o.value || '' ) }; } );
+			// The country, state and city lists are Easy Form Builder's own data (hundreds of rows), not something to edit by chat.
+			var options = GEO_TYPES.indexOf( it.type ) !== -1 ? [] : valj_efb.filter( function ( o ) { return o && o.type === 'option' && o.parent === it.id_; } ).map( function ( o ) { return { id: String( o.id_ ), value: String( o.value || '' ) }; } );
 			return { id: it.id_, label: it.name || it.value || it.id_, type: it.type, required: it.required === true || it.required === 1 || it.required === '1', options: options };
 		} );
 	}
 	// EFB only loads its Conditional Logic runtime when the AdnSMF add-on is active.
-	/* Which of the add-ons the copilot can use Easy Form Builder has switched on: four codes, on or off, nothing else leaves the page. */
+	/* Which of the add-ons the copilot can use Easy Form Builder has switched on: five codes, on or off, nothing else leaves the page. */
 	function paymentAddons() {
 		var out = {};
 		if ( typeof efb_var === 'undefined' || ! efb_var || ! efb_var.addons ) { return out; }
-		[ 'AdnSMF', 'AdnSPF', 'AdnPAP', 'AdnPPF' ].forEach( function ( code ) { out[ code ] = Number( efb_var.addons[ code ] ) >= 1 ? 1 : 0; } );
+		[ 'AdnSMF', 'AdnSPF', 'AdnPAP', 'AdnPPF', 'AdnSS' ].forEach( function ( code ) { out[ code ] = Number( efb_var.addons[ code ] ) >= 1 ? 1 : 0; } );
 		return out;
 	}
 	function logicAddonActive() { return typeof efb_var !== 'undefined' && !! efb_var && !! efb_var.addons && Number( efb_var.addons.AdnSMF ) >= 1; }
@@ -341,7 +348,77 @@
 		if ( property === 'progress_style' ) { return t( 'progressStyleSet', 'Progress bar style set to %s', styleName( value ) ); }
 		if ( property === 'hide_steps_row' ) { return value ? t( 'stepsRowHidden', 'Steps row hidden' ) : t( 'stepsRowShown', 'Steps row shown' ); }
 		if ( property === 'hide_progress_bar' ) { return value ? t( 'progressBarHidden', 'Progress bar hidden' ) : t( 'progressBarShown', 'Progress bar shown' ); }
+		if ( property === 'require_login' ) { return value ? t( 'formPrivate', 'The form is now private: only logged-in users can see and send it' ) : t( 'formPublic', 'The form is public again' ); }
+		if ( property === 'email_subject' ) { return t( 'emailSubjectSet', 'Email subject set to “%s”', value ); }
+		if ( property === 'thank_you_redirect' ) { return t( 'redirectSet', 'After sending, visitors go to %s', value ); }
+		if ( property === 'thank_you_mode' ) { return t( 'thankYouMessageMode', 'After sending, visitors see the thank-you message' ); }
+		if ( property === 'form_type' ) { return t( 'formTypeSet', 'Form type set to %s', formTypeName( value ) ); }
+		if ( property === 'sms_notification' ) { return value ? t( 'smsOn', 'SMS notifications turned on' ) : t( 'smsOff', 'SMS notifications turned off' ); }
+		if ( property === 'sms_admin_numbers' ) { return t( 'smsNumbersSet', 'SMS goes to %s', value ); }
+		if ( property.indexOf( 'sms_text_' ) === 0 ) { return t( 'smsTextSet', 'SMS wording updated' ); }
 		return t( 'formPropertyUpdated', 'Updated the form setting “%s”', propertyLabel( property ) );
+	}
+	function formTypeName( value ) {
+		var names = { form: [ 'formTypeForm', 'form' ], survey: [ 'formTypeSurvey', 'survey' ], login: [ 'formTypeLogin', 'sign-in form' ], payment: [ 'formTypePayment', 'payment form' ] };
+		var entry = names[ value ];
+		return entry ? t( entry[ 0 ], entry[ 1 ] ) : String( value );
+	}
+	/* Settings Easy Form Builder keeps under more than one key. Each branch writes exactly what EFB's own
+	   settings panel writes for the same change. */
+	function applySpecialFormProperty( fd, op, report, index ) {
+		var form = valj_efb[ 0 ];
+		if ( fd.special === 'redirect' ) {
+			// EFB stores the address with its slashes swapped out and switches the thank-you mode with it.
+			form.thank_you = 'rdrct';
+			form.rePage = String( op.value ).replace( /(http:\/\/)+/g, 'http:@efb@' ).replace( /(https:\/\/)+/g, 'https:@efb@' ).replace( /([/])+/g, '@efb@' );
+			return true;
+		}
+		if ( fd.special === 'thank_you_mode' ) {
+			form.thank_you = 'msg';
+			form.rePage = '';
+			return true;
+		}
+		if ( fd.special === 'form_type' ) {
+			var type = enumValue( fd, op.value );
+			if ( form.type === 'payment' && type !== 'payment' ) { failure( report, index, op, 'form_has_payment' ); return false; }
+			form.type = type;
+			try { if ( typeof form_type_emsFormBuilder !== 'undefined' ) { form_type_emsFormBuilder = type; } } catch ( e ) {}
+			if ( type === 'login' && Array.isArray( op.items ) && op.items.length ) {
+				// The sign-in form reads two fields with fixed ids; the server sent the ones this form lacks.
+				var have = {};
+				valj_efb.forEach( function ( it ) { if ( it && it.id_ ) { have[ String( it.id_ ) ] = true; } } );
+				var missing = op.items.filter( function ( it ) { return it && it.id_ && ! have[ String( it.id_ ) ]; } );
+				if ( missing.length ) {
+					var first = valj_efb.filter( isFieldItem )[ 0 ];
+					var count = valj_efb.length;
+					addFieldItems( { op: 'add_field', items: missing, field: { label: missing.map( function ( it ) { return it.name; } ).join( ', ' ) }, before: first ? String( first.id_ ) : '' }, report, index, '' );
+					if ( valj_efb.length === count ) { return false; }
+				}
+				// EFB's sign-in form has no SMS texts for the visitor.
+				form.sms_msg_recived_usr = '';
+				form.sms_msg_responsed_noti = '';
+			}
+			return true;
+		}
+		if ( fd.special === 'sms' ) {
+			if ( fd.value_type === 'boolean_flag' ) {
+				form.smsnoti = op.value ? 1 : 0;
+				if ( op.value ) { smsDefaults( form ); }
+			} else {
+				setPath( form, fd.storage_path, op.value );
+				if ( op.property === 'sms_admin_numbers' ) { form.smsnoti = 1; smsDefaults( form ); }
+			}
+			return true;
+		}
+		return false;
+	}
+	// The three SMS wordings EFB fills in itself the first time SMS is switched on for a form.
+	function smsDefaults( form ) {
+		var text = typeof efb_var !== 'undefined' && efb_var && efb_var.text ? efb_var.text : {};
+		[ [ 'sms_msg_new_noti', 'newMessageReceived' ], [ 'sms_msg_recived_usr', 'WeRecivedUrM' ], [ 'sms_msg_responsed_noti', 'responsedMessage' ] ].forEach( function ( row ) {
+			if ( form[ row[ 0 ] ] === undefined || form[ row[ 0 ] ] === null ) { form[ row[ 0 ] ] = text[ row[ 1 ] ] ? String( text[ row[ 1 ] ] ) : ''; }
+		} );
+		if ( form.sms_admins_phone_no === undefined || form.sms_admins_phone_no === null ) { form.sms_admins_phone_no = ''; }
 	}
 	// EFB draws its form settings panel once. When it is open, keep its hide toggles
 	// and style pickers in step with what the chat just changed on valj_efb[0].
@@ -393,6 +470,7 @@
 		anchor_not_found: [ 'reasonAnchorNotFound', 'the field to place it next to is not on this form' ],
 		payment_gateway_conflict: [ 'reasonPaymentConflict', 'this form already takes payment through another gateway' ],
 		payment_template_missing: [ 'reasonPaymentTemplate', 'the payment fields could not be prepared' ],
+		form_has_payment: [ 'reasonFormHasPayment', 'this form takes a payment, so it stays a payment form; remove the payment first' ],
 		unsupported_operation: [ 'reasonUnsupportedOperation', 'this change is not supported' ],
 		no_operation: [ 'reasonNoOperation', 'the reply contained no change to apply' ],
 		exception: [ 'reasonException', 'an unexpected error stopped this change' ],
@@ -430,7 +508,7 @@
 		if ( token.indexOf( 'colorDEfb-' ) === 0 && definition.style_path ) { setPath( target, definition.style_path, value ); }
 		return true;
 	}
-	function isChoiceField( field ) { return field && [ 'select', 'radio', 'checkbox', 'multiselect', 'chlCheckBox', 'chlRadio' ].indexOf( field.type ) !== -1; }
+	function isChoiceField( field ) { return field && [ 'select', 'radio', 'checkbox', 'multiselect', 'chlCheckBox', 'chlRadio', 'imgRadio' ].indexOf( field.type ) !== -1; }
 	function findOption( field, text ) {
 		var wanted = String( text ).toLowerCase();
 		return valj_efb.find( function ( it ) { return it && it.type === 'option' && it.parent === field.id_ && String( it.value ).toLowerCase() === wanted; } ) || null;
@@ -463,22 +541,34 @@
 		report.logic = true;
 	}
 	function addFieldItems( op, report, index, requestedStep ) {
-		var items = Array.isArray( op.items ) ? op.items : [];
+		var items = Array.isArray( op.items ) ? op.items.slice() : [];
 		if ( ! items.length ) { failure( report, index, op, 'field_template_missing' ); return; }
 		var used = {};
 		valj_efb.forEach( function ( item ) { if ( item && item.id_ ) { used[ String( item.id_ ) ] = true; } } );
 		for ( var i = 0; i < items.length; i++ ) {
+			// A ready-made option (a state, a city) can meet its twin from another list of the same kind: it gets its own id.
+			if ( items[ i ] && items[ i ].type === 'option' && items[ i ].id_ && used[ String( items[ i ].id_ ) ] ) {
+				var twin = Object.assign( {}, items[ i ] );
+				var n = 2;
+				while ( used[ twin.id_ + '_' + n ] ) { n++; }
+				twin.id_ = twin.id_ + '_' + n;
+				twin.dataId = twin.id_ + '-id';
+				items[ i ] = twin;
+			}
 			if ( ! items[ i ] || ! items[ i ].id_ || ! items[ i ].type || used[ String( items[ i ].id_ ) ] ) { failure( report, index, op, 'invalid_or_duplicate_field_template' ); return; }
 			used[ String( items[ i ].id_ ) ] = true;
 		}
 		var fields = valj_efb.filter( isFieldItem );
 		var step = requestedStep ? String( requestedStep ) : ( fields.length ? String( fields[ fields.length - 1 ].step || '1' ) : '1' );
+		// EFB keeps the canvas order (amount) as a number and compares it as one: a string here breaks the
+		// link between a country list and the state list after it.
 		var amount = maxAmount();
 		var fieldLabel = op.field && op.field.label ? op.field.label : t( 'newFieldLabel', 'New field' );
 		items.forEach( function ( source ) {
 			var item = Object.assign( {}, source );
-			amount += 1;
-			item.amount = String( amount );
+			// An option carries its field's number, as in EFB's own builder; only fields count up.
+			if ( ! isChildItem( item ) ) { amount += 1; }
+			item.amount = amount;
 			item.step = step;
 			valj_efb.push( item );
 		} );
@@ -490,7 +580,7 @@
 			if ( anchor ) { placeItems( pushed, anchor, op.after ? 'after' : 'before' ); }
 		}
 		var main = items.filter( function ( it ) { return it.type !== 'option'; } )[ 0 ] || items[ 0 ];
-		done( report, t( 'fieldAdded', 'Added “%s”', fieldLabel ), 'add', String( main.id_ ), { type: String( main.type ), required: main.required === true || main.required === '1' || main.required === 1, label: fieldLabel, options: items.filter( function ( it ) { return it.type === 'option'; } ).map( function ( it ) { return String( it.value || '' ); } ) } );
+		done( report, t( 'fieldAdded', 'Added “%s”', fieldLabel ), 'add', String( main.id_ ), { type: String( main.type ), required: main.required === true || main.required === '1' || main.required === 1, label: fieldLabel, options: GEO_TYPES.indexOf( String( main.type ) ) !== -1 ? [] : items.filter( function ( it ) { return it.type === 'option'; } ).map( function ( it ) { return String( it.value || '' ); } ) } );
 		report.changed = true;
 	}
 	/* Online payment: the priced fields and the gateway field go in as items, and the form takes the same
@@ -515,17 +605,29 @@
 		var anchorGroup = valj_efb.filter( function ( it ) { return it === anchor || ( it && it.parent === anchor.id_ ); } );
 		var amounts = anchorGroup.map( function ( it ) { return Number( it.amount ) || 0; } );
 		var at = 'before' === where ? Math.min.apply( null, amounts ) : Math.max.apply( null, amounts ) + 1;
-		var size = group.length;
+		var heads = group.filter( function ( it ) { return ! isChildItem( it ); } );
+		var size = heads.length || 1;
 		// The form's own settings sit first whatever their type ("form", or "payment" on a payment form).
 		var settings = valj_efb[ 0 ];
 		valj_efb.forEach( function ( it ) {
-			if ( it && it !== settings && group.indexOf( it ) === -1 && ( Number( it.amount ) || 0 ) >= at ) { it.amount = String( ( Number( it.amount ) || 0 ) + size ); }
+			if ( it && it !== settings && group.indexOf( it ) === -1 && ( Number( it.amount ) || 0 ) >= at ) { it.amount = ( Number( it.amount ) || 0 ) + size; }
 		} );
-		group.slice().sort( function ( a, b ) { return ( Number( a.amount ) || 0 ) - ( Number( b.amount ) || 0 ); } ).forEach( function ( it, i ) {
-			it.amount = String( at + i );
+		// Fields take the numbers from the anchor on; each option keeps its own field's number.
+		var numbers = {};
+		heads.forEach( function ( it, i ) { it.amount = at + i; numbers[ String( it.id_ ) ] = it.amount; } );
+		group.forEach( function ( it ) {
+			if ( isChildItem( it ) ) { it.amount = numbers[ String( it.parent ) ] !== undefined ? numbers[ String( it.parent ) ] : at; }
 			if ( anchor.step !== undefined ) { it.step = anchor.step; }
 		} );
-		valj_efb.sort( function ( a, b ) { if ( a === settings ) { return -1; } if ( b === settings ) { return 1; } return ( Number( a.amount ) || 0 ) - ( Number( b.amount ) || 0 ); } );
+		// Array.prototype.sort is stable: a field stays ahead of its own options, which share its number.
+		var indexed = valj_efb.map( function ( it, i ) { return { it: it, i: i, head: isChildItem( it ) ? 1 : 0 }; } );
+		indexed.sort( function ( a, b ) {
+			if ( a.it === settings ) { return -1; }
+			if ( b.it === settings ) { return 1; }
+			var d = ( Number( a.it.amount ) || 0 ) - ( Number( b.it.amount ) || 0 );
+			return d !== 0 ? d : ( a.head - b.head || a.i - b.i );
+		} );
+		valj_efb = indexed.map( function ( row ) { return row.it; } );
 		window.valj_efb = valj_efb;
 	}
 	function moveField( op, report, index ) {
@@ -555,7 +657,7 @@
 		item.classes = item.classes || 'stepNavEfb';
 		item.name = String( op.label || item.name || t( 'stepDefaultName', 'Step %s', next ) );
 		item.step = String( next );
-		item.amount = String( maxAmount() + 1 );
+		item.amount = maxAmount() + 1;
 		valj_efb.push( item );
 		if ( valj_efb[ 0 ] ) {
 			valj_efb[ 0 ].steps = String( next );
@@ -598,8 +700,15 @@
 						if ( pd.mirror_keys && pd.mirror_keys.length ) {
 							for ( var m = 0; m < pd.mirror_keys.length; m++ ) { pf[ pd.mirror_keys[ m ] ] = stored; }
 						}
+						// Texting the person who filled in the form: EFB keeps the flag as a number on the mobile
+						// field, and only sends while the form's own SMS switch is on.
+						if ( pd.special === 'sms' ) {
+							pf[ pd.storage_key ] = op.value ? 1 : 0;
+							if ( op.value && valj_efb[ 0 ] ) { valj_efb[ 0 ].smsnoti = 1; smsDefaults( valj_efb[ 0 ] ); }
+						}
 					}
-					done( report, t( 'fieldSettingSet', 'Updated %1$s for “%2$s”', [ propertyLabel( op.property ), op.target ] ), 'edit', String( pf.id_ ) ); report.changed = true;
+					if ( pd.special === 'sms' ) { done( report, op.value ? t( 'smsRespondentOn', 'A confirmation SMS goes to the number typed in “%s”', op.target ) : t( 'smsRespondentOff', 'No SMS goes to the number typed in “%s” any more', op.target ), 'edit', String( pf.id_ ) ); report.changed = true; }
+					else { done( report, t( 'fieldSettingSet', 'Updated %1$s for “%2$s”', [ propertyLabel( op.property ), op.target ] ), 'edit', String( pf.id_ ) ); report.changed = true; }
 				}
 				else if ( op.op === 'set_form_property' ) {
 					var fd = FORM_PROPERTIES[ op.property ];
@@ -607,8 +716,9 @@
 					// The server already validated the value. Check enums again so a stale or
 					// tampered response never stores a style EFB would quietly draw as classic.
 					if ( fd.value_type === 'enum' && ! enumAllows( fd, op.value ) ) { failure( report, index, op, 'invalid_form_property_value' ); return; }
-					if ( fd.value_type === 'efb_color' ? ! applyEfbColor( valj_efb[ 0 ], fd, op.value ) : ! fd.storage_path ) { failure( report, index, op, 'invalid_colour_or_storage' ); return; }
-					if ( fd.value_type !== 'efb_color' ) { setPath( valj_efb[ 0 ], fd.storage_path, catalogValue( fd, op.value, true ) ); }
+					if ( fd.special ) { if ( ! applySpecialFormProperty( fd, op, report, index ) ) { if ( ! report.failed.some( function ( f ) { return f.index === index; } ) ) { failure( report, index, op, 'form_property_not_available' ); } return; } }
+					else if ( fd.value_type === 'efb_color' ? ! applyEfbColor( valj_efb[ 0 ], fd, op.value ) : ! fd.storage_path ) { failure( report, index, op, 'invalid_colour_or_storage' ); return; }
+					else if ( fd.value_type !== 'efb_color' ) { setPath( valj_efb[ 0 ], fd.storage_path, catalogValue( fd, op.value, true ) ); }
 					if ( STEP_STYLE_PROPERTIES.indexOf( op.property ) !== -1 ) { report.stepStyles = true; }
 					done( report, formPropertyApplied( op.property, catalogValue( fd, op.value, true ) ), 'edit', '' ); report.changed = true;
 				}
@@ -621,7 +731,7 @@
 					var af = findField( op.target ); if ( ! af ) { failure( report, index, op, 'field_not_found' ); return; }
 					if ( ! isChoiceField( af ) ) { failure( report, index, op, 'target_is_not_a_choice_field' ); return; }
 					var oid = ( af.id_ + '_o' + ( maxAmount() + 1 ) ).replace( /[^a-z0-9_]/gi, '' );
-					var opt = { id_: oid, dataId: oid + '-id', parent: af.id_, type: 'option', value: op.value, id_op: oid, step: af.step || '1', amount: String( maxAmount() + 1 ) };
+					var opt = { id_: oid, dataId: oid + '-id', parent: af.id_, type: 'option', value: op.value, id_op: oid, step: af.step || '1', amount: Number( af.amount ) || ( maxAmount() + 1 ) };
 					var lastIdx = valj_efb.length - 1;
 					for ( var i = valj_efb.length - 1; i >= 0; i-- ) { if ( valj_efb[ i ].parent === af.id_ || valj_efb[ i ] === af ) { lastIdx = i; break; } }
 					valj_efb.splice( lastIdx + 1, 0, opt ); done( report, t( 'optionAdded', 'Added the option “%1$s” to “%2$s”', [ op.value, op.target ] ), 'add', String( af.id_ ) ); report.changed = true;
@@ -641,10 +751,38 @@
 	}
 	function refreshDropzone() {
 		try {
+			var open = openSettingsPanel();
 			sessionStorage.setItem( 'valj_efb', JSON.stringify( valj_efb ) );
-			if ( typeof editFormEfb === 'function' ) { editFormEfb(); return { ok: true }; }
+			if ( typeof editFormEfb === 'function' ) { editFormEfb(); refreshSettingsPanel( open ); return { ok: true }; }
 			return { ok: false, reason: 'efb_renderer_not_available' };
 		} catch ( e ) { return { ok: false, reason: String( e && e.message ? e.message : 'refresh_failed' ).slice( 0, 160 ) }; }
+	}
+	/* Easy Form Builder writes its settings panel (the side box) once, from the values of that moment. When
+	   the copilot changes the form while the panel is open, the panel is drawn again for the same field, step
+	   or form, so what it shows is what was just applied; when its field is gone, it closes. */
+	function openSettingsPanel() {
+		var box = document.getElementById( 'sideBoxEfb' );
+		if ( ! box || ! box.classList.contains( 'show' ) ) { return null; }
+		var id = window.efbOpenSettingIdEfb;
+		return id === undefined || id === null || id === '' ? null : String( id );
+	}
+	function refreshSettingsPanel( idset ) {
+		if ( ! idset || typeof show_setting_window_efb !== 'function' ) { return; }
+		// EFB redraws the canvas a moment after editFormEfb(), one beat per item; the panel follows it.
+		var wait = 250 + Math.min( 2500, ( Array.isArray( valj_efb ) ? valj_efb.length : 0 ) * 12 );
+		setTimeout( function () {
+			try {
+				var box = document.getElementById( 'sideBoxEfb' );
+				if ( ! box || ! box.classList.contains( 'show' ) ) { return; }
+				if ( String( window.efbOpenSettingIdEfb ) !== idset ) { return; }
+				var fieldId = /-id$/.test( idset ) ? idset.slice( 0, -3 ) : '';
+				var exists = ! fieldId || valj_efb.some( function ( it ) { return it && String( it.id_ ) === fieldId; } );
+				if ( ! exists ) { if ( typeof sideMenuEfb === 'function' ) { sideMenuEfb( 0 ); } return; }
+				// The same id would close the panel (it is a toggle), so EFB is told another one was open.
+				window.efbOpenSettingIdEfb = '__aisaautopilot__';
+				show_setting_window_efb( /^\d+$/.test( idset ) ? Number( idset ) : idset );
+			} catch ( e ) {}
+		}, wait );
 	}
 
 	/* ---------- the result cards ---------- */
@@ -1039,7 +1177,7 @@
 		var selected = selectedLiveField();
 		var selectedId = selected ? String( selected.id_ ) : '';
 		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, step_count: steps.length, selected_field: selectedId, field_ids: fields.map( function ( field ) { return field.id; } ) } );
-		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps, selected_field: selectedId, logic_addon: logicAddonActive(), addons: paymentAddons(), logic_rules: liveLogicRules(), captcha: liveCaptcha(), spam_shield: spamShieldActive() } )
+		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps, selected_field: selectedId, logic_addon: logicAddonActive(), addons: paymentAddons(), form_type: hasLiveForm() && valj_efb[ 0 ] ? String( valj_efb[ 0 ].type || 'form' ) : '', logic_rules: liveLogicRules(), captcha: liveCaptcha(), spam_shield: spamShieldActive() } )
 			.then( function ( res ) {
 				removeTyping(); setBusy( false );
 				var data = res.data || { type: 'message', reply: t( 'genericError', 'Sorry, something went wrong.' ) };

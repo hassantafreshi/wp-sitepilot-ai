@@ -207,8 +207,10 @@ final class EfbFormConverterTest extends TestCase {
 		$this->assertSame( 'full_name-id', $name['dataId'] ); // dataId = id_ + "-id"
 		$this->assertSame( '1', $name['step'] );
 
-		// amount is a sequential string starting at the step.
-		$this->assertSame( '1', $items[1]['amount'] );
+		// amount is a sequential number starting at the step: EFB compares it as a number (a state list is
+		// tied to the country list before it that way), so it is never a string.
+		$this->assertSame( 1, $items[1]['amount'] );
+		$this->assertSame( 2, $items[2]['amount'] );
 	}
 
 	public function test_fields_carry_full_efb_properties(): void {

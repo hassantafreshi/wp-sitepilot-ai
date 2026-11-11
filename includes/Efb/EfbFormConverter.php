@@ -54,11 +54,32 @@ final class EfbFormConverter {
 					'pay_stripe'    => __( 'Pay by card', 'ai-site-assistant-autopilot' ),
 					'pay_paypal'    => __( 'Pay with PayPal', 'ai-site-assistant-autopilot' ),
 					'pay_zarinpal'  => __( 'Pay online', 'ai-site-assistant-autopilot' ),
+					'country'       => __( 'Country', 'ai-site-assistant-autopilot' ),
+					'state'         => __( 'State / Province', 'ai-site-assistant-autopilot' ),
+					'city'          => __( 'City', 'ai-site-assistant-autopilot' ),
+					'postal_code'   => __( 'Postal code', 'ai-site-assistant-autopilot' ),
+					'address_line'  => __( 'Address', 'ai-site-assistant-autopilot' ),
+					'username'      => __( 'Username or email', 'ai-site-assistant-autopilot' ),
+					'password'      => __( 'Password', 'ai-site-assistant-autopilot' ),
 				)
 			);
 		}
 
 		return self::$texts;
+	}
+
+	/**
+	 * Labels for the country and state field that come along with a state or city list.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function geo_labels(): array {
+		$texts = self::texts();
+
+		return array(
+			'conturyList'   => $texts['country'],
+			'stateProvince' => $texts['state'],
+		);
 	}
 
 	/** Forget the cached texts, so a later locale switch is honoured (tests). */
@@ -101,7 +122,7 @@ final class EfbFormConverter {
 		$step['name']   = $title;
 		$step['step']   = '1';
 		$amount         = 1;
-		$step['amount'] = (string) $amount;
+		$step['amount'] = $amount;
 
 		$items    = array( $settings, $step );
 		$used_ids = array( '1' => true ); // step id_ is "1".
@@ -137,7 +158,7 @@ final class EfbFormConverter {
 				$new_step['dataId']            = (string) $step_no;
 				$new_step['id']                = (string) $step_no;
 				$new_step['step']              = (string) $step_no;
-				$new_step['amount']            = (string) $amount;
+				$new_step['amount']            = $amount;
 				$used_ids[ (string) $step_no ] = true;
 
 				$items[]       = $new_step;
@@ -153,9 +174,14 @@ final class EfbFormConverter {
 
 			$key = $this->unique_id( (string) ( $field['key'] ?? ( $field['label'] ?? 'field' ) ), $used_ids );
 			foreach ( $this->field_items( $field, $key, $used_ids ) as $item ) {
-				++$amount;
+				// EFB numbers the fields and gives an option its field's number. It compares these numbers to
+				// tie a state list to the country list before it, and after its own Save they are strings, so
+				// two neighbours must stay neighbours: options do not use numbers up.
+				if ( ! in_array( $item['type'] ?? '', array( 'option', 'r_matrix' ), true ) ) {
+					++$amount;
+				}
 				$item['step']   = (string) $step_no;
-				$item['amount'] = (string) $amount;
+				$item['amount'] = $amount;
 				$items[]        = $item;
 			}
 		}
@@ -164,10 +190,12 @@ final class EfbFormConverter {
 		if ( is_array( $plan['payment'] ?? null ) ) {
 			$payment = $plan['payment'];
 			foreach ( $this->build_payment( $payment, array_map( 'strval', array_keys( $used_ids ) ) ) as $item ) {
-				++$amount;
+				if ( ! in_array( $item['type'] ?? '', array( 'option', 'r_matrix' ), true ) ) {
+					++$amount;
+				}
 				++$step_contents;
 				$item['step']   = (string) $step_no;
-				$item['amount'] = (string) $amount;
+				$item['amount'] = $amount;
 				$items[]        = $item;
 			}
 			$items[0] = array_merge( $items[0], EfbPayments::form_settings( (string) $payment['gateway'], (string) ( $payment['currency'] ?? '' ) ) );
@@ -208,12 +236,30 @@ final class EfbFormConverter {
 			$used[ (string) $id ] = true;
 		}
 
-		$key   = $this->unique_id( (string) ( $field['label'] ?? 'field' ), $used );
+		// A state list needs the country field it follows, a city list its state: they come along when the
+		// form has none to attach to.
+		$labels = self::geo_labels();
+		$queue  = array();
+		foreach ( (array) ( $field['with'] ?? array() ) as $companion ) {
+			if ( isset( $labels[ $companion ] ) ) {
+				$queue[] = array(
+					'type'     => $companion,
+					'label'    => $labels[ $companion ],
+					'required' => ! empty( $field['required'] ),
+					'width'    => (string) ( $field['width'] ?? 'full' ),
+				);
+			}
+		}
+		$queue[] = $field;
+
 		$items = array();
-		foreach ( $this->field_items( $field, $key, $used ) as $item ) {
-			$item['step']   = '1';
-			$item['amount'] = '0';
-			$items[]        = $item;
+		foreach ( $queue as $one ) {
+			$key = $this->unique_id( (string) ( $one['label'] ?? 'field' ), $used );
+			foreach ( $this->field_items( $one, $key, $used ) as $item ) {
+				$item['step']   = '1';
+				$item['amount'] = 0;
+				$items[]        = $item;
+			}
 		}
 
 		return $items;
@@ -354,7 +400,7 @@ final class EfbFormConverter {
 		$step['classes'] = 'stepNavEfb';
 		$step['name']    = $label;
 		$step['step']    = '';
-		$step['amount']  = '0';
+		$step['amount']  = 0;
 
 		return $step;
 	}
@@ -396,17 +442,19 @@ final class EfbFormConverter {
 	private function field_items( array $field, string $key, array &$used ): array {
 		$type = (string) ( $field['type'] ?? 'text' );
 
-		if ( 'heading' === $type ) {
-			$heading = EfbFormModel::overrides( 'heading' );
-			unset( $heading['__replace__'] );
-			$heading['id_']    = $key;
-			$heading['dataId'] = $key . '-id';
-			$heading['value']  = (string) ( $field['label'] ?? self::texts()['heading'] );
-
-			return array( $heading );
+		if ( 'heading' === $type || 'link' === $type || 'html' === $type ) {
+			return array( $this->display_item( $type, $field, $key ) );
+		}
+		if ( 'address' === $type ) {
+			return $this->address_items( $field, $key, $used );
 		}
 
-		$el                = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
+		$el = array_merge( EfbFormModel::template( 'field_base' ), EfbFormModel::overrides( $type ) );
+		// Keys EFB's own palette leaves off this type (a recorder has no input icon).
+		foreach ( (array) ( $el['__drop__'] ?? array() ) as $drop ) {
+			unset( $el[ (string) $drop ] );
+		}
+		unset( $el['__drop__'] );
 		$el['id_']         = $key;
 		$el['dataId']      = $key . '-id';
 		$el['type']        = $type;
@@ -442,16 +490,186 @@ final class EfbFormConverter {
 			foreach ( $options as $row ) {
 				$children[] = $this->child( 'matrix_row', $key, ++$n, $row, $used );
 			}
+		} elseif ( in_array( $type, array( 'conturyList', 'stateProvince', 'cityList' ), true ) ) {
+			$children = $this->geo_children( $type, $key, $used );
 		} elseif ( array() !== $options && in_array( $type, array_merge( EfbFormModel::option_types(), array_values( EfbPayments::CHOICE_FIELDS ) ), true ) ) {
 			$el = $this->apply_selection_cap( $el, count( $options ) );
 			$n  = 0;
 			foreach ( $options as $opt ) {
-				$children[] = $this->child( 'option', $key, ++$n, $opt, $used );
+				$child = $this->child( 'option', $key, ++$n, $opt, $used );
+				if ( 'imgRadio' === $type ) {
+					// EFB's image picker: a caption, a short description and the picture. The picture starts as
+					// EFB's own placeholder; the admin chooses the real one in the field's settings.
+					$child['sub_value'] = (string) ( $field['descriptions'][ $n - 1 ] ?? '' );
+					$child['src']       = self::placeholder_image();
+				}
+				$children[] = $child;
 			}
+		}
+		if ( 'maps' === $type ) {
+			// The palette's label is not a placeholder here; a map has none.
+			$el['placeholder'] = $el['name'];
 		}
 		$el = $this->apply_plan_settings( $el, $field, $type );
 
 		return array_merge( array( $el ), $children );
+	}
+
+	/**
+	 * The two fields EFB's sign-in form reads, with the fixed ids its runtime looks for. Only the ones the
+	 * open form does not have yet are returned.
+	 *
+	 * @param string[] $existing_ids
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function build_login_fields( array $existing_ids = array() ): array {
+		$texts = self::texts();
+		$out   = array();
+		foreach ( array(
+			'emaillogin'    => array( 'text', $texts['username'] ),
+			'passwordlogin' => array( 'password', $texts['password'] ),
+		) as $id => $spec ) {
+			if ( in_array( $id, $existing_ids, true ) ) {
+				continue;
+			}
+			$el                = EfbFormModel::template( 'field_base' );
+			$el['id_']         = $id;
+			$el['dataId']      = $id . '-id';
+			$el['type']        = $spec[0];
+			$el['elementId']   = $spec[0];
+			$el['name']        = $spec[1];
+			$el['placeholder'] = $spec[1];
+			$el['required']    = '1';
+			$out[]             = $el;
+		}
+
+		return $out;
+	}
+
+	/**
+	 * A display-only element (heading, link, HTML block): EFB keeps these in a short shape of their own.
+	 *
+	 * @param array<string,mixed> $field
+	 * @return array<string,mixed>
+	 */
+	private function display_item( string $type, array $field, string $key ): array {
+		$item = EfbFormModel::overrides( $type );
+		unset( $item['__replace__'] );
+		$item['id_']    = $key;
+		$item['dataId'] = $key . '-id';
+		$label          = (string) ( $field['label'] ?? '' );
+
+		if ( 'link' === $type ) {
+			$item['value'] = '' !== $label ? $label : (string) ( $field['url'] ?? '' );
+			$item['href']  = (string) ( $field['url'] ?? '' );
+		} elseif ( 'html' === $type ) {
+			// EFB stores the markup with its own two escapes and decodes them when it draws the form.
+			$item['value'] = str_replace( array( '"', "\r\n", "\n", "\r" ), array( '@!', '@efb@nq#', '@efb@nq#', '@efb@nq#' ), (string) ( $field['html'] ?? '' ) );
+		} else {
+			$item['value'] = '' !== $label ? $label : self::texts()['heading'];
+		}
+
+		return $item;
+	}
+
+	/**
+	 * EFB's Address tile: country, state and city in the order its runtime needs (picking a country reloads
+	 * the state list right after it, a state the city list after that), then postal code and the address line.
+	 *
+	 * @param array<string,mixed> $field
+	 * @param array<string,bool>  $used
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function address_items( array $field, string $key, array &$used ): array {
+		$texts = self::texts();
+		$label = trim( (string) ( $field['label'] ?? '' ) );
+		$parts = array(
+			array( 'conturyList', $texts['country'], 'conturyList', 'half' ),
+			array( 'stateProvince', $texts['state'], 'stateProvince', 'half' ),
+			array( 'cityList', $texts['city'], 'cityList', 'half' ),
+			array( 'text', $texts['postal_code'], 'postalcode', 'half' ),
+			array( 'text', '' !== $label && ! self::is_generic_address_label( $label ) ? $label : $texts['address_line'], 'address_line', 'full' ),
+		);
+		$out   = array();
+		$first = true;
+		foreach ( $parts as $part ) {
+			$id                    = $first ? $key : $this->unique_id( $key . '_' . strtolower( $part[2] ), $used );
+			$first                 = false;
+			$items                 = $this->field_items(
+				array(
+					'type'     => $part[0],
+					'label'    => $part[1],
+					'required' => ! empty( $field['required'] ),
+					'width'    => $part[3],
+				),
+				$id,
+				$used
+			);
+			$items[0]['elementId'] = $part[2];
+			foreach ( $items as $item ) {
+				$out[] = $item;
+			}
+		}
+
+		return $out;
+	}
+
+	private static function is_generic_address_label( string $label ): bool {
+		return (bool) preg_match( '/^(full |postal |mailing |shipping |billing |home )?address$/i', $label ) || in_array( $label, array( 'آدرس', 'نشانی', 'العنوان' ), true );
+	}
+
+	/**
+	 * The ready-made options of a geographic field, exactly as EFB's palette creates them.
+	 *
+	 * @param array<string,bool> $used
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function geo_children( string $type, string $owner, array &$used ): array {
+		$geo      = EfbFormModel::geo_presets();
+		$children = array();
+		$make     = function ( string $id, string $value, string $id_op, array $extra = array() ) use ( $owner, &$used ): array {
+			$unique          = isset( $used[ $id ] ) ? $this->unique_id( $owner . '_' . $id, $used ) : $id;
+			$used[ $unique ] = true;
+			$child           = EfbFormModel::template( 'option' );
+			$child['id_']    = $unique;
+			$child['dataId'] = $unique . '-id';
+			$child['parent'] = $owner;
+			$child['value']  = $value;
+			$child['id_op']  = $id_op;
+
+			return array_merge( $child, $extra );
+		};
+
+		if ( 'conturyList' === $type ) {
+			$n = 0;
+			foreach ( (array) ( $geo['countries'] ?? array() ) as $country ) {
+				$name       = (string) ( $country[1] ?? '' );
+				$local      = (string) ( $country[2] ?? '' );
+				$children[] = $make( $owner . '_c' . ( ++$n ), '' !== $local && $local !== $name ? $name . ' (' . $local . ')' : $name, strtolower( (string) ( $country[0] ?? '' ) ) );
+			}
+		} elseif ( 'stateProvince' === $type ) {
+			foreach ( (array) ( $geo['states'] ?? array() ) as $state ) {
+				$children[] = $make( (string) $state['id'], (string) $state['value'], (string) $state['id_op'], array( 's2' => (string) $state['s2'] ) );
+			}
+		} else {
+			foreach ( (array) ( $geo['cities'] ?? array() ) as $city ) {
+				$children[] = $make( (string) $city['id'], (string) $city['value'], (string) $city['id'] );
+			}
+		}
+
+		return $children;
+	}
+
+	/** EFB's own placeholder picture for an image option, in the form EFB stores an address. */
+	private static function placeholder_image(): string {
+		$url = function_exists( 'plugins_url' ) && defined( 'EMSFB_PLUGIN_FILE' )
+			? plugins_url( 'includes/admin/assets/image/header.png', EMSFB_PLUGIN_FILE )
+			: ( function_exists( 'plugins_url' ) ? plugins_url( 'easy-form-builder/includes/admin/assets/image/header.png' ) : '' );
+
+		// The same three steps EFB's builder uses: the scheme's two slashes become one marker, then every slash.
+		$url = (string) preg_replace( '#(https?:)//#', '$1@efb@', (string) $url );
+
+		return (string) preg_replace( '#/+#', '@efb@', $url );
 	}
 
 	/**
