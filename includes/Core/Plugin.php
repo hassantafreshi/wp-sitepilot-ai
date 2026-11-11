@@ -54,6 +54,7 @@ final class Plugin {
 
 		$this->register_services();
 		add_action( 'init', array( $this, 'on_init' ) );
+		AssetVersion::register();
 		add_action( 'admin_menu', array( $this->container->get( AdminMenu::class ), 'register' ) );
 		add_action( 'admin_enqueue_scripts', array( $this->container->get( AdminMenu::class ), 'enqueue_assets' ) );
 		add_action( 'rest_api_init', array( $this->container->get( RestRoutes::class ), 'register' ) );

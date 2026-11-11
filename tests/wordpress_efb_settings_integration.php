@@ -166,6 +166,21 @@ try {
 	$check( $amount === range( (int) ( $amount[0] ?? 0 ), (int) ( $amount[0] ?? 0 ) + count( $amount ) - 1 ) && is_int( $amount[0] ?? null ), 'Fields are numbered one after another as numbers, so a state list stays tied to its country list' );
 	$check( 'https://example.com/terms' === ( $by['link']['href'] ?? '' ) && false !== strpos( (string) ( $by['html']['value'] ?? '' ), '<strong>ID</strong>' ) && false === strpos( (string) ( $by['html']['value'] ?? '' ), 'alert' ), 'The link keeps the typed address; the HTML block keeps its formatting and loses the script with its code' );
 	$check( 241 === count( array_filter( $saved, static fn ( $item ): bool => is_array( $item ) && 'option' === ( $item['type'] ?? '' ) && ( $item['parent'] ?? '' ) === ( $by['conturyList']['id_'] ?? '-' ) ) ), 'The country list arrives with its 241 countries' );
+
+	// 7. Conditional logic on a date: before / after a calendar date, as EFB's logic engine compares them.
+	$dated  = array(
+		array( 'id' => 'when', 'label' => 'Event date', 'type' => 'date' ),
+		array( 'id' => 'note', 'label' => 'Early-bird note', 'type' => 'text' ),
+	);
+	$rule   = static fn ( array $when ): array => array( 'op' => 'add_logic_rule', 'rule' => array( 'name' => 'Early bird', 'match' => 'all', 'when' => array( $when ), 'then' => array( array( 'action' => 'show_field', 'target' => 'Early-bird note' ) ) ) );
+	$next[] = $turn( array( $rule( array( 'field' => 'Event date', 'compare' => 'lt', 'value' => '2026-12-01' ) ) ) );
+	$date   = $chat( array( 'has_form' => true, 'logic_addon' => true, 'fields' => $dated, 'message' => 'show the early-bird note if the event date is before 1 December 2026', 'addons' => array( 'AdnSMF' => 1 ) ) );
+	$item   = (array) ( $date['operations'][0]['rule']['conditions']['items'][0] ?? array() );
+	$check( 'date_before' === ( $item['compare'] ?? '' ) && '2026-12-01' === ( $item['value'] ?? '' ) && 'when' === ( $item['field_id'] ?? '' ), 'A rule on a date field becomes a date comparison with a full calendar date' );
+
+	$next[] = $turn( array( $rule( array( 'field' => 'Event date', 'compare' => 'date_before', 'value' => '1 December' ) ) ) );
+	$vague  = $chat( array( 'has_form' => true, 'logic_addon' => true, 'fields' => $dated, 'message' => 'show the note before 1 December', 'addons' => array( 'AdnSMF' => 1 ) ) );
+	$check( array() === (array) ( $vague['operations'] ?? array() ) && false !== strpos( $text( $vague ), 'full date' ), 'A date rule without a full date is refused with what is needed' );
 } catch ( Throwable $error ) {
 	$check( false, 'Unexpected ' . get_class( $error ) . ': ' . $error->getMessage() );
 } finally {

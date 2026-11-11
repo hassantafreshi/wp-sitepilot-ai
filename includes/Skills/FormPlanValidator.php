@@ -83,9 +83,10 @@ final class FormPlanValidator {
 			$raw_fields = array_slice( $raw_fields, 0, $this->max_fields );
 		}
 
-		$fields    = array();
-		$used_keys = array();
-		$index     = 0;
+		$fields      = array();
+		$used_keys   = array();
+		$seen_labels = array();
+		$index       = 0;
 
 		foreach ( $raw_fields as $raw_field ) {
 			++$index;
@@ -113,6 +114,16 @@ final class FormPlanValidator {
 			if ( '' === $label ) {
 				$errors[] = sprintf( 'Field #%d is missing a label.', $index );
 				continue;
+			}
+
+			// Two input fields with one label cannot be told apart by the visitor or in the notification
+			// email. The prompt asks for distinct labels; a duplicate that still arrives is numbered.
+			$label_key = function_exists( 'mb_strtolower' ) ? mb_strtolower( $label ) : strtolower( $label );
+			if ( ! in_array( $type, array( 'heading', 'steps', 'step' ), true ) ) {
+				$seen_labels[ $label_key ] = ( $seen_labels[ $label_key ] ?? 0 ) + 1;
+				if ( $seen_labels[ $label_key ] > 1 ) {
+					$label = $this->clean_text( $label . ' (' . $seen_labels[ $label_key ] . ')', 120 );
+				}
 			}
 
 			$key = $this->unique_key( $label, $used_keys, (string) ( $raw_field['key'] ?? '' ) );

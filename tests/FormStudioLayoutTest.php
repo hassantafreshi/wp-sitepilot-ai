@@ -203,4 +203,17 @@ final class FormStudioLayoutTest extends TestCase {
 		self::assertFalse( $check( '12345678901' ), 'too long' );
 		self::assertFalse( $check( '12345abcde' ), 'letters' );
 	}
+
+	public function test_two_fields_never_share_a_label(): void {
+		$plan = $this->valid(
+			array(
+				array( 'type' => 'tel', 'label' => 'Phone' ),
+				array( 'type' => 'tel', 'label' => 'phone' ),
+				array( 'type' => 'text', 'label' => 'Name' ),
+				array( 'type' => 'tel', 'label' => 'Phone' ),
+			)
+		);
+		$this->assertSame( array( 'Phone', 'phone (2)', 'Name', 'Phone (3)' ), array_column( $plan['fields'], 'label' ) );
+		$this->assertSame( 4, count( array_unique( array_column( $plan['fields'], 'key' ) ) ) );
+	}
 }

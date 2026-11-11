@@ -32,7 +32,11 @@ final class EfbLogicRules {
 	/** Compares that need no value. */
 	private const VALUELESS = array( 'is_empty', 'is_not_empty' );
 
-	public const COMPARES = array( 'is', 'is_not', 'contains', 'not_contains', 'gt', 'gte', 'lt', 'lte', 'is_empty', 'is_not_empty' );
+	public const COMPARES = array( 'is', 'is_not', 'contains', 'not_contains', 'gt', 'gte', 'lt', 'lte', 'is_empty', 'is_not_empty', 'date_before', 'date_after' );
+
+	/** EFB's logic engine compares these as dates; the value is a calendar date (YYYY-MM-DD). */
+	private const DATE_COMPARES = array( 'date_before', 'date_after' );
+	private const DATE_TYPES    = array( 'date', 'pdate', 'ardate' );
 
 	/** Compares that only make sense on numbers. */
 	private const NUMERIC = array( 'gt', 'gte', 'lt', 'lte' );
@@ -257,7 +261,18 @@ final class EfbLogicRules {
 			'is_filled'    => 'is_not_empty',
 			'is_answered'  => 'is_not_empty',
 			'not_answered' => 'is_empty',
+			'before'       => 'date_before',
+			'is_before'    => 'date_before',
+			'earlier_than' => 'date_before',
+			'after'        => 'date_after',
+			'is_after'     => 'date_after',
+			'later_than'   => 'date_after',
 		)[ $compare ] ?? $compare;
+		// "Less than 1 December" on a date field is a date comparison; EFB's numeric operators never
+		// match a date.
+		if ( in_array( (string) $field['type'], self::DATE_TYPES, true ) && in_array( $compare, self::NUMERIC, true ) ) {
+			$compare = in_array( $compare, array( 'lt', 'lte' ), true ) ? 'date_before' : 'date_after';
+		}
 		if ( ! in_array( $compare, self::COMPARES, true ) ) {
 			return array( 'error' => 'unsupported_compare:' . $compare );
 		}
@@ -270,6 +285,12 @@ final class EfbLogicRules {
 			}
 			if ( in_array( $compare, self::NUMERIC, true ) && ! is_numeric( $value ) ) {
 				return array( 'error' => 'numeric_compare_needs_number:' . $field['id'] );
+			}
+			if ( in_array( $compare, self::DATE_COMPARES, true ) ) {
+				$parts = array();
+				if ( ! in_array( (string) $field['type'], self::DATE_TYPES, true ) || ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $value, $parts ) || ! checkdate( (int) $parts[2], (int) $parts[3], (int) $parts[1] ) ) {
+					return array( 'error' => 'date_compare_needs_date:' . $field['id'] );
+				}
 			}
 			// EFB's builder stores a choice condition as the option's id_; the
 			// visible text alone would never match a select or multiselect row.
@@ -400,6 +421,10 @@ final class EfbLogicRules {
 			'lt'           => __( '“%1$s” is less than %2$s', 'ai-site-assistant-autopilot' ),
 			/* translators: 1: field label, 2: value. */
 			'lte'          => __( '“%1$s” is at most %2$s', 'ai-site-assistant-autopilot' ),
+			/* translators: 1: field label, 2: a date. */
+			'date_before'  => __( '“%1$s” is before %2$s', 'ai-site-assistant-autopilot' ),
+			/* translators: 1: field label, 2: a date. */
+			'date_after'   => __( '“%1$s” is after %2$s', 'ai-site-assistant-autopilot' ),
 			/* translators: %1$s: field label. */
 			'is_empty'     => __( '“%1$s” is empty', 'ai-site-assistant-autopilot' ),
 			/* translators: %1$s: field label. */

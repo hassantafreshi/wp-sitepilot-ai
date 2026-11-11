@@ -403,7 +403,7 @@
     "ai_write": true,
     "ai_write_scope": "logic_rules only (scope field or step)",
     "ai_actions": ["show_field", "hide_field", "set_required", "set_optional", "show_step", "hide_step", "jump_to_step"],
-    "ai_compares": ["is", "is_not", "contains", "not_contains", "gt", "gte", "lt", "lte", "is_empty", "is_not_empty"],
+    "ai_compares": ["is", "is_not", "contains", "not_contains", "gt", "gte", "lt", "lte", "is_empty", "is_not_empty", "date_before", "date_after"],
     "reason": "Field rules are gated by AdnSMF and evaluated by the add-on's single validator (EFB hardening H1-H17, 2026-06). Notification, confirmation, webhook and pricing rules keep the documented gating debt, so AI never writes them."
   },
   "safe_ai_contract": {

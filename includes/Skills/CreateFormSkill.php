@@ -129,7 +129,7 @@ final class CreateFormSkill {
 				'- LAYOUT: fields flow left to right in rows of 12 columns and wrap. Give each field a "width": full (12), three_quarters (9), two_thirds (8), half (6), third (4) or quarter (3). Put fields side by side only when the request asks for it ("two in a row", "side by side", "three columns") or when they obviously pair (first name + last name, city + state + postal code); widths in one row should add up to a full row. Keep textarea, radio and checkbox groups full width. Without any layout request, use full.',
 				'- Every field must have a clear "label". Use "required": true only when the field is essential.',
 				'- For "select" and "radio" fields, always provide an "options" array.',
-				'- Keep labels short and human-friendly.',
+				'- Keep labels short and human-friendly. No two fields share a label: when the request asks for two of the same thing (two phones, two emails), name what each is for ("Home phone", "Work phone").',
 				'',
 				'Return JSON in exactly this shape:',
 				"{$shape}",

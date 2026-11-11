@@ -1323,6 +1323,8 @@ final class EfbCopilotController {
 			case 'unknown_step':
 				/* translators: %s: step name or number. */
 				return sprintf( __( 'I could not add that rule: this form has no step “%s”.', 'ai-site-assistant-autopilot' ), $detail );
+			case 'date_compare_needs_date':
+				return __( 'I could not add that rule: “before” and “after” need a date field and a full date, for example 2026-12-01.', 'ai-site-assistant-autopilot' );
 			case 'action_targets_its_own_condition':
 				return __( 'I could not add that rule: a field cannot show, hide or require itself.', 'ai-site-assistant-autopilot' );
 			case 'contradictory_actions':
