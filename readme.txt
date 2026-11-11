@@ -80,10 +80,8 @@ Everything in this first version:
 
 Easy Form Builder is a separate, optional plugin. Use it for uploads,
 payments, conditional logic, calculations or multi-step flows. The copilot
-never reads or writes payment keys, never invents a price, a web address or a
-phone number, never sets up registration forms and never changes EFB's global
-settings; those stay in Easy Form Builder's own screens. It installs an EFB
-add-on only after you allow it.
+never reads or writes payment keys, never invents a price, an address or a
+phone number, and never changes EFB's global settings.
 
 == Privacy ==
 
