@@ -123,7 +123,9 @@ copilot through this tab's session storage. Native text and phone fields take
 `min_length`, `max_length` and `digits_only`. Store Copilot's Products copy no
 longer contradicts Descriptions (F-1), and the default Content Studio voice is
 called Standard (F-6). Live QA: 202 scenarios on the demo site, see
-`docs/qa/LIVE_AI_QA_2026-11-10.md`.
+`docs/qa/LIVE_AI_QA_2026-11-10.md`; the owner's QA round of 11 November added
+43 more (form settings, SMS, the rest of the palette, date logic), see
+`docs/qa/OWNER_QA_2026-11-11.md`.
 
 **Content Studio voice** — Write offers three voices as a keyboard-accessible
 radio group: Standard (the default, which sends exactly the same
@@ -288,6 +290,30 @@ service the assistant shows the setup steps instead of failing. Checked against 
   option id as EFB's own builder does, self-references and show-and-hide on
   one target are refused, conflicts with existing rules are reported, and the
   plan limits (Free Plus: 3 rules × 2 conditions) are enforced.
+  A date field can be compared with a calendar date (before / after).
+- *Form settings by chat:* private form (login required), notification email
+  subject, redirect after submit or back to a thank-you message, form type
+  (form, survey, sign-in form with its two fields) and SMS notifications: on
+  or off, the numbers to notify, the wording, and a confirmation SMS to the
+  number typed in a mobile field. A web address and SMS numbers are accepted
+  only when the admin's own message contains them (or the address is the
+  site's home page); otherwise the copilot asks. Each setting is refused by
+  the plan that really locks it in EFB (email subject, redirect and loading
+  animation: Free Plus and Pro; the mobile layout block: Pro only; SMS: Pro
+  with its add-on, offered for install), in one sentence that names the
+  setting, the plans and the site's plan.
+- *The rest of the palette:* address block (country, state, city, address,
+  postal code), country / state / city lists with EFB's own data and no add-on,
+  location picker (one per form), sound, video and screen recorders, link,
+  HTML block (filtered with `wp_kses_post`, scripts removed with their code)
+  and image picker. Fields are numbered the way EFB numbers them (an option
+  carries its field's number), which is what ties a state list to the country
+  list before it after EFB's own Save.
+- *Settings panel:* when EFB's side panel is open it is redrawn after every
+  AI change and after Undo, and closes when its field was removed.
+- *Wording:* replies never show control ids, add-on codes or storage keys;
+  when part of a request is refused the reply says so instead of the model's
+  own sentence.
 - *Explain logic:* existing rules are explained in plain language on the
   server, without an AI call.
 - *Review:* deterministic checks for missing or duplicate labels, choice

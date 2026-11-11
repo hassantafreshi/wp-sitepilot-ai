@@ -80,9 +80,10 @@ Everything in this first version:
 
 Easy Form Builder is a separate, optional plugin. Use it for uploads,
 payments, conditional logic, calculations or multi-step flows. The copilot
-never configures payments, prices, login or registration forms, add-on
-activation or EFB's global settings; those stay in Easy Form Builder's own
-screens.
+never reads or writes payment keys, never invents a price, a web address or a
+phone number, never sets up registration forms and never changes EFB's global
+settings; those stay in Easy Form Builder's own screens. It installs an EFB
+add-on only after you allow it.
 
 == Privacy ==
 
@@ -433,8 +434,34 @@ install that add-on, with your permission, when it is missing). With EFB Pro
 and the Stripe, PayPal or ZarinPal add-on switched on, it can add online
 payment: priced choices or an amount, the total and the gateway field, using
 only the prices and the currency you give it. It never reads or writes your
-payment keys (add those in the gateway's own EFB settings page), and login and
-registration forms are never set up by AI.
+payment keys (add those in the gateway's own EFB settings page). It can turn a
+form into a WordPress sign-in form (EFB's "login" type, with its username and
+password fields); registration forms are never set up by AI.
+
+= Which form settings can the Easy Form Builder copilot change? =
+
+Ask in your own words and it changes the open form: make it private (only
+logged-in users), set the subject of the notification email, send visitors to
+an address after they submit (or back to a thank-you message), switch the form
+type between form, survey and sign-in form, and turn SMS notifications on or
+off, with the numbers to notify, the wording, and a confirmation SMS to the
+number the visitor types in a mobile field. An address and SMS numbers are
+only ever the ones you typed (or your own home page); if one is missing it
+asks. Email subject and redirect need EFB Free Plus or Pro, SMS needs EFB Pro
+with its SMS add-on, and the copilot says so in one sentence when your plan
+does not include a setting. If Easy Form Builder's settings panel is open, it
+is redrawn after each change so it shows what was applied.
+
+= Which Easy Form Builder fields can the copilot add? =
+
+Every field of EFB's palette that does not need a secret: text, email,
+number, phone and mobile, date, choices, file and drag-and-drop upload, the
+address block (country, state, city, address, postal code), country, state and
+city lists (no add-on needed), location picker, sound, video and screen
+recorders, signature, switch, checklist with quantities, colour picker, rating,
+5-point scale, NPS and its matrix, image picker, terms checkbox, heading, link
+and HTML block. A link needs an address you typed; an HTML block keeps safe
+formatting and never a script. Payment fields are added as a whole payment.
 
 = Can AI choose the email recipient? =
 
@@ -487,6 +514,18 @@ editable text; nothing is sent until you press Send.
   Width, required, label, placeholder, hint, order and removal change with a
   click and no AI call, and Undo takes a change back. Native forms gain number,
   date and web-address fields with limits checked on the server.
+* The Easy Form Builder copilot changes form settings by chat: private form,
+  notification email subject, redirect after submit, form type (form, survey,
+  sign-in form) and SMS notifications, including a confirmation SMS to the
+  visitor. Addresses and phone numbers are only the ones you typed.
+* The copilot adds the rest of EFB's palette: address block, country / state /
+  city lists, location picker, recorders, link, HTML block and image picker.
+  Conditional logic compares a date field with a calendar date.
+* Easy Form Builder's open settings panel follows the chat: it is redrawn
+  after each change. Replies no longer show internal names, and a plan message
+  names the setting, the plans that include it and the site's plan.
+* Plugin scripts and stylesheets get a version that follows the file, so a
+  CDN cannot serve an old copy after an update that keeps the version number.
 * The Easy Form Builder copilot can add Stripe, PayPal or ZarinPal payment from
   a plain request, in any language. It checks the add-on, the Pro licence and
   whether keys are saved (never reading them), asks for a price instead of
