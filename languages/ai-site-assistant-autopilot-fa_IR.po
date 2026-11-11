@@ -219,7 +219,7 @@ msgstr "در حال ارسال آزمون…"
 msgid "Test accepted."
 msgstr "آزمون پذیرفته شد."
 
-#: includes/Admin/AdminMenu.php:310 includes/Core/Plugin.php:180
+#: includes/Admin/AdminMenu.php:310 includes/Core/Plugin.php:181
 msgid "Sending…"
 msgstr "در حال ارسال…"
 
@@ -1310,7 +1310,7 @@ msgstr "پرسش شما"
 msgid "Record a question"
 msgstr "ضبط سؤال"
 
-#: includes/Admin/ChatPage.php:151 includes/Admin/CopilotPage.php:173 includes/Core/Plugin.php:175 includes/Efb/EfbBuilderButton.php:426 includes/Frontend/ChatWidget.php:164
+#: includes/Admin/ChatPage.php:151 includes/Admin/CopilotPage.php:173 includes/Core/Plugin.php:176 includes/Efb/EfbBuilderButton.php:426 includes/Frontend/ChatWidget.php:164
 msgid "Send"
 msgstr "ارسال"
 
@@ -1480,7 +1480,7 @@ msgstr "شنیدن"
 msgid "Stop audio"
 msgstr "توقف صدا"
 
-#: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:188
+#: includes/Admin/ChatPage.php:295 includes/Core/Plugin.php:189
 msgid "Stop recording"
 msgstr "توقف ضبط"
 
@@ -1500,7 +1500,7 @@ msgstr "متن آماده است — بررسی‌اش کنید، سپس ارس�
 msgid "Voice transcription failed. Please try again."
 msgstr "تبدیل گفتار به متن ناموفق بود. لطفاً دوباره تلاش کنید."
 
-#: includes/Admin/ChatPage.php:300 includes/Core/Plugin.php:191
+#: includes/Admin/ChatPage.php:300 includes/Core/Plugin.php:192
 msgid "No audio was captured. Please try again."
 msgstr "صدایی ضبط نشد. لطفاً دوباره تلاش کنید."
 
@@ -1508,7 +1508,7 @@ msgstr "صدایی ضبط نشد. لطفاً دوباره تلاش کنید."
 msgid "Maximum recording time reached. Transcribing…"
 msgstr "به حداکثر زمان ضبط رسیدید. در حال تبدیل به متن…"
 
-#: includes/Admin/ChatPage.php:302 includes/Core/Plugin.php:189
+#: includes/Admin/ChatPage.php:302 includes/Core/Plugin.php:190
 msgid "Voice recording is not supported in this browser."
 msgstr "این مرورگر از ضبط صدا پشتیبانی نمی‌کند."
 
@@ -2148,7 +2148,7 @@ msgstr "باز کردن فرم"
 msgid "Edit in Easy Form Builder"
 msgstr "ویرایش در Easy Form Builder"
 
-#: includes/Admin/CopilotPage.php:546 includes/Admin/KnowledgeBasePage.php:461 includes/Core/Plugin.php:174
+#: includes/Admin/CopilotPage.php:546 includes/Admin/KnowledgeBasePage.php:461 includes/Core/Plugin.php:175
 msgid "Try again"
 msgstr "تلاش دوباره"
 
@@ -2812,12 +2812,12 @@ msgid "Payment keys and account details"
 msgstr "کلیدهای پرداخت و اطلاعات حساب"
 
 #: includes/Admin/EasyFormBuilderPage.php:311
-msgid "Raw HTML"
-msgstr "HTML خام"
+msgid "Scripts and other unfiltered HTML"
+msgstr "اسکریپت و HTML فیلترنشده"
 
 #: includes/Admin/EasyFormBuilderPage.php:312
-msgid "Links to addresses that are not allowed"
-msgstr "پیوند به نشانی‌های غیرمجاز"
+msgid "Web addresses and phone numbers you did not type"
+msgstr "نشانی وب و شماره‌تلفنی که خودتان ننوشته‌اید"
 
 #: includes/Admin/EasyFormBuilderPage.php:313
 msgid "Conditional rules for notifications, confirmations, webhooks and prices"
@@ -6646,15 +6646,15 @@ msgstr "لطفاً پیش از درخواست انتقال بعدی کمی صب�
 msgid "Please enter your name."
 msgstr "لطفاً نام خود را وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:219 includes/Core/Plugin.php:203
+#: includes/Api/ChatWidgetController.php:219 includes/Core/Plugin.php:204
 msgid "Please provide a valid email address."
 msgstr "لطفاً یک آدرس ایمیل معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:220 includes/Core/Plugin.php:204
+#: includes/Api/ChatWidgetController.php:220 includes/Core/Plugin.php:205
 msgid "Please enter a valid mobile number."
 msgstr "لطفاً یک شمارهٔ موبایل معتبر وارد کنید."
 
-#: includes/Api/ChatWidgetController.php:221 includes/Core/Plugin.php:205
+#: includes/Api/ChatWidgetController.php:221 includes/Core/Plugin.php:206
 msgid "Please enter a valid website address."
 msgstr "لطفاً یک نشانی وب‌سایت معتبر وارد کنید."
 
@@ -6722,7 +6722,7 @@ msgstr "لطفاً فرمی را که می‌خواهید توضیح دهید."
 msgid "Your request is too long."
 msgstr "درخواست پشتیبانی ارسال شد."
 
-#: includes/Api/CopilotController.php:55 includes/Api/EfbCopilotController.php:56 includes/Api/EfbCopilotController.php:269 includes/Api/EfbCopilotController.php:1701
+#: includes/Api/CopilotController.php:55 includes/Api/EfbCopilotController.php:56 includes/Api/EfbCopilotController.php:269 includes/Api/EfbCopilotController.php:1703
 msgid "Add your AI provider API key in AI Site Assistant AutoPilot → Settings first."
 msgstr "ابتدا کلید API ارائه‌دهندهٔ AI را در AI Site Assistant AutoPilot ← تنظیمات وارد کنید."
 
@@ -7006,108 +7006,112 @@ msgid "I could not add that rule: this form has no step “%s”."
 msgstr "نتوانستم آن قاعده را اضافه کنم: این فرم مرحلهٔ «%s» را ندارد."
 
 #: includes/Api/EfbCopilotController.php:1327
+msgid "I could not add that rule: “before” and “after” need a date field and a full date, for example 2026-12-01."
+msgstr "این قانون اضافه نشد: «قبل از» و «بعد از» به یک فیلد تاریخ و تاریخ کامل نیاز دارند، مثلاً 2026-12-01."
+
+#: includes/Api/EfbCopilotController.php:1329
 msgid "I could not add that rule: a field cannot show, hide or require itself."
 msgstr "نتوانستم آن قاعده را اضافه کنم: یک فیلد نمی‌تواند خودش را نمایش دهد، پنهان کند یا الزامی کند."
 
-#: includes/Api/EfbCopilotController.php:1329
+#: includes/Api/EfbCopilotController.php:1331
 msgid "I could not add that rule: it would show and hide (or require and un-require) the same field at once."
 msgstr "نتوانستم آن قاعده را اضافه کنم: یک فیلد را هم‌زمان نمایش می‌داد و پنهان می‌کرد (یا الزامی و اختیاری می‌کرد)."
 
-#: includes/Api/EfbCopilotController.php:1331
+#: includes/Api/EfbCopilotController.php:1333
 msgid "I could not turn that into a valid conditional logic rule. Name the field, the answer and what should happen."
 msgstr "نتوانستم آن را به یک قاعدهٔ معتبر منطق شرطی تبدیل کنم. نام فیلد، پاسخ و کاری را که باید انجام شود بگویید."
 
-#: includes/Api/EfbCopilotController.php:1345
+#: includes/Api/EfbCopilotController.php:1347
 msgid "Easy Form Builder Free supports up to two steps. Buy Free Plus or Pro for more, or change the form: merge pages so it fits in two, or make it a single page."
 msgstr "Easy Form Builder رایگان حداکثر دو مرحله دارد. برای بیشتر Free Plus یا Pro بخرید، یا فرم را تغییر دهید: صفحه‌ها را در دو صفحه ادغام کنید یا تک‌صفحه‌ای‌اش کنید."
 
-#: includes/Api/EfbCopilotController.php:1349
+#: includes/Api/EfbCopilotController.php:1351
 msgid "This field is available in the Pro version of Easy Form Builder."
 msgstr "این فیلد در نسخهٔ Pro از Easy Form Builder در دسترس است."
 
-#: includes/Api/EfbCopilotController.php:1385 includes/Efb/EfbBuilderButton.php:265
+#: includes/Api/EfbCopilotController.php:1387 includes/Efb/EfbBuilderButton.php:265
 msgid "Free Plus"
 msgstr "Free Plus"
 
-#: includes/Api/EfbCopilotController.php:1385 includes/Efb/EfbBuilderButton.php:264
+#: includes/Api/EfbCopilotController.php:1387 includes/Efb/EfbBuilderButton.php:264
 msgid "Free"
 msgstr "رایگان"
 
 #. translators: 1: setting name(s), 2: the site's current Easy Form Builder plan.
-#: includes/Api/EfbCopilotController.php:1389
+#: includes/Api/EfbCopilotController.php:1391
 #, php-format
 msgid "“%1$s” is part of Easy Form Builder Pro. This site is on %2$s, so I left it unchanged."
 msgstr "«%1$s» در پلن Pro ایزی فرم بیلدر است. این سایت روی پلن %2$s است، پس آن را تغییر ندادم."
 
 #. translators: 1: setting name(s), 2: the site's current Easy Form Builder plan.
-#: includes/Api/EfbCopilotController.php:1393
+#: includes/Api/EfbCopilotController.php:1395
 #, php-format
 msgid "“%1$s” is part of Easy Form Builder Free Plus and Pro. This site is on %2$s, so I left it unchanged."
 msgstr "«%1$s» در پلن‌های Free Plus و Pro ایزی فرم بیلدر است. این سایت روی پلن %2$s است، پس آن را تغییر ندادم."
 
-#: includes/Api/EfbCopilotController.php:1399
+#: includes/Api/EfbCopilotController.php:1401
 msgid "Email subject"
 msgstr "موضوع ایمیل"
 
-#: includes/Api/EfbCopilotController.php:1400
+#: includes/Api/EfbCopilotController.php:1402
 msgid "Redirect after submit"
 msgstr "انتقال بعد از ارسال"
 
-#: includes/Api/EfbCopilotController.php:1401
+#: includes/Api/EfbCopilotController.php:1403
 msgid "Loading animation"
 msgstr "انیمیشن بارگذاری"
 
-#: includes/Api/EfbCopilotController.php:1402
+#: includes/Api/EfbCopilotController.php:1404
 msgid "Loading animation colour"
 msgstr "رنگ انیمیشن بارگذاری"
 
-#: includes/Api/EfbCopilotController.php:1403 includes/Api/EfbCopilotController.php:1409
+#: includes/Api/EfbCopilotController.php:1405 includes/Api/EfbCopilotController.php:1411
 msgid "Mobile layout"
 msgstr "چیدمان موبایل"
 
-#: includes/Api/EfbCopilotController.php:1568
+#: includes/Api/EfbCopilotController.php:1570
 msgid "I checked the form. Here is what I would improve:"
 msgstr "فرم را بررسی کردم. این موارد را بهتر می‌کنم:"
 
-#: includes/Api/EfbCopilotController.php:1569
+#: includes/Api/EfbCopilotController.php:1571
 msgid "I checked the form and found nothing to fix."
 msgstr "فرم را بررسی کردم و چیزی برای اصلاح پیدا نکردم."
 
 #. translators: %s: field label.
-#: includes/Api/EfbCopilotController.php:1591
+#: includes/Api/EfbCopilotController.php:1593
 #, php-format
 msgid "Two rules on the same condition both show and hide (or require and un-require) “%s”; only the last one wins. Check the Conditional Logic panel."
 msgstr "دو قاعده با یک شرط یکسان، «%s» را هم نمایش می‌دهند و هم پنهان می‌کنند (یا هم الزامی و هم اختیاری می‌کنند)؛ فقط آخری اثر دارد. پنل «منطق شرطی» را بررسی کنید."
 
-#: includes/Api/EfbCopilotController.php:1665
+#: includes/Api/EfbCopilotController.php:1667
 msgid "Ask a question, e.g. \"how do I make a field required?\""
 msgstr "سؤالی بپرسید، مثلاً «چطور یک فیلد را الزامی کنم؟»"
 
-#: includes/Api/EfbCopilotController.php:1673
+#: includes/Api/EfbCopilotController.php:1675
 msgid "I could not match that exactly. Try one of these topics:"
 msgstr "دقیقاً موردی مطابق پیدا نکردم. یکی از این موضوع‌ها را امتحان کنید:"
 
-#: includes/Api/EfbCopilotController.php:1698
+#: includes/Api/EfbCopilotController.php:1700
 msgid "Type what you want to change."
 msgstr "بنویسید چه چیزی را می‌خواهید تغییر دهید."
 
-#: includes/Api/EfbCopilotController.php:1723
+#: includes/Api/EfbCopilotController.php:1725
 msgid "I could not turn that into a change. Try being more specific, e.g. \"make Email required\" or \"rename the form to Contact us\"."
 msgstr "نتوانستم آن را به تغییر تبدیل کنم. دقیق‌تر بگویید، مثلاً «ایمیل را الزامی کن» یا «نام فرم را به تماس با ما تغییر بده»."
 
-#: includes/Api/EfbCopilotController.php:1750
+#: includes/Api/EfbCopilotController.php:1752
 msgid "Invalid save request."
 msgstr "درخواست ذخیره نامعتبر است."
 
-#: includes/Api/EfbCopilotController.php:1756
+#: includes/Api/EfbCopilotController.php:1758
 msgid "Unsafe content rejected."
 msgstr "محتوای ناامن رد شد."
 
-#: includes/Api/EfbCopilotController.php:1777
+#: includes/Api/EfbCopilotController.php:1779
 msgid "Could not save the form."
 msgstr "فرم ذخیره نشد."
 
-#: includes/Api/EfbCopilotController.php:1811 includes/Efb/EfbFormConverter.php:51
+#: includes/Api/EfbCopilotController.php:1813 includes/Efb/EfbFormConverter.php:51
 msgid "Choose an option"
 msgstr "یک گزینه را انتخاب کنید"
 
@@ -7851,83 +7855,83 @@ msgstr "AI Site Assistant AutoPilot به PHP نسخهٔ ۸٫۱ یا بالاتر
 msgid "Plugin activation error"
 msgstr "خطای فعال‌سازی افزونه"
 
-#: includes/Core/Plugin.php:173
+#: includes/Core/Plugin.php:174
 msgid "Sources"
 msgstr "منابع"
 
-#: includes/Core/Plugin.php:177
+#: includes/Core/Plugin.php:178
 msgid "Stop waiting for the reply"
 msgstr "توقف انتظار برای پاسخ"
 
-#: includes/Core/Plugin.php:178
+#: includes/Core/Plugin.php:179
 msgid "You stopped waiting. The site may still finish this answer, but it will not appear here."
 msgstr "شما منتظر نماندید. ممکن است سایت این پاسخ را تمام کند، ولی اینجا نشان داده نمی‌شود."
 
-#: includes/Core/Plugin.php:179
+#: includes/Core/Plugin.php:180
 msgid "Choose what you mean"
 msgstr "منظورتان را انتخاب کنید"
 
-#: includes/Core/Plugin.php:181
+#: includes/Core/Plugin.php:182
 msgid "Sent — we will be in touch."
 msgstr "ارسال شد — با شما تماس می‌گیریم."
 
-#: includes/Core/Plugin.php:182
+#: includes/Core/Plugin.php:183
 msgid "Could not send. Please try again."
 msgstr "ارسال نشد. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:183
+#: includes/Core/Plugin.php:184
 msgid "Sorry, I could not answer that."
 msgstr "متأسفم، نتوانستم به آن پاسخ دهم."
 
-#: includes/Core/Plugin.php:184
+#: includes/Core/Plugin.php:185
 msgid "Connection problem. Please try again."
 msgstr "مشکل در اتصال. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:185 includes/Frontend/ChatWidget.php:116 includes/Frontend/ChatWidget.php:117
+#: includes/Core/Plugin.php:186 includes/Frontend/ChatWidget.php:116 includes/Frontend/ChatWidget.php:117
 msgid "Full screen"
 msgstr "تمام‌صفحه"
 
-#: includes/Core/Plugin.php:186
+#: includes/Core/Plugin.php:187
 msgid "Exit full screen"
 msgstr "خروج از تمام‌صفحه"
 
-#: includes/Core/Plugin.php:187 includes/Frontend/ChatWidget.php:107 includes/Frontend/ChatWidget.php:108 includes/Frontend/ChatWidget.php:159
+#: includes/Core/Plugin.php:188 includes/Frontend/ChatWidget.php:107 includes/Frontend/ChatWidget.php:108 includes/Frontend/ChatWidget.php:159
 msgid "Voice input"
 msgstr "ورودی صوتی"
 
-#: includes/Core/Plugin.php:190
+#: includes/Core/Plugin.php:191
 msgid "Microphone access was denied."
 msgstr "دسترسی به میکروفون داده نشد."
 
-#: includes/Core/Plugin.php:192
+#: includes/Core/Plugin.php:193
 msgid "Could not transcribe that. Please try again."
 msgstr "تبدیل صدا به متن ممکن نشد. لطفاً دوباره تلاش کنید."
 
-#: includes/Core/Plugin.php:195
+#: includes/Core/Plugin.php:196
 msgid "Transcribing your recording…"
 msgstr "در حال تبدیل صدای شما به متن…"
 
-#: includes/Core/Plugin.php:196
+#: includes/Core/Plugin.php:197
 msgid "Your words are in the message box. Check them, then press Send. Nothing was sent yet."
 msgstr "گفتهٔ شما در کادر پیام است. آن را بررسی کنید و سپس «ارسال» را بزنید. هنوز چیزی ارسال نشده است."
 
-#: includes/Core/Plugin.php:197
+#: includes/Core/Plugin.php:198
 msgid "From"
 msgstr "منبع:"
 
-#: includes/Core/Plugin.php:198
+#: includes/Core/Plugin.php:199
 msgid "The assistant is writing a reply"
 msgstr "دستیار در حال نوشتن پاسخ است"
 
-#: includes/Core/Plugin.php:199
+#: includes/Core/Plugin.php:200
 msgid "Listening… tap the mic again to stop"
 msgstr "در حال شنیدن… برای توقف دوباره روی میکروفن بزنید"
 
-#: includes/Core/Plugin.php:201
+#: includes/Core/Plugin.php:202
 msgid "Listening…"
 msgstr "در حال گوش دادن..."
 
-#: includes/Core/Plugin.php:202
+#: includes/Core/Plugin.php:203
 msgid "Please fill this in."
 msgstr "لطفاً این را پر کنید."
 
@@ -9133,7 +9137,7 @@ msgstr "سیاست حفظ حریم خصوصی"
 msgid "I agree to the privacy policy."
 msgstr "با سیاست حفظ حریم خصوصی موافقم."
 
-#: includes/Efb/EfbFormConverter.php:44 includes/Frontend/FormShortcode.php:92 includes/Skills/FormPlanValidator.php:166
+#: includes/Efb/EfbFormConverter.php:44 includes/Frontend/FormShortcode.php:92 includes/Skills/FormPlanValidator.php:177
 msgid "Submit"
 msgstr "ارسال"
 
@@ -9224,138 +9228,150 @@ msgid "Public forms attract spam. Activate Easy Form Builder’s Form Security &
 msgstr "فرم‌های عمومی اسپم جذب می‌کنند. افزونهٔ جانبی «امنیت فرم و محافظت در برابر اسپم» Easy Form Builder را فعال کنید، یا کلیدهای reCAPTCHA را در Easy Form Builder ← تنظیمات اضافه کنید و reCAPTCHA را برای این فرم روشن کنید."
 
 #. translators: %s: rule description.
-#: includes/Efb/EfbLogicRules.php:187
+#: includes/Efb/EfbLogicRules.php:191
 #, php-format
 msgid "(off) %s"
 msgstr "(خاموش) %s"
 
-#: includes/Efb/EfbLogicRules.php:384
+#: includes/Efb/EfbLogicRules.php:405
 msgid " or "
 msgstr " یا "
 
-#: includes/Efb/EfbLogicRules.php:384
+#: includes/Efb/EfbLogicRules.php:405
 msgid " and "
 msgstr " و "
 
 #. translators: 1: field label, 2: value.
-#: includes/Efb/EfbLogicRules.php:388
+#: includes/Efb/EfbLogicRules.php:409
 #, php-format
 msgid "“%1$s” is “%2$s”"
 msgstr "«%1$s» برابر «%2$s» است"
 
 #. translators: 1: field label, 2: value.
-#: includes/Efb/EfbLogicRules.php:390
+#: includes/Efb/EfbLogicRules.php:411
 #, php-format
 msgid "“%1$s” is not “%2$s”"
 msgstr "«%1$s» برابر «%2$s» نیست"
 
 #. translators: 1: field label, 2: value.
-#: includes/Efb/EfbLogicRules.php:392
+#: includes/Efb/EfbLogicRules.php:413
 #, php-format
 msgid "“%1$s” contains “%2$s”"
 msgstr "«%1$s» شامل «%2$s» است"
 
 #. translators: 1: field label, 2: value.
-#: includes/Efb/EfbLogicRules.php:394
+#: includes/Efb/EfbLogicRules.php:415
 #, php-format
 msgid "“%1$s” does not contain “%2$s”"
 msgstr "«%1$s» شامل «%2$s» نیست"
 
 #. translators: 1: field label, 2: value.
-#: includes/Efb/EfbLogicRules.php:396
+#: includes/Efb/EfbLogicRules.php:417
 #, php-format
 msgid "“%1$s” is more than %2$s"
 msgstr "«%1$s» بیشتر از %2$s است"
 
 #. translators: 1: field label, 2: value.
-#: includes/Efb/EfbLogicRules.php:398
+#: includes/Efb/EfbLogicRules.php:419
 #, php-format
 msgid "“%1$s” is at least %2$s"
 msgstr "«%1$s» دست‌کم %2$s است"
 
 #. translators: 1: field label, 2: value.
-#: includes/Efb/EfbLogicRules.php:400
+#: includes/Efb/EfbLogicRules.php:421
 #, php-format
 msgid "“%1$s” is less than %2$s"
 msgstr "«%1$s» کمتر از %2$s است"
 
 #. translators: 1: field label, 2: value.
-#: includes/Efb/EfbLogicRules.php:402
+#: includes/Efb/EfbLogicRules.php:423
 #, php-format
 msgid "“%1$s” is at most %2$s"
 msgstr "«%1$s» حداکثر %2$s است"
 
+#. translators: 1: field label, 2: a date.
+#: includes/Efb/EfbLogicRules.php:425
+#, php-format
+msgid "“%1$s” is before %2$s"
+msgstr "«%1$s» قبل از %2$s است"
+
+#. translators: 1: field label, 2: a date.
+#: includes/Efb/EfbLogicRules.php:427
+#, php-format
+msgid "“%1$s” is after %2$s"
+msgstr "«%1$s» بعد از %2$s است"
+
 #. translators: %1$s: field label.
-#: includes/Efb/EfbLogicRules.php:404
+#: includes/Efb/EfbLogicRules.php:429
 #, php-format
 msgid "“%1$s” is empty"
 msgstr "«%1$s» خالی است"
 
 #. translators: %1$s: field label.
-#: includes/Efb/EfbLogicRules.php:406
+#: includes/Efb/EfbLogicRules.php:431
 #, php-format
 msgid "“%1$s” is answered"
 msgstr "«%1$s» پاسخ داده شده است"
 
-#: includes/Efb/EfbLogicRules.php:410
+#: includes/Efb/EfbLogicRules.php:435
 msgid "(a nested group)"
 msgstr "(یک گروه تودرتو)"
 
 #. translators: %s: field label.
-#: includes/Efb/EfbLogicRules.php:425
+#: includes/Efb/EfbLogicRules.php:450
 #, php-format
 msgid "show “%s”"
 msgstr "«%s» نمایش داده شود"
 
 #. translators: %s: field label.
-#: includes/Efb/EfbLogicRules.php:427
+#: includes/Efb/EfbLogicRules.php:452
 #, php-format
 msgid "hide “%s”"
 msgstr "«%s» پنهان شود"
 
 #. translators: %s: field label.
-#: includes/Efb/EfbLogicRules.php:429
+#: includes/Efb/EfbLogicRules.php:454
 #, php-format
 msgid "make “%s” required"
 msgstr "«%s» الزامی شود"
 
 #. translators: %s: field label.
-#: includes/Efb/EfbLogicRules.php:431
+#: includes/Efb/EfbLogicRules.php:456
 #, php-format
 msgid "make “%s” optional"
 msgstr "«%s» اختیاری شود"
 
 #. translators: %s: step name.
-#: includes/Efb/EfbLogicRules.php:433
+#: includes/Efb/EfbLogicRules.php:458
 #, php-format
 msgid "show step “%s”"
 msgstr "مرحلهٔ «%s» نمایش داده شود"
 
 #. translators: %s: step name.
-#: includes/Efb/EfbLogicRules.php:435
+#: includes/Efb/EfbLogicRules.php:460
 #, php-format
 msgid "hide step “%s”"
 msgstr "مرحلهٔ «%s» پنهان شود"
 
 #. translators: %s: step name.
-#: includes/Efb/EfbLogicRules.php:437
+#: includes/Efb/EfbLogicRules.php:462
 #, php-format
 msgid "jump to step “%s”"
 msgstr "به مرحلهٔ «%s» برود"
 
 #. translators: 1: action name, 2: target.
-#: includes/Efb/EfbLogicRules.php:449
+#: includes/Efb/EfbLogicRules.php:474
 #, php-format
 msgid "%1$s “%2$s”"
 msgstr "%1$s «%2$s»"
 
 #. translators: 1: conditions, 2: actions.
-#: includes/Efb/EfbLogicRules.php:466
+#: includes/Efb/EfbLogicRules.php:491
 #, php-format
 msgid "If %1$s, %2$s."
 msgstr "اگر %1$s، %2$s."
 
-#: includes/Efb/EfbLogicRules.php:466
+#: includes/Efb/EfbLogicRules.php:491
 msgid ", "
 msgstr "، "
 
@@ -10119,7 +10135,7 @@ msgstr "آدرس ارائه‌دهنده مجاز نیست."
 msgid "The local AI usage cap has been reached."
 msgstr "سقف مصرف هوش مصنوعی پر شده است."
 
-#: includes/Skills/FormPlanValidator.php:167
+#: includes/Skills/FormPlanValidator.php:178
 msgid "Thank you. We received your submission."
 msgstr "سپاسگزاریم. پیام شما دریافت شد."
 
