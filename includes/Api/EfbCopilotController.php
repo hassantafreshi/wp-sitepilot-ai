@@ -10,6 +10,9 @@ use AISAAutoPilot\Efb\EfbChatSkill;
 use AISAAutoPilot\Efb\EfbCustomizeSkill;
 use AISAAutoPilot\Efb\EfbFormConverter;
 use AISAAutoPilot\Efb\EfbAddons;
+use AISAAutoPilot\Efb\EfbCapabilities;
+use AISAAutoPilot\Efb\EfbFeatureGate;
+use AISAAutoPilot\Efb\EfbSaveNotes;
 use AISAAutoPilot\Efb\EfbLicense;
 use AISAAutoPilot\Efb\EfbPayments;
 use AISAAutoPilot\Efb\EfbReplyText;
@@ -66,7 +69,8 @@ final class EfbCopilotController {
 		}
 
 		try {
-			$result = ( new EfbFormSkill( $this->providers->make(), EfbLicense::has_pro_features() ) )->plan( $prompt );
+			$skill  = new EfbFormSkill( $this->providers->make(), EfbLicense::has_pro_features() );
+			$result = $skill->plan( $prompt );
 		} catch ( ProviderException $e ) {
 			$this->logger->error( 'efb.plan.provider_error', $e->getMessage(), array( 'code' => $e->error_code() ) );
 
@@ -88,7 +92,7 @@ final class EfbCopilotController {
 		// Build what this licence can actually render, and say plainly what a
 		// Free Plus or Pro licence would have added instead of failing outright.
 		$split = EfbFormModel::split_pro_fields( $result->plan, EfbLicense::has_pro_features() );
-		$plan  = $this->finalize_plan( $split['plan'] );
+		$plan  = $this->finalize_plan( $split['plan'], $skill->raw_form() );
 
 		if ( array() === ( $plan['fields'] ?? array() ) ) {
 			return $this->pro_required_response( $this->pro_blocked_from_fields( $split['pro_fields'] ) );
@@ -113,6 +117,15 @@ final class EfbCopilotController {
 			'preview'    => $this->build_preview( $plan, $connector->get_name() ),
 		);
 		$payload = $this->with_pro_upsell( $payload, $split['pro_fields'] );
+		$blocked = $skill->blocked();
+		if ( array() !== $blocked ) {
+			$payload           = $this->with_feature_gate( $payload, $blocked );
+			$payload['errors'] = array_merge( EfbFeatureGate::messages( $blocked ), is_array( $payload['errors'] ?? null ) ? $payload['errors'] : array() );
+			$offers            = EfbFeatureGate::offers( $blocked );
+			if ( array() !== $offers ) {
+				$payload['install'] = $offers;
+			}
+		}
 
 		return $this->respond( $payload, true );
 	}
@@ -154,6 +167,111 @@ final class EfbCopilotController {
 		);
 
 		return $payload;
+	}
+
+	/**
+	 * What the feature gate held back, in the answer: the list the preview names (feature, add-on, plan, the field
+	 * used instead) and the buttons that lead on (EFB's Add-ons page, EFB's own upgrade dialog for a plan).
+	 *
+	 * @param array<string,mixed>            $payload
+	 * @param array<int,array<string,mixed>> $blocked
+	 * @return array<string,mixed>
+	 */
+	private function with_feature_gate( array $payload, array $blocked ): array {
+		if ( array() === $blocked ) {
+			return $payload;
+		}
+		$payload['addon_required'] = EfbFeatureGate::summary( $blocked );
+		$links                     = is_array( $payload['links'] ?? null ) ? $payload['links'] : array();
+		foreach ( $blocked as $item ) {
+			if ( in_array( $item['reason'] ?? '', array( 'addon', 'update' ), true ) ) {
+				$links[] = array(
+					'label' => __( 'Open EFB Add-ons', 'ai-site-assistant-autopilot' ),
+					'url'   => EfbCapabilities::addons_page(),
+				);
+				break;
+			}
+		}
+		foreach ( $blocked as $item ) {
+			if ( 'plan' === ( $item['reason'] ?? '' ) ) {
+				$links[] = array(
+					/* translators: %s: Easy Form Builder plan name (Free Plus or Pro). */
+					'label' => sprintf( __( 'What %s adds', 'ai-site-assistant-autopilot' ), EfbCapabilities::plan_label( (string) ( $item['package'] ?? 'pro' ) ) ),
+					'url'   => EfbCapabilities::upgrade_dialog_url( (string) ( $item['feature'] ?? '' ) ),
+				);
+				break;
+			}
+		}
+		if ( array() !== $links ) {
+			$payload['links'] = array_values( array_unique( $links, SORT_REGULAR ) );
+		}
+
+		return $payload;
+	}
+
+	/**
+	 * Install offers from several sources, each add-on once.
+	 *
+	 * @param array<int,array<string,mixed>> ...$lists
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function merge_offers( array ...$lists ): array {
+		$out  = array();
+		$seen = array();
+		foreach ( $lists as $list ) {
+			foreach ( $list as $offer ) {
+				$code = (string) ( $offer['code'] ?? '' );
+				if ( '' === $code || isset( $seen[ $code ] ) ) {
+					continue;
+				}
+				$seen[ $code ] = true;
+				$out[]         = $offer;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Fields the open form should get but this site cannot render: each becomes the closest field it can (with a note),
+	 * or is left out. A field that only needs a higher plan stays, so EFB's own upgrade dialog answers it.
+	 *
+	 * @param array<int,mixed> $ops
+	 * @return array{ops:array<int,mixed>, blocked:array<int,array<string,mixed>>}
+	 */
+	private function gate_customize_ops( array $ops ): array {
+		if ( ! EfbCapabilities::available() ) {
+			return array(
+				'ops'     => $ops,
+				'blocked' => array(),
+			);
+		}
+		$creatable = EfbFormModel::addable_types();
+		$out       = array();
+		$blocked   = array();
+		foreach ( $ops as $op ) {
+			if ( ! is_array( $op ) || 'add_field' !== ( $op['op'] ?? '' ) || ! is_array( $op['field'] ?? null ) ) {
+				$out[] = $op;
+				continue;
+			}
+			$type  = EfbFeatureGate::resolve_type( (string) ( $op['field']['type'] ?? '' ) );
+			$check = '' === $type ? null : EfbFeatureGate::check( $type, $op['field'], $creatable );
+			if ( null === $check || 'plan' === $check['reason'] ) {
+				$out[] = $op;
+				continue;
+			}
+			$blocked[] = $check;
+			if ( null !== $check['alternative'] ) {
+				$op['field']['type'] = $check['alternative'];
+				unset( $op['field']['settings'] );
+				$out[] = $op;
+			}
+		}
+
+		return array(
+			'ops'     => $out,
+			'blocked' => $blocked,
+		);
 	}
 
 	/**
@@ -221,17 +339,64 @@ final class EfbCopilotController {
 			array(
 				'form_id' => $result['form_id'] ?? null,
 				'title'   => $plan['title'] ?? '',
+				'dropped' => count( (array) ( $result['dropped'] ?? array() ) ),
 			)
 		);
+		// Form package 1.1: the token that undoes this creation stays on the server, bound to the approving user.
+		$form_id = (int) ( $result['form_id'] ?? 0 );
+		$token   = (string) ( $result['import_token'] ?? '' );
+		if ( $form_id > 0 && '' !== $token ) {
+			set_transient( self::undo_key( get_current_user_id(), $form_id ), $token, DAY_IN_SECONDS );
+		}
 
 		return $this->respond(
 			array(
 				'result' => array(
 					'connector' => $result['connector'] ?? '',
-					'form_id'   => $result['form_id'] ?? 0,
+					'form_id'   => $form_id,
 					'edit_url'  => $result['edit_url'] ?? '',
 					'shortcode' => $result['shortcode'] ?? '',
+					'can_undo'  => '' !== $token,
+					// What EFB itself reported while storing it (keys of an inactive add-on, payment readiness, …).
+					'notes'     => EfbSaveNotes::messages( (array) ( $result['dropped'] ?? array() ), (array) ( $result['notices'] ?? array() ), is_array( $result['payment'] ?? null ) ? $result['payment'] : null ),
+					'payment'   => is_array( $result['payment'] ?? null ) ? array( 'ready' => ! empty( $result['payment']['ready'] ) ) : null,
 				),
+			),
+			true
+		);
+	}
+
+	/** The transient that holds the undo token of a form the copilot created for this user. */
+	private static function undo_key( int $user_id, int $form_id ): string {
+		return 'aisaautopilot_efb_undo_' . $user_id . '_' . $form_id;
+	}
+
+	/**
+	 * Undo a form the copilot created a moment ago (Easy Form Builder's `Form_Package::delete()`, package 1.1): only the
+	 * same user, only that form, only while its token is kept. Everything else stays in Easy Form Builder's forms list.
+	 */
+	public function undo( WP_REST_Request $request ): WP_REST_Response {
+		$form_id = absint( $request->get_param( 'form_id' ) );
+		$key     = self::undo_key( get_current_user_id(), $form_id );
+		$token   = $form_id > 0 ? get_transient( $key ) : false;
+		if ( ! is_string( $token ) || '' === $token ) {
+			return $this->respond( array( 'message' => __( 'This form can no longer be undone here. Delete it in Easy Form Builder’s forms list if you do not want it.', 'ai-site-assistant-autopilot' ) ), false, 404, 'undo_expired' );
+		}
+		$connector = $this->registry()->get( 'easy_form_builder' );
+		if ( ! $connector instanceof \AISAAutoPilot\Connectors\EasyFormBuilderConnector ) {
+			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'ai-site-assistant-autopilot' ) ), false, 400, 'connector_not_available' );
+		}
+		$done = $connector->undo_create( $form_id, $token );
+		if ( is_wp_error( $done ) ) {
+			return $this->respond( array( 'message' => wp_strip_all_tags( $done->get_error_message() ) ), false, 422, sanitize_key( (string) $done->get_error_code() ) );
+		}
+		delete_transient( $key );
+		$this->logger->info( 'efb.create.undone', 'EFB form created by the copilot was removed again.', array( 'form_id' => $form_id ) );
+
+		return $this->respond(
+			array(
+				'message'  => __( 'Done: the new form was deleted.', 'ai-site-assistant-autopilot' ),
+				'list_url' => admin_url( 'admin.php?page=Emsfb' ),
 			),
 			true
 		);
@@ -434,8 +599,9 @@ final class EfbCopilotController {
 		}
 
 		if ( 'customize' === $action ) {
+			$gated   = $this->gate_customize_ops( $normalized_ops );
 			$verbose = EfbCustomizeSkill::validate_ops_verbose(
-				$normalized_ops,
+				$gated['ops'],
 				$fields,
 				array(
 					'logic'          => $logic,
@@ -467,7 +633,7 @@ final class EfbCopilotController {
 				);
 			}
 
-			$notes        = $this->customize_notes( $dropped );
+			$notes        = array_merge( EfbFeatureGate::messages( $gated['blocked'] ), $this->customize_notes( $dropped ) );
 			$refused_some = array() !== $notes;
 
 			// A Pro-only field is rejected during validation, so it never reaches
@@ -505,11 +671,12 @@ final class EfbCopilotController {
 				if ( array() !== $pay_links ) {
 					$message_payload['links'] = $pay_links;
 				}
-				$offers = EfbAddons::offers( array_column( $dropped, 'reason' ) );
+				$offers = $this->merge_offers( EfbAddons::offers( array_column( $dropped, 'reason' ) ), EfbFeatureGate::offers( $gated['blocked'] ) );
 				if ( array() !== $offers ) {
 					$message_payload['install'] = $offers;
 				}
 				$message_payload = $this->with_plan_links( $message_payload, $dropped );
+				$message_payload = $this->with_feature_gate( $message_payload, $gated['blocked'] );
 
 				return $this->respond( $message_payload, true );
 			}
@@ -580,12 +747,12 @@ final class EfbCopilotController {
 			if ( array() !== $pay_links ) {
 				$payload['links'] = $pay_links;
 			}
-			$offers = EfbAddons::offers( array_column( $dropped, 'reason' ) );
+			$offers = $this->merge_offers( EfbAddons::offers( array_column( $dropped, 'reason' ) ), EfbFeatureGate::offers( $gated['blocked'] ) );
 			if ( array() !== $offers ) {
 				$payload['install'] = $offers;
 			}
 
-			return $this->respond( $this->with_plan_links( $payload, $dropped ), true );
+			return $this->respond( $this->with_feature_gate( $this->with_plan_links( $payload, $dropped ), $gated['blocked'] ), true );
 		}
 
 		if ( 'create_form' === $action && is_array( $raw['form'] ?? null ) ) {
@@ -594,7 +761,13 @@ final class EfbCopilotController {
 			// the fields themselves go through the usual validator.
 			$payment_raw   = is_array( $raw['form']['payment'] ?? null ) ? $raw['form']['payment'] : null;
 			$payment_check = null === $payment_raw ? null : EfbPayments::validate_payment( $payment_raw, $pay_status, ! empty( $license['has_pro_features'] ) );
-			$result        = $validator->validate( (array) $raw['form'] );
+			// SPLIT: a field the site cannot render (its add-on is missing, or the plan is below it) never reaches the
+			// form. EFB's registry decides; the admin is told what is needed and gets the closest field that works.
+			$gate = EfbFeatureGate::new_form_fields( is_array( $raw['form']['fields'] ?? null ) ? array_values( $raw['form']['fields'] ) : array() );
+			if ( array() !== $gate['blocked'] ) {
+				$raw['form']['fields'] = $gate['fields'];
+			}
+			$result = $validator->validate( (array) $raw['form'] );
 			if ( ! $result->ok ) {
 				// The model's reply describes the form it meant to build; none was
 				// built, so that reply must not be shown as if one had been.
@@ -608,7 +781,7 @@ final class EfbCopilotController {
 				);
 			}
 			$split = EfbFormModel::split_pro_fields( $result->plan, EfbLicense::has_pro_features() );
-			$plan  = $this->finalize_plan( $split['plan'] );
+			$plan  = $this->finalize_plan( $split['plan'], is_array( $raw['form'] ) ? $raw['form'] : array() );
 			if ( array() === ( $plan['fields'] ?? array() ) ) {
 				return $this->pro_required_response( $this->pro_blocked_from_fields( $split['pro_fields'] ) );
 			}
@@ -647,19 +820,20 @@ final class EfbCopilotController {
 			// EFB Free renders two pages at most: later page breaks are folded into page two, and the admin is told
 			// how to get more (Free Plus or Pro) or that the form now fits.
 			$step_links = array();
-			if ( empty( $license['has_pro_features'] ) ) {
+			$step_limit = EfbCapabilities::available() ? EfbCapabilities::limit( 'steps' ) : ( empty( $license['has_pro_features'] ) ? 2 : null );
+			if ( is_int( $step_limit ) && $step_limit >= 1 ) {
 				$breaks = 0;
 				$kept   = array();
 				foreach ( (array) $plan['fields'] as $field ) {
 					if ( is_array( $field ) && in_array( $field['type'] ?? '', array( 'steps', 'step' ), true ) ) {
 						++$breaks;
-						if ( $breaks > 1 ) {
+						if ( $breaks > $step_limit - 1 ) {
 							continue;
 						}
 					}
 					$kept[] = $field;
 				}
-				if ( $breaks > 1 ) {
+				if ( $breaks > $step_limit - 1 ) {
 					$plan['fields']  = $kept;
 					$payment_notes[] = sprintf(
 						/* translators: %d: number of pages the request asked for. */
@@ -711,6 +885,8 @@ final class EfbCopilotController {
 				'action_id' => $action_id,
 				'preview'   => $this->build_preview( $plan, $name, $shield ),
 			);
+			$payment_notes = array_merge( EfbFeatureGate::messages( $gate['blocked'] ), $payment_notes );
+			$payload       = $this->with_feature_gate( $payload, $gate['blocked'] );
 
 			if ( array() !== $payment_notes ) {
 				$payload['errors'] = $payment_notes;
@@ -733,7 +909,7 @@ final class EfbCopilotController {
 			if ( array() !== $pay_links ) {
 				$payload['links'] = $pay_links;
 			}
-			$offers = EfbAddons::offers( array_column( $logic_dropped, 'reason' ) );
+			$offers = $this->merge_offers( EfbAddons::offers( array_column( $logic_dropped, 'reason' ) ), EfbFeatureGate::offers( $gate['blocked'] ) );
 			if ( array() !== $offers ) {
 				$payload['install'] = $offers;
 			}
@@ -909,29 +1085,35 @@ final class EfbCopilotController {
 	 * @return array<int,array{kind:string,type?:string,label?:string}>
 	 */
 	private function blocked_customize_operations( array $ops, array $steps ): array {
-		$license = EfbLicense::status();
-		if ( ! empty( $license['is_pro'] ) ) {
+		$license  = EfbLicense::status();
+		$registry = EfbCapabilities::available();
+		if ( ! $registry && ! empty( $license['is_pro'] ) ) {
 			return array();
 		}
 		$plus = ! empty( $license['has_pro_features'] );
+		// EFB's own step limit for this plan (Free: 2); null means no limit.
+		$step_limit = $registry ? EfbCapabilities::limit( 'steps' ) : ( $plus ? null : 2 );
 
 		$blocked    = array();
 		$step_count = count( $steps );
 		foreach ( $ops as $op ) {
 			$name = (string) ( $op['op'] ?? '' );
-			if ( ! $plus && 'add_field' === $name && is_array( $op['field'] ?? null ) ) {
+			if ( ( $registry || ! $plus ) && 'add_field' === $name && is_array( $op['field'] ?? null ) ) {
 				$type = (string) ( $op['field']['type'] ?? '' );
 				if ( EfbFormModel::requires_pro_to_create( $type ) ) {
+					$state     = EfbCapabilities::state( EfbCapabilities::field_key( EfbFormModel::resolve_field_type( $type ) ?? $type ) );
 					$blocked[] = array(
-						'kind'  => 'field',
-						'type'  => $type,
-						'label' => (string) ( $op['field']['label'] ?? $type ),
+						'kind'    => 'field',
+						'type'    => $type,
+						'label'   => (string) ( $op['field']['label'] ?? $type ),
+						'feature' => EfbCapabilities::field_key( EfbFormModel::resolve_field_type( $type ) ?? $type ),
+						'plan'    => $state['known'] ? $state['package'] : 'pro',
 					);
 				}
 			}
-			if ( ! $plus && 'add_step' === $name ) {
+			if ( null !== $step_limit && 'add_step' === $name ) {
 				++$step_count;
-				if ( $step_count > 2 ) {
+				if ( $step_count > (int) $step_limit ) {
 					$blocked[] = array(
 						'kind'  => 'step_limit',
 						'label' => (string) ( $op['label'] ?? 'Step' ),
@@ -943,8 +1125,13 @@ final class EfbCopilotController {
 			if ( 'set_field_property' === $name || 'set_form_property' === $name ) {
 				$key        = (string) ( $op['property'] ?? '' );
 				$definition = 'set_field_property' === $name ? EfbFormModel::field_property( $key ) : EfbFormModel::form_property( $key );
-				$needs      = EfbFormModel::plan_of( $definition );
-				if ( 'pro' === $needs || ( 'plus' === $needs && ! $plus ) ) {
+				$canonical  = 'set_field_property' === $name ? EfbFormModel::resolve_field_property( $key ) : EfbFormModel::resolve_form_property( $key );
+				$needs      = EfbFormModel::plan_of( $definition, (string) ( $canonical ?? $key ) );
+				if ( 'pro' === $needs && ! empty( $license['is_pro'] ) ) {
+					continue;
+				}
+				// The registry already answered for this site's plan; the bundled catalog needs the plan applied.
+				if ( ( $registry && '' !== $needs ) || 'pro' === $needs || ( 'plus' === $needs && ! $plus ) ) {
 					$blocked[] = array(
 						'kind'  => 'setting',
 						'type'  => $key,
@@ -963,6 +1150,30 @@ final class EfbCopilotController {
 	 * @return array<int,array{kind:string,type?:string,label?:string}>
 	 */
 	private function blocked_plan_fields( array $plan ): array {
+		// With EFB's registry the approval re-checks every field against the site as it is now: a plan changed or an
+		// add-on switched off since the preview means the form is not created.
+		if ( EfbCapabilities::available() ) {
+			$blocked = array();
+			foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
+				if ( ! is_array( $field ) || in_array( $field['type'] ?? '', array( 'steps', 'step' ), true ) ) {
+					continue;
+				}
+				$check = EfbFeatureGate::check( (string) ( $field['type'] ?? '' ), $field );
+				if ( null !== $check && 'builder_only' !== $check['reason'] ) {
+					$blocked[] = array(
+						'kind'    => 'field',
+						'type'    => (string) ( $field['type'] ?? '' ),
+						'label'   => (string) ( $field['label'] ?? ( $field['type'] ?? '' ) ),
+						'feature' => $check['feature'],
+						'reason'  => $check['reason'],
+						'addon'   => $check['addon'],
+						'plan'    => $check['package'],
+					);
+				}
+			}
+
+			return $blocked;
+		}
 		if ( EfbLicense::has_pro_features() ) {
 			return array();
 		}
@@ -1348,7 +1559,7 @@ final class EfbCopilotController {
 		} elseif ( $is_setting ) {
 			$default = $this->setting_plan_message( $blocked );
 		} else {
-			$default = __( 'This field is available in the Pro version of Easy Form Builder.', 'ai-site-assistant-autopilot' );
+			$default = $this->field_plan_message( $blocked );
 		}
 
 		return $this->respond(
@@ -1358,10 +1569,50 @@ final class EfbCopilotController {
 				'upgrade_required' => true,
 				'upgrade_reason'   => $is_step_limit ? 'step_limit' : 'pro_field',
 				'upgrade_url'      => EfbLicense::upgrade_url(),
+				// EFB's own upgrade dialog (F18) names the feature; the browser opens it when EFB has it.
+				'upgrade_feature'  => (string) ( $blocked[0]['feature'] ?? ( $is_step_limit ? 'limit:steps' : '' ) ),
 				'blocked'          => $blocked,
 			),
 			true
 		);
+	}
+
+	/**
+	 * Which plan a refused field needs, as EFB's registry says, and what the site has now.
+	 *
+	 * @param array<int,array<string,mixed>> $blocked
+	 */
+	private function field_plan_message( array $blocked ): string {
+		$names = array();
+		$needs = 'free_plus';
+		$addon = null;
+		foreach ( $blocked as $item ) {
+			if ( 'field' !== ( $item['kind'] ?? '' ) ) {
+				continue;
+			}
+			$names[] = (string) ( $item['label'] ?? $item['type'] ?? '' );
+			if ( 'pro' === ( $item['plan'] ?? 'pro' ) ) {
+				$needs = 'pro';
+			}
+			if ( 'addon' === ( $item['reason'] ?? '' ) && ! empty( $item['addon'] ) ) {
+				$addon = (string) $item['addon'];
+			}
+		}
+		if ( ! EfbCapabilities::available() ) {
+			return __( 'This field is available in the Pro version of Easy Form Builder.', 'ai-site-assistant-autopilot' );
+		}
+		$names = implode( ', ', array_unique( array_filter( $names ) ) );
+		if ( null !== $addon ) {
+			/* translators: 1: field name(s), 2: add-on name. */
+			return sprintf( __( '“%1$s” needs Easy Form Builder’s %2$s add-on, which is not active on this site any more, so I did not create the form. Ask me again and I will offer the closest field.', 'ai-site-assistant-autopilot' ), $names, EfbCapabilities::addon( $addon )['name'] );
+		}
+		$now = EfbCapabilities::plan_label( EfbLicense::status()['tier'] );
+
+		return 'pro' === $needs
+			/* translators: 1: field name(s), 2: the site's current Easy Form Builder plan. */
+			? sprintf( __( '“%1$s” needs Easy Form Builder Pro. This site is on %2$s.', 'ai-site-assistant-autopilot' ), $names, $now ) . ' ' . EfbCapabilities::plan_note( 'pro' )
+			/* translators: 1: field name(s), 2: the site's current Easy Form Builder plan. */
+			: sprintf( __( '“%1$s” needs Easy Form Builder Free Plus or Pro. This site is on %2$s.', 'ai-site-assistant-autopilot' ), $names, $now ) . ' ' . EfbCapabilities::plan_note( 'free_plus' );
 	}
 
 	/**
@@ -1497,7 +1748,8 @@ final class EfbCopilotController {
 	 * @param array<string, mixed> $plan
 	 * @return array<string, mixed>
 	 */
-	private function finalize_plan( array $plan ): array {
+	private function finalize_plan( array $plan, array $raw_form = array() ): array {
+		$plan['confirm_to_respondent'] = EfbFormConverter::confirmation_choice( $plan, $raw_form );
 		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
 			if ( is_array( $field ) && 'trmCheckbox' === ( $field['type'] ?? '' ) ) {
 				$plan['privacy_link'] = $this->privacy_link();
@@ -1739,49 +1991,19 @@ final class EfbCopilotController {
 	}
 
 	/**
-	 * Explicit persistence endpoint for integration consumers. The AISAAutoPilot EFB
-	 * chat deliberately does not call this after applying an AI proposal: it
-	 * leaves the changed valj_efb state on the canvas for the administrator to
-	 * review and save through EFB's normal Save control.
+	 * The former "save the structure" endpoint for integration consumers. It wrote Easy Form Builder's table directly,
+	 * which skips EFB's own save path (its sanitizer, add-on tables, caches, versions and hooks). Easy Form Builder has
+	 * no update API yet, so an open form is saved only by the owner's own Save in its editor; this answers so.
 	 */
 	public function save( WP_REST_Request $request ): WP_REST_Response {
-		$form_id   = (int) $request->get_param( 'form_id' );
-		$structure = $request->get_param( 'structure' );
+		unset( $request );
 
-		if ( $form_id <= 0 || ! is_array( $structure ) || array() === $structure ) {
-			return $this->respond( array( 'message' => __( 'Invalid save request.', 'ai-site-assistant-autopilot' ) ), false, 400, 'invalid_payload' );
-		}
-
-		// Reject anything that looks like injected script markup.
-		$flat = wp_json_encode( $structure );
-		if ( is_string( $flat ) && false !== stripos( $flat, '<script' ) ) {
-			return $this->respond( array( 'message' => __( 'Unsafe content rejected.', 'ai-site-assistant-autopilot' ) ), false, 422, 'unsafe_content' );
-		}
-
-		global $wpdb;
-		$table = $wpdb->prefix . 'emsfb_form';
-		$value = EfbFormConverter::encode_for_storage( array_values( $structure ) );
-		$name  = sanitize_text_field( (string) ( $structure[0]['formName'] ?? 'Form' ) );
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$ok = $wpdb->update(
-			$table,
-			array(
-				'form_name'     => $name,
-				'form_structer' => $value,
-			),
-			array( 'form_id' => $form_id ),
-			array( '%s', '%s' ),
-			array( '%d' )
+		return $this->respond(
+			array( 'message' => __( 'Save the form with the Save button in the Easy Form Builder editor. AI Site Assistant AutoPilot never writes Easy Form Builder’s tables itself.', 'ai-site-assistant-autopilot' ) ),
+			false,
+			410,
+			'use_efb_save'
 		);
-
-		if ( false === $ok ) {
-			return $this->respond( array( 'message' => __( 'Could not save the form.', 'ai-site-assistant-autopilot' ) ), false, 422, 'execution_failed' );
-		}
-
-		$this->logger->info( 'efb.save', 'EFB form updated.', array( 'form_id' => $form_id ) );
-
-		return $this->respond( array( 'form_id' => $form_id ), true );
 	}
 
 	private function registry(): ConnectorRegistry {
@@ -1791,10 +2013,6 @@ final class EfbCopilotController {
 		return $registry;
 	}
 
-	/**
-	 * @param array<string, mixed> $plan
-	 * @return array<string, mixed>
-	 */
 	/**
 	 * The payment as rows of the preview, with every price in plain sight so approving the form is approving the prices.
 	 *
@@ -1891,10 +2109,42 @@ final class EfbCopilotController {
 					)
 				)
 			),
+			// What Easy Form Builder itself would leave out or warn about (its form package validate(); writes nothing).
+			'efb_notes'            => $this->efb_preview_notes( $plan ),
 			'risk_level'           => $plan['risk_level'] ?? 'medium',
 			'connector'            => $connector_name,
 			'field_count'          => count( array_filter( $fields, static fn ( $f ): bool => is_array( $f ) && ! in_array( $f['type'] ?? '', array( 'steps', 'step' ), true ) ) ),
 		);
+	}
+
+	/**
+	 * Easy Form Builder's own verdict on a planned form before approval, as sentences.
+	 *
+	 * @param array<string,mixed> $plan
+	 * @return string[]
+	 */
+	private function efb_preview_notes( array $plan ): array {
+		$connector = $this->registry()->get( 'easy_form_builder' );
+		if ( ! $connector instanceof \AISAAutoPilot\Connectors\EasyFormBuilderConnector ) {
+			return array();
+		}
+		if ( ! $connector->can_create() ) {
+			return array( \AISAAutoPilot\Connectors\EasyFormBuilderConnector::update_message() );
+		}
+		$check = $connector->preview_check( $plan );
+		if ( null === $check ) {
+			return array();
+		}
+		$notes = EfbSaveNotes::messages( $check['dropped'], $check['notices'] );
+		foreach ( $check['errors'] as $error ) {
+			$message = trim( wp_strip_all_tags( (string) ( $error['m'] ?? '' ) ) );
+			if ( '' !== $message ) {
+				/* translators: %s: Easy Form Builder's own reason. */
+				$notes[] = sprintf( __( 'Easy Form Builder would refuse this form: %s', 'ai-site-assistant-autopilot' ), $message );
+			}
+		}
+
+		return array_values( array_unique( $notes ) );
 	}
 
 	/**

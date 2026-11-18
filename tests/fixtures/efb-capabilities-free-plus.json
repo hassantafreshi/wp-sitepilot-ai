@@ -1,0 +1,2353 @@
+{
+ "addons": {
+  "AdnADP": false,
+  "AdnADR": true,
+  "AdnALT": false,
+  "AdnATC": false,
+  "AdnATF": false,
+  "AdnBEF": true,
+  "AdnCLC": true,
+  "AdnCPF": false,
+  "AdnCTS": false,
+  "AdnESZ": false,
+  "AdnFRC": false,
+  "AdnGEO": false,
+  "AdnGoS": false,
+  "AdnHCP": false,
+  "AdnHSH": false,
+  "AdnMOL": false,
+  "AdnMSF": false,
+  "AdnOF": false,
+  "AdnOMS": false,
+  "AdnPAP": false,
+  "AdnPDP": false,
+  "AdnPLF": false,
+  "AdnPMB": false,
+  "AdnPPF": false,
+  "AdnPPG": false,
+  "AdnPRT": false,
+  "AdnPTB": false,
+  "AdnQCP": false,
+  "AdnSE": false,
+  "AdnSMF": false,
+  "AdnSPF": false,
+  "AdnSS": false,
+  "AdnTAP": false,
+  "AdnTLG": false,
+  "AdnTSG": true,
+  "AdnWHS": false,
+  "AdnWSP": false,
+  "AdnXND": false
+ },
+ "api_version": 1,
+ "efb_version": "4.3.1",
+ "email_confirmation": {
+  "builder": "efbBuilderApi.newItems(\"email\") (formPatch carries email_to / sendEmail only when the form has no recipient)",
+  "default": "on",
+  "field_key": "noti",
+  "form_keys": [
+   "email_to",
+   "sendEmail"
+  ],
+  "rule": "A new e-mail field becomes the recipient (noti 1, email_to = its id_, sendEmail true) when email_to names no e-mail field of the form; email_to holds one field, later e-mail fields stay off. Off: noti 0 on the field (and email_to \"\" when it was the recipient). Saved forms keep their choice.",
+  "sent_when": "the visitor typed a valid address in that field and the site can send e-mail; an empty optional or invalid address sends nothing",
+  "server": "Builder_Api::field_templates(\"email\") (noti 1 + form_patch; args recipient => false for a second e-mail field), Builder_Api::email_recipient_default($rows) / efb_email_recipient_default_efb($rows) for a new form",
+  "v": 1
+ },
+ "features": {
+  "addon:AdnADP": {
+   "addon": "AdnADP",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "dateATAddon",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnADR": {
+   "addon": "AdnADR",
+   "available_now": true,
+   "can_install": true,
+   "installed": true,
+   "kind": "addon",
+   "label_key": "TAdnADR",
+   "package": "free",
+   "reason": null
+  },
+  "addon:AdnALT": {
+   "addon": "AdnALT",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnALT",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnATC": {
+   "addon": "AdnATC",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "trackCTAddon",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnATF": {
+   "addon": "AdnATF",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "TAdnAtF",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnBEF": {
+   "addon": "AdnBEF",
+   "available_now": false,
+   "can_install": false,
+   "installed": true,
+   "kind": "addon",
+   "label_key": "TAdnBEF",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnCLC": {
+   "addon": "AdnCLC",
+   "available_now": true,
+   "can_install": true,
+   "installed": true,
+   "kind": "addon",
+   "label_key": "TAdnCLC",
+   "package": "free_plus",
+   "reason": null
+  },
+  "addon:AdnCPF": {
+   "addon": "AdnCPF",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnCPF",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnCTS": {
+   "addon": "AdnCTS",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnCTS",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnESZ": {
+   "addon": "AdnESZ",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnESZ",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnFRC": {
+   "addon": "AdnFRC",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnFRC",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnGEO": {
+   "addon": "AdnGEO",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "TAdnGEO",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnGoS": {
+   "addon": "AdnGoS",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "TAdnGoS",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnHCP": {
+   "addon": "AdnHCP",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnHCP",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnHSH": {
+   "addon": "AdnHSH",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "TAdnHSH",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnMOL": {
+   "addon": "AdnMOL",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "mollieTAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnMSF": {
+   "addon": "AdnMSF",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnMSF",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnOF": {
+   "addon": "AdnOF",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "offlineTAddon",
+   "package": "free",
+   "reason": "addon"
+  },
+  "addon:AdnOMS": {
+   "addon": "AdnOMS",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "omiseTAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnPAP": {
+   "addon": "AdnPAP",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "payPalTAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnPDP": {
+   "addon": "AdnPDP",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "datePTAddon",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnPLF": {
+   "addon": "AdnPLF",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnPLF",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnPMB": {
+   "addon": "AdnPMB",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "paymobTAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnPPF": {
+   "addon": "AdnPPF",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "persiaPayTAddon",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnPPG": {
+   "addon": "AdnPPG",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "payplugTAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnPRT": {
+   "addon": "AdnPRT",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnPRT",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnPTB": {
+   "addon": "AdnPTB",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "paytabsTAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnQCP": {
+   "addon": "AdnQCP",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnQCP",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnSE": {
+   "addon": "AdnSE",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnSE",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnSMF": {
+   "addon": "AdnSMF",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "condATAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnSPF": {
+   "addon": "AdnSPF",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "stripeTAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnSS": {
+   "addon": "AdnSS",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "smsTAddon",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnTAP": {
+   "addon": "AdnTAP",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "tapTAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "addon:AdnTLG": {
+   "addon": "AdnTLG",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "tlgmAddon",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnTSG": {
+   "addon": "AdnTSG",
+   "available_now": true,
+   "can_install": true,
+   "installed": true,
+   "kind": "addon",
+   "label_key": "TAdnTSG",
+   "package": "free_plus",
+   "reason": null
+  },
+  "addon:AdnWHS": {
+   "addon": "AdnWHS",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnWHS",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnWSP": {
+   "addon": "AdnWSP",
+   "available_now": false,
+   "can_install": false,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "AdnWSP",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "addon:AdnXND": {
+   "addon": "AdnXND",
+   "available_now": false,
+   "can_install": true,
+   "installed": false,
+   "kind": "addon",
+   "label_key": "xenditTAddon",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "builder:palette_search": {
+   "addon": null,
+   "available_now": true,
+   "kind": "builder",
+   "label_key": "searchFields",
+   "package": "free",
+   "reason": null
+  },
+  "builder:shortcuts": {
+   "addon": null,
+   "available_now": true,
+   "kind": "builder",
+   "label_key": "shortcuts",
+   "package": "free",
+   "reason": null
+  },
+  "builder:undo": {
+   "addon": null,
+   "available_now": true,
+   "kind": "builder",
+   "label_key": "undo",
+   "package": "free",
+   "reason": null
+  },
+  "field:address": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "address",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:advdate": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "advdate",
+   "package": "free",
+   "reason": null
+  },
+  "field:ardate": {
+   "addon": "AdnADP",
+   "available_now": false,
+   "kind": "field",
+   "label_key": "ardate",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "field:audio_recorder": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "audio_recorder",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:calc": {
+   "addon": "AdnCLC",
+   "available_now": true,
+   "kind": "field",
+   "label_key": "calcField",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:checkbox": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "checkbox",
+   "package": "free",
+   "reason": null
+  },
+  "field:chlCheckBox": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "chlCheckBox",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:chlRadio": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "chlRadio",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:cityList": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "cityList",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:color": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "color",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:conturyList": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "conturyList",
+   "package": "free",
+   "reason": null
+  },
+  "field:dadfile": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "dadfile",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:date": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "date",
+   "package": "free",
+   "reason": null
+  },
+  "field:email": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "email",
+   "package": "free",
+   "reason": null
+  },
+  "field:esign": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "esign",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:file": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "file",
+   "package": "free",
+   "reason": null
+  },
+  "field:heading": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "heading",
+   "package": "free",
+   "reason": null
+  },
+  "field:hiddenField": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "hiddenField",
+   "package": "free",
+   "reason": null
+  },
+  "field:html": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "html",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:imgRadio": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "imgRadio",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:link": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "link",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:maps": {
+   "addon": "AdnADR",
+   "available_now": true,
+   "kind": "field",
+   "label_key": "maps",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:mobile": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "mobile",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:multiselect": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "multiselect",
+   "package": "free",
+   "reason": null
+  },
+  "field:name": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "name",
+   "package": "free",
+   "reason": null
+  },
+  "field:number": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "number",
+   "package": "free",
+   "reason": null
+  },
+  "field:password": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "password",
+   "package": "free",
+   "reason": null
+  },
+  "field:payCheckbox": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "payCheckbox",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:payMultiselect": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "payMultiselect",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:payRadio": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "payRadio",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:paySelect": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "paySelect",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:paypal": {
+   "addon": "AdnPAP",
+   "available_now": false,
+   "kind": "field",
+   "label_key": "paypal",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "field:pdate": {
+   "addon": "AdnPDP",
+   "available_now": false,
+   "kind": "field",
+   "label_key": "pdate",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "field:persiaPay": {
+   "addon": "AdnPPF",
+   "available_now": false,
+   "kind": "field",
+   "label_key": "persiaPay",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "field:pointr10": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "pointr10",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:pointr5": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "pointr5",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:prcfld": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "prcfld",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:radio": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "radio",
+   "package": "free",
+   "reason": null
+  },
+  "field:range": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "range",
+   "package": "free",
+   "reason": null
+  },
+  "field:ranking": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "ranking",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:rating": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "rating",
+   "package": "free",
+   "reason": null
+  },
+  "field:repeater": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "repeater",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:screen_recorder": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "screen_recorder",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:section": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "section",
+   "package": "free",
+   "reason": null
+  },
+  "field:select": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "select",
+   "package": "free",
+   "reason": null
+  },
+  "field:stateProvince": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "stateProvince",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:steps": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "steps",
+   "package": "free",
+   "reason": null
+  },
+  "field:stripe": {
+   "addon": "AdnSPF",
+   "available_now": false,
+   "kind": "field",
+   "label_key": "stripe",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "field:switch": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "switch",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:table_matrix": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "table_matrix",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:tel": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "tel",
+   "package": "free",
+   "reason": null
+  },
+  "field:text": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "text",
+   "package": "free",
+   "reason": null
+  },
+  "field:textarea": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "textarea",
+   "package": "free",
+   "reason": null
+  },
+  "field:trmCheckbox": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "trmCheckbox",
+   "package": "free",
+   "reason": null
+  },
+  "field:ttlprc": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "ttlprc",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:url": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "url",
+   "package": "free",
+   "reason": null
+  },
+  "field:video_recorder": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "video_recorder",
+   "package": "free_plus",
+   "reason": null
+  },
+  "field:yesNo": {
+   "addon": null,
+   "available_now": true,
+   "kind": "field",
+   "label_key": "yesNo",
+   "package": "free_plus",
+   "reason": null
+  },
+  "form:locked_fields": {
+   "addon": null,
+   "available_now": true,
+   "kind": "form",
+   "label_key": "upgFtrLockedFields",
+   "package": "free_plus",
+   "reason": null
+  },
+  "limit:logic": {
+   "addon": "AdnSMF",
+   "available_now": false,
+   "kind": "limit",
+   "label_key": "conlog",
+   "limits": {
+    "free": {
+     "conditions_per_group": 0,
+     "field_rules": 0,
+     "notification_rules": 0
+    },
+    "free_plus": {
+     "conditions_per_group": 2,
+     "field_rules": 3,
+     "notification_rules": 2
+    },
+    "pro": null
+   },
+   "package": "pro",
+   "reason": "plan"
+  },
+  "limit:steps": {
+   "addon": null,
+   "available_now": true,
+   "kind": "limit",
+   "label_key": "step",
+   "limits": {
+    "free": 2,
+    "free_plus": null,
+    "pro": null
+   },
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:addr_lookup": {
+   "addon": "AdnADR",
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "addrLookup",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:addr_scheme": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "addrSchPick",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:advdate_age": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "cal_b_g_age",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:advdate_availability": {
+   "addon": "AdnBEF",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "cal_b_g_range",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:advdate_basic": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "cal_b_g_limits",
+   "package": "free",
+   "reason": null
+  },
+  "setting:advdate_booking": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "cal_b_g_range",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:advdate_calendars": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "cal_b_g_calendar",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:advdate_dates": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "cal_b_holiday_sets",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:advdate_field_limits": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "cal_b_lim_field",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:advdate_range": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "cal_b_g_range",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:advdate_time": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "cal_b_g_time",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:answer_piping": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "stInsert",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:autocomplete": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "a11yAutocomplete",
+   "package": "free",
+   "reason": null
+  },
+  "setting:booking_form": {
+   "addon": "AdnBEF",
+   "available_now": false,
+   "kind": "setting",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:bulk_read": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrBulkRead",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:calc_option": {
+   "addon": "AdnCLC",
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "calcOptValue",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:calc_price": {
+   "addon": "AdnCLC",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "calcAsPrice",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:captcha_provider": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "captchaProvider",
+   "package": "free",
+   "reason": null
+  },
+  "setting:choice_bulk": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "bulkAdd",
+   "package": "free",
+   "reason": null
+  },
+  "setting:choice_dynamic": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "dynSource",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:choice_inventory": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "invTrack",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:choice_limits": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "maxSelect",
+   "package": "free",
+   "reason": null
+  },
+  "setting:choice_other": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "otherAllow",
+   "package": "free",
+   "reason": null
+  },
+  "setting:choice_random": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "opRandom",
+   "package": "free",
+   "reason": null
+  },
+  "setting:choice_select_all": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "selectAll",
+   "package": "free",
+   "reason": null
+  },
+  "setting:choice_value": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "optValue",
+   "package": "free",
+   "reason": null
+  },
+  "setting:confirmation_rules": {
+   "addon": "AdnSMF",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "conlog",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:custom_colors": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrColors",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:custom_required_msg": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrRequiredMsg",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:delete_response": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrDeleteResponse",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:email_attach": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "emailAttach",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:email_footer": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrEmailCredit",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:email_noti_type": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "emlc",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:email_stats_off": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "emailStatsReport",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:email_sub": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "mlsbjt",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:entries_ai": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "entAiAccess",
+   "package": "free",
+   "reason": null
+  },
+  "setting:entries_columns": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "entColumns",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:entries_edit": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "entEdit",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:entries_filter": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "entAddCond",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:entries_print_nobrand": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "entPrint",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:entries_resend": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "entResend",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:entries_stats": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "entStats",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:entries_xlsx": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "entExportFmt",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:err_summary": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "a11yErrSummary",
+   "package": "free",
+   "reason": null
+  },
+  "setting:esign_mode": {
+   "addon": "AdnTSG",
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "sigModeLbl",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:field_affix_help": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "tvHelpPlace",
+   "package": "free",
+   "reason": null
+  },
+  "setting:field_email_domains": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "tvEmailDomains",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:field_password_strength": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "tvPwMin",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:field_password_ux": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "tvPwConfirm",
+   "package": "free",
+   "reason": null
+  },
+  "setting:field_pattern": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "tvPattern",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:field_readonly": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "tvReadonly",
+   "package": "free",
+   "reason": null
+  },
+  "setting:field_rule_messages": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "tvErrMsgs",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:field_text_limits": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "tvWords",
+   "package": "free",
+   "reason": null
+  },
+  "setting:field_unique": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "tvUnique",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:form_custom_css": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "customCss",
+   "package": "free",
+   "reason": null
+  },
+  "setting:form_drafts": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "draftOn",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:form_partials": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "partialOn",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:form_person_limits": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "limPerUser",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:form_popup": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "popupMode",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:form_roles": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "allowedRoles",
+   "package": "free",
+   "reason": null
+  },
+  "setting:form_schedule": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "schedOpen",
+   "package": "free",
+   "reason": null
+  },
+  "setting:form_total_limit": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "limTotal",
+   "package": "free",
+   "reason": null
+  },
+  "setting:hidden_disabled": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrHideDisable",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:hidden_field": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "hiddenField",
+   "package": "free",
+   "reason": null
+  },
+  "setting:loading_type": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "loadingType",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:logic_calculate": {
+   "addon": "AdnSMF",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "conlog",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:logic_rules": {
+   "addon": "AdnSMF",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "conlog",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "setting:map_key": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrMapKey",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:mask_postal": {
+   "addon": "AdnADR",
+   "available_now": true,
+   "kind": "setting",
+   "package": "free",
+   "reason": null
+  },
+  "setting:mobile_layout": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "upgFtrMobileLayout",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:name_format": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "nmFmtPick",
+   "package": "free",
+   "reason": null
+  },
+  "setting:number_format": {
+   "addon": "AdnCLC",
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "numFormat",
+   "package": "free",
+   "reason": null
+  },
+  "setting:pay_delayed_actions": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrPayActions",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:pay_gateway_options": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrPayStyle",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:pay_pwyw": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrPayDonation",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:pay_style": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrPayStyle",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:pay_style_mobile": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "upgFtrMobileLayout",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:payment_keys": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrPaymentKeys",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:payment_paypal": {
+   "addon": "AdnPAP",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "paypal",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "setting:payment_persiapay": {
+   "addon": "AdnPPF",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "persiaPayment",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:payment_stripe": {
+   "addon": "AdnSPF",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "stripe",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "setting:privacy_ip": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "prvIpMode",
+   "package": "free",
+   "reason": null
+  },
+  "setting:privacy_nostore": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "prvNoStore",
+   "package": "free",
+   "reason": null
+  },
+  "setting:privacy_requests": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "prvIdField",
+   "package": "free",
+   "reason": null
+  },
+  "setting:privacy_retention": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "prvDays",
+   "package": "free",
+   "reason": null
+  },
+  "setting:privacy_site": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "prvTitle",
+   "package": "free",
+   "reason": null
+  },
+  "setting:range_dual": {
+   "addon": "AdnCLC",
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "rangeDual",
+   "package": "free",
+   "reason": null
+  },
+  "setting:repeater_rows": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "repeater",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:reply_attachments": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrReplyAttach",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:response_admin_login": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "admines",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:response_captcha": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "scaptcha",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:response_colors": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "respColors",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:response_download": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "sdlbtn",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:response_upload": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "dsupfile",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:review_before_submit": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "rvwBfrSbmt",
+   "package": "free",
+   "reason": null
+  },
+  "setting:revisions": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "revisions",
+   "limits": {
+    "free": 3,
+    "free_plus": 10,
+    "pro": 50
+   },
+   "package": "free",
+   "reason": null
+  },
+  "setting:rich_text": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "richText",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:sender_email": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrSenderEmail",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:smart_geo": {
+   "addon": "AdnGEO",
+   "available_now": false,
+   "kind": "setting",
+   "package": "free_plus",
+   "reason": "addon"
+  },
+  "setting:smart_tags": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "stInsert",
+   "package": "free",
+   "reason": null
+  },
+  "setting:sms_notifications": {
+   "addon": "AdnSS",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "sms_noti",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:spam_off": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "spamOff",
+   "package": "free",
+   "reason": null
+  },
+  "setting:step_bg_color": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrStepBgColor",
+   "package": "free",
+   "reason": null
+  },
+  "setting:step_bg_gradient": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "upgFtrStepBgGradient",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:telegram_notifications": {
+   "addon": "AdnTLG",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "etelegramno",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:thank_you_redirect": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "redirectPage",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:upload_capture": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "fileCapture",
+   "package": "free",
+   "reason": null
+  },
+  "setting:upload_media": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "fileStoreMedia",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:upload_multi": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "maxFiles",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:upload_private": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "fileStorePrivate",
+   "package": "free",
+   "reason": null
+  },
+  "setting:upload_resize": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "imgMaxPx",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:url_prefill": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "prefillKey",
+   "package": "free",
+   "reason": null
+  },
+  "setting:val_timing": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "a11yValTiming",
+   "package": "free",
+   "reason": null
+  },
+  "setting:verify_email_otp": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "vrfModeOtp",
+   "package": "free_plus",
+   "reason": null
+  },
+  "setting:verify_email_retype": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "vrfModeRetype",
+   "package": "free",
+   "reason": null
+  },
+  "setting:verify_sms_otp": {
+   "addon": "AdnSS",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "vrfEnableSms",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:vis_mode": {
+   "addon": null,
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "visFor",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:warn_unsaved": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "a11yWarnUnsaved",
+   "package": "free",
+   "reason": null
+  },
+  "setting:webhook_rules": {
+   "addon": "AdnSMF",
+   "available_now": false,
+   "kind": "setting",
+   "label_key": "conlog",
+   "package": "pro",
+   "reason": "plan"
+  },
+  "setting:weekly_report": {
+   "addon": null,
+   "available_now": true,
+   "kind": "setting",
+   "label_key": "weeklyEmailReport",
+   "package": "free_plus",
+   "reason": null
+  },
+  "template:payment": {
+   "addon": "AdnSPF",
+   "available_now": false,
+   "kind": "template",
+   "label_key": "upgFtrPaymentForm",
+   "package": "free_plus",
+   "reason": "addon"
+  }
+ },
+ "form_package": {
+  "filters": [
+   "efb_form_export_extras",
+   "efb_form_import_extras",
+   "efb_form_package_remap_ids",
+   "efb_form_package_known_types",
+   "efb_form_package_addon_active"
+  ],
+  "limits": {
+   "bytes": 8388608,
+   "depth": 64,
+   "rows": 5000
+  },
+  "php": "efb_form_package_api(); Emsfb\\Form_Package::export / validate / import",
+  "plan": "free",
+  "rules": [
+   "import always creates a new form",
+   "ids kept unless invalid or duplicated (then remapped through efb_form_package_remap_ids)",
+   "the builder / AutoPilot save path runs on every import",
+   "secrets and site-only keys never exported",
+   "an add-on block is dropped with a notice when its add-on is not active"
+  ],
+  "schema": 1,
+  "spec": "F15-D / F20 P23",
+  "ui": "none in core (the plugin Easy Form Builder Data Tools)",
+  "v": 1.1
+ },
+ "payment_gateways": [],
+ "payment_keys": {
+  "paypal": false,
+  "stripe": false
+ },
+ "payments": {
+  "api": 1,
+  "plan": "free_plus",
+  "spec": "PAY00"
+ },
+ "plan": {
+  "name": "free_plus",
+  "package_type": 3,
+  "renewal": {
+   "auto_renew": false,
+   "days_left": null,
+   "ends_on": null,
+   "expires_at": null,
+   "known": false,
+   "lifetime": false,
+   "reminder_email": true,
+   "reminder_sent": {
+    "t0": null,
+    "t7": null
+   },
+   "stage": null
+  }
+ },
+ "portal_core": {
+  "addon": "AdnPRT",
+  "features": [
+   "index",
+   "otp",
+   "read",
+   "thread",
+   "reply",
+   "ticket",
+   "payments",
+   "files",
+   "cancel",
+   "reschedule",
+   "edit",
+   "drafts",
+   "privacy"
+  ],
+  "index": "ready",
+  "never": "an assistant links to the portal page only; it never asks for or enters a sign-in code and never reads an owner's entries",
+  "package": "pro",
+  "ready": false,
+  "reason": "plan",
+  "version": 1
+ },
+ "spam": {
+  "providers": [
+   {
+    "addon": null,
+    "available": true,
+    "id": "recaptcha_v2",
+    "installed": true,
+    "kind": "widget",
+    "label": "Google reCAPTCHA v2",
+    "plan": "free",
+    "ready": false,
+    "state": null
+   },
+   {
+    "addon": null,
+    "available": true,
+    "id": "recaptcha_v2i",
+    "installed": true,
+    "kind": "invisible",
+    "label": "Google reCAPTCHA v2 (invisible)",
+    "plan": "free",
+    "ready": false,
+    "state": null
+   },
+   {
+    "addon": null,
+    "available": true,
+    "id": "recaptcha_v3",
+    "installed": true,
+    "kind": "invisible",
+    "label": "Google reCAPTCHA v3",
+    "plan": "free",
+    "ready": false,
+    "state": null
+   },
+   {
+    "addon": "AdnCTS",
+    "available": false,
+    "id": "turnstile",
+    "installed": false,
+    "kind": null,
+    "label": "Cloudflare Turnstile",
+    "plan": "free_plus",
+    "ready": false,
+    "state": "addon"
+   },
+   {
+    "addon": "AdnHCP",
+    "available": false,
+    "id": "hcaptcha",
+    "installed": false,
+    "kind": null,
+    "label": "hCaptcha",
+    "plan": "free_plus",
+    "ready": false,
+    "state": "addon"
+   },
+   {
+    "addon": "AdnALT",
+    "available": false,
+    "id": "altcha",
+    "installed": false,
+    "kind": null,
+    "label": "ALTCHA",
+    "plan": "free_plus",
+    "ready": false,
+    "state": "addon"
+   },
+   {
+    "addon": "AdnQCP",
+    "available": false,
+    "id": "question",
+    "installed": false,
+    "kind": null,
+    "label": "Question CAPTCHA",
+    "plan": "free_plus",
+    "ready": false,
+    "state": "addon"
+   },
+   {
+    "addon": "AdnFRC",
+    "available": false,
+    "id": "friendly",
+    "installed": false,
+    "kind": null,
+    "label": "Friendly Captcha",
+    "plan": "free_plus",
+    "ready": false,
+    "state": "addon"
+   }
+  ]
+ },
+ "split": {
+  "addons": {
+   "AdnADR": {
+    "active": true,
+    "can_install": true,
+    "contract": "address",
+    "in_core": false,
+    "installed": true,
+    "name": "Address & Postal",
+    "package": "free",
+    "state": "active"
+   },
+   "AdnBEF": {
+    "active": false,
+    "can_install": false,
+    "contract": "booking",
+    "in_core": false,
+    "installed": true,
+    "name": "Booking",
+    "package": "pro",
+    "state": "plan"
+   },
+   "AdnCLC": {
+    "active": true,
+    "can_install": true,
+    "contract": "calc",
+    "in_core": false,
+    "installed": true,
+    "name": "Numbers & Calculations",
+    "package": "free_plus",
+    "state": "active"
+   },
+   "AdnGEO": {
+    "active": false,
+    "can_install": true,
+    "contract": "smart_tags_ext",
+    "in_core": false,
+    "installed": false,
+    "name": "Visitor Country",
+    "package": "free_plus",
+    "state": "addon"
+   },
+   "AdnPAP": {
+    "active": false,
+    "can_install": true,
+    "contract": "legacy_gateway",
+    "in_core": false,
+    "installed": false,
+    "name": "PayPal Payment",
+    "package": "free_plus",
+    "state": "addon"
+   },
+   "AdnPPF": {
+    "active": false,
+    "can_install": false,
+    "contract": "legacy_gateway",
+    "in_core": false,
+    "installed": false,
+    "name": "Persia Payment",
+    "package": "pro",
+    "state": "addon"
+   },
+   "AdnSPF": {
+    "active": false,
+    "can_install": true,
+    "contract": "legacy_gateway",
+    "in_core": false,
+    "installed": false,
+    "name": "Stripe Payment",
+    "package": "free_plus",
+    "state": "addon"
+   },
+   "AdnTSG": {
+    "active": true,
+    "can_install": true,
+    "contract": "typed_signature",
+    "in_core": false,
+    "installed": true,
+    "name": "Typed Signature",
+    "package": "free_plus",
+    "state": "active"
+   }
+  },
+  "codes": {
+   "builder": [
+    "addon_required"
+   ],
+   "import": [
+    "addon_inactive"
+   ],
+   "logic": [
+    "logic_ref_addon_inactive"
+   ],
+   "payment": [
+    "pay_calc_unavailable",
+    "pay_not_ready",
+    "pay_addon_inactive"
+   ],
+   "save": [
+    "addon_keys_kept",
+    "addon_keys_dropped"
+   ]
+  },
+  "contracts": {
+   "address": {
+    "active": true,
+    "core": false,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": "AdnADR",
+    "providers": {
+     "AdnADR": 1
+    },
+    "version": 1
+   },
+   "booking": {
+    "active": false,
+    "core": false,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": null,
+    "providers": [],
+    "version": 1
+   },
+   "calc": {
+    "active": true,
+    "core": false,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": "AdnCLC",
+    "providers": {
+     "AdnCLC": 1
+    },
+    "version": 1
+   },
+   "captcha": {
+    "active": true,
+    "core": true,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": null,
+    "providers": [],
+    "version": 1
+   },
+   "captcha_provider": {
+    "active": false,
+    "core": false,
+    "min": 2,
+    "outdated": false,
+    "provider_addon": null,
+    "providers": [],
+    "version": 2
+   },
+   "form_package": {
+    "active": true,
+    "core": true,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": null,
+    "providers": [],
+    "version": 1.1
+   },
+   "legacy_gateway": {
+    "active": false,
+    "core": false,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": null,
+    "providers": [],
+    "version": 1
+   },
+   "payments": {
+    "active": true,
+    "core": true,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": null,
+    "providers": [],
+    "version": 1
+   },
+   "portal": {
+    "active": true,
+    "core": true,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": null,
+    "providers": [],
+    "version": 1
+   },
+   "smart_tags_ext": {
+    "active": false,
+    "core": false,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": null,
+    "providers": [],
+    "version": 1
+   },
+   "typed_signature": {
+    "active": true,
+    "core": false,
+    "min": 1,
+    "outdated": false,
+    "provider_addon": "AdnTSG",
+    "providers": {
+     "AdnTSG": 1
+    },
+    "version": 1
+   }
+  },
+  "data_tools": {
+   "active": false,
+   "page": "tools.php?page=easy-form-builder-data-tools",
+   "replaces": [
+    "cf7_importer",
+    "form_export_import"
+   ],
+   "slug": "easy-form-builder-data-tools"
+  },
+  "install": {
+   "ajax": "add_addons_Emsfb",
+   "human_only": true,
+   "page": "https://example.test/wp-admin/admin.php?page=Emsfb_addon"
+  },
+  "moved": {
+   "field:calc": "AdnCLC",
+   "field:maps": "AdnADR",
+   "field:paypal": "AdnPAP",
+   "field:persiaPay": "AdnPPF",
+   "field:stripe": "AdnSPF",
+   "setting:addr_lookup": "AdnADR",
+   "setting:advdate_availability": "AdnBEF",
+   "setting:booking_form": "AdnBEF",
+   "setting:calc_option": "AdnCLC",
+   "setting:calc_price": "AdnCLC",
+   "setting:esign_mode": "AdnTSG",
+   "setting:mask_postal": "AdnADR",
+   "setting:number_format": "AdnCLC",
+   "setting:range_dual": "AdnCLC",
+   "setting:smart_geo": "AdnGEO"
+  },
+  "v": 1
+ }
+}

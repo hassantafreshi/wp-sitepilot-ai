@@ -21,6 +21,12 @@ final class EfbFormSkill {
 	/** Assume Pro until told otherwise: the caller knows the licence, this class does not. */
 	private bool $has_pro_features = true;
 
+	/** @var array<int,array<string,mixed>> */
+	private array $blocked = array();
+
+	/** @var array<string,mixed> */
+	private array $raw_form = array();
+
 	/**
 	 * @param bool $has_pro_features Whether the install can render EFB's Pro
 	 *                               fields. Without it they are left out of both
@@ -49,7 +55,40 @@ final class EfbFormSkill {
 			$this->user_prompt( $user_request )
 		);
 
+		// A field this site cannot render (its add-on is missing, or the plan is below it) becomes the closest field
+		// that works, or is left out; EFB's registry decides and the caller tells the admin.
+		$form          = isset( $raw['form'] ) && is_array( $raw['form'] ) ? $raw['form'] : $raw;
+		$gate          = EfbFeatureGate::new_form_fields( is_array( $form['fields'] ?? null ) ? array_values( $form['fields'] ) : array() );
+		$this->blocked = $gate['blocked'];
+		if ( array() !== $gate['blocked'] ) {
+			$form['fields'] = $gate['fields'];
+			if ( isset( $raw['form'] ) && is_array( $raw['form'] ) ) {
+				$raw['form'] = $form;
+			} else {
+				$raw = $form;
+			}
+		}
+		$this->raw_form = $form;
+
 		return $this->validator->validate( $raw );
+	}
+
+	/**
+	 * What the last plan asked for that the site cannot render (EfbFeatureGate::check() items).
+	 *
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function blocked(): array {
+		return $this->blocked;
+	}
+
+	/**
+	 * The model's form object of the last plan, before validation (to tell an omitted switch from one set off).
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function raw_form(): array {
+		return $this->raw_form;
 	}
 
 	private function system_prompt(): string {
@@ -92,8 +131,9 @@ final class EfbFormSkill {
 				'  trmCheckbox whose single option is a short consent sentence. Never write a URL: the privacy policy',
 				'  link is added automatically.',
 				'- Set "notify_admin": true when submissions need a reply or follow-up (contact, booking, quote, support,',
-				'  application). Set "confirm_to_respondent": true when the person should get a copy (bookings, orders,',
-				'  registrations) and the form has an email field. Never write an email address anywhere.',
+				'  application). The person who fills the form gets a confirmation email at the first email field by default',
+				'  ("confirm_to_respondent": true); set it to false ONLY when the request asks for no confirmation / no copy.',
+				'  Never write an email address anywhere.',
 				'',
 				'MULTI-STEP FORMS:',
 				'- "steps" is not an input: it is a page break placed BETWEEN fields. Every field after it',
@@ -116,7 +156,7 @@ final class EfbFormSkill {
 				'  "submit_button": "short button text (optional)",',
 				'  "confirmation_message": "string shown after submit (optional)",',
 				'  "notify_admin": false,',
-				'  "confirm_to_respondent": false,',
+				'  "confirm_to_respondent": true,',
 				'  "fields": [',
 				'    { "type": "one of the allowed types", "label": "string", "required": true,',
 				'      "placeholder": "string (optional)", "help": "short hint (optional)", "width": "full | half (optional)",',

@@ -85,15 +85,54 @@ final class EfbFormModel {
 	 *
 	 * @param array<string,mixed>|null $definition
 	 */
-	public static function plan_of( ?array $definition ): string {
+	public static function plan_of( ?array $definition, string $key = '' ): string {
 		if ( ! is_array( $definition ) ) {
 			return '';
+		}
+		// EFB's registry has the real level of the settings it gates; it answers for this site's plan.
+		$feature = self::registry_setting( $key );
+		if ( '' !== $feature && EfbCapabilities::available() ) {
+			$state = EfbCapabilities::state( $feature );
+			if ( $state['known'] ) {
+				if ( $state['available'] || 'plan' !== $state['reason'] ) {
+					return '';
+				}
+
+				return 'pro' === $state['package'] ? 'pro' : 'plus';
+			}
 		}
 		if ( ! empty( $definition['requires_pro'] ) ) {
 			return 'pro';
 		}
 
 		return 'plus' === ( $definition['plan'] ?? '' ) ? 'plus' : '';
+	}
+
+	/** The catalog's plan-gated settings and the EFB registry entry that holds their real plan. */
+	private const REGISTRY_SETTINGS = array(
+		'thank_you_redirect'        => 'setting:thank_you_redirect',
+		'email_subject'             => 'setting:email_sub',
+		'loading_type'              => 'setting:loading_type',
+		'loading_color'             => 'setting:loading_type',
+		'checked_color'             => 'setting:custom_colors',
+		'range_thumb_color'         => 'setting:custom_colors',
+		'range_value_color'         => 'setting:custom_colors',
+		'switch_on_color'           => 'setting:custom_colors',
+		'switch_off_color'          => 'setting:custom_colors',
+		'switch_handle_color'       => 'setting:custom_colors',
+		'global_mobile_hide_labels' => 'setting:mobile_layout',
+	);
+
+	/** The EFB registry key of a catalog setting, '' when EFB does not gate it by plan. */
+	public static function registry_setting( string $key ): string {
+		if ( '' === $key ) {
+			return '';
+		}
+		if ( isset( self::REGISTRY_SETTINGS[ $key ] ) ) {
+			return self::REGISTRY_SETTINGS[ $key ];
+		}
+
+		return str_starts_with( $key, 'mobile_' ) ? 'setting:mobile_layout' : '';
 	}
 
 	/**
@@ -174,9 +213,31 @@ final class EfbFormModel {
 	}
 
 	public static function requires_pro_field( string $type ): bool {
+		// EFB's own registry decides when it publishes one: a field is "locked" when the site's plan is below it.
+		$registry = self::registry_plan_block( $type );
+		if ( null !== $registry ) {
+			return $registry;
+		}
 		$definition = self::field_type( $type );
 
 		return is_array( $definition ) && 'pro' === (string) ( $definition['plan'] ?? '' );
+	}
+
+	/**
+	 * Whether EFB's registry says this field type needs a higher plan than the site has: true / false, or null when
+	 * EFB does not list it (or publishes no registry) and the bundled catalog has to answer.
+	 */
+	private static function registry_plan_block( string $type ): ?bool {
+		if ( ! EfbCapabilities::available() ) {
+			return null;
+		}
+		$canonical = self::resolve_field_type( $type ) ?? $type;
+		$state     = EfbCapabilities::state( EfbCapabilities::field_key( $canonical ) );
+		if ( ! $state['known'] ) {
+			return null;
+		}
+
+		return 'plan' === $state['reason'];
 	}
 
 	/**
@@ -186,6 +247,10 @@ final class EfbFormModel {
 	 * field of that type is never gated.
 	 */
 	public static function requires_pro_to_create( string $type ): bool {
+		$registry = self::registry_plan_block( $type );
+		if ( null !== $registry ) {
+			return $registry;
+		}
 		$definition = self::field_type( $type );
 		if ( ! is_array( $definition ) ) {
 			return false;
@@ -392,10 +457,20 @@ final class EfbFormModel {
 			if ( ! is_array( $c ) ) {
 				continue;
 			}
-			$type    = (string) $c['type'];
-			$pro     = ! $has_pro_features && self::requires_pro_to_create( $type )
+			$type = (string) $c['type'];
+			$pro  = ! $has_pro_features && self::requires_pro_to_create( $type )
 				? ' [needs Easy Form Builder Free Plus or Pro — use only if the request really calls for it]'
 				: '';
+			// EFB's registry says exactly what the site lacks: a plan, or an add-on (SPLIT).
+			if ( EfbCapabilities::available() ) {
+				$state = EfbCapabilities::state( EfbCapabilities::field_key( $type ) );
+				$pro   = '';
+				if ( $state['known'] && ! $state['available'] ) {
+					$pro = null !== $state['addon'] && 'plan' !== $state['reason']
+						? sprintf( ' [not on this site: needs the %s add-on — the server offers the closest field instead]', EfbCapabilities::addon( $state['addon'] )['name'] )
+						: sprintf( ' [not on this site: needs Easy Form Builder %s — use only if the request really calls for it]', 'pro' === $state['package'] ? 'Pro' : 'Free Plus or Pro' );
+				}
+			}
 			$lines[] = sprintf(
 				'- %s: %s%s%s',
 				$type,
@@ -417,6 +492,11 @@ final class EfbFormModel {
 	 * @return array{plan:array<string,mixed>,pro_fields:array<int,array{type:string,label:string}>}
 	 */
 	public static function split_pro_fields( array $plan, bool $has_pro_features ): array {
+		// With EFB's registry, every field is checked against the site's real plan (EfbFeatureGate already swapped or
+		// left out what needs an add-on); without it, Free Plus and Pro unlock the catalog's "pro" types as before.
+		if ( EfbCapabilities::available() ) {
+			$has_pro_features = false;
+		}
 		if ( $has_pro_features ) {
 			return array(
 				'plan'       => $plan,

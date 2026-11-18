@@ -706,17 +706,60 @@ final class EfbFormConverter {
 			$items[0]['email'] = $admin;
 		}
 
-		if ( ! empty( $plan['confirm_to_respondent'] ) ) {
-			foreach ( $items as $item ) {
-				if ( 'email' === ( $item['type'] ?? '' ) ) {
-					$items[0]['sendEmail'] = true;
-					$items[0]['email_to']  = (string) $item['id_'];
-					break;
-				}
+		// EFB 4.3.2 (owner rule): the FIRST e-mail field of a new form is the visitor's confirmation recipient
+		// (`noti` 1, row 0 `email_to` = its id, `sendEmail` on); `email_to` holds one field, so later e-mail fields
+		// stay off. When the admin asked for no confirmation, the first field is switched off (`noti` 0) and
+		// `email_to` is empty; `sendEmail` then stays on only for the admin's own notification.
+		$confirm = ! empty( $plan['confirm_to_respondent'] );
+		$first   = null;
+		foreach ( $items as $i => $item ) {
+			if ( 0 === $i || 'email' !== ( $item['type'] ?? '' ) ) {
+				continue;
 			}
+			if ( null === $first ) {
+				$first              = $i;
+				$items[ $i ]['noti'] = $confirm ? 1 : 0;
+				continue;
+			}
+			unset( $items[ $i ]['noti'] );
+		}
+		if ( $confirm && null !== $first ) {
+			$items[0]['sendEmail'] = true;
+			$items[0]['email_to']  = (string) $items[ $first ]['id_'];
+			// EFB's own rule has the last word when it publishes it (a field already switched on is kept).
+			if ( EfbCapabilities::email_confirmation_default_on() && function_exists( 'efb_email_recipient_default_efb' ) ) {
+				$checked = efb_email_recipient_default_efb( $items );
+				$items   = is_array( $checked ) && isset( $checked[0] ) ? array_values( $checked ) : $items;
+			}
+		} else {
+			// No recipient; `sendEmail` keeps the template's "off" (the admin's own copy goes to row 0 `email`).
+			$items[0]['email_to'] = '';
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Whether a new form confirms to the visitor by e-mail. With EFB 4.3.2 (`capabilities.email_confirmation`) it is
+	 * on unless the model, on the admin's word, set `confirm_to_respondent` to false; older EFB keeps the switch the
+	 * model set.
+	 *
+	 * @param array<string,mixed> $plan     The validated plan.
+	 * @param array<string,mixed> $raw_form The model's form object before validation.
+	 */
+	public static function confirmation_choice( array $plan, array $raw_form = array() ): bool {
+		if ( ! EfbCapabilities::email_confirmation_default_on() ) {
+			return ! empty( $plan['confirm_to_respondent'] );
+		}
+		if ( ! array_key_exists( 'confirm_to_respondent', $raw_form ) || null === $raw_form['confirm_to_respondent'] || '' === $raw_form['confirm_to_respondent'] ) {
+			return true;
+		}
+		$value = $raw_form['confirm_to_respondent'];
+		if ( is_string( $value ) ) {
+			$value = strtolower( trim( $value ) );
+		}
+
+		return ! in_array( $value, array( false, 0, '0', 'false', 'no', 'off' ), true );
 	}
 
 	/**

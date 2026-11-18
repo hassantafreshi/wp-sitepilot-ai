@@ -420,6 +420,15 @@ final class RestRoutes {
 				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
+		register_rest_route(
+			self::NAMESPACE,
+			'/efb/undo',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $efb, 'undo' ),
+				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
+			)
+		);
 
 		$voice = new VoiceController();
 		register_rest_route(

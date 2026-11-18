@@ -38,6 +38,18 @@ if ( ! function_exists( '__' ) ) {
 	}
 }
 
+if ( ! function_exists( '_n' ) ) {
+	function _n( string $single, string $plural, int $number, string $domain = 'default' ): string {
+		return 1 === $number ? $single : $plural;
+	}
+}
+
+if ( ! function_exists( 'has_filter' ) ) {
+	function has_filter( string $hook_name, $callback = false ) {
+		return false;
+	}
+}
+
 if ( ! function_exists( 'esc_html' ) ) {
 	function esc_html( string $text ): string {
 		return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' );
@@ -284,6 +296,10 @@ if ( ! class_exists( 'WP_Error' ) ) {
 		public function __construct( string $code = '', string $message = '' ) {
 			$this->code    = $code;
 			$this->message = $message;
+		}
+
+		public function get_error_code(): string {
+			return $this->code;
 		}
 
 		public function get_error_message(): string {

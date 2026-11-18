@@ -219,6 +219,25 @@ final class EfbBuilderButton {
 					'reasonNoOperation'              => __( 'the reply contained no change to apply', 'ai-site-assistant-autopilot' ),
 					'reasonException'                => __( 'an unexpected error stopped this change', 'ai-site-assistant-autopilot' ),
 					'reasonRender'                   => __( 'the Easy Form Builder canvas could not redraw', 'ai-site-assistant-autopilot' ),
+					/* translators: 1: field label, 2: add-on name, 3: plan name. */
+					'needsAddonPlan'                 => __( '%1$s: needs the %2$s add-on (%3$s)', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: field label. */
+					'needsBuilder'                   => __( '%s: add it in the Easy Form Builder editor', 'ai-site-assistant-autopilot' ),
+					/* translators: 1: field label, 2: plan name. */
+					'needsPlan'                      => __( '%1$s: needs Easy Form Builder %2$s', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: field type name. */
+					'usedInstead'                    => __( 'in the form as: %s', 'ai-site-assistant-autopilot' ),
+					'leftOut'                        => __( 'left out', 'ai-site-assistant-autopilot' ),
+					'planPro'                        => __( 'Pro', 'ai-site-assistant-autopilot' ),
+					'planFreePlus'                   => __( 'Free Plus', 'ai-site-assistant-autopilot' ),
+					'planFree'                       => __( 'Free', 'ai-site-assistant-autopilot' ),
+					'undoCreate'                     => __( 'Undo: delete this new form', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: form title. */
+					'createdTitle'                   => __( 'Created “%s”', 'ai-site-assistant-autopilot' ),
+					'undoing'                        => __( 'Deleting…', 'ai-site-assistant-autopilot' ),
+					'reasonEmailFieldMissing'        => __( 'the form has no Email field to send the confirmation to', 'ai-site-assistant-autopilot' ),
+					'reasonFieldNeedsAddon'          => __( 'that field needs an Easy Form Builder add-on that is not active on this page', 'ai-site-assistant-autopilot' ),
+					'reasonFieldNeedsPlan'           => __( 'that field needs a higher Easy Form Builder plan', 'ai-site-assistant-autopilot' ),
 					'reasonUnknown'                  => __( 'this change could not be applied', 'ai-site-assistant-autopilot' ),
 					// The dock, its launcher and its cards (owner-approved redesign, 2026-10-28).
 					'tipTitle'                       => __( 'Ask AI to change this form', 'ai-site-assistant-autopilot' ),
@@ -261,9 +280,6 @@ final class EfbBuilderButton {
 					'stepWorking'                    => __( 'Working out the answer…', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: Easy Form Builder plan, such as Free Plus. */
 					'stepCheckPlan'                  => __( 'Check it against your Easy Form Builder plan (%s)', 'ai-site-assistant-autopilot' ),
-					'planFree'                       => __( 'Free', 'ai-site-assistant-autopilot' ),
-					'planFreePlus'                   => __( 'Free Plus', 'ai-site-assistant-autopilot' ),
-					'planPro'                        => __( 'Pro', 'ai-site-assistant-autopilot' ),
 					'changesOne'                     => __( '1 change on the form', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: number of changes. */
 					'changesMany'                    => __( '%s changes on the form', 'ai-site-assistant-autopilot' ),

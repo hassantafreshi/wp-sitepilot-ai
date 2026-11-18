@@ -401,6 +401,24 @@
 			}
 			return true;
 		}
+		if ( fd.special === 'email_confirm' ) {
+			// EFB 4.3.2: the visitor's copy goes to one e-mail field (email_to, its noti switch). On: the field already named,
+			// else the first e-mail field. Off: that field's switch off and no recipient; sendEmail stays for the admin's copy.
+			var emails = valj_efb.filter( function ( it ) { return it && it.type === 'email'; } );
+			var current = emails.filter( function ( it ) { return String( it.id_ ) === String( form.email_to || '' ); } )[ 0 ];
+			if ( op.value ) {
+				var pick = current || emails[ 0 ];
+				if ( ! pick ) { failure( report, index, op, 'email_field_missing' ); return false; }
+				pick.noti = 1;
+				form.email_to = String( pick.id_ );
+				form.sendEmail = true;
+				return true;
+			}
+			if ( current ) { current.noti = 0; }
+			form.email_to = '';
+			form.sendEmail = !! ( form.email && String( form.email ).trim() );
+			return true;
+		}
 		if ( fd.special === 'sms' ) {
 			if ( fd.value_type === 'boolean_flag' ) {
 				form.smsnoti = op.value ? 1 : 0;
@@ -475,7 +493,10 @@
 		unsupported_operation: [ 'reasonUnsupportedOperation', 'this change is not supported' ],
 		no_operation: [ 'reasonNoOperation', 'the reply contained no change to apply' ],
 		exception: [ 'reasonException', 'an unexpected error stopped this change' ],
-		render: [ 'reasonRender', 'the Easy Form Builder canvas could not redraw' ]
+		render: [ 'reasonRender', 'the Easy Form Builder canvas could not redraw' ],
+		email_field_missing: [ 'reasonEmailFieldMissing', 'the form has no Email field to send the confirmation to' ],
+		field_needs_addon: [ 'reasonFieldNeedsAddon', 'that field needs an Easy Form Builder add-on that is not active on this page' ],
+		field_needs_plan: [ 'reasonFieldNeedsPlan', 'that field needs a higher Easy Form Builder plan' ]
 	};
 	function reasonCode( failed ) {
 		var code = String( failed && failed.reason ? failed.reason : 'unknown' );
@@ -541,9 +562,32 @@
 		report.changed = true;
 		report.logic = true;
 	}
+	/* Easy Form Builder's own registry (efb_var.capabilities) has the last word on what this page can render: a field
+	   whose add-on was switched off, or whose plan the site lacks, is never put on the canvas. */
+	function capabilityOf( type ) {
+		try {
+			var caps = window.efb_var && window.efb_var.capabilities;
+			var entry = caps && caps.features ? caps.features[ 'field:' + type ] : null;
+			return entry && typeof entry === 'object' ? entry : null;
+		} catch ( e ) { return null; }
+	}
+	/* EFB 4.3.2: the first e-mail field is the visitor's confirmation recipient; email_to holds one field, so a new e-mail
+	   field takes it only when the form has none (later ones stay off), as efbBuilderApi.newItems('email') does. */
+	function applyEmailRecipient( item ) {
+		var form = valj_efb[ 0 ] || {};
+		var to = String( form.email_to || '' );
+		var hasRecipient = to !== '' && to !== 'false' && valj_efb.some( function ( it ) { return it && it.type === 'email' && String( it.id_ ) === to; } );
+		if ( hasRecipient ) { delete item.noti; return; }
+		item.noti = 1;
+		form.email_to = String( item.id_ );
+		form.sendEmail = true;
+	}
 	function addFieldItems( op, report, index, requestedStep ) {
 		var items = Array.isArray( op.items ) ? op.items.slice() : [];
 		if ( ! items.length ) { failure( report, index, op, 'field_template_missing' ); return; }
+		var head = items.filter( function ( it ) { return it && it.type !== 'option' && it.type !== 'r_matrix'; } )[ 0 ];
+		var capability = head ? capabilityOf( String( head.type ) ) : null;
+		if ( capability && capability.available_now === false ) { failure( report, index, op, 'addon' === capability.reason ? 'field_needs_addon' : 'field_needs_plan' ); return; }
 		var used = {};
 		valj_efb.forEach( function ( item ) { if ( item && item.id_ ) { used[ String( item.id_ ) ] = true; } } );
 		for ( var i = 0; i < items.length; i++ ) {
@@ -571,6 +615,7 @@
 			if ( ! isChildItem( item ) ) { amount += 1; }
 			item.amount = amount;
 			item.step = step;
+			if ( item.type === 'email' ) { applyEmailRecipient( item ); }
 			valj_efb.push( item );
 		} );
 		// "After Email" / "before Message": EFB orders the canvas by amount, so the new items take the anchor's place.
@@ -791,7 +836,9 @@
 		var url = data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price';
 		var upgrade = button( t( 'upgrade', 'Upgrade to EFB Pro' ), { kind: 'primary', size: 'sm', icon: 'pro', extra: 'aisaautopilot-efb-btn--pro' } );
 		upgrade.addEventListener( 'click', function () {
-			// Reuse EFB's own dialog, translated message, and official purchase flow.
+			// Reuse EFB's own dialog, translated message, and official purchase flow: the F18 dialog for the exact feature
+			// when EFB has it (only a person's click there changes the plan), else the older plan dialog.
+			if ( data.upgrade_feature && typeof window.efb_upgrade_prompt_efb === 'function' ) { beforeEfbDialog(); window.efb_upgrade_prompt_efb( { feature: String( data.upgrade_feature ), origin: 'sitepilot' } ); return; }
 			if ( typeof window.pro_show_efb === 'function' ) { beforeEfbDialog(); window.pro_show_efb( data.upgrade_reason === 'step_limit' ? 2 : 1 ); return; }
 			window.open( url, '_blank', 'noopener' );
 		} );
@@ -842,7 +889,15 @@
 		var logicBox = Array.isArray( p.logic ) && p.logic.length ? el( 'div', { class: 'aisa-ai-mini aisaautopilot-efb-logic', 'data-sp-efb-preview-logic': '' }, [ el( 'div', { class: 'aisa-ai-mini__step', text: t( 'previewLogic', 'Conditional logic' ) } ) ].concat( p.logic.map( function ( line ) {
 			return el( 'div', { class: 'aisa-ai-mini__f' }, [ el( 'span', { class: 'aisa-ai-ic' }, [ icon( 'logic', 14 ) ] ), el( 'span', { class: 'aisa-ai-mini__l', dir: 'auto', text: line } ) ] );
 		} ) ) ) : null;
-		var box = card( Dock.cardHead( 'plan', 'doc', p.title, countText ), [ mini, logicBox, facts ].concat( advice, [
+		// What Easy Form Builder itself would leave out or warn about (its form package check), and fields that needed an
+		// add-on or a plan and were swapped for the closest one.
+		var efbNotes = Array.isArray( p.efb_notes ) && p.efb_notes.length ? note( p.efb_notes.join( ' ' ), 'efb' ) : null;
+		var addonList = Array.isArray( data.addon_required ) && data.addon_required.length ? el( 'ul', { class: 'aisa-ai-mini aisaautopilot-efb-addons', 'data-sp-efb-addon-required': data.addon_required.map( function ( a ) { return String( a.addon || a.reason ); } ).join( ',' ) }, data.addon_required.map( function ( a ) {
+			var what = a.addon_name ? t( 'needsAddonPlan', '%1$s: needs the %2$s add-on (%3$s)', [ a.label, a.addon_name, planName( a.package ) ] ) : ( 'builder_only' === a.reason ? t( 'needsBuilder', '%s: add it in the Easy Form Builder editor', a.label ) : t( 'needsPlan', '%1$s: needs Easy Form Builder %2$s', [ a.label, planName( a.package ) ] ) );
+			var instead = a.alternative ? ' — ' + t( 'usedInstead', 'in the form as: %s', typeLabel( a.alternative ) ) : ' — ' + t( 'leftOut', 'left out' );
+			return el( 'li', { class: 'aisa-ai-mini__f', dir: 'auto' }, [ el( 'span', { class: 'aisa-ai-ic' }, [ icon( 'plug', 14 ) ] ), el( 'span', { class: 'aisa-ai-mini__l', text: what + instead } ) ] );
+		} ) ) : null;
+		var box = card( Dock.cardHead( 'plan', 'doc', p.title, countText ), [ mini, logicBox, facts, addonList, efbNotes ].concat( advice, [
 			data.errors && data.errors.length ? note( data.errors.join( ' ' ), 'server' ) : null,
 			el( 'div', { class: 'aisa-ai-card__foot aisaautopilot-efb-actions' }, [ approve, discard, status ] )
 		] ), { 'data-sp-efb-state': 'preview' } );
@@ -851,7 +906,10 @@
 			api( 'efb/create', { action_id: data.action_id } ).then( function ( res ) {
 				if ( ! res.data.ok ) { status.textContent = res.data.message || t( 'createFailed', 'The form could not be created. Please try again.' ); approve.disabled = false; return; }
 				status.textContent = t( 'createdOpening', 'Created! Opening the editor…' );
-				if ( res.data.result && res.data.result.edit_url ) { setTimeout( function () { leaving = true; window.location.href = res.data.result.edit_url; }, 600 ); }
+				var result = res.data.result || {};
+				// The editor opens next; what EFB reported while storing the form, and the way to undo it, wait there.
+				try { sessionStorage.setItem( CREATED_KEY, JSON.stringify( { form_id: Number( result.form_id || 0 ), title: String( p.title || '' ), notes: Array.isArray( result.notes ) ? result.notes.slice( 0, 6 ) : [], can_undo: !! result.can_undo, at: Date.now() } ) ); } catch ( e ) {}
+				if ( result.edit_url ) { setTimeout( function () { leaving = true; window.location.href = result.edit_url; }, 600 ); }
 			} ).catch( function () { status.textContent = t( 'networkError', 'Network error. Please try again.' ); approve.disabled = false; } );
 		} );
 		discard.addEventListener( 'click', function () { box.remove(); setSuggestions( [] ); } );
@@ -1127,6 +1185,38 @@
 				} )
 				.catch( function () { install.disabled = false; later.disabled = false; box.setAttribute( 'data-sp-efb-install-state', 'failed' ); status.textContent = t( 'networkError', 'Network error. Please try again.' ); } );
 		} );
+		addAi( box );
+	}
+	/* A form the copilot just created opens here: say what Easy Form Builder reported while storing it and offer to undo
+	   it (Easy Form Builder's own Form_Package::delete(); the server keeps the token, bound to this administrator). */
+	var CREATED_KEY = 'aisaautopilot.efb.created';
+	function planName( plan ) {
+		return 'pro' === plan ? t( 'planPro', 'Pro' ) : ( 'free_plus' === plan ? t( 'planFreePlus', 'Free Plus' ) : t( 'planFree', 'Free' ) );
+	}
+	function welcomeCreated() {
+		var saved = null;
+		try { saved = JSON.parse( sessionStorage.getItem( CREATED_KEY ) || 'null' ); } catch ( e ) { saved = null; }
+		if ( ! saved || ! saved.form_id || Date.now() - Number( saved.at || 0 ) > 600000 ) { return; }
+		var match = /[?&]id=(\d+)/.exec( window.location.search );
+		if ( ! match || Number( match[ 1 ] ) !== Number( saved.form_id ) ) { return; }
+		try { sessionStorage.removeItem( CREATED_KEY ); } catch ( e ) {}
+		if ( ! ( saved.notes && saved.notes.length ) && ! saved.can_undo ) { return; }
+		open( false );
+		var status = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
+		var parts = [ el( 'div', { class: 'aisa-ai-card__body' }, ( saved.notes || [] ).map( function ( line ) { return el( 'p', { dir: 'auto', text: String( line ) } ); } ).concat( [ status ] ) ) ];
+		var undo = saved.can_undo ? button( t( 'undoCreate', 'Undo: delete this new form' ), { kind: 'quiet', size: 'sm', attrs: { 'data-sp-efb-undo': String( saved.form_id ) } } ) : null;
+		if ( undo ) { parts.push( el( 'div', { class: 'aisa-ai-card__foot' }, [ undo ] ) ); }
+		var box = card( Dock.cardHead( 'plan', 'check', t( 'createdTitle', 'Created “%s”', saved.title ) ), parts, { 'data-sp-efb-state': 'created' } );
+		if ( undo ) {
+			undo.addEventListener( 'click', function () {
+				undo.disabled = true; status.textContent = t( 'undoing', 'Deleting…' );
+				api( 'efb/undo', { form_id: Number( saved.form_id ) } ).then( function ( res ) {
+					status.textContent = String( ( res.data && res.data.message ) || '' );
+					if ( res.data && res.data.ok && res.data.list_url ) { leaving = true; setTimeout( function () { window.location.href = res.data.list_url; }, 900 ); return; }
+					undo.disabled = false;
+				} ).catch( function () { undo.disabled = false; status.textContent = t( 'networkError', 'Network error. Please try again.' ); } );
+			} );
+		}
 		addAi( box );
 	}
 	/* After an install reload: the request the administrator made waits in the composer; nothing is sent by itself. */
@@ -1458,6 +1548,7 @@
 		setOffline( ! configured );
 		updateSelection();
 		if ( configured ) { setTimeout( resumeAfterInstall, 400 ); }
+		setTimeout( welcomeCreated, 600 );
 		// The short introduction appears once, on the first visit, and only when AI is connected.
 		if ( configured && ! storage( NUDGE_KEY ) && launch ) { setTimeout( function () { offerNudge( 0 ); }, 1200 ); }
 	}
