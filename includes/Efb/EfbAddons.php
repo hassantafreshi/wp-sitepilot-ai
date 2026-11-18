@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Efb;
 
 /**
- * The Easy Form Builder add-ons the copilot may offer to install, and whether this site's plan allows it.
+ * The Easy Form Builder add-ons the copilot may offer to install, and whether this site's plan allows it. EFB's registry
+ * (EfbCapabilities) names each add-on and its plan; OFFERABLE is only the fallback for an EFB without the registry.
  *
  * The install itself is never done here: the browser asks the administrator first and then calls EFB's
  * own installer (`add_addons_Emsfb`), which checks the nonce, the capability and the plan again and
@@ -63,6 +64,9 @@ final class EfbAddons {
 				return (bool) $efb->addon_plan_allows_install_efb( $code );
 			}
 		}
+		if ( EfbCapabilities::available() && EfbCapabilities::addon( $code )['known'] ) {
+			return EfbCapabilities::addon( $code )['can_install'];
+		}
 		$package = (int) ( self::OFFERABLE[ $code ]['package'] ?? 1 );
 		$tier    = EfbLicense::status()['tier'];
 
@@ -80,11 +84,23 @@ final class EfbAddons {
 		$seen = array();
 		foreach ( $reasons as $reason ) {
 			$code = self::for_reason( (string) $reason );
-			if ( null === $code || isset( $seen[ $code ] ) || ! isset( self::OFFERABLE[ $code ] ) ) {
+			if ( null === $code || isset( $seen[ $code ] ) || ( ! isset( self::OFFERABLE[ $code ] ) && ! EfbCapabilities::addon( $code )['known'] ) ) {
 				continue;
 			}
 			$seen[ $code ] = true;
-			$out[]         = array(
+			// EFB's registry names the add-on and its plan; the list above only answers on an EFB without it.
+			$addon = EfbCapabilities::available() ? EfbCapabilities::addon( $code ) : null;
+			if ( null !== $addon && $addon['known'] ) {
+				$out[] = array(
+					'code'        => $code,
+					'name'        => $addon['name'],
+					'allowed'     => self::plan_allows( $code ),
+					'plan'        => $addon['package'],
+					'upgrade_url' => EfbCapabilities::upgrade_dialog_url( 'addon:' . $code ),
+				);
+				continue;
+			}
+			$out[] = array(
 				'code'        => $code,
 				'name'        => self::OFFERABLE[ $code ]['name'],
 				'allowed'     => self::plan_allows( $code ),

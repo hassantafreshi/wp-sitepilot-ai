@@ -306,6 +306,19 @@ final class EfbCapabilities {
 	}
 
 	/**
+	 * EFB's add-on contract for the customer portal (`split.contracts.portal`, F20-core): version and whether a
+	 * provider is active. A portal connector checks it before it registers `portal.link`.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	public static function portal_contract(): ?array {
+		$split    = self::block( 'split' );
+		$contract = is_array( $split['contracts']['portal'] ?? null ) ? $split['contracts']['portal'] : null;
+
+		return $contract;
+	}
+
+	/**
 	 * The form package API EFB offers for creating a form through its own save path, or null.
 	 *
 	 * @return array<string,mixed>|null

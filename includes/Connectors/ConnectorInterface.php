@@ -5,19 +5,10 @@ namespace AISAAutoPilot\Connectors;
 
 /**
  * A connector adapts the `form.create` capability to a real WordPress
- * implementation (built-in storage, Easy Form Builder, or others later).
+ * implementation (built-in storage, Easy Form Builder, or others later): it
+ * validates a plan and executes it after the administrator's approval.
  */
-interface ConnectorInterface {
-
-	public function get_id(): string;
-
-	public function get_name(): string;
-
-	/** Whether this connector can run on the current site right now. */
-	public function is_available(): bool;
-
-	/** @return string[] Capability strings, e.g. ['form.create']. */
-	public function get_capabilities(): array;
+interface ConnectorInterface extends ConnectorBase {
 
 	/**
 	 * Validate a normalized form plan before execution.
@@ -35,9 +26,4 @@ interface ConnectorInterface {
 	 * @return array<string, mixed> Result: status, form_id, edit_url, shortcode, warnings.
 	 */
 	public function execute_action( array $plan, array $context = array() ): array;
-
-	/**
-	 * @return array{available:bool, version:string, notes:string}
-	 */
-	public function get_health(): array;
 }

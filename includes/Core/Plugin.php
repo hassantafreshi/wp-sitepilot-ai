@@ -99,6 +99,13 @@ final class Plugin {
 		$registry = new ConnectorRegistry();
 		$registry->register( new EasyFormBuilderConnector() );
 		$registry->register( new NativeFormConnector() );
+		/**
+		 * Register more connectors (for example the Easy Form Builder customer portal connector, capability
+		 * `portal.link`). Built-in ids cannot be replaced.
+		 *
+		 * @param ConnectorRegistry $registry
+		 */
+		do_action( ConnectorRegistry::REGISTER_ACTION, $registry );
 		$this->container->set( ConnectorRegistry::class, $registry );
 	}
 
