@@ -1,0 +1,442 @@
+<?php
+/**
+ * End-to-end checks of the Easy Form Builder copilot on a real WordPress with Easy Form Builder (dev4) and its add-ons:
+ * chat -> plan -> preview -> approve -> the EFB form exists with the right JSON, for every owner rule of the EFB
+ * integration (SPLIT add-ons and plans, e-mail confirmation default, forward jump, gateways through their add-on
+ * contract, portal, plans, form package 1.1 undo, no direct table write). The AI provider is the inert mock
+ * (aisa-ai-mock-mu.php); nothing leaves the site.
+ *
+ *   wp eval-file tests/efb_e2e/rest_flow.php <scenario>   (throwaway local test site only)
+ *
+ * EFB loads its add-ons once per request, so the add-on switches and the plan of each scenario are set by the driver
+ * (tests/efb_e2e/run_rest.sh, through EFB's own settings functions) in separate processes before the scenario runs.
+ * The forms a scenario creates are removed again through EFB's Form_Package::delete().
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 1 );
+}
+
+use AISAAutoPilot\Efb\EfbCapabilities;
+
+wp_set_current_user( 1 );
+$aisa_scenario = (string) ( $args[0] ?? '' );
+$aisa_checks   = array();
+$aisa_created = array();
+$aisa_check   = static function ( bool $ok, string $name, $detail = null ) use ( &$aisa_checks ): void {
+	$aisa_checks[] = array(
+		'ok'   => $ok,
+		'name' => $name,
+	);
+	echo ( $ok ? 'PASS ' : 'FAIL ' ) . $name . ( $ok || null === $detail ? '' : ' :: ' . substr( wp_json_encode( $detail, JSON_UNESCAPED_UNICODE ), 0, 900 ) ) . "\n";
+};
+$aisa_queue = static function ( array $reply ): void {
+	$q   = (array) get_option( 'aisa_e2e_ai_queue', array() );
+	$q[] = $reply;
+	update_option( 'aisa_e2e_ai_queue', $q, false );
+};
+$aisa_rest = static function ( string $route, array $params ): array {
+	$request = new WP_REST_Request( 'POST', '/aisaautopilot/v1/' . $route );
+	foreach ( $params as $k => $v ) {
+		$request->set_param( $k, $v );
+	}
+	$response = rest_do_request( $request );
+
+	return array_merge( array( '_status' => $response->get_status() ), (array) $response->get_data() );
+};
+$aisa_rows = static function ( int $form_id ): array {
+	global $wpdb;
+	$raw = (string) $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $form_id ) );
+	$rows = json_decode( str_replace( '\\"', '"', $raw ), true );
+
+	return is_array( $rows ) ? $rows : array();
+};
+$aisa_of_type = static function ( array $rows, string $type ): array {
+	return array_values( array_filter( $rows, static fn ( $r ) => is_array( $r ) && ( $r['type'] ?? '' ) === $type ) );
+};
+$aisa_create = static function ( array $form, string $message = 'Build it' ) use ( $aisa_queue, $aisa_rest ): array {
+	$aisa_queue(
+		array(
+			'reply'  => 'Here is the form.',
+			'action' => 'create_form',
+			'form'   => $form,
+		)
+	);
+
+	return $aisa_rest(
+		'efb/chat',
+		array(
+			'message'  => $message,
+			'has_form' => false,
+			'addons'   => array(),
+		)
+	);
+};
+$aisa_approve = static function ( array $preview ) use ( $aisa_rest, &$aisa_created ): array {
+	$done = $aisa_rest( 'efb/create', array( 'action_id' => (string) ( $preview['action_id'] ?? '' ) ) );
+	if ( ! empty( $done['result']['form_id'] ) ) {
+		$aisa_created[] = (int) $done['result']['form_id'];
+	}
+
+	return $done;
+};
+$aisa_contact = array(
+	array(
+		'type'     => 'text',
+		'label'    => 'Full name',
+		'required' => true,
+	),
+	array(
+		'type'     => 'email',
+		'label'    => 'Email',
+		'required' => true,
+	),
+);
+
+try {
+	if ( 'split' === $aisa_scenario ) {
+		// 1. SPLIT (driver: Free Plus, AdnCLC off, AdnADR off): a calculation without Numbers & Calculations becomes a Number field; the preview names add-on and plan.
+		$p    = $aisa_create(
+			array(
+				'title'  => 'Quote request',
+				'fields' => array_merge(
+					$aisa_contact,
+					array(
+						array(
+							'type'  => 'calc',
+							'label' => 'Estimated total',
+						),
+						array(
+							'type'  => 'location',
+							'label' => 'Site location',
+						),
+					)
+				),
+			)
+		);
+		$need = array_column( (array) ( $p['addon_required'] ?? array() ), null, 'type' );
+		$aisa_check( 'preview' === ( $p['type'] ?? '' ), 'SPLIT: the plan becomes a preview', $p );
+		$aisa_check( 'AdnCLC' === ( $need['calc']['addon'] ?? '' ) && 'number' === ( $need['calc']['alternative'] ?? '' ) && 'free_plus' === ( $need['calc']['package'] ?? '' ), 'SPLIT: calc needs AdnCLC (Free Plus) and becomes a Number field', $need );
+		$aisa_check( 'AdnADR' === ( $need['maps']['addon'] ?? '' ) && 'text' === ( $need['maps']['alternative'] ?? '' ), 'SPLIT: the map needs Address & Postal and becomes a Text field', $need );
+		$errors = implode( ' ', (array) ( $p['errors'] ?? array() ) );
+		$aisa_check( false !== strpos( $errors, 'Numbers & Calculations add-on (Free Plus plan)' ) && false !== strpos( $errors, 'installs on every plan' ), 'SPLIT: the admin reads which add-on and plan', $errors );
+		$aisa_check( in_array( 'AdnCLC', array_column( (array) ( $p['install'] ?? array() ), 'code' ), true ), 'SPLIT: the install of Numbers & Calculations is offered', $p['install'] ?? null );
+		$aisa_check( ! in_array( 'calc', array_column( (array) ( $p['preview']['fields'] ?? array() ), 'type' ), true ), 'SPLIT: the preview never promises the calc field', $p['preview']['fields'] ?? null );
+		$done = $aisa_approve( $p );
+		$fid  = (int) ( $done['result']['form_id'] ?? 0 );
+		$rows = $aisa_rows( $fid );
+		$aisa_check( $fid > 0 && array() === $aisa_of_type( $rows, 'calc' ) && 1 === count( $aisa_of_type( $rows, 'number' ) ) && array() === $aisa_of_type( $rows, 'maps' ), 'SPLIT: approved form exists in EFB with the Number field and no calc / map', $done );
+
+		// 2. E-mail confirmation default (owner rule, EFB 4.3.2) on that same form.
+		$email = $aisa_of_type( $rows, 'email' )[0] ?? array();
+		$aisa_check( in_array( $email['noti'] ?? null, array( 1, '1', true ), true ) && ( $rows[0]['email_to'] ?? '' ) === ( $email['id_'] ?? 'x' ) && in_array( $rows[0]['sendEmail'] ?? null, array( true, 1, '1' ), true ), 'Confirmation: the first Email field is the recipient (noti 1, email_to, sendEmail)', array( $rows[0]['email_to'] ?? null, $rows[0]['sendEmail'] ?? null, $email ) );
+		$aisa_check( ! empty( $done['result']['can_undo'] ), 'Form package 1.1: the creation can be undone', $done );
+
+		// 3. Two Email fields: the second stays off. Asked off: no recipient.
+		$p    = $aisa_create(
+			array(
+				'title'  => 'Two emails',
+				'fields' => array_merge(
+					$aisa_contact,
+					array(
+						array(
+							'type'  => 'email',
+							'label' => 'Work email',
+						),
+					)
+				),
+			)
+		);
+		$rows = $aisa_rows( (int) ( $aisa_approve( $p )['result']['form_id'] ?? 0 ) );
+		$em   = $aisa_of_type( $rows, 'email' );
+		$aisa_check( 2 === count( $em ) && ( $rows[0]['email_to'] ?? '' ) === ( $em[0]['id_'] ?? 'x' ) && ! in_array( $em[1]['noti'] ?? null, array( 1, '1', true ), true ), 'Confirmation: a second Email field stays off', $em );
+		$p    = $aisa_create(
+			array(
+				'title'                 => 'No copy',
+				'confirm_to_respondent' => false,
+				'fields'                => $aisa_contact,
+			),
+			'a contact form, but do not email the visitor a copy'
+		);
+		$aisa_check( empty( $p['preview']['notifications']['respondent'] ), 'Confirmation off: the preview says no visitor copy', $p['preview']['notifications'] ?? null );
+		$rows = $aisa_rows( (int) ( $aisa_approve( $p )['result']['form_id'] ?? 0 ) );
+		$em   = $aisa_of_type( $rows, 'email' );
+		$aisa_check( '' === ( $rows[0]['email_to'] ?? 'x' ) && in_array( $em[0]['noti'] ?? null, array( 0, '0' ), true ), 'Confirmation off: noti 0 and no email_to in the stored form', array( $rows[0]['email_to'] ?? null, $em ) );
+		$prompts = (array) get_option( 'aisa_e2e_ai_prompts', array() );
+		$last    = end( $prompts );
+		$aisa_check( false !== strpos( (string) ( $last['user'] ?? '' ), 'VISITOR_CONFIRMATION_EMAIL_DEFAULT=on' ) && false !== strpos( (string) ( $last['system'] ?? '' ), 'ON by default' ), 'Confirmation: the model is told EFB\'s default and the registry facts', null );
+	}
+
+	if ( 'tsg' === $aisa_scenario ) {
+		// 4. Add-on present: typed signature kept; without it the drawn signature stays.
+		$p    = $aisa_create(
+			array(
+				'title'  => 'Agreement',
+				'fields' => array(
+					array(
+						'type'     => 'esign',
+						'label'    => 'Sign by typing your name',
+						'settings' => array( 'esign_mode' => 'type' ),
+					),
+				),
+			)
+		);
+		$need = (array) ( $p['addon_required'] ?? array() );
+		$aisa_check( 'AdnTSG' === ( $need[0]['addon'] ?? '' ) && 'esign' === ( $need[0]['alternative'] ?? '' ), 'SPLIT: typed signature without its add-on keeps the drawn signature', $need );
+	}
+
+	if ( 'free' === $aisa_scenario ) {
+		// 5. Plan gate on Free: mobile becomes Phone, the third page folds, the upgrade dialog is EFB's.
+			$p     = $aisa_create(
+			array(
+				'title'  => 'Long survey',
+				'fields' => array(
+					array(
+						'type'  => 'mobile',
+						'label' => 'Mobile',
+					),
+					array(
+						'type'  => 'steps',
+						'label' => 'Page 2',
+					),
+					array(
+						'type'  => 'text',
+						'label' => 'City',
+					),
+					array(
+						'type'  => 'steps',
+						'label' => 'Page 3',
+					),
+					array(
+						'type'  => 'text',
+						'label' => 'Comment',
+					),
+				),
+			)
+		);
+		$need  = array_column( (array) ( $p['addon_required'] ?? array() ), null, 'type' );
+		$links = implode( ' ', array_column( (array) ( $p['links'] ?? array() ), 'url' ) );
+		$aisa_check( 'plan' === ( $need['mobile']['reason'] ?? '' ) && 'tel' === ( $need['mobile']['alternative'] ?? '' ), 'Plan: mobile on Free becomes a Phone field', $need );
+		$aisa_check( false !== strpos( $links, 'efb_upgrade=field%3Amobile' ) && false !== strpos( $links, 'efb_origin=sitepilot' ), 'Plan: the link opens EFB\'s own upgrade dialog for the feature', $links );
+		$aisa_check( 2 === (int) ( $p['preview']['steps'] ?? 0 ), 'Plan: Free keeps two pages (limit:steps)', $p['preview']['steps'] ?? null );
+		}
+
+	if ( 'logic' === $aisa_scenario ) {
+		// 6. Conditional logic forward jump (owner rule): the preview says which steps and fields become optional.
+		$p     = $aisa_create(
+			array(
+				'title'  => 'Registration',
+				'fields' => array(
+					array(
+						'type'     => 'radio',
+						'label'    => 'Customer type',
+						'required' => true,
+						'options'  => array( 'Business', 'Individual' ),
+					),
+					array(
+						'type'  => 'steps',
+						'label' => 'Company',
+					),
+					array(
+						'type'     => 'text',
+						'label'    => 'Company name',
+						'required' => true,
+					),
+					array(
+						'type'  => 'steps',
+						'label' => 'Contact',
+					),
+					array(
+						'type'     => 'email',
+						'label'    => 'Email',
+						'required' => true,
+					),
+				),
+				'logic'  => array(
+					array(
+						'name' => 'Skip company',
+						'when' => array(
+							array(
+								'field'   => 'Customer type',
+								'compare' => 'is',
+								'value'   => 'Individual',
+							),
+						),
+						'then' => array(
+							array(
+								'action' => 'jump_to_step',
+								'target' => '3',
+							),
+						),
+					),
+				),
+			)
+		);
+		$logic = implode( ' ', (array) ( $p['preview']['logic'] ?? array() ) );
+		$aisa_check( false !== strpos( $logic, 'It skips step “Company”' ) && false !== strpos( $logic, '“Company name” become optional, are not checked and are not charged' ), 'Logic: the forward jump names the skipped step and its now-optional field', $logic );
+		$rows = $aisa_rows( (int) ( $aisa_approve( $p )['result']['form_id'] ?? 0 ) );
+		$rule = $rows[0]['logic_rules'][0] ?? array();
+		$aisa_check( 'jump_to_step' === ( $rule['actions'][0]['type'] ?? '' ), 'Logic: the jump rule is stored in the EFB form', $rule );
+	}
+
+	if ( 'payments' === $aisa_scenario ) {
+		// 7. Payments: a gateway whose add-on is off is refused with the install offer; a PAY00 gateway on is built from
+		//    EFB's own field template and the form is a payment form that is not ready until keys exist.
+		$aisa_queue(
+			array(
+				'reply'  => 'Here is the form.',
+				'action' => 'create_form',
+				'form'   => array(
+					'title'   => 'Workshop',
+					'fields'  => $aisa_contact,
+					'payment' => array(
+						'gateway'  => 'stripe',
+						'currency' => 'usd',
+						'items'    => array(
+							array(
+								'label' => 'Seat',
+								'price' => 40,
+							),
+						),
+					),
+				),
+			)
+		);
+		$p = $aisa_rest(
+			'efb/chat',
+			array(
+				'message'  => 'workshop with stripe 40 usd',
+				'has_form' => false,
+			)
+		);
+		$aisa_check( false !== strpos( implode( ' ', (array) ( $p['errors'] ?? array() ) ), 'Stripe needs its Easy Form Builder add-on' ) && in_array( 'AdnSPF', array_column( (array) ( $p['install'] ?? array() ), 'code' ), true ) && empty( $p['preview']['payment'] ), 'Payments: Stripe without its add-on is not added, its add-on is offered', $p );
+		$offer = array_column( (array) ( $p['install'] ?? array() ), null, 'code' )['AdnSPF'] ?? array();
+		$aisa_check( 'free_plus' === ( $offer['plan'] ?? '' ), 'Payments: the Stripe add-on installs on Free Plus (from EFB\'s registry)', $offer );
+
+			$aisa_queue(
+			array(
+				'reply'  => 'Here is the form.',
+				'action' => 'create_form',
+				'form'   => array(
+					'title'   => 'Ticket',
+					'fields'  => $aisa_contact,
+					'payment' => array(
+						'gateway'  => 'mollie',
+						'currency' => 'EUR',
+						'items'    => array(
+							array(
+								'label' => 'Ticket',
+								'price' => 25,
+							),
+						),
+					),
+				),
+			)
+		);
+		$p    = $aisa_rest(
+			'efb/chat',
+			array(
+				'message'  => 'ticket form with mollie 25 eur',
+				'has_form' => false,
+			)
+		);
+		$aisa_check( 'Mollie' === ( $p['preview']['payment']['gateway'] ?? '' ) && 'EUR' === ( $p['preview']['payment']['currency'] ?? '' ), 'Payments: Mollie (PAY00) is planned with its add-on\'s currency', $p['preview']['payment'] ?? $p );
+		$done  = $aisa_approve( $p );
+		$rows  = $aisa_rows( (int) ( $done['result']['form_id'] ?? 0 ) );
+		$notes = implode( ' ', (array) ( $done['result']['notes'] ?? array() ) );
+		$aisa_check( 'payment' === ( $rows[0]['type'] ?? '' ) && 'mollie' === ( $rows[0]['getway'] ?? '' ) && 'EUR' === ( $rows[0]['currency'] ?? '' ) && 1 === count( $aisa_of_type( $rows, 'mollie' ) ), 'Payments: the stored form is a Mollie payment form with EFB\'s gateway field', array_slice( $rows, 0, 1 ) );
+		$aisa_check( false === ( $done['result']['payment']['ready'] ?? null ) && false !== strpos( $notes, 'Visitors cannot pay' ), 'Payments: EFB\'s readiness says not ready (no keys) and the admin is told', $done['result'] ?? $done );
+	}
+
+	if ( 'portal' === $aisa_scenario ) {
+		// 8. Portal and plans in how-to answers.
+		$aisa_queue(
+			array(
+				'reply'      => 'Here is how.',
+				'action'     => 'answer_help',
+				'help_topic' => 'customer portal my submissions',
+			)
+		);
+		$h = $aisa_rest(
+			'efb/chat',
+			array(
+				'message'  => 'can my customers see their submissions?',
+				'has_form' => false,
+			)
+		);
+		$aisa_check( 'help' === ( $h['type'] ?? '' ) && false !== strpos( (string) ( $h['answer'] ?? '' ), 'the customer portal is not ready' ), 'Portal: portal_core is read (not ready until the Pro add-on)', $h );
+	}
+
+	if ( 'editor' === $aisa_scenario ) {
+		// 9. Open form: a calculation asked for in the editor becomes a Number field with the reason and the offer.
+		$aisa_queue(
+			array(
+				'reply'      => 'Added.',
+				'action'     => 'customize',
+				'operations' => array(
+					array(
+						'op'    => 'add_field',
+						'field' => array(
+							'type'  => 'calc',
+							'label' => 'Total',
+						),
+					),
+				),
+			)
+		);
+		$c     = $aisa_rest(
+			'efb/chat',
+			array(
+				'message'  => 'add a total calculation',
+				'has_form' => true,
+				'fields'   => array(
+					array(
+						'id'    => 'name1',
+						'label' => 'Name',
+						'type'  => 'text',
+						'step'  => '1',
+					),
+				),
+				'steps'    => array(
+					array(
+						'id'    => '1',
+						'label' => 'Step 1',
+					),
+				),
+			)
+		);
+		$types = array_column( (array) ( $c['operations'][0]['items'] ?? array() ), 'type' );
+		$aisa_check( 'ops' === ( $c['type'] ?? '' ) && array( 'number' ) === $types && 'AdnCLC' === ( $c['addon_required'][0]['addon'] ?? '' ), 'Editor: calc without its add-on goes in as a Number field with the reason', $c );
+	}
+
+	if ( 'write' === $aisa_scenario ) {
+		// 10. Never a direct write: the old save endpoint answers 410.
+		$aisa_approve( $aisa_create( array( 'title' => 'Undo me', 'fields' => $aisa_contact ) ) );
+		$s = $aisa_rest(
+			'efb/save',
+			array(
+				'form_id'   => $aisa_created[0] ?? 1,
+				'structure' => array( array( 'type' => 'form' ) ),
+			)
+		);
+		$aisa_check( 410 === $s['_status'] && 'use_efb_save' === ( $s['code'] ?? '' ), 'No direct write: /efb/save refuses and points to EFB\'s Save', $s );
+
+		// 11. Undo through EFB's Form_Package::delete().
+		$first = array_shift( $aisa_created );
+		$u     = $aisa_rest( 'efb/undo', array( 'form_id' => $first ) );
+		$aisa_check( ! empty( $u['ok'] ) && array() === $aisa_rows( (int) $first ), 'Form package 1.1: Undo deletes the new form through EFB', $u );
+		$u2 = $aisa_rest( 'efb/undo', array( 'form_id' => $first ) );
+		$aisa_check( 404 === $u2['_status'], 'Form package 1.1: a second undo is refused', $u2 );
+	}
+
+} finally {
+	foreach ( $aisa_created as $id ) {
+		$token = get_transient( 'aisaautopilot_efb_undo_1_' . $id );
+		if ( is_string( $token ) && class_exists( '\\Emsfb\\Form_Package' ) ) {
+			\Emsfb\Form_Package::delete( $id, $token );
+			delete_transient( 'aisaautopilot_efb_undo_1_' . $id );
+		}
+	}
+}
+
+$aisa_failed = count( array_filter( $aisa_checks, static fn ( $c ) => ! $c['ok'] ) );
+echo sprintf( "\n%d passed, %d failed\n", count( $aisa_checks ) - $aisa_failed, $aisa_failed );

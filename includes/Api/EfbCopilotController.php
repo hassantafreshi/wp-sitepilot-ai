@@ -450,6 +450,12 @@ final class EfbCopilotController {
 		// An open form reports its own add-on state; with no form open, the editor's add-on list says it.
 		$addons_seen = is_array( $request->get_param( 'addons' ) ) ? (array) $request->get_param( 'addons' ) : array();
 		$logic       = $has_form ? (bool) $request->get_param( 'logic_addon' ) : (int) ( $addons_seen['AdnSMF'] ?? 0 ) >= 1;
+		// EFB's registry knows which add-ons are installed on this site; the browser's report is the fallback.
+		if ( EfbCapabilities::available() ) {
+			$logic                = EfbCapabilities::addon( 'AdnSMF' )['installed'];
+			$addons_seen['AdnSMF'] = $logic ? 1 : 0;
+			$addons_seen['AdnSS']  = EfbCapabilities::addon( 'AdnSS' )['installed'] ? 1 : 0;
+		}
 		$logic_rules = $this->clean_logic_rules( $request->get_param( 'logic_rules' ) );
 		$captcha     = $request->get_param( 'captcha' );
 		$shield      = (bool) $request->get_param( 'spam_shield' );
