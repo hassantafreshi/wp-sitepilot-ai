@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace AISAAutoPilot\Admin;
 
 use AISAAutoPilot\Connectors\EasyFormBuilderConnector;
+use AISAAutoPilot\Efb\EfbCapabilities;
 use AISAAutoPilot\Efb\EfbCustomizeSkill;
+use AISAAutoPilot\Efb\EfbPayments;
 use AISAAutoPilot\Logging\Logger;
 
 /**
@@ -149,6 +151,7 @@ final class EasyFormBuilderPage {
 								<?php endif; ?>
 								<a class="sp-efbx-button is-block" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ) ); ?>"><?php esc_html_e( 'Open activity log', 'ai-site-assistant-autopilot' ); ?></a>
 							</section>
+							<?php $this->render_site_card(); ?>
 							<section class="sp-efbx-card sp-efbx-note" aria-labelledby="sp-efbx-note-title">
 								<h2 class="sp-efbx-note__title" id="sp-efbx-note-title"><?php esc_html_e( 'Nothing is saved on its own', 'ai-site-assistant-autopilot' ); ?></h2>
 								<p class="sp-efbx-note__text"><?php esc_html_e( 'The copilot only changes the form open in the editor. Your form is saved when you press Save in Easy Form Builder.', 'ai-site-assistant-autopilot' ); ?></p>
@@ -161,6 +164,166 @@ final class EasyFormBuilderPage {
 			<?php Ui::overlays(); ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * What Easy Form Builder itself reports about this site (its capability registry): the plan, how new forms are
+	 * created, the confirmation e-mail default, the add-ons that left its core, the payment gateways, the CAPTCHA
+	 * services and the customer portal. Read only; installing or upgrading stays a person's click in Easy Form Builder.
+	 */
+	private function render_site_card(): void {
+		if ( ! EfbCapabilities::available() ) {
+			if ( null !== EfbCapabilities::all() || ! defined( 'EMSFB_PLUGIN_VERSION' ) ) {
+				return;
+			}
+			?>
+			<section class="sp-efbx-card sp-efbx-site" aria-labelledby="sp-efbx-site-title" data-sp-efb-site="old">
+				<h2 class="sp-efbx-card__title" id="sp-efbx-site-title"><?php esc_html_e( 'On this site', 'ai-site-assistant-autopilot' ); ?></h2>
+				<p class="sp-efbx-card__text"><?php echo esc_html( EasyFormBuilderConnector::update_message() ); ?></p>
+			</section>
+			<?php
+			return;
+		}
+		$plan   = EfbCapabilities::plan();
+		$groups = array();
+
+		$general   = array();
+		$general[] = array(
+			'label' => __( 'Plan', 'ai-site-assistant-autopilot' ),
+			'tag'   => EfbCapabilities::plan_label( 'pro_pending' === $plan ? 'free' : $plan ),
+			'tone'  => 'ok',
+			'note'  => EfbCapabilities::one_time_purchase() ? __( 'Pro is a one-time purchase on this site', 'ai-site-assistant-autopilot' ) : '',
+			'key'   => 'plan',
+		);
+		$package   = EfbCapabilities::form_package_version();
+		$general[] = array(
+			'label' => __( 'New forms are created through Easy Form Builder’s own save path', 'ai-site-assistant-autopilot' ),
+			'tag'   => $package > 0 ? sprintf( 'v%s', (string) $package ) : __( 'Update needed', 'ai-site-assistant-autopilot' ),
+			'tone'  => $package > 0 ? 'ok' : 'err',
+			'note'  => '',
+			'key'   => 'form_package',
+		);
+		$general[] = array(
+			'label' => __( 'Confirmation e-mail to the visitor on new forms', 'ai-site-assistant-autopilot' ),
+			'tag'   => EfbCapabilities::email_confirmation_default_on() ? __( 'On by default', 'ai-site-assistant-autopilot' ) : __( 'Off by default', 'ai-site-assistant-autopilot' ),
+			'tone'  => 'ok',
+			'note'  => '',
+			'key'   => 'email_confirmation',
+		);
+		$portal    = EfbCapabilities::portal();
+		if ( null !== $portal ) {
+			$general[] = array(
+				'label' => __( 'Customer portal', 'ai-site-assistant-autopilot' ),
+				'tag'   => ! empty( $portal['ready'] ) ? __( 'Ready', 'ai-site-assistant-autopilot' ) : __( 'Pro add-on, not active', 'ai-site-assistant-autopilot' ),
+				'tone'  => ! empty( $portal['ready'] ) ? 'ok' : 'warn',
+				'note'  => '',
+				'key'   => 'portal',
+			);
+		}
+		$groups[] = array(
+			'title' => __( 'Easy Form Builder', 'ai-site-assistant-autopilot' ),
+			'rows'  => $general,
+		);
+
+		$addons = array();
+		foreach ( (array) ( EfbCapabilities::block( 'split' )['addons'] ?? array() ) as $code => $info ) {
+			// The gateways' add-ons are listed with the gateways below.
+			if ( is_array( $info ) && 'legacy_gateway' === ( $info['contract'] ?? '' ) ) {
+				continue;
+			}
+			$addons[] = $this->addon_row( (string) $code );
+		}
+		if ( array() !== $addons ) {
+			$groups[] = array(
+				'title' => __( 'Features that are add-ons', 'ai-site-assistant-autopilot' ),
+				'rows'  => $addons,
+			);
+		}
+
+		$gateways = array();
+		foreach ( EfbPayments::registry_status() as $id => $row ) {
+			$gateways[] = $this->addon_row( (string) ( $row['addon'] ?? '' ), (string) $row['label'], 'gw-' . $id );
+		}
+		if ( array() !== $gateways ) {
+			$groups[] = array(
+				'title' => __( 'Payment gateways', 'ai-site-assistant-autopilot' ),
+				'rows'  => $gateways,
+			);
+		}
+
+		$captcha = array();
+		foreach ( EfbCapabilities::captcha_providers() as $provider ) {
+			$on        = ! empty( $provider['available'] );
+			$captcha[] = array(
+				'label' => (string) ( $provider['label'] ?? $provider['id'] ?? '' ),
+				'tag'   => $on ? ( ! empty( $provider['ready'] ) ? __( 'Ready', 'ai-site-assistant-autopilot' ) : __( 'Keys not set', 'ai-site-assistant-autopilot' ) ) : __( 'Add-on', 'ai-site-assistant-autopilot' ),
+				'tone'  => $on && ! empty( $provider['ready'] ) ? 'ok' : 'warn',
+				'note'  => '',
+				'key'   => 'captcha-' . (string) ( $provider['id'] ?? '' ),
+			);
+		}
+		if ( array() !== $captcha ) {
+			$groups[] = array(
+				'title' => __( 'CAPTCHA services', 'ai-site-assistant-autopilot' ),
+				'rows'  => $captcha,
+			);
+		}
+		?>
+		<section class="sp-efbx-card sp-efbx-site" aria-labelledby="sp-efbx-site-title" data-sp-efb-site="registry">
+			<h2 class="sp-efbx-card__title" id="sp-efbx-site-title"><?php esc_html_e( 'On this site', 'ai-site-assistant-autopilot' ); ?></h2>
+			<p class="sp-efbx-card__text"><?php esc_html_e( 'As Easy Form Builder reports it. The copilot never promises a field this site cannot show: it names the add-on or plan and uses the closest field instead.', 'ai-site-assistant-autopilot' ); ?></p>
+			<?php foreach ( $groups as $group ) : ?>
+				<h3 class="sp-efbx-group"><?php echo esc_html( $group['title'] ); ?></h3>
+				<ul class="sp-efbx-rows">
+				<?php foreach ( $group['rows'] as $row ) : ?>
+					<li class="sp-efbx-row" data-sp-efb-site-row="<?php echo esc_attr( $row['key'] ); ?>">
+						<span class="sp-efbx-row__label">
+							<bdi><?php echo esc_html( $row['label'] ); ?></bdi>
+							<?php if ( '' !== $row['note'] ) : ?>
+								<small class="sp-efbx-row__note"><?php echo esc_html( $row['note'] ); ?></small>
+							<?php endif; ?>
+						</span>
+						<span class="sp-efbx-tag is-<?php echo esc_attr( $row['tone'] ); ?>"><bdi><?php echo esc_html( $row['tag'] ); ?></bdi></span>
+					</li>
+				<?php endforeach; ?>
+				</ul>
+			<?php endforeach; ?>
+			<a class="sp-efbx-button is-block" href="<?php echo esc_url( EfbCapabilities::addons_page() ); ?>"><?php esc_html_e( 'Open EFB Add-ons', 'ai-site-assistant-autopilot' ); ?></a>
+		</section>
+		<?php
+	}
+
+	/**
+	 * One add-on as a row: its name and whether it is active, needs installing (with its plan), a higher plan or an update.
+	 *
+	 * @return array{label:string,tag:string,tone:string,note:string,key:string}
+	 */
+	private function addon_row( string $code, string $label = '', string $key = '' ): array {
+		$addon = EfbCapabilities::addon( $code );
+		$plan  = EfbCapabilities::plan_label( $addon['package'] );
+		if ( $addon['active'] ) {
+			$tag  = __( 'Active', 'ai-site-assistant-autopilot' );
+			$tone = 'ok';
+		} elseif ( 'update' === $addon['state'] ) {
+			$tag  = __( 'Update needed', 'ai-site-assistant-autopilot' );
+			$tone = 'err';
+		} elseif ( 'plan' === $addon['state'] || ! $addon['can_install'] ) {
+			/* translators: %s: plan name. */
+			$tag  = sprintf( __( 'Needs %s', 'ai-site-assistant-autopilot' ), $plan );
+			$tone = 'warn';
+		} else {
+			/* translators: %s: plan name. */
+			$tag  = 'free' === $addon['package'] ? __( 'Install (every plan)', 'ai-site-assistant-autopilot' ) : sprintf( __( 'Install (%s)', 'ai-site-assistant-autopilot' ), $plan );
+			$tone = 'warn';
+		}
+
+		return array(
+			'label' => '' !== $label ? $label : $addon['name'],
+			'tag'   => $tag,
+			'tone'  => $tone,
+			'note'  => '',
+			'key'   => '' !== $key ? $key : $code,
+		);
 	}
 
 	/**
@@ -241,7 +404,7 @@ final class EasyFormBuilderPage {
 				),
 				$checked,
 			),
-			'add_payment'        => array( 'fields', __( 'Add online payment with Stripe, PayPal or ZarinPal: priced choices or an amount, the total and the gateway field, using only prices and a currency you gave. Needs the gateway’s add-on and Pro; never touches keys', 'ai-site-assistant-autopilot' ), $allowed ),
+			'add_payment'        => array( 'fields', __( 'Add online payment through a gateway add-on (Stripe, PayPal, ZarinPal, Mollie, Payplug, Tap, Omise, PayTabs, Paymob or Xendit): priced choices or an amount, the total and the gateway field, using only prices and a currency you gave. Needs the gateway’s add-on and the plan Easy Form Builder names; never touches keys', 'ai-site-assistant-autopilot' ), $allowed ),
 			'move_field'         => array( 'fields', __( 'Move a field before or after another field', 'ai-site-assistant-autopilot' ), $checked ),
 			'remove_field'       => array( 'fields', __( 'Remove a field and its settings', 'ai-site-assistant-autopilot' ), $checked ),
 			'add_option'         => array( 'choices', __( 'Add a choice to a select, radio or checkbox', 'ai-site-assistant-autopilot' ), $allowed ),

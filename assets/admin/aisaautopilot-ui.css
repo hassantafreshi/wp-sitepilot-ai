@@ -4808,6 +4808,15 @@ html[dir="rtl"] .sp-app .sp-efbx-group { letter-spacing: 0; }
 .sp-app .sp-efbx-last__meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 0; color: var(--sp-muted); font-size: 11.5px; line-height: 1.5; }
 .sp-app .sp-efbx-last__meta code { padding: 0; background: none; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11.5px; }
 .sp-app .sp-efbx-last__empty { margin: 8px 0 0; color: var(--sp-muted); font-size: 12.5px; line-height: 1.55; }
+/* "On this site": what Easy Form Builder's own registry reports (plan, add-ons, gateways, CAPTCHA, portal). */
+.sp-efbx-site { overflow: hidden; padding-block: 15px; }
+.sp-app .sp-efbx-site > .sp-efbx-card__title,
+.sp-app .sp-efbx-site > .sp-efbx-card__text { padding-inline: 17px; }
+.sp-app .sp-efbx-site > .sp-efbx-card__text { margin-block-end: 8px; }
+.sp-app .sp-efbx-site .sp-efbx-row { padding-inline: 17px; }
+.sp-app .sp-efbx-site .sp-efbx-group { padding-inline: 17px; }
+.sp-app .sp-efbx-site .sp-efbx-button.is-block { inline-size: calc(100% - 34px); margin-inline: 17px; }
+.sp-app .sp-efbx-row__note { display: block; color: var(--sp-muted); font-size: 11.5px; line-height: 1.45; }
 .sp-efbx-note { padding: 15px 17px; border-color: #ccd1f0; background: #eef0fb; }
 .sp-app .sp-efbx-note__title { margin: 0; padding: 0; color: var(--sp-primary); font-size: 13px; font-weight: 800; line-height: 1.4; }
 .sp-app .sp-efbx-note__text { margin: 4px 0 0; color: #4d5075; font-size: 12px; line-height: 1.55; }

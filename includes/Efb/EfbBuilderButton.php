@@ -234,6 +234,7 @@ final class EfbBuilderButton {
 					'undoCreate'                     => __( 'Undo: delete this new form', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: form title. */
 					'createdTitle'                   => __( 'Created “%s”', 'ai-site-assistant-autopilot' ),
+					'createdBody'                    => __( 'Easy Form Builder stored it with its own checks. Look it over here; if it is not what you wanted, Undo deletes it.', 'ai-site-assistant-autopilot' ),
 					'undoing'                        => __( 'Deleting…', 'ai-site-assistant-autopilot' ),
 					'reasonEmailFieldMissing'        => __( 'the form has no Email field to send the confirmation to', 'ai-site-assistant-autopilot' ),
 					'reasonFieldNeedsAddon'          => __( 'that field needs an Easy Form Builder add-on that is not active on this page', 'ai-site-assistant-autopilot' ),

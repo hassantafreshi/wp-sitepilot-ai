@@ -1203,7 +1203,8 @@
 		if ( ! ( saved.notes && saved.notes.length ) && ! saved.can_undo ) { return; }
 		open( false );
 		var status = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
-		var parts = [ el( 'div', { class: 'aisa-ai-card__body' }, ( saved.notes || [] ).map( function ( line ) { return el( 'p', { dir: 'auto', text: String( line ) } ); } ).concat( [ status ] ) ) ];
+		var lines = ( saved.notes || [] ).length ? saved.notes : [ t( 'createdBody', 'Easy Form Builder stored it with its own checks. Look it over here; if it is not what you wanted, Undo deletes it.' ) ];
+		var parts = [ el( 'div', { class: 'aisa-ai-card__body' }, lines.map( function ( line ) { return el( 'p', { dir: 'auto', text: String( line ) } ); } ).concat( [ status ] ) ) ];
 		var undo = saved.can_undo ? button( t( 'undoCreate', 'Undo: delete this new form' ), { kind: 'quiet', size: 'sm', attrs: { 'data-sp-efb-undo': String( saved.form_id ) } } ) : null;
 		if ( undo ) { parts.push( el( 'div', { class: 'aisa-ai-card__foot' }, [ undo ] ) ); }
 		var box = card( Dock.cardHead( 'plan', 'check', t( 'createdTitle', 'Created “%s”', saved.title ) ), parts, { 'data-sp-efb-state': 'created' } );

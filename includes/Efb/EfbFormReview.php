@@ -166,7 +166,7 @@ final class EfbFormReview {
 				$google = $google || ! empty( $provider['ready'] );
 				continue;
 			}
-			$addons[] = (string) ( $provider['label'] ?? $provider['id'] ?? '' ) . ( ! empty( $provider['available'] ) ? '' : ' (' . __( 'add-on', 'ai-site-assistant-autopilot' ) . ')' );
+			$addons[] = (string) ( $provider['label'] ?? $provider['id'] ?? '' );
 		}
 		$base = __( 'Easy Form Builder already checks every form with a hidden honeypot and timing checks.', 'ai-site-assistant-autopilot' );
 		$cap  = $google

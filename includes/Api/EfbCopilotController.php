@@ -119,9 +119,8 @@ final class EfbCopilotController {
 		$payload = $this->with_pro_upsell( $payload, $split['pro_fields'] );
 		$blocked = $skill->blocked();
 		if ( array() !== $blocked ) {
-			$payload           = $this->with_feature_gate( $payload, $blocked );
-			$payload['errors'] = array_merge( EfbFeatureGate::messages( $blocked ), is_array( $payload['errors'] ?? null ) ? $payload['errors'] : array() );
-			$offers            = EfbFeatureGate::offers( $blocked );
+			$payload = $this->with_feature_gate( $payload, $blocked );
+			$offers  = EfbFeatureGate::offers( $blocked );
 			if ( array() !== $offers ) {
 				$payload['install'] = $offers;
 			}
@@ -891,8 +890,8 @@ final class EfbCopilotController {
 				'action_id' => $action_id,
 				'preview'   => $this->build_preview( $plan, $name, $shield ),
 			);
-			$payment_notes = array_merge( EfbFeatureGate::messages( $gate['blocked'] ), $payment_notes );
-			$payload       = $this->with_feature_gate( $payload, $gate['blocked'] );
+			// The preview lists each field the gate changed (addon_required), with the add-on, plan and field used.
+			$payload = $this->with_feature_gate( $payload, $gate['blocked'] );
 
 			if ( array() !== $payment_notes ) {
 				$payload['errors'] = $payment_notes;

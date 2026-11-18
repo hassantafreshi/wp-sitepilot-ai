@@ -117,8 +117,8 @@ try {
 		$aisa_check( 'preview' === ( $p['type'] ?? '' ), 'SPLIT: the plan becomes a preview', $p );
 		$aisa_check( 'AdnCLC' === ( $need['calc']['addon'] ?? '' ) && 'number' === ( $need['calc']['alternative'] ?? '' ) && 'free_plus' === ( $need['calc']['package'] ?? '' ), 'SPLIT: calc needs AdnCLC (Free Plus) and becomes a Number field', $need );
 		$aisa_check( 'AdnADR' === ( $need['maps']['addon'] ?? '' ) && 'text' === ( $need['maps']['alternative'] ?? '' ), 'SPLIT: the map needs Address & Postal and becomes a Text field', $need );
-		$errors = implode( ' ', (array) ( $p['errors'] ?? array() ) );
-		$aisa_check( false !== strpos( $errors, 'Numbers & Calculations add-on (Free Plus plan)' ) && false !== strpos( $errors, 'installs on every plan' ), 'SPLIT: the admin reads which add-on and plan', $errors );
+		$aisa_check( 'Numbers & Calculations' === ( $need['calc']['addon_name'] ?? '' ) && 'Address & Postal' === ( $need['maps']['addon_name'] ?? '' ) && 'free' === ( $need['maps']['package'] ?? '' ), 'SPLIT: the preview names each add-on and its plan (Address & Postal: every plan)', $need );
+		$aisa_check( false !== strpos( implode( ' ', array_column( (array) ( $p['links'] ?? array() ), 'url' ) ), 'page=Emsfb_addon' ), 'SPLIT: the preview links to EFB\'s Add-ons page', $p['links'] ?? null );
 		$aisa_check( in_array( 'AdnCLC', array_column( (array) ( $p['install'] ?? array() ), 'code' ), true ), 'SPLIT: the install of Numbers & Calculations is offered', $p['install'] ?? null );
 		$aisa_check( ! in_array( 'calc', array_column( (array) ( $p['preview']['fields'] ?? array() ), 'type' ), true ), 'SPLIT: the preview never promises the calc field', $p['preview']['fields'] ?? null );
 		$done = $aisa_approve( $p );
