@@ -3,7 +3,9 @@
  * the copilot inside EFB designs a form whose calculation needs an add-on the site lacks (the preview names the add-on
  * and its plan, shows the field used instead, offers the install), Create stores it through EFB, the editor then says
  * what EFB reported and offers Undo; and the plugin's "Easy Form Builder copilot" page lists what EFB reports about
- * this site. en_US at 1280 px, fa_IR and ar at 375 px, screenshots for each.
+ * this site. EFB 4.3.2: the new form is a draft the admin publishes from the card; with no form open, a SAVED form is
+ * chosen, its change proposed and saved through EFB's form.update on approval; the owner's own Save warnings
+ * (efb:form-saved) are explained. en_US at 1280 px, fa_IR and ar at 375 px, screenshots for each.
  *
  *   AISA_BASE=http://127.0.0.1:8090 AISA_USER=admin AISA_PASS=… AISA_WP="php wp-cli.phar --path=…" \
  *   AISA_SHOTS=/tmp/shots AISA_CHROME=/usr/bin/google-chrome node tests/efb_e2e/ui.cjs
@@ -115,12 +117,65 @@ async function run( locale, width, height ) {
 		check( stored.rows && stored.rows[ 0 ].email_to === email.id_ && String( email.noti ) === '1', `${ tag }: the stored form confirms to the visitor at the first Email field`, stored.rows && stored.rows[ 0 ] );
 		await page.waitForSelector( '[data-sp-efb-state="created"]', { timeout: 30000 } );
 		check( 1 === await page.locator( `[data-sp-efb-undo="${ formId }"]` ).count(), `${ tag }: the editor offers Undo for the new form` );
+		// EFB 4.3.2: the new form is a draft; one card says so and offers Publish (no second draft card).
+		check( 'draft' === JSON.parse( ctl( 'status', formId ) ).status && 1 === await page.locator( '[data-sp-efb-state="created"] [data-sp-efb-note="draft"]' ).count() && 1 === await page.locator( `[data-sp-efb-publish="${ formId }"]` ).count() && 0 === await page.locator( '[data-sp-efb-state="draft"]' ).count(), `${ tag }: the new form is a draft, the card offers Publish once` );
 		await page.waitForTimeout( 800 );
 		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-created-${ tag }.png` ), fullPage: false } );
+		await page.click( `[data-sp-efb-publish="${ formId }"]` );
+		await page.waitForFunction( ( id ) => ! document.querySelector( `[data-sp-efb-publish="${ id }"]` ), formId, { timeout: 20000 } );
+		check( 'published' === JSON.parse( ctl( 'status', formId ) ).status, `${ tag }: Publish published the form through EFB` );
+
+		// The owner's own Save: EFB passes its warnings with efb:form-saved; the copilot explains them.
+		await page.evaluate( () => document.dispatchEvent( new CustomEvent( 'efb:form-saved', { detail: { id: 1, created: false, warnings: [ { code: 'addon_keys_kept', addon: 'AdnTSG', m: 'Settings of Typed Signature are kept until the add-on is installed.' }, { code: 'pay_x', level: 'info', m: 'info' } ] } } ) ) );
+		await page.waitForSelector( '[data-sp-efb-state="save-notes"]', { timeout: 20000 } );
+		check( 1 === await page.locator( '[data-sp-efb-state="save-notes"] [data-sp-efb-note="save"]' ).count(), `${ tag }: the owner's Save warnings are explained (the info line left out)` );
+		await page.locator( '[data-sp-efb-state="save-notes"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
+		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-save-notes-${ tag }.png` ), fullPage: false } );
 		await page.click( `[data-sp-efb-undo="${ formId }"]` );
 		await page.waitForURL( /page=Emsfb(&|$)/, { timeout: 30000 } );
 		const gone = JSON.parse( ctl( 'form', formId ) );
 		check( null === gone.rows, `${ tag }: Undo removed the form through EFB`, gone );
+
+		// 4. EFB 4.3.2: no form open (the forms list): a saved form is chosen, its change proposed, then saved on approval.
+		const saved = JSON.parse( ctl( 'saved-form', `Saved ${ tag }` ) ).form_id;
+		try {
+			// Undo's redirect may still be loading the forms list: let it settle, and retry a goto it aborts.
+			await page.waitForLoadState( 'networkidle', { timeout: 60000 } ).catch( () => {} );
+			for ( let i = 0; ; i++ ) {
+				try {
+					await page.goto( BASE + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'networkidle', timeout: 90000 } );
+					break;
+				} catch ( e ) {
+					if ( i >= 2 || ! /ERR_ABORTED/.test( String( e ) ) ) throw e;
+					await page.waitForTimeout( 1500 );
+				}
+			}
+			await page.waitForSelector( '#aisaautopilot-efb-launch', { timeout: 60000 } );
+			await page.evaluate( () => document.getElementById( 'aisaautopilot-efb-launch' ).click() );
+			await page.waitForSelector( '[data-sp-efb-chip="saved-form"]', { timeout: 20000 } );
+			await page.click( '[data-sp-efb-chip="saved-form"]' );
+			await page.waitForSelector( `[data-sp-efb-form="${ saved }"]`, { timeout: 20000 } );
+			await page.click( `[data-sp-efb-form="${ saved }"]` );
+			ctl( 'queue', JSON.stringify( { reply: 'Done.', action: 'customize', operations: [ { op: 'set_field', target: 'Email', prop: 'required', value: false }, { op: 'add_field', field: { type: 'tel', label: 'Phone' }, after: 'Email' } ] } ) );
+			await page.fill( '#aisaautopilot-efb-input', 'Make Email optional and add a phone field after it' );
+			await page.click( '#aisaautopilot-efb-send' );
+			await page.waitForSelector( '[data-sp-efb-state="update-preview"]', { timeout: 60000 } );
+			check( 2 === await page.locator( '[data-sp-efb-state="update-preview"] [data-sp-efb-note="change"]' ).count(), `${ tag }: the change of the saved form is proposed in plain words` );
+			check( ! JSON.parse( ctl( 'form', saved ) ).rows.some( ( r ) => r && r.type === 'tel' ), `${ tag }: nothing is saved before the approval` );
+			check( await noHorizontalScroll( page ), `${ tag }: the proposal has no horizontal scroll` );
+			await page.locator( '[data-sp-efb-state="update-preview"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'start' } ) );
+			await page.waitForTimeout( 300 );
+			await page.screenshot( { path: path.join( SHOTS, `efb-copilot-update-preview-${ tag }.png` ), fullPage: false } );
+			await page.click( '[data-sp-efb-update="1"]' );
+			await page.waitForSelector( '[data-sp-efb-state="update-saved"]', { timeout: 60000 } );
+			const rows = JSON.parse( ctl( 'form', saved ) ).rows.filter( ( r ) => r && r.type !== 'option' ).map( ( r ) => r.type );
+			check( rows.indexOf( 'tel' ) === rows.indexOf( 'email' ) + 1, `${ tag }: approved: EFB saved the Phone field right after Email`, rows );
+			await page.locator( '[data-sp-efb-state="update-saved"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
+			await page.waitForTimeout( 300 );
+			await page.screenshot( { path: path.join( SHOTS, `efb-copilot-update-saved-${ tag }.png` ), fullPage: false } );
+		} finally {
+			ctl( 'delete', saved );
+		}
 		check( 0 === errors.length, `${ tag }: no JavaScript errors`, errors );
 	} catch ( e ) {
 		check( false, `${ tag }: run`, String( e && e.stack || e ) );

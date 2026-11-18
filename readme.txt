@@ -514,6 +514,12 @@ editable text; nothing is sent until you press Send.
   Payment gateways are always Easy Form Builder add-ons, including Mollie,
   Payplug, Tap, Omise, PayTabs, Paymob and Xendit. The Easy Form Builder
   copilot page shows what Easy Form Builder reports about the site.
+* With Easy Form Builder 4.3.2 the copilot also edits a saved form after your
+  approval (a form someone else saved in the meantime is never overwritten),
+  keeps the name you gave a new form, creates it as a draft you publish from
+  the card, explains the warnings of Easy Form Builder's own Save and reads the
+  payment gateways from Easy Form Builder. Older versions keep the earlier
+  behaviour.
 * Form Studio puts fields in columns (full, three quarters, two thirds, half, a
   third or a quarter) in the preview and on the published form, and the AI sets
   them from words like "first and last name side by side". Click a field in the

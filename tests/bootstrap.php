@@ -292,10 +292,18 @@ if ( ! class_exists( 'WP_Error' ) ) {
 	class WP_Error {
 		public string $code;
 		public string $message;
+		/** @var mixed */
+		public $data;
 
-		public function __construct( string $code = '', string $message = '' ) {
+		public function __construct( string $code = '', string $message = '', $data = '' ) {
 			$this->code    = $code;
 			$this->message = $message;
+			$this->data    = $data;
+		}
+
+		/** @return mixed */
+		public function get_error_data() {
+			return $this->data;
 		}
 
 		public function get_error_code(): string {

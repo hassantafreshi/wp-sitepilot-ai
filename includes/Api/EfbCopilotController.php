@@ -18,6 +18,7 @@ use AISAAutoPilot\Efb\EfbPayments;
 use AISAAutoPilot\Efb\EfbReplyText;
 use AISAAutoPilot\Efb\EfbFormModel;
 use AISAAutoPilot\Efb\EfbFormReview;
+use AISAAutoPilot\Efb\EfbFormUpdate;
 use AISAAutoPilot\Efb\EfbFormSkill;
 use AISAAutoPilot\Efb\EfbKnowledge;
 use AISAAutoPilot\Efb\EfbLogicRules;
@@ -315,7 +316,10 @@ final class EfbCopilotController {
 			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'ai-site-assistant-autopilot' ) ), false, 400, 'connector_not_available' );
 		}
 
-		$plan    = (array) $record['plan'];
+		$plan = (array) $record['plan'];
+		if ( 'efb_update' === ( $plan['kind'] ?? '' ) ) {
+			return $this->respond( array( 'message' => __( 'This approval belongs to a change of a saved form.', 'ai-site-assistant-autopilot' ) ), false, 422, 'invalid_action' );
+		}
 		$blocked = $this->blocked_plan_fields( $plan );
 		if ( array() !== $blocked ) {
 			return $this->pro_required_response( $blocked );
@@ -325,7 +329,9 @@ final class EfbCopilotController {
 			return $this->respond( array( 'message' => implode( ' ', $errors ) ), false, 422, 'invalid_payload' );
 		}
 
-		$result = $connector->execute_action( $plan );
+		// EFB 4.3.2: a new form waits as a draft (visitors do not see it) until the admin publishes it; an older EFB
+		// publishes at once, as before.
+		$result = $connector->execute_action( $plan, array( 'draft' => EfbCapabilities::drafts_available() ) );
 		if ( ( $result['status'] ?? '' ) !== 'success' ) {
 			$this->logger->error( 'efb.create.failed', (string) ( $result['message'] ?? 'failed' ), array( 'code' => $result['code'] ?? 'execution_failed' ) );
 
@@ -357,8 +363,9 @@ final class EfbCopilotController {
 					'shortcode' => $result['shortcode'] ?? '',
 					'can_undo'  => '' !== $token,
 					// What EFB itself reported while storing it (keys of an inactive add-on, payment readiness, …).
-					'notes'     => EfbSaveNotes::messages( (array) ( $result['dropped'] ?? array() ), (array) ( $result['notices'] ?? array() ), is_array( $result['payment'] ?? null ) ? $result['payment'] : null ),
+					'notes'     => EfbSaveNotes::messages( (array) ( $result['dropped'] ?? array() ), array_merge( (array) ( $result['notices'] ?? array() ), (array) ( $result['warnings'] ?? array() ) ), is_array( $result['payment'] ?? null ) ? $result['payment'] : null ),
 					'payment'   => is_array( $result['payment'] ?? null ) ? array( 'ready' => ! empty( $result['payment']['ready'] ) ) : null,
+					'is_draft'  => ! empty( $result['is_draft'] ),
 				),
 			),
 			true
@@ -441,6 +448,20 @@ final class EfbCopilotController {
 		$has_form = (bool) $request->get_param( 'has_form' );
 		$fields   = $this->clean_fields( (array) $request->get_param( 'fields' ) );
 		$steps    = $this->clean_steps( (array) $request->get_param( 'steps' ) );
+		// EFB 4.3.2 (form.update): with no form open in the editor, the admin may pick a SAVED form to change. Its fields
+		// come from EFB (Form_Package::read()), never from the browser; the change is proposed and only saved on approval.
+		$saved   = null;
+		$form_id = $has_form ? 0 : absint( $request->get_param( 'form_id' ) );
+		if ( $form_id > 0 ) {
+			$saved = $this->read_saved_form( $form_id );
+			if ( $saved instanceof WP_REST_Response ) {
+				return $saved;
+			}
+			$view     = EfbFormUpdate::view( $saved['rows'] );
+			$has_form = true;
+			$fields   = $this->clean_fields( $view['fields'] );
+			$steps    = $this->clean_steps( $view['steps'] );
+		}
 		$history  = $this->clean_history( (array) $request->get_param( 'history' ) );
 		$selected = $this->selected_field( $request->get_param( 'selected_field' ), $fields );
 		$license  = EfbLicense::status();
@@ -455,8 +476,8 @@ final class EfbCopilotController {
 			$addons_seen['AdnSMF'] = $logic ? 1 : 0;
 			$addons_seen['AdnSS']  = EfbCapabilities::addon( 'AdnSS' )['installed'] ? 1 : 0;
 		}
-		$logic_rules = $this->clean_logic_rules( $request->get_param( 'logic_rules' ) );
-		$captcha     = $request->get_param( 'captcha' );
+		$logic_rules = $this->clean_logic_rules( null !== $saved ? $view['logic_rules'] : $request->get_param( 'logic_rules' ) );
+		$captcha     = null !== $saved ? $view['captcha'] : $request->get_param( 'captcha' );
 		$shield      = (bool) $request->get_param( 'spam_shield' );
 		$explained   = EfbLogicRules::explain( $logic_rules, $fields, $steps );
 		// Which payment gateways are switched on in the open editor (on or off, nothing else) and whether
@@ -492,7 +513,7 @@ final class EfbCopilotController {
 					'payment'     => $pay_status,
 					'home_url'    => home_url( '/' ),
 					'sms_addon'   => (int) ( $addons_seen['AdnSS'] ?? 0 ) >= 1,
-					'form_type'   => sanitize_key( (string) $request->get_param( 'form_type' ) ),
+					'form_type'   => sanitize_key( null !== $saved ? $view['form_type'] : (string) $request->get_param( 'form_type' ) ),
 				)
 			);
 		} catch ( ProviderException $e ) {
@@ -745,6 +766,10 @@ final class EfbCopilotController {
 				'reply'      => '' !== $reply ? $reply : __( 'Done — applying your change.', 'ai-site-assistant-autopilot' ),
 				'operations' => $ops,
 			);
+			if ( null !== $saved ) {
+				// A saved form: the change becomes EFB's own patches, proposed for approval (nothing is saved yet).
+				$payload = $this->saved_form_proposal( $saved, $ops, $payload, $message );
+			}
 			if ( array() !== $notes ) {
 				$payload['errors'] = $notes;
 			}
@@ -2027,8 +2052,9 @@ final class EfbCopilotController {
 
 	/**
 	 * The former "save the structure" endpoint for integration consumers. It wrote Easy Form Builder's table directly,
-	 * which skips EFB's own save path (its sanitizer, add-on tables, caches, versions and hooks). Easy Form Builder has
-	 * no update API yet, so an open form is saved only by the owner's own Save in its editor; this answers so.
+	 * which skips EFB's own save path (its sanitizer, add-on tables, caches, versions and hooks). A form open in the
+	 * editor is saved by the owner's own Save; a saved form is changed through `efb/update` (EFB's form.update, 4.3.2),
+	 * after the admin approved the proposal.
 	 */
 	public function save( WP_REST_Request $request ): WP_REST_Response {
 		unset( $request );
@@ -2039,6 +2065,268 @@ final class EfbCopilotController {
 			410,
 			'use_efb_save'
 		);
+	}
+
+	/**
+	 * A saved form for the chat (EFB's Form_Package::read()), or the answer that explains why it cannot be changed here.
+	 *
+	 * @return array<string,mixed>|WP_REST_Response
+	 */
+	private function read_saved_form( int $form_id ) {
+		$connector = $this->registry()->get( 'easy_form_builder' );
+		if ( ! $connector instanceof \AISAAutoPilot\Connectors\EasyFormBuilderConnector || ! $connector->can_update() ) {
+			return $this->respond(
+				array(
+					'type'  => 'message',
+					'reply' => \AISAAutoPilot\Connectors\EasyFormBuilderConnector::update_needed_message(),
+				),
+				false,
+				400,
+				'efb_update_unavailable'
+			);
+		}
+		$read = $connector->read_form( $form_id );
+		if ( is_wp_error( $read ) ) {
+			return $this->respond(
+				array(
+					'type'  => 'message',
+					'reply' => __( 'I could not open that form. Choose it again from the list.', 'ai-site-assistant-autopilot' ),
+				),
+				false,
+				404,
+				sanitize_key( (string) $read->get_error_code() )
+			);
+		}
+
+		return $read;
+	}
+
+	/**
+	 * The operations planned for a saved form as a proposal: EFB's patches (EfbFormUpdate), what each one does in plain
+	 * words, what has to be done in the editor instead, and a one-time action the same admin approves (efb/update).
+	 *
+	 * @param array<string,mixed>            $saved
+	 * @param array<int,array<string,mixed>> $ops
+	 * @param array<string,mixed>            $payload The ops answer (reply, notes, links, offers).
+	 * @return array<string,mixed>
+	 */
+	private function saved_form_proposal( array $saved, array $ops, array $payload, string $message ): array {
+		$conv = EfbFormUpdate::patches( $ops, (array) $saved['rows'] );
+		$edit = admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . (int) $saved['form_id'] );
+		$todo = array();
+		foreach ( $conv['skipped'] as $skip ) {
+			$todo[] = 'editor_only' === $skip['reason']
+				? __( 'Part of this change is made in the Easy Form Builder editor (payment, conditional logic or a setting with its own panel).', 'ai-site-assistant-autopilot' )
+				/* translators: %s: what could not be found (a field or option name). */
+				: sprintf( __( 'Not found in the saved form: %s', 'ai-site-assistant-autopilot' ), (string) $skip['text'] );
+		}
+		$todo = array_values( array_unique( $todo ) );
+		unset( $payload['operations'] );
+		if ( array() === $conv['patches'] ) {
+			$payload['type']   = 'message';
+			$payload['reply']  = __( 'I did not change the form: this change is made in the Easy Form Builder editor.', 'ai-site-assistant-autopilot' );
+			$payload['errors'] = array_merge( (array) ( $payload['errors'] ?? array() ), $todo );
+			$payload['links']  = array_merge(
+				(array) ( $payload['links'] ?? array() ),
+				array(
+					array(
+						'label' => __( 'Open it in the editor', 'ai-site-assistant-autopilot' ),
+						'url'   => $edit,
+					),
+				)
+			);
+
+			return $payload;
+		}
+		$action_id = $this->store->create(
+			array(
+				'kind'      => 'efb_update',
+				'form_id'   => (int) $saved['form_id'],
+				'form_name' => (string) $saved['form_name'],
+				'base_hash' => (string) $saved['base_hash'],
+				'patches'   => $conv['patches'],
+				'changes'   => $conv['changes'],
+				'note'      => mb_substr( $message, 0, 160 ),
+			),
+			'easy_form_builder'
+		);
+		$this->logger->info(
+			'efb.update.proposed',
+			'A change of a saved EFB form was proposed.',
+			array(
+				'form_id' => (int) $saved['form_id'],
+				'patches' => count( $conv['patches'] ),
+				'skipped' => count( $conv['skipped'] ),
+			)
+		);
+		$payload['type']       = 'update_preview';
+		$payload['reply']      = __( 'Here is the change for the saved form. Nothing is saved until you approve it.', 'ai-site-assistant-autopilot' );
+		$payload['action_id']  = $action_id;
+		$payload['expires_at'] = time() + ActionStore::ttl();
+		$payload['form']       = array(
+			'id'       => (int) $saved['form_id'],
+			'name'     => (string) $saved['form_name'],
+			'status'   => (string) $saved['status'],
+			'edit_url' => $edit,
+		);
+		$payload['changes']    = $conv['changes'];
+		if ( array() !== $todo ) {
+			$payload['errors'] = array_merge( (array) ( $payload['errors'] ?? array() ), $todo );
+		}
+
+		return $payload;
+	}
+
+	/**
+	 * Approve a proposed change of a saved form: EFB's form.update with the base_hash of the version the proposal was
+	 * made on. A form saved in between (in the editor, by someone else) is never overwritten: stale_hash, nothing saved.
+	 */
+	public function update( WP_REST_Request $request ): WP_REST_Response {
+		$action_id = sanitize_text_field( (string) $request->get_param( 'action_id' ) );
+		$claim     = '' === $action_id ? array( 'status' => 'missing' ) : $this->store->claim( $action_id, get_current_user_id(), 'easy_form_builder' );
+		if ( 'ok' !== ( $claim['status'] ?? '' ) && 'claimed' !== ( $claim['status'] ?? '' ) ) {
+			$codes = array(
+				'missing'         => array( __( 'This proposal has expired. Ask again and I will read the saved form anew.', 'ai-site-assistant-autopilot' ), 422, 'action_expired' ),
+				'forbidden'       => array( __( 'You are not allowed to approve this action.', 'ai-site-assistant-autopilot' ), 403, 'permission_denied' ),
+				'already_claimed' => array( __( 'This proposal is already being processed or has already been used.', 'ai-site-assistant-autopilot' ), 422, 'action_already_processed' ),
+				'wrong_connector' => array( __( 'This approval does not belong to Easy Form Builder.', 'ai-site-assistant-autopilot' ), 422, 'invalid_action' ),
+			)[ (string) ( $claim['status'] ?? 'missing' ) ] ?? array( __( 'This proposal has expired. Ask again and I will read the saved form anew.', 'ai-site-assistant-autopilot' ), 422, 'action_expired' );
+
+			return $this->respond( array( 'message' => $codes[0] ), false, $codes[1], $codes[2] );
+		}
+		$plan = (array) ( $claim['record']['plan'] ?? array() );
+		if ( 'efb_update' !== ( $plan['kind'] ?? '' ) ) {
+			return $this->respond( array( 'message' => __( 'This approval does not belong to a change of a saved form.', 'ai-site-assistant-autopilot' ) ), false, 422, 'invalid_action' );
+		}
+		$connector = $this->registry()->get( 'easy_form_builder' );
+		if ( ! $connector instanceof \AISAAutoPilot\Connectors\EasyFormBuilderConnector ) {
+			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'ai-site-assistant-autopilot' ) ), false, 400, 'connector_not_available' );
+		}
+		$form_id = (int) ( $plan['form_id'] ?? 0 );
+		$result  = $connector->update_form( $form_id, (array) ( $plan['patches'] ?? array() ), (string) ( $plan['base_hash'] ?? '' ), (string) ( $plan['note'] ?? '' ) );
+		if ( is_wp_error( $result ) ) {
+			$code = sanitize_key( (string) $result->get_error_code() );
+			$data = (array) $result->get_error_data();
+			$this->logger->error(
+				'efb.update.refused',
+				wp_strip_all_tags( $result->get_error_message() ),
+				array(
+					'form_id' => $form_id,
+					'code' => $code,
+				)
+			);
+
+			return $this->respond( array( 'message' => $this->update_refusal_text( $code, $data, $result->get_error_message() ) ), false, 'stale_hash' === $code ? 409 : 422, $code );
+		}
+		$this->logger->info(
+			'efb.update.executed',
+			'A saved EFB form was changed through form.update.',
+			array(
+				'form_id' => $form_id,
+				'changed' => count( (array) ( $result['changed'] ?? array() ) ),
+			)
+		);
+
+		return $this->respond(
+			array(
+				'result' => array(
+					'form_id'  => $form_id,
+					'name'     => (string) ( $result['form_name'] ?? ( $plan['form_name'] ?? '' ) ),
+					'status'   => (string) ( $result['status'] ?? 'published' ),
+					'edit_url' => admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . $form_id ),
+					// EFB's own save answer: the same warnings a Save in its editor gives (add-on keys kept, payment, …).
+					'notes'    => EfbSaveNotes::messages( array(), (array) ( $result['warnings'] ?? array() ), is_array( $result['payment'] ?? null ) ? $result['payment'] : null ),
+				),
+			),
+			true
+		);
+	}
+
+	/** EFB's refusal of a change, in the copilot's words where it has them. */
+	private function update_refusal_text( string $code, array $data, string $efb_message ): string {
+		switch ( $code ) {
+			case 'stale_hash':
+				return __( 'The form was changed in Easy Form Builder after I read it, so nothing was saved. Ask again and I will work from the saved form as it is now.', 'ai-site-assistant-autopilot' );
+			case 'addon_required':
+				$addon = (string) ( $data['addon'] ?? '' );
+
+				/* translators: %s: add-on name. */
+				return sprintf( __( 'Nothing was saved: this change needs the %s add-on of Easy Form Builder, which is not active on this site.', 'ai-site-assistant-autopilot' ), '' !== $addon ? EfbCapabilities::addon( $addon )['name'] : __( 'missing', 'ai-site-assistant-autopilot' ) );
+			case 'plan_required':
+				/* translators: %s: plan name. */
+				return sprintf( __( 'Nothing was saved: this change needs Easy Form Builder %s.', 'ai-site-assistant-autopilot' ), EfbCapabilities::plan_label( (string) ( $data['package'] ?? 'pro' ) ) );
+			case 'unknown_field':
+			case 'unknown_target':
+				return __( 'Nothing was saved: a field this change names is no longer in the form. Ask again and I will read it anew.', 'ai-site-assistant-autopilot' );
+		}
+		$text = trim( wp_strip_all_tags( $efb_message ) );
+
+		/* translators: %s: Easy Form Builder's own reason. */
+		return '' !== $text ? sprintf( __( 'Easy Form Builder did not save the change: %s', 'ai-site-assistant-autopilot' ), $text ) : __( 'Easy Form Builder did not save the change.', 'ai-site-assistant-autopilot' );
+	}
+
+	/** Publish a draft form the admin approved (EFB's Form_Package::publish(), 4.3.2): only on the admin's click. */
+	public function publish( WP_REST_Request $request ): WP_REST_Response {
+		$form_id   = absint( $request->get_param( 'form_id' ) );
+		$connector = $this->registry()->get( 'easy_form_builder' );
+		if ( $form_id <= 0 || ! $connector instanceof \AISAAutoPilot\Connectors\EasyFormBuilderConnector ) {
+			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'ai-site-assistant-autopilot' ) ), false, 400, 'connector_not_available' );
+		}
+		$done = $connector->publish_form( $form_id );
+		if ( is_wp_error( $done ) ) {
+			return $this->respond( array( 'message' => wp_strip_all_tags( $done->get_error_message() ) ), false, 422, sanitize_key( (string) $done->get_error_code() ) );
+		}
+		$this->logger->info( 'efb.publish', 'A draft EFB form was published by the admin.', array( 'form_id' => $form_id ) );
+
+		return $this->respond( array( 'message' => __( 'Published: visitors see the form now.', 'ai-site-assistant-autopilot' ) ), true );
+	}
+
+	/** The saved forms the admin can choose to change here (EFB's own forms list: id, name, draft). */
+	public function forms( WP_REST_Request $request ): WP_REST_Response {
+		unset( $request );
+		$connector = $this->registry()->get( 'easy_form_builder' );
+		if ( ! $connector instanceof \AISAAutoPilot\Connectors\EasyFormBuilderConnector || ! $connector->can_update() ) {
+			return $this->respond( array( 'message' => \AISAAutoPilot\Connectors\EasyFormBuilderConnector::update_needed_message() ), false, 400, 'efb_update_unavailable' );
+		}
+
+		return $this->respond( array( 'forms' => $connector->list_forms() ), true );
+	}
+
+	/**
+	 * The warnings of the owner's own Save in EFB's editor (efb:form-saved, EFB 4.3.2) in plain words, so the copilot can
+	 * explain them. Only codes and EFB's messages arrive; nothing is stored.
+	 */
+	public function save_notes( WP_REST_Request $request ): WP_REST_Response {
+		$warnings = array();
+		foreach ( array_slice( (array) $request->get_param( 'warnings' ), 0, 40 ) as $w ) {
+			if ( ! is_array( $w ) ) {
+				continue;
+			}
+			$warnings[] = array(
+				'code'  => sanitize_key( (string) ( $w['code'] ?? '' ) ),
+				'm'     => sanitize_text_field( (string) ( $w['m'] ?? '' ) ),
+				'level' => sanitize_key( (string) ( $w['level'] ?? 'warning' ) ),
+				'addon' => preg_replace( '/[^A-Za-z]/', '', (string) ( $w['addon'] ?? '' ) ),
+			);
+		}
+		$payment = null;
+		if ( false === $request->get_param( 'payment_ready' ) ) {
+			$issues = array();
+			foreach ( array_slice( (array) $request->get_param( 'payment_issues' ), 0, 8 ) as $i ) {
+				if ( is_array( $i ) ) {
+					$issues[] = array(
+						'code' => sanitize_key( (string) ( $i['code'] ?? '' ) ),
+						'm'    => sanitize_text_field( (string) ( $i['m'] ?? '' ) ),
+					);
+				}
+			}
+			$payment = array(
+				'ready'  => false,
+				'issues' => $issues,
+			);
+		}
+
+		return $this->respond( array( 'notes' => EfbSaveNotes::messages( array(), $warnings, $payment ) ), true );
 	}
 
 	private function registry(): ConnectorRegistry {

@@ -51,18 +51,26 @@ final class EfbPayments {
 	);
 
 	/**
-	 * Names of the PAY00 gateways and the add-on that registers each, to say which add-on is missing while it is off
-	 * (an inactive gateway is not in EFB's registry yet). Its plan, label and currencies always come from the registry.
+	 * The payment framework (PAY00) gateways and the add-on of each, from EFB's own registry: since EFB 4.3.2
+	 * (`payment_gateways`, AI-6) every gateway of its catalogue is listed with its add-on, plan and state, also while
+	 * the add-on is off or not installed, so the copilot keeps no slug → add-on map of its own. An older EFB lists the
+	 * registered gateways only; an off gateway is then unknown (EFB needs an update) and never offered. The PAY-OUT
+	 * fields of the three older gateways (`legacy_type` stripe / paypal / persiaPay) are reported under GATEWAYS.
+	 *
+	 * @return array<string,string> slug => add-on code
 	 */
-	public const PAY00 = array(
-		'mollie'  => 'AdnMOL',
-		'payplug' => 'AdnPPG',
-		'tappay'  => 'AdnTAP',
-		'omise'   => 'AdnOMS',
-		'paytabs' => 'AdnPTB',
-		'paymob'  => 'AdnPMB',
-		'xendit'  => 'AdnXND',
-	);
+	public static function pay00(): array {
+		$out = array();
+		foreach ( EfbCapabilities::payment_gateways() as $slug => $entry ) {
+			$addon = (string) ( $entry['addon'] ?? '' );
+			if ( '' === $addon || ! empty( $entry['legacy_type'] ) || 1 !== preg_match( '/^[a-z][a-z0-9]{1,19}$/', (string) $slug ) ) {
+				continue;
+			}
+			$out[ (string) $slug ] = $addon;
+		}
+
+		return $out;
+	}
 
 	/** Field types that carry a price; the first four have priced options or an amount, the last shows the total. */
 	public const PRICED_FIELDS = array( 'payRadio', 'paySelect', 'payCheckbox', 'payMultiselect', 'prcfld', 'ttlprc' );
@@ -83,38 +91,30 @@ final class EfbPayments {
 
 	/** @return string[] */
 	public static function gateway_ids(): array {
-		return array_merge( array_keys( self::GATEWAYS ), array_keys( self::PAY00 ) );
+		return array_merge( array_keys( self::GATEWAYS ), array_keys( self::pay00() ) );
 	}
 
 	/** Whether a gateway id is one of the payment framework (PAY00) gateways. */
 	public static function is_pay00( string $gateway ): bool {
-		return isset( self::PAY00[ $gateway ] );
+		return isset( self::pay00()[ $gateway ] );
 	}
 
-	/** A gateway's name for the admin: EFB's own label when its add-on registered it, else its usual name. */
+	/** A gateway's name for the admin: EFB's own label (the add-on's, or its catalogue's while it is off). */
 	public static function label( string $gateway ): string {
 		if ( isset( self::GATEWAYS[ $gateway ] ) ) {
 			return self::GATEWAYS[ $gateway ]['label'];
 		}
-		$registered = EfbCapabilities::payment_gateways()[ $gateway ] ?? null;
-		if ( is_array( $registered ) && '' !== (string) ( $registered['label'] ?? '' ) ) {
-			return (string) $registered['label'];
+		$listed = EfbCapabilities::payment_gateways()[ $gateway ] ?? null;
+		if ( is_array( $listed ) && '' !== (string) ( $listed['label'] ?? '' ) ) {
+			return (string) $listed['label'];
 		}
 
-		return array(
-			'mollie'  => 'Mollie',
-			'payplug' => 'Payplug',
-			'tappay'  => 'Tap Payments',
-			'omise'   => 'Omise',
-			'paytabs' => 'PayTabs',
-			'paymob'  => 'Paymob',
-			'xendit'  => 'Xendit',
-		)[ $gateway ] ?? $gateway;
+		return ucfirst( $gateway );
 	}
 
 	/** The add-on that provides a gateway (legacy bridge or PAY00), or null. */
 	public static function addon_of( string $gateway ): ?string {
-		return self::GATEWAYS[ $gateway ]['addon'] ?? ( self::PAY00[ $gateway ] ?? null );
+		return self::GATEWAYS[ $gateway ]['addon'] ?? ( self::pay00()[ $gateway ] ?? null );
 	}
 
 	/** The gateway a model or a visitor named, in any spelling, or null. */
@@ -143,7 +143,7 @@ final class EfbPayments {
 
 	/** The EFB field type that is the gateway itself (a PAY00 gateway's field type is its slug). */
 	public static function gateway_field( string $gateway ): ?string {
-		if ( isset( self::PAY00[ $gateway ] ) ) {
+		if ( self::is_pay00( $gateway ) ) {
 			return $gateway;
 		}
 
@@ -158,7 +158,7 @@ final class EfbPayments {
 			}
 		}
 
-		return isset( self::PAY00[ $field_type ] ) ? $field_type : null;
+		return self::is_pay00( $field_type ) ? $field_type : null;
 	}
 
 	/**
@@ -180,7 +180,7 @@ final class EfbPayments {
 	public static function currency( string $gateway, string $requested ): string {
 		$list = self::currencies( $gateway );
 		if ( array() === $list ) {
-			return isset( self::GATEWAYS[ $gateway ] ) || ! isset( self::PAY00[ $gateway ] ) ? 'usd' : '';
+			return isset( self::GATEWAYS[ $gateway ] ) || ! self::is_pay00( $gateway ) ? 'usd' : '';
 		}
 		foreach ( $list as $code ) {
 			if ( 0 === strcasecmp( $code, trim( $requested ) ) ) {
@@ -329,14 +329,30 @@ final class EfbPayments {
 			$addon = (string) self::addon_of( $id );
 			$state = EfbCapabilities::state( EfbCapabilities::field_key( $field ) );
 			$info  = EfbCapabilities::addon( $addon );
-			if ( ! $state['known'] && ! $info['known'] ) {
+			// EFB 4.3.2 (AI-6): the gateway's own catalogue entry says installed / active / plan / state, also while its
+			// add-on is off. An older EFB: the field's and the add-on's registry entries, as before.
+			$listed = self::is_pay00( $id ) ? ( EfbCapabilities::payment_gateways()[ $id ] ?? null ) : null;
+			if ( is_array( $listed ) && isset( $listed['active'], $listed['plan'] ) ) {
+				$package = in_array( $listed['plan'], array( 'free', 'free_plus', 'pro' ), true ) ? (string) $listed['plan'] : 'free_plus';
+				$plan_ok = EfbCapabilities::plan_at_least( $package ) && 'plan' !== ( $listed['state'] ?? '' );
+				$active  = ! empty( $listed['active'] );
+				$info    = array_merge(
+					$info,
+					array(
+						'known' => true,
+						'state' => (string) ( $listed['state'] ?? ( $active ? 'active' : 'addon' ) ),
+						'name'  => $info['known'] ? $info['name'] : (string) ( $listed['label'] ?? $id ),
+					)
+				);
+			} elseif ( ! $state['known'] && ! $info['known'] ) {
 				continue;
+			} else {
+				// A PAY00 gateway is in the registry only while its add-on is on; its add-on entry says the plan.
+				$package = $state['known'] ? $state['package'] : $info['package'];
+				$plan_ok = $state['known'] ? 'plan' !== $state['reason'] : EfbCapabilities::plan_at_least( $info['package'] );
+				// The add-on's own entry says whether it is on (the field's entry cannot tell while the plan blocks it).
+				$active = $info['known'] ? $info['active'] : ( $state['known'] && null === $state['reason'] );
 			}
-			// A PAY00 gateway is in the registry only while its add-on is on; its add-on entry says the plan.
-			$package = $state['known'] ? $state['package'] : $info['package'];
-			$plan_ok = $state['known'] ? 'plan' !== $state['reason'] : EfbCapabilities::plan_at_least( $info['package'] );
-			// The add-on's own entry says whether it is on (the field's entry cannot tell while the plan blocks it).
-			$active = $info['known'] ? $info['active'] : ( $state['known'] && null === $state['reason'] );
 			if ( 'update' === $info['state'] ) {
 				$active = false;
 			}

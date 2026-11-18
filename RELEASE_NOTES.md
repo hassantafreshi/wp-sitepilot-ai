@@ -106,6 +106,19 @@ registry no payment is added. National address formats come from EFB's templates
 EFB reports about the site. Coverage per feature with its test:
 `docs/EFB_FEATURE_COVERAGE_FA.md`; end-to-end checks: `tests/efb_e2e/`.
 
+**Easy Form Builder 4.3.2 builder APIs (2026-11-18)** — With EFB 4.3.2 the copilot edits a
+saved form instead of handing it off: with no form open it lists the site's forms, reads the
+chosen one through `Form_Package::read()`, proposes the change in plain words and, after
+approval, saves it with `Form_Package::update()` (patches plus the hash it read; a form saved
+by someone else in the meantime, an add-on that is missing or a plan below the change is
+refused and explained, nothing is saved). A form it creates keeps the name the owner gave it
+(`name_policy: keep`) and starts as a draft visitors do not see; the card offers Publish
+(`Form_Package::publish()`). When the owner presses EFB's own Save, the warnings EFB sends
+with `efb:form-saved` are explained in the chat. Payment gateways come from EFB's gateway
+registry (installed, active, plan, add-on); the plugin's own gateway map is gone. With an
+older EFB every one of these falls back to the earlier path (handoff, a suffixed name, a
+published form) and the copilot names the EFB version that adds it.
+
 **Easy Form Builder payment** — The copilot plans online payment with a new
 `add_payment` operation (and a `payment` object on a new form): `gateway`
 (`stripe`, `paypal`, `zarinpal`), `currency`, priced `items` or an

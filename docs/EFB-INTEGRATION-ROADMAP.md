@@ -38,6 +38,15 @@
   Tools) end with this site's live state.
 - **Connector registry.** `ConnectorBase` + `aisaautopilot_register_connectors` + capability `portal.link` for the
   coming customer portal connector (not built).
+- **EFB 4.3.2 builder APIs (AI-1 … AI-7).** `EfbCapabilities` reads `form_update`, `form_status`, `save_events`,
+  `import_args.name_policy` and the EFB version. Saved forms: `/efb/forms` lists them, chat with `form_id` reads one
+  (`Form_Package::read()`), `Efb/EfbFormUpdate.php` turns the operations into EFB patches and an `update_preview`
+  (ActionStore plan `efb_update`, one use, owner-bound), `/efb/update` saves through `Form_Package::update()` with the
+  `base_hash` it read (`stale_hash`, `unknown_field`, `addon_required`, `plan_required` are explained, nothing saved).
+  New forms are imported with `name_policy: keep` and `status: draft`; `/efb/publish` → `Form_Package::publish()`.
+  EFB's Save (`efb:form-saved` `warnings`) → `/efb/save-notes`. `EfbPayments` takes the gateways from
+  `payment_gateways` (installed / active / plan / addon); the plugin's map is removed. Each path falls back on an
+  older EFB (handoff, suffixed name, published form) and says which EFB version adds it.
 - **Tests.** PHPUnit (EfbSplitRegistryTest, EfbFormPackageConnectorTest, EfbKnowledgeRegistryTest,
   ConnectorRegistryPortalTest, additions to EfbPaymentsTest and EfbLogicRulesTest) on the registry a real EFB `dev4`
   returned; `tests/efb_e2e/` on a real WordPress with EFB `dev4` and its add-ons (REST flow and Chromium, en_US 1280 px,

@@ -29,6 +29,9 @@
 	var nudging = false;
 	var checking = false;
 	var composerMode = '';
+	// EFB 4.3.2 (form.update): a SAVED form chosen to change while no form is open in the editor; null otherwise.
+	var savedForm = null;
+	var EFB = cfg.efb || {};
 	function t( key, fallback, replacement ) {
 		var value = cfg.i18n && cfg.i18n[ key ] ? cfg.i18n[ key ] : fallback;
 		if ( replacement === undefined ) { return value; }
@@ -235,7 +238,7 @@
 		var context = $( 'aisaautopilot-efb-context' );
 		if ( ! context ) { return; }
 		if ( ! configured ) { context.textContent = t( 'ctxOffline', 'Not connected yet' ); return; }
-		if ( ! hasLiveForm() ) { context.textContent = t( 'ctxNewForm', 'New form' ); return; }
+		if ( ! hasLiveForm() ) { context.textContent = savedForm ? t( 'ctxSavedForm', 'Saved form “%s”', savedForm.name ) : t( 'ctxNewForm', 'New form' ); return; }
 		var count = liveFields().length;
 		var name = formName();
 		context.textContent = ( name ? t( 'ctxEditing', 'Editing “%s”', name ) : t( 'editingForm', 'Editing the current form' ) ) + ' · ' + ( 1 === count ? t( 'oneField', '1 field' ) : t( 'fieldsCount', '%s fields', count ) );
@@ -908,7 +911,7 @@
 				status.textContent = t( 'createdOpening', 'Created! Opening the editor…' );
 				var result = res.data.result || {};
 				// The editor opens next; what EFB reported while storing the form, and the way to undo it, wait there.
-				try { sessionStorage.setItem( CREATED_KEY, JSON.stringify( { form_id: Number( result.form_id || 0 ), title: String( p.title || '' ), notes: Array.isArray( result.notes ) ? result.notes.slice( 0, 6 ) : [], can_undo: !! result.can_undo, at: Date.now() } ) ); } catch ( e ) {}
+				try { sessionStorage.setItem( CREATED_KEY, JSON.stringify( { form_id: Number( result.form_id || 0 ), title: String( p.title || '' ), notes: Array.isArray( result.notes ) ? result.notes.slice( 0, 6 ) : [], can_undo: !! result.can_undo, is_draft: !! result.is_draft, at: Date.now() } ) ); } catch ( e ) {}
 				if ( result.edit_url ) { setTimeout( function () { leaving = true; window.location.href = result.edit_url; }, 600 ); }
 			} ).catch( function () { status.textContent = t( 'networkError', 'Network error. Please try again.' ); approve.disabled = false; } );
 		} );
@@ -956,6 +959,7 @@
 		if ( ! hasLiveForm() ) {
 			clientLog( traceId, 'apply_unavailable', 'Browser did not expose a live EFB form.', { operation_count: ( data.operations || [] ).length, failed: [ { reason: 'live_form_not_available' } ] } );
 			addAi( t( 'openFormFirst', 'Open a form in the editor first (create one here, or open Easy Form Builder → Forms and edit a form), then ask me to change it.' ) );
+			if ( EFB.formUpdate ) { pickSavedForm(); }
 			history.push( { role: 'assistant', text: 'Asked user to open a form first.' } );
 			return;
 		}
@@ -1114,6 +1118,7 @@
 		if ( data.reply ) { speakReply( data.reply ); }
 		if ( data.type === 'preview' ) { renderPreview( data ); }
 		else if ( data.type === 'ops' ) { renderOps( data, traceId ); }
+		else if ( data.type === 'update_preview' ) { renderUpdatePreview( data ); }
 		else if ( data.type === 'help' ) { renderHelp( data ); }
 		else if ( data.type === 'list' ) { renderList( data, traceId ); }
 		else { renderMessage( data ); }
@@ -1187,6 +1192,107 @@
 		} );
 		addAi( box );
 	}
+	/* ---------- EFB 4.3.2: drafts, saved forms, the owner's own Save ---------- */
+	var draftShown = false;
+	/** Publish a draft (EFB's Form_Package::publish()): only on the admin's click. */
+	function publishButton( formId, status ) {
+		var b = button( t( 'publishNow', 'Publish' ), { kind: 'primary', size: 'sm', icon: 'check', attrs: { 'data-sp-efb-publish': String( formId ) } } );
+		b.addEventListener( 'click', function () {
+			b.disabled = true; status.textContent = t( 'publishing', 'Publishing…' );
+			api( 'efb/publish', { form_id: formId } ).then( function ( res ) {
+				status.textContent = String( ( res.data && res.data.message ) || '' );
+				if ( res.data && res.data.ok ) { b.remove(); if ( EFB.openForm && Number( EFB.openForm.id ) === formId ) { EFB.openForm.status = 'published'; } return; }
+				b.disabled = false;
+			} ).catch( function () { b.disabled = false; status.textContent = t( 'networkError', 'Network error. Please try again.' ); } );
+		} );
+		return b;
+	}
+	/** A draft open in the editor: say so once and offer Publish. */
+	function draftCard() {
+		if ( draftShown || ! EFB.openForm || 'draft' !== EFB.openForm.status || Number( EFB.openForm.id ) !== getFormId() ) { return null; }
+		draftShown = true;
+		var status = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
+		return card( Dock.cardHead( 'plan', 'doc', t( 'draftBadge', 'Draft' ) ), [
+			el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { dir: 'auto', text: t( 'draftOpen', 'This form is a draft: visitors do not see it yet. Publish it when it is ready.' ) } ), status ] ),
+			el( 'div', { class: 'aisa-ai-card__foot' }, [ publishButton( Number( EFB.openForm.id ), status ) ] )
+		], { 'data-sp-efb-state': 'draft' } );
+	}
+	/** No form open: choose a saved form to change (EFB's own forms list; its fields are read on the server). */
+	function pickSavedForm() {
+		var body = addAi( el( 'div', { class: 'aisa-ai-text', dir: 'auto', text: t( 'pickSavedFormHelp', 'Choose the form to change. I read it from Easy Form Builder, and nothing is saved until you approve the change.' ) } ) );
+		var list = el( 'div', { class: 'aisa-ai-starters', 'data-sp-efb-forms': '' } );
+		body.appendChild( list );
+		api( 'efb/forms', {} ).then( function ( res ) {
+			var forms = res.data && Array.isArray( res.data.forms ) ? res.data.forms : [];
+			if ( ! res.data || ! res.data.ok ) { list.appendChild( say( ( res.data && res.data.message ) || t( 'requestFailed', 'The request could not be completed.' ) ) ); return; }
+			if ( ! forms.length ) { list.appendChild( say( t( 'noSavedForms', 'There are no forms to change yet.' ) ) ); return; }
+			forms.slice( 0, 30 ).forEach( function ( f ) {
+				var label = String( f.name || ( '#' + f.id ) );
+				var c = el( 'button', { type: 'button', class: 'aisa-ai-chip aisaautopilot-efb-chip', 'data-sp-efb-form': String( f.id ), dir: 'auto' }, [ icon( 'doc', 13 ), el( 'span', { text: label + ( f.draft ? ' · ' + t( 'draftBadge', 'Draft' ) : '' ) } ) ] );
+				c.addEventListener( 'click', function () {
+					savedForm = { id: Number( f.id ), name: label, draft: !! f.draft };
+					list.querySelectorAll( 'button' ).forEach( function ( b ) { b.disabled = true; } );
+					updateContext();
+					var back = button( t( 'stopSavedForm', 'Back to a new form' ), { kind: 'quiet', size: 'sm', attrs: { 'data-sp-efb-saved-stop': '' } } );
+					back.addEventListener( 'click', function () { savedForm = null; back.disabled = true; updateContext(); } );
+					var picked = addAi( t( 'savedFormPicked', 'I will change “%s”. Tell me what to change.', label ) );
+					picked.appendChild( el( 'div', { class: 'aisa-ai-card__foot' }, [ back ] ) );
+					history.push( { role: 'assistant', text: 'Working on the saved form ' + label } );
+					setSuggestions( [ t( 'starterFieldsExample', 'Add a phone field after Email' ), t( 'makeRequired', 'Make Email required' ) ] );
+					var input = $( 'aisaautopilot-efb-input' ); if ( input ) { input.focus(); }
+				} );
+				list.appendChild( c );
+			} );
+		} ).catch( function () { list.appendChild( say( t( 'networkError', 'Network error. Please try again.' ) ) ); } );
+	}
+	/** A change of a saved form, for approval: what it does, what stays for the editor; Approve saves through EFB. */
+	function renderUpdatePreview( data ) {
+		var form = data.form || {};
+		var rows = el( 'ul', { class: 'aisa-ai-rows' } );
+		( data.changes || [] ).forEach( function ( text ) { rows.appendChild( Dock.row( 'edit', 'edit', String( text ), '', '', { class: 'aisaautopilot-efb-inline-note', 'data-sp-efb-note': 'change' } ) ); } );
+		var status = el( 'span', { class: 'aisa-ai-status aisaautopilot-efb-inline-note', role: 'status' } );
+		var approve = button( t( 'applySaved', 'Approve & save' ), { kind: 'primary', size: 'lg', grow: true, icon: 'check', stroke: 2.4, extra: 'aisaautopilot-efb-btn--primary', attrs: { 'data-sp-efb-update': '1' } } );
+		var discard = button( t( 'discard', 'Discard' ), { kind: 'quiet', size: 'lg', extra: 'aisaautopilot-efb-btn--ghost' } );
+		var box = card( Dock.cardHead( 'plan', 'edit', t( 'updateTitle', 'Change “%s”', String( form.name || '' ) ), 'draft' === form.status ? t( 'draftBadge', 'Draft' ) : '' ), [
+			rows,
+			data.errors && data.errors.length ? note( data.errors.join( ' ' ), 'server' ) : null,
+			el( 'div', { class: 'aisa-ai-card__foot aisaautopilot-efb-actions' }, [ approve, discard, status ] )
+		], { 'data-sp-efb-state': 'update-preview' } );
+		approve.addEventListener( 'click', function () {
+			approve.disabled = true; discard.disabled = true; status.textContent = t( 'saving', 'Saving…' );
+			api( 'efb/update', { action_id: data.action_id } ).then( function ( res ) {
+				if ( ! res.data || ! res.data.ok ) { status.textContent = ( res.data && res.data.message ) || t( 'requestFailed', 'The request could not be completed.' ); box.setAttribute( 'data-sp-efb-state', 'update-refused' ); if ( res.data ) { box.setAttribute( 'data-sp-efb-code', String( res.data.code || '' ) ); } return; }
+				var result = res.data.result || {};
+				status.textContent = t( 'savedInEfb', 'Saved in Easy Form Builder.' );
+				box.setAttribute( 'data-sp-efb-state', 'updated' );
+				var after = [ el( 'p', { dir: 'auto', text: t( 'savedInEfb', 'Saved in Easy Form Builder.' ) } ) ].concat( ( result.notes || [] ).map( function ( line ) { return el( 'p', { dir: 'auto', 'data-sp-efb-note': 'efb', text: String( line ) } ); } ) );
+				var foot = [];
+				if ( result.edit_url ) { foot.push( el( 'a', { class: 'aisa-ai-btn aisa-ai-btn--sm aisaautopilot-efb-btn', href: result.edit_url }, [ el( 'span', { text: t( 'openInEditor', 'Open in the editor' ) } ) ] ) ); }
+				var done = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
+				if ( 'draft' === result.status ) { foot.unshift( publishButton( Number( result.form_id ), done ) ); }
+				addAi( card( Dock.cardHead( 'ok', 'check', t( 'updateTitle', 'Change “%s”', String( result.name || form.name || '' ) ) ), [ el( 'div', { class: 'aisa-ai-card__body' }, after.concat( [ done ] ) ), foot.length ? el( 'div', { class: 'aisa-ai-card__foot' }, foot ) : null ], { 'data-sp-efb-state': 'update-saved' } ) );
+				history.push( { role: 'assistant', text: 'Saved the change of ' + String( form.name || '' ) } );
+			} ).catch( function () { approve.disabled = false; discard.disabled = false; status.textContent = t( 'networkError', 'Network error. Please try again.' ); } );
+		} );
+		discard.addEventListener( 'click', function () { box.remove(); setSuggestions( [] ); } );
+		var body = addAi( data.reply || '' );
+		body.appendChild( box );
+		setSuggestions( [] );
+		history.push( { role: 'assistant', text: 'Proposed a change of the saved form ' + String( form.name || '' ) } );
+	}
+	/* The owner's own Save in EFB's editor: EFB 4.3.2 passes the save answer's warnings with efb:form-saved; the copilot
+	   explains them in plain words (EfbSaveNotes on the server). Nothing is sent when there is nothing to explain. */
+	document.addEventListener( 'efb:form-saved', function ( e ) {
+		var d = e && e.detail ? e.detail : {};
+		var warnings = Array.isArray( d.warnings ) ? d.warnings.filter( function ( w ) { return w && w.code && 'info' !== w.level; } ) : [];
+		if ( ! EFB.saveEvents || ! configured || ( ! warnings.length && false !== d.payment_ready ) ) { return; }
+		api( 'efb/save-notes', { warnings: warnings.slice( 0, 40 ), payment_ready: false === d.payment_ready ? false : null, payment_issues: Array.isArray( d.payment_issues ) ? d.payment_issues.slice( 0, 8 ) : [] } ).then( function ( res ) {
+			var notes = res.data && Array.isArray( res.data.notes ) ? res.data.notes : [];
+			if ( ! notes.length || ! messages() ) { return; }
+			addAi( card( Dock.cardHead( 'warn', 'alert', t( 'saveNotesTitle', 'Easy Form Builder saved the form and noted' ) ), [ el( 'div', { class: 'aisa-ai-card__body' }, notes.map( function ( line ) { return el( 'p', { dir: 'auto', 'data-sp-efb-note': 'save', text: String( line ) } ); } ) ) ], { 'data-sp-efb-state': 'save-notes' } ) );
+		} ).catch( function () {} );
+	} );
+
 	/* A form the copilot just created opens here: say what Easy Form Builder reported while storing it and offer to undo
 	   it (Easy Form Builder's own Form_Package::delete(); the server keeps the token, bound to this administrator). */
 	var CREATED_KEY = 'aisaautopilot.efb.created';
@@ -1200,13 +1306,17 @@
 		var match = /[?&]id=(\d+)/.exec( window.location.search );
 		if ( ! match || Number( match[ 1 ] ) !== Number( saved.form_id ) ) { return; }
 		try { sessionStorage.removeItem( CREATED_KEY ); } catch ( e ) {}
-		if ( ! ( saved.notes && saved.notes.length ) && ! saved.can_undo ) { return; }
+		if ( ! ( saved.notes && saved.notes.length ) && ! saved.can_undo && ! saved.is_draft ) { return; }
+		if ( saved.is_draft ) { draftShown = true; } // this card says it; the greeting does not repeat it
 		open( false );
 		var status = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
 		var lines = ( saved.notes || [] ).length ? saved.notes : [ t( 'createdBody', 'Easy Form Builder stored it with its own checks. Look it over here; if it is not what you wanted, Undo deletes it.' ) ];
 		var parts = [ el( 'div', { class: 'aisa-ai-card__body' }, lines.map( function ( line ) { return el( 'p', { dir: 'auto', text: String( line ) } ); } ).concat( [ status ] ) ) ];
 		var undo = saved.can_undo ? button( t( 'undoCreate', 'Undo: delete this new form' ), { kind: 'quiet', size: 'sm', attrs: { 'data-sp-efb-undo': String( saved.form_id ) } } ) : null;
-		if ( undo ) { parts.push( el( 'div', { class: 'aisa-ai-card__foot' }, [ undo ] ) ); }
+		// EFB 4.3.2: the new form waits as a draft; the admin publishes it when it is ready (here, or in EFB's forms list).
+		var publish = saved.is_draft ? publishButton( Number( saved.form_id ), status ) : null;
+		if ( saved.is_draft ) { parts[ 0 ].insertBefore( el( 'p', { dir: 'auto', 'data-sp-efb-note': 'draft', text: t( 'draftCreated', 'Created as a draft: visitors do not see it until you publish it.' ) } ), parts[ 0 ].firstChild ); draftShown = true; }
+		if ( undo || publish ) { parts.push( el( 'div', { class: 'aisa-ai-card__foot' }, [ publish, undo ] ) ); }
 		var box = card( Dock.cardHead( 'plan', 'check', t( 'createdTitle', 'Created “%s”', saved.title ) ), parts, { 'data-sp-efb-state': 'created' } );
 		if ( undo ) {
 			undo.addEventListener( 'click', function () {
@@ -1269,7 +1379,7 @@
 		var selected = selectedLiveField();
 		var selectedId = selected ? String( selected.id_ ) : '';
 		clientLog( traceId, 'chat_submitted', 'Chat request sent from the EFB editor.', { message: text.slice( 0, 200 ), has_form: hasLiveForm(), field_count: fields.length, step_count: steps.length, selected_field: selectedId, field_ids: fields.map( function ( field ) { return field.id; } ) } );
-		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), fields: fields, steps: steps, selected_field: selectedId, logic_addon: logicAddonActive(), addons: paymentAddons(), form_type: hasLiveForm() && valj_efb[ 0 ] ? String( valj_efb[ 0 ].type || 'form' ) : '', logic_rules: liveLogicRules(), captcha: liveCaptcha(), spam_shield: spamShieldActive() } )
+		api( 'efb/chat', { trace_id: traceId, message: text, history: prior, has_form: hasLiveForm(), form_id: ! hasLiveForm() && savedForm ? savedForm.id : 0, fields: fields, steps: steps, selected_field: selectedId, logic_addon: logicAddonActive(), addons: paymentAddons(), form_type: hasLiveForm() && valj_efb[ 0 ] ? String( valj_efb[ 0 ].type || 'form' ) : '', logic_rules: liveLogicRules(), captcha: liveCaptcha(), spam_shield: spamShieldActive() } )
 			.then( function ( res ) {
 				removeTyping(); setBusy( false );
 				var data = res.data || { type: 'message', reply: t( 'genericError', 'Sorry, something went wrong.' ) };
@@ -1361,8 +1471,16 @@
 			[ [ 'mail', t( 'buildContact', 'Build a contact form' ) ], [ 'calendar', t( 'buildBooking', 'A booking form for a dental clinic' ) ], [ 'doc', t( 'buildJob', 'Job application form' ) ], [ 'help', t( 'notificationHelp', 'How do I turn on email notifications?' ) ] ].forEach( function ( item ) {
 				starters.appendChild( starter( item[ 0 ], 'help' === item[ 0 ] ? 'edit' : 'add', item[ 1 ], '', item[ 1 ] ) );
 			} );
+			// EFB 4.3.2: a saved form can be changed from here (form.update); an older EFB changes forms in its editor.
+			if ( EFB.formUpdate ) {
+				var change = el( 'button', { type: 'button', class: 'aisa-ai-starter aisaautopilot-efb-chip', 'data-sp-efb-chip': 'saved-form' }, [ el( 'span', { class: 'aisa-ai-ic' }, [ icon( 'edit', 15 ) ] ), el( 'span', { text: t( 'pickSavedForm', 'Change a saved form' ) } ) ] );
+				change.addEventListener( 'click', function () { change.disabled = true; pickSavedForm(); } );
+				starters.appendChild( change );
+			}
 		}
 		body.appendChild( starters );
+		var draft = hasLiveForm() ? draftCard() : null;
+		if ( draft ) { addAi( draft ); }
 	}
 	function setOffline( off ) {
 		configured = ! off;

@@ -457,6 +457,186 @@ try {
 		$aisa_check( 404 === $u2['_status'], 'Form package 1.1: a second undo is refused', $u2 );
 	}
 
+	if ( 'saved' === $aisa_scenario ) {
+		// EFB 4.3.2 (driver: Free Plus, AdnCLC off): the version from EFB's registry, a new form as a draft with the name
+		// the admin approved, Publish, a SAVED form changed through EFB's form.update after approval (base_hash, stale,
+		// add-on refusal, nothing written by a refusal), and the owner's own Save warnings explained.
+		$aisa_check( version_compare( EfbCapabilities::efb_version(), '4.3.2', '>=' ) && EfbCapabilities::can_update_saved_forms() && EfbCapabilities::drafts_available() && EfbCapabilities::keeps_imported_name() && EfbCapabilities::save_events(), 'EFB 4.3.2: the version and form.update / drafts / name_policy / save warnings found in EFB\'s registry', EfbCapabilities::efb_version() );
+		$title = 'AI saved ' . wp_generate_password( 5, false );
+		$a     = $aisa_approve( $aisa_create( array( 'title' => $title, 'fields' => $aisa_contact ) ) );
+		$b     = $aisa_approve( $aisa_create( array( 'title' => $title, 'fields' => $aisa_contact ) ) );
+		$fid   = (int) ( $a['result']['form_id'] ?? 0 );
+		$fid2  = (int) ( $b['result']['form_id'] ?? 0 );
+		$read  = \Emsfb\Form_Package::read( $fid );
+		$read2 = \Emsfb\Form_Package::read( $fid2 );
+		$aisa_check( ! empty( $a['result']['is_draft'] ) && 'draft' === ( $read['status'] ?? '' ), 'Draft: the new form waits as a draft in EFB (visitors do not see it)', array( $a, $read['status'] ?? null ) );
+		$aisa_check( $title === ( $read['form_name'] ?? '' ) && $title === ( $read2['form_name'] ?? '' ), 'name_policy keep: the same approved name twice, no "(imported)"', array( $read['form_name'] ?? null, $read2['form_name'] ?? null ) );
+		$page = do_shortcode( '[EMS_Form_Builder id=' . $fid . ']' );
+		wp_set_current_user( 0 );
+		$guest = do_shortcode( '[EMS_Form_Builder id=' . $fid . ']' );
+		wp_set_current_user( 1 );
+		$aisa_check( '' === trim( $guest ) && false !== strpos( $page, 'efb-draft-note' ), 'Draft: a visitor gets nothing from the shortcode, the admin sees the draft notice', array( strlen( $guest ), strlen( $page ) ) );
+		$forms = $aisa_rest( 'efb/forms', array() );
+		$mine  = array_values( array_filter( (array) ( $forms['forms'] ?? array() ), static fn ( $f ) => (int) $f['id'] === $fid ) );
+		$aisa_check( ! empty( $forms['ok'] ) && 1 === count( $mine ) && ! empty( $mine[0]['draft'] ) && $title === $mine[0]['name'], 'Saved forms: EFB\'s own forms list, the draft marked', $mine );
+		$pub = $aisa_rest( 'efb/publish', array( 'form_id' => $fid ) );
+		$aisa_check( ! empty( $pub['ok'] ) && 'published' === ( \Emsfb\Form_Package::read( $fid )['status'] ?? '' ), 'Publish: the admin\'s click publishes it through EFB', $pub );
+
+		// A change of the saved form: proposed (nothing written), approved (EFB's save path), its notes.
+		$before = $aisa_rows( $fid );
+		$aisa_queue(
+			array(
+				'reply'      => 'Done.',
+				'action'     => 'customize',
+				'operations' => array(
+					array(
+						'op'     => 'set_field',
+						'target' => 'Email',
+						'prop'   => 'required',
+						'value'  => false,
+					),
+					array(
+						'op'    => 'add_field',
+						'field' => array(
+							'type'  => 'tel',
+							'label' => 'Phone',
+						),
+						'after' => 'Email',
+					),
+					array(
+						'op'    => 'set_form_name',
+						'value' => $title . ' v2',
+					),
+				),
+			)
+		);
+		$c = $aisa_rest(
+			'efb/chat',
+			array(
+				'message'  => 'make email optional and add a phone after it',
+				'has_form' => false,
+				'form_id'  => $fid,
+				'addons'   => array(),
+			)
+		);
+		$aisa_check( 'update_preview' === ( $c['type'] ?? '' ) && ! empty( $c['action_id'] ) && 3 <= count( (array) ( $c['changes'] ?? array() ) ) && $fid === (int) ( $c['form']['id'] ?? 0 ), 'form.update: a saved form\'s change becomes a proposal with the changes in plain words', $c );
+		$aisa_check( $before === $aisa_rows( $fid ), 'form.update: nothing is written before the approval', null );
+		$u     = $aisa_rest( 'efb/update', array( 'action_id' => (string) ( $c['action_id'] ?? '' ) ) );
+		$rows  = $aisa_rows( $fid );
+		$email = $aisa_of_type( $rows, 'email' )[0] ?? array();
+		$tel   = $aisa_of_type( $rows, 'tel' )[0] ?? array();
+		$order = array_values( array_map( static fn ( $r ) => (string) ( $r['type'] ?? '' ), array_filter( array_slice( $rows, 1 ), static fn ( $r ) => 'option' !== ( $r['type'] ?? '' ) ) ) );
+		$aisa_check( ! empty( $u['ok'] ) && in_array( $email['required'] ?? null, array( 0, '0', false ), true ) && 'Phone' === ( $tel['name'] ?? '' ) && array_search( 'tel', $order, true ) === array_search( 'email', $order, true ) + 1, 'form.update: approved → saved through EFB (Email optional, Phone right after it)', array( $u, $order ) );
+		$aisa_check( $title . ' v2' === ( \Emsfb\Form_Package::read( $fid )['form_name'] ?? '' ), 'form.update: the form renamed', null );
+		$revs = class_exists( '\\Emsfb\\Revisions' ) ? \Emsfb\Revisions::list_for_form( $fid ) : array();
+		$aisa_check( 'autopilot' === ( $revs[0]['source'] ?? '' ), 'form.update: EFB keeps a version "autopilot"', $revs[0] ?? null );
+		$again = $aisa_rest( 'efb/update', array( 'action_id' => (string) ( $c['action_id'] ?? '' ) ) );
+		$aisa_check( 422 === $again['_status'], 'form.update: the approval is one-time', $again );
+
+		// The form saved in between (the editor, another admin): the proposal made before is refused, nothing written.
+		$aisa_queue(
+			array(
+				'reply'      => 'Done.',
+				'action'     => 'customize',
+				'operations' => array(
+					array(
+						'op'     => 'set_field',
+						'target' => 'Phone',
+						'prop'   => 'help',
+						'value'  => 'With the country code',
+					),
+				),
+			)
+		);
+		$c2  = $aisa_rest(
+			'efb/chat',
+			array(
+				'message' => 'add help to phone',
+				'form_id' => $fid,
+				'addons'  => array(),
+			)
+		);
+		$cur = \Emsfb\Form_Package::read( $fid );
+		\Emsfb\Form_Package::update(
+			$fid,
+			array(
+				array(
+					'op'    => 'name',
+					'value' => $title . ' v3',
+				),
+			),
+			array( 'base_hash' => (string) $cur['base_hash'] )
+		);
+		$mid = $aisa_rows( $fid );
+		$s   = $aisa_rest( 'efb/update', array( 'action_id' => (string) ( $c2['action_id'] ?? '' ) ) );
+		$aisa_check( 409 === $s['_status'] && 'stale_hash' === ( $s['code'] ?? '' ) && false !== strpos( (string) ( $s['message'] ?? '' ), 'after I read it' ) && $mid === $aisa_rows( $fid ), 'form.update: a form saved in between is never overwritten (stale_hash, in plain words)', $s );
+
+		// An add-on's field the site does not have: EFB refuses it (addon_required), the copilot says which add-on.
+		$aisa_queue(
+			array(
+				'reply'      => 'Done.',
+				'action'     => 'customize',
+				'operations' => array(
+					array(
+						'op'    => 'add_field',
+						'field' => array(
+							'type'  => 'text',
+							'label' => 'Code',
+						),
+					),
+				),
+			)
+		);
+		$c3    = $aisa_rest(
+			'efb/chat',
+			array(
+				'message' => 'add a code field',
+				'form_id' => $fid,
+				'addons'  => array(),
+			)
+		);
+		$store = new \AISAAutoPilot\Execution\ActionStore();
+		$rec   = $store->get( (string) ( $c3['action_id'] ?? '' ) );
+		// The proposal is changed to carry a calc field (Numbers & Calculations is off on this site) to see EFB's refusal.
+		$rec['plan']['patches'] = array(
+			array(
+				'op'   => 'insert',
+				'rows' => array(
+					array(
+						'id_'     => 'aicalc001',
+						'type'    => 'calc',
+						'name'    => 'Total',
+						'formula' => '1+1',
+					),
+				),
+			),
+		);
+		set_transient( 'aisaautopilot_action_' . (string) ( $c3['action_id'] ?? '' ), $rec, 900 );
+		$snap = $aisa_rows( $fid );
+		$r    = $aisa_rest( 'efb/update', array( 'action_id' => (string) ( $c3['action_id'] ?? '' ) ) );
+		$aisa_check( 'addon_required' === ( $r['code'] ?? '' ) && false !== strpos( (string) ( $r['message'] ?? '' ), 'Numbers & Calculations' ) && $snap === $aisa_rows( $fid ), 'form.update: EFB refuses an add-on\'s field (addon_required), the add-on named, nothing written', $r );
+
+		// The owner's own Save in EFB's editor: its warnings (efb:form-saved) in plain words.
+		$n = $aisa_rest(
+			'efb/save-notes',
+			array(
+				'warnings' => array(
+					array(
+						'code'  => 'addon_keys_kept',
+						'addon' => 'AdnTSG',
+						'm'     => 'Settings of Typed Signature are kept until the add-on is installed.',
+					),
+					array(
+						'code'  => 'pay_x_info',
+						'level' => 'info',
+						'm'     => 'an info line',
+					),
+				),
+			)
+		);
+		$aisa_check( ! empty( $n['ok'] ) && 1 === count( (array) ( $n['notes'] ?? array() ) ) && false !== strpos( (string) $n['notes'][0], 'Typed Signature' ), 'Save warnings: the owner\'s Save explained (an info line left out)', $n );
+	}
+
 } finally {
 	foreach ( $aisa_created as $id ) {
 		$token = get_transient( 'aisaautopilot_efb_undo_1_' . $id );

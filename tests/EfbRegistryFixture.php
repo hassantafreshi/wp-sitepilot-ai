@@ -73,6 +73,64 @@ final class EfbRegistryFixture {
 			$caps['split']['addons'][ $code ]['can_install'] = $plan_ok;
 			$caps['split']['addons'][ $code ]['state']       = $active ? 'active' : ( $plan_ok ? 'addon' : 'plan' );
 		}
+		// EFB 4.3.2 (AI-6): payment_gateways lists every gateway of its catalogue, also while the add-on is off; the
+		// fixture site registers none of them (a registered gateway is added by the test that needs it).
+		foreach ( self::GATEWAYS as $slug => $info ) {
+			if ( isset( $caps['payment_gateways'][ $slug ] ) ) {
+				continue;
+			}
+			$plan_ok                           = self::RANK[ $plan ] >= self::RANK[ $info[2] ];
+			$caps['payment_gateways'][ $slug ] = array(
+				'addon'       => $info[0],
+				'installed'   => ! empty( $caps['addons'][ $info[0] ] ),
+				'active'      => false,
+				'plan'        => $info[2],
+				'state'       => ! empty( $caps['addons'][ $info[0] ] ) ? 'update' : ( $plan_ok ? 'addon' : 'plan' ),
+				'can_install' => $plan_ok,
+				'label'       => $info[1],
+				'field_type'  => $slug,
+				'legacy_type' => $info[3],
+				'configured'  => null,
+				'mode'        => null,
+			);
+		}
+
+		return $caps;
+	}
+
+	/** The catalogue EFB 4.3.2 lists in payment_gateways: slug => add-on, label, plan, legacy type. */
+	private const GATEWAYS = array(
+		'mollie'         => array( 'AdnMOL', 'Mollie', 'free_plus', null ),
+		'payplug'        => array( 'AdnPPG', 'Payplug', 'free_plus', null ),
+		'tappay'         => array( 'AdnTAP', 'Tap Payments', 'free_plus', null ),
+		'omise'          => array( 'AdnOMS', 'Omise', 'free_plus', null ),
+		'paytabs'        => array( 'AdnPTB', 'PayTabs', 'free_plus', null ),
+		'paymob'         => array( 'AdnPMB', 'Paymob', 'free_plus', null ),
+		'xendit'         => array( 'AdnXND', 'Xendit', 'free_plus', null ),
+		'stripecheckout' => array( 'AdnSPF', 'Stripe Payment', 'free_plus', 'stripe' ),
+		'paypalcheckout' => array( 'AdnPAP', 'PayPal Payment', 'free_plus', 'paypal' ),
+		'zarinpalgate'   => array( 'AdnPPF', 'Persia Payment', 'pro', 'persiaPay' ),
+	);
+
+	/**
+	 * The blocks EFB 4.3.2 adds for the AI builder (AI-1 … AI-7): the version, form.update, drafts, the save warnings
+	 * in efb:form-saved, and the form package 1.2 (name_policy, status).
+	 *
+	 * @param array<string,mixed> $caps
+	 * @return array<string,mixed>
+	 */
+	public static function ai_core( array $caps ): array {
+		$caps['efb_version'] = '4.3.2';
+		$caps['save_events'] = array( 'v' => 1 );
+		$caps['form_update'] = array(
+			'v'   => 1,
+			'ops' => array( 'form', 'field', 'insert', 'remove', 'options', 'name' ),
+		);
+		$caps['form_status'] = array(
+			'v'      => 1,
+			'ready'  => true,
+			'values' => array( 'published', 'draft' ),
+		);
 
 		return $caps;
 	}

@@ -12,6 +12,9 @@
  *   form <id>                  the stored rows of an EFB form (read only)
  *   caps <key...>              registry entries
  *   locale <xx_YY>             site language (WPLANG) and the admin user's language
+ *   status <id>                EFB's status of a form (Form_Package::read(): draft | published)
+ *   saved-form <title>         a published contact form (name, Email) made through the connector (EFB's import)
+ *   delete <id>                remove a form the test made (EFB's own delete of the forms list)
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 1 );
@@ -70,6 +73,43 @@ switch ( $aisa_a[0] ?? '' ) {
 		update_option( 'WPLANG', 'en_US' === $l ? '' : $l );
 		update_user_meta( 1, 'locale', 'en_US' === $l ? '' : $l );
 		$aisa_out( array( 'locale' => $l ) );
+		break;
+	case 'status':
+		wp_set_current_user( 1 );
+		$r = \Emsfb\Form_Package::read( (int) ( $aisa_a[1] ?? 0 ) );
+		$aisa_out( array( 'status' => is_array( $r ) ? $r['status'] : null ) );
+		break;
+	case 'saved-form':
+		wp_set_current_user( 1 );
+		$res = ( new \AISAAutoPilot\Connectors\EasyFormBuilderConnector() )->execute_action(
+			array(
+				'title'  => (string) ( $aisa_a[1] ?? 'Saved form' ),
+				'fields' => array(
+					array(
+						'key'      => 'name',
+						'type'     => 'text',
+						'label'    => 'Full name',
+						'required' => true,
+						'options'  => array(),
+					),
+					array(
+						'key'      => 'email',
+						'type'     => 'email',
+						'label'    => 'Email',
+						'required' => true,
+						'options'  => array(),
+					),
+				),
+			)
+		);
+		$aisa_out( array( 'form_id' => (int) ( $res['form_id'] ?? 0 ) ) );
+		break;
+	case 'delete':
+		global $wpdb;
+		$id = (int) ( $aisa_a[1] ?? 0 );
+		$wpdb->delete( $wpdb->prefix . 'emsfb_form', array( 'form_id' => $id ) );
+		do_action( 'efb_form_deleted', $id );
+		$aisa_out( array( 'ok' => true ) );
 		break;
 	default:
 		$aisa_out( array( 'error' => 'unknown command' ) );

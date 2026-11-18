@@ -420,6 +420,26 @@ final class RestRoutes {
 				'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
 			)
 		);
+		// EFB 4.3.2: change a saved form after approval (form.update), publish a draft, the forms to choose from, and the
+		// owner's own Save explained (efb:form-saved warnings).
+		foreach (
+			array(
+				'/efb/update'     => 'update',
+				'/efb/publish'    => 'publish',
+				'/efb/forms'      => 'forms',
+				'/efb/save-notes' => 'save_notes',
+			) as $efb_route => $efb_method
+		) {
+			register_rest_route(
+				self::NAMESPACE,
+				$efb_route,
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $efb, $efb_method ),
+					'permission_callback' => array( $this, 'can_manage_efb_copilot' ),
+				)
+			);
+		}
 		register_rest_route(
 			self::NAMESPACE,
 			'/efb/undo',

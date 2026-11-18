@@ -58,7 +58,21 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 	}
 
 	public function get_capabilities(): array {
-		return array( 'form.create', 'form.validate' );
+		$caps = array( 'form.create', 'form.validate' );
+		// EFB 4.3.2: a saved form is changed through EFB's own save path, and a new form can wait as a draft.
+		if ( EfbCapabilities::can_update_saved_forms() ) {
+			$caps[] = 'form.update';
+		}
+		if ( EfbCapabilities::drafts_available() ) {
+			$caps[] = 'form.publish';
+		}
+
+		return $caps;
+	}
+
+	/** Whether EFB can change a saved form here (form.update, EFB 4.3.2). An older EFB: the change is made in its editor. */
+	public function can_update(): bool {
+		return $this->is_available() && EfbCapabilities::can_update_saved_forms();
 	}
 
 	/** Whether EFB offers the API this connector creates forms with (the form package contract). */
@@ -169,16 +183,23 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 			}
 		}
 
-		$title  = (string) ( $plan['title'] ?? 'Form' );
+		$title = (string) ( $plan['title'] ?? 'Form' );
+		$args  = array(
+			'name'    => $title,
+			'user_id' => get_current_user_id(),
+		);
+		// EFB 4.3.2 (form package 1.2): the name the admin approved stays as it is (no "… (imported)"), and the form can
+		// wait as a draft that visitors do not see until the admin publishes it. An older EFB: as before.
+		if ( EfbCapabilities::keeps_imported_name() ) {
+			$args['name_policy'] = 'keep';
+		}
+		$draft = ! empty( $context['draft'] ) && EfbCapabilities::drafts_available();
+		if ( $draft ) {
+			$args['status'] = 'draft';
+		}
 		$result = null;
 		try {
-			$result = ! class_exists( '\\Emsfb\\Form_Package' ) ? null : \Emsfb\Form_Package::import(
-				self::package( $plan ),
-				array(
-					'name'    => $title,
-					'user_id' => get_current_user_id(),
-				)
-			);
+			$result = ! class_exists( '\\Emsfb\\Form_Package' ) ? null : \Emsfb\Form_Package::import( self::package( $plan ), $args );
 		} catch ( \Throwable $e ) {
 			$result = null;
 		}
@@ -207,14 +228,138 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 			'edit_url'     => admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . $form_id ),
 			'list_url'     => admin_url( 'admin.php?page=Emsfb' ),
 			'shortcode'    => is_string( $result['shortcode'] ?? null ) && '' !== $result['shortcode'] ? (string) $result['shortcode'] : sprintf( '[EMS_Form_Builder id=%d]', $form_id ),
-			'is_draft'     => false,
+			'is_draft'     => 'draft' === (string) ( $result['status'] ?? ( $draft ? 'draft' : 'published' ) ),
+			'can_publish'  => $draft,
 			// Package 1.1: the token that lets the same user undo this creation through Form_Package::delete().
 			'import_token' => EfbCapabilities::form_package_version() >= 1.1 ? (string) ( $result['import_token'] ?? '' ) : '',
 			'dropped'      => array_values( array_filter( (array) ( $result['dropped'] ?? array() ), 'is_array' ) ),
 			'notices'      => array_values( array_filter( (array) ( $result['notices'] ?? array() ), 'is_array' ) ),
 			'payment'      => is_array( $result['payment'] ?? null ) ? $result['payment'] : null,
-			'warnings'     => array(),
+			// Package 1.2: the save path's warnings apart from the notices (the same codes as a builder save).
+			'warnings'     => array_values( array_filter( (array) ( $result['warnings'] ?? array() ), 'is_array' ) ),
 		);
+	}
+
+	/**
+	 * A saved form as EFB stores it, with the base_hash that update_form() needs (EFB 4.3.2, Form_Package::read()).
+	 *
+	 * @return array{form_id:int,form_name:string,form_type:string,status:string,base_hash:string,rows:array<int,array<string,mixed>>}|\WP_Error
+	 */
+	public function read_form( int $form_id ) {
+		if ( ! $this->can_update() || ! class_exists( '\\Emsfb\\Form_Package' ) ) {
+			return new \WP_Error( 'efb_update_unavailable', self::update_needed_message() );
+		}
+		try {
+			$read = \Emsfb\Form_Package::read( $form_id );
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'efb_read_failed', __( 'Easy Form Builder could not read that form.', 'ai-site-assistant-autopilot' ) );
+		}
+		if ( is_wp_error( $read ) ) {
+			return $read;
+		}
+		if ( ! is_array( $read ) || ! is_array( $read['rows'] ?? null ) || '' === (string) ( $read['base_hash'] ?? '' ) ) {
+			return new \WP_Error( 'efb_read_failed', __( 'Easy Form Builder could not read that form.', 'ai-site-assistant-autopilot' ) );
+		}
+
+		return array(
+			'form_id'   => (int) ( $read['form_id'] ?? $form_id ),
+			'form_name' => (string) ( $read['form_name'] ?? '' ),
+			'form_type' => (string) ( $read['form_type'] ?? 'form' ),
+			'status'    => 'draft' === ( $read['status'] ?? '' ) ? 'draft' : 'published',
+			'base_hash' => (string) $read['base_hash'],
+			'rows'      => array_values( $read['rows'] ),
+		);
+	}
+
+	/**
+	 * Change a saved form through EFB's own save path (form.update, EFB 4.3.2): the patches are applied only when the
+	 * form is still the version that was read (base_hash); EFB checks the plan and the add-ons and answers in its codes.
+	 *
+	 * @param array<int,array<string,mixed>> $patches
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function update_form( int $form_id, array $patches, string $base_hash, string $note = '' ) {
+		if ( ! $this->can_update() || ! class_exists( '\\Emsfb\\Form_Package' ) ) {
+			return new \WP_Error( 'efb_update_unavailable', self::update_needed_message() );
+		}
+		try {
+			$result = \Emsfb\Form_Package::update(
+				$form_id,
+				$patches,
+				array(
+					'base_hash' => $base_hash,
+					'note'      => function_exists( 'mb_substr' ) ? mb_substr( $note, 0, 180 ) : substr( $note, 0, 180 ),
+				)
+			);
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'efb_update_failed', __( 'Easy Form Builder could not save the change.', 'ai-site-assistant-autopilot' ) );
+		}
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return is_array( $result ) ? $result : new \WP_Error( 'efb_update_failed', __( 'Easy Form Builder could not save the change.', 'ai-site-assistant-autopilot' ) );
+	}
+
+	/**
+	 * Show a draft form to visitors (EFB 4.3.2, Form_Package::publish()): only on the admin's own click.
+	 *
+	 * @return true|\WP_Error
+	 */
+	public function publish_form( int $form_id ) {
+		if ( ! EfbCapabilities::drafts_available() || ! class_exists( '\\Emsfb\\Form_Package' ) ) {
+			return new \WP_Error( 'efb_publish_unavailable', self::update_needed_message() );
+		}
+		try {
+			$done = \Emsfb\Form_Package::publish( $form_id );
+		} catch ( \Throwable $e ) {
+			$done = new \WP_Error( 'efb_publish_failed', __( 'Easy Form Builder could not publish the form.', 'ai-site-assistant-autopilot' ) );
+		}
+
+		return is_wp_error( $done ) ? $done : true;
+	}
+
+	/**
+	 * The site's Easy Form Builder forms as EFB lists them in its own forms list (id, name, type, draft); never the
+	 * form contents.
+	 *
+	 * @return array<int,array{id:int,name:string,type:string,draft:bool}>
+	 */
+	public function list_forms(): array {
+		$rows = array();
+		try {
+			$efb  = function_exists( 'get_efbFunction' ) ? get_efbFunction() : null;
+			$rows = is_object( $efb ) && method_exists( $efb, 'efb_list_form' ) ? (array) $efb->efb_list_form() : array();
+		} catch ( \Throwable $e ) {
+			$rows = array();
+		}
+		$out = array();
+		foreach ( $rows as $row ) {
+			$row = (array) $row;
+			$id  = (int) ( $row['form_id'] ?? 0 );
+			if ( $id <= 0 ) {
+				continue;
+			}
+			$out[] = array(
+				'id'    => $id,
+				'name'  => (string) wp_strip_all_tags( (string) ( $row['form_name'] ?? '' ) ),
+				'type'  => sanitize_key( (string) ( $row['form_type'] ?? 'form' ) ),
+				'draft' => ! empty( $row['draft'] ),
+			);
+		}
+		usort( $out, static fn ( $a, $b ) => $b['id'] <=> $a['id'] );
+
+		return array_slice( $out, 0, 200 );
+	}
+
+	/** Why a saved form cannot be changed from here on this Easy Form Builder (older than 4.3.2). */
+	public static function update_needed_message(): string {
+		$version = EfbCapabilities::efb_version();
+
+		return '' !== $version
+			/* translators: %s: the Easy Form Builder version on this site. */
+			? sprintf( __( 'This Easy Form Builder (%s) cannot change a saved form from here. Open the form in the Easy Form Builder editor, or update Easy Form Builder to 4.3.2 or newer.', 'ai-site-assistant-autopilot' ), $version )
+			: __( 'This Easy Form Builder cannot change a saved form from here. Open the form in the Easy Form Builder editor, or update Easy Form Builder to 4.3.2 or newer.', 'ai-site-assistant-autopilot' );
 	}
 
 	/**

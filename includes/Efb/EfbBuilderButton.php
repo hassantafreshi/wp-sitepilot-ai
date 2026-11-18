@@ -30,6 +30,30 @@ final class EfbBuilderButton {
 		return in_array( $page, array( 'Emsfb', 'Emsfb_create' ), true );
 	}
 
+	/**
+	 * The form open in EFB's editor (`?state=edit-form&id=N`): whether it is a draft (EFB 4.3.2), so the copilot can offer
+	 * Publish. Read through EFB's own API (Form_Package::read()); nothing when EFB has no draft status.
+	 *
+	 * @return array{id:int,status:string}|null
+	 */
+	private static function open_form_state(): ?array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read only, the id of the form EFB's own screen opened.
+		$id = isset( $_GET['id'] ) ? absint( wp_unslash( $_GET['id'] ) ) : 0;
+		if ( $id <= 0 || ! EfbCapabilities::drafts_available() || ! class_exists( '\\Emsfb\\Form_Package' ) ) {
+			return null;
+		}
+		try {
+			$read = \Emsfb\Form_Package::read( $id );
+		} catch ( \Throwable $e ) {
+			return null;
+		}
+
+		return is_array( $read ) ? array(
+			'id'     => $id,
+			'status' => 'draft' === ( $read['status'] ?? '' ) ? 'draft' : 'published',
+		) : null;
+	}
+
 	public function enqueue( string $hook ): void {
 		unset( $hook );
 		if ( ! $this->is_efb_page() || ! Settings::get( 'efb_copilot_enabled', true ) ) {
@@ -61,7 +85,37 @@ final class EfbBuilderButton {
 				// with the server validator without exposing credentials/settings.
 				'fieldProperties' => EfbFormModel::client_field_properties(),
 				'formProperties'  => EfbFormModel::client_form_properties(),
+				// EFB 4.3.2: a saved form can be changed from here (form.update), a new form waits as a draft, and the
+				// owner's own Save reports its warnings (efb:form-saved). Each is false on an older EFB.
+				'efb'             => array(
+					'version'    => EfbCapabilities::efb_version(),
+					'formUpdate' => EfbCapabilities::can_update_saved_forms(),
+					'drafts'     => EfbCapabilities::drafts_available(),
+					'saveEvents' => EfbCapabilities::save_events(),
+					'openForm'   => self::open_form_state(),
+				),
 				'i18n'            => array(
+					'pickSavedForm'                  => __( 'Change a saved form', 'ai-site-assistant-autopilot' ),
+					'pickSavedFormHelp'              => __( 'Choose the form to change. I read it from Easy Form Builder, and nothing is saved until you approve the change.', 'ai-site-assistant-autopilot' ),
+					'noSavedForms'                   => __( 'There are no forms to change yet.', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: form name. */
+					'ctxSavedForm'                   => __( 'Saved form “%s”', 'ai-site-assistant-autopilot' ),
+					'stopSavedForm'                  => __( 'Back to a new form', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: form name. */
+					'savedFormPicked'                => __( 'I will change “%s”. Tell me what to change.', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: form name. */
+					'updateTitle'                    => __( 'Change “%s”', 'ai-site-assistant-autopilot' ),
+					'applySaved'                     => __( 'Approve & save', 'ai-site-assistant-autopilot' ),
+					'saving'                         => __( 'Saving…', 'ai-site-assistant-autopilot' ),
+					'savedInEfb'                     => __( 'Saved in Easy Form Builder.', 'ai-site-assistant-autopilot' ),
+					'openInEditor'                   => __( 'Open in the editor', 'ai-site-assistant-autopilot' ),
+					'draftBadge'                     => __( 'Draft', 'ai-site-assistant-autopilot' ),
+					'draftCreated'                   => __( 'Created as a draft: visitors do not see it until you publish it.', 'ai-site-assistant-autopilot' ),
+					'draftOpen'                      => __( 'This form is a draft: visitors do not see it yet. Publish it when it is ready.', 'ai-site-assistant-autopilot' ),
+					'publishNow'                     => __( 'Publish', 'ai-site-assistant-autopilot' ),
+					'publishing'                     => __( 'Publishing…', 'ai-site-assistant-autopilot' ),
+					'publishedNow'                   => __( 'Published: visitors see the form now.', 'ai-site-assistant-autopilot' ),
+					'saveNotesTitle'                 => __( 'Easy Form Builder saved the form and noted', 'ai-site-assistant-autopilot' ),
 					'editingForm'                    => __( 'Editing the current form', 'ai-site-assistant-autopilot' ),
 					'designingForm'                  => __( 'Designing a new form', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: selected Easy Form Builder field label. */

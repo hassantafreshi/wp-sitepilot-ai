@@ -19,5 +19,7 @@ ctl addon AdnMOL 1; run payments; ctl addon AdnMOL 0
 run portal
 run editor
 run write
+# EFB 4.3.2: drafts, a saved form changed through form.update, the owner's Save warnings (Numbers & Calculations off).
+run saved
 # Restore the add-ons this site had.
 ctl addon AdnCLC 1; ctl addon AdnADR 1; ctl addon AdnSMF 0

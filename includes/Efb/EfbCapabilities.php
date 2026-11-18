@@ -344,7 +344,82 @@ final class EfbCapabilities {
 	}
 
 	/**
+	 * The version of Easy Form Builder as EFB itself reports it (the registry's `efb_version`, one source of truth since
+	 * 4.3.2: the plugin header and EMSFB_PLUGIN_VERSION), or '' when unknown.
+	 */
+	public static function efb_version(): string {
+		$caps    = self::all();
+		$version = null !== $caps ? (string) ( $caps['efb_version'] ?? '' ) : '';
+		if ( '' === $version && defined( 'EMSFB_PLUGIN_VERSION' ) ) {
+			$version = (string) EMSFB_PLUGIN_VERSION;
+		}
+
+		return 1 === preg_match( '/^\d+\.\d+(\.\d+)?/', $version ) ? $version : '';
+	}
+
+	/** Whether this Easy Form Builder is at least $version (false when the version is unknown). */
+	public static function efb_at_least( string $version ): bool {
+		$mine = self::efb_version();
+
+		return '' !== $mine && version_compare( $mine, $version, '>=' );
+	}
+
+	/**
+	 * form.update of a saved form (EFB 4.3.2, AI-2: `capabilities.form_update`, form package 1.2), or null on an older EFB.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	public static function form_update(): ?array {
+		$block = self::block( 'form_update' );
+		if ( null === $block || (int) ( $block['v'] ?? 0 ) < 1 || self::form_package_version() < 1.2 || ! is_callable( array( '\\Emsfb\\Form_Package', 'update' ) ) ) {
+			return null;
+		}
+
+		return $block;
+	}
+
+	/** Whether EFB can change a saved form through its own save path (form.update). */
+	public static function can_update_saved_forms(): bool {
+		return null !== self::form_update();
+	}
+
+	/**
+	 * Draft forms (EFB 4.3.2, AI-4: `capabilities.form_status`): import as a draft, publish later; null on an older EFB.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	public static function form_status(): ?array {
+		$block = self::block( 'form_status' );
+		if ( null === $block || (int) ( $block['v'] ?? 0 ) < 1 || empty( $block['ready'] ) || self::form_package_version() < 1.2 || ! is_callable( array( '\\Emsfb\\Form_Package', 'publish' ) ) ) {
+			return null;
+		}
+
+		return $block;
+	}
+
+	/** Whether a new form can be created as a draft that visitors do not see until it is published. */
+	public static function drafts_available(): bool {
+		return null !== self::form_status();
+	}
+
+	/** Whether import() keeps the name the admin approved (form package 1.2 `name_policy`). */
+	public static function keeps_imported_name(): bool {
+		$api = self::form_package_api();
+
+		return null !== $api && self::form_package_version() >= 1.2 && in_array( 'keep', (array) ( $api['import_args']['name_policy'] ?? array() ), true );
+	}
+
+	/** Whether efb:form-saved carries the save warnings (EFB 4.3.2, AI-1: `capabilities.save_events`). */
+	public static function save_events(): bool {
+		$block = self::block( 'save_events' );
+
+		return null !== $block && (int) ( $block['v'] ?? 0 ) >= 1;
+	}
+
+	/**
 	 * PAY00 gateways this site has (only active gateway add-ons register one): slug => what EFB tells about it.
+	 * Since EFB 4.3.2 (AI-6) every gateway of EFB's catalogue is listed, also while its add-on is off or not
+	 * installed, with installed / active / plan / addon / state; an older EFB lists the registered ones only.
 	 *
 	 * @return array<string,array<string,mixed>>
 	 */
@@ -424,7 +499,7 @@ final class EfbCapabilities {
 			return "EFB_REGISTRY=no (Easy Form Builder is older than 4.3.2: say a feature needs an update rather than promising it)\n";
 		}
 		$plan  = self::plan();
-		$lines = array( 'EFB_REGISTRY=yes', 'EFB_PLAN_NAME=' . ( '' !== $plan ? $plan : 'unknown' ) . ( self::one_time_purchase() ? ' (Persian site: Pro is a one-time purchase, no renewal)' : '' ) );
+		$lines = array( 'EFB_REGISTRY=yes', 'EFB_VERSION=' . ( '' !== self::efb_version() ? self::efb_version() : 'unknown' ), 'EFB_PLAN_NAME=' . ( '' !== $plan ? $plan : 'unknown' ) . ( self::one_time_purchase() ? ' (Persian site: Pro is a one-time purchase, no renewal)' : '' ) );
 		$addons = array();
 		$split  = self::block( 'split' );
 		foreach ( (array) ( $split['addons'] ?? array() ) as $code => $info ) {
