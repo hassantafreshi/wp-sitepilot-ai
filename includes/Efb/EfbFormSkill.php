@@ -148,6 +148,7 @@ final class EfbFormSkill {
 				'- multiselect: {"max_selections": 3, "min_selections": 1} limits how many options a visitor picks.',
 				'- file: {"file_category": "document|image|media|zip|allformat", "max_file_size_mb": 10}.',
 				'- text/textarea: {"minimum": 2, "maximum": 200} as character counts.',
+				'- address: {"scheme": "ir|sa|ae|eg|us|uk|ca|de|jp|tr|intl"} for one country\'s own address format (Free Plus).',
 				'- Any setting that does not fit the field type is dropped, so only include ones you mean.',
 				'',
 				'Return JSON in exactly this shape:',

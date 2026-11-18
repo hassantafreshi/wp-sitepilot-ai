@@ -2171,6 +2171,12 @@ final class EfbCopilotController {
 			return array();
 		}
 		$notes = EfbSaveNotes::messages( $check['dropped'], $check['notices'] );
+		// F17: a national address scheme's province list is left to Easy Form Builder's page (needs_states).
+		$converter = new EfbFormConverter();
+		$converter->convert( $plan );
+		if ( array() !== $converter->needs_states() ) {
+			$notes[] = __( 'The province list of the address is filled by Easy Form Builder on the page (its list service), so it is empty in the editor.', 'ai-site-assistant-autopilot' );
+		}
 		foreach ( $check['errors'] as $error ) {
 			$message = trim( wp_strip_all_tags( (string) ( $error['m'] ?? '' ) ) );
 			if ( '' !== $message ) {

@@ -217,6 +217,14 @@ final class EfbFormConverter {
 		if ( $step_no > 1 ) {
 			$items[0]['button_state'] = 'multi';
 		}
+		// F16: a new form gets EFB's own accessibility defaults (inline checks on leaving a field, an error summary,
+		// "leave this page?" on several steps) from efb_form_defaults_efb(); keys already set stay.
+		if ( function_exists( 'efb_form_defaults_efb' ) ) {
+			$a11y = efb_form_defaults_efb( $step_no );
+			if ( is_array( $a11y ) ) {
+				$items[0] = $items[0] + array_map( 'strval', array_filter( $a11y, 'is_scalar' ) );
+			}
+		}
 
 		return $this->apply_notifications( $items, $plan );
 	}
@@ -450,6 +458,12 @@ final class EfbFormConverter {
 			return array( $this->display_item( $type, $field, $key ) );
 		}
 		if ( 'address' === $type ) {
+			// F17: a national address scheme is built by Easy Form Builder itself (its server templates).
+			$scheme = strtolower( (string) ( $field['settings']['scheme'] ?? ( $field['settings']['address_scheme'] ?? '' ) ) );
+			$rows   = '' !== $scheme ? self::efb_address_rows( $scheme, $field, $used ) : array();
+			if ( array() !== $rows ) {
+				return $rows;
+			}
 			return $this->address_items( $field, $key, $used );
 		}
 
@@ -693,6 +707,65 @@ final class EfbFormConverter {
 		$child['id_op']  = $id;
 
 		return $child;
+	}
+
+	/** @var array<int,string> Province lists of national address schemes that EFB's page loads (F17 needs_states). */
+	private array $needs_states = array();
+
+	/**
+	 * The rows of an address in a national scheme (F17: ir, sa, ae, eg, us, uk, ca, de, jp, tr, intl) exactly as
+	 * Easy Form Builder's server templates make them (`field_templates_efb('address', ['scheme' => …])`). Empty when
+	 * EFB does not offer the scheme here (an older EFB, or the address formats need a higher plan): the plain address
+	 * block is used then. A fixed country's province list comes back empty (`needs_states`): EFB's page loads it.
+	 *
+	 * @param array<string,mixed> $field
+	 * @param array<string,bool>  $used
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function efb_address_rows( string $scheme, array $field, array &$used ): array {
+		if ( ! preg_match( '/^[a-z]{2,5}$/', $scheme ) || ! EfbCapabilities::state( 'setting:addr_scheme' )['available'] || ! function_exists( 'get_efbFunction' ) ) {
+			return array();
+		}
+		$formats = EfbCapabilities::block( 'name_address' )['address_schemes'] ?? array();
+		if ( ! is_array( $formats ) || ! in_array( $scheme, $formats, true ) ) {
+			return array();
+		}
+		try {
+			$efb = get_efbFunction();
+			$tpl = is_object( $efb ) && method_exists( $efb, 'field_templates_efb' ) ? $efb->field_templates_efb(
+				'address',
+				array(
+					'scheme'   => $scheme,
+					'required' => ! empty( $field['required'] ),
+				)
+			) : null;
+		} catch ( \Throwable $e ) {
+			$tpl = null;
+		}
+		$rows = is_array( $tpl ) && is_array( $tpl['rows'] ?? null ) ? array_values( array_filter( $tpl['rows'], 'is_array' ) ) : array();
+		foreach ( $rows as $row ) {
+			$id = (string) ( $row['id_'] ?? '' );
+			if ( '' === $id || isset( $used[ $id ] ) ) {
+				return array();
+			}
+		}
+		foreach ( $rows as $row ) {
+			$used[ (string) $row['id_'] ] = true;
+		}
+		foreach ( (array) ( $tpl['needs_states'] ?? array() ) as $needs ) {
+			$this->needs_states[] = is_array( $needs ) ? (string) ( $needs['id_'] ?? ( $needs['id'] ?? '' ) ) : (string) $needs;
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Province lists of the last converted form that Easy Form Builder's page loads itself (F17 `needs_states`).
+	 *
+	 * @return array<int,string>
+	 */
+	public function needs_states(): array {
+		return $this->needs_states;
 	}
 
 	/**

@@ -166,6 +166,35 @@ try {
 		$aisa_check( false !== strpos( (string) ( $last['user'] ?? '' ), 'VISITOR_CONFIRMATION_EMAIL_DEFAULT=on' ) && false !== strpos( (string) ( $last['system'] ?? '' ), 'ON by default' ), 'Confirmation: the model is told EFB\'s default and the registry facts', null );
 	}
 
+	if ( 'address' === $aisa_scenario ) {
+		// F17 + F16: a national address scheme is built by EFB's own templates (needs_states left to the page), and a new
+		// form gets EFB's accessibility defaults (efb_form_defaults_efb).
+		$p     = $aisa_create(
+			array(
+				'title'  => 'Delivery address',
+				'fields' => array(
+					array(
+						'type'     => 'text',
+						'label'    => 'Full name',
+						'required' => true,
+					),
+					array(
+						'type'     => 'address',
+						'label'    => 'Address',
+						'required' => true,
+						'settings' => array( 'scheme' => 'ir' ),
+					),
+				),
+			)
+		);
+		$notes = implode( ' ', (array) ( $p['preview']['efb_notes'] ?? array() ) );
+		$aisa_check( false !== strpos( $notes, 'province list of the address is filled by Easy Form Builder' ), 'F17: the preview says EFB\'s page fills the province list (needs_states)', $p['preview']['efb_notes'] ?? $p );
+		$rows  = $aisa_rows( (int) ( $aisa_approve( $p )['result']['form_id'] ?? 0 ) );
+		$parts = array_values( array_filter( $rows, static fn ( $r ) => is_array( $r ) && 'address' === ( $r['cmp_kind'] ?? '' ) ) );
+		$aisa_check( count( $parts ) >= 5 && 'ir' === ( $parts[0]['addr_scheme'] ?? '' ) && 'stateProvince' === ( $parts[0]['type'] ?? '' ), 'F17: the stored address is EFB\'s Iranian scheme (grouped parts)', array_map( static fn ( $r ) => array( $r['type'] ?? '', $r['addr_part'] ?? '' ), $parts ) );
+		$aisa_check( 'blur' === ( $rows[0]['val_timing'] ?? '' ) && '1' === (string) ( $rows[0]['err_summary'] ?? '' ), 'F16: a new form gets EFB\'s inline-validation defaults', array( $rows[0]['val_timing'] ?? null, $rows[0]['err_summary'] ?? null ) );
+	}
+
 	if ( 'tsg' === $aisa_scenario ) {
 		// 4. Add-on present: typed signature kept; without it the drawn signature stays.
 		$p    = $aisa_create(

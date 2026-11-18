@@ -171,6 +171,8 @@ final class EfbChatSkill {
 				'  When EFB_PLAN does not include a setting, still emit the operation: the server tells the admin which plan has it.',
 				'- NEW FIELD TYPES: "link" needs "url" (admin-given) and its label is the link text; "html" needs "html" with the markup',
 				'  to show (no scripts); "address" adds the whole country/state/city/address/postal-code block in one add_field;',
+				'  in a NEW form an address may take "settings": { "scheme": "ir|sa|ae|eg|us|uk|ca|de|jp|tr|intl" } for that country\'s',
+				'  own address format (Easy Form Builder builds it; Free Plus), e.g. "ir" for an Iranian postal address;',
 				'  conturyList, stateProvince and cityList come with their lists ready (no "options"); "imgRadio" takes "options" as the',
 				'  captions and optional "descriptions"; "maps" is the location picker (one per form).',
 				'- CONVERSATION: read HISTORY. When your last message asked for a value (a text, an address, a number, a name) the',
