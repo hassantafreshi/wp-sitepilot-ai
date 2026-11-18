@@ -325,7 +325,10 @@ final class EfbFormConverter {
 				'required' => false,
 			)
 		);
-		if ( $with_gateway && null !== EfbPayments::gateway_field( $gateway ) ) {
+		if ( $with_gateway && EfbPayments::is_pay00( $gateway ) ) {
+			// A payment framework gateway's field is the row EFB's own builder makes for it (its add-on's template).
+			$out = array_merge( $out, EfbPayments::gateway_rows( $gateway, $texts['pay_zarinpal'], $used ) );
+		} elseif ( $with_gateway && null !== EfbPayments::gateway_field( $gateway ) ) {
 			$push(
 				array(
 					'type'     => (string) EfbPayments::gateway_field( $gateway ),
@@ -374,6 +377,7 @@ final class EfbFormConverter {
 				// A heading keeps its text in value; the editor reports name, else value, the same way.
 				'label'   => (string) ( '' !== (string) ( $item['name'] ?? '' ) ? $item['name'] : ( $item['value'] ?? '' ) ),
 				'type'    => $type,
+				'step'    => (string) ( $item['step'] ?? '' ),
 				'options' => $options,
 			);
 		}

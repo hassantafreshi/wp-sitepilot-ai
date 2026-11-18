@@ -402,4 +402,51 @@ final class EfbCapabilities {
 
 		return '';
 	}
+
+	/**
+	 * The registry, reduced to the facts the copilot's model needs on this site (no key, no address, no secret).
+	 */
+	public static function prompt_facts(): string {
+		if ( ! self::available() ) {
+			return "EFB_REGISTRY=no (Easy Form Builder is older than 4.3.2: say a feature needs an update rather than promising it)\n";
+		}
+		$plan  = self::plan();
+		$lines = array( 'EFB_REGISTRY=yes', 'EFB_PLAN_NAME=' . ( '' !== $plan ? $plan : 'unknown' ) . ( self::one_time_purchase() ? ' (Persian site: Pro is a one-time purchase, no renewal)' : '' ) );
+		$addons = array();
+		$split  = self::block( 'split' );
+		foreach ( (array) ( $split['addons'] ?? array() ) as $code => $info ) {
+			if ( is_array( $info ) ) {
+				$addons[] = sprintf( '%s (%s): %s', self::addon( (string) $code )['name'], (string) ( $info['package'] ?? '' ), (string) ( $info['state'] ?? '' ) );
+			}
+		}
+		if ( array() !== $addons ) {
+			$lines[] = 'ADD-ONS THAT LEFT EFB CORE (name (plan to install): active | addon = not installed | plan = plan too low | update): ' . implode( '; ', $addons );
+		}
+		$missing = array();
+		$caps    = self::all();
+		foreach ( (array) ( $caps['features'] ?? array() ) as $key => $entry ) {
+			if ( is_array( $entry ) && str_starts_with( (string) $key, 'field:' ) && empty( $entry['available_now'] ) ) {
+				$missing[] = substr( (string) $key, 6 ) . ' (' . ( 'addon' === ( $entry['reason'] ?? '' ) ? 'add-on' : 'needs ' . (string) ( $entry['package'] ?? 'pro' ) ) . ')';
+			}
+		}
+		if ( array() !== $missing ) {
+			$lines[] = 'FIELD TYPES THIS SITE CANNOT RENDER NOW: ' . implode( ', ', $missing );
+		}
+		$lines[] = 'VISITOR_CONFIRMATION_EMAIL_DEFAULT=' . ( self::email_confirmation_default_on() ? 'on' : 'off' );
+		$captcha = array();
+		foreach ( self::captcha_providers() as $provider ) {
+			$captcha[] = sprintf( '%s (%s%s)', (string) ( $provider['label'] ?? $provider['id'] ?? '' ), ! empty( $provider['available'] ) ? 'available' : 'needs its add-on, ' . (string) ( $provider['plan'] ?? '' ), ! empty( $provider['ready'] ) ? ', keys set' : '' );
+		}
+		if ( array() !== $captcha ) {
+			$lines[] = 'CAPTCHA SERVICES: ' . implode( '; ', $captcha );
+		}
+		$portal = self::portal();
+		if ( null !== $portal ) {
+			$lines[] = 'CUSTOMER_PORTAL=' . ( ! empty( $portal['ready'] ) ? 'ready' : 'not ready (' . (string) ( $portal['reason'] ?? 'addon' ) . '; it is the Pro add-on ' . (string) ( $portal['addon'] ?? 'AdnPRT' ) . ')' );
+		}
+		$steps = self::limit( 'steps' );
+		$lines[] = 'STEP_LIMIT=' . ( is_int( $steps ) ? (string) $steps : 'none' );
+
+		return implode( "\n", $lines ) . "\n";
+	}
 }

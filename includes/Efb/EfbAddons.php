@@ -44,9 +44,9 @@ final class EfbAddons {
 		if ( str_starts_with( $reason, 'addon_inactive:' ) ) {
 			return substr( $reason, strlen( 'addon_inactive:' ) );
 		}
-		if ( str_starts_with( $reason, 'payment_addon_inactive:' ) ) {
-			$gateway = substr( $reason, strlen( 'payment_addon_inactive:' ) );
-			return EfbPayments::GATEWAYS[ $gateway ]['addon'] ?? null;
+		if ( str_starts_with( $reason, 'payment_addon_inactive:' ) || str_starts_with( $reason, 'payment_addon_update:' ) ) {
+			$gateway = substr( $reason, strpos( $reason, ':' ) + 1 );
+			return EfbPayments::addon_of( $gateway );
 		}
 
 		return null;

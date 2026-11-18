@@ -193,7 +193,7 @@
 		return valj_efb.filter( isFieldItem ).map( function ( it ) {
 			// The country, state and city lists are Easy Form Builder's own data (hundreds of rows), not something to edit by chat.
 			var options = GEO_TYPES.indexOf( it.type ) !== -1 ? [] : valj_efb.filter( function ( o ) { return o && o.type === 'option' && o.parent === it.id_; } ).map( function ( o ) { return { id: String( o.id_ ), value: String( o.value || '' ) }; } );
-			return { id: it.id_, label: it.name || it.value || it.id_, type: it.type, required: it.required === true || it.required === 1 || it.required === '1', options: options };
+			return { id: it.id_, label: it.name || it.value || it.id_, type: it.type, required: it.required === true || it.required === 1 || it.required === '1', step: String( it.step || '' ), options: options };
 		} );
 	}
 	// EFB only loads its Conditional Logic runtime when the AdnSMF add-on is active.

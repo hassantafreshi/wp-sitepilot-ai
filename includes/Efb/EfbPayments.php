@@ -6,11 +6,13 @@ namespace AISAAutoPilot\Efb;
 /**
  * What the Easy Form Builder copilot needs to know to add online payment to a form.
  *
- * EFB takes payment through one gateway per form (Stripe, PayPal or ZarinPal), each a paid add-on
- * with its own keys. The copilot may place the payment fields; it never reads, writes or sees a
- * key, a secret or a price it was not told. This class answers three questions only: which gateway
- * the administrator means, whether its add-on is on, and whether its keys have been saved at all.
- * Pure PHP apart from reading one option, so the rules are unit testable.
+ * Payment gateways are always Easy Form Builder add-ons: Stripe, PayPal and Persia Pay on EFB's legacy gateway bridge
+ * (their code is leaving EFB core for the add-ons), and the payment framework (PAY00) gateways Mollie, Payplug, Tap,
+ * Omise, PayTabs, Paymob and Xendit, each registered by its own add-on. Whether a gateway can be used here, on which
+ * plan, and whether its keys are saved comes only from EFB's registry (`features['field:<gateway>']`,
+ * `capabilities.split`, `payment_gateways`, `payment_keys`); this class never assumes gateway code in EFB core.
+ * When EFB does not report a gateway (an EFB without the registry), payment is refused with a plain reason.
+ * The copilot may place the payment fields; it never reads, writes or sees a key, a secret or a price it was not told.
  */
 final class EfbPayments {
 
@@ -48,6 +50,20 @@ final class EfbPayments {
 		),
 	);
 
+	/**
+	 * Names of the PAY00 gateways and the add-on that registers each, to say which add-on is missing while it is off
+	 * (an inactive gateway is not in EFB's registry yet). Its plan, label and currencies always come from the registry.
+	 */
+	public const PAY00 = array(
+		'mollie'  => 'AdnMOL',
+		'payplug' => 'AdnPPG',
+		'tappay'  => 'AdnTAP',
+		'omise'   => 'AdnOMS',
+		'paytabs' => 'AdnPTB',
+		'paymob'  => 'AdnPMB',
+		'xendit'  => 'AdnXND',
+	);
+
 	/** Field types that carry a price; the first four have priced options or an amount, the last shows the total. */
 	public const PRICED_FIELDS = array( 'payRadio', 'paySelect', 'payCheckbox', 'payMultiselect', 'prcfld', 'ttlprc' );
 
@@ -67,7 +83,38 @@ final class EfbPayments {
 
 	/** @return string[] */
 	public static function gateway_ids(): array {
-		return array_keys( self::GATEWAYS );
+		return array_merge( array_keys( self::GATEWAYS ), array_keys( self::PAY00 ) );
+	}
+
+	/** Whether a gateway id is one of the payment framework (PAY00) gateways. */
+	public static function is_pay00( string $gateway ): bool {
+		return isset( self::PAY00[ $gateway ] );
+	}
+
+	/** A gateway's name for the admin: EFB's own label when its add-on registered it, else its usual name. */
+	public static function label( string $gateway ): string {
+		if ( isset( self::GATEWAYS[ $gateway ] ) ) {
+			return self::GATEWAYS[ $gateway ]['label'];
+		}
+		$registered = EfbCapabilities::payment_gateways()[ $gateway ] ?? null;
+		if ( is_array( $registered ) && '' !== (string) ( $registered['label'] ?? '' ) ) {
+			return (string) $registered['label'];
+		}
+
+		return array(
+			'mollie'  => 'Mollie',
+			'payplug' => 'Payplug',
+			'tappay'  => 'Tap Payments',
+			'omise'   => 'Omise',
+			'paytabs' => 'PayTabs',
+			'paymob'  => 'Paymob',
+			'xendit'  => 'Xendit',
+		)[ $gateway ] ?? $gateway;
+	}
+
+	/** The add-on that provides a gateway (legacy bridge or PAY00), or null. */
+	public static function addon_of( string $gateway ): ?string {
+		return self::GATEWAYS[ $gateway ]['addon'] ?? ( self::PAY00[ $gateway ] ?? null );
 	}
 
 	/** The gateway a model or a visitor named, in any spelling, or null. */
@@ -79,13 +126,27 @@ final class EfbPayments {
 			'zarinpal'      => 'zarinpal',
 			'persiapay'     => 'zarinpal',
 			'persiapayment' => 'zarinpal',
+			'mollie'        => 'mollie',
+			'payplug'       => 'payplug',
+			'tap'           => 'tappay',
+			'tappay'        => 'tappay',
+			'tappayments'   => 'tappay',
+			'omise'         => 'omise',
+			'promptpay'     => 'omise',
+			'paytabs'       => 'paytabs',
+			'paymob'        => 'paymob',
+			'xendit'        => 'xendit',
 		);
 
 		return $map[ $needle ] ?? null;
 	}
 
-	/** The EFB field type that is the gateway itself. */
+	/** The EFB field type that is the gateway itself (a PAY00 gateway's field type is its slug). */
 	public static function gateway_field( string $gateway ): ?string {
+		if ( isset( self::PAY00[ $gateway ] ) ) {
+			return $gateway;
+		}
+
 		return self::GATEWAYS[ $gateway ]['field'] ?? null;
 	}
 
@@ -97,25 +158,48 @@ final class EfbPayments {
 			}
 		}
 
-		return null;
+		return isset( self::PAY00[ $field_type ] ) ? $field_type : null;
+	}
+
+	/**
+	 * The currencies a gateway charges in, as EFB stores them: the legacy gateways in lower case, a PAY00 gateway as
+	 * its add-on reports them (`payment_gateways.<slug>.currencies`).
+	 *
+	 * @return string[]
+	 */
+	public static function currencies( string $gateway ): array {
+		if ( isset( self::GATEWAYS[ $gateway ] ) ) {
+			return self::GATEWAYS[ $gateway ]['currencies'];
+		}
+		$registered = EfbCapabilities::payment_gateways()[ $gateway ] ?? null;
+
+		return is_array( $registered ) && is_array( $registered['currencies'] ?? null ) ? array_values( array_map( 'strval', $registered['currencies'] ) ) : array();
 	}
 
 	/** A currency EFB can charge in through this gateway, or the gateway's default. */
 	public static function currency( string $gateway, string $requested ): string {
-		$definition = self::GATEWAYS[ $gateway ] ?? null;
-		if ( null === $definition ) {
-			return 'usd';
+		$list = self::currencies( $gateway );
+		if ( array() === $list ) {
+			return isset( self::GATEWAYS[ $gateway ] ) || ! isset( self::PAY00[ $gateway ] ) ? 'usd' : '';
 		}
-		$code = strtolower( trim( $requested ) );
+		foreach ( $list as $code ) {
+			if ( 0 === strcasecmp( $code, trim( $requested ) ) ) {
+				return $code;
+			}
+		}
 
-		return in_array( $code, $definition['currencies'], true ) ? $code : $definition['default'];
+		return isset( self::GATEWAYS[ $gateway ] ) ? self::GATEWAYS[ $gateway ]['default'] : $list[0];
 	}
 
 	/** Whether the administrator's currency is one this gateway accepts (an unknown one should be asked about, not guessed). */
 	public static function supports_currency( string $gateway, string $requested ): bool {
-		$definition = self::GATEWAYS[ $gateway ] ?? null;
+		foreach ( self::currencies( $gateway ) as $code ) {
+			if ( 0 === strcasecmp( $code, trim( $requested ) ) ) {
+				return true;
+			}
+		}
 
-		return null !== $definition && in_array( strtolower( trim( $requested ) ), $definition['currencies'], true );
+		return false;
 	}
 
 	/**
@@ -208,6 +292,10 @@ final class EfbPayments {
 	 * @return array<string,array{label:string,addon_active:bool,keys_saved:?bool,field:string,page:string,default_currency:string}>
 	 */
 	public static function status( $addons, ?string $settings = null ): array {
+		// EFB's registry is the only source when EFB publishes it: plan, add-on and keys, for every gateway.
+		if ( EfbCapabilities::available() ) {
+			return self::registry_status();
+		}
 		$active = self::active_gateways( $addons );
 		$out    = array();
 		foreach ( self::GATEWAYS as $id => $definition ) {
@@ -218,6 +306,53 @@ final class EfbPayments {
 				'field'            => $definition['field'],
 				'page'             => $definition['page'],
 				'default_currency' => $definition['default'],
+				// Without EFB's registry nothing says the gateway's add-on contract is there: payment is not offered.
+				'known'            => false,
+				'plan_ok'          => false,
+				'package'          => 'free_plus',
+				'state'            => null,
+			);
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Every gateway as EFB's registry describes it on this site.
+	 *
+	 * @return array<string,array<string,mixed>>
+	 */
+	public static function registry_status(): array {
+		$out = array();
+		foreach ( self::gateway_ids() as $id ) {
+			$field = (string) self::gateway_field( $id );
+			$addon = (string) self::addon_of( $id );
+			$state = EfbCapabilities::state( EfbCapabilities::field_key( $field ) );
+			$info  = EfbCapabilities::addon( $addon );
+			if ( ! $state['known'] && ! $info['known'] ) {
+				continue;
+			}
+			// A PAY00 gateway is in the registry only while its add-on is on; its add-on entry says the plan.
+			$package = $state['known'] ? $state['package'] : $info['package'];
+			$plan_ok = $state['known'] ? 'plan' !== $state['reason'] : EfbCapabilities::plan_at_least( $info['package'] );
+			// The add-on's own entry says whether it is on (the field's entry cannot tell while the plan blocks it).
+			$active = $info['known'] ? $info['active'] : ( $state['known'] && null === $state['reason'] );
+			if ( 'update' === $info['state'] ) {
+				$active = false;
+			}
+			$out[ $id ] = array(
+				'label'            => self::label( $id ),
+				'addon_active'     => $active,
+				'keys_saved'       => EfbCapabilities::payment_keys_saved( 'zarinpal' === $id ? 'persiaPay' : $id ),
+				'field'            => $field,
+				'page'             => isset( self::GATEWAYS[ $id ] ) ? self::GATEWAYS[ $id ]['page'] : 'Emsfb_payments',
+				'default_currency' => self::currency( $id, '' ),
+				'known'            => true,
+				'plan_ok'          => $plan_ok,
+				'package'          => $package,
+				'state'            => 'update' === $info['state'] ? 'update' : ( $active ? 'active' : ( $plan_ok ? 'addon' : 'plan' ) ),
+				'addon'            => $addon,
+				'addon_name'       => $info['name'],
 			);
 		}
 
@@ -232,8 +367,22 @@ final class EfbPayments {
 	public static function prompt_block( array $status ): string {
 		$lines = array();
 		foreach ( $status as $id => $row ) {
+			if ( empty( $row['known'] ) ) {
+				$lines[] = sprintf( '- %s (%s): not reported by this Easy Form Builder (it needs an update before payment can be added)', $row['label'], $id );
+				continue;
+			}
 			$keys    = null === $row['keys_saved'] ? 'unknown' : ( $row['keys_saved'] ? 'saved' : 'missing' );
-			$lines[] = sprintf( '- %s (%s): add-on %s, keys %s, default currency %s', $row['label'], $id, $row['addon_active'] ? 'active' : 'not active', $keys, strtoupper( $row['default_currency'] ) );
+			$state   = (string) ( $row['state'] ?? '' );
+			$addon   = $row['addon_active'] ? 'active' : 'not active';
+			$lines[] = sprintf(
+				'- %s (%s): add-on %s, plan %s, keys %s%s',
+				$row['label'],
+				$id,
+				'update' === $state ? 'needs an update' : $addon,
+				! empty( $row['plan_ok'] ) ? 'ok' : 'needs ' . (string) ( $row['package'] ?? 'pro' ),
+				$keys,
+				'' !== (string) $row['default_currency'] ? ', default currency ' . strtoupper( (string) $row['default_currency'] ) : ''
+			);
 		}
 
 		return implode( "\n", $lines );
@@ -259,16 +408,30 @@ final class EfbPayments {
 				'reason' => 'payment_gateway_unknown',
 			);
 		}
-		if ( ! $has_pro ) {
+		unset( $has_pro );
+		// Never assume gateway code in EFB core: only a gateway EFB's registry reports is used.
+		if ( empty( $status[ $gateway ]['known'] ) ) {
 			return array(
 				'ok'     => false,
-				'reason' => 'payment_requires_pro:' . $gateway,
+				'reason' => 'payment_unverified:' . $gateway,
+			);
+		}
+		if ( empty( $status[ $gateway ]['plan_ok'] ) ) {
+			return array(
+				'ok'     => false,
+				'reason' => 'payment_requires_pro:' . $gateway . ':' . (string) ( $status[ $gateway ]['package'] ?? 'pro' ),
 			);
 		}
 		if ( empty( $status[ $gateway ]['addon_active'] ) ) {
 			return array(
 				'ok'     => false,
-				'reason' => 'payment_addon_inactive:' . $gateway,
+				'reason' => ( 'update' === ( $status[ $gateway ]['state'] ?? '' ) ? 'payment_addon_update:' : 'payment_addon_inactive:' ) . $gateway,
+			);
+		}
+		if ( self::is_pay00( $gateway ) && array() === self::gateway_rows( $gateway, '', array() ) ) {
+			return array(
+				'ok'     => false,
+				'reason' => 'payment_template_missing:' . $gateway,
 			);
 		}
 
@@ -286,7 +449,7 @@ final class EfbPayments {
 				continue;
 			}
 			$label = trim( (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( (string) ( $item['label'] ?? '' ) ) ) );
-			$price = self::price( $item['price'] ?? null, '' !== $requested ? $requested : self::GATEWAYS[ $gateway ]['default'] );
+			$price = self::price( $item['price'] ?? null, '' !== $requested ? $requested : self::currency( $gateway, '' ) );
 			if ( '' === $label || null === $price ) {
 				return array(
 					'ok'     => false,
@@ -334,6 +497,21 @@ final class EfbPayments {
 	 * @return array<string,string>
 	 */
 	public static function form_settings( string $gateway, string $currency ): array {
+		if ( self::is_pay00( $gateway ) ) {
+			// EFB's own form patch for the gateway's field (features['field:<slug>'].form_patch), with the currency.
+			$entry = EfbCapabilities::feature( EfbCapabilities::field_key( $gateway ) );
+			$patch = is_array( $entry['form_patch'] ?? null ) ? $entry['form_patch'] : array();
+
+			return array_merge(
+				array(
+					'type'          => 'payment',
+					'getway'        => $gateway,
+					'paymentmethod' => 'charge',
+				),
+				array_map( 'strval', array_filter( $patch, 'is_scalar' ) ),
+				array( 'currency' => self::currency( $gateway, $currency ) )
+			);
+		}
 		$settings = array(
 			'type'          => 'payment',
 			'getway'        => 'zarinpal' === $gateway ? 'persiaPay' : $gateway,
@@ -345,5 +523,42 @@ final class EfbPayments {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * The field row of a PAY00 gateway exactly as EFB's builder makes it (`get_efbFunction()->field_templates_efb()`),
+	 * with a fresh id and the given label; empty when EFB cannot give it.
+	 *
+	 * @param string[] $existing_ids
+	 * @return array<int,array<string,mixed>>
+	 */
+	public static function gateway_rows( string $gateway, string $label, array $existing_ids ): array {
+		if ( ! self::is_pay00( $gateway ) || ! function_exists( 'get_efbFunction' ) ) {
+			return array();
+		}
+		try {
+			$efb = get_efbFunction();
+			$tpl = is_object( $efb ) && method_exists( $efb, 'field_templates_efb' ) ? $efb->field_templates_efb( $gateway, '' !== $label ? array( 'label' => $label ) : array() ) : null;
+		} catch ( \Throwable $e ) {
+			$tpl = null;
+		}
+		$rows = is_array( $tpl ) && is_array( $tpl['rows'] ?? null ) ? $tpl['rows'] : array();
+		$out  = array();
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) || ( $row['type'] ?? '' ) !== $gateway ) {
+				continue;
+			}
+			while ( in_array( (string) ( $row['id_'] ?? '' ), $existing_ids, true ) ) {
+				$row['id_'] = substr( bin2hex( random_bytes( 5 ) ), 0, 9 );
+			}
+			$row['dataId']   = (string) $row['id_'] . '-id';
+			$row['required'] = '1';
+			if ( '' !== $label ) {
+				$row['name'] = $label;
+			}
+			$out[] = $row;
+		}
+
+		return $out;
 	}
 }

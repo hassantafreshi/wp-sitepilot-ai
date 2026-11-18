@@ -363,7 +363,79 @@ final class EfbLogicRulesTest extends TestCase {
 
 		$lines = EfbLogicRules::explain( $rules, $this->fields(), $this->steps() );
 		$this->assertSame( 'If “Customer type” is “Individual”, hide “Company name”.', $lines[0] );
-		$this->assertSame( '(off) If “Customer type” is “Individual”, jump to step “Company details”.', $lines[2] );
+		// The fields carry no step here, so the jump's skipped steps cannot be named; the owner rule is still said.
+		$this->assertSame( '(off) If “Customer type” is “Individual”, jump to step “Company details”. Any step it jumps over is skipped for that visitor: its fields become optional, are not checked and are not charged.', $lines[2] );
+	}
+
+	public function test_a_forward_jump_names_the_steps_and_fields_it_makes_optional(): void {
+		$fields = array(
+			array( 'id' => 'type1', 'label' => 'Customer type', 'type' => 'radio', 'step' => '1', 'options' => array( array( 'id' => 'op_b', 'value' => 'Business' ), array( 'id' => 'op_i', 'value' => 'Individual' ) ) ),
+			array( 'id' => 'company', 'label' => 'Company name', 'type' => 'text', 'step' => '2', 'required' => true ),
+			array( 'id' => 'vat', 'label' => 'VAT number', 'type' => 'text', 'step' => '2', 'required' => true ),
+			array( 'id' => 'note2', 'label' => 'Company heading', 'type' => 'heading', 'step' => '2' ),
+			array( 'id' => 'budget', 'label' => 'Budget', 'type' => 'number', 'step' => '3' ),
+			array( 'id' => 'mail', 'label' => 'Email', 'type' => 'email', 'step' => '4' ),
+		);
+		$steps  = array(
+			array( 'id' => '1', 'label' => 'You' ),
+			array( 'id' => '2', 'label' => 'Company' ),
+			array( 'id' => '3', 'label' => 'Budget' ),
+			array( 'id' => '4', 'label' => 'Contact' ),
+		);
+		$built  = EfbLogicRules::build(
+			array(
+				'when' => array( array( 'field' => 'Customer type', 'compare' => 'is', 'value' => 'Individual' ) ),
+				'then' => array( array( 'action' => 'jump_to_step', 'target' => '4' ) ),
+			),
+			$fields,
+			$steps
+		);
+		$this->assertTrue( $built['ok'] );
+		$this->assertStringContainsString( 'It skips steps “Company”, “Budget” for that visitor', $built['note'] );
+		$this->assertStringContainsString( '“Company name”, “VAT number”, “Budget” become optional, are not checked and are not charged.', $built['note'] );
+		$this->assertStringNotContainsString( 'Company heading', $built['note'] );
+		$this->assertStringContainsString( $built['note'], $built['summary'] );
+
+		$skipped = EfbLogicRules::skipped_steps( $built['rule'], $fields, $steps );
+		$this->assertSame( array( 2, 3 ), array_column( $skipped['steps'], 'number' ) );
+
+		// A jump to the very next step skips nothing; a rule without a jump has no note.
+		$next = EfbLogicRules::build(
+			array(
+				'when' => array( array( 'field' => 'Customer type', 'compare' => 'is', 'value' => 'Business' ) ),
+				'then' => array( array( 'action' => 'jump_to_step', 'target' => '2' ) ),
+			),
+			$fields,
+			$steps
+		);
+		$this->assertSame( '', $next['note'] );
+		$show = EfbLogicRules::build(
+			array(
+				'when' => array( array( 'field' => 'Customer type', 'compare' => 'is', 'value' => 'Business' ) ),
+				'then' => array( array( 'action' => 'show_field', 'target' => 'VAT number' ) ),
+			),
+			$fields,
+			$steps
+		);
+		$this->assertSame( '', $show['note'] );
+	}
+
+	public function test_logic_limits_come_from_efbs_registry(): void {
+		require_once __DIR__ . '/EfbRegistryFixture.php';
+		$caps = EfbRegistryFixture::site( 'free_plus', array( 'AdnSMF' => true ) );
+		$caps['features']['limit:logic']['limits']['free_plus'] = array(
+			'field_rules'          => 5,
+			'notification_rules'   => 2,
+			'conditions_per_group' => 3,
+		);
+		EfbRegistryFixture::apply( $caps );
+		$this->assertSame( '', EfbLogicRules::plan_refusal( 'free_plus', 4, 3 ) );
+		$this->assertSame( 'logic_rule_limit:5', EfbLogicRules::plan_refusal( 'free_plus', 5, 1 ) );
+		$this->assertSame( 'logic_condition_limit:3', EfbLogicRules::plan_refusal( 'free_plus', 0, 4 ) );
+		$this->assertSame( 'logic_needs_plan', EfbLogicRules::plan_refusal( 'free', 0, 1 ) );
+		EfbRegistryFixture::reset();
+		// Without the registry the add-on's own numbers apply.
+		$this->assertSame( 'logic_rule_limit:3', EfbLogicRules::plan_refusal( 'free_plus', 3, 1 ) );
 	}
 
 	public function test_logic_ops_need_the_add_on_and_are_resolved_by_the_validator(): void {

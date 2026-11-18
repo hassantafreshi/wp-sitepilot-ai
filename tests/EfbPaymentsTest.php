@@ -6,7 +6,29 @@ namespace AISAAutoPilot\Tests;
 use AISAAutoPilot\Efb\EfbPayments;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/EfbRegistryFixture.php';
+
 final class EfbPaymentsTest extends TestCase {
+
+	protected function tearDown(): void {
+		EfbRegistryFixture::reset();
+	}
+
+	/**
+	 * The payment status of a site with these gateway add-ons on, as EFB's registry reports it.
+	 *
+	 * @param array<string,int> $addons
+	 * @return array<string,array<string,mixed>>
+	 */
+	private static function status_for( array $addons, string $plan = 'pro' ): array {
+		$on = array();
+		foreach ( array( 'AdnSPF', 'AdnPAP', 'AdnPPF' ) as $code ) {
+			$on[ $code ] = ! empty( $addons[ $code ] );
+		}
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( $plan, $on ) );
+
+		return EfbPayments::status( $addons, '' );
+	}
 
 	public function test_a_gateway_is_found_under_any_common_spelling(): void {
 		foreach ( array( 'Stripe', 'stripe', ' STRIPE ' ) as $name ) {
@@ -65,19 +87,29 @@ final class EfbPaymentsTest extends TestCase {
 		self::assertFalse( EfbPayments::keys_saved( 'paypal', $stripe_saved ) );
 		self::assertNull( EfbPayments::keys_saved( 'zarinpal', $stripe_saved ), 'ZarinPal keeps its code outside the shared settings' );
 
+		// Without EFB's registry the browser's add-on flags are read, but nothing vouches for the add-on contract.
 		$status = EfbPayments::status( array( 'AdnSPF' => 1 ), $stripe_saved );
 		self::assertTrue( $status['stripe']['addon_active'] );
 		self::assertTrue( $status['stripe']['keys_saved'] );
 		self::assertFalse( $status['paypal']['addon_active'] );
+		self::assertFalse( $status['stripe']['known'] );
 		$block = EfbPayments::prompt_block( $status );
-		self::assertStringContainsString( 'Stripe (stripe): add-on active, keys saved', $block );
+		self::assertStringContainsString( 'Stripe (stripe): not reported by this Easy Form Builder', $block );
 		self::assertStringNotContainsString( 'pk_test', $block );
-		self::assertStringContainsString( 'ZarinPal (zarinpal): add-on not active, keys unknown', $block );
+
+		// With it, the registry answers (payment_keys: presence only, never a key).
+		$caps                           = EfbRegistryFixture::site( 'free_plus', array( 'AdnSPF' => true ) );
+		$caps['payment_keys']['stripe'] = true;
+		EfbRegistryFixture::apply( $caps );
+		$block = EfbPayments::prompt_block( EfbPayments::status( array(), null ) );
+		self::assertStringContainsString( 'Stripe (stripe): add-on active, plan ok, keys saved', $block );
+		self::assertStringContainsString( 'PayPal (paypal): add-on not active, plan ok, keys missing', $block );
+		self::assertStringContainsString( 'ZarinPal (zarinpal): add-on not active, plan needs pro', $block );
 	}
 
 	/** @return array<string,array<string,mixed>> */
 	private function payment_status( array $addons = array( 'AdnSPF' => 1, 'AdnPAP' => 1 ) ): array {
-		return EfbPayments::status( $addons, '{"stripePKey":"pk_test_abcdef123","stripeSKey":"sk_test_abcdef123"}' );
+		return self::status_for( $addons );
 	}
 
 	public function test_a_complete_request_becomes_a_clean_payment(): void {
@@ -108,23 +140,23 @@ final class EfbPaymentsTest extends TestCase {
 		self::assertSame( array(), $result['payment']['items'] );
 	}
 
-	/** @return array<string,array{0:array<string,mixed>,1:array<string,array<string,mixed>>,2:bool,3:string}> */
+	/** @return array<string,array{0:array<string,mixed>,1:array<string,array<string,mixed>>,2:string,3:string}> */
 	public static function refusals(): array {
 		$on = array( 'AdnSPF' => 1, 'AdnPAP' => 1 );
 
 		return array(
-			'unknown gateway'  => array( array( 'gateway' => 'bitcoin', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, true, 'payment_gateway_unknown' ),
-			'no gateway'       => array( array( 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, true, 'payment_gateway_unknown' ),
-			'free licence'     => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, false, 'payment_requires_pro:stripe' ),
-			'add-on off'       => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), array(), true, 'payment_addon_inactive:stripe' ),
-			'other add-on off' => array( array( 'gateway' => 'zarinpal', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, true, 'payment_addon_inactive:zarinpal' ),
-			'bad currency'     => array( array( 'gateway' => 'paypal', 'currency' => 'inr', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, true, 'payment_currency_unsupported:paypal:inr' ),
-			'no price at all'  => array( array( 'gateway' => 'stripe' ), $on, true, 'payment_needs_price' ),
-			'item without price' => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic' ) ) ), $on, true, 'payment_needs_price' ),
-			'zero price'       => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic', 'price' => 0 ) ) ), $on, true, 'payment_needs_price' ),
-			'negative price'   => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic', 'price' => -3 ) ) ), $on, true, 'payment_needs_price' ),
-			'price in words'   => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic', 'price' => 'cheap' ) ) ), $on, true, 'payment_needs_price' ),
-			'empty label'      => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => ' ', 'price' => 5 ) ) ), $on, true, 'payment_needs_price' ),
+			'unknown gateway'  => array( array( 'gateway' => 'bitcoin', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, 'pro', 'payment_gateway_unknown' ),
+			'no gateway'       => array( array( 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, 'pro', 'payment_gateway_unknown' ),
+			'free licence'     => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, 'free', 'payment_requires_pro:stripe:free_plus' ),
+			'add-on off'       => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), array(), 'pro', 'payment_addon_inactive:stripe' ),
+			'other add-on off' => array( array( 'gateway' => 'zarinpal', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, 'pro', 'payment_addon_inactive:zarinpal' ),
+			'bad currency'     => array( array( 'gateway' => 'paypal', 'currency' => 'inr', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), $on, 'pro', 'payment_currency_unsupported:paypal:inr' ),
+			'no price at all'  => array( array( 'gateway' => 'stripe' ), $on, 'pro', 'payment_needs_price' ),
+			'item without price' => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic' ) ) ), $on, 'pro', 'payment_needs_price' ),
+			'zero price'       => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic', 'price' => 0 ) ) ), $on, 'pro', 'payment_needs_price' ),
+			'negative price'   => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic', 'price' => -3 ) ) ), $on, 'pro', 'payment_needs_price' ),
+			'price in words'   => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Basic', 'price' => 'cheap' ) ) ), $on, 'pro', 'payment_needs_price' ),
+			'empty label'      => array( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => ' ', 'price' => 5 ) ) ), $on, 'pro', 'payment_needs_price' ),
 		);
 	}
 
@@ -133,8 +165,8 @@ final class EfbPaymentsTest extends TestCase {
 	 * @param array<string,mixed> $raw
 	 * @param array<string,mixed> $addons
 	 */
-	public function test_an_incomplete_or_impossible_request_is_refused_with_a_reason( array $raw, array $addons, bool $pro, string $reason ): void {
-		$result = EfbPayments::validate_payment( $raw, EfbPayments::status( $addons, '' ), $pro );
+	public function test_an_incomplete_or_impossible_request_is_refused_with_a_reason( array $raw, array $addons, string $plan, string $reason ): void {
+		$result = EfbPayments::validate_payment( $raw, self::status_for( $addons, $plan ), 'free' !== $plan );
 		self::assertFalse( $result['ok'] );
 		self::assertSame( $reason, $result['reason'] );
 	}
@@ -148,8 +180,90 @@ final class EfbPaymentsTest extends TestCase {
 	public function test_rial_prices_may_be_large(): void {
 		self::assertNull( EfbPayments::price( 2000000 ), 'a two-million dollar option is a typo' );
 		self::assertSame( 2000000.0, EfbPayments::price( '۲٬۰۰۰٬۰۰۰', 'IRR' ) );
-		$result = EfbPayments::validate_payment( array( 'gateway' => 'zarinpal', 'items' => array( array( 'label' => 'Cake', 'price' => 2000000 ) ) ), EfbPayments::status( array( 'AdnPPF' => 1 ), '' ), true );
+		$result = EfbPayments::validate_payment( array( 'gateway' => 'zarinpal', 'items' => array( array( 'label' => 'Cake', 'price' => 2000000 ) ) ), self::status_for( array( 'AdnPPF' => 1 ) ), true );
 		self::assertTrue( $result['ok'] );
 		self::assertSame( 'irr', $result['payment']['currency'] );
+	}
+
+	public function test_without_efbs_registry_no_payment_is_assumed(): void {
+		EfbRegistryFixture::apply( null );
+		$result = EfbPayments::validate_payment( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), EfbPayments::status( array( 'AdnSPF' => 1 ), '' ), true );
+		self::assertFalse( $result['ok'] );
+		self::assertSame( 'payment_unverified:stripe', $result['reason'] );
+	}
+
+	public function test_a_legacy_gateway_add_on_from_before_the_move_asks_for_an_update(): void {
+		$caps                                       = EfbRegistryFixture::site( 'free_plus', array( 'AdnSPF' => true ) );
+		$caps['split']['addons']['AdnSPF']['state'] = 'update';
+		EfbRegistryFixture::apply( $caps );
+		$result = EfbPayments::validate_payment( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), EfbPayments::status( array(), null ), true );
+		self::assertSame( 'payment_addon_update:stripe', $result['reason'] );
+	}
+
+	public function test_stripe_needs_free_plus_and_persia_pay_needs_pro_as_efb_says(): void {
+		$free = self::status_for( array( 'AdnSPF' => 1 ), 'free' );
+		self::assertFalse( $free['stripe']['plan_ok'] );
+		self::assertSame( 'free_plus', $free['stripe']['package'] );
+		$plus = self::status_for( array( 'AdnSPF' => 1, 'AdnPPF' => 1 ), 'free_plus' );
+		self::assertTrue( $plus['stripe']['plan_ok'] );
+		self::assertTrue( $plus['stripe']['addon_active'] );
+		self::assertFalse( $plus['zarinpal']['plan_ok'] );
+		self::assertSame( 'pro', $plus['zarinpal']['package'] );
+	}
+
+	public function test_a_payment_framework_gateway_comes_from_its_add_on(): void {
+		// Mollie's add-on off: the gateway is not registered; its add-on entry says the plan.
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free_plus' ) );
+		$status = EfbPayments::status( array(), null );
+		self::assertSame( 'mollie', EfbPayments::resolve_gateway( 'Mollie' ) );
+		self::assertSame( 'tappay', EfbPayments::resolve_gateway( 'Tap Payments' ) );
+		self::assertFalse( $status['mollie']['addon_active'] );
+		self::assertSame( 'AdnMOL', $status['mollie']['addon'] );
+		$off = EfbPayments::validate_payment( array( 'gateway' => 'mollie', 'items' => array( array( 'label' => 'Ticket', 'price' => 10 ) ) ), $status, true );
+		self::assertSame( 'payment_addon_inactive:mollie', $off['reason'] );
+
+		// On: registered by the add-on with its own label and currencies.
+		$caps                                       = EfbRegistryFixture::site( 'free_plus', array( 'AdnMOL' => true ) );
+		$caps['features']['field:mollie']           = array(
+			'kind'          => 'field',
+			'package'       => 'free_plus',
+			'addon'         => 'AdnMOL',
+			'available_now' => true,
+			'reason'        => null,
+			'form_patch'    => array(
+				'type'   => 'payment',
+				'getway' => 'mollie',
+			),
+		);
+		$caps['payment_gateways']['mollie']         = array(
+			'addon'      => 'AdnMOL',
+			'label'      => 'Mollie',
+			'currencies' => array( 'EUR', 'USD' ),
+			'configured' => array(
+				'test' => false,
+				'live' => false,
+			),
+			'mode'       => 'test',
+		);
+		$caps['payment_keys']['mollie']             = false;
+		EfbRegistryFixture::apply( $caps );
+		$status = EfbPayments::status( array(), null );
+		self::assertTrue( $status['mollie']['addon_active'] );
+		self::assertFalse( $status['mollie']['keys_saved'] );
+		self::assertSame( 'EUR', EfbPayments::currency( 'mollie', 'eur' ) );
+		self::assertTrue( EfbPayments::supports_currency( 'mollie', 'usd' ) );
+		self::assertFalse( EfbPayments::supports_currency( 'mollie', 'irr' ) );
+		self::assertSame(
+			array(
+				'type'          => 'payment',
+				'getway'        => 'mollie',
+				'paymentmethod' => 'charge',
+				'currency'      => 'USD',
+			),
+			EfbPayments::form_settings( 'mollie', 'usd' )
+		);
+		// Without EFB's own field template (no get_efbFunction() here) the gateway field cannot be built: refused.
+		$result = EfbPayments::validate_payment( array( 'gateway' => 'mollie', 'currency' => 'EUR', 'items' => array( array( 'label' => 'Ticket', 'price' => 10 ) ) ), $status, true );
+		self::assertSame( 'payment_template_missing:mollie', $result['reason'] );
 	}
 }

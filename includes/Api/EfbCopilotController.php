@@ -965,7 +965,7 @@ final class EfbCopilotController {
 				$op['items'] = $items;
 				// The same form-level settings EFB's own builder writes when its gateway field is added.
 				$op['form_settings'] = EfbPayments::form_settings( (string) $op['payment']['gateway'], (string) $op['payment']['currency'] );
-				$op['field']         = array( 'label' => (string) ( EfbPayments::GATEWAYS[ $op['payment']['gateway'] ]['label'] ?? '' ) );
+				$op['field']         = array( 'label' => EfbPayments::label( (string) $op['payment']['gateway'] ) );
 				foreach ( $items as $item ) {
 					$existing[] = (string) ( $item['id_'] ?? '' );
 				}
@@ -1359,15 +1359,27 @@ final class EfbCopilotController {
 		$parts   = explode( ':', $reason );
 		$kind    = $parts[0];
 		$gateway = (string) ( $parts[1] ?? '' );
-		$label   = (string) ( EfbPayments::GATEWAYS[ $gateway ]['label'] ?? '' );
+		$label   = '' !== $gateway ? EfbPayments::label( $gateway ) : '';
 
 		switch ( $kind ) {
 			case 'payment_addon_inactive':
 				/* translators: %s: payment gateway name, e.g. Stripe. */
 				return sprintf( __( '%s needs its Easy Form Builder add-on, which is not installed or not active. I can install it for you if you allow it; the form reloads afterwards, so save your changes first.', 'ai-site-assistant-autopilot' ), $label );
-			case 'payment_requires_pro':
+			case 'payment_addon_update':
 				/* translators: %s: payment gateway name, e.g. Stripe. */
-				return sprintf( __( 'Online payment with %s is part of Easy Form Builder Pro.', 'ai-site-assistant-autopilot' ), $label );
+				return sprintf( __( '%s needs a newer version of its Easy Form Builder add-on (its payment code moved out of Easy Form Builder into the add-on). Update it on the Add-ons page, then ask again.', 'ai-site-assistant-autopilot' ), $label );
+			case 'payment_unverified':
+				/* translators: %s: payment gateway name, e.g. Stripe. */
+				return sprintf( __( 'This Easy Form Builder does not report its payment add-ons, so I cannot tell whether %s would work here and added no payment. Update Easy Form Builder to 4.3.2 or newer, then ask again.', 'ai-site-assistant-autopilot' ), $label );
+			case 'payment_template_missing':
+				/* translators: %s: payment gateway name, e.g. Mollie. */
+				return sprintf( __( 'Easy Form Builder did not give me the %s payment field, so I added no payment. Add it from the Easy Form Builder palette instead.', 'ai-site-assistant-autopilot' ), $label );
+			case 'payment_requires_pro':
+				return 'pro' === (string) ( $parts[2] ?? 'pro' )
+					/* translators: %s: payment gateway name, e.g. Stripe. */
+					? sprintf( __( 'Online payment with %s is part of Easy Form Builder Pro.', 'ai-site-assistant-autopilot' ), $label )
+					/* translators: %s: payment gateway name, e.g. Stripe. */
+					: sprintf( __( 'Online payment with %s needs Easy Form Builder Free Plus or Pro.', 'ai-site-assistant-autopilot' ), $label );
 			case 'payment_currency_unsupported':
 				/* translators: 1: payment gateway name, 2: currency code. */
 				return sprintf( __( '%1$s cannot take payments in %2$s. Tell me another currency.', 'ai-site-assistant-autopilot' ), $label, strtoupper( (string) ( $parts[2] ?? '' ) ) );
@@ -1379,8 +1391,24 @@ final class EfbCopilotController {
 			case 'payment_duplicate':
 				return __( 'I added one payment to the form; a second one in the same message was left out.', 'ai-site-assistant-autopilot' );
 			default:
-				return __( 'Tell me which payment gateway to use: Stripe, PayPal or ZarinPal.', 'ai-site-assistant-autopilot' );
+				return $this->gateway_question();
 		}
+	}
+
+	/** Which gateway to use, naming the ones EFB reports as ready here (or the usual three). */
+	private function gateway_question(): string {
+		$ready = array();
+		foreach ( EfbPayments::registry_status() as $row ) {
+			if ( ! empty( $row['addon_active'] ) && ! empty( $row['plan_ok'] ) ) {
+				$ready[] = (string) $row['label'];
+			}
+		}
+		if ( array() === $ready ) {
+			return __( 'Tell me which payment gateway to use. Each one is an Easy Form Builder add-on (Stripe, PayPal, ZarinPal, Mollie, Payplug, Tap, Omise, PayTabs, Paymob or Xendit); none is active on this site yet.', 'ai-site-assistant-autopilot' );
+		}
+
+		/* translators: %s: comma-separated gateway names. */
+		return sprintf( __( 'Tell me which payment gateway to use: %s.', 'ai-site-assistant-autopilot' ), implode( ', ', $ready ) );
 	}
 
 	/**
@@ -1397,7 +1425,7 @@ final class EfbCopilotController {
 				continue;
 			}
 			$gateway = (string) ( $op['payment']['gateway'] ?? '' );
-			$label   = (string) ( EfbPayments::GATEWAYS[ $gateway ]['label'] ?? '' );
+			$label   = EfbPayments::label( $gateway );
 			if ( false === ( $status[ $gateway ]['keys_saved'] ?? null ) ) {
 				/* translators: %s: payment gateway name, e.g. Stripe. */
 				$notes[] = sprintf( __( '%s needs your account keys before this can take a real payment. Add them in its Easy Form Builder settings page; I never see or change keys.', 'ai-site-assistant-autopilot' ), $label );
@@ -1422,7 +1450,7 @@ final class EfbCopilotController {
 		$links = array();
 		foreach ( $dropped as $d ) {
 			$parts = explode( ':', (string) ( $d['reason'] ?? '' ) );
-			if ( 'payment_addon_inactive' === $parts[0] ) {
+			if ( 'payment_addon_inactive' === $parts[0] || 'payment_addon_update' === $parts[0] ) {
 				$links[] = array(
 					'label' => __( 'Open EFB Add-ons', 'ai-site-assistant-autopilot' ),
 					'url'   => admin_url( 'admin.php?page=Emsfb_addon' ),
@@ -1701,6 +1729,8 @@ final class EfbCopilotController {
 					'label'    => sanitize_text_field( (string) ( $f['label'] ?? '' ) ),
 					'type'     => sanitize_text_field( (string) ( $f['type'] ?? '' ) ),
 					'required' => ! empty( $f['required'] ) && 'false' !== $f['required'],
+					// The step number the field is on, so a rule that jumps steps can say which fields it skips.
+					'step'     => preg_replace( '/[^0-9]/', '', (string) ( $f['step'] ?? '' ) ) ?? '',
 					'options'  => $options,
 				);
 			}
@@ -2047,7 +2077,7 @@ final class EfbCopilotController {
 		}
 		$gateway = (string) ( $payment['gateway'] ?? '' );
 		$rows[]  = array(
-			'label'    => (string) ( EfbPayments::GATEWAYS[ $gateway ]['label'] ?? '' ) . ' · ' . $currency,
+			'label'    => EfbPayments::label( $gateway ) . ' · ' . $currency,
 			'type'     => (string) ( EfbPayments::gateway_field( $gateway ) ?? 'stripe' ),
 			'required' => true,
 			'width'    => 'full',
@@ -2085,7 +2115,7 @@ final class EfbCopilotController {
 			// The rules planned with the form, in the same plain sentences "explain the logic" uses.
 			'logic'                => is_array( $plan['logic_rules'] ?? null ) && array() !== $plan['logic_rules'] ? $this->explain_planned_logic( $plan ) : array(),
 			'payment'              => is_array( $plan['payment'] ?? null ) ? array(
-				'gateway'  => (string) ( EfbPayments::GATEWAYS[ $plan['payment']['gateway'] ]['label'] ?? '' ),
+				'gateway'  => EfbPayments::label( (string) $plan['payment']['gateway'] ),
 				'currency' => strtoupper( (string) $plan['payment']['currency'] ),
 			) : null,
 			'submit_button'        => (string) ( $plan['submit_button'] ?? '' ),

@@ -142,10 +142,39 @@ final class EfbFormReview {
 			$findings[] = array(
 				'code'     => 'spam_protection',
 				'severity' => 'info',
-				'message'  => __( 'Public forms attract spam. Activate Easy Form Builder’s Form Security & Spam Protection add-on, or add reCAPTCHA keys in Easy Form Builder → Settings and turn on reCAPTCHA for this form.', 'ai-site-assistant-autopilot' ),
+				'message'  => self::spam_advice(),
 			);
 		}
 
 		return $findings;
+	}
+
+	/**
+	 * What protects a form from spam on this site, from EFB's own CAPTCHA registry when it has one (F12, F12b):
+	 * core always runs a honeypot and soft checks; Google reCAPTCHA v2, v2 invisible or v3 is chosen per form; other
+	 * services are add-ons.
+	 */
+	public static function spam_advice(): string {
+		$providers = EfbCapabilities::captcha_providers();
+		if ( array() === $providers ) {
+			return __( 'Public forms attract spam. Activate Easy Form Builder’s Form Security & Spam Protection add-on, or add reCAPTCHA keys in Easy Form Builder → Settings and turn on reCAPTCHA for this form.', 'ai-site-assistant-autopilot' );
+		}
+		$google = false;
+		$addons = array();
+		foreach ( $providers as $provider ) {
+			if ( empty( $provider['addon'] ) ) {
+				$google = $google || ! empty( $provider['ready'] );
+				continue;
+			}
+			$addons[] = (string) ( $provider['label'] ?? $provider['id'] ?? '' ) . ( ! empty( $provider['available'] ) ? '' : ' (' . __( 'add-on', 'ai-site-assistant-autopilot' ) . ')' );
+		}
+		$base = __( 'Easy Form Builder already checks every form with a hidden honeypot and timing checks.', 'ai-site-assistant-autopilot' );
+		$cap  = $google
+			? __( 'For a CAPTCHA, turn on Google reCAPTCHA for this form and pick v2, v2 invisible or v3 in its settings.', 'ai-site-assistant-autopilot' )
+			: __( 'For a CAPTCHA, add Google reCAPTCHA keys in Easy Form Builder → Settings → Captchas, then pick v2, v2 invisible or v3 in this form’s settings.', 'ai-site-assistant-autopilot' );
+		/* translators: %s: comma-separated CAPTCHA services. */
+		$more = array() !== $addons ? ' ' . sprintf( __( 'Other services come as add-ons on Free Plus and Pro: %s.', 'ai-site-assistant-autopilot' ), implode( ', ', $addons ) ) : '';
+
+		return $base . ' ' . $cap . $more;
 	}
 }

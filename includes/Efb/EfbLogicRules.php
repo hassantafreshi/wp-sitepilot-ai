@@ -131,11 +131,14 @@ final class EfbLogicRules {
 		);
 
 		$phrases = self::phrases( $rule, $fields, $steps );
+		$jump    = self::jump_note( $rule, $fields, $steps );
 
 		return array(
 			'ok'      => true,
 			'rule'    => $rule,
-			'summary' => self::sentence( $phrases ),
+			'summary' => trim( self::sentence( $phrases ) . ' ' . $jump ),
+			// The owner rule for a forward jump, said with the rule (empty for other rules).
+			'note'    => $jump,
 			// The same words split for the copilot's IF / THEN card.
 			'display' => array(
 				'match' => 'OR' === $operator ? 'any' : 'all',
@@ -158,17 +161,128 @@ final class EfbLogicRules {
 		if ( 'pro' === $tier ) {
 			return '';
 		}
-		if ( 'free_plus' !== $tier ) {
+		// EFB's registry has the add-on's limits per plan (limit:logic); the add-on's own builder numbers otherwise.
+		$limits = EfbCapabilities::available() ? EfbCapabilities::limit( 'logic', 'free' === $tier ? 'free' : $tier ) : null;
+		$rules  = is_array( $limits ) ? (int) ( $limits['field_rules'] ?? 0 ) : ( 'free_plus' === $tier ? self::FREE_PLUS_RULES : 0 );
+		$conds  = is_array( $limits ) ? (int) ( $limits['conditions_per_group'] ?? 0 ) : ( 'free_plus' === $tier ? self::FREE_PLUS_CONDITIONS : 0 );
+		if ( 'free_plus' !== $tier || $rules <= 0 ) {
 			return 'logic_needs_plan';
 		}
-		if ( $existing_rules >= self::FREE_PLUS_RULES ) {
-			return 'logic_rule_limit:' . self::FREE_PLUS_RULES;
+		if ( $existing_rules >= $rules ) {
+			return 'logic_rule_limit:' . $rules;
 		}
-		if ( $conditions > self::FREE_PLUS_CONDITIONS ) {
-			return 'logic_condition_limit:' . self::FREE_PLUS_CONDITIONS;
+		if ( $conditions > $conds ) {
+			return 'logic_condition_limit:' . $conds;
 		}
 
 		return '';
+	}
+
+	/**
+	 * The owner rule for a forward jump: the steps a `jump_to_step` rule jumps over, and every field in them, become
+	 * optional for that visitor: they are not validated, not required and not charged. One sentence naming them, or ''
+	 * when the rule has no forward jump.
+	 *
+	 * @param array<string,mixed>              $rule
+	 * @param array<int, array<string, mixed>> $fields Each may carry `step` (the step number it is on).
+	 * @param array<int, array<string, mixed>> $steps  In form order.
+	 */
+	public static function jump_note( array $rule, array $fields, array $steps ): string {
+		$skipped = self::skipped_steps( $rule, $fields, $steps );
+		if ( null === $skipped ) {
+			return '';
+		}
+		if ( array() === $skipped['steps'] ) {
+			return __( 'Any step it jumps over is skipped for that visitor: its fields become optional, are not checked and are not charged.', 'ai-site-assistant-autopilot' );
+		}
+		$names = array_map( static fn ( array $s ): string => '“' . $s['label'] . '”', $skipped['steps'] );
+		$text  = sprintf(
+			/* translators: %s: names of the skipped steps. */
+			_n( 'It skips step %s for that visitor', 'It skips steps %s for that visitor', count( $names ), 'ai-site-assistant-autopilot' ),
+			implode( __( ', ', 'ai-site-assistant-autopilot' ), $names )
+		);
+		if ( array() !== $skipped['fields'] ) {
+			/* translators: %s: field names. */
+			$text .= sprintf( __( ': %s become optional, are not checked and are not charged.', 'ai-site-assistant-autopilot' ), implode( __( ', ', 'ai-site-assistant-autopilot' ), array_map( static fn ( string $l ): string => '“' . $l . '”', $skipped['fields'] ) ) );
+		} else {
+			$text .= __( ': their fields become optional, are not checked and are not charged.', 'ai-site-assistant-autopilot' );
+		}
+
+		return $text;
+	}
+
+	/**
+	 * The steps (and their fields) a rule's forward jump passes over, or null when the rule does not jump forward.
+	 *
+	 * @param array<string,mixed>              $rule
+	 * @param array<int, array<string, mixed>> $fields
+	 * @param array<int, array<string, mixed>> $steps
+	 * @return array{steps:array<int,array{label:string,number:int}>, fields:string[]}|null
+	 */
+	public static function skipped_steps( array $rule, array $fields, array $steps ): ?array {
+		$targets = array();
+		foreach ( (array) ( $rule['actions'] ?? array() ) as $action ) {
+			if ( is_array( $action ) && 'jump_to_step' === ( $action['type'] ?? '' ) ) {
+				$step = self::find_step( (string) ( $action['target'] ?? '' ), $steps );
+				if ( null !== $step ) {
+					$targets[] = self::step_number( $step, $steps );
+				}
+			}
+		}
+		if ( array() === $targets ) {
+			return null;
+		}
+		// The jump starts on the latest step among the fields the rule reads.
+		$from = 0;
+		foreach ( (array) ( $rule['conditions']['items'] ?? array() ) as $item ) {
+			$field = is_array( $item ) ? self::find_field( (string) ( $item['field_id'] ?? '' ), $fields ) : null;
+			$from  = max( $from, null !== $field ? (int) ( $field['step'] ?? 0 ) : 0 );
+		}
+		$to = max( $targets );
+		if ( $from <= 0 ) {
+			// Unknown starting step: the rule still jumps, the skipped steps cannot be named.
+			return array(
+				'steps'  => array(),
+				'fields' => array(),
+			);
+		}
+		if ( $to <= $from + 1 ) {
+			return null;
+		}
+		$out = array(
+			'steps'  => array(),
+			'fields' => array(),
+		);
+		foreach ( array_values( $steps ) as $index => $step ) {
+			$number = $index + 1;
+			if ( $number > $from && $number < $to ) {
+				$out['steps'][] = array(
+					'label'  => '' !== trim( (string) ( $step['label'] ?? '' ) ) ? (string) $step['label'] : (string) $number,
+					'number' => $number,
+				);
+				foreach ( $fields as $field ) {
+					if ( is_array( $field ) && (int) ( $field['step'] ?? 0 ) === $number && ! in_array( $field['type'] ?? '', array( 'heading', 'link', 'html' ), true ) ) {
+						$out['fields'][] = (string) ( $field['label'] ?? $field['id'] ?? '' );
+					}
+				}
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * @param array<string,mixed>              $step
+	 * @param array<int, array<string, mixed>> $steps
+	 */
+	private static function step_number( array $step, array $steps ): int {
+		foreach ( array_values( $steps ) as $index => $candidate ) {
+			if ( $candidate === $step ) {
+				return $index + 1;
+			}
+		}
+
+		return 0;
 	}
 
 	/**
@@ -185,7 +299,7 @@ final class EfbLogicRules {
 			if ( ! is_array( $rule ) ) {
 				continue;
 			}
-			$line = self::sentence( self::phrases( $rule, $fields, $steps ) );
+			$line = trim( self::sentence( self::phrases( $rule, $fields, $steps ) ) . ' ' . self::jump_note( $rule, $fields, $steps ) );
 			if ( isset( $rule['enabled'] ) && false === (bool) $rule['enabled'] ) {
 				/* translators: %s: rule description. */
 				$line = sprintf( __( '(off) %s', 'ai-site-assistant-autopilot' ), $line );

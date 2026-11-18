@@ -109,8 +109,119 @@ final class EfbKnowledge {
 		if ( in_array( $scope, array( 'field', 'form' ), true ) && ! empty( $ui['save'] ) ) {
 			$steps[] = (string) $ui['save'];
 		}
+		// What Easy Form Builder's own registry says about this site, so a how-to never promises what is not there.
+		$steps[] = self::live_state( $entry );
 
 		return implode( "\n\n", array_filter( $steps ) );
+	}
+
+	/**
+	 * One paragraph on this site's state for an entry: each listed feature (ready, or the add-on / plan it needs) and,
+	 * for some topics, the plan, the portal, the renewal, the add-ons or the gateways. Empty without EFB's registry.
+	 *
+	 * @param array<string, mixed> $entry
+	 */
+	public static function live_state( array $entry ): string {
+		if ( ! EfbCapabilities::available() ) {
+			return '';
+		}
+		$parts = array();
+		foreach ( is_array( $entry['features'] ?? null ) ? $entry['features'] : array() as $key => $label ) {
+			$state = EfbCapabilities::state( (string) $key );
+			if ( ! $state['known'] ) {
+				continue;
+			}
+			if ( $state['available'] ) {
+				/* translators: %s: feature name. */
+				$parts[] = sprintf( __( '%s: ready', 'ai-site-assistant-autopilot' ), (string) $label );
+			} elseif ( in_array( $state['reason'], array( 'addon', 'update' ), true ) && null !== $state['addon'] ) {
+				$addon   = EfbCapabilities::addon( $state['addon'] );
+				$parts[] = 'update' === $state['reason']
+					/* translators: 1: feature name, 2: add-on name. */
+					? sprintf( __( '%1$s: update the %2$s add-on', 'ai-site-assistant-autopilot' ), (string) $label, $addon['name'] )
+					/* translators: 1: feature name, 2: add-on name, 3: plan name. */
+					: sprintf( __( '%1$s: needs the %2$s add-on (%3$s)', 'ai-site-assistant-autopilot' ), (string) $label, $addon['name'], EfbCapabilities::plan_label( $addon['package'] ) );
+			} else {
+				/* translators: 1: feature name, 2: plan name. */
+				$parts[] = sprintf( __( '%1$s: needs %2$s', 'ai-site-assistant-autopilot' ), (string) $label, EfbCapabilities::plan_label( $state['package'] ) );
+			}
+		}
+		$live = (string) ( $entry['live'] ?? '' );
+		$plan = EfbCapabilities::plan();
+		if ( 'plan' === $live ) {
+			/* translators: %s: plan name. */
+			$parts[] = sprintf( __( 'this site is on %s', 'ai-site-assistant-autopilot' ), EfbCapabilities::plan_label( 'pro_pending' === $plan ? 'free' : $plan ) );
+			$note    = EfbCapabilities::plan_note( 'pro' );
+			if ( '' !== $note ) {
+				$parts[] = rtrim( $note, '.' );
+			}
+		} elseif ( 'portal' === $live ) {
+			$portal  = EfbCapabilities::portal();
+			$parts[] = null === $portal
+				? __( 'this Easy Form Builder has no portal contract yet', 'ai-site-assistant-autopilot' )
+				: ( ! empty( $portal['ready'] ) ? __( 'the customer portal is ready', 'ai-site-assistant-autopilot' ) : __( 'the customer portal is not ready: it needs the Customer Portal add-on on Pro', 'ai-site-assistant-autopilot' ) );
+		} elseif ( 'renewal' === $live ) {
+			$renewal = is_array( EfbCapabilities::block( 'plan' )['renewal'] ?? null ) ? EfbCapabilities::block( 'plan' )['renewal'] : array();
+			if ( EfbCapabilities::one_time_purchase() ) {
+				$parts[] = __( 'this is a Persian site: Pro is a one-time purchase and nothing is renewed', 'ai-site-assistant-autopilot' );
+			} elseif ( ! empty( $renewal['known'] ) && '' !== (string) ( $renewal['ends_on'] ?? '' ) ) {
+				/* translators: %s: date. */
+				$parts[] = sprintf( __( 'Pro ends on %s', 'ai-site-assistant-autopilot' ), (string) $renewal['ends_on'] );
+			} else {
+				$parts[] = __( 'Easy Form Builder does not know an end date for this site', 'ai-site-assistant-autopilot' );
+			}
+		} elseif ( 'addons' === $live ) {
+			foreach ( array_keys( EfbCapabilities::block( 'split' )['addons'] ?? array() ) as $code ) {
+				$addon   = EfbCapabilities::addon( (string) $code );
+				$parts[] = sprintf(
+					/* translators: 1: add-on name, 2: plan name, 3: state. */
+					__( '%1$s (%2$s): %3$s', 'ai-site-assistant-autopilot' ),
+					$addon['name'],
+					EfbCapabilities::plan_label( $addon['package'] ),
+					$addon['active'] ? __( 'active', 'ai-site-assistant-autopilot' ) : ( 'update' === $addon['state'] ? __( 'needs an update', 'ai-site-assistant-autopilot' ) : ( 'plan' === $addon['state'] ? __( 'needs a higher plan', 'ai-site-assistant-autopilot' ) : __( 'not installed', 'ai-site-assistant-autopilot' ) ) )
+				);
+			}
+		} elseif ( 'gateways' === $live ) {
+			foreach ( EfbPayments::registry_status() as $row ) {
+				if ( ! empty( $row['addon_active'] ) ) {
+					$parts[] = sprintf(
+						/* translators: 1: gateway name, 2: whether its keys are saved. */
+						__( '%1$s: active, %2$s', 'ai-site-assistant-autopilot' ),
+						(string) $row['label'],
+						true === $row['keys_saved'] ? __( 'keys saved', 'ai-site-assistant-autopilot' ) : __( 'keys not saved yet', 'ai-site-assistant-autopilot' )
+					);
+				}
+			}
+			if ( array() === $parts ) {
+				$parts[] = __( 'no payment gateway add-on is active', 'ai-site-assistant-autopilot' );
+			}
+		} elseif ( 'captcha' === $live ) {
+			foreach ( EfbCapabilities::captcha_providers() as $provider ) {
+				if ( ! empty( $provider['available'] ) ) {
+					$parts[] = sprintf(
+						/* translators: 1: CAPTCHA service, 2: whether its keys are set. */
+						__( '%1$s: %2$s', 'ai-site-assistant-autopilot' ),
+						(string) ( $provider['label'] ?? '' ),
+						! empty( $provider['ready'] ) ? __( 'keys set', 'ai-site-assistant-autopilot' ) : __( 'keys not set', 'ai-site-assistant-autopilot' )
+					);
+				}
+			}
+		} elseif ( 'email_confirmation' === $live ) {
+			$parts[] = EfbCapabilities::email_confirmation_default_on()
+				? __( 'this Easy Form Builder confirms to the visitor by default', 'ai-site-assistant-autopilot' )
+				: __( 'this Easy Form Builder leaves the visitor confirmation off until it is switched on', 'ai-site-assistant-autopilot' );
+		} elseif ( 'data_tools' === $live ) {
+			$tools   = EfbCapabilities::block( 'split' )['data_tools'] ?? null;
+			$parts[] = is_array( $tools ) && ! empty( $tools['active'] )
+				? __( 'Easy Form Builder Data Tools is active on this site', 'ai-site-assistant-autopilot' )
+				: __( 'Easy Form Builder Data Tools is not active on this site', 'ai-site-assistant-autopilot' );
+		}
+		if ( array() === $parts ) {
+			return '';
+		}
+
+		/* translators: %s: semicolon-separated states. */
+		return sprintf( __( 'On this site: %s.', 'ai-site-assistant-autopilot' ), implode( '; ', $parts ) );
 	}
 
 	/**
