@@ -88,6 +88,24 @@ request. Native forms add `number`, `date` and `url` fields; a field that alread
 has a key keeps it through a change. Hints render under their field and are
 linked with `aria-describedby`.
 
+**Easy Form Builder's own registry, SPLIT and form package (2026-11-18)** — The EFB
+copilot reads Easy Form Builder's capability registry (`capabilities_efb()`) for every
+plan, add-on and gateway decision instead of its own lists (`EfbCapabilities`). A field the
+site cannot render — its add-on left EFB core and is not installed, the plan is below it,
+the add-on is older than its contract, or only EFB's builder adds it — becomes the closest
+field the site has or is left out, and the preview names the add-on and its plan, offers
+the install and EFB's own upgrade dialog (`EfbFeatureGate`). New forms are created through
+`Emsfb\Form_Package` (contract 1.1): `validate()` before approval, `import()` on approval,
+Undo through `delete()`; the plugin no longer writes EFB's table (`/efb/save` answers 410).
+The first Email field confirms to the visitor by default (EFB 4.3.2), off only when asked.
+A forward jump in conditional logic says which steps and fields it makes optional. Gateways
+are always EFB add-ons (Stripe, PayPal, Persia Pay on the legacy bridge; Mollie, Payplug,
+Tap, Omise, PayTabs, Paymob, Xendit on PAY00, their field from EFB's template); without the
+registry no payment is added. National address formats come from EFB's templates (F17,
+`needs_states`), F16 defaults from `efb_form_defaults_efb()`. The copilot page lists what
+EFB reports about the site. Coverage per feature with its test:
+`docs/EFB_FEATURE_COVERAGE_FA.md`; end-to-end checks: `tests/efb_e2e/`.
+
 **Easy Form Builder payment** — The copilot plans online payment with a new
 `add_payment` operation (and a `payment` object on a new form): `gateway`
 (`stripe`, `paypal`, `zarinpal`), `currency`, priced `items` or an

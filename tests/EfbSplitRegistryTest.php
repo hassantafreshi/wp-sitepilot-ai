@@ -257,4 +257,23 @@ final class EfbSplitRegistryTest extends TestCase {
 		self::assertStringContainsString( 'Visitors cannot pay through this form yet', $text );
 		self::assertStringNotContainsString( 'ids_remapped', $text );
 	}
+
+	public function test_fields_only_efbs_builder_adds_are_named_and_replaced_or_left_out(): void {
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free_plus' ) );
+		$gate = EfbFeatureGate::new_form_fields(
+			array(
+				array( 'type' => 'repeater', 'label' => 'Guests' ),
+				array( 'type' => 'ranking', 'label' => 'Rank these' ),
+				array( 'type' => 'advanced_date', 'label' => 'Arrival' ),
+				array( 'type' => 'hidden_field', 'label' => 'Source' ),
+			)
+		);
+		$by = array_column( $gate['blocked'], null, 'type' );
+		self::assertSame( 'builder_only', $by['repeater']['reason'] );
+		self::assertNull( $by['repeater']['alternative'], 'a repeater has no plain stand-in: left out' );
+		self::assertSame( 'checkbox', $by['ranking']['alternative'] );
+		self::assertSame( 'date', $by['advdate']['alternative'] );
+		self::assertNull( $by['hiddenField']['alternative'] );
+		self::assertSame( array( 'checkbox', 'date' ), array_column( $gate['fields'], 'type' ) );
+	}
 }

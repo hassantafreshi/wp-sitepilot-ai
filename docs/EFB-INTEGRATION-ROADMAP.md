@@ -6,6 +6,43 @@
 > (`main`). Full requirement list and status: `docs/EFB_AI_FORM_BUILDER_T74_T75_FA.md`.
 > `calculation`, `quiz`, and `ticketing` are explicitly out of scope.
 
+> 2026-11-18 (`dev4`): re-checked against EFB `dev4` after its SPLIT, F01–F21, PAY00 and F20-core work. The copilot
+> now reads EFB's own registry for every plan, add-on and gateway decision, creates forms only through EFB's form
+> package API (no table write), keeps EFB 4.3.2's visitor confirmation default and the forward-jump rule. Row-by-row
+> coverage with the test of each row: `docs/EFB_FEATURE_COVERAGE_FA.md`. The "Ground truth" below about writing
+> `form_structer` describes the format the converter still builds; it is stored by EFB's `Form_Package::import()`.
+
+## 2026-11-18: what changed in the integration
+
+- **Registry first.** `Efb/EfbCapabilities.php` reads `get_efbFunction()->capabilities_efb()`: plan, `features[key]`
+  (`package`, `addon`, `available_now`, `reason`), `split` (moved features, add-on names, plans, states incl.
+  `update`), `limit:steps` / `limit:logic`, `email_confirmation`, `portal_core`, `payment_gateways`, `payment_keys`,
+  `spam.providers`, `name_address`. `EfbLicense`, `EfbFormModel` plan checks, `EfbAddons` offers, `EfbPayments` and
+  the logic limits all answer from it; their bundled lists are only the fallback for an EFB without the registry.
+- **SPLIT gate.** `Efb/EfbFeatureGate.php`: a planned field the site cannot render becomes the closest field it can
+  (calc → Number, map → Text, typed signature → drawn, mobile → Phone on Free, …) or is left out; the preview lists
+  each with the add-on and plan (`addon_required`), offers the install and EFB's upgrade dialog.
+- **Create through EFB.** `EasyFormBuilderConnector` builds a form package (schema 1) and calls
+  `Emsfb\Form_Package::validate()` for the preview and `::import()` on approval; `import_token` (contract 1.1) lets the
+  same administrator undo the creation (`/efb/undo` → `Form_Package::delete()`). `/efb/save` (direct table write) is
+  closed (410). `Efb/EfbSaveNotes.php` turns EFB's `dropped[]`, `notices[]` and payment readiness into sentences.
+- **Owner rules.** First Email field confirms to the visitor (noti 1, `email_to`, `sendEmail`), later ones stay off, off
+  only on request (`visitor_confirmation` in the editor). A `jump_to_step` rule says which steps it skips and that their
+  fields become optional, are not checked and are not charged.
+- **Gateways are add-ons.** Stripe / PayPal / Persia Pay through their add-ons (legacy bridge, `update` state after the
+  move), Mollie, Payplug, Tap, Omise, PayTabs, Paymob, Xendit (PAY00) with EFB's own field template. No registry → no
+  payment ("update Easy Form Builder").
+- **F16 / F17.** New forms get `efb_form_defaults_efb()`; national address schemes come from EFB's templates
+  (`needs_states` left to EFB's page).
+- **Knowledge.** The prompt carries the registry facts; 23 new help entries (F01–F21, add-ons, gateways, portal, Data
+  Tools) end with this site's live state.
+- **Connector registry.** `ConnectorBase` + `aisaautopilot_register_connectors` + capability `portal.link` for the
+  coming customer portal connector (not built).
+- **Tests.** PHPUnit (EfbSplitRegistryTest, EfbFormPackageConnectorTest, EfbKnowledgeRegistryTest,
+  ConnectorRegistryPortalTest, additions to EfbPaymentsTest and EfbLogicRulesTest) on the registry a real EFB `dev4`
+  returned; `tests/efb_e2e/` on a real WordPress with EFB `dev4` and its add-ons (REST flow and Chromium, en_US 1280 px,
+  fa_IR and ar 375 px).
+
 ## Ground truth
 
 - EFB form table: `{prefix}emsfb_form` with `form_id`, `form_name`,

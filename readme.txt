@@ -504,6 +504,16 @@ editable text; nothing is sent until you press Send.
 
 = 0.0.1 =
 * First release.
+* The Easy Form Builder copilot follows Easy Form Builder's own plan and add-on
+  registry: a field the site cannot show (its add-on is missing or the plan is
+  below it) is never promised; the preview names the add-on and its plan, uses
+  the closest field instead and offers the install. New forms are created
+  through Easy Form Builder's own form package API (never by writing its
+  tables) and can be undone from the editor. The visitor's confirmation email
+  is on by default for the first Email field, as in Easy Form Builder 4.3.2.
+  Payment gateways are always Easy Form Builder add-ons, including Mollie,
+  Payplug, Tap, Omise, PayTabs, Paymob and Xendit. The Easy Form Builder
+  copilot page shows what Easy Form Builder reports about the site.
 * Form Studio puts fields in columns (full, three quarters, two thirds, half, a
   third or a quarter) in the preview and on the published form, and the AI sets
   them from words like "first and last name side by side". Click a field in the
