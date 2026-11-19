@@ -127,5 +127,5 @@ each falls back to the path before it (capability checks).
 ## ماندهٔ کار برای مالک
 
 - ترجمهٔ رشته‌های تازه (فهرست عبارت‌ها در `languages/ai-site-assistant-autopilot.pot` تازه شد؛ طبق دستور ترجمه نشد).
-- اجرای تست‌های XAMPP: `wordpress_efb_payment_integration.php`، `wordpress_efb_logic_integration.php` و `wordpress_efb_settings_integration.php` قرارداد قدیمی (افزونه‌های گزارش‌شده از مرورگر، گزینهٔ `emsfb_settings`، «Stripe = Pro») را می‌سنجند و باید با قرارداد رجیستری به‌روز شوند؛ روی سایت لینوکسی این کار پیش و پس از این تغییرات به یک اندازه شکست می‌خورند.
+- ~~اجرای تست‌های XAMPP با قرارداد قدیمی~~ انجام شد (۲۰۲۶-۱۱-۱۹): `wordpress_efb_payment_integration.php`، `wordpress_efb_logic_integration.php` و `wordpress_efb_settings_integration.php` اکنون قرارداد رجیستری را می‌سنجند: افزونه‌ها و پلن فقط از رجیستری EFB، هر بخش روی پلن و افزونه‌هایی که خود EFB دارد (`tests/efb_state_harness.php` آن‌ها را با تابع تنظیمات خود EFB در پردازه‌ای جدا می‌نویسد و در پایان برمی‌گرداند)، کلیدهای Stripe از انبار خود افزونهٔ Stripe. وردپرس از `AISAAUTOPILOT_WP_ROOT`، سپس نسخهٔ محلی آزمون، سپس `C:\xampp\htdocs\wp` (`tests/test-env.php` و `tests/test-env.cjs`).
 - ساخت ماسک‌ها، OTP، قواعد F03، تکرارشونده و فیلد محاسبه از خود افزونه (اکنون با `efbBuilderApi` و کلیدهای بستهٔ فرم ممکن است؛ این نوبت فقط توضیح و ارجاع است).
