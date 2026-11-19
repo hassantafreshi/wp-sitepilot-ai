@@ -156,10 +156,8 @@ final class EfbKnowledge {
 				$parts[] = rtrim( $note, '.' );
 			}
 		} elseif ( 'portal' === $live ) {
-			$portal  = EfbCapabilities::portal();
-			$parts[] = null === $portal
-				? __( 'this Easy Form Builder has no portal contract yet', 'ai-site-assistant-autopilot' )
-				: ( ! empty( $portal['ready'] ) ? __( 'the customer portal is ready', 'ai-site-assistant-autopilot' ) : __( 'the customer portal is not ready: it needs the Customer Portal add-on on Pro', 'ai-site-assistant-autopilot' ) );
+			$portal  = EfbCapabilities::portal_state();
+			$parts[] = null === $portal ? __( 'this Easy Form Builder has no portal contract yet', 'ai-site-assistant-autopilot' ) : self::portal_sentence( $portal );
 		} elseif ( 'renewal' === $live ) {
 			$renewal = is_array( EfbCapabilities::block( 'plan' )['renewal'] ?? null ) ? EfbCapabilities::block( 'plan' )['renewal'] : array();
 			if ( EfbCapabilities::one_time_purchase() ) {
@@ -222,6 +220,28 @@ final class EfbKnowledge {
 
 		/* translators: %s: semicolon-separated states. */
 		return sprintf( __( 'On this site: %s.', 'ai-site-assistant-autopilot' ), implode( '; ', $parts ) );
+	}
+
+	/**
+	 * The portal's state as EFB's registry reports it (portal contract 1.1+: a free, separate plugin on every plan).
+	 *
+	 * @param array{state:string, name:string, slug:string, version:string} $portal EfbCapabilities::portal_state().
+	 */
+	private static function portal_sentence( array $portal ): string {
+		switch ( $portal['state'] ) {
+			case 'ready':
+				return __( 'the customer portal is ready', 'ai-site-assistant-autopilot' );
+			case 'inactive':
+				/* translators: %s: plugin name (EFB Customer Portal). */
+				return sprintf( __( 'the customer portal is not ready: the free %s plugin is installed but not active', 'ai-site-assistant-autopilot' ), $portal['name'] );
+			case 'off':
+				return __( 'the customer portal is not ready: this site has switched the portal off', 'ai-site-assistant-autopilot' );
+			case 'index':
+				return __( 'the customer portal is not ready: Easy Form Builder is still preparing it', 'ai-site-assistant-autopilot' );
+			default:
+				/* translators: %s: plugin name (EFB Customer Portal). */
+				return sprintf( __( 'the customer portal is not ready: it needs the free %s plugin, on every plan', 'ai-site-assistant-autopilot' ), $portal['name'] );
+		}
 	}
 
 	/**

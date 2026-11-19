@@ -85,6 +85,10 @@ async function run( locale, width, height ) {
 		const calcRow = page.locator( '[data-sp-efb-site-row="AdnCLC"] .sp-efbx-tag' );
 		check( ( await calcRow.count() ) === 1, `${ tag }: Numbers & Calculations is listed with its state` );
 		check( await page.locator( '[data-sp-efb-site-row="form_package"]' ).count() === 1, `${ tag }: the form package version is shown` );
+		// Portal contract 1.1+: the customer portal is the free EFB Customer Portal plugin, never a "Pro add-on".
+		const portalRow = page.locator( '[data-sp-efb-site-row="portal"]' );
+		const portalText = ( await portalRow.count() ) === 1 ? await portalRow.innerText() : '';
+		check( 'en_US' !== locale || ( /Free plugin, not installed/.test( portalText ) && /EFB Customer Portal/.test( portalText ) && ! /Pro add-on/.test( portalText ) ), `${ tag }: the customer portal row names the free plugin, not a Pro add-on`, portalText );
 		check( await noHorizontalScroll( page ), `${ tag }: EFB copilot page has no horizontal scroll` );
 		if ( rtl ) { check( 'rtl' === await page.evaluate( () => document.documentElement.dir ), `${ tag }: page is right to left` ); }
 		await page.screenshot( { path: path.join( SHOTS, `efb-page-${ tag }.png` ), fullPage: true } );

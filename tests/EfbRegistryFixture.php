@@ -5,6 +5,8 @@
  * `tests/fixtures/efb-capabilities-free-plus.json` is the registry a real Easy Form Builder (`dev4`, the SPLIT build)
  * returned from `get_efbFunction()->capabilities_efb()` on a Free Plus site with the Numbers & Calculations, Typed
  * Signature and Address & Postal add-ons active (trimmed to the blocks the copilot reads; no site address, no key).
+ * Its `portal_core` block (and `split.contracts.portal`) is a fresh dump from EFB 4.3.2 `dev4` (portal contract 1.5): the
+ * portal is the free plugin EFB Customer Portal, installed but not active on that site; `AdnPRT` left the catalogue in 1.1.
  * The helpers derive other sites from it the way EFB computes them: another plan, an add-on switched off or on.
  */
 

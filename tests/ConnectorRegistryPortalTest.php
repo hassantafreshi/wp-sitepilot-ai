@@ -86,7 +86,9 @@ final class ConnectorRegistryPortalTest extends TestCase {
 		$contract = EfbCapabilities::portal_contract();
 		self::assertSame( 1, $contract['version'] );
 		self::assertTrue( $contract['core'] );
-		self::assertSame( 'AdnPRT', EfbCapabilities::portal()['addon'] );
+		// Portal contract 1.1+: the free plugin EFB Customer Portal, not an add-on.
+		self::assertSame( 'efb-customer-portal', EfbCapabilities::portal()['plugin']['slug'] );
+		self::assertArrayNotHasKey( 'addon', EfbCapabilities::portal() );
 		self::assertFalse( EfbCapabilities::portal()['ready'] );
 	}
 

@@ -306,6 +306,46 @@ final class EfbCapabilities {
 	}
 
 	/**
+	 * The customer portal in plain terms. Since EFB's portal contract 1.1 the portal is the separate, free plugin "EFB
+	 * Customer Portal" (slug efb-customer-portal) on every plan, never an add-on and never a package:
+	 * `portal_core.plugin` = {slug, name, installed, active, version} and `reason` null | plugin | plan | index.
+	 * state: ready | not_installed | inactive (installed, not active) | off (the site's own efb_portal_plan_ok filter
+	 * switched the contract off) | index (EFB is still building its index of who owns which entry); null without
+	 * `portal_core`. An older contract without `plugin` (1.0, whose `plan` meant "below Pro") reads as not_installed.
+	 *
+	 * @return array{state:string, name:string, slug:string, version:string}|null
+	 */
+	public static function portal_state(): ?array {
+		$portal = self::portal();
+		if ( null === $portal ) {
+			return null;
+		}
+		$plugin = is_array( $portal['plugin'] ?? null ) ? $portal['plugin'] : array();
+		$name   = (string) ( $plugin['name'] ?? '' );
+		$slug   = (string) ( $plugin['slug'] ?? '' );
+		// Contract 1.0 (no `plugin`, unreleased builds) used `plan` for "below Pro"; only 1.1+ means the site's filter.
+		$reason = array() !== $plugin ? (string) ( $portal['reason'] ?? '' ) : '';
+		if ( ! empty( $portal['ready'] ) ) {
+			$state = 'ready';
+		} elseif ( 'plan' === $reason ) {
+			$state = 'off';
+		} elseif ( 'index' === $reason ) {
+			$state = 'index';
+		} elseif ( ! empty( $plugin['installed'] ) && empty( $plugin['active'] ) ) {
+			$state = 'inactive';
+		} else {
+			$state = 'not_installed';
+		}
+
+		return array(
+			'state'   => $state,
+			'name'    => '' !== $name ? $name : 'EFB Customer Portal',
+			'slug'    => '' !== $slug ? $slug : 'efb-customer-portal',
+			'version' => (string) ( $plugin['version'] ?? '' ),
+		);
+	}
+
+	/**
 	 * EFB's add-on contract for the customer portal (`split.contracts.portal`, F20-core): version and whether a
 	 * provider is active. A portal connector checks it before it registers `portal.link`.
 	 *
@@ -498,8 +538,8 @@ final class EfbCapabilities {
 		if ( ! self::available() ) {
 			return "EFB_REGISTRY=no (Easy Form Builder is older than 4.3.2: say a feature needs an update rather than promising it)\n";
 		}
-		$plan  = self::plan();
-		$lines = array( 'EFB_REGISTRY=yes', 'EFB_VERSION=' . ( '' !== self::efb_version() ? self::efb_version() : 'unknown' ), 'EFB_PLAN_NAME=' . ( '' !== $plan ? $plan : 'unknown' ) . ( self::one_time_purchase() ? ' (Persian site: Pro is a one-time purchase, no renewal)' : '' ) );
+		$plan   = self::plan();
+		$lines  = array( 'EFB_REGISTRY=yes', 'EFB_VERSION=' . ( '' !== self::efb_version() ? self::efb_version() : 'unknown' ), 'EFB_PLAN_NAME=' . ( '' !== $plan ? $plan : 'unknown' ) . ( self::one_time_purchase() ? ' (Persian site: Pro is a one-time purchase, no renewal)' : '' ) );
 		$addons = array();
 		$split  = self::block( 'split' );
 		foreach ( (array) ( $split['addons'] ?? array() ) as $code => $info ) {
@@ -528,11 +568,18 @@ final class EfbCapabilities {
 		if ( array() !== $captcha ) {
 			$lines[] = 'CAPTCHA SERVICES: ' . implode( '; ', $captcha );
 		}
-		$portal = self::portal();
+		$portal = self::portal_state();
 		if ( null !== $portal ) {
-			$lines[] = 'CUSTOMER_PORTAL=' . ( ! empty( $portal['ready'] ) ? 'ready' : 'not ready (' . (string) ( $portal['reason'] ?? 'addon' ) . '; it is the Pro add-on ' . (string) ( $portal['addon'] ?? 'AdnPRT' ) . ')' );
+			$what    = array(
+				'not_installed' => 'not installed',
+				'inactive'      => 'installed, not active',
+				'off'           => 'switched off on this site',
+				'index'         => 'Easy Form Builder is still indexing entries',
+			);
+			$lines[] = 'CUSTOMER_PORTAL=' . ( 'ready' === $portal['state'] ? 'ready' : 'not ready (' . ( $what[ $portal['state'] ] ?? $portal['state'] ) . ')' )
+				. '; it is the free plugin ' . $portal['name'] . ' (' . $portal['slug'] . ') on every plan, not an add-on';
 		}
-		$steps = self::limit( 'steps' );
+		$steps   = self::limit( 'steps' );
 		$lines[] = 'STEP_LIMIT=' . ( is_int( $steps ) ? (string) $steps : 'none' );
 
 		return implode( "\n", $lines ) . "\n";

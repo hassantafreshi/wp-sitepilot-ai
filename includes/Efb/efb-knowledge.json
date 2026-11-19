@@ -760,7 +760,7 @@
         "پورتال",
         "پیگیری"
       ],
-      "answer": "A customer portal where visitors see, cancel or reschedule their own submissions is a separate Pro add-on (Customer Portal). Easy Form Builder already keeps its contract; the portal is ready only once that add-on is active on a Pro site. An assistant only links to the portal page: it never asks for or enters a sign-in code and never reads another person's entries.",
+      "answer": "A customer portal where visitors see, cancel or reschedule their own submissions is the separate, free plugin EFB Customer Portal (not an add-on), on every plan: Free, Free Plus and Pro. Easy Form Builder already keeps its contract; the portal is ready once that plugin is installed and active. An assistant only links to the portal page: it never asks for or enters a sign-in code and never reads another person's entries.",
       "live": "portal"
     },
     {

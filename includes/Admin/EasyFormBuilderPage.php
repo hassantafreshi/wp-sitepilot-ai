@@ -210,15 +210,9 @@ final class EasyFormBuilderPage {
 			'note'  => '',
 			'key'   => 'email_confirmation',
 		);
-		$portal    = EfbCapabilities::portal();
+		$portal    = self::portal_row();
 		if ( null !== $portal ) {
-			$general[] = array(
-				'label' => __( 'Customer portal', 'ai-site-assistant-autopilot' ),
-				'tag'   => ! empty( $portal['ready'] ) ? __( 'Ready', 'ai-site-assistant-autopilot' ) : __( 'Pro add-on, not active', 'ai-site-assistant-autopilot' ),
-				'tone'  => ! empty( $portal['ready'] ) ? 'ok' : 'warn',
-				'note'  => '',
-				'key'   => 'portal',
-			);
+			$general[] = $portal;
 		}
 		$groups[] = array(
 			'title' => __( 'Easy Form Builder', 'ai-site-assistant-autopilot' ),
@@ -291,6 +285,35 @@ final class EasyFormBuilderPage {
 			<a class="sp-efbx-button is-block" href="<?php echo esc_url( EfbCapabilities::addons_page() ); ?>"><?php esc_html_e( 'Open EFB Add-ons', 'ai-site-assistant-autopilot' ); ?></a>
 		</section>
 		<?php
+	}
+
+	/**
+	 * The customer portal's row of the site card, or null when Easy Form Builder has no portal contract. Since EFB's
+	 * portal contract 1.1 the portal is the separate, free plugin EFB Customer Portal on every plan, never an add-on.
+	 *
+	 * @return array{label:string,tag:string,tone:string,note:string,key:string}|null
+	 */
+	public static function portal_row(): ?array {
+		$portal = EfbCapabilities::portal_state();
+		if ( null === $portal ) {
+			return null;
+		}
+		$tags = array(
+			'ready'         => __( 'Ready', 'ai-site-assistant-autopilot' ),
+			'inactive'      => __( 'Free plugin, not active', 'ai-site-assistant-autopilot' ),
+			'off'           => __( 'Switched off on this site', 'ai-site-assistant-autopilot' ),
+			'index'         => __( 'Being prepared', 'ai-site-assistant-autopilot' ),
+			'not_installed' => __( 'Free plugin, not installed', 'ai-site-assistant-autopilot' ),
+		);
+
+		return array(
+			'label' => __( 'Customer portal', 'ai-site-assistant-autopilot' ),
+			'tag'   => $tags[ $portal['state'] ] ?? $tags['not_installed'],
+			'tone'  => 'ready' === $portal['state'] ? 'ok' : 'warn',
+			/* translators: %s: plugin name (EFB Customer Portal). */
+			'note'  => 'ready' === $portal['state'] ? '' : sprintf( __( 'The portal is the free %s plugin, on every plan', 'ai-site-assistant-autopilot' ), $portal['name'] ),
+			'key'   => 'portal',
+		);
 	}
 
 	/**

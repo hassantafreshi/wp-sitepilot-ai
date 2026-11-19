@@ -25,7 +25,6 @@
   "AdnPMB": false,
   "AdnPPF": false,
   "AdnPPG": false,
-  "AdnPRT": false,
   "AdnPTB": false,
   "AdnQCP": false,
   "AdnSE": false,
@@ -304,16 +303,6 @@
    "label_key": "payplugTAddon",
    "package": "free_plus",
    "reason": "addon"
-  },
-  "addon:AdnPRT": {
-   "addon": "AdnPRT",
-   "available_now": false,
-   "can_install": false,
-   "installed": false,
-   "kind": "addon",
-   "label_key": "AdnPRT",
-   "package": "pro",
-   "reason": "plan"
   },
   "addon:AdnPTB": {
    "addon": "AdnPTB",
@@ -1992,7 +1981,7 @@
   }
  },
  "portal_core": {
-  "addon": "AdnPRT",
+  "contract": "1.5",
   "features": [
    "index",
    "otp",
@@ -2006,13 +1995,32 @@
    "reschedule",
    "edit",
    "drafts",
-   "privacy"
+   "privacy",
+   "any_plan",
+   "channels",
+   "forms",
+   "draft_pages",
+   "payments_summary"
   ],
   "index": "ready",
+  "minor": 5,
   "never": "an assistant links to the portal page only; it never asks for or enters a sign-in code and never reads an owner's entries",
-  "package": "pro",
+  "plans": [
+   "free",
+   "free_plus",
+   "pro"
+  ],
+  "plugin": {
+   "active": false,
+   "file": "efb-customer-portal/efb-customer-portal.php",
+   "installed": true,
+   "name": "EFB Customer Portal",
+   "plan": "free",
+   "slug": "efb-customer-portal",
+   "version": null
+  },
   "ready": false,
-  "reason": "plan",
+  "reason": "plugin",
   "version": 1
  },
  "spam": {

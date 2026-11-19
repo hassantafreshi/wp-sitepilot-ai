@@ -119,6 +119,14 @@ registry (installed, active, plan, add-on); the plugin's own gateway map is gone
 older EFB every one of these falls back to the earlier path (handoff, a suffixed name, a
 published form) and the copilot names the EFB version that adds it.
 
+**The customer portal is a free plugin (2026-11-19)** — Since EFB's portal contract 1.1,
+`capabilities.portal_core` describes the portal as the separate, free plugin EFB Customer Portal
+(`plugin`: slug `efb-customer-portal`, installed, active, version; every plan; no add-on, no
+package). The copilot's portal answer, its context line (`CUSTOMER_PORTAL=`), its prompt and the
+copilot page's "Customer portal" row now say so — not installed, installed but not active, switched
+off on this site, or being prepared — and never call it a Pro add-on (`EfbCapabilities::portal_state()`).
+The test registry's `portal_core` comes from a fresh `capabilities_efb()` dump of EFB `dev4` (contract 1.5).
+
 **Easy Form Builder payment** — The copilot plans online payment with a new
 `add_payment` operation (and a `payment` object on a new form): `gateway`
 (`stripe`, `paypal`, `zarinpal`), `currency`, priced `items` or an

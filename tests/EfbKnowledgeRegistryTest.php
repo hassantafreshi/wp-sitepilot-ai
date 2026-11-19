@@ -79,20 +79,89 @@ final class EfbKnowledgeRegistryTest extends TestCase {
 		self::assertStringContainsString( 'Booking (Pro): needs a higher plan', $addons );
 	}
 
-	public function test_the_portal_is_an_add_on_and_is_not_ready_until_it_is_active(): void {
+	public function test_the_portal_is_a_free_plugin_on_every_plan_and_is_not_ready_until_it_is_active(): void {
+		// EFB portal contract 1.1+: capabilities.portal_core names the free plugin, never an add-on or a package.
 		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free_plus' ) );
 		$portal = EfbCapabilities::portal();
 		self::assertFalse( $portal['ready'] );
-		self::assertSame( 'AdnPRT', $portal['addon'] );
-		self::assertSame( 'pro', $portal['package'] );
+		self::assertSame( 'efb-customer-portal', $portal['plugin']['slug'] );
+		self::assertArrayNotHasKey( 'addon', $portal );
+		self::assertArrayNotHasKey( 'package', $portal );
+		self::assertSame( 'inactive', EfbCapabilities::portal_state()['state'] );
 		$answer = EfbKnowledge::answer( 'customer portal my submissions' )['answer'];
 		self::assertStringContainsString( 'never asks for or enters a sign-in code', $answer );
-		self::assertStringContainsString( 'the customer portal is not ready', $answer );
+		self::assertStringContainsString( 'the customer portal is not ready: the free EFB Customer Portal plugin is installed but not active', $answer );
+		self::assertStringContainsString( 'free plugin EFB Customer Portal (not an add-on), on every plan', $answer );
+		foreach ( array( 'Pro add-on', 'add-on on Pro', 'Customer Portal add-on' ) as $wrong ) {
+			self::assertStringNotContainsString( $wrong, $answer );
+		}
 
-		$caps                        = EfbRegistryFixture::site( 'pro' );
-		$caps['portal_core']['ready'] = true;
+		// Not installed, on the Free plan: still the free plugin, never "needs Pro".
+		$caps                                       = EfbRegistryFixture::site( 'free' );
+		$caps['portal_core']['plugin']['installed'] = false;
+		EfbRegistryFixture::apply( $caps );
+		$answer = EfbKnowledge::answer( 'customer portal' )['answer'];
+		self::assertStringContainsString( 'the customer portal is not ready: it needs the free EFB Customer Portal plugin, on every plan', $answer );
+		self::assertStringNotContainsString( 'needs Pro', $answer );
+
+		// The site's own efb_portal_plan_ok switched the contract off; EFB is still building its owner index.
+		$caps['portal_core']['reason'] = 'plan';
+		EfbRegistryFixture::apply( $caps );
+		self::assertStringContainsString( 'this site has switched the portal off', EfbKnowledge::answer( 'customer portal' )['answer'] );
+		$caps['portal_core']['reason'] = 'index';
+		EfbRegistryFixture::apply( $caps );
+		self::assertStringContainsString( 'Easy Form Builder is still preparing it', EfbKnowledge::answer( 'customer portal' )['answer'] );
+
+		// A contract 1.0 registry (an unreleased EFB build: addon + package, reason plan) is not read as "switched off".
+		$caps                = EfbRegistryFixture::site( 'free' );
+		$caps['portal_core'] = array(
+			'version' => 1,
+			'addon'   => 'AdnPRT',
+			'package' => 'pro',
+			'ready'   => false,
+			'reason'  => 'plan',
+		);
+		EfbRegistryFixture::apply( $caps );
+		self::assertSame( 'not_installed', EfbCapabilities::portal_state()['state'] );
+		self::assertStringContainsString( 'it needs the free EFB Customer Portal plugin', EfbKnowledge::answer( 'customer portal' )['answer'] );
+
+		$caps                                    = EfbRegistryFixture::site( 'free' );
+		$caps['portal_core']['ready']            = true;
+		$caps['portal_core']['reason']           = null;
+		$caps['portal_core']['plugin']['active'] = true;
 		EfbRegistryFixture::apply( $caps );
 		self::assertStringContainsString( 'the customer portal is ready', EfbKnowledge::answer( 'customer portal' )['answer'] );
+	}
+
+	public function test_the_site_cards_portal_row_names_the_free_plugin(): void {
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free_plus' ) );
+		$row = \AISAAutoPilot\Admin\EasyFormBuilderPage::portal_row();
+		self::assertSame( 'Free plugin, not active', $row['tag'] );
+		self::assertSame( 'warn', $row['tone'] );
+		self::assertSame( 'The portal is the free EFB Customer Portal plugin, on every plan', $row['note'] );
+
+		$caps                                       = EfbRegistryFixture::site( 'free' );
+		$caps['portal_core']['plugin']['installed'] = false;
+		EfbRegistryFixture::apply( $caps );
+		self::assertSame( 'Free plugin, not installed', \AISAAutoPilot\Admin\EasyFormBuilderPage::portal_row()['tag'] );
+
+		$caps['portal_core']['ready'] = true;
+		EfbRegistryFixture::apply( $caps );
+		$row = \AISAAutoPilot\Admin\EasyFormBuilderPage::portal_row();
+		self::assertSame( array( 'Ready', 'ok', '' ), array( $row['tag'], $row['tone'], $row['note'] ) );
+
+		$caps = EfbRegistryFixture::site( 'free_plus' );
+		unset( $caps['portal_core'] );
+		EfbRegistryFixture::apply( $caps );
+		self::assertNull( \AISAAutoPilot\Admin\EasyFormBuilderPage::portal_row() );
+	}
+
+	public function test_the_prompt_facts_call_the_portal_a_free_plugin(): void {
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free_plus' ) );
+		$facts = EfbCapabilities::prompt_facts();
+		self::assertStringContainsString( 'CUSTOMER_PORTAL=not ready (installed, not active); it is the free plugin EFB Customer Portal (efb-customer-portal) on every plan, not an add-on', $facts );
+		self::assertStringNotContainsString( 'AdnPRT', $facts );
+		self::assertStringNotContainsString( 'Pro add-on', $facts );
 	}
 
 	public function test_plans_and_one_time_purchase_on_persian_sites(): void {

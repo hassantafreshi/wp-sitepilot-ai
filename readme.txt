@@ -513,7 +513,11 @@ editable text; nothing is sent until you press Send.
   is on by default for the first Email field, as in Easy Form Builder 4.3.2.
   Payment gateways are always Easy Form Builder add-ons, including Mollie,
   Payplug, Tap, Omise, PayTabs, Paymob and Xendit. The Easy Form Builder
-  copilot page shows what Easy Form Builder reports about the site.
+  copilot page shows what Easy Form Builder reports about the site. The
+  customer portal is the free EFB Customer Portal plugin on every plan (Easy
+  Form Builder's portal contract 1.1), not a Pro add-on: the copilot's answer,
+  its context and the page's Customer portal row say whether it is installed
+  and active.
 * With Easy Form Builder 4.3.2 the copilot also edits a saved form after your
   approval (a form someone else saved in the meantime is never overwritten),
   keeps the name you gave a new form, creates it as a draft you publish from

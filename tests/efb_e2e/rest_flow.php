@@ -392,7 +392,8 @@ try {
 				'has_form' => false,
 			)
 		);
-		$aisa_check( 'help' === ( $h['type'] ?? '' ) && false !== strpos( (string) ( $h['answer'] ?? '' ), 'the customer portal is not ready' ), 'Portal: portal_core is read (not ready until the Pro add-on)', $h );
+		$aisa_check( 'help' === ( $h['type'] ?? '' ) && false !== strpos( (string) ( $h['answer'] ?? '' ), 'the customer portal is not ready' ), 'Portal: portal_core is read (not ready until the free EFB Customer Portal plugin is active)', $h );
+		$aisa_check( false !== strpos( (string) ( $h['answer'] ?? '' ), 'free EFB Customer Portal plugin' ) && false === strpos( (string) ( $h['answer'] ?? '' ), 'Pro add-on' ) && false === strpos( (string) ( $h['answer'] ?? '' ), 'add-on on Pro' ), 'Portal: the answer names the free plugin (portal contract 1.1), never a Pro add-on', $h );
 	}
 
 	if ( 'editor' === $aisa_scenario ) {

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-11-18 22:28+0000\n"
+"POT-Creation-Date: 2026-11-19 16:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -433,8 +433,8 @@ msgstr ""
 
 #: includes/Admin/AdminMenu.php:331
 #: includes/Admin/AnswerDeskHandoffPage.php:579
-#: includes/Admin/EasyFormBuilderPage.php:217
-#: includes/Admin/EasyFormBuilderPage.php:259
+#: includes/Admin/EasyFormBuilderPage.php:253
+#: includes/Admin/EasyFormBuilderPage.php:302
 msgid "Ready"
 msgstr ""
 
@@ -2980,7 +2980,7 @@ msgid "Change the text of the send button"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:679
-#: includes/Admin/EasyFormBuilderPage.php:421
+#: includes/Admin/EasyFormBuilderPage.php:444
 msgid "Fields"
 msgstr ""
 
@@ -3089,7 +3089,7 @@ msgid "The copilot only changes the form open in the editor. Your form is saved 
 msgstr ""
 
 #: includes/Admin/EasyFormBuilderPage.php:181
-#: includes/Admin/EasyFormBuilderPage.php:273
+#: includes/Admin/EasyFormBuilderPage.php:267
 msgid "On this site"
 msgstr ""
 
@@ -3106,7 +3106,7 @@ msgid "New forms are created through Easy Form Builder’s own save path"
 msgstr ""
 
 #: includes/Admin/EasyFormBuilderPage.php:201
-#: includes/Admin/EasyFormBuilderPage.php:308
+#: includes/Admin/EasyFormBuilderPage.php:331
 msgid "Update needed"
 msgstr ""
 
@@ -3122,50 +3122,68 @@ msgstr ""
 msgid "Off by default"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:216
-msgid "Customer portal"
-msgstr ""
-
-#: includes/Admin/EasyFormBuilderPage.php:217
-msgid "Pro add-on, not active"
-msgstr ""
-
-#: includes/Admin/EasyFormBuilderPage.php:224
+#: includes/Admin/EasyFormBuilderPage.php:218
 #: includes/Connectors/EasyFormBuilderConnector.php:44
 msgid "Easy Form Builder"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:238
+#: includes/Admin/EasyFormBuilderPage.php:232
 msgid "Features that are add-ons"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:249
+#: includes/Admin/EasyFormBuilderPage.php:243
 msgid "Payment gateways"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:259
+#: includes/Admin/EasyFormBuilderPage.php:253
 msgid "Keys not set"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:259
+#: includes/Admin/EasyFormBuilderPage.php:253
 msgid "Add-on"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:267
+#: includes/Admin/EasyFormBuilderPage.php:261
 msgid "CAPTCHA services"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:274
+#: includes/Admin/EasyFormBuilderPage.php:268
 msgid "As Easy Form Builder reports it. The copilot never promises a field this site cannot show: it names the add-on or plan and uses the closest field instead."
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:291
+#: includes/Admin/EasyFormBuilderPage.php:285
 #: includes/Api/EfbCopilotController.php:189
 #: includes/Api/EfbCopilotController.php:1485
 msgid "Open EFB Add-ons"
 msgstr ""
 
+#: includes/Admin/EasyFormBuilderPage.php:303
+msgid "Free plugin, not active"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:304
+msgid "Switched off on this site"
+msgstr ""
+
 #: includes/Admin/EasyFormBuilderPage.php:305
+msgid "Being prepared"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:306
+msgid "Free plugin, not installed"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:310
+msgid "Customer portal"
+msgstr ""
+
+#. translators: %s: plugin name (EFB Customer Portal).
+#: includes/Admin/EasyFormBuilderPage.php:314
+#, php-format
+msgid "The portal is the free %s plugin, on every plan"
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:328
 #: includes/Admin/SettingsPage.php:403
 #: includes/Admin/SettingsPage.php:410
 msgid "Active"
@@ -3173,7 +3191,7 @@ msgstr ""
 
 #. translators: %s: plan name.
 #. translators: %s: required plugin name.
-#: includes/Admin/EasyFormBuilderPage.php:312
+#: includes/Admin/EasyFormBuilderPage.php:335
 #: includes/Admin/PluginDependency.php:336
 #: includes/Admin/SettingsPage.php:1140
 #, php-format
@@ -3181,93 +3199,93 @@ msgid "Needs %s"
 msgstr ""
 
 #. translators: %s: plan name.
-#: includes/Admin/EasyFormBuilderPage.php:316
+#: includes/Admin/EasyFormBuilderPage.php:339
 msgid "Install (every plan)"
 msgstr ""
 
 #. translators: %s: plan name.
-#: includes/Admin/EasyFormBuilderPage.php:316
+#: includes/Admin/EasyFormBuilderPage.php:339
 #, php-format
 msgid "Install (%s)"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:373
+#: includes/Admin/EasyFormBuilderPage.php:396
 msgid "Allowed"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:374
+#: includes/Admin/EasyFormBuilderPage.php:397
 msgid "Checked"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:376
+#: includes/Admin/EasyFormBuilderPage.php:399
 msgid "Rename the form"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:377
+#: includes/Admin/EasyFormBuilderPage.php:400
 msgid "Change the message shown after sending"
 msgstr ""
 
 #. translators: %s: number of form settings the AI may change.
-#: includes/Admin/EasyFormBuilderPage.php:382
+#: includes/Admin/EasyFormBuilderPage.php:405
 #, php-format
 msgid "Change the %s form setting marked AI-writable"
 msgid_plural "Change one of %s form settings marked AI-writable"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/EasyFormBuilderPage.php:387
+#: includes/Admin/EasyFormBuilderPage.php:410
 msgid "Add a step to a multi-step form"
 msgstr ""
 
 #. translators: %s: number of field types the AI may create.
-#: includes/Admin/EasyFormBuilderPage.php:392
+#: includes/Admin/EasyFormBuilderPage.php:415
 #, php-format
 msgid "Add a field of the %s allowed type"
 msgid_plural "Add a field of one of %s allowed types"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/EasyFormBuilderPage.php:397
+#: includes/Admin/EasyFormBuilderPage.php:420
 msgid "Change a field’s label, placeholder, help text, width or whether it is required"
 msgstr ""
 
 #. translators: %s: number of field settings the AI may change.
-#: includes/Admin/EasyFormBuilderPage.php:402
+#: includes/Admin/EasyFormBuilderPage.php:425
 #, php-format
 msgid "Change the %s field setting marked AI-writable"
 msgid_plural "Change one of %s field settings marked AI-writable"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/EasyFormBuilderPage.php:407
+#: includes/Admin/EasyFormBuilderPage.php:430
 msgid "Add online payment through a gateway add-on (Stripe, PayPal, ZarinPal, Mollie, Payplug, Tap, Omise, PayTabs, Paymob or Xendit): priced choices or an amount, the total and the gateway field, using only prices and a currency you gave. Needs the gateway’s add-on and the plan Easy Form Builder names; never touches keys"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:408
+#: includes/Admin/EasyFormBuilderPage.php:431
 msgid "Move a field before or after another field"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:409
+#: includes/Admin/EasyFormBuilderPage.php:432
 msgid "Remove a field and its settings"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:410
+#: includes/Admin/EasyFormBuilderPage.php:433
 msgid "Add a choice to a select, radio or checkbox"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:411
+#: includes/Admin/EasyFormBuilderPage.php:434
 msgid "Remove a choice"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:412
+#: includes/Admin/EasyFormBuilderPage.php:435
 msgid "Rename a choice; answers and logic that point at it stay linked"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:413
+#: includes/Admin/EasyFormBuilderPage.php:436
 msgid "Show, hide, require or skip to a field or step from another answer, when Easy Form Builder’s Conditional Logic add-on is active"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:417
+#: includes/Admin/EasyFormBuilderPage.php:440
 #: includes/Admin/NativeFormsPage.php:159
 #: includes/Efb/EfbFormConverter.php:38
 #: includes/Frontend/FormShortcode.php:307
@@ -3275,64 +3293,64 @@ msgstr ""
 msgid "Form"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:425
+#: includes/Admin/EasyFormBuilderPage.php:448
 msgid "Choices"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:429
+#: includes/Admin/EasyFormBuilderPage.php:452
 #: includes/Efb/EfbBuilderButton.php:424
 msgid "Conditional logic"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:447
+#: includes/Admin/EasyFormBuilderPage.php:470
 msgid "Only in Easy Form Builder"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:454
+#: includes/Admin/EasyFormBuilderPage.php:477
 msgid "Never"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:470
+#: includes/Admin/EasyFormBuilderPage.php:493
 msgid "Easy Form Builder global settings"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:471
+#: includes/Admin/EasyFormBuilderPage.php:494
 msgid "Turning add-ons on or off"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:472
+#: includes/Admin/EasyFormBuilderPage.php:495
 msgid "Credentials and API keys"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:473
+#: includes/Admin/EasyFormBuilderPage.php:496
 msgid "Payment keys and account details"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:474
+#: includes/Admin/EasyFormBuilderPage.php:497
 msgid "Scripts and other unfiltered HTML"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:475
+#: includes/Admin/EasyFormBuilderPage.php:498
 msgid "Web addresses and phone numbers you did not type"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:476
+#: includes/Admin/EasyFormBuilderPage.php:499
 msgid "Conditional rules for notifications, confirmations, webhooks and prices"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:477
+#: includes/Admin/EasyFormBuilderPage.php:500
 msgid "Logic that writes values or calculates"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:478
+#: includes/Admin/EasyFormBuilderPage.php:501
 msgid "Choosing who receives notifications"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:479
+#: includes/Admin/EasyFormBuilderPage.php:502
 msgid "Submitted entries"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:501
+#: includes/Admin/EasyFormBuilderPage.php:524
 msgid "A change was applied in the editor."
 msgstr ""
 
@@ -7795,13 +7813,13 @@ msgstr ""
 
 #: includes/Api/EfbCopilotController.php:1696
 #: includes/Efb/EfbBuilderButton.php:286
-#: includes/Efb/EfbCapabilities.php:474
+#: includes/Efb/EfbCapabilities.php:513
 msgid "Free Plus"
 msgstr ""
 
 #: includes/Api/EfbCopilotController.php:1696
 #: includes/Efb/EfbBuilderButton.php:287
-#: includes/Efb/EfbCapabilities.php:476
+#: includes/Efb/EfbCapabilities.php:515
 msgid "Free"
 msgstr ""
 
@@ -9618,7 +9636,7 @@ msgid "left out"
 msgstr ""
 
 #: includes/Efb/EfbBuilderButton.php:285
-#: includes/Efb/EfbCapabilities.php:472
+#: includes/Efb/EfbCapabilities.php:511
 msgid "Pro"
 msgstr ""
 
@@ -10179,15 +10197,15 @@ msgstr ""
 msgid "Speak a message"
 msgstr ""
 
-#: includes/Efb/EfbCapabilities.php:483
+#: includes/Efb/EfbCapabilities.php:522
 msgid "Free Plus costs nothing: a person activates it in Easy Form Builder’s own upgrade dialog, and it adds a small public credit link to pages that show a form."
 msgstr ""
 
-#: includes/Efb/EfbCapabilities.php:487
+#: includes/Efb/EfbCapabilities.php:526
 msgid "On a Persian site Easy Form Builder Pro is bought once from easyformbuilder.ir; there is no yearly renewal."
 msgstr ""
 
-#: includes/Efb/EfbCapabilities.php:488
+#: includes/Efb/EfbCapabilities.php:527
 msgid "Easy Form Builder Pro is a yearly subscription from whitestudio.team."
 msgstr ""
 
@@ -10495,106 +10513,122 @@ msgstr ""
 msgid "this site is on %s"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:161
+#: includes/Efb/EfbKnowledge.php:160
 msgid "this Easy Form Builder has no portal contract yet"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:162
-msgid "the customer portal is ready"
-msgstr ""
-
-#: includes/Efb/EfbKnowledge.php:162
-msgid "the customer portal is not ready: it needs the Customer Portal add-on on Pro"
-msgstr ""
-
-#: includes/Efb/EfbKnowledge.php:166
+#: includes/Efb/EfbKnowledge.php:164
 msgid "this is a Persian site: Pro is a one-time purchase and nothing is renewed"
 msgstr ""
 
 #. translators: %s: date.
-#: includes/Efb/EfbKnowledge.php:169
+#: includes/Efb/EfbKnowledge.php:167
 #, php-format
 msgid "Pro ends on %s"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:171
+#: includes/Efb/EfbKnowledge.php:169
 msgid "Easy Form Builder does not know an end date for this site"
 msgstr ""
 
 #. translators: 1: add-on name, 2: plan name, 3: state.
-#: includes/Efb/EfbKnowledge.php:178
+#: includes/Efb/EfbKnowledge.php:176
 #, php-format
 msgid "%1$s (%2$s): %3$s"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:181
+#: includes/Efb/EfbKnowledge.php:179
 msgid "active"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:181
+#: includes/Efb/EfbKnowledge.php:179
 msgid "needs an update"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:181
+#: includes/Efb/EfbKnowledge.php:179
 msgid "needs a higher plan"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:181
+#: includes/Efb/EfbKnowledge.php:179
 msgid "not installed"
 msgstr ""
 
 #. translators: 1: gateway name, 2: whether its keys are saved.
-#: includes/Efb/EfbKnowledge.php:189
+#: includes/Efb/EfbKnowledge.php:187
 #, php-format
 msgid "%1$s: active, %2$s"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:191
+#: includes/Efb/EfbKnowledge.php:189
 msgid "keys saved"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:191
+#: includes/Efb/EfbKnowledge.php:189
 msgid "keys not saved yet"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:196
+#: includes/Efb/EfbKnowledge.php:194
 msgid "no payment gateway add-on is active"
 msgstr ""
 
 #. translators: 1: CAPTCHA service, 2: whether its keys are set.
-#: includes/Efb/EfbKnowledge.php:203
+#: includes/Efb/EfbKnowledge.php:201
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:205
+#: includes/Efb/EfbKnowledge.php:203
 msgid "keys set"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:205
+#: includes/Efb/EfbKnowledge.php:203
 msgid "keys not set"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:211
+#: includes/Efb/EfbKnowledge.php:209
 msgid "this Easy Form Builder confirms to the visitor by default"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:212
+#: includes/Efb/EfbKnowledge.php:210
 msgid "this Easy Form Builder leaves the visitor confirmation off until it is switched on"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:216
+#: includes/Efb/EfbKnowledge.php:214
 msgid "Easy Form Builder Data Tools is active on this site"
 msgstr ""
 
-#: includes/Efb/EfbKnowledge.php:217
+#: includes/Efb/EfbKnowledge.php:215
 msgid "Easy Form Builder Data Tools is not active on this site"
 msgstr ""
 
 #. translators: %s: semicolon-separated states.
-#: includes/Efb/EfbKnowledge.php:224
+#: includes/Efb/EfbKnowledge.php:222
 #, php-format
 msgid "On this site: %s."
+msgstr ""
+
+#: includes/Efb/EfbKnowledge.php:233
+msgid "the customer portal is ready"
+msgstr ""
+
+#. translators: %s: plugin name (EFB Customer Portal).
+#: includes/Efb/EfbKnowledge.php:236
+#, php-format
+msgid "the customer portal is not ready: the free %s plugin is installed but not active"
+msgstr ""
+
+#: includes/Efb/EfbKnowledge.php:238
+msgid "the customer portal is not ready: this site has switched the portal off"
+msgstr ""
+
+#: includes/Efb/EfbKnowledge.php:240
+msgid "the customer portal is not ready: Easy Form Builder is still preparing it"
+msgstr ""
+
+#. translators: %s: plugin name (EFB Customer Portal).
+#: includes/Efb/EfbKnowledge.php:243
+#, php-format
+msgid "the customer portal is not ready: it needs the free %s plugin, on every plan"
 msgstr ""
 
 #: includes/Efb/EfbLogicRules.php:196
