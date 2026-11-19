@@ -8,6 +8,7 @@
  * environment only and never reach stdout.
  */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );

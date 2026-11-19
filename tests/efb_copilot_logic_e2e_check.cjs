@@ -8,10 +8,11 @@
  * and exits 2. Everything it creates (QA user, form, page) is removed in finally.
  * Run: node tests/efb_copilot_logic_e2e_check.cjs   (same AISAAUTOPILOT_* variables as the matrices) */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const { execFileSync } = require( 'node:child_process' );
 const path = require( 'node:path' );
-const { chromium } = require( 'playwright-core' );
+const { chromium } = require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE || 'playwright-core' );
 const { MESSAGES, fulfillScripted } = require( './efb_copilot_t74_steps.cjs' );
 
 const php = process.env.AISAAUTOPILOT_PHP || 'C:\\xampp\\php\\php.exe';

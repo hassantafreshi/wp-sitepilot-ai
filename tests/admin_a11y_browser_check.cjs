@@ -14,6 +14,7 @@
  * Read-only: it never saves, so it needs no fixture. Credentials come from the environment only.
  */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );

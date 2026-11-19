@@ -9,10 +9,11 @@
  * (QA user, forms, page) is removed in finally.
  * Run: AISAAUTOPILOT_LIVE_AI=1 node tests/efb_copilot_live_ai_browser_check.cjs */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const { execFileSync } = require( 'node:child_process' );
 const path = require( 'node:path' );
-const { chromium } = require( 'playwright-core' );
+const { chromium } = require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE || 'playwright-core' );
 
 if ( '1' !== process.env.AISAAUTOPILOT_LIVE_AI ) {
 	console.log( 'SKIP set AISAAUTOPILOT_LIVE_AI=1 to call the real provider (it costs tokens).' );

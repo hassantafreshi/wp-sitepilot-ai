@@ -15,7 +15,8 @@ if ( ! isset( $modes[ $mode ] ) ) {
 	exit( 64 );
 }
 
-require 'C:\\xampp\\htdocs\\wp\\wp-load.php';
+require_once __DIR__ . '/test-env.php';
+require aisa_test_wp_root() . '/wp-load.php';
 
 $variants  = array_values( array_unique( $modes ) );
 $target    = $modes[ $mode ];

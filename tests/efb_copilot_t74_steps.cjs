@@ -5,6 +5,7 @@
  * real EfbCopilotController::chat() on it, so the browser receives exactly what the server
  * would send. */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const { execFileSync } = require( 'node:child_process' );
 const path = require( 'node:path' );

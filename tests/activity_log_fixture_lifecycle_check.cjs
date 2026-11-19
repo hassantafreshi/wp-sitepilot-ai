@@ -1,5 +1,6 @@
 /* Local-only regression: preparing/restoring browser fixtures must preserve real logs. */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 const { execFileSync } = require( 'node:child_process' );
 const assert = require( 'node:assert/strict' );
 const php = process.env.AISAAUTOPILOT_PHP || 'C:\\xampp\\php\\php.exe';

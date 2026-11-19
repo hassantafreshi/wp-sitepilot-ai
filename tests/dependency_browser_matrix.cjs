@@ -8,6 +8,7 @@
  * its tabs and a confirmation. No page errors. Credentials stay in subprocess memory.
  */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 const { execFileSync } = require( 'node:child_process' );
 const path = require( 'node:path' );
 const { chromium } = require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE || 'playwright' );

@@ -1,9 +1,10 @@
 /* Browser QA for the Copilot injected into the real Easy Form Builder editor. */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );
-const { chromium } = require( 'playwright-core' );
+const { chromium } = require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE || 'playwright-core' );
 const { fulfillScripted, runT74 } = require( './efb_copilot_t74_steps.cjs' );
 
 const baseUrl = ( process.env.AISAAUTOPILOT_BASE_URL || 'http://127.0.0.1/wp' ).replace( /\/$/, '' );

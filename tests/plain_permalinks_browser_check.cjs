@@ -9,6 +9,7 @@
  *   AISAAUTOPILOT_BROWSER_USER / AISAAUTOPILOT_BROWSER_PASSWORD   an administrator
  */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 const { chromium } = require( 'playwright' );
 
 const base = ( process.env.AISAAUTOPILOT_PLAIN_BASE_URL || '' ).replace( /\/$/, '' );

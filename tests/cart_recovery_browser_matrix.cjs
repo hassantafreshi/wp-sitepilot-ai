@@ -7,6 +7,7 @@
  * opens checkout with the email filled in. Credentials stay in subprocess memory.
  */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 const { execFileSync } = require( 'node:child_process' );
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );

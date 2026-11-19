@@ -3,6 +3,7 @@
  * candidate. Requires Playwright Core and Chrome but no AI provider.
  */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );
@@ -12,7 +13,7 @@ function loadPlaywright() {
 		return require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE );
 	}
 	try {
-		return require( 'playwright-core' );
+		return require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE || 'playwright-core' );
 	} catch ( error ) {
 		throw new Error( 'Playwright Core is required. Install it locally with `npm.cmd install --no-save --package-lock=false playwright-core`, or set AISAAUTOPILOT_PLAYWRIGHT_CORE.' );
 	}

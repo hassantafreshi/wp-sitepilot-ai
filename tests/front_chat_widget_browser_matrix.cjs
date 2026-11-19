@@ -6,6 +6,7 @@
    restores the fixture, and restores once more in finally. The widget is what a logged-out
    visitor sees, so no QA account is created. Exit 1 on any failure. */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 const { execFileSync, spawnSync } = require( 'node:child_process' );
 const path = require( 'node:path' );
 const php = process.env.AISAAUTOPILOT_PHP || 'C:\\xampp\\php\\php.exe';

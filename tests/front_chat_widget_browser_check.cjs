@@ -10,10 +10,11 @@
    in the quiet scenario, where voice is off and the gate refuses it with 403 before the rate
    limiter and before any provider lookup. */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );
-const { chromium } = require( 'playwright-core' );
+const { chromium } = require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE || 'playwright-core' );
 
 const baseUrl = ( process.env.AISAAUTOPILOT_BASE_URL || 'http://127.0.0.1/wp' ).replace( /\/$/, '' ) + '/';
 const chromePath = process.env.AISAAUTOPILOT_CHROME || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';

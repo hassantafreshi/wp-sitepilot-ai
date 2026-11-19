@@ -9,6 +9,7 @@
  * Usage: node tests/efb_copilot_t74_offline_check.cjs   (AISAAUTOPILOT_PHP and
  * AISAAUTOPILOT_CHROME are optional; Playwright's bundled Chromium is used when present). */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );
@@ -16,7 +17,7 @@ const { execFileSync } = require( 'node:child_process' );
 const { fulfillScripted, runT74 } = require( './efb_copilot_t74_steps.cjs' );
 
 let playwright;
-try { playwright = require( 'playwright' ); } catch ( error ) { playwright = require( 'playwright-core' ); }
+try { playwright = require( 'playwright' ); } catch ( error ) { playwright = require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE || 'playwright-core' ); }
 
 const ORIGIN = 'https://wp.offline.test';
 const EDIT_URL = ORIGIN + '/wp-admin/admin.php?page=Emsfb&state=edit-form&id=7';

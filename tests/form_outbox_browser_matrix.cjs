@@ -6,6 +6,7 @@
  * sideways. Credentials stay in subprocess memory, never stdout.
  */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 const { execFileSync } = require( 'node:child_process' );
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );

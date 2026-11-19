@@ -18,7 +18,8 @@ if ( ! in_array( $mode, array( 'prepare', 'restore' ), true ) ) {
 	exit( 64 );
 }
 
-$wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\\xampp\\htdocs\\wp';
+require_once __DIR__ . '/test-env.php';
+$wp_root = aisa_test_wp_root();
 require $wp_root . '/wp-load.php';
 
 use AISAAutoPilot\Core\Settings;

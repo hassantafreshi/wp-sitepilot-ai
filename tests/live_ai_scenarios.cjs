@@ -11,6 +11,7 @@
  * Forms MCP, Ninja Forms, Everest Forms ...) and the conditional-logic patterns they support.
  */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 const { chromium } = require( 'playwright' );
 const fs = require( 'node:fs' );
 

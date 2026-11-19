@@ -1,5 +1,6 @@
 /* Local XAMPP only. Credentials stay in subprocess memory, never stdout. */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 const { execFileSync, spawnSync } = require( 'node:child_process' );
 const path = require( 'node:path' );
 const php = process.env.AISAAUTOPILOT_PHP || 'C:\\xampp\\php\\php.exe';

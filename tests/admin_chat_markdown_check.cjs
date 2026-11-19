@@ -9,6 +9,7 @@
  * No WordPress, browser or network is needed.
  */
 'use strict';
+require( './test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );
 const assert = require( 'node:assert/strict' );

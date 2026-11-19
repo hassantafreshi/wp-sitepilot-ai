@@ -13,11 +13,12 @@
  * The AI provider is the inert mock (aisa-ai-mock-mu.php); replies are queued with ctl.php.
  */
 'use strict';
+require( '../test-env.cjs' ); // AISAAUTOPILOT_* defaults: the local test copy, else the owner's XAMPP
 
 const { execSync } = require( 'node:child_process' );
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );
-const { chromium } = require( 'playwright-core' );
+const { chromium } = require( process.env.AISAAUTOPILOT_PLAYWRIGHT_CORE || 'playwright-core' );
 
 const BASE = ( process.env.AISA_BASE || 'http://127.0.0.1:8090' ).replace( /\/$/, '' );
 const USER = process.env.AISA_USER || 'admin';

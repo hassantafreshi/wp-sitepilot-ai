@@ -12,7 +12,8 @@ if ( ! in_array( $mode, array( 'activate', 'deactivate', 'status' ), true ) ) {
 	exit( 64 );
 }
 
-$wp_root = getenv( 'AISAAUTOPILOT_WP_ROOT' ) ?: 'C:\xampp\htdocs\wp';
+require_once __DIR__ . '/test-env.php';
+$wp_root = aisa_test_wp_root();
 $aisaautopilot_woo_plugin = 'woocommerce/woocommerce.php';
 
 if ( ! is_readable( $wp_root . '/wp-content/plugins/' . $aisaautopilot_woo_plugin ) ) {

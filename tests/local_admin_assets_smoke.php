@@ -11,7 +11,8 @@
 declare(strict_types=1);
 
 define( 'WP_ADMIN', true );
-require 'C:/xampp/htdocs/wp/wp-load.php';
+require_once __DIR__ . '/test-env.php';
+require aisa_test_wp_root() . '/wp-load.php';
 
 use AISAAutoPilot\Admin\AdminMenu;
 
