@@ -156,6 +156,9 @@ async function login( page ) {
 		const chat = page.locator( '#aisaautopilot-efb-chat' );
 		await chat.waitFor( { state: 'visible' } );
 		await page.waitForTimeout( 220 );
+		// The dock slides in and the editor makes room with CSS transitions: measure once they have finished (a slower
+		// machine is still a pixel or two short after a fixed 220 ms).
+		await page.waitForFunction( () => ! document.getAnimations || document.getAnimations().every( ( a ) => 'running' !== a.playState ), null, { timeout: 5000 } ).catch( () => {} );
 		const desktopBox = await chat.boundingBox();
 		// Owner-approved redesign (2026-10-28): a 420px column from the admin bar to the bottom, on
 		// the inline-end side, and the editor gives up that space instead of being covered.
@@ -502,7 +505,8 @@ async function login( page ) {
 		await proButton.click();
 		let efbDialogShown = false;
 		if ( hasEfbDialog ) {
-			efbDialogShown = await page.locator( '.efb-dlg__centered' ).first().waitFor( { state: 'visible', timeout: 10000 } ).then( () => true ).catch( () => false );
+			// EFB 4.3.2 (F18-E): pro_show_efb() opens EFB's upgrade prompt (plan-gate-efb.js, .efb-upg); older EFB its centred dialog.
+			efbDialogShown = await page.locator( '.efb-upg, .efb-dlg__centered' ).first().waitFor( { state: 'visible', timeout: 10000 } ).then( () => true ).catch( () => false );
 		}
 		console.log( 'PRO_CTA ' + JSON.stringify( { hasEfbDialog, efbDialogShown, popups } ) );
 		check( page.url() === urlBeforeCta, 'the Pro CTA never navigates the editor away' );
