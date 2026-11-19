@@ -208,8 +208,9 @@ try {
 	$public_voice_response = ( new PublicChatController() )->transcribe( new \WP_REST_Request( 'POST' ) );
 	$public_voice_data = $public_voice_response->get_data();
 	$check( 400 === $public_voice_response->get_status() && 'invalid_audio' === ( $public_voice_data['code'] ?? '' ), 'public widget voice accepts only the safe upload contract' );
-	$rate_ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : 'unknown';
-	$rate_ip  = substr( preg_replace( '/[^0-9a-fA-F:.]/', '', $rate_ip ) ?? '', 0, 64 );
+	// The limiter's own key (RateLimiter: the visitor's address as ClientAddress reads it), so a counter left by an
+	// earlier run in the same minute is cleared and the check starts from zero.
+	$rate_ip  = \AISAAutoPilot\Security\ClientAddress::get();
 	$rate_key = 'aisaautopilot_rate_public_text_' . hash_hmac( 'sha256', 'ip:' . $rate_ip, wp_salt( 'auth' ) );
 	delete_transient( $rate_key );
 	$check( RateLimiter::allow( 'public_text', 1, MINUTE_IN_SECONDS ) && ! RateLimiter::allow( 'public_text', 1, MINUTE_IN_SECONDS ), 'central security rate limiter denies excess requests' );

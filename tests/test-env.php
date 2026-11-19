@@ -27,6 +27,19 @@ if ( ! function_exists( 'aisa_test_wp_root' ) ) {
 		return 'C:\\xampp\\htdocs\\wp';
 	}
 
+	/**
+	 * After wp-load.php: a test of a part that needs MySQL ends with SKIP on a site that runs on SQLite (the SQLite
+	 * Database Integration drop-in): the knowledge index compares its VARBINARY terms byte for byte, which the drop-in
+	 * stores as BLOB in a STRICT table where a text never equals a blob; the log and option locks use GET_LOCK().
+	 */
+	function aisa_test_require_mysql( string $why ): void {
+		if ( ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) || ( defined( 'DATABASE_TYPE' ) && 'sqlite' === DATABASE_TYPE ) ) {
+			echo "SKIP needs MySQL ({$why}); this site runs on SQLite. Run it on a MySQL site, e.g. the owner's XAMPP.\n";
+			echo "0 checks, 0 failed\n";
+			exit( 0 );
+		}
+	}
+
 	/** The site's address without a trailing slash. */
 	function aisa_test_base_url(): string {
 		$env = getenv( 'AISAAUTOPILOT_BASE_URL' );

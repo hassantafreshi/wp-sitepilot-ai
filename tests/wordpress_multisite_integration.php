@@ -27,8 +27,10 @@ $checks = array();
 $sites  = array();
 
 if ( '' === $root || '' === $cli ) {
-	fwrite( STDERR, 'Set AISAAUTOPILOT_WP_MS_ROOT and AISAAUTOPILOT_WP_CLI.' . PHP_EOL );
-	exit( 2 );
+	// It needs its own WordPress multisite install (sites are created and removed there), named on purpose.
+	echo 'SKIP needs a WordPress multisite install: set AISAAUTOPILOT_WP_MS_ROOT (its folder) and AISAAUTOPILOT_WP_CLI (a WP-CLI command).' . PHP_EOL;
+	echo '0 checks, 0 failed' . PHP_EOL;
+	exit( 0 );
 }
 
 // The plugin's own tables, counted from Core\Network::TABLES so a new table needs no edit here.

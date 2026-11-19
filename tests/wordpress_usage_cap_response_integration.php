@@ -13,6 +13,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/test-env.php';
 $wp_root = aisa_test_wp_root();
 require $wp_root . '/wp-load.php';
+aisa_test_require_mysql( 'the chats must match the knowledge index (VARBINARY terms) to reach the usage cap' );
 
 use AISAAutoPilot\Api\ChatController;
 use AISAAutoPilot\Api\ChatWidgetController;

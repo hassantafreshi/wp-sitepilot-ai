@@ -46,6 +46,7 @@ if ( 'worker' === ( $argv[1] ?? '' ) ) {
 }
 
 require $wp_root . '/wp-load.php';
+aisa_test_require_mysql( 'concurrent log writes are serialised with GET_LOCK()' );
 
 use AISAAutoPilot\Logging\Logger;
 
