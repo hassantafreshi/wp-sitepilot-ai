@@ -65,7 +65,10 @@ async function noHorizontalScroll( page ) {
 async function run( locale, width, height ) {
 	ctl( 'locale', locale );
 	const browser = await chromium.launch( CHROME ? { executablePath: CHROME } : {} );
-	const context = await browser.newContext( { viewport: { width, height }, deviceScaleFactor: 1 } );
+	// WordPress 7.1's wp-admin uses cross-document view transitions; a page that navigates again while the next one is
+	// being revealed (Undo's redirect, then the forms list) throws "Transition was skipped" in Chromium (WordPress core,
+	// not this plugin). The run uses reduced motion, as many administrators do, so that core animation is off.
+	const context = await browser.newContext( { viewport: { width, height }, deviceScaleFactor: 1, reducedMotion: 'reduce' } );
 	const page = await context.newPage();
 	const errors = [];
 	page.on( 'pageerror', ( e ) => errors.push( String( e && e.message || e ) ) );
@@ -132,7 +135,8 @@ async function run( locale, width, height ) {
 		await page.locator( '[data-sp-efb-state="save-notes"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
 		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-save-notes-${ tag }.png` ), fullPage: false } );
 		await page.click( `[data-sp-efb-undo="${ formId }"]` );
-		await page.waitForURL( /page=Emsfb(&|$)/, { timeout: 30000 } );
+		// Undo answers, then leaves the editor (page=Emsfb&state=edit-form&id=…) for the forms list.
+		await page.waitForURL( ( u ) => /page=Emsfb(&|$)/.test( u.toString() ) && ! /state=edit-form/.test( u.toString() ), { timeout: 30000 } );
 		const gone = JSON.parse( ctl( 'form', formId ) );
 		check( null === gone.rows, `${ tag }: Undo removed the form through EFB`, gone );
 
