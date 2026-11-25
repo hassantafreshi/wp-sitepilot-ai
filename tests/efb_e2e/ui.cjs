@@ -256,7 +256,15 @@ async function run( locale, width, height ) {
 
 		// 4. EFB 4.3.2: no form open (the forms list): a saved form is chosen, its change proposed, then saved on approval.
 		const saved = JSON.parse( ctl( 'saved-form', `Saved ${ tag }` ) ).form_id;
+		let editor = null;
 		try {
+			// QA5-002: the same form is open in EFB's editor in another tab (it tells the copilot so).
+			editor = await context.newPage();
+			editor.on( 'pageerror', ( e ) => errors.push( 'editor: ' + String( e && e.message || e ) ) );
+			await editor.goto( BASE + `/wp-admin/admin.php?page=Emsfb&state=edit-form&id=${ saved }`, { waitUntil: 'networkidle', timeout: 90000 } );
+			await editor.waitForSelector( '#aisaautopilot-efb-launch', { timeout: 60000 } );
+			await dismissRatingDialog( editor );
+			await editor.waitForTimeout( 1500 );
 			// Undo's redirect may still be loading the forms list: let it settle, and retry a goto it aborts.
 			await page.waitForLoadState( 'networkidle', { timeout: 60000 } ).catch( () => {} );
 			for ( let i = 0; ; i++ ) {
@@ -280,6 +288,7 @@ async function run( locale, width, height ) {
 			await page.waitForSelector( '[data-sp-efb-state="update-preview"]', { timeout: 60000 } );
 			check( 2 === await page.locator( '[data-sp-efb-state="update-preview"] [data-sp-efb-note="change"]' ).count(), `${ tag }: the change of the saved form is proposed in plain words` );
 			check( ! JSON.parse( ctl( 'form', saved ) ).rows.some( ( r ) => r && r.type === 'tel' ), `${ tag }: nothing is saved before the approval` );
+			check( /open in the Easy Form Builder editor/.test( await page.locator( '[data-sp-efb-state="update-preview"]' ).innerText() ), `${ tag }: the proposal warns that the form is open in the editor in another tab` );
 			check( await noHorizontalScroll( page ), `${ tag }: the proposal has no horizontal scroll` );
 			await page.locator( '[data-sp-efb-state="update-preview"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'start' } ) );
 			await page.waitForTimeout( 300 );
@@ -291,7 +300,23 @@ async function run( locale, width, height ) {
 			await page.locator( '[data-sp-efb-state="update-saved"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
 			await page.waitForTimeout( 300 );
 			await page.screenshot( { path: path.join( SHOTS, `efb-copilot-update-saved-${ tag }.png` ), fullPage: false } );
+
+			// The older editor learns of the change, and its Save asks before it overwrites it (dismissed: nothing saved).
+			await editor.bringToFront();
+			await editor.evaluate( () => window.dispatchEvent( new Event( 'focus' ) ) );
+			await editor.waitForSelector( '[data-sp-efb-state="stale-editor"]', { timeout: 30000 } );
+			let asked = '';
+			editor.once( 'dialog', ( d ) => { asked = d.message(); d.dismiss().catch( () => {} ); } );
+			const saveRequests = [];
+			editor.on( 'request', ( r ) => { if ( /admin-ajax\.php/.test( r.url() ) && /action=update_form_Emsfb/.test( r.postData() || '' ) ) { saveRequests.push( r.url() ); } } );
+			await editor.evaluate( () => { const b = document.querySelector( '[onclick*="saveFormEfb"]' ); if ( b ) { b.click(); } } );
+			await editor.waitForTimeout( 2500 );
+			const kept = JSON.parse( ctl( 'form', saved ) ).rows.some( ( r ) => r && r.type === 'tel' );
+			check( /Save anyway\?/.test( asked ) && 0 === saveRequests.length && kept, `${ tag }: the older editor warns and its Save asks first; cancelled, the approved change stays`, { asked, saveRequests, kept } );
+			await editor.locator( '[data-sp-efb-state="stale-editor"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
+			await editor.screenshot( { path: path.join( SHOTS, `efb-copilot-stale-editor-${ tag }.png` ), fullPage: false } );
 		} finally {
+			if ( editor ) { await editor.close().catch( () => {} ); }
 			ctl( 'delete', saved );
 		}
 		check( 0 === errors.length, `${ tag }: no JavaScript errors`, errors );

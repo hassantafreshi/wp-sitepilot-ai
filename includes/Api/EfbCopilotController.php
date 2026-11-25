@@ -2360,8 +2360,92 @@ final class EfbCopilotController {
 		if ( array() !== $todo ) {
 			$payload['errors'] = array_merge( (array) ( $payload['errors'] ?? array() ), $todo );
 		}
+		// QA5-002: the form is open in Easy Form Builder's editor (another tab or another administrator). EFB's Save there
+		// does not yet check what was saved in between, so the admin is told before approving.
+		$open = self::editor_open( (int) $saved['form_id'] );
+		if ( null !== $open ) {
+			$payload['editor_open'] = true;
+			$payload['errors']      = array_merge( (array) ( $payload['errors'] ?? array() ), array( self::editor_open_note( $open ) ) );
+		}
 
 		return $payload;
+	}
+
+	/** How long an editor's last sign of life counts as "open" (the editor tells the copilot every 20 seconds). */
+	private const EDITOR_FRESH = 75;
+
+	/**
+	 * Who has this form open in EFB's editor right now, from the editors' own pings (efb/presence), or null.
+	 *
+	 * @return array{user:int,at:int}|null
+	 */
+	public static function editor_open( int $form_id ): ?array {
+		$open = get_transient( 'aisaautopilot_efb_open_' . $form_id );
+		if ( ! is_array( $open ) ) {
+			return null;
+		}
+		$fresh = array();
+		foreach ( $open as $user => $at ) {
+			if ( (int) $at >= time() - self::EDITOR_FRESH ) {
+				$fresh[ (int) $user ] = (int) $at;
+			}
+		}
+		if ( array() === $fresh ) {
+			return null;
+		}
+		arsort( $fresh );
+
+		return array(
+			'user' => (int) array_key_first( $fresh ),
+			'at'   => (int) reset( $fresh ),
+		);
+	}
+
+	/** @param array{user:int,at:int} $open */
+	private static function editor_open_note( array $open ): string {
+		if ( get_current_user_id() === $open['user'] ) {
+			return __( 'This form is also open in the Easy Form Builder editor in another tab. After you approve, reload that tab before you save there; a Save from the older copy would overwrite this change.', 'ai-site-assistant-autopilot' );
+		}
+		$user = get_userdata( $open['user'] );
+		$name = $user instanceof \WP_User ? $user->display_name : __( 'another administrator', 'ai-site-assistant-autopilot' );
+
+		/* translators: %s: the name of the administrator who has the form open. */
+		return sprintf( __( '%s has this form open in the Easy Form Builder editor. A Save from that older copy would overwrite this change: ask them to reload it after you approve, or make the change there.', 'ai-site-assistant-autopilot' ), $name );
+	}
+
+	/**
+	 * QA5-002: EFB's editor tells the copilot every 20 seconds which saved form it has open and when it loaded it. The
+	 * answer says whether the copilot changed that form after it was loaded (form.update approved in another tab): the
+	 * editor then warns, and asks before its own Save overwrites that change. Read-only for the form; it keeps only
+	 * who has which form open, for a minute or two.
+	 */
+	public function presence( WP_REST_Request $request ): WP_REST_Response {
+		$form_id = absint( $request->get_param( 'form_id' ) );
+		$loaded  = absint( $request->get_param( 'loaded_at' ) );
+		if ( $form_id <= 0 ) {
+			return $this->respond( array( 'changed' => false ), true );
+		}
+		$key  = 'aisaautopilot_efb_open_' . $form_id;
+		$open = get_transient( $key );
+		$open = is_array( $open ) ? $open : array();
+		if ( ! $request->get_param( 'closing' ) ) {
+			$open[ get_current_user_id() ] = time();
+		} else {
+			unset( $open[ get_current_user_id() ] );
+		}
+		set_transient( $key, $open, 2 * self::EDITOR_FRESH );
+		$changed = get_transient( 'aisaautopilot_efb_changed_' . $form_id );
+		$after   = is_array( $changed ) && $loaded > 0 && (int) ( $changed['at'] ?? 0 ) >= $loaded;
+
+		return $this->respond(
+			array(
+				'changed' => $after,
+				'message' => $after ? __( 'The assistant changed this form in Easy Form Builder after this editor opened it. Reload the editor to see that change; a Save here would overwrite it.', 'ai-site-assistant-autopilot' ) : '',
+				'confirm' => $after ? __( 'This form was changed by the assistant after you opened it here. Saving now overwrites that change. Save anyway?', 'ai-site-assistant-autopilot' ) : '',
+				'now'     => time(),
+			),
+			true
+		);
 	}
 
 	/**
@@ -2403,8 +2487,32 @@ final class EfbCopilotController {
 				)
 			);
 
-			return $this->respond( array( 'message' => $this->update_refusal_text( $code, $data, $result->get_error_message() ) ), false, 'stale_hash' === $code ? 409 : 422, $code );
+			// QA5-016: a form saved in between is an expected answer, not a failed request: 200 with ok false and
+			// conflict true (the dock reads "ok"), so the browser logs no error. Other refusals keep their 422.
+			if ( 'stale_hash' === $code ) {
+				return $this->respond(
+					array(
+						'message'  => $this->update_refusal_text( $code, $data, $result->get_error_message() ),
+						'conflict' => true,
+					),
+					false,
+					200,
+					$code
+				);
+			}
+
+			return $this->respond( array( 'message' => $this->update_refusal_text( $code, $data, $result->get_error_message() ) ), false, 422, $code );
 		}
+		// QA5-002: an editor that loaded the form before now is told (efb/presence), and its Save asks first.
+		set_transient(
+			'aisaautopilot_efb_changed_' . $form_id,
+			array(
+				'at'   => time(),
+				'user' => get_current_user_id(),
+			),
+			DAY_IN_SECONDS
+		);
+		$open = self::editor_open( $form_id );
 		$this->logger->info(
 			'efb.update.executed',
 			'A saved EFB form was changed through form.update.',
@@ -2422,7 +2530,10 @@ final class EfbCopilotController {
 					'status'   => (string) ( $result['status'] ?? 'published' ),
 					'edit_url' => admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . $form_id ),
 					// EFB's own save answer: the same warnings a Save in its editor gives (add-on keys kept, payment, …).
-					'notes'    => EfbSaveNotes::messages( array(), (array) ( $result['warnings'] ?? array() ), is_array( $result['payment'] ?? null ) ? $result['payment'] : null ),
+					'notes'    => array_merge(
+						EfbSaveNotes::messages( array(), (array) ( $result['warnings'] ?? array() ), is_array( $result['payment'] ?? null ) ? $result['payment'] : null ),
+						null !== $open ? array( self::editor_open_note( $open ) ) : array()
+					),
 				),
 			),
 			true

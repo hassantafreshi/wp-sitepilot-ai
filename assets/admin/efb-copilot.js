@@ -1701,6 +1701,63 @@
 
 	function autoGrow() { Dock.autoGrow( $( 'aisaautopilot-efb-input' ), 160 ); }
 
+	/*
+	 * QA5-002: this editor shows a saved form. Every 20 seconds (and when the tab comes back) it tells the copilot so; the
+	 * answer says whether the assistant changed that form after this editor loaded it (an approved change in another
+	 * tab). Then the dock says so, and EFB's Save asks before it overwrites that change (EFB's own Save does not yet
+	 * compare what it saves with what is stored).
+	 */
+	var editorStale = '';
+	var presenceAt = { server: 0, local: 0 };
+	function presence( closing ) {
+		var form = EFB.editorForm;
+		if ( ! form || ! form.id ) { return; }
+		var body = { form_id: Number( form.id ), loaded_at: Number( form.loaded_at || 0 ) };
+		if ( closing ) {
+			body.closing = 1;
+			try { fetch( cfg.restUrl + 'efb/presence', { method: 'POST', keepalive: true, credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce }, body: JSON.stringify( body ) } ); } catch ( e ) {}
+			return;
+		}
+		api( 'efb/presence', body ).then( function ( res ) {
+			var d = res.data || {};
+			if ( d.now ) { presenceAt = { server: Number( d.now ), local: Date.now() }; }
+			if ( ! d.changed || editorStale ) { return; }
+			editorStale = String( d.confirm || '' );
+			open( false );
+			var reload = button( t( 'staleReload', 'Reload the editor' ), { kind: 'primary', size: 'sm', icon: 'undo', attrs: { 'data-sp-efb-stale-reload': '1' }, onClick: function () { leaving = true; window.location.reload(); } } );
+			addAi( card( Dock.cardHead( 'warn', 'alert', t( 'staleTitle', 'This form changed in another tab' ) ), [
+				el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { dir: 'auto', text: String( d.message || '' ) } ) ] ),
+				el( 'div', { class: 'aisa-ai-card__foot' }, [ reload ] )
+			], { 'data-sp-efb-state': 'stale-editor' } ) );
+		} ).catch( function () {} );
+	}
+	function watchPresence() {
+		if ( ! EFB.editorForm || ! EFB.editorForm.id ) { return; }
+		presence( false );
+		setInterval( function () { if ( 'visible' === document.visibilityState ) { presence( false ); } }, 20000 );
+		window.addEventListener( 'focus', function () { presence( false ); } );
+		window.addEventListener( 'pagehide', function () { presence( true ); } );
+		// The toolbar's Save (onclick saveFormEfb): asked first, in the capture phase, before EFB starts saving.
+		document.addEventListener( 'click', function ( e ) {
+			var save = editorStale && e.target && e.target.closest ? e.target.closest( '[onclick*="saveFormEfb"]' ) : null;
+			if ( ! save ) { return; }
+			if ( window.confirm( editorStale ) ) { editorStale = ''; return; }
+			e.preventDefault(); e.stopImmediatePropagation();
+		}, true );
+		// Any other way to Save (a shortcut) still meets the same question at EFB's save request.
+		if ( ! window.jQuery || ! window.jQuery.ajaxPrefilter ) { return; }
+		window.jQuery.ajaxPrefilter( function ( options, original, xhr ) {
+			if ( ! editorStale || ! /(^|&)action=update_form_Emsfb(&|$)/.test( String( options && options.data || '' ) ) ) { return; }
+			// The admin decides: keep the assistant's change (cancel, then reload) or overwrite it with this copy.
+			if ( ! window.confirm( editorStale ) ) { xhr.abort(); return; }
+			editorStale = '';
+		} );
+	}
+	/* After the owner's own Save this editor's copy is the stored one again. */
+	function editorSaved() {
+		if ( EFB.editorForm && presenceAt.server ) { EFB.editorForm.loaded_at = presenceAt.server + Math.ceil( ( Date.now() - presenceAt.local ) / 1000 ) + 1; }
+	}
+
 	/* EFB saves with its own admin-ajax call; a successful save keeps every AI change. */
 	function watchSaves() {
 		// AI changes live only in the editor until Easy Form Builder's Save: ask before a tab close or
@@ -1713,7 +1770,7 @@
 			if ( ! /(^|&)action=(add|update)_form_Emsfb(&|$)/.test( String( settings && settings.data || '' ) ) ) { return; }
 			var res = xhr && xhr.responseJSON ? xhr.responseJSON : null;
 			if ( ! res ) { try { res = JSON.parse( xhr.responseText ); } catch ( e ) { res = null; } }
-			if ( res && res.data && res.data.success ) { setUnsaved( 0 ); retireCreatedUndo( getFormId() ); }
+			if ( res && res.data && res.data.success ) { setUnsaved( 0 ); retireCreatedUndo( getFormId() ); editorSaved(); }
 		} );
 	}
 
@@ -1748,6 +1805,7 @@
 		window.addEventListener( 'focus', recheck );
 		document.addEventListener( 'visibilitychange', function () { if ( 'visible' === document.visibilityState ) { recheck(); } } );
 		watchSaves();
+		watchPresence();
 		setOffline( ! configured );
 		updateSelection();
 		if ( configured ) { setTimeout( resumeAfterInstall, 400 ); }

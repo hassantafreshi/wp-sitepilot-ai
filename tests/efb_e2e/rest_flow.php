@@ -867,7 +867,80 @@ try {
 		);
 		$aisa_check( 'update_preview' === ( $c['type'] ?? '' ) && ! empty( $c['action_id'] ) && 3 <= count( (array) ( $c['changes'] ?? array() ) ) && $fid === (int) ( $c['form']['id'] ?? 0 ), 'form.update: a saved form\'s change becomes a proposal with the changes in plain words', $c );
 		$aisa_check( $before === $aisa_rows( $fid ), 'form.update: nothing is written before the approval', null );
+		$aisa_check( empty( $c['editor_open'] ), 'Editor lock: no editor has the form open, no warning', $c['errors'] ?? null );
+
+		// QA5-002: an editor tab has the same form open (its ping, loaded a minute ago). Asking again warns before the
+		// approval; after it, that editor learns the form changed (its Save then asks first).
+		$loaded = time() - 60;
+		$ping   = $aisa_rest(
+			'efb/presence',
+			array(
+				'form_id'   => $fid,
+				'loaded_at' => $loaded,
+			)
+		);
+		$aisa_check( ! empty( $ping['ok'] ) && false === ( $ping['changed'] ?? null ), 'Editor lock: the editor\'s ping is stored; nothing changed yet', $ping );
+		$aisa_queue(
+			array(
+				'reply'      => 'Done.',
+				'action'     => 'customize',
+				'operations' => array(
+					array(
+						'op'     => 'set_field',
+						'target' => 'Email',
+						'prop'   => 'required',
+						'value'  => false,
+					),
+					array(
+						'op'    => 'add_field',
+						'field' => array(
+							'type'  => 'tel',
+							'label' => 'Phone',
+						),
+						'after' => 'Email',
+					),
+					array(
+						'op'    => 'set_form_name',
+						'value' => $title . ' v2',
+					),
+				),
+			)
+		);
+		$c = $aisa_rest(
+			'efb/chat',
+			array(
+				'message'  => 'make email optional and add a phone after it',
+				'has_form' => false,
+				'form_id'  => $fid,
+				'addons'   => array(),
+			)
+		);
+		$aisa_check( ! empty( $c['editor_open'] ) && false !== strpos( implode( ' ', (array) ( $c['errors'] ?? array() ) ), 'open in the Easy Form Builder editor' ), 'Editor lock: the proposal warns that the form is open in the editor', $c['errors'] ?? $c );
 		$u     = $aisa_rest( 'efb/update', array( 'action_id' => (string) ( $c['action_id'] ?? '' ) ) );
+		$aisa_check( false !== strpos( implode( ' ', (array) ( $u['result']['notes'] ?? array() ) ), 'reload that tab' ), 'Editor lock: the saved answer tells the admin to reload the open editor', $u['result'] ?? $u );
+		$ping = $aisa_rest(
+			'efb/presence',
+			array(
+				'form_id'   => $fid,
+				'loaded_at' => $loaded,
+			)
+		);
+		$aisa_check( true === ( $ping['changed'] ?? null ) && false !== strpos( (string) ( $ping['confirm'] ?? '' ), 'Save anyway?' ), 'Editor lock: the older editor learns the assistant changed the form (its Save asks first)', $ping );
+		$ping = $aisa_rest(
+			'efb/presence',
+			array(
+				'form_id'   => $fid,
+				'loaded_at' => time() + 1,
+			)
+		);
+		$aisa_check( false === ( $ping['changed'] ?? null ), 'Editor lock: an editor loaded after the change is not warned', $ping );
+		$aisa_rest(
+			'efb/presence',
+			array(
+				'form_id' => $fid,
+				'closing' => 1,
+			)
+		);
 		$rows  = $aisa_rows( $fid );
 		$email = $aisa_of_type( $rows, 'email' )[0] ?? array();
 		$tel   = $aisa_of_type( $rows, 'tel' )[0] ?? array();
@@ -915,7 +988,9 @@ try {
 		);
 		$mid = $aisa_rows( $fid );
 		$s   = $aisa_rest( 'efb/update', array( 'action_id' => (string) ( $c2['action_id'] ?? '' ) ) );
-		$aisa_check( 409 === $s['_status'] && 'stale_hash' === ( $s['code'] ?? '' ) && false !== strpos( (string) ( $s['message'] ?? '' ), 'after I read it' ) && $mid === $aisa_rows( $fid ), 'form.update: a form saved in between is never overwritten (stale_hash, in plain words)', $s );
+		$aisa_check( 'stale_hash' === ( $s['code'] ?? '' ) && empty( $s['ok'] ) && false !== strpos( (string) ( $s['message'] ?? '' ), 'after I read it' ) && $mid === $aisa_rows( $fid ), 'form.update: a form saved in between is never overwritten (stale_hash, in plain words)', $s );
+		// QA5-016: that expected conflict is an answer, not a failed request (no console error in the browser).
+		$aisa_check( 200 === $s['_status'] && true === ( $s['conflict'] ?? null ), 'form.update: the stale answer is HTTP 200 with conflict true', $s );
 
 		// An add-on's field the site does not have: EFB refuses it (addon_required), the copilot says which add-on.
 		$aisa_queue(

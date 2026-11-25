@@ -428,6 +428,7 @@ final class RestRoutes {
 				'/efb/publish'    => 'publish',
 				'/efb/forms'      => 'forms',
 				'/efb/save-notes' => 'save_notes',
+				'/efb/presence'   => 'presence',
 			) as $efb_route => $efb_method
 		) {
 			register_rest_route(

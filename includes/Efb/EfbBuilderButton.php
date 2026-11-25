@@ -54,6 +54,23 @@ final class EfbBuilderButton {
 		) : null;
 	}
 
+	/**
+	 * The saved form open in EFB's editor (`?state=edit-form&id=N`) and the server time it was loaded, or null.
+	 *
+	 * @return array{id:int,loaded_at:int}|null
+	 */
+	private static function editor_form(): ?array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read only, the screen EFB itself opened.
+		$state = isset( $_GET['state'] ) ? sanitize_key( wp_unslash( $_GET['state'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read only, the id of the form EFB's own screen opened.
+		$id = isset( $_GET['id'] ) ? absint( wp_unslash( $_GET['id'] ) ) : 0;
+
+		return 'edit-form' === $state && $id > 0 ? array(
+			'id'        => $id,
+			'loaded_at' => time(),
+		) : null;
+	}
+
 	public function enqueue( string $hook ): void {
 		unset( $hook );
 		if ( ! $this->is_efb_page() || ! Settings::get( 'efb_copilot_enabled', true ) ) {
@@ -93,6 +110,8 @@ final class EfbBuilderButton {
 					'drafts'     => EfbCapabilities::drafts_available(),
 					'saveEvents' => EfbCapabilities::save_events(),
 					'openForm'   => self::open_form_state(),
+					// QA5-002: the saved form this editor shows and when it was loaded (efb/presence compares).
+					'editorForm' => self::editor_form(),
 				),
 				'i18n'            => array(
 					'pickSavedForm'                  => __( 'Change a saved form', 'ai-site-assistant-autopilot' ),
@@ -296,6 +315,8 @@ final class EfbBuilderButton {
 					'undoConfirmYes'                 => __( 'Delete the form', 'ai-site-assistant-autopilot' ),
 					'undoConfirmNo'                  => __( 'Keep it', 'ai-site-assistant-autopilot' ),
 					'heldTitle'                      => __( 'Remove without being asked?', 'ai-site-assistant-autopilot' ),
+					'staleTitle'                     => __( 'This form changed in another tab', 'ai-site-assistant-autopilot' ),
+					'staleReload'                    => __( 'Reload the editor', 'ai-site-assistant-autopilot' ),
 					'heldRemove'                     => __( 'Remove them', 'ai-site-assistant-autopilot' ),
 					'heldKeep'                       => __( 'Keep them', 'ai-site-assistant-autopilot' ),
 					'heldApplied'                    => __( 'Removed, as you confirmed.', 'ai-site-assistant-autopilot' ),
