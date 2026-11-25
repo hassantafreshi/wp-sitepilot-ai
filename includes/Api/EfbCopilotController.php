@@ -254,6 +254,16 @@ final class EfbCopilotController {
 				$out[] = $op;
 				continue;
 			}
+			// A Jalali or Hijri date: EFB's advanced date field with that calendar (every plan).
+			$dated = EfbFeatureGate::calendar_field( $op['field'] );
+			if ( null !== $dated ) {
+				if ( null !== $dated['blocked'] ) {
+					$blocked[] = $dated['blocked'];
+				}
+				$op['field'] = $dated['field'];
+				$out[]       = $op;
+				continue;
+			}
 			$type  = EfbFeatureGate::resolve_type( (string) ( $op['field']['type'] ?? '' ) );
 			$check = '' === $type ? null : EfbFeatureGate::check( $type, $op['field'], $creatable );
 			if ( null === $check || 'plan' === $check['reason'] ) {
@@ -870,7 +880,8 @@ final class EfbCopilotController {
 			// SPLIT: a field the site cannot render (its add-on is missing, or the plan is below it) never reaches the
 			// form. EFB's registry decides; the admin is told what is needed and gets the closest field that works.
 			$gate = EfbFeatureGate::new_form_fields( is_array( $raw['form']['fields'] ?? null ) ? array_values( $raw['form']['fields'] ) : array() );
-			if ( array() !== $gate['blocked'] ) {
+			if ( is_array( $raw['form']['fields'] ?? null ) ) {
+				// The gate's fields: swapped where needed, a Jalali / Hijri date turned into a date with its calendar.
 				$raw['form']['fields'] = $gate['fields'];
 			}
 			$result = $validator->validate( (array) $raw['form'] );
@@ -2476,6 +2487,8 @@ final class EfbCopilotController {
 			'fields'               => array_merge(
 				array_map(
 					static function ( array $f ): array {
+						$calendar = EfbFeatureGate::date_calendars( $f );
+
 						return array(
 							'label'    => $f['label'],
 							'type'     => $f['type'],
@@ -2483,6 +2496,8 @@ final class EfbCopilotController {
 							'width'    => $f['width'] ?? 'full',
 							'help'     => (string) ( $f['help'] ?? '' ),
 							'options'  => $f['options'],
+							// A Jalali / Hijri date names its calendar(s) in the preview.
+							'calendar' => null !== $calendar ? implode( ' · ', array_map( array( EfbFeatureGate::class, 'calendar_label' ), $calendar['allowed'] ) ) : '',
 						);
 					},
 					$fields

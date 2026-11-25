@@ -870,7 +870,7 @@
 		var pages = 1;
 		p.fields.forEach( function ( f ) {
 			if ( f.type === 'steps' ) { pages++; mini.appendChild( el( 'div', { class: 'aisa-ai-mini__step', dir: 'auto', text: t( 'previewStep', 'New page: %s', f.label ) } ) ); return; }
-			var meta = f.options && f.options.length ? f.options.join( ' · ' ) : ( f.help || '' );
+			var meta = f.options && f.options.length ? f.options.join( ' · ' ) : ( f.calendar || f.help || '' );
 			mini.appendChild( el( 'div', { class: 'aisa-ai-mini__f', 'data-sp-efb-field': f.type }, [
 				el( 'span', { class: 'aisa-ai-ic' }, [ icon( typeIcon( f.type ), 14 ) ] ),
 				el( 'span', { class: 'aisa-ai-mini__l', dir: 'auto' }, [ f.label, f.required ? el( 'span', { class: 'aisa-ai-req', 'aria-label': t( 'required', 'required' ), text: '*' } ) : null, meta ? el( 'small', { text: meta } ) : null ] ),

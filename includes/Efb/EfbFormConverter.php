@@ -528,6 +528,21 @@ final class EfbFormConverter {
 			// The palette's label is not a placeholder here; a map has none.
 			$el['placeholder'] = $el['name'];
 		}
+		// A date in a Jalali or Hijri calendar (EfbFeatureGate::calendar_field()): EFB's advanced date field with that
+		// calendar, in the row shape EFB's own upgrade of a date field writes (Calendar::upgrade_row(), F06 §4.1).
+		$calendar = 'date' === $type ? EfbFeatureGate::date_calendars( $field ) : null;
+		if ( null !== $calendar ) {
+			$el['type']        = 'advdate';
+			$el['elementId']   = 'advdate';
+			$el['cal_v']       = 1;
+			$el['cal_default'] = $calendar['default'];
+			$el['cal_allowed'] = $calendar['allowed'];
+			$el['cal_switch']  = count( $calendar['allowed'] ) > 1 ? 1 : 0;
+			$el['date_mode']   = 'single';
+			$el['date_min']    = array( 'type' => 'none' );
+			$el['date_max']    = array( 'type' => 'none' );
+			unset( $field['settings']['calendar'], $field['settings']['calendars'] );
+		}
 		$el = $this->apply_plan_settings( $el, $field, $type );
 
 		return array_merge( array( $el ), $children );

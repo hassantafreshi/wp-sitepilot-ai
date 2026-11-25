@@ -52,7 +52,182 @@ final class EfbFeatureGate {
 		'link'            => 'heading',
 		'html'            => 'heading',
 		'url'             => 'text',
+		// A booking slot without the Booking add-on (or only in EFB's builder) is still a date the visitor picks.
+		'booking'         => 'date',
 	);
+
+	/**
+	 * Calendar words a model uses, mapped to the calendars of EFB's advanced date field (F06, `field:advdate`, every
+	 * plan). A Jalali or Hijri date is that field with its calendar, never EFB's legacy Pro fields pdate / ardate.
+	 */
+	private const CALENDARS = array(
+		'persian'          => 'persian',
+		'jalali'           => 'persian',
+		'shamsi'           => 'persian',
+		'solar_hijri'      => 'persian',
+		'solar'            => 'persian',
+		'iranian'          => 'persian',
+		'pdate'            => 'persian',
+		'شمسی'             => 'persian',
+		'جلالی'            => 'persian',
+		'hijri'            => 'islamic-umalqura',
+		'islamic'          => 'islamic-umalqura',
+		'qamari'           => 'islamic-umalqura',
+		'lunar'            => 'islamic-umalqura',
+		'lunar_hijri'      => 'islamic-umalqura',
+		'arabic'           => 'islamic-umalqura',
+		'umalqura'         => 'islamic-umalqura',
+		'islamic_umalqura' => 'islamic-umalqura',
+		'islamic-umalqura' => 'islamic-umalqura',
+		'ardate'           => 'islamic-umalqura',
+		'قمری'             => 'islamic-umalqura',
+		'هجری'             => 'islamic-umalqura',
+		'gregorian'        => 'gregory',
+		'gregory'          => 'gregory',
+		'miladi'           => 'gregory',
+		'میلادی'           => 'gregory',
+	);
+
+	/** Field types that are a date in a given calendar. */
+	private const CALENDAR_TYPES = array(
+		'pdate'        => 'persian',
+		'persian_date' => 'persian',
+		'jalali_date'  => 'persian',
+		'shamsi_date'  => 'persian',
+		'ardate'       => 'islamic-umalqura',
+		'hijri_date'   => 'islamic-umalqura',
+		'arabic_date'  => 'islamic-umalqura',
+	);
+
+	/** The calendar a word names (persian | islamic-umalqura | gregory), or null. */
+	public static function calendar_name( string $word ): ?string {
+		$word = strtolower( trim( str_replace( array( ' ', '-' ), '_', $word ) ) );
+		if ( 'islamic_umalqura' === $word ) {
+			return 'islamic-umalqura';
+		}
+
+		return self::CALENDARS[ $word ] ?? ( self::CALENDARS[ str_replace( '_', '-', $word ) ] ?? null );
+	}
+
+	/**
+	 * The calendars a planned field asks for: a Jalali / Hijri date type (or EFB's legacy pdate / ardate), or a date
+	 * with settings.calendar and, for a calendar switch, settings.calendars ("persian,gregory"). Null for a plain
+	 * Gregorian date or any other field.
+	 *
+	 * @param array<string,mixed> $field
+	 * @return array{default:string, allowed:string[]}|null
+	 */
+	public static function date_calendars( array $field ): ?array {
+		$raw      = strtolower( trim( str_replace( array( ' ', '-' ), '_', (string) ( $field['type'] ?? '' ) ) ) );
+		$settings = is_array( $field['settings'] ?? null ) ? $field['settings'] : array();
+		$default  = self::CALENDAR_TYPES[ $raw ] ?? null;
+		if ( null === $default && in_array( $raw, array( 'date', 'advdate', 'advanced_date' ), true ) && is_scalar( $settings['calendar'] ?? null ) ) {
+			$default = self::calendar_name( (string) $settings['calendar'] );
+		}
+		$allowed = array();
+		foreach ( preg_split( '/[\s,|]+/', is_scalar( $settings['calendars'] ?? null ) ? (string) $settings['calendars'] : '' ) ?: array() as $word ) {
+			$cal = '' !== $word ? self::calendar_name( $word ) : null;
+			if ( null !== $cal && ! in_array( $cal, $allowed, true ) ) {
+				$allowed[] = $cal;
+			}
+		}
+		if ( null === $default ) {
+			$default = $allowed[0] ?? null;
+		}
+		if ( null === $default || ( 'gregory' === $default && count( $allowed ) <= 1 ) ) {
+			return null;
+		}
+		if ( ! in_array( $default, $allowed, true ) ) {
+			array_unshift( $allowed, $default );
+		}
+
+		return array(
+			'default' => $default,
+			'allowed' => $allowed,
+		);
+	}
+
+	/**
+	 * A planned date in a Jalali or Hijri calendar as the copilot builds it: an ordinary date field whose settings name
+	 * the calendar (the converter writes EFB's advanced date field, `advdate`, with cal_default). Only what the registry
+	 * gates is gated: one calendar is every plan; letting the visitor switch between several is `setting:advdate_calendars`.
+	 * Null when the field asks for no calendar.
+	 *
+	 * @param array<string,mixed> $field
+	 * @return array{field:array<string,mixed>, blocked:?array<string,mixed>}|null
+	 */
+	public static function calendar_field( array $field ): ?array {
+		$cal = self::date_calendars( $field );
+		if ( null === $cal ) {
+			return null;
+		}
+		$label    = trim( (string) ( $field['label'] ?? '' ) );
+		$blocked  = null;
+		$settings = is_array( $field['settings'] ?? null ) ? $field['settings'] : array();
+		unset( $settings['calendar'], $settings['calendars'] );
+		$allowed = $cal['allowed'];
+		$adv     = EfbCapabilities::available() ? EfbCapabilities::state( 'field:advdate' ) : array( 'known' => true, 'available' => true );
+		if ( ! empty( $adv['known'] ) && empty( $adv['available'] ) ) {
+			// No advanced date field on this site at all: a plain date, said so.
+			$blocked = array(
+				'type'        => 'advdate',
+				'label'       => '' !== $label ? $label : 'advdate',
+				'feature'     => 'field:advdate',
+				'reason'      => (string) ( $adv['reason'] ?? 'plan' ),
+				'addon'       => null,
+				'addon_name'  => '',
+				'package'     => (string) ( $adv['package'] ?? 'free' ),
+				'alternative' => 'date',
+			);
+			$field['type']     = 'date';
+			$field['settings'] = $settings;
+
+			return array(
+				'field'   => $field,
+				'blocked' => $blocked,
+			);
+		}
+		if ( count( $allowed ) > 1 && EfbCapabilities::available() ) {
+			$state = EfbCapabilities::state( 'setting:advdate_calendars' );
+			if ( $state['known'] && ! $state['available'] ) {
+				$blocked = array(
+					'type'        => 'advdate',
+					'label'       => '' !== $label ? $label : 'advdate',
+					'feature'     => 'setting:advdate_calendars',
+					'reason'      => (string) $state['reason'],
+					'addon'       => null,
+					'addon_name'  => '',
+					'package'     => (string) $state['package'],
+					'alternative' => 'date',
+					'calendar'    => $cal['default'],
+				);
+				$allowed = array( $cal['default'] );
+			}
+		}
+		$settings['calendar'] = $cal['default'];
+		if ( count( $allowed ) > 1 ) {
+			$settings['calendars'] = implode( ',', $allowed );
+		}
+		$field['type']     = 'date';
+		$field['settings'] = $settings;
+
+		return array(
+			'field'   => $field,
+			'blocked' => $blocked,
+		);
+	}
+
+	/** A calendar's name in the admin's words. */
+	public static function calendar_label( string $calendar ): string {
+		switch ( $calendar ) {
+			case 'persian':
+				return __( 'Persian (solar Hijri) calendar', 'ai-site-assistant-autopilot' );
+			case 'islamic-umalqura':
+				return __( 'Hijri (lunar) calendar', 'ai-site-assistant-autopilot' );
+			default:
+				return __( 'Gregorian calendar', 'ai-site-assistant-autopilot' );
+		}
+	}
 
 	/** @return array<string,string> */
 	private static function alternatives(): array {
@@ -165,8 +340,15 @@ final class EfbFeatureGate {
 	 */
 	public static function new_form_fields( array $fields ): array {
 		if ( ! EfbCapabilities::available() ) {
+			// Without the registry only the calendar of a date is read (the older plan checks run later).
 			return array(
-				'fields'  => $fields,
+				'fields'  => array_map(
+					static function ( $field ) {
+						$dated = is_array( $field ) ? self::calendar_field( $field ) : null;
+						return null !== $dated ? $dated['field'] : $field;
+					},
+					$fields
+				),
 				'blocked' => array(),
 			);
 		}
@@ -176,6 +358,15 @@ final class EfbFeatureGate {
 		foreach ( $fields as $field ) {
 			if ( ! is_array( $field ) ) {
 				$out[] = $field;
+				continue;
+			}
+			// A Jalali or Hijri date is EFB's advanced date field with that calendar (every plan), not a legacy Pro field.
+			$dated = self::calendar_field( $field );
+			if ( null !== $dated ) {
+				if ( null !== $dated['blocked'] ) {
+					$blocked[] = $dated['blocked'];
+				}
+				$out[] = $dated['field'];
 				continue;
 			}
 			$type = self::resolve_type( (string) ( $field['type'] ?? '' ) );
@@ -230,8 +421,9 @@ final class EfbFeatureGate {
 				continue;
 			}
 			$addon = $state['addon'];
-			// A setting whose add-on is missing keeps the field itself (a drawn signature without the typed one).
-			$alt = str_starts_with( $key, 'setting:' ) ? $type : self::alternative( $type, $creatable );
+			// A setting whose add-on is missing keeps the field itself (a drawn signature without the typed one), when
+			// the copilot can build that field; else the closest field it can build (a booking slot becomes a date).
+			$alt = str_starts_with( $key, 'setting:' ) && in_array( $type, $creatable, true ) ? $type : self::alternative( $type, $creatable );
 
 			return array(
 				'type'        => $type,
@@ -312,10 +504,23 @@ final class EfbFeatureGate {
 					$need = sprintf( __( 'I cannot build “%s” myself yet; add it in the Easy Form Builder editor after the form is created.', 'ai-site-assistant-autopilot' ), $label );
 					break;
 				default:
-					/* translators: 1: field label, 2: plan name (Free Plus or Pro). */
-					$need = sprintf( __( '“%1$s” needs Easy Form Builder %2$s.', 'ai-site-assistant-autopilot' ), $label, $plan );
+					if ( 'setting:advdate_calendars' === ( $item['feature'] ?? '' ) ) {
+						$out[] = sprintf(
+							/* translators: 1: field label, 2: plan name (Free Plus or Pro), 3: calendar name. */
+							__( 'Letting visitors switch calendars in “%1$s” needs Easy Form Builder %2$s, so it uses the %3$s only.', 'ai-site-assistant-autopilot' ),
+							$label,
+							$plan,
+							self::calendar_label( (string) ( $item['calendar'] ?? 'gregory' ) )
+						);
+						continue 2;
+					}
+					$need = '' !== (string) ( $item['addon_name'] ?? '' )
+						/* translators: 1: field label, 2: add-on name, 3: plan name (Free Plus or Pro). */
+						? sprintf( __( '“%1$s” needs Easy Form Builder’s %2$s add-on, which comes with %3$s.', 'ai-site-assistant-autopilot' ), $label, (string) $item['addon_name'], $plan )
+						/* translators: 1: field label, 2: plan name (Free Plus or Pro). */
+						: sprintf( __( '“%1$s” needs Easy Form Builder %2$s.', 'ai-site-assistant-autopilot' ), $label, $plan );
 			}
-			if ( $setting && '' !== $alt ) {
+			if ( $setting && '' !== $alt && $alt === (string) ( $item['type'] ?? '' ) ) {
 				/* translators: %s: field type name. */
 				$then = sprintf( __( 'I kept it as a plain %s.', 'ai-site-assistant-autopilot' ), $alt );
 			} elseif ( '' !== $alt ) {

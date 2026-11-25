@@ -467,6 +467,60 @@ try {
 		$aisa_check( 404 === $u2['_status'], 'Form package 1.1: a second undo is refused', $u2 );
 	}
 
+	if ( 'dates' === $aisa_scenario ) {
+		// QA5-004 (driver: Free Plus): a Jalali or Hijri date is EFB's advanced date field with that calendar (every plan).
+		$p    = $aisa_create(
+			array(
+				'title'  => 'Visit booking ' . wp_generate_password( 4, false ),
+				'fields' => array_merge(
+					$aisa_contact,
+					array(
+						array(
+							'type'  => 'jalali_date',
+							'label' => 'تاریخ مراجعه (شمسی)',
+						),
+						array(
+							'type'  => 'hijri_date',
+							'label' => 'تاریخ قمری',
+						),
+					)
+				),
+			),
+			'فرم نوبت با تاریخ شمسی و تاریخ قمری'
+		);
+		$cal  = array_column( (array) ( $p['preview']['fields'] ?? array() ), 'calendar', 'label' );
+		$aisa_check( 'preview' === ( $p['type'] ?? '' ) && empty( $p['addon_required'] ) && empty( $p['pro_omitted'] ) && empty( $p['upgrade_required'] ) && ! preg_match( '/Pro|add-on/', implode( ' ', (array) ( $p['errors'] ?? array() ) ) ), 'Dates: Jalali and Hijri dates need no add-on and no Pro', $p );
+		$aisa_check( 'Persian (solar Hijri) calendar' === ( $cal['تاریخ مراجعه (شمسی)'] ?? '' ) && 'Hijri (lunar) calendar' === ( $cal['تاریخ قمری'] ?? '' ), 'Dates: the preview names each field\'s calendar', $cal );
+		$done = $aisa_approve( $p );
+		$read = \Emsfb\Form_Package::read( (int) ( $done['result']['form_id'] ?? 0 ) );
+		$read = is_array( $read ) ? $read : array();
+		$adv  = array_values( array_filter( (array) ( $read['rows'] ?? array() ), static fn ( $r ) => is_array( $r ) && 'advdate' === ( $r['type'] ?? '' ) ) );
+		$aisa_check( 2 === count( $adv ) && 'persian' === ( $adv[0]['cal_default'] ?? '' ) && 'islamic-umalqura' === ( $adv[1]['cal_default'] ?? '' ) && array() === $aisa_of_type( (array) ( $read['rows'] ?? array() ), 'date' ), 'Dates: EFB stored two advanced date fields with the Persian and Hijri calendars (no Gregorian date)', $adv );
+
+		// QA5-005: the dock's own starter, with a booking slot the copilot cannot build on Free Plus.
+		$p    = $aisa_create(
+			array(
+				'title'  => 'Dental clinic booking',
+				'fields' => array_merge(
+					$aisa_contact,
+					array(
+						array(
+							'type'     => 'booking',
+							'label'    => 'Appointment slot',
+							'required' => true,
+						),
+					)
+				),
+			),
+			'A booking form for a dental clinic'
+		);
+		$need = array_column( (array) ( $p['addon_required'] ?? array() ), null, 'type' );
+		$aisa_check( 'preview' === ( $p['type'] ?? '' ) && 'AdnBEF' === ( $need['booking']['addon'] ?? '' ) && 'date' === ( $need['booking']['alternative'] ?? '' ) && 'pro' === ( $need['booking']['package'] ?? '' ), 'Booking: the starter builds a form; the slot is a Date field and the Booking add-on (Pro) is named', $p );
+		$done = $aisa_approve( $p );
+		$rows = $aisa_rows( (int) ( $done['result']['form_id'] ?? 0 ) );
+		$aisa_check( ! empty( $done['ok'] ) && 1 === count( $aisa_of_type( $rows, 'date' ) ), 'Booking: the approved form exists in EFB with the date field', $done );
+	}
+
 	if ( 'undo' === $aisa_scenario ) {
 		// QA5-001: Undo deletes only the fresh draft the copilot created: never a published form, one the owner changed or
 		// one with entries (409 in plain words, the form and its entries stay, the token is dropped).

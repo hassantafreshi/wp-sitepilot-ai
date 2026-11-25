@@ -183,11 +183,12 @@ final class EfbSplitRegistryTest extends TestCase {
 		self::assertTrue( EfbFeatureGate::needs_plan( $gate['blocked'] ) );
 		self::assertStringContainsString( 'needs Easy Form Builder Free Plus', EfbFeatureGate::messages( $gate['blocked'] )[0] );
 
-		// A Pro-only date picker on Free Plus becomes the plain date field.
+		// QA5-004: a Persian date is not the legacy Pro picker but EFB's advanced date field in that calendar (every plan).
 		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free_plus' ) );
 		$jalali = EfbFeatureGate::new_form_fields( array( array( 'type' => 'persian_date', 'label' => 'Birthday' ) ) );
 		self::assertSame( 'date', $jalali['fields'][0]['type'] );
-		self::assertSame( 'pro', $jalali['blocked'][0]['package'] );
+		self::assertSame( 'persian', $jalali['fields'][0]['settings']['calendar'] );
+		self::assertSame( array(), $jalali['blocked'] );
 	}
 
 	public function test_a_gateway_is_never_a_field_the_gate_lets_through(): void {
@@ -275,5 +276,106 @@ final class EfbSplitRegistryTest extends TestCase {
 		self::assertSame( 'date', $by['advdate']['alternative'] );
 		self::assertNull( $by['hiddenField']['alternative'] );
 		self::assertSame( array( 'checkbox', 'date' ), array_column( $gate['fields'], 'type' ) );
+	}
+
+	/**
+	 * QA5-004: a Jalali or Hijri date is EFB's advanced date field with that calendar, on every plan (field:advdate is
+	 * free); only a calendar switch is gated (setting:advdate_calendars), and never the legacy Pro fields pdate / ardate.
+	 */
+	public function test_jalali_and_hijri_dates_are_the_advanced_date_field_on_every_plan(): void {
+		foreach ( array( 'free', 'free_plus' ) as $plan ) {
+			EfbRegistryFixture::apply( EfbRegistryFixture::site( $plan ) );
+			$gate = EfbFeatureGate::new_form_fields(
+				array(
+					array( 'type' => 'jalali_date', 'label' => 'تاریخ مراجعه (شمسی)' ),
+					array( 'type' => 'hijri_date', 'label' => 'تاریخ قمری' ),
+					array( 'type' => 'pdate', 'label' => 'Legacy Persian date' ),
+					array( 'type' => 'date', 'label' => 'Visit', 'settings' => array( 'calendar' => 'jalali' ) ),
+				)
+			);
+			self::assertSame( array(), $gate['blocked'], $plan . ': nothing needs Pro' );
+			self::assertSame( array( 'date', 'date', 'date', 'date' ), array_column( $gate['fields'], 'type' ) );
+			self::assertSame( array( 'persian', 'islamic-umalqura', 'persian', 'persian' ), array_map( static fn ( $f ) => $f['settings']['calendar'], $gate['fields'] ) );
+
+			// The stored row is EFB's advanced date field with that calendar, never a Gregorian date.
+			$rows = ( new \AISAAutoPilot\Efb\EfbFormConverter() )->convert(
+				array(
+					'title'  => 'Visit',
+					'fields' => array_map(
+						static fn ( array $f ): array => $f + array(
+							'required' => false,
+							'options'  => array(),
+						),
+						$gate['fields']
+					),
+				)
+			);
+			$dates = array_values( array_filter( $rows, static fn ( $r ) => in_array( $r['type'] ?? '', array( 'date', 'advdate' ), true ) ) );
+			self::assertSame( array( 'advdate', 'advdate', 'advdate', 'advdate' ), array_column( $dates, 'type' ) );
+			self::assertSame( 'persian', $dates[0]['cal_default'] );
+			self::assertSame( array( 'persian' ), $dates[0]['cal_allowed'] );
+			self::assertSame( 'islamic-umalqura', $dates[1]['cal_default'] );
+			self::assertSame( 0, $dates[1]['cal_switch'] );
+			self::assertSame( 'single', $dates[1]['date_mode'] );
+			self::assertArrayNotHasKey( 'calendar', $dates[0] );
+		}
+
+		// A calendar switch: Free Plus has it; on Free it is the one calendar, said in one sentence.
+		$switch = array(
+			array(
+				'type'     => 'date',
+				'label'    => 'Birthday',
+				'settings' => array(
+					'calendar'  => 'persian',
+					'calendars' => 'persian,gregorian',
+				),
+			),
+		);
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free_plus' ) );
+		$gate = EfbFeatureGate::new_form_fields( $switch );
+		self::assertSame( array(), $gate['blocked'] );
+		self::assertSame( 'persian,gregory', $gate['fields'][0]['settings']['calendars'] );
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free' ) );
+		$gate = EfbFeatureGate::new_form_fields( $switch );
+		self::assertSame( 'setting:advdate_calendars', $gate['blocked'][0]['feature'] );
+		self::assertSame( 'free_plus', $gate['blocked'][0]['package'] );
+		self::assertArrayNotHasKey( 'calendars', $gate['fields'][0]['settings'] );
+		self::assertSame( 'persian', $gate['fields'][0]['settings']['calendar'] );
+		$message = EfbFeatureGate::messages( $gate['blocked'] )[0];
+		self::assertStringContainsString( 'switch calendars', $message );
+		self::assertStringContainsString( 'Persian (solar Hijri) calendar', $message );
+		self::assertStringNotContainsString( 'Pro', $message );
+	}
+
+	/**
+	 * QA5-005: a booking slot never makes the form fail: it becomes a date field (a type the copilot builds) and the
+	 * admin is told it needs the Booking add-on and its plan. The dock's own starter "A booking form for a dental
+	 * clinic" works on Free Plus.
+	 */
+	public function test_a_booking_slot_becomes_a_date_field_with_the_booking_add_on_named(): void {
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free_plus' ) );
+		$gate = EfbFeatureGate::new_form_fields(
+			array(
+				array( 'type' => 'text', 'label' => 'Patient name' ),
+				array( 'type' => 'booking', 'label' => 'Appointment slot' ),
+			)
+		);
+		self::assertSame( array( 'text', 'date' ), array_column( $gate['fields'], 'type' ) );
+		self::assertContains( 'date', EfbFormModel::allowed_types(), 'the stand-in is a type the validator accepts' );
+		$item = $gate['blocked'][0];
+		self::assertSame( 'booking', $item['type'] );
+		self::assertSame( 'AdnBEF', $item['addon'] );
+		self::assertSame( 'pro', $item['package'] );
+		self::assertSame( 'date', $item['alternative'] );
+		$message = EfbFeatureGate::messages( $gate['blocked'] )[0];
+		self::assertStringContainsString( '“Appointment slot” needs Easy Form Builder’s Booking add-on, which comes with Pro.', $message );
+		self::assertStringContainsString( 'I used a Date field instead', $message );
+
+		// Pro with the Booking add-on: the copilot still cannot build the booking itself, so a date plus "add it in
+		// the editor" — never a type the validator refuses.
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'pro', array( 'AdnBEF' => true ) ) );
+		$gate = EfbFeatureGate::new_form_fields( array( array( 'type' => 'booking', 'label' => 'Appointment slot' ) ) );
+		self::assertSame( array( 'date' ), array_column( $gate['fields'], 'type' ) );
+		self::assertSame( 'builder_only', $gate['blocked'][0]['reason'] );
 	}
 }
