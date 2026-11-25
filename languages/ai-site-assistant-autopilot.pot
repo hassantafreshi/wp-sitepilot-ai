@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AI Site Assistant AutoPilot 0.0.1\n"
 "Report-Msgid-Bugs-To: https://aisaautopilot.ai\n"
-"POT-Creation-Date: 2026-11-25 21:54+0000\n"
+"POT-Creation-Date: 2026-11-25 22:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -332,7 +332,7 @@ msgstr ""
 #: includes/Admin/CopilotPage.php:558
 #: includes/Admin/SettingsPage.php:1326
 #: includes/Admin/StoreCopilotPage.php:113
-#: includes/Efb/EfbBuilderButton.php:146
+#: includes/Efb/EfbBuilderButton.php:166
 msgid "Network error. Please try again."
 msgstr ""
 
@@ -433,7 +433,7 @@ msgstr ""
 
 #: includes/Admin/AdminMenu.php:331
 #: includes/Admin/AnswerDeskHandoffPage.php:579
-#: includes/Admin/EasyFormBuilderPage.php:253
+#: includes/Admin/EasyFormBuilderPage.php:258
 msgid "Ready"
 msgstr ""
 
@@ -470,7 +470,7 @@ msgstr ""
 #: includes/Admin/HandoffInboxPage.php:180
 #: includes/Admin/HandoffInboxPage.php:202
 #: includes/Admin/IntegrationsPage.php:457
-#: includes/Efb/EfbBuilderButton.php:486
+#: includes/Efb/EfbBuilderButton.php:518
 msgid "Close"
 msgstr ""
 
@@ -919,7 +919,7 @@ msgstr ""
 #: includes/Admin/CopilotPage.php:276
 #: includes/Admin/CopilotPage.php:681
 #: includes/Admin/HandoffInboxPage.php:319
-#: includes/Efb/EfbBuilderButton.php:399
+#: includes/Efb/EfbBuilderButton.php:431
 #: includes/Support/HandoffEmail.php:61
 msgid "Email"
 msgstr ""
@@ -1623,7 +1623,7 @@ msgstr ""
 #: includes/Admin/ChatPage.php:151
 #: includes/Admin/CopilotPage.php:173
 #: includes/Core/Plugin.php:183
-#: includes/Efb/EfbBuilderButton.php:502
+#: includes/Efb/EfbBuilderButton.php:534
 #: includes/Frontend/ChatWidget.php:164
 msgid "Send"
 msgstr ""
@@ -1813,7 +1813,7 @@ msgid "Transcript ready — check it, then send. Nothing is sent on its own."
 msgstr ""
 
 #: includes/Admin/ChatPage.php:299
-#: includes/Efb/EfbBuilderButton.php:152
+#: includes/Efb/EfbBuilderButton.php:172
 msgid "Voice transcription failed. Please try again."
 msgstr ""
 
@@ -1922,7 +1922,7 @@ msgid "Change"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:91
-#: includes/Efb/EfbBuilderButton.php:324
+#: includes/Efb/EfbBuilderButton.php:355
 msgid "New form"
 msgstr ""
 
@@ -2034,8 +2034,8 @@ msgstr ""
 
 #: includes/Admin/CopilotPage.php:261
 #: includes/Admin/CopilotPage.php:682
-#: includes/Efb/EfbBuilderButton.php:400
-#: includes/Efb/EfbFeatureGate.php:403
+#: includes/Efb/EfbBuilderButton.php:432
+#: includes/Efb/EfbFeatureGate.php:728
 msgid "Phone"
 msgstr ""
 
@@ -2350,7 +2350,7 @@ msgid "Mobile"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:501
-#: includes/Efb/EfbBuilderButton.php:452
+#: includes/Efb/EfbBuilderButton.php:484
 msgid "required"
 msgstr ""
 
@@ -2736,7 +2736,7 @@ msgstr ""
 #. translators: %s: label of a form field.
 #: includes/Admin/CopilotPage.php:613
 #: includes/Admin/CopilotPage.php:660
-#: includes/Efb/EfbFormUpdate.php:416
+#: includes/Efb/EfbFormUpdate.php:487
 #, php-format
 msgid "Make “%s” optional"
 msgstr ""
@@ -2800,14 +2800,14 @@ msgid "Web address"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:629
-#: includes/Efb/EfbBuilderButton.php:402
-#: includes/Efb/EfbFeatureGate.php:401
+#: includes/Efb/EfbBuilderButton.php:434
+#: includes/Efb/EfbFeatureGate.php:726
 msgid "Number"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:630
-#: includes/Efb/EfbBuilderButton.php:406
-#: includes/Efb/EfbFeatureGate.php:407
+#: includes/Efb/EfbBuilderButton.php:438
+#: includes/Efb/EfbFeatureGate.php:732
 msgid "Date"
 msgstr ""
 
@@ -2851,7 +2851,7 @@ msgstr ""
 
 #: includes/Admin/CopilotPage.php:641
 #: includes/Admin/StoreCopilotPage.php:138
-#: includes/Efb/EfbBuilderButton.php:233
+#: includes/Efb/EfbBuilderButton.php:253
 msgid "Undo"
 msgstr ""
 
@@ -2892,7 +2892,7 @@ msgstr ""
 #. translators: %s: label of a form field.
 #. translators: %s: form name.
 #: includes/Admin/CopilotPage.php:653
-#: includes/Efb/EfbBuilderButton.php:322
+#: includes/Efb/EfbBuilderButton.php:353
 #, php-format
 msgid "Editing “%s”"
 msgstr ""
@@ -2918,8 +2918,8 @@ msgstr ""
 #. translators: %s: label of a form field.
 #. translators: %s: field label.
 #: includes/Admin/CopilotPage.php:662
-#: includes/Efb/EfbBuilderButton.php:379
-#: includes/Efb/EfbFormUpdate.php:416
+#: includes/Efb/EfbBuilderButton.php:411
+#: includes/Efb/EfbFormUpdate.php:487
 #, php-format
 msgid "Make “%s” required"
 msgstr ""
@@ -2962,7 +2962,7 @@ msgid "Remove"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:675
-#: includes/Efb/EfbBuilderButton.php:136
+#: includes/Efb/EfbBuilderButton.php:156
 msgid "Label"
 msgstr ""
 
@@ -2979,39 +2979,39 @@ msgid "Change the text of the send button"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:679
-#: includes/Admin/EasyFormBuilderPage.php:415
+#: includes/Admin/EasyFormBuilderPage.php:420
 msgid "Fields"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:680
-#: includes/Efb/EfbBuilderButton.php:398
-#: includes/Efb/EfbFeatureGate.php:402
+#: includes/Efb/EfbBuilderButton.php:430
+#: includes/Efb/EfbFeatureGate.php:727
 msgid "Text"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:683
-#: includes/Efb/EfbBuilderButton.php:401
+#: includes/Efb/EfbBuilderButton.php:433
 msgid "Long text"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:684
-#: includes/Efb/EfbBuilderButton.php:403
+#: includes/Efb/EfbBuilderButton.php:435
 msgid "Dropdown"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:685
-#: includes/Efb/EfbBuilderButton.php:405
-#: includes/Efb/EfbFeatureGate.php:405
+#: includes/Efb/EfbBuilderButton.php:437
+#: includes/Efb/EfbFeatureGate.php:730
 msgid "Checkboxes"
 msgstr ""
 
 #: includes/Admin/CopilotPage.php:686
-#: includes/Efb/EfbBuilderButton.php:404
+#: includes/Efb/EfbBuilderButton.php:436
 msgid "Choice"
 msgstr ""
 
 #: includes/Admin/EasyFormBuilderPage.php:43
-msgid "What the copilot may change in the form open in the Easy Form Builder editor, and what it applied last."
+msgid "What the copilot does in Easy Form Builder: it changes the form open in the editor, creates new forms as drafts, changes saved forms after your approval and publishes on your click. And what it applied last."
 msgstr ""
 
 #: includes/Admin/EasyFormBuilderPage.php:47
@@ -3033,7 +3033,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/Admin/EasyFormBuilderPage.php:84
-msgid "Changes the open editor only"
+msgid "Nothing is saved without your click"
 msgstr ""
 
 #: includes/Admin/EasyFormBuilderPage.php:87
@@ -3072,7 +3072,7 @@ msgid "Trace %s"
 msgstr ""
 
 #: includes/Admin/EasyFormBuilderPage.php:150
-msgid "Nothing applied yet. Proposals are made from the chat button inside the Easy Form Builder editor."
+msgid "Nothing applied yet. Ask from the “Ask AI” button on Easy Form Builder’s screens: the forms list, Create, or the editor."
 msgstr ""
 
 #: includes/Admin/EasyFormBuilderPage.php:152
@@ -3083,80 +3083,92 @@ msgstr ""
 msgid "Nothing is saved on its own"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:157
-msgid "The copilot only changes the form open in the editor. Your form is saved when you press Save in Easy Form Builder."
+#: includes/Admin/EasyFormBuilderPage.php:158
+msgid "In the open editor the copilot changes the form on the canvas; it is stored when you press Save in Easy Form Builder’s toolbar."
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:181
-#: includes/Admin/EasyFormBuilderPage.php:267
+#: includes/Admin/EasyFormBuilderPage.php:159
+msgid "A new form is created as a draft when you click Create; visitors see it after you click Publish."
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:160
+msgid "A saved form is changed only when you approve the proposal with “Approve & save”."
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:161
+msgid "Undo deletes a new form only while it is an unchanged draft without entries, and asks first."
+msgstr ""
+
+#: includes/Admin/EasyFormBuilderPage.php:186
+#: includes/Admin/EasyFormBuilderPage.php:272
 msgid "On this site"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:192
+#: includes/Admin/EasyFormBuilderPage.php:197
 msgid "Plan"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:195
+#: includes/Admin/EasyFormBuilderPage.php:200
 msgid "Pro is a one-time purchase on this site"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:200
+#: includes/Admin/EasyFormBuilderPage.php:205
 msgid "New forms are created through Easy Form Builder’s own save path"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:201
-#: includes/Admin/EasyFormBuilderPage.php:302
+#: includes/Admin/EasyFormBuilderPage.php:206
+#: includes/Admin/EasyFormBuilderPage.php:307
 msgid "Update needed"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:207
+#: includes/Admin/EasyFormBuilderPage.php:212
 msgid "Confirmation e-mail to the visitor on new forms"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:208
+#: includes/Admin/EasyFormBuilderPage.php:213
 msgid "On by default"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:208
+#: includes/Admin/EasyFormBuilderPage.php:213
 msgid "Off by default"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:214
+#: includes/Admin/EasyFormBuilderPage.php:219
 #: includes/Connectors/EasyFormBuilderConnector.php:44
 msgid "Easy Form Builder"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:232
+#: includes/Admin/EasyFormBuilderPage.php:237
 msgid "Features that are add-ons"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:243
+#: includes/Admin/EasyFormBuilderPage.php:248
 msgid "Payment gateways"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:253
+#: includes/Admin/EasyFormBuilderPage.php:258
 msgid "Keys not set"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:253
+#: includes/Admin/EasyFormBuilderPage.php:258
 msgid "Add-on"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:261
+#: includes/Admin/EasyFormBuilderPage.php:266
 msgid "CAPTCHA services"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:268
+#: includes/Admin/EasyFormBuilderPage.php:273
 msgid "As Easy Form Builder reports it. The copilot never promises a field this site cannot show: it names the add-on or plan and uses the closest field instead."
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:285
-#: includes/Api/EfbCopilotController.php:189
-#: includes/Api/EfbCopilotController.php:1561
+#: includes/Admin/EasyFormBuilderPage.php:290
+#: includes/Api/EfbCopilotController.php:192
+#: includes/Api/EfbCopilotController.php:1603
 msgid "Open EFB Add-ons"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:299
+#: includes/Admin/EasyFormBuilderPage.php:304
 #: includes/Admin/SettingsPage.php:403
 #: includes/Admin/SettingsPage.php:410
 msgid "Active"
@@ -3164,7 +3176,7 @@ msgstr ""
 
 #. translators: %s: plan name.
 #. translators: %s: required plugin name.
-#: includes/Admin/EasyFormBuilderPage.php:306
+#: includes/Admin/EasyFormBuilderPage.php:311
 #: includes/Admin/PluginDependency.php:336
 #: includes/Admin/SettingsPage.php:1140
 #, php-format
@@ -3172,93 +3184,93 @@ msgid "Needs %s"
 msgstr ""
 
 #. translators: %s: plan name.
-#: includes/Admin/EasyFormBuilderPage.php:310
+#: includes/Admin/EasyFormBuilderPage.php:315
 msgid "Install (every plan)"
 msgstr ""
 
 #. translators: %s: plan name.
-#: includes/Admin/EasyFormBuilderPage.php:310
+#: includes/Admin/EasyFormBuilderPage.php:315
 #, php-format
 msgid "Install (%s)"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:367
+#: includes/Admin/EasyFormBuilderPage.php:372
 msgid "Allowed"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:368
+#: includes/Admin/EasyFormBuilderPage.php:373
 msgid "Checked"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:370
+#: includes/Admin/EasyFormBuilderPage.php:375
 msgid "Rename the form"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:371
+#: includes/Admin/EasyFormBuilderPage.php:376
 msgid "Change the message shown after sending"
 msgstr ""
 
 #. translators: %s: number of form settings the AI may change.
-#: includes/Admin/EasyFormBuilderPage.php:376
+#: includes/Admin/EasyFormBuilderPage.php:381
 #, php-format
 msgid "Change the %s form setting marked AI-writable"
 msgid_plural "Change one of %s form settings marked AI-writable"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/EasyFormBuilderPage.php:381
+#: includes/Admin/EasyFormBuilderPage.php:386
 msgid "Add a step to a multi-step form"
 msgstr ""
 
 #. translators: %s: number of field types the AI may create.
-#: includes/Admin/EasyFormBuilderPage.php:386
+#: includes/Admin/EasyFormBuilderPage.php:391
 #, php-format
 msgid "Add a field of the %s allowed type"
 msgid_plural "Add a field of one of %s allowed types"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/EasyFormBuilderPage.php:391
+#: includes/Admin/EasyFormBuilderPage.php:396
 msgid "Change a field’s label, placeholder, help text, width or whether it is required"
 msgstr ""
 
 #. translators: %s: number of field settings the AI may change.
-#: includes/Admin/EasyFormBuilderPage.php:396
+#: includes/Admin/EasyFormBuilderPage.php:401
 #, php-format
 msgid "Change the %s field setting marked AI-writable"
 msgid_plural "Change one of %s field settings marked AI-writable"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/EasyFormBuilderPage.php:401
+#: includes/Admin/EasyFormBuilderPage.php:406
 msgid "Add online payment through a gateway add-on (Stripe, PayPal, ZarinPal, Mollie, Payplug, Tap, Omise, PayTabs, Paymob or Xendit): priced choices or an amount, the total and the gateway field, using only prices and a currency you gave. Needs the gateway’s add-on and the plan Easy Form Builder names; never touches keys"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:402
+#: includes/Admin/EasyFormBuilderPage.php:407
 msgid "Move a field before or after another field"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:403
+#: includes/Admin/EasyFormBuilderPage.php:408
 msgid "Remove a field and its settings"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:404
+#: includes/Admin/EasyFormBuilderPage.php:409
 msgid "Add a choice to a select, radio or checkbox"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:405
+#: includes/Admin/EasyFormBuilderPage.php:410
 msgid "Remove a choice"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:406
+#: includes/Admin/EasyFormBuilderPage.php:411
 msgid "Rename a choice; answers and logic that point at it stay linked"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:407
+#: includes/Admin/EasyFormBuilderPage.php:412
 msgid "Show, hide, require or skip to a field or step from another answer, when Easy Form Builder’s Conditional Logic add-on is active"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:411
+#: includes/Admin/EasyFormBuilderPage.php:416
 #: includes/Admin/NativeFormsPage.php:159
 #: includes/Efb/EfbFormConverter.php:38
 #: includes/Frontend/FormShortcode.php:307
@@ -3266,64 +3278,64 @@ msgstr ""
 msgid "Form"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:419
+#: includes/Admin/EasyFormBuilderPage.php:424
 msgid "Choices"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:423
-#: includes/Efb/EfbBuilderButton.php:429
+#: includes/Admin/EasyFormBuilderPage.php:428
+#: includes/Efb/EfbBuilderButton.php:461
 msgid "Conditional logic"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:441
+#: includes/Admin/EasyFormBuilderPage.php:446
 msgid "Only in Easy Form Builder"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:448
+#: includes/Admin/EasyFormBuilderPage.php:453
 msgid "Never"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:464
+#: includes/Admin/EasyFormBuilderPage.php:469
 msgid "Easy Form Builder global settings"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:465
+#: includes/Admin/EasyFormBuilderPage.php:470
 msgid "Turning add-ons on or off"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:466
+#: includes/Admin/EasyFormBuilderPage.php:471
 msgid "Credentials and API keys"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:467
+#: includes/Admin/EasyFormBuilderPage.php:472
 msgid "Payment keys and account details"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:468
+#: includes/Admin/EasyFormBuilderPage.php:473
 msgid "Scripts and other unfiltered HTML"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:469
+#: includes/Admin/EasyFormBuilderPage.php:474
 msgid "Web addresses and phone numbers you did not type"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:470
+#: includes/Admin/EasyFormBuilderPage.php:475
 msgid "Conditional rules for notifications, confirmations, webhooks and prices"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:471
+#: includes/Admin/EasyFormBuilderPage.php:476
 msgid "Logic that writes values or calculates"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:472
+#: includes/Admin/EasyFormBuilderPage.php:477
 msgid "Choosing who receives notifications"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:473
+#: includes/Admin/EasyFormBuilderPage.php:478
 msgid "Submitted entries"
 msgstr ""
 
-#: includes/Admin/EasyFormBuilderPage.php:495
+#: includes/Admin/EasyFormBuilderPage.php:500
 msgid "A change was applied in the editor."
 msgstr ""
 
@@ -3438,7 +3450,7 @@ msgid "No contact details left — reply in your usual channel"
 msgstr ""
 
 #: includes/Admin/HandoffInboxPage.php:321
-#: includes/Efb/EfbBuilderButton.php:408
+#: includes/Efb/EfbBuilderButton.php:440
 #: includes/Frontend/FormShortcode.php:84
 #: includes/Support/HandoffEmail.php:63
 msgid "Website"
@@ -3456,7 +3468,7 @@ msgstr ""
 
 #: includes/Admin/HandoffInboxPage.php:326
 #: includes/Admin/KnowledgeBasePage.php:501
-#: includes/Efb/EfbBuilderButton.php:109
+#: includes/Efb/EfbBuilderButton.php:128
 msgid "Saving…"
 msgstr ""
 
@@ -4148,7 +4160,7 @@ msgstr ""
 #. translators: %s: a plugin name.
 #. translators: %s: an example request, shown in quotation marks.
 #: includes/Admin/IntegrationsPage.php:292
-#: includes/Efb/EfbBuilderButton.php:329
+#: includes/Efb/EfbBuilderButton.php:360
 #, php-format
 msgid "“%s”"
 msgstr ""
@@ -4576,7 +4588,7 @@ msgid "All categories"
 msgstr ""
 
 #: includes/Admin/KnowledgeBasePage.php:380
-#: includes/Efb/EfbBuilderButton.php:137
+#: includes/Efb/EfbBuilderButton.php:157
 msgid "Type"
 msgstr ""
 
@@ -5021,7 +5033,7 @@ msgid "Published"
 msgstr ""
 
 #: includes/Admin/NativeFormsPage.php:191
-#: includes/Efb/EfbBuilderButton.php:112
+#: includes/Efb/EfbBuilderButton.php:131
 msgid "Draft"
 msgstr ""
 
@@ -5052,7 +5064,7 @@ msgstr ""
 #. translators: %s: plugin name, such as WooCommerce.
 #. translators: %s: Easy Form Builder add-on name.
 #: includes/Admin/PluginDependency.php:119
-#: includes/Efb/EfbBuilderButton.php:436
+#: includes/Efb/EfbBuilderButton.php:468
 #, php-format
 msgid "Install %s"
 msgstr ""
@@ -5564,7 +5576,7 @@ msgstr ""
 
 #: includes/Admin/SettingsPage.php:570
 #: includes/Admin/StoreCopilotPage.php:259
-#: includes/Efb/EfbBuilderButton.php:143
+#: includes/Efb/EfbBuilderButton.php:163
 #: includes/Frontend/ChatWidgetSettings.php:395
 msgid "Discard"
 msgstr ""
@@ -5588,7 +5600,7 @@ msgid "Deleting expired data…"
 msgstr ""
 
 #: includes/Admin/SettingsPage.php:588
-#: includes/Efb/EfbBuilderButton.php:169
+#: includes/Efb/EfbBuilderButton.php:189
 msgid "Done."
 msgstr ""
 
@@ -6383,7 +6395,7 @@ msgid "AI draft (you can edit it)"
 msgstr ""
 
 #: includes/Admin/StoreCopilotPage.php:136
-#: includes/Efb/EfbBuilderButton.php:235
+#: includes/Efb/EfbBuilderButton.php:255
 msgid "Apply"
 msgstr ""
 
@@ -7369,7 +7381,7 @@ msgstr ""
 
 #: includes/Api/ContentController.php:122
 #: includes/Api/CopilotController.php:237
-#: includes/Api/EfbCopilotController.php:297
+#: includes/Api/EfbCopilotController.php:310
 msgid "Missing action reference."
 msgstr ""
 
@@ -7395,8 +7407,8 @@ msgstr ""
 
 #: includes/Api/CopilotController.php:55
 #: includes/Api/EfbCopilotController.php:60
-#: includes/Api/EfbCopilotController.php:516
-#: includes/Api/EfbCopilotController.php:2091
+#: includes/Api/EfbCopilotController.php:529
+#: includes/Api/EfbCopilotController.php:2202
 msgid "Add your AI provider API key in AI Site Assistant AutoPilot → Settings first."
 msgstr ""
 
@@ -7443,538 +7455,569 @@ msgid "%s models loaded from the provider."
 msgstr ""
 
 #: includes/Api/EfbCopilotController.php:69
-#: includes/Api/EfbCopilotController.php:316
-#: includes/Api/EfbCopilotController.php:413
-#: includes/Api/EfbCopilotController.php:2279
-#: includes/Api/EfbCopilotController.php:2349
+#: includes/Api/EfbCopilotController.php:329
+#: includes/Api/EfbCopilotController.php:426
+#: includes/Api/EfbCopilotController.php:2474
+#: includes/Api/EfbCopilotController.php:2571
 #: includes/Connectors/EasyFormBuilderConnector.php:412
 msgid "Easy Form Builder is not active."
 msgstr ""
 
 #. translators: %s: comma-separated field names.
-#: includes/Api/EfbCopilotController.php:159
+#: includes/Api/EfbCopilotController.php:161
 #, php-format
-msgid "I left out %s — that field needs Easy Form Builder Free Plus or Pro. Everything else is ready."
-msgid_plural "I left out %s — those fields need Easy Form Builder Free Plus or Pro. Everything else is ready."
+msgid "I left out %s — that field needs Easy Form Builder Free Plus (it costs nothing) or Pro. Everything else is ready."
+msgid_plural "I left out %s — those fields need Easy Form Builder Free Plus (it costs nothing) or Pro. Everything else is ready."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: Easy Form Builder plan name (Free Plus or Pro).
-#: includes/Api/EfbCopilotController.php:199
+#: includes/Api/EfbCopilotController.php:202
+#: includes/Api/EfbCopilotController.php:1732
 #, php-format
 msgid "What %s adds"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:302
+#: includes/Api/EfbCopilotController.php:315
 #: includes/Execution/ActionExecutor.php:37
 msgid "This proposal has expired. Please generate the form again."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:305
-#: includes/Api/EfbCopilotController.php:2266
+#: includes/Api/EfbCopilotController.php:318
+#: includes/Api/EfbCopilotController.php:2461
 #: includes/Execution/ActionExecutor.php:30
 #: includes/Execution/ActionExecutor.php:42
 msgid "You are not allowed to approve this action."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:308
-#: includes/Api/EfbCopilotController.php:2267
+#: includes/Api/EfbCopilotController.php:321
+#: includes/Api/EfbCopilotController.php:2462
 #: includes/Execution/ActionExecutor.php:45
 msgid "This proposal is already being processed or has already been used."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:311
-#: includes/Api/EfbCopilotController.php:2268
+#: includes/Api/EfbCopilotController.php:324
+#: includes/Api/EfbCopilotController.php:2463
 msgid "This approval does not belong to Easy Form Builder."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:321
+#: includes/Api/EfbCopilotController.php:334
 msgid "This approval belongs to a change of a saved form."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:338
+#: includes/Api/EfbCopilotController.php:351
 msgid "Creation failed."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:409
+#: includes/Api/EfbCopilotController.php:422
 msgid "This form can no longer be undone here. Delete it in Easy Form Builder’s forms list if you do not want it."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:447
+#: includes/Api/EfbCopilotController.php:460
 msgid "Done: the new form was deleted."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:462
+#: includes/Api/EfbCopilotController.php:475
 msgid "I cannot check this form any more, so I do not delete it here. Delete it in Easy Form Builder’s forms list if you do not want it."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:465
+#: includes/Api/EfbCopilotController.php:478
 msgid "This form is published now, so I do not delete it here. If you do not want it any more, delete it in Easy Form Builder’s forms list."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:471
+#: includes/Api/EfbCopilotController.php:484
 msgid "I cannot tell whether this form has entries, so I do not delete it here. Delete it in Easy Form Builder’s forms list if you do not want it."
 msgstr ""
 
 #. translators: %d: number of entries the form has.
-#: includes/Api/EfbCopilotController.php:474
+#: includes/Api/EfbCopilotController.php:487
 #, php-format
 msgid "This form already has %d entry, so I do not delete it here: Undo would delete the entry too. Delete it in Easy Form Builder’s forms list if you really want to."
 msgid_plural "This form already has %d entries, so I do not delete it here: Undo would delete the entries too. Delete it in Easy Form Builder’s forms list if you really want to."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Api/EfbCopilotController.php:481
+#: includes/Api/EfbCopilotController.php:494
 msgid "This form was changed after I created it, so I do not delete it here and your changes stay. Delete it in Easy Form Builder’s forms list if you do not want it."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:498
+#: includes/Api/EfbCopilotController.php:511
 msgid "Tell me what form you need, ask me to change the open form, or ask how to do something."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:507
+#: includes/Api/EfbCopilotController.php:520
 msgid "That message is a bit long — please shorten it."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:650
+#: includes/Api/EfbCopilotController.php:663
 msgid "Here are topics I can walk you through:"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:688
+#: includes/Api/EfbCopilotController.php:701
 msgid "Here is what this form’s conditional logic does:"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:689
+#: includes/Api/EfbCopilotController.php:702
 msgid "This form has no conditional logic rules yet."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:764
+#: includes/Api/EfbCopilotController.php:777
 msgid "I did not change the form."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:769
+#: includes/Api/EfbCopilotController.php:782
 msgid "I could not turn that into a change. Try e.g. \"add a mobile field\" or \"make Email required\"."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:838
+#: includes/Api/EfbCopilotController.php:866
 msgid "I applied part of this. What I left out, and why:"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:842
+#: includes/Api/EfbCopilotController.php:870
 msgid "Done — applying your change."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:883
+#: includes/Api/EfbCopilotController.php:875
+msgid "You did not ask me to remove anything, so I have not removed these. Remove them?"
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:877
+msgid "I have not changed the form yet."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:919
 msgid "I could not build a safe form from that. Could you add a bit more detail?"
 msgstr ""
 
 #. translators: %d: number of pages the request asked for.
-#: includes/Api/EfbCopilotController.php:946
+#: includes/Api/EfbCopilotController.php:989
 #, php-format
-msgid "You asked for %d pages, but Easy Form Builder Free shows two at most, so the later pages are on page two. Buy Free Plus or Pro for more pages, or keep it as it is."
+msgid "You asked for %d pages, but Easy Form Builder Free shows two at most, so the later pages are on page two. Free Plus, which costs nothing, or Pro shows more pages; or keep it as it is."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:951
-#: includes/Api/EfbCopilotController.php:1442
-#: includes/Api/EfbCopilotController.php:1566
-msgid "See EFB Pro"
-msgstr ""
-
-#: includes/Api/EfbCopilotController.php:990
-msgid "Here is the form I designed — review it and approve to create it."
+#: includes/Api/EfbCopilotController.php:1030
+msgid "Here is the form, but not everything you asked for is in it. What I changed or left out, and why:"
 msgstr ""
 
 #: includes/Api/EfbCopilotController.php:1034
+msgid "Here is the form I designed — review it and approve to create it."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:1079
 msgid "How can I help with your form?"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1085
+#: includes/Api/EfbCopilotController.php:1130
 msgid "Step"
 msgstr ""
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:1473
+#: includes/Api/EfbCopilotController.php:1515
 #, php-format
 msgid "%s needs its Easy Form Builder add-on, which is not installed or not active. I can install it for you if you allow it; the form reloads afterwards, so save your changes first."
 msgstr ""
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:1476
+#: includes/Api/EfbCopilotController.php:1518
 #, php-format
 msgid "%s needs a newer version of its Easy Form Builder add-on (its payment code moved out of Easy Form Builder into the add-on). Update it on the Add-ons page, then ask again."
 msgstr ""
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:1479
+#: includes/Api/EfbCopilotController.php:1521
 #, php-format
 msgid "This Easy Form Builder does not report its payment add-ons, so I cannot tell whether %s would work here and added no payment. Update Easy Form Builder to 4.3.2 or newer, then ask again."
 msgstr ""
 
 #. translators: %s: payment gateway name, e.g. Mollie.
-#: includes/Api/EfbCopilotController.php:1482
+#: includes/Api/EfbCopilotController.php:1524
 #, php-format
 msgid "Easy Form Builder did not give me the %s payment field, so I added no payment. Add it from the Easy Form Builder palette instead."
 msgstr ""
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:1486
+#: includes/Api/EfbCopilotController.php:1528
 #, php-format
 msgid "Online payment with %s is part of Easy Form Builder Pro."
 msgstr ""
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:1488
+#: includes/Api/EfbCopilotController.php:1530
 #, php-format
 msgid "Online payment with %s needs Easy Form Builder Free Plus or Pro."
 msgstr ""
 
 #. translators: 1: payment gateway name, 2: currency code.
-#: includes/Api/EfbCopilotController.php:1491
+#: includes/Api/EfbCopilotController.php:1533
 #, php-format
 msgid "%1$s cannot take payments in %2$s. Tell me another currency."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1493
+#: includes/Api/EfbCopilotController.php:1535
 msgid "I need the price before I can add payment: how much is it, or which options cost how much, and in which currency? I never guess a price."
 msgstr ""
 
 #. translators: %s: payment gateway name already used by the form.
-#: includes/Api/EfbCopilotController.php:1496
+#: includes/Api/EfbCopilotController.php:1538
 #, php-format
 msgid "This form already takes payment through %s, and a form can use only one gateway. Remove that payment field first, or keep it."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1498
+#: includes/Api/EfbCopilotController.php:1540
 msgid "I added one payment to the form; a second one in the same message was left out."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1513
+#: includes/Api/EfbCopilotController.php:1555
 msgid "Tell me which payment gateway to use. Each one is an Easy Form Builder add-on (Stripe, PayPal, ZarinPal, Mollie, Payplug, Tap, Omise, PayTabs, Paymob or Xendit); none is active on this site yet."
 msgstr ""
 
 #. translators: %s: comma-separated gateway names.
-#: includes/Api/EfbCopilotController.php:1517
+#: includes/Api/EfbCopilotController.php:1559
 #, php-format
 msgid "Tell me which payment gateway to use: %s."
 msgstr ""
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:1537
+#: includes/Api/EfbCopilotController.php:1579
 #, php-format
 msgid "%s needs your account keys before this can take a real payment. Add them in its Easy Form Builder settings page; I never see or change keys."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1540
+#: includes/Api/EfbCopilotController.php:1582
 msgid "Prices and the currency are in the form now. Check them, then save the form in Easy Form Builder."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1541
+#: includes/Api/EfbCopilotController.php:1583
 msgid "The prices and the currency are shown in the preview. Check them before you create the form."
 msgstr ""
 
 #. translators: %s: payment gateway name, e.g. Stripe.
-#: includes/Api/EfbCopilotController.php:1579
+#: includes/Api/EfbCopilotController.php:1618
 #, php-format
 msgid "Open %s settings"
 msgstr ""
 
 #. translators: %s: field type.
-#: includes/Api/EfbCopilotController.php:1602
+#: includes/Api/EfbCopilotController.php:1642
 #, php-format
 msgid "Field type \"%s\" is not supported in Easy Form Builder."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1604
+#: includes/Api/EfbCopilotController.php:1644
 msgid "A choice field needs at least one option — tell me the options."
 msgstr ""
 
 #. translators: %s: field name.
-#: includes/Api/EfbCopilotController.php:1609
+#: includes/Api/EfbCopilotController.php:1649
 #, php-format
 msgid "I can configure a \"%s\" field but not add one — drag it in from the Easy Form Builder palette, then ask me again."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1611
+#: includes/Api/EfbCopilotController.php:1651
 msgid "Tell me the full address to send visitors to after they submit, for example https://example.com/thanks, or say “home page”."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1613
+#: includes/Api/EfbCopilotController.php:1653
 msgid "Tell me the address the link should open, for example https://example.com/terms."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1615
+#: includes/Api/EfbCopilotController.php:1655
 msgid "Tell me the mobile numbers that should get the SMS, in international form, for example +491701234567."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1617
+#: includes/Api/EfbCopilotController.php:1657
 msgid "Tell me what the HTML block should show. I keep safe formatting (text, links, lists, images) and leave out scripts."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1619
+#: includes/Api/EfbCopilotController.php:1659
 msgid "Easy Form Builder allows one location picker per form, and this form already has one."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1621
+#: includes/Api/EfbCopilotController.php:1661
 msgid "I can switch this form between an ordinary form, a survey and a sign-in form. A payment form is made by adding a payment; a registration form starts from Easy Form Builder’s own Register template."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1623
+#: includes/Api/EfbCopilotController.php:1663
 msgid "SMS notifications need Easy Form Builder’s SMS add-on, which is not installed or not active. I can install it for you if you allow it; the form reloads afterwards, so save your changes first."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1627
+#: includes/Api/EfbCopilotController.php:1667
 msgid "Conditional logic needs Easy Form Builder’s Conditional Logic add-on, which is not installed or not active. I can install it for you if you allow it; the form reloads afterwards, so save your changes first."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1629
-msgid "Conditional logic rules need Easy Form Builder Free Plus or Pro. Upgrade, or change the form so it does not depend on logic: for example ask every question, or use a separate form for each case."
+#: includes/Api/EfbCopilotController.php:1669
+msgid "Conditional logic rules need Easy Form Builder Free Plus, which costs nothing, or Pro. Activate one in Easy Form Builder, or change the form so it does not depend on logic: for example ask every question, or use a separate form for each case."
 msgstr ""
 
 #. translators: %d: rule limit.
-#: includes/Api/EfbCopilotController.php:1632
+#: includes/Api/EfbCopilotController.php:1672
 #, php-format
 msgid "Easy Form Builder Free Plus allows %d conditional logic rules per form, so the rest were left out. Buy Pro for unlimited rules, or change the form: combine rules that show the same fields, move a branch to its own step, or split it into separate forms."
 msgstr ""
 
 #. translators: %d: condition limit.
-#: includes/Api/EfbCopilotController.php:1635
+#: includes/Api/EfbCopilotController.php:1675
 #, php-format
 msgid "Easy Form Builder Free Plus allows %d conditions in one rule. Buy Pro, or split the rule into simpler rules."
 msgstr ""
 
 #. translators: 1: number of applied operations, 2: number of skipped operations.
-#: includes/Api/EfbCopilotController.php:1643
+#: includes/Api/EfbCopilotController.php:1683
 #, php-format
 msgid "That was too many changes at once: I applied the first %1$d and skipped %2$d. Ask again for the rest."
 msgstr ""
 
 #. translators: %s: field name the AI referred to.
-#: includes/Api/EfbCopilotController.php:1664
+#: includes/Api/EfbCopilotController.php:1704
 #, php-format
 msgid "I could not add that rule: this form has no field called “%s”."
 msgstr ""
 
 #. translators: %s: option text.
-#: includes/Api/EfbCopilotController.php:1667
+#: includes/Api/EfbCopilotController.php:1707
 #, php-format
 msgid "I could not add that rule: “%s” is not one of that field’s options."
 msgstr ""
 
 #. translators: %s: step name or number.
-#: includes/Api/EfbCopilotController.php:1670
+#: includes/Api/EfbCopilotController.php:1710
 #, php-format
 msgid "I could not add that rule: this form has no step “%s”."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1672
+#: includes/Api/EfbCopilotController.php:1712
 msgid "I could not add that rule: “before” and “after” need a date field and a full date, for example 2026-12-01."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1674
+#: includes/Api/EfbCopilotController.php:1714
 msgid "I could not add that rule: a field cannot show, hide or require itself."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1676
+#: includes/Api/EfbCopilotController.php:1716
 msgid "I could not add that rule: it would show and hide (or require and un-require) the same field at once."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1678
+#: includes/Api/EfbCopilotController.php:1718
 msgid "I could not turn that into a valid conditional logic rule. Name the field, the answer and what should happen."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1692
-msgid "Easy Form Builder Free supports up to two steps. Buy Free Plus or Pro for more, or change the form: merge pages so it fits in two, or make it a single page."
+#: includes/Api/EfbCopilotController.php:1747
+msgid "Easy Form Builder Free supports up to two steps. Free Plus, which costs nothing, or Pro allows more; or change the form: merge pages so it fits in two, or make it a single page."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1736
+#: includes/Api/EfbCopilotController.php:1793
 msgid "This field is available in the Pro version of Easy Form Builder."
 msgstr ""
 
 #. translators: 1: field name(s), 2: add-on name.
-#: includes/Api/EfbCopilotController.php:1741
+#: includes/Api/EfbCopilotController.php:1798
 #, php-format
 msgid "“%1$s” needs Easy Form Builder’s %2$s add-on, which is not active on this site any more, so I did not create the form. Ask me again and I will offer the closest field."
 msgstr ""
 
 #. translators: 1: field name(s), 2: the site's current Easy Form Builder plan.
-#: includes/Api/EfbCopilotController.php:1747
+#: includes/Api/EfbCopilotController.php:1804
 #, php-format
 msgid "“%1$s” needs Easy Form Builder Pro. This site is on %2$s."
 msgstr ""
 
 #. translators: 1: field name(s), 2: the site's current Easy Form Builder plan.
-#: includes/Api/EfbCopilotController.php:1749
+#: includes/Api/EfbCopilotController.php:1806
 #, php-format
 msgid "“%1$s” needs Easy Form Builder Free Plus or Pro. This site is on %2$s."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1772
-#: includes/Efb/EfbBuilderButton.php:286
-#: includes/Efb/EfbCapabilities.php:514
+#: includes/Api/EfbCopilotController.php:1829
+#: includes/Efb/EfbBuilderButton.php:306
+#: includes/Efb/EfbCapabilities.php:534
 msgid "Free Plus"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1772
-#: includes/Efb/EfbBuilderButton.php:287
-#: includes/Efb/EfbCapabilities.php:516
+#: includes/Api/EfbCopilotController.php:1829
+#: includes/Efb/EfbBuilderButton.php:307
+#: includes/Efb/EfbCapabilities.php:536
 msgid "Free"
 msgstr ""
 
 #. translators: 1: setting name(s), 2: the site's current Easy Form Builder plan.
-#: includes/Api/EfbCopilotController.php:1776
+#: includes/Api/EfbCopilotController.php:1833
 #, php-format
 msgid "“%1$s” is part of Easy Form Builder Pro. This site is on %2$s, so I left it unchanged."
 msgstr ""
 
 #. translators: 1: setting name(s), 2: the site's current Easy Form Builder plan.
-#: includes/Api/EfbCopilotController.php:1780
+#: includes/Api/EfbCopilotController.php:1837
 #, php-format
 msgid "“%1$s” is part of Easy Form Builder Free Plus and Pro. This site is on %2$s, so I left it unchanged."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1786
+#: includes/Api/EfbCopilotController.php:1843
 msgid "Email subject"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1787
+#: includes/Api/EfbCopilotController.php:1844
 msgid "Redirect after submit"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1788
+#: includes/Api/EfbCopilotController.php:1845
+#: includes/Efb/EfbFormUpdate.php:449
 msgid "Loading animation"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1789
+#: includes/Api/EfbCopilotController.php:1846
+#: includes/Efb/EfbFormUpdate.php:450
 msgid "Loading animation colour"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1790
-#: includes/Api/EfbCopilotController.php:1796
+#: includes/Api/EfbCopilotController.php:1847
+#: includes/Api/EfbCopilotController.php:1853
 msgid "Mobile layout"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1958
+#: includes/Api/EfbCopilotController.php:2069
 msgid "I checked the form. Here is what I would improve:"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:1959
+#: includes/Api/EfbCopilotController.php:2070
 msgid "I checked the form and found nothing to fix."
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Api/EfbCopilotController.php:1981
+#: includes/Api/EfbCopilotController.php:2092
 #, php-format
 msgid "Two rules on the same condition both show and hide (or require and un-require) “%s”; only the last one wins. Check the Conditional Logic panel."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2055
+#: includes/Api/EfbCopilotController.php:2166
 msgid "Ask a question, e.g. \"how do I make a field required?\""
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2063
+#: includes/Api/EfbCopilotController.php:2174
 msgid "I could not match that exactly. Try one of these topics:"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2088
+#: includes/Api/EfbCopilotController.php:2199
 msgid "Type what you want to change."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2113
+#: includes/Api/EfbCopilotController.php:2224
 msgid "I could not turn that into a change. Try being more specific, e.g. \"make Email required\" or \"rename the form to Contact us\"."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2139
+#: includes/Api/EfbCopilotController.php:2250
 msgid "Save the form with the Save button in the Easy Form Builder editor. AI Site Assistant AutoPilot never writes Easy Form Builder’s tables itself."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2169
+#: includes/Api/EfbCopilotController.php:2280
 msgid "I could not open that form. Choose it again from the list."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2195
+#: includes/Api/EfbCopilotController.php:2306
 msgid "Part of this change is made in the Easy Form Builder editor (payment, conditional logic or a setting with its own panel)."
 msgstr ""
 
 #. translators: %s: what could not be found (a field or option name).
-#: includes/Api/EfbCopilotController.php:2197
+#: includes/Api/EfbCopilotController.php:2308
 #, php-format
 msgid "Not found in the saved form: %s"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2203
+#: includes/Api/EfbCopilotController.php:2314
 msgid "I did not change the form: this change is made in the Easy Form Builder editor."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2209
+#: includes/Api/EfbCopilotController.php:2320
 msgid "Open it in the editor"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2239
+#: includes/Api/EfbCopilotController.php:2350
 msgid "Here is the change for the saved form. Nothing is saved until you approve it."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2265
-#: includes/Api/EfbCopilotController.php:2269
+#: includes/Api/EfbCopilotController.php:2407
+msgid "This form is also open in the Easy Form Builder editor in another tab. After you approve, reload that tab before you save there; a Save from the older copy would overwrite this change."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:2410
+msgid "another administrator"
+msgstr ""
+
+#. translators: %s: the name of the administrator who has the form open.
+#: includes/Api/EfbCopilotController.php:2413
+#, php-format
+msgid "%s has this form open in the Easy Form Builder editor. A Save from that older copy would overwrite this change: ask them to reload it after you approve, or make the change there."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:2443
+msgid "The assistant changed this form in Easy Form Builder after this editor opened it. Reload the editor to see that change; a Save here would overwrite it."
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:2444
+msgid "This form was changed by the assistant after you opened it here. Saving now overwrites that change. Save anyway?"
+msgstr ""
+
+#: includes/Api/EfbCopilotController.php:2460
+#: includes/Api/EfbCopilotController.php:2464
 msgid "This proposal has expired. Ask again and I will read the saved form anew."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2275
+#: includes/Api/EfbCopilotController.php:2470
 msgid "This approval does not belong to a change of a saved form."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2325
+#: includes/Api/EfbCopilotController.php:2547
 msgid "The form was changed in Easy Form Builder after I read it, so nothing was saved. Ask again and I will work from the saved form as it is now."
 msgstr ""
 
 #. translators: %s: add-on name.
-#: includes/Api/EfbCopilotController.php:2330
+#: includes/Api/EfbCopilotController.php:2552
 #, php-format
 msgid "Nothing was saved: this change needs the %s add-on of Easy Form Builder, which is not active on this site."
 msgstr ""
 
 #. translators: %s: add-on name.
-#: includes/Api/EfbCopilotController.php:2330
+#: includes/Api/EfbCopilotController.php:2552
 #: includes/Efb/EfbSaveNotes.php:86
 msgid "missing"
 msgstr ""
 
 #. translators: %s: plan name.
-#: includes/Api/EfbCopilotController.php:2333
+#: includes/Api/EfbCopilotController.php:2555
 #, php-format
 msgid "Nothing was saved: this change needs Easy Form Builder %s."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2336
+#: includes/Api/EfbCopilotController.php:2558
 msgid "Nothing was saved: a field this change names is no longer in the form. Ask again and I will read it anew."
 msgstr ""
 
 #. translators: %s: Easy Form Builder's own reason.
-#: includes/Api/EfbCopilotController.php:2341
+#: includes/Api/EfbCopilotController.php:2563
 #, php-format
 msgid "Easy Form Builder did not save the change: %s"
 msgstr ""
 
 #. translators: %s: Easy Form Builder's own reason.
-#: includes/Api/EfbCopilotController.php:2341
+#: includes/Api/EfbCopilotController.php:2563
 msgid "Easy Form Builder did not save the change."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2361
-#: includes/Efb/EfbBuilderButton.php:117
+#: includes/Api/EfbCopilotController.php:2583
+#: includes/Efb/EfbBuilderButton.php:136
 msgid "Published: visitors see the form now."
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2438
+#: includes/Api/EfbCopilotController.php:2660
 #: includes/Efb/EfbFormConverter.php:51
 msgid "Choose an option"
 msgstr ""
 
-#: includes/Api/EfbCopilotController.php:2550
+#: includes/Api/EfbCopilotController.php:2776
 msgid "The province list of the address is filled by Easy Form Builder on the page (its list service), so it is empty in the editor."
 msgstr ""
 
 #. translators: %s: Easy Form Builder's own reason.
-#: includes/Api/EfbCopilotController.php:2556
+#: includes/Api/EfbCopilotController.php:2782
 #, php-format
 msgid "Easy Form Builder would refuse this form: %s"
 msgstr ""
@@ -9015,1274 +9058,1460 @@ msgstr ""
 msgid "No API key configured"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:98
+#: includes/Efb/EfbBuilderButton.php:117
 msgid "Change a saved form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:99
+#: includes/Efb/EfbBuilderButton.php:118
 msgid "Choose the form to change. I read it from Easy Form Builder, and nothing is saved until you approve the change."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:100
+#: includes/Efb/EfbBuilderButton.php:119
 msgid "There are no forms to change yet."
 msgstr ""
 
 #. translators: %s: form name.
-#: includes/Efb/EfbBuilderButton.php:102
+#: includes/Efb/EfbBuilderButton.php:121
 #, php-format
 msgid "Saved form “%s”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:103
+#: includes/Efb/EfbBuilderButton.php:122
 msgid "Back to a new form"
 msgstr ""
 
 #. translators: %s: form name.
-#: includes/Efb/EfbBuilderButton.php:105
+#: includes/Efb/EfbBuilderButton.php:124
 #, php-format
 msgid "I will change “%s”. Tell me what to change."
 msgstr ""
 
 #. translators: %s: form name.
-#: includes/Efb/EfbBuilderButton.php:107
+#: includes/Efb/EfbBuilderButton.php:126
 #, php-format
 msgid "Change “%s”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:108
+#: includes/Efb/EfbBuilderButton.php:127
 msgid "Approve & save"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:110
+#: includes/Efb/EfbBuilderButton.php:129
 msgid "Saved in Easy Form Builder."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:111
+#: includes/Efb/EfbBuilderButton.php:130
 msgid "Open in the editor"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:113
+#: includes/Efb/EfbBuilderButton.php:132
 msgid "Created as a draft: visitors do not see it until you publish it."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:114
+#: includes/Efb/EfbBuilderButton.php:133
 msgid "This form is a draft: visitors do not see it yet. Publish it when it is ready."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:115
+#: includes/Efb/EfbBuilderButton.php:134
 msgid "Publish"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:116
+#: includes/Efb/EfbBuilderButton.php:135
 msgid "Publishing…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:118
+#: includes/Efb/EfbBuilderButton.php:137
 msgid "Easy Form Builder saved the form and noted"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:119
-#: includes/Efb/EfbBuilderButton.php:483
+#: includes/Efb/EfbBuilderButton.php:138
+#: includes/Efb/EfbBuilderButton.php:515
 msgid "Editing the current form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:120
+#: includes/Efb/EfbBuilderButton.php:139
 msgid "Designing a new form"
 msgstr ""
 
 #. translators: %s: selected Easy Form Builder field label.
-#: includes/Efb/EfbBuilderButton.php:122
+#: includes/Efb/EfbBuilderButton.php:141
 #, php-format
 msgid "Working on %s"
 msgstr ""
 
 #. translators: %s: selected Easy Form Builder field label.
-#: includes/Efb/EfbBuilderButton.php:124
+#: includes/Efb/EfbBuilderButton.php:143
 #, php-format
 msgid "You selected “%s”. Tell me what to change — make it required, rename it, or add help text."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:125
+#: includes/Efb/EfbBuilderButton.php:144
 msgid "Hi! I can change this form, design a new one, or explain how to do something in Easy Form Builder."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:126
+#: includes/Efb/EfbBuilderButton.php:145
 msgid "Hi! Tell me what form you need and I will design a complete one, or ask me an Easy Form Builder question."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:127
+#: includes/Efb/EfbBuilderButton.php:146
 msgid "Make Email required"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:128
+#: includes/Efb/EfbBuilderButton.php:147
 msgid "Rename the form to Contact us"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:129
+#: includes/Efb/EfbBuilderButton.php:148
 msgid "How do I add options to a dropdown?"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:130
+#: includes/Efb/EfbBuilderButton.php:149
 msgid "Build a contact form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:131
+#: includes/Efb/EfbBuilderButton.php:150
 msgid "A booking form for a dental clinic"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:132
+#: includes/Efb/EfbBuilderButton.php:151
 msgid "Job application form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:133
+#: includes/Efb/EfbBuilderButton.php:152
 msgid "How do I turn on email notifications?"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:134
+#: includes/Efb/EfbBuilderButton.php:153
 msgid "Upgrade to EFB Pro"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:135
+#: includes/Efb/EfbBuilderButton.php:154
+msgid "Get Free Plus (free)"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:155
 msgid "View pricing"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:138
+#: includes/Efb/EfbBuilderButton.php:158
 msgid "Req."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:139
+#: includes/Efb/EfbBuilderButton.php:159
 msgid "W"
 msgstr ""
 
 #. translators: %s: number of form fields.
-#: includes/Efb/EfbBuilderButton.php:141
+#: includes/Efb/EfbBuilderButton.php:161
 #, php-format
 msgid "%s fields"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:142
+#: includes/Efb/EfbBuilderButton.php:162
 msgid "Approve & create"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:144
+#: includes/Efb/EfbBuilderButton.php:164
 msgid "Creating…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:145
+#: includes/Efb/EfbBuilderButton.php:165
 msgid "Created! Opening the editor…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:147
+#: includes/Efb/EfbBuilderButton.php:167
 msgid "Voice recording is not supported by this browser. Please type your message."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:148
+#: includes/Efb/EfbBuilderButton.php:168
 msgid "No audio was captured."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:149
+#: includes/Efb/EfbBuilderButton.php:169
 msgid "That recording is too large. Please record a shorter message."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:150
+#: includes/Efb/EfbBuilderButton.php:170
 msgid "Transcribing…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:151
+#: includes/Efb/EfbBuilderButton.php:171
 msgid "Transcript ready. Review it, then send."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:153
+#: includes/Efb/EfbBuilderButton.php:173
 msgid "Recording — words appear in the message box. Stops after 45 seconds."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:154
+#: includes/Efb/EfbBuilderButton.php:174
 msgid "Microphone permission was denied. You can type your message instead."
 msgstr ""
 
 #. translators: %s: Easy Form Builder steps style name, such as Pills.
-#: includes/Efb/EfbBuilderButton.php:156
+#: includes/Efb/EfbBuilderButton.php:176
 #, php-format
 msgid "Steps style set to %s"
 msgstr ""
 
 #. translators: %s: Easy Form Builder progress bar style name, such as Ring.
-#: includes/Efb/EfbBuilderButton.php:158
+#: includes/Efb/EfbBuilderButton.php:178
 #, php-format
 msgid "Progress bar style set to %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:159
+#: includes/Efb/EfbBuilderButton.php:179
 msgid "Steps row hidden"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:160
+#: includes/Efb/EfbBuilderButton.php:180
 msgid "Steps row shown"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:161
+#: includes/Efb/EfbBuilderButton.php:181
 msgid "Progress bar hidden"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:162
+#: includes/Efb/EfbBuilderButton.php:182
 msgid "Progress bar shown"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:164
+#: includes/Efb/EfbBuilderButton.php:184
 msgid "Invalid server response."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:165
+#: includes/Efb/EfbBuilderButton.php:185
 msgid "Sorry, something went wrong."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:166
+#: includes/Efb/EfbBuilderButton.php:186
 msgid "The request could not be completed."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:167
+#: includes/Efb/EfbBuilderButton.php:187
 msgid "The form could not be created. Please try again."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:168
+#: includes/Efb/EfbBuilderButton.php:188
 msgid "Open a form in the editor first (create one here, or open Easy Form Builder → Forms and edit a form), then ask me to change it."
 msgstr ""
 
 #. translators: %s: new form name.
-#: includes/Efb/EfbBuilderButton.php:171
+#: includes/Efb/EfbBuilderButton.php:191
 #, php-format
 msgid "Renamed the form to “%s”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:172
+#: includes/Efb/EfbBuilderButton.php:192
 msgid "Updated the confirmation message"
 msgstr ""
 
 #. translators: 1: current field label or ID, 2: new field label.
-#: includes/Efb/EfbBuilderButton.php:174
+#: includes/Efb/EfbBuilderButton.php:194
 #, php-format
 msgid "Renamed “%1$s” to “%2$s”"
 msgstr ""
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:176
+#: includes/Efb/EfbBuilderButton.php:196
 #, php-format
 msgid "Made “%s” required"
 msgstr ""
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:178
+#: includes/Efb/EfbBuilderButton.php:198
 #, php-format
 msgid "Made “%s” optional"
 msgstr ""
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:180
+#: includes/Efb/EfbBuilderButton.php:200
 #, php-format
 msgid "Set the placeholder of “%s”"
 msgstr ""
 
 #. translators: 1: field label or ID, 2: width name, such as half width.
-#: includes/Efb/EfbBuilderButton.php:182
+#: includes/Efb/EfbBuilderButton.php:202
 #, php-format
 msgid "Set the width of “%1$s” to %2$s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:183
+#: includes/Efb/EfbBuilderButton.php:203
 msgid "full width"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:184
+#: includes/Efb/EfbBuilderButton.php:204
 msgid "half width"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:185
+#: includes/Efb/EfbBuilderButton.php:205
 msgid "one third"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:186
+#: includes/Efb/EfbBuilderButton.php:206
 msgid "one quarter"
 msgstr ""
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:188
+#: includes/Efb/EfbBuilderButton.php:208
 #, php-format
 msgid "Set the help text of “%s”"
 msgstr ""
 
 #. translators: 1: Easy Form Builder setting key, such as button color, 2: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:190
+#: includes/Efb/EfbBuilderButton.php:210
 #, php-format
 msgid "Updated %1$s for “%2$s”"
 msgstr ""
 
 #. translators: %s: Easy Form Builder form setting key, such as button color.
-#: includes/Efb/EfbBuilderButton.php:192
+#: includes/Efb/EfbBuilderButton.php:212
 #, php-format
 msgid "Updated the form setting “%s”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:193
+#: includes/Efb/EfbBuilderButton.php:213
 msgid "The form is now private: only logged-in users can see and send it"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:194
+#: includes/Efb/EfbBuilderButton.php:214
 msgid "The form is public again"
 msgstr ""
 
 #. translators: %s: the new subject.
-#: includes/Efb/EfbBuilderButton.php:196
+#: includes/Efb/EfbBuilderButton.php:216
 #, php-format
 msgid "Email subject set to “%s”"
 msgstr ""
 
 #. translators: %s: a web address.
-#: includes/Efb/EfbBuilderButton.php:198
+#: includes/Efb/EfbBuilderButton.php:218
 #, php-format
 msgid "After sending, visitors go to %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:199
+#: includes/Efb/EfbBuilderButton.php:219
 msgid "After sending, visitors see the thank-you message"
 msgstr ""
 
 #. translators: %s: form type name.
-#: includes/Efb/EfbBuilderButton.php:201
+#: includes/Efb/EfbBuilderButton.php:221
 #, php-format
 msgid "Form type set to %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:202
+#: includes/Efb/EfbBuilderButton.php:222
 msgid "form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:203
+#: includes/Efb/EfbBuilderButton.php:223
 msgid "survey"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:204
+#: includes/Efb/EfbBuilderButton.php:224
 msgid "sign-in form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:205
+#: includes/Efb/EfbBuilderButton.php:225
 msgid "payment form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:206
+#: includes/Efb/EfbBuilderButton.php:226
 msgid "SMS notifications turned on"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:207
+#: includes/Efb/EfbBuilderButton.php:227
 msgid "SMS notifications turned off"
 msgstr ""
 
 #. translators: %s: phone numbers.
-#: includes/Efb/EfbBuilderButton.php:209
+#: includes/Efb/EfbBuilderButton.php:229
 #, php-format
 msgid "SMS goes to %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:210
+#: includes/Efb/EfbBuilderButton.php:230
 msgid "SMS wording updated"
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbBuilderButton.php:212
+#: includes/Efb/EfbBuilderButton.php:232
 #, php-format
 msgid "A confirmation SMS goes to the number typed in “%s”"
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbBuilderButton.php:214
+#: includes/Efb/EfbBuilderButton.php:234
 #, php-format
 msgid "No SMS goes to the number typed in “%s” any more"
 msgstr ""
 
 #. translators: %s: label of the added field.
-#: includes/Efb/EfbBuilderButton.php:216
+#: includes/Efb/EfbBuilderButton.php:236
 #, php-format
 msgid "Added “%s”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:217
+#: includes/Efb/EfbBuilderButton.php:237
 msgid "New field"
 msgstr ""
 
 #. translators: %s: step title.
-#: includes/Efb/EfbBuilderButton.php:219
+#: includes/Efb/EfbBuilderButton.php:239
 #, php-format
 msgid "Added the step “%s”"
 msgstr ""
 
 #. translators: %s: step number.
-#: includes/Efb/EfbBuilderButton.php:221
+#: includes/Efb/EfbBuilderButton.php:241
 #, php-format
 msgid "Step %s"
 msgstr ""
 
 #. translators: %s: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:223
+#: includes/Efb/EfbBuilderButton.php:243
 #, php-format
 msgid "Removed “%s”"
 msgstr ""
 
 #. translators: 1: option text, 2: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:225
+#: includes/Efb/EfbBuilderButton.php:245
 #, php-format
 msgid "Added the option “%1$s” to “%2$s”"
 msgstr ""
 
 #. translators: 1: option text, 2: field label or ID.
-#: includes/Efb/EfbBuilderButton.php:227
+#: includes/Efb/EfbBuilderButton.php:247
 #, php-format
 msgid "Removed the option “%1$s” from “%2$s”"
 msgstr ""
 
 #. translators: 1: old option text, 2: new option text.
-#: includes/Efb/EfbBuilderButton.php:229
+#: includes/Efb/EfbBuilderButton.php:249
 #, php-format
 msgid "Renamed the option “%1$s” to “%2$s”"
 msgstr ""
 
 #. translators: %s: plain-language description of the rule.
-#: includes/Efb/EfbBuilderButton.php:231
+#: includes/Efb/EfbBuilderButton.php:251
 #, php-format
 msgid "Added the rule: %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:232
+#: includes/Efb/EfbBuilderButton.php:252
 msgid "Open Conditional Logic to review the rule and test it in Preview before you save."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:234
+#: includes/Efb/EfbBuilderButton.php:254
 msgid "Undone. The canvas is back to how it was before this change."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:236
+#: includes/Efb/EfbBuilderButton.php:256
 msgid "Applied the suggestion."
 msgstr ""
 
 #. translators: %s: page title.
-#: includes/Efb/EfbBuilderButton.php:238
+#: includes/Efb/EfbBuilderButton.php:258
 #, php-format
 msgid "New page: %s"
 msgstr ""
 
 #. translators: %s: submit button text.
-#: includes/Efb/EfbBuilderButton.php:240
+#: includes/Efb/EfbBuilderButton.php:260
 #, php-format
 msgid "Button: %s"
 msgstr ""
 
 #. translators: %s: email address.
-#: includes/Efb/EfbBuilderButton.php:242
+#: includes/Efb/EfbBuilderButton.php:262
 #, php-format
 msgid "Each submission is emailed to %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:243
+#: includes/Efb/EfbBuilderButton.php:263
 msgid "The person who fills it in gets a confirmation email"
 msgstr ""
 
 #. translators: %s: reason the change was not applied.
-#: includes/Efb/EfbBuilderButton.php:245
+#: includes/Efb/EfbBuilderButton.php:265
 #, php-format
 msgid "No change was applied: %s."
 msgstr ""
 
 #. translators: %s: reason the change was not applied.
-#: includes/Efb/EfbBuilderButton.php:247
+#: includes/Efb/EfbBuilderButton.php:267
 #, php-format
 msgid "Not applied: %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:248
+#: includes/Efb/EfbBuilderButton.php:268
 msgid "Click Save at the top of Easy Form Builder to keep the changes."
 msgstr ""
 
 #. translators: %s: trace ID to look up in the Activity Log.
-#: includes/Efb/EfbBuilderButton.php:250
+#: includes/Efb/EfbBuilderButton.php:270
 #, php-format
 msgid "The Easy Form Builder canvas could not redraw, so the editor reloads now. Check the form before you save it; trace %s is in AI Site Assistant AutoPilot → Activity Log."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:251
+#: includes/Efb/EfbBuilderButton.php:271
 msgid "the operation was malformed"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:252
+#: includes/Efb/EfbBuilderButton.php:272
 msgid "the field was not found in this form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:253
+#: includes/Efb/EfbBuilderButton.php:273
 msgid "that field setting cannot be changed here"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:254
+#: includes/Efb/EfbBuilderButton.php:274
 msgid "that setting is not available for this field type"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:255
+#: includes/Efb/EfbBuilderButton.php:275
 msgid "the colour or setting value is not valid"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:256
+#: includes/Efb/EfbBuilderButton.php:276
 msgid "that form setting is not available"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:257
+#: includes/Efb/EfbBuilderButton.php:277
 msgid "Easy Form Builder does not accept that value"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:258
+#: includes/Efb/EfbBuilderButton.php:278
 msgid "the step template was missing from the reply"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:259
+#: includes/Efb/EfbBuilderButton.php:279
 msgid "the field template was missing from the reply"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:260
+#: includes/Efb/EfbBuilderButton.php:280
 msgid "the new field was invalid or its ID already exists"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:261
+#: includes/Efb/EfbBuilderButton.php:281
 msgid "options can only be added to a choice field"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:262
+#: includes/Efb/EfbBuilderButton.php:282
 msgid "the option was not found"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:263
+#: includes/Efb/EfbBuilderButton.php:283
 msgid "the Conditional Logic add-on is not active on this form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:264
+#: includes/Efb/EfbBuilderButton.php:284
 msgid "the field to place it next to is not on this form"
 msgstr ""
 
 #. translators: 1: moved field, 2: field it now follows.
-#: includes/Efb/EfbBuilderButton.php:266
+#: includes/Efb/EfbBuilderButton.php:286
 #, php-format
 msgid "Moved “%1$s” after “%2$s”"
 msgstr ""
 
 #. translators: 1: moved field, 2: field it now precedes.
-#: includes/Efb/EfbBuilderButton.php:268
+#: includes/Efb/EfbBuilderButton.php:288
 #, php-format
 msgid "Moved “%1$s” before “%2$s”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:269
+#: includes/Efb/EfbBuilderButton.php:289
 msgid "this form already takes payment through another gateway"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:270
+#: includes/Efb/EfbBuilderButton.php:290
 msgid "the payment fields could not be prepared"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:271
+#: includes/Efb/EfbBuilderButton.php:291
 msgid "this change is not supported"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:272
+#: includes/Efb/EfbBuilderButton.php:292
 msgid "this form takes a payment, so it stays a payment form; remove the payment first"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:273
+#: includes/Efb/EfbBuilderButton.php:293
 msgid "the reply contained no change to apply"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:274
+#: includes/Efb/EfbBuilderButton.php:294
 msgid "an unexpected error stopped this change"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:275
+#: includes/Efb/EfbBuilderButton.php:295
 msgid "the Easy Form Builder canvas could not redraw"
 msgstr ""
 
 #. translators: 1: field label, 2: add-on name, 3: plan name.
 #. translators: 1: feature name, 2: add-on name, 3: plan name.
-#: includes/Efb/EfbBuilderButton.php:277
+#: includes/Efb/EfbBuilderButton.php:297
 #: includes/Efb/EfbKnowledge.php:165
 #, php-format
 msgid "%1$s: needs the %2$s add-on (%3$s)"
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbBuilderButton.php:279
+#: includes/Efb/EfbBuilderButton.php:299
 #, php-format
 msgid "%s: add it in the Easy Form Builder editor"
 msgstr ""
 
 #. translators: 1: field label, 2: plan name.
-#: includes/Efb/EfbBuilderButton.php:281
+#: includes/Efb/EfbBuilderButton.php:301
 #, php-format
 msgid "%1$s: needs Easy Form Builder %2$s"
 msgstr ""
 
 #. translators: %s: field type name.
-#: includes/Efb/EfbBuilderButton.php:283
+#: includes/Efb/EfbBuilderButton.php:303
 #, php-format
 msgid "in the form as: %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:284
+#: includes/Efb/EfbBuilderButton.php:304
 msgid "left out"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:285
-#: includes/Efb/EfbCapabilities.php:512
+#: includes/Efb/EfbBuilderButton.php:305
+#: includes/Efb/EfbCapabilities.php:532
 msgid "Pro"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:288
+#: includes/Efb/EfbBuilderButton.php:308
 msgid "Undo: delete this new form"
 msgstr ""
 
 #. translators: %s: form title.
-#: includes/Efb/EfbBuilderButton.php:290
+#: includes/Efb/EfbBuilderButton.php:310
 #, php-format
 msgid "Created “%s”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:291
+#: includes/Efb/EfbBuilderButton.php:311
 msgid "Easy Form Builder stored it with its own checks. Look it over here."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:292
+#: includes/Efb/EfbBuilderButton.php:312
 msgid "While it is an unchanged draft without entries, Undo deletes it."
 msgstr ""
 
 #. translators: %s: form title.
-#: includes/Efb/EfbBuilderButton.php:294
+#: includes/Efb/EfbBuilderButton.php:314
 #, php-format
 msgid "Delete “%s” from Easy Form Builder? This cannot be undone."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:295
+#: includes/Efb/EfbBuilderButton.php:315
 msgid "Delete the form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:296
+#: includes/Efb/EfbBuilderButton.php:316
 msgid "Keep it"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:297
+#: includes/Efb/EfbBuilderButton.php:317
+msgid "Remove without being asked?"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:318
+msgid "This form changed in another tab"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:319
+msgid "Reload the editor"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:320
+msgid "Remove them"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:321
+msgid "Keep them"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:322
+msgid "Removed, as you confirmed."
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:323
+msgid "Kept. Nothing was removed."
+msgstr ""
+
+#. translators: %s: field label.
+#: includes/Efb/EfbBuilderButton.php:325
+#, php-format
+msgid "Remove “%s”"
+msgstr ""
+
+#. translators: 1: option text, 2: field label.
+#. translators: 1: option, 2: field label.
+#: includes/Efb/EfbBuilderButton.php:327
+#: includes/Efb/EfbFormUpdate.php:369
+#, php-format
+msgid "Remove the option “%1$s” from “%2$s”"
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:328
 msgid "Deleting…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:298
+#: includes/Efb/EfbBuilderButton.php:329
 msgid "the form has no Email field to send the confirmation to"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:299
+#: includes/Efb/EfbBuilderButton.php:330
 msgid "that field needs an Easy Form Builder add-on that is not active on this page"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:300
+#: includes/Efb/EfbBuilderButton.php:331
 msgid "that field needs a higher Easy Form Builder plan"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:301
+#: includes/Efb/EfbBuilderButton.php:332
 msgid "this change could not be applied"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:303
+#: includes/Efb/EfbBuilderButton.php:334
 msgid "Ask AI to change this form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:304
+#: includes/Efb/EfbBuilderButton.php:335
 msgid "Add fields, show or hide them with logic, or get a review. Nothing is saved until you click Save."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:305
+#: includes/Efb/EfbBuilderButton.php:336
 msgid "Ask AI to build a form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:306
-msgid "Describe the form you need. I draft it for you to check, and nothing is created until you click Create."
+#: includes/Efb/EfbBuilderButton.php:337
+msgid "Describe the form you need, or change a saved one. I draft it for you to check: a new form is created as a draft when you click Create, a saved one changes when you click Approve & save."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:307
+#: includes/Efb/EfbBuilderButton.php:338
 msgid "opens it from anywhere"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:308
+#: includes/Efb/EfbBuilderButton.php:339
 msgid "NEW"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:309
+#: includes/Efb/EfbBuilderButton.php:340
 msgid "Describe a change, I do the clicking"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:310
+#: includes/Efb/EfbBuilderButton.php:341
 msgid "“Add a phone field after Email and make it required.”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:311
+#: includes/Efb/EfbBuilderButton.php:342
 msgid "Try it"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:312
-#: includes/Efb/EfbBuilderButton.php:437
+#: includes/Efb/EfbBuilderButton.php:343
+#: includes/Efb/EfbBuilderButton.php:469
 #: includes/Frontend/ChatWidget.php:247
 msgid "Not now"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:313
+#: includes/Efb/EfbBuilderButton.php:344
 msgid "AI is not connected yet"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:314
+#: includes/Efb/EfbBuilderButton.php:345
 msgid "Connect a service once (about 2 minutes) and the assistant can change this form for you."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:315
+#: includes/Efb/EfbBuilderButton.php:346
 msgid "1 AI change is not saved yet"
 msgstr ""
 
 #. translators: %s: number of changes.
-#: includes/Efb/EfbBuilderButton.php:317
+#: includes/Efb/EfbBuilderButton.php:348
 #, php-format
 msgid "%s AI changes are not saved yet"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:318
+#: includes/Efb/EfbBuilderButton.php:349
 msgid "Click Save at the top of Easy Form Builder to keep them, or open the assistant to undo."
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbBuilderButton.php:320
+#: includes/Efb/EfbBuilderButton.php:351
 #, php-format
 msgid "Ask AI about “%s”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:323
+#: includes/Efb/EfbBuilderButton.php:354
 msgid "1 field"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:325
+#: includes/Efb/EfbBuilderButton.php:356
 msgid "Not connected yet"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:326
+#: includes/Efb/EfbBuilderButton.php:357
 msgid "Add or change fields"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:327
+#: includes/Efb/EfbBuilderButton.php:358
 msgid "Add a phone field after Email"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:330
+#: includes/Efb/EfbBuilderButton.php:361
 msgid "Show or hide fields"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:331
+#: includes/Efb/EfbBuilderButton.php:362
 msgid "Show Company only for business customers"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:332
-#: includes/Efb/EfbBuilderButton.php:382
+#: includes/Efb/EfbBuilderButton.php:363
+#: includes/Efb/EfbBuilderButton.php:414
 msgid "Review this form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:333
+#: includes/Efb/EfbBuilderButton.php:364
 msgid "Missing consent, spam protection, too many questions"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:334
+#: includes/Efb/EfbBuilderButton.php:365
 msgid "How do I…?"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:335
+#: includes/Efb/EfbBuilderButton.php:366
 msgid "Ask anything about Easy Form Builder"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:336
+#: includes/Efb/EfbBuilderButton.php:367
 msgid "How do I "
 msgstr ""
 
 #. translators: %s: number of fields.
-#: includes/Efb/EfbBuilderButton.php:338
+#: includes/Efb/EfbBuilderButton.php:369
 #, php-format
 msgid "Read your form (%s fields)"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:339
+#: includes/Efb/EfbBuilderButton.php:370
 msgid "Read your request"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:340
+#: includes/Efb/EfbBuilderButton.php:371
 msgid "Working out the answer…"
 msgstr ""
 
 #. translators: %s: Easy Form Builder plan, such as Free Plus.
-#: includes/Efb/EfbBuilderButton.php:342
+#: includes/Efb/EfbBuilderButton.php:373
 #, php-format
 msgid "Check it against your Easy Form Builder plan (%s)"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:343
+#: includes/Efb/EfbBuilderButton.php:374
 msgid "1 change on the form"
 msgstr ""
 
 #. translators: %s: number of changes.
-#: includes/Efb/EfbBuilderButton.php:345
+#: includes/Efb/EfbBuilderButton.php:376
 #, php-format
 msgid "%s changes on the form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:346
+#: includes/Efb/EfbBuilderButton.php:377
 msgid "Not saved yet"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:347
+#: includes/Efb/EfbBuilderButton.php:378
 msgid "Show on form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:348
+#: includes/Efb/EfbBuilderButton.php:379
 msgid "AI · new"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:349
+#: includes/Efb/EfbBuilderButton.php:380
 msgid "AI · changed"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:350
+#: includes/Efb/EfbBuilderButton.php:381
 msgid "Nothing changed"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:351
+#: includes/Efb/EfbBuilderButton.php:382
 msgid "Your form is exactly as it was."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:352
+#: includes/Efb/EfbBuilderButton.php:383
 msgid "New conditional rule"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:353
+#: includes/Efb/EfbBuilderButton.php:384
 msgid "IF"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:354
+#: includes/Efb/EfbBuilderButton.php:385
 msgid "THEN"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:355
+#: includes/Efb/EfbBuilderButton.php:386
 msgid "and"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:356
+#: includes/Efb/EfbBuilderButton.php:387
 msgid "or"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:357
+#: includes/Efb/EfbBuilderButton.php:388
 msgid "Test in Preview"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:358
+#: includes/Efb/EfbBuilderButton.php:389
 msgid "1 suggestion"
 msgstr ""
 
 #. translators: %s: number of suggestions.
-#: includes/Efb/EfbBuilderButton.php:360
+#: includes/Efb/EfbBuilderButton.php:391
 #, php-format
 msgid "%s suggestions"
 msgstr ""
 
 #. translators: %s: number of fields.
-#: includes/Efb/EfbBuilderButton.php:362
+#: includes/Efb/EfbBuilderButton.php:393
 #, php-format
 msgid "%s fields checked"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:363
+#: includes/Efb/EfbBuilderButton.php:394
 msgid "How?"
 msgstr ""
 
 #. translators: %s: a review finding.
-#: includes/Efb/EfbBuilderButton.php:365
+#: includes/Efb/EfbBuilderButton.php:396
 #, php-format
 msgid "How do I fix this: %s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:366
+#: includes/Efb/EfbBuilderButton.php:397
 msgid "1 page"
 msgstr ""
 
 #. translators: %s: number of pages.
-#: includes/Efb/EfbBuilderButton.php:368
+#: includes/Efb/EfbBuilderButton.php:399
 #, php-format
 msgid "%s pages"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:369
+#: includes/Efb/EfbBuilderButton.php:400
 msgid "Create this form"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:370
-#: includes/Efb/EfbBuilderButton.php:498
+#: includes/Efb/EfbBuilderButton.php:401
+#: includes/Efb/EfbBuilderButton.php:530
 msgid "Describe a change, or click a field on the form…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:371
+#: includes/Efb/EfbBuilderButton.php:402
 msgid "Describe the form you need…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:372
+#: includes/Efb/EfbBuilderButton.php:403
 msgid "Ask for another change…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:373
+#: includes/Efb/EfbBuilderButton.php:404
 msgid "Ask for a change before creating it…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:374
+#: includes/Efb/EfbBuilderButton.php:405
 msgid "Connect an AI service to start…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:375
+#: includes/Efb/EfbBuilderButton.php:406
 msgid "Working on it…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:376
-#: includes/Efb/EfbBuilderButton.php:506
+#: includes/Efb/EfbBuilderButton.php:407
+#: includes/Efb/EfbBuilderButton.php:538
 msgid "AI suggests, you decide. Nothing is saved until you click Save."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:377
-msgid "AI suggests, you decide. Nothing is created until you click Create."
+#: includes/Efb/EfbBuilderButton.php:408
+msgid "AI suggests, you decide. Nothing is created or saved until you click Create or Approve & save."
+msgstr ""
+
+#: includes/Efb/EfbBuilderButton.php:409
+msgid "AI suggests, you decide. Nothing is saved until you click Approve & save."
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbBuilderButton.php:381
+#: includes/Efb/EfbBuilderButton.php:413
 #, php-format
 msgid "Add help text to “%s”"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:383
+#: includes/Efb/EfbBuilderButton.php:415
 msgid "Make the phone number optional"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:384
+#: includes/Efb/EfbBuilderButton.php:416
 msgid "Split it into 2 steps"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:385
+#: includes/Efb/EfbBuilderButton.php:417
 msgid "Connect an AI service to start"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:386
+#: includes/Efb/EfbBuilderButton.php:418
 msgid "I can change this form for you: add fields, show or hide them with logic, review it, or answer Easy Form Builder questions. First I need an AI service."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:387
+#: includes/Efb/EfbBuilderButton.php:419
 msgid "The assistant needs an AI service such as OpenAI, Claude or Gemini. You use your own API key; it is stored encrypted on this site and used only for your requests."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:388
+#: includes/Efb/EfbBuilderButton.php:420
 msgid "Pick a service"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:389
+#: includes/Efb/EfbBuilderButton.php:421
 msgid "Paste its API key"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:390
+#: includes/Efb/EfbBuilderButton.php:422
 msgid "Test the connection"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:391
+#: includes/Efb/EfbBuilderButton.php:423
 msgid "about 2 minutes"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:392
+#: includes/Efb/EfbBuilderButton.php:424
 msgid "Set up AI"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:393
+#: includes/Efb/EfbBuilderButton.php:425
 msgid "Setup opens in a new tab, so nothing on this form is lost. Come back here and I will be ready."
 msgstr ""
 
 #. translators: 1: AI service name, 2: model name.
-#: includes/Efb/EfbBuilderButton.php:395
+#: includes/Efb/EfbBuilderButton.php:427
 #, php-format
 msgid "Connected to %1$s · %2$s"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:396
+#: includes/Efb/EfbBuilderButton.php:428
 msgid "You are all set. Tell me what to change on this form."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:397
+#: includes/Efb/EfbBuilderButton.php:429
 msgid "I could not do that"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:407
-#: includes/Efb/EfbFeatureGate.php:404
+#: includes/Efb/EfbBuilderButton.php:439
+#: includes/Efb/EfbFeatureGate.php:729
 msgid "File upload"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:409
+#: includes/Efb/EfbBuilderButton.php:441
 msgid "Rating"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:410
+#: includes/Efb/EfbBuilderButton.php:442
 #: includes/Efb/EfbFormReview.php:105
 msgid "Consent"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:411
+#: includes/Efb/EfbBuilderButton.php:443
 msgid "Priced choice"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:412
+#: includes/Efb/EfbBuilderButton.php:444
 #: includes/Efb/EfbFormConverter.php:52
 msgid "Amount"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:413
+#: includes/Efb/EfbBuilderButton.php:445
 #: includes/Efb/EfbFormConverter.php:53
 #: includes/Support/PrivacyTools.php:151
 msgid "Total"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:414
+#: includes/Efb/EfbBuilderButton.php:446
 msgid "Location picker"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:415
+#: includes/Efb/EfbBuilderButton.php:447
 #: includes/Efb/EfbFormConverter.php:57
 msgid "Country"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:416
+#: includes/Efb/EfbBuilderButton.php:448
 #: includes/Efb/EfbFormConverter.php:58
 msgid "State / Province"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:417
+#: includes/Efb/EfbBuilderButton.php:449
 #: includes/Efb/EfbFormConverter.php:59
 msgid "City"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:418
+#: includes/Efb/EfbBuilderButton.php:450
 msgid "Sound recorder"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:419
+#: includes/Efb/EfbBuilderButton.php:451
 msgid "Video recorder"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:420
+#: includes/Efb/EfbBuilderButton.php:452
 msgid "Screen recorder"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:421
+#: includes/Efb/EfbBuilderButton.php:453
 msgid "Link"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:422
+#: includes/Efb/EfbBuilderButton.php:454
 msgid "HTML block"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:423
-#: includes/Efb/EfbFeatureGate.php:408
+#: includes/Efb/EfbBuilderButton.php:455
+#: includes/Efb/EfbFeatureGate.php:733
 #: includes/Efb/EfbFormConverter.php:41
 msgid "Heading"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:424
+#: includes/Efb/EfbBuilderButton.php:456
 msgid "Signature"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:425
+#: includes/Efb/EfbBuilderButton.php:457
 msgid "Colour picker"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:426
+#: includes/Efb/EfbBuilderButton.php:458
 msgid "Matrix"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:427
+#: includes/Efb/EfbBuilderButton.php:459
 #: includes/Efb/EfbFormConverter.php:63
 msgid "Password"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:428
+#: includes/Efb/EfbBuilderButton.php:460
 msgid "Payment"
 msgstr ""
 
 #. translators: %s: Easy Form Builder add-on name.
-#: includes/Efb/EfbBuilderButton.php:431
+#: includes/Efb/EfbBuilderButton.php:463
 #, php-format
 msgid "%s needs a higher Easy Form Builder plan"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:432
+#: includes/Efb/EfbBuilderButton.php:464
 msgid "This add-on comes with Easy Form Builder Free Plus and Pro."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:433
+#: includes/Efb/EfbBuilderButton.php:465
 msgid "This add-on comes with Easy Form Builder Pro."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:434
+#: includes/Efb/EfbBuilderButton.php:466
 msgid "See plans"
 msgstr ""
 
 #. translators: %s: Easy Form Builder add-on name.
-#: includes/Efb/EfbBuilderButton.php:439
+#: includes/Efb/EfbBuilderButton.php:471
 #, php-format
 msgid "This needs the %s add-on"
 msgstr ""
 
 #. translators: %s: Easy Form Builder add-on name.
-#: includes/Efb/EfbBuilderButton.php:441
+#: includes/Efb/EfbBuilderButton.php:473
 #, php-format
 msgid "May I install the %s add-on from Easy Form Builder now? The page reloads when it is done."
 msgstr ""
 
 #. translators: %s: number of unsaved changes.
-#: includes/Efb/EfbBuilderButton.php:443
+#: includes/Efb/EfbBuilderButton.php:475
 #, php-format
 msgid "Save the form in Easy Form Builder first: %s change(s) are not saved yet and a reload would lose them."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:444
+#: includes/Efb/EfbBuilderButton.php:476
 msgid "Nothing was installed."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:445
+#: includes/Efb/EfbBuilderButton.php:477
 msgid "Installing…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:446
+#: includes/Efb/EfbBuilderButton.php:478
 msgid "Installed. Save the form, then reload the page to use it."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:447
+#: includes/Efb/EfbBuilderButton.php:479
 msgid "Installed. Reloading so Easy Form Builder can load it…"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:448
+#: includes/Efb/EfbBuilderButton.php:480
 msgid "Easy Form Builder could not install it. Try again from Easy Form Builder → Add-ons."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:449
+#: includes/Efb/EfbBuilderButton.php:481
 msgid "Your request from Form Studio is in the message box. Send it and I will build the full form here."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:450
+#: includes/Efb/EfbBuilderButton.php:482
 msgid "The add-on is ready. Your request is in the message box: send it again when you are ready."
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:451
+#: includes/Efb/EfbBuilderButton.php:483
 msgid "Yes / No"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:465
+#: includes/Efb/EfbBuilderButton.php:497
 msgid "Ask AI"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:477
-#: includes/Efb/EfbBuilderButton.php:482
+#: includes/Efb/EfbBuilderButton.php:509
+#: includes/Efb/EfbBuilderButton.php:514
 msgid "AI Site Assistant"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:485
+#: includes/Efb/EfbBuilderButton.php:517
 msgid "New chat"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:486
+#: includes/Efb/EfbBuilderButton.php:518
 msgid "Close (Esc)"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:495
+#: includes/Efb/EfbBuilderButton.php:527
 msgid "Clear the selected field"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:498
+#: includes/Efb/EfbBuilderButton.php:530
 msgid "Message AI Site Assistant"
 msgstr ""
 
-#: includes/Efb/EfbBuilderButton.php:500
+#: includes/Efb/EfbBuilderButton.php:532
 msgid "Speak a message"
 msgstr ""
 
-#: includes/Efb/EfbCapabilities.php:523
+#: includes/Efb/EfbCapabilities.php:543
 msgid "Free Plus costs nothing: a person activates it in Easy Form Builder’s own upgrade dialog, and it adds a small public credit link to pages that show a form."
 msgstr ""
 
-#: includes/Efb/EfbCapabilities.php:527
+#: includes/Efb/EfbCapabilities.php:547
 msgid "On a Persian site Easy Form Builder Pro is bought once from easyformbuilder.ir; there is no yearly renewal."
 msgstr ""
 
-#: includes/Efb/EfbCapabilities.php:528
+#: includes/Efb/EfbCapabilities.php:548
 msgid "Easy Form Builder Pro is a yearly subscription from whitestudio.team."
 msgstr ""
 
-#: includes/Efb/EfbFeatureGate.php:94
+#: includes/Efb/EfbFeatureGate.php:224
+msgid "Persian (solar Hijri) calendar"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:226
+msgid "Hijri (lunar) calendar"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:228
+msgid "Gregorian calendar"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:269
 msgid "Yes"
 msgstr ""
 
-#: includes/Efb/EfbFeatureGate.php:95
+#: includes/Efb/EfbFeatureGate.php:270
 msgid "No"
 msgstr ""
 
 #. translators: 1: field label, 2: add-on name.
-#: includes/Efb/EfbFeatureGate.php:302
+#: includes/Efb/EfbFeatureGate.php:494
 #, php-format
 msgid "“%1$s” needs Easy Form Builder’s %2$s add-on, which this site does not have yet (it installs on every plan)."
 msgstr ""
 
 #. translators: 1: field label, 2: add-on name, 3: plan name (Free Plus or Pro).
-#: includes/Efb/EfbFeatureGate.php:304
+#: includes/Efb/EfbFeatureGate.php:496
 #, php-format
 msgid "“%1$s” needs Easy Form Builder’s %2$s add-on (%3$s plan), which this site does not have yet."
 msgstr ""
 
 #. translators: 1: field label, 2: add-on name.
-#: includes/Efb/EfbFeatureGate.php:308
+#: includes/Efb/EfbFeatureGate.php:500
 #, php-format
 msgid "“%1$s” needs a newer version of Easy Form Builder’s %2$s add-on; update it on the Add-ons page."
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbFeatureGate.php:312
+#: includes/Efb/EfbFeatureGate.php:504
 #, php-format
 msgid "I cannot build “%s” myself yet; add it in the Easy Form Builder editor after the form is created."
 msgstr ""
 
+#. translators: 1: field label, 2: plan name (Free Plus or Pro), 3: calendar name.
+#: includes/Efb/EfbFeatureGate.php:510
+#, php-format
+msgid "Letting visitors switch calendars in “%1$s” needs Easy Form Builder %2$s, so it uses the %3$s only."
+msgstr ""
+
+#. translators: 1: field label, 2: add-on name, 3: plan name (Free Plus or Pro).
+#: includes/Efb/EfbFeatureGate.php:519
+#, php-format
+msgid "“%1$s” needs Easy Form Builder’s %2$s add-on, which comes with %3$s."
+msgstr ""
+
 #. translators: 1: field label, 2: plan name (Free Plus or Pro).
-#: includes/Efb/EfbFeatureGate.php:316
+#: includes/Efb/EfbFeatureGate.php:521
 #, php-format
 msgid "“%1$s” needs Easy Form Builder %2$s."
 msgstr ""
 
 #. translators: %s: field type name.
-#: includes/Efb/EfbFeatureGate.php:320
+#: includes/Efb/EfbFeatureGate.php:525
 #, php-format
 msgid "I kept it as a plain %s."
 msgstr ""
 
 #. translators: %s: field type name.
-#: includes/Efb/EfbFeatureGate.php:323
+#: includes/Efb/EfbFeatureGate.php:528
 #, php-format
 msgid "I used a %s field instead, so the form works today."
 msgstr ""
 
-#: includes/Efb/EfbFeatureGate.php:325
+#: includes/Efb/EfbFeatureGate.php:530
 msgid "I left it out of the form."
 msgstr ""
 
-#: includes/Efb/EfbFeatureGate.php:406
+#: includes/Efb/EfbFeatureGate.php:615
+msgid "a one-time code sent by SMS"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:621
+msgid "a one-time code sent by e-mail"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:626
+msgid "a CAPTCHA service"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:627
+msgid "a typed signature"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:628
+msgid "a two-handle slider"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:629
+msgid "save and continue later"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:630
+msgid "partial answers"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:631
+msgid "a limit per person"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:632
+msgid "a limit on the number of answers"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:633
+msgid "opening and closing dates"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:634
+msgid "unique answers"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:635
+msgid "allowed e-mail domains"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:636
+msgid "a text length rule"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:637
+msgid "a calculation"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:638
+msgid "filling the field from the page address"
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:639
+msgid "who may see the form or the field"
+msgstr ""
+
+#. translators: 1: field label, 2: what was asked for (e.g. a one-time code sent by SMS).
+#: includes/Efb/EfbFeatureGate.php:672
+#, php-format
+msgid "“%1$s” with %2$s"
+msgstr ""
+
+#. translators: %s: what was asked for.
+#: includes/Efb/EfbFeatureGate.php:676
+#, php-format
+msgid "Not in the form: %s. That kind of field has no such setting."
+msgstr ""
+
+#. translators: %s: what was asked for.
+#: includes/Efb/EfbFeatureGate.php:681
+#, php-format
+msgid "Not in the form: %s. Easy Form Builder does not accept that value; set it in its editor."
+msgstr ""
+
+#. translators: 1: what was asked for, 2: add-on name, 3: plan name.
+#: includes/Efb/EfbFeatureGate.php:703
+#, php-format
+msgid "Not in the form: %1$s. It needs Easy Form Builder’s %2$s add-on (%3$s); then you set it in the Easy Form Builder editor."
+msgstr ""
+
+#. translators: 1: what was asked for, 2: plan name, 3: add-on name.
+#: includes/Efb/EfbFeatureGate.php:706
+#, php-format
+msgid "Not in the form: %1$s. It needs Easy Form Builder %2$s with its %3$s add-on; then you set it in the Easy Form Builder editor."
+msgstr ""
+
+#. translators: 1: what was asked for, 2: plan name.
+#: includes/Efb/EfbFeatureGate.php:709
+#, php-format
+msgid "Not in the form: %1$s. It needs Easy Form Builder %2$s; then you set it in the Easy Form Builder editor."
+msgstr ""
+
+#. translators: %s: what was asked for.
+#: includes/Efb/EfbFeatureGate.php:715
+#, php-format
+msgid "Not in the form: %s. I cannot set it on a new form; set it in the Easy Form Builder editor (this site has it)."
+msgstr ""
+
+#. translators: %s: what was asked for.
+#: includes/Efb/EfbFeatureGate.php:717
+#, php-format
+msgid "Not in the form: %s. I cannot set it on a new form; set it in the Easy Form Builder editor."
+msgstr ""
+
+#: includes/Efb/EfbFeatureGate.php:731
 msgid "Single choice"
 msgstr ""
 
-#: includes/Efb/EfbFeatureGate.php:409
+#: includes/Efb/EfbFeatureGate.php:734
 msgid "Signature (drawn)"
 msgstr ""
 
@@ -10426,80 +10655,252 @@ msgstr ""
 msgid "Change %1$s of “%2$s”"
 msgstr ""
 
-#. translators: %s: setting name.
-#: includes/Efb/EfbFormUpdate.php:249
-#, php-format
-msgid "Change the form setting %s"
-msgstr ""
-
 #. translators: %s: step name.
-#: includes/Efb/EfbFormUpdate.php:264
+#: includes/Efb/EfbFormUpdate.php:263
 #, php-format
 msgid "Add the step “%s”"
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbFormUpdate.php:295
+#: includes/Efb/EfbFormUpdate.php:294
 #, php-format
 msgid "Add the field “%s”"
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbFormUpdate.php:309
+#: includes/Efb/EfbFormUpdate.php:308
 #, php-format
 msgid "Remove the field “%s”"
 msgstr ""
 
 #. translators: 1: field label, 2: the other field's label.
-#: includes/Efb/EfbFormUpdate.php:334
+#: includes/Efb/EfbFormUpdate.php:333
 #, php-format
 msgid "Move “%1$s” after “%2$s”"
 msgstr ""
 
 #. translators: 1: field label, 2: the other field's label.
-#: includes/Efb/EfbFormUpdate.php:334
+#: includes/Efb/EfbFormUpdate.php:333
 #, php-format
 msgid "Move “%1$s” before “%2$s”"
 msgstr ""
 
 #. translators: 1: option, 2: field label.
-#: includes/Efb/EfbFormUpdate.php:350
+#: includes/Efb/EfbFormUpdate.php:349
 #, php-format
 msgid "Add the option “%1$s” to “%2$s”"
 msgstr ""
 
-#. translators: 1: option, 2: field label.
-#: includes/Efb/EfbFormUpdate.php:370
-#, php-format
-msgid "Remove the option “%1$s” from “%2$s”"
-msgstr ""
-
 #. translators: 1: old option, 2: new option.
-#: includes/Efb/EfbFormUpdate.php:372
+#: includes/Efb/EfbFormUpdate.php:371
 #, php-format
 msgid "Rename the option “%1$s” to “%2$s”"
 msgstr ""
 
+#: includes/Efb/EfbFormUpdate.php:418
+msgid "Make the form private: only logged-in users can see and send it"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:419
+msgid "Make the form public again"
+msgstr ""
+
+#. translators: %s: the new e-mail subject.
+#: includes/Efb/EfbFormUpdate.php:422
+#, php-format
+msgid "Set the notification e-mail subject to “%s”"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:424
+msgid "Turn on e-mail notifications"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:424
+msgid "Turn off e-mail notifications"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:426
+msgid "Turn on the CAPTCHA"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:426
+msgid "Turn off the CAPTCHA"
+msgstr ""
+
+#. translators: %s: setting name in plain words, e.g. Submit button text.
+#: includes/Efb/EfbFormUpdate.php:430
+#, php-format
+msgid "Change the form setting “%s”"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:436
+msgid "Form name"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:437
+msgid "Message after sending"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:438
+msgid "Title after sending"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:439
+msgid "Message for missing answers"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:440
+msgid "Submit button text"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:441
+msgid "Next button text"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:442
+msgid "Previous button text"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:443
+msgid "Tracking code"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:444
+msgid "Form background"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:445
+msgid "Only logged-in users"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:446
+msgid "CAPTCHA"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:447
+msgid "Currency"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:448
+msgid "Survey chart"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:451
+msgid "Button alignment"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:452
+msgid "Steps row"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:453
+msgid "Progress bar"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:454
+msgid "Steps style"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:455
+msgid "Progress bar style"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:456
+msgid "Labels on phones"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:457
+msgid "Notification e-mail subject"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:458
+msgid "E-mail notifications"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:459
+msgid "Telegram notifications"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:460
+msgid "Label colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:461
+msgid "Answer text colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:462
+msgid "Help text colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:463
+msgid "Icon colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:464
+msgid "Button colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:465
+msgid "Button text colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:466
+msgid "Button height"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:467
+msgid "Button corners"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:468
+msgid "label colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:469
+msgid "answer text colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:470
+msgid "help text colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:471
+msgid "border colour"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:472
+msgid "the message when it is left empty"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:473
+msgid "the default answer"
+msgstr ""
+
+#: includes/Efb/EfbFormUpdate.php:474
+msgid "whether the label shows"
+msgstr ""
+
 #. translators: 1: old label, 2: new label.
-#: includes/Efb/EfbFormUpdate.php:413
+#: includes/Efb/EfbFormUpdate.php:484
 #, php-format
 msgid "Rename “%1$s” to “%2$s”"
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbFormUpdate.php:419
+#: includes/Efb/EfbFormUpdate.php:490
 #, php-format
 msgid "Change the placeholder of “%s”"
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbFormUpdate.php:422
+#: includes/Efb/EfbFormUpdate.php:493
 #, php-format
 msgid "Change the width of “%s”"
 msgstr ""
 
 #. translators: %s: field label.
-#: includes/Efb/EfbFormUpdate.php:425
+#: includes/Efb/EfbFormUpdate.php:496
 #, php-format
 msgid "Change the help text of “%s”"
 msgstr ""

@@ -472,9 +472,14 @@ address.
 
 = Does the Easy Form Builder copilot save my form? =
 
-No. Each AI change is applied to the open builder so you can see it, has its
-own Undo button, and is saved only when you press Easy Form Builder's own Save
-button. A new form is created only after you approve its preview.
+Not without your click. In the open builder each AI change is applied so you
+can see it, has its own Undo button, and is saved only when you press Save in
+Easy Form Builder's toolbar. A new form is created as a draft only after you
+approve its preview, and visitors see it after you click Publish. A saved form
+is changed only when you approve the proposal ("Approve & save"); if the same
+form is open in an editor tab, that tab is warned and its Save asks first.
+Undo deletes a new form only while it is an unchanged draft without entries,
+and asks before it deletes.
 
 = Which conditional-logic rules can the copilot add? =
 
@@ -513,17 +518,23 @@ editable text; nothing is sent until you press Send.
   is on by default for the first Email field, as in Easy Form Builder 4.3.2.
   Payment gateways are always Easy Form Builder add-ons, including Mollie,
   Payplug, Tap, Omise, PayTabs, Paymob and Xendit. The Easy Form Builder
-  copilot page shows what Easy Form Builder reports about the site. The
-  customer portal is the free EFB Customer Portal plugin on every plan (Easy
-  Form Builder's portal contract 1.1), not a Pro add-on: the copilot's answer,
-  its context and the page's Customer portal row say whether it is installed
-  and active.
+  copilot page shows what Easy Form Builder reports about the site.
 * With Easy Form Builder 4.3.2 the copilot also edits a saved form after your
   approval (a form someone else saved in the meantime is never overwritten),
   keeps the name you gave a new form, creates it as a draft you publish from
   the card, explains the warnings of Easy Form Builder's own Save and reads the
   payment gateways from Easy Form Builder. Older versions keep the earlier
   behaviour.
+* Easy Form Builder copilot (QA-5): Undo deletes only an unchanged new draft
+  without entries, after asking; a new form's answer names everything it did
+  not build, with its plan or add-on; Jalali and Hijri dates use Easy Form
+  Builder's advanced date field on every plan; a booking slot becomes a date
+  field; new Stripe, PayPal and ZarinPal forms use the payment framework field
+  Easy Form Builder names; plan links open Easy Form Builder's own upgrade
+  dialog (Free Plus costs nothing); help topics follow the current editor
+  ("Done" only closes the panel, Save is in the toolbar) and are translatable;
+  form texts reach the AI as data and removals you did not ask for wait for
+  your OK; field ids are random like the builder's.
 * Form Studio puts fields in columns (full, three quarters, two thirds, half, a
   third or a quarter) in the preview and on the published form, and the AI sets
   them from words like "first and last name side by side". Click a field in the
