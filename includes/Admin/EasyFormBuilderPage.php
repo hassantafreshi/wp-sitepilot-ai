@@ -215,7 +215,7 @@ final class EasyFormBuilderPage {
 			'note'  => '',
 			'key'   => 'email_confirmation',
 		);
-		$groups[] = array(
+		$groups[]  = array(
 			'title' => __( 'Easy Form Builder', 'ai-site-assistant-autopilot' ),
 			'rows'  => $general,
 		);

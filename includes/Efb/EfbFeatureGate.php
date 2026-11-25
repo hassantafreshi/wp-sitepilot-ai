@@ -166,10 +166,13 @@ final class EfbFeatureGate {
 		$settings = is_array( $field['settings'] ?? null ) ? $field['settings'] : array();
 		unset( $settings['calendar'], $settings['calendars'] );
 		$allowed = $cal['allowed'];
-		$adv     = EfbCapabilities::available() ? EfbCapabilities::state( 'field:advdate' ) : array( 'known' => true, 'available' => true );
+		$adv     = EfbCapabilities::available() ? EfbCapabilities::state( 'field:advdate' ) : array(
+			'known'     => true,
+			'available' => true,
+		);
 		if ( ! empty( $adv['known'] ) && empty( $adv['available'] ) ) {
 			// No advanced date field on this site at all: a plain date, said so.
-			$blocked = array(
+			$blocked           = array(
 				'type'        => 'advdate',
 				'label'       => '' !== $label ? $label : 'advdate',
 				'feature'     => 'field:advdate',
@@ -520,7 +523,7 @@ final class EfbFeatureGate {
 						/* translators: 1: field label, 2: plan name (Free Plus or Pro). */
 						: sprintf( __( '“%1$s” needs Easy Form Builder %2$s.', 'ai-site-assistant-autopilot' ), $label, $plan );
 			}
-			if ( $setting && '' !== $alt && $alt === (string) ( $item['type'] ?? '' ) ) {
+			if ( $setting && '' !== $alt && (string) ( $item['type'] ?? '' ) === $alt ) {
 				/* translators: %s: field type name. */
 				$then = sprintf( __( 'I kept it as a plain %s.', 'ai-site-assistant-autopilot' ), $alt );
 			} elseif ( '' !== $alt ) {

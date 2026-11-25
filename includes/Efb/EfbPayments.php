@@ -114,7 +114,7 @@ final class EfbPayments {
 	public static function settings_url( string $gateway ): string {
 		if ( self::is_pay00( $gateway ) ) {
 			$fix = null;
-			if ( is_callable( array( '\\Emsfb\\Payments\\Readiness', 'fix_of' ) ) ) {
+			if ( class_exists( '\\Emsfb\\Payments\\Readiness' ) ) {
 				try {
 					$fix = \Emsfb\Payments\Readiness::fix_of( array( 'code' => 'pay_not_configured' ) );
 				} catch ( \Throwable $e ) {

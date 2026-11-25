@@ -561,7 +561,7 @@ final class EfbCopilotController {
 		$logic       = $has_form ? (bool) $request->get_param( 'logic_addon' ) : (int) ( $addons_seen['AdnSMF'] ?? 0 ) >= 1;
 		// EFB's registry knows which add-ons are installed on this site; the browser's report is the fallback.
 		if ( EfbCapabilities::available() ) {
-			$logic                = EfbCapabilities::addon( 'AdnSMF' )['installed'];
+			$logic                 = EfbCapabilities::addon( 'AdnSMF' )['installed'];
 			$addons_seen['AdnSMF'] = $logic ? 1 : 0;
 			$addons_seen['AdnSS']  = EfbCapabilities::addon( 'AdnSS' )['installed'] ? 1 : 0;
 		}
@@ -2483,7 +2483,7 @@ final class EfbCopilotController {
 				wp_strip_all_tags( $result->get_error_message() ),
 				array(
 					'form_id' => $form_id,
-					'code' => $code,
+					'code'    => $code,
 				)
 			);
 

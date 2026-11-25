@@ -96,7 +96,7 @@ final class EfbFormConverter {
 		// the plan's own seed keeps them the same every time this plan is converted (preview, logic, import).
 		$this->seed = is_string( $plan['id_seed'] ?? null ) && '' !== $plan['id_seed'] ? $plan['id_seed'] : self::new_seed();
 		$texts      = self::texts();
-		$title = (string) ( $plan['title'] ?? $texts['form'] );
+		$title      = (string) ( $plan['title'] ?? $texts['form'] );
 		if ( '' === trim( $title ) ) {
 			$title = $texts['form'];
 		}
@@ -813,7 +813,7 @@ final class EfbFormConverter {
 				continue;
 			}
 			if ( null === $first ) {
-				$first              = $i;
+				$first               = $i;
 				$items[ $i ]['noti'] = $confirm ? 1 : 0;
 				continue;
 			}

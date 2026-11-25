@@ -118,15 +118,15 @@ final class EfbFormUpdate {
 	 * @return array{patches:array<int,array<string,mixed>>,changes:array<int,string>,skipped:array<int,array{op:string,reason:string,text:string}>}
 	 */
 	public static function patches( array $ops, array $rows ): array {
-		$patches = array();
-		$changes = array();
-		$skipped = array();
-		$removed = array();
-		$choices = array(); // field id => the option list after the operations (kept ids: references stay).
-		$touched = array(); // the fields whose choices an operation changed.
-		$fields  = self::field_props();
-		$forms   = self::form_props();
-		$skip    = static function ( array $op, string $reason, string $text ) use ( &$skipped ): void {
+		$patches     = array();
+		$changes     = array();
+		$skipped     = array();
+		$removed     = array();
+		$choices     = array(); // field id => the option list after the operations (kept ids: references stay).
+		$touched     = array(); // the fields whose choices an operation changed.
+		$fields      = self::field_props();
+		$forms       = self::form_props();
+		$skip        = static function ( array $op, string $reason, string $text ) use ( &$skipped ): void {
 			$skipped[] = array(
 				'op'     => (string) ( $op['op'] ?? '' ),
 				'reason' => $reason,
@@ -325,8 +325,8 @@ final class EfbFormUpdate {
 						'ids' => array( (string) $field['id_'] ),
 					);
 					$patches[] = array(
-						'op'                                  => 'insert',
-						'rows'                                => $group,
+						'op'   => 'insert',
+						'rows' => $group,
 						isset( $op['after'] ) ? 'after' : 'before' => (string) $anchor['id_'],
 					);
 					/* translators: 1: field label, 2: the other field's label. */
@@ -370,7 +370,7 @@ final class EfbFormUpdate {
 							/* translators: 1: old option, 2: new option. */
 							: sprintf( __( 'Rename the option “%1$s” to “%2$s”', 'ai-site-assistant-autopilot' ), (string) ( $op['from'] ?? '' ), $value );
 					}
-					$choices[ $id ]   = array_values( $list );
+					$choices[ $id ] = array_values( $list );
 					$touched[ $id ] = true;
 					break;
 				default:
@@ -433,45 +433,45 @@ final class EfbFormUpdate {
 	/** A setting's name in the admin's words (the catalogue's keys are storage words, never shown). */
 	public static function setting_label( string $key ): string {
 		$names = array(
-			'form_name'                     => __( 'Form name', 'ai-site-assistant-autopilot' ),
-			'confirmation_message'          => __( 'Message after sending', 'ai-site-assistant-autopilot' ),
-			'confirmation_title'            => __( 'Title after sending', 'ai-site-assistant-autopilot' ),
-			'required_fields_message'       => __( 'Message for missing answers', 'ai-site-assistant-autopilot' ),
-			'submit_button_text'            => __( 'Submit button text', 'ai-site-assistant-autopilot' ),
-			'next_button_text'              => __( 'Next button text', 'ai-site-assistant-autopilot' ),
-			'previous_button_text'          => __( 'Previous button text', 'ai-site-assistant-autopilot' ),
-			'show_tracking_code'            => __( 'Tracking code', 'ai-site-assistant-autopilot' ),
-			'show_background'               => __( 'Form background', 'ai-site-assistant-autopilot' ),
-			'require_login'                 => __( 'Only logged-in users', 'ai-site-assistant-autopilot' ),
-			'captcha'                       => __( 'CAPTCHA', 'ai-site-assistant-autopilot' ),
-			'currency'                      => __( 'Currency', 'ai-site-assistant-autopilot' ),
-			'survey_chart_type'             => __( 'Survey chart', 'ai-site-assistant-autopilot' ),
-			'loading_type'                  => __( 'Loading animation', 'ai-site-assistant-autopilot' ),
-			'loading_color'                 => __( 'Loading animation colour', 'ai-site-assistant-autopilot' ),
-			'button_alignment'              => __( 'Button alignment', 'ai-site-assistant-autopilot' ),
-			'hide_steps_row'                => __( 'Steps row', 'ai-site-assistant-autopilot' ),
-			'hide_progress_bar'             => __( 'Progress bar', 'ai-site-assistant-autopilot' ),
-			'steps_style'                   => __( 'Steps style', 'ai-site-assistant-autopilot' ),
-			'progress_style'                => __( 'Progress bar style', 'ai-site-assistant-autopilot' ),
-			'global_mobile_hide_labels'     => __( 'Labels on phones', 'ai-site-assistant-autopilot' ),
-			'email_subject'                 => __( 'Notification e-mail subject', 'ai-site-assistant-autopilot' ),
-			'email_notification'            => __( 'E-mail notifications', 'ai-site-assistant-autopilot' ),
-			'telegram_notification'         => __( 'Telegram notifications', 'ai-site-assistant-autopilot' ),
-			'form_label_color'              => __( 'Label colour', 'ai-site-assistant-autopilot' ),
-			'form_input_text_color'         => __( 'Answer text colour', 'ai-site-assistant-autopilot' ),
-			'form_help_color'               => __( 'Help text colour', 'ai-site-assistant-autopilot' ),
-			'form_icon_color'               => __( 'Icon colour', 'ai-site-assistant-autopilot' ),
-			'button_color'                  => __( 'Button colour', 'ai-site-assistant-autopilot' ),
-			'button_text_color'             => __( 'Button text colour', 'ai-site-assistant-autopilot' ),
-			'button_height'                 => __( 'Button height', 'ai-site-assistant-autopilot' ),
-			'button_corner'                 => __( 'Button corners', 'ai-site-assistant-autopilot' ),
-			'label_color'                   => __( 'label colour', 'ai-site-assistant-autopilot' ),
-			'input_text_color'              => __( 'answer text colour', 'ai-site-assistant-autopilot' ),
-			'help_color'                    => __( 'help text colour', 'ai-site-assistant-autopilot' ),
-			'border_color'                  => __( 'border colour', 'ai-site-assistant-autopilot' ),
-			'custom_required_message'       => __( 'the message when it is left empty', 'ai-site-assistant-autopilot' ),
-			'default_value'                 => __( 'the default answer', 'ai-site-assistant-autopilot' ),
-			'hide_label'                    => __( 'whether the label shows', 'ai-site-assistant-autopilot' ),
+			'form_name'                 => __( 'Form name', 'ai-site-assistant-autopilot' ),
+			'confirmation_message'      => __( 'Message after sending', 'ai-site-assistant-autopilot' ),
+			'confirmation_title'        => __( 'Title after sending', 'ai-site-assistant-autopilot' ),
+			'required_fields_message'   => __( 'Message for missing answers', 'ai-site-assistant-autopilot' ),
+			'submit_button_text'        => __( 'Submit button text', 'ai-site-assistant-autopilot' ),
+			'next_button_text'          => __( 'Next button text', 'ai-site-assistant-autopilot' ),
+			'previous_button_text'      => __( 'Previous button text', 'ai-site-assistant-autopilot' ),
+			'show_tracking_code'        => __( 'Tracking code', 'ai-site-assistant-autopilot' ),
+			'show_background'           => __( 'Form background', 'ai-site-assistant-autopilot' ),
+			'require_login'             => __( 'Only logged-in users', 'ai-site-assistant-autopilot' ),
+			'captcha'                   => __( 'CAPTCHA', 'ai-site-assistant-autopilot' ),
+			'currency'                  => __( 'Currency', 'ai-site-assistant-autopilot' ),
+			'survey_chart_type'         => __( 'Survey chart', 'ai-site-assistant-autopilot' ),
+			'loading_type'              => __( 'Loading animation', 'ai-site-assistant-autopilot' ),
+			'loading_color'             => __( 'Loading animation colour', 'ai-site-assistant-autopilot' ),
+			'button_alignment'          => __( 'Button alignment', 'ai-site-assistant-autopilot' ),
+			'hide_steps_row'            => __( 'Steps row', 'ai-site-assistant-autopilot' ),
+			'hide_progress_bar'         => __( 'Progress bar', 'ai-site-assistant-autopilot' ),
+			'steps_style'               => __( 'Steps style', 'ai-site-assistant-autopilot' ),
+			'progress_style'            => __( 'Progress bar style', 'ai-site-assistant-autopilot' ),
+			'global_mobile_hide_labels' => __( 'Labels on phones', 'ai-site-assistant-autopilot' ),
+			'email_subject'             => __( 'Notification e-mail subject', 'ai-site-assistant-autopilot' ),
+			'email_notification'        => __( 'E-mail notifications', 'ai-site-assistant-autopilot' ),
+			'telegram_notification'     => __( 'Telegram notifications', 'ai-site-assistant-autopilot' ),
+			'form_label_color'          => __( 'Label colour', 'ai-site-assistant-autopilot' ),
+			'form_input_text_color'     => __( 'Answer text colour', 'ai-site-assistant-autopilot' ),
+			'form_help_color'           => __( 'Help text colour', 'ai-site-assistant-autopilot' ),
+			'form_icon_color'           => __( 'Icon colour', 'ai-site-assistant-autopilot' ),
+			'button_color'              => __( 'Button colour', 'ai-site-assistant-autopilot' ),
+			'button_text_color'         => __( 'Button text colour', 'ai-site-assistant-autopilot' ),
+			'button_height'             => __( 'Button height', 'ai-site-assistant-autopilot' ),
+			'button_corner'             => __( 'Button corners', 'ai-site-assistant-autopilot' ),
+			'label_color'               => __( 'label colour', 'ai-site-assistant-autopilot' ),
+			'input_text_color'          => __( 'answer text colour', 'ai-site-assistant-autopilot' ),
+			'help_color'                => __( 'help text colour', 'ai-site-assistant-autopilot' ),
+			'border_color'              => __( 'border colour', 'ai-site-assistant-autopilot' ),
+			'custom_required_message'   => __( 'the message when it is left empty', 'ai-site-assistant-autopilot' ),
+			'default_value'             => __( 'the default answer', 'ai-site-assistant-autopilot' ),
+			'hide_label'                => __( 'whether the label shows', 'ai-site-assistant-autopilot' ),
 		);
 
 		return $names[ $key ] ?? str_replace( '_', ' ', $key );
