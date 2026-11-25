@@ -295,6 +295,15 @@ final class EfbBuilderButton {
 					'undoConfirm'                    => __( 'Delete “%s” from Easy Form Builder? This cannot be undone.', 'ai-site-assistant-autopilot' ),
 					'undoConfirmYes'                 => __( 'Delete the form', 'ai-site-assistant-autopilot' ),
 					'undoConfirmNo'                  => __( 'Keep it', 'ai-site-assistant-autopilot' ),
+					'heldTitle'                      => __( 'Remove without being asked?', 'ai-site-assistant-autopilot' ),
+					'heldRemove'                     => __( 'Remove them', 'ai-site-assistant-autopilot' ),
+					'heldKeep'                       => __( 'Keep them', 'ai-site-assistant-autopilot' ),
+					'heldApplied'                    => __( 'Removed, as you confirmed.', 'ai-site-assistant-autopilot' ),
+					'heldKept'                       => __( 'Kept. Nothing was removed.', 'ai-site-assistant-autopilot' ),
+					/* translators: %s: field label. */
+					'heldField'                      => __( 'Remove “%s”', 'ai-site-assistant-autopilot' ),
+					/* translators: 1: option text, 2: field label. */
+					'heldOption'                     => __( 'Remove the option “%1$s” from “%2$s”', 'ai-site-assistant-autopilot' ),
 					'undoing'                        => __( 'Deleting…', 'ai-site-assistant-autopilot' ),
 					'reasonEmailFieldMissing'        => __( 'the form has no Email field to send the confirmation to', 'ai-site-assistant-autopilot' ),
 					'reasonFieldNeedsAddon'          => __( 'that field needs an Easy Form Builder add-on that is not active on this page', 'ai-site-assistant-autopilot' ),

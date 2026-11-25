@@ -204,7 +204,7 @@ final class EfbFormConverterTest extends TestCase {
 		}
 		$this->assertNotNull( $name );
 		$this->assertSame( '1', $name['required'] );          // bool true -> "1"
-		$this->assertSame( 'full_name-id', $name['dataId'] ); // dataId = id_ + "-id"
+		$this->assertSame( $name['id_'] . '-id', $name['dataId'] ); // dataId = id_ + "-id"
 		$this->assertSame( '1', $name['step'] );
 
 		// amount is a sequential number starting at the step: EFB compares it as a number (a state list is
@@ -226,7 +226,8 @@ final class EfbFormConverterTest extends TestCase {
 		$items = ( new EfbFormConverter() )->convert( $plan );
 		$by = array();
 		foreach ( $items as $it ) {
-			if ( isset( $it['id_'] ) ) { $by[ $it['id_'] ] = $it; }
+			// QA5-012: ids are random now; the fields are found by their key's label.
+			if ( isset( $it['id_'], $it['name'] ) && in_array( $it['name'], array( 'First', 'CV', 'Agree' ), true ) ) { $by[ strtolower( (string) $it['name'] ) ] = $it; }
 		}
 
 		// Common styling exists on every field.
@@ -266,5 +267,38 @@ final class EfbFormConverterTest extends TestCase {
 		$this->assertSame( 'stepNavEfb', $step['classes'] );
 		$this->assertSame( 'Personal information', $step['name'] );
 		$this->assertSame( '', $step['id_'] ); // Assigned against the live form in the browser.
+	}
+
+	/**
+	 * QA5-012: two copilot forms on one page never share a field id. The ids are random like EFB's builder makes them
+	 * (nine lower-case letters and digits), the same for the same plan (its id_seed: preview, logic and import agree),
+	 * and an option's id follows its field's.
+	 */
+	public function test_field_ids_are_random_per_form_and_stable_per_plan(): void {
+		$plan          = $this->plan();
+		$plan['id_seed'] = 'seed-one';
+		$one           = ( new EfbFormConverter() )->convert( $plan );
+		$again         = ( new EfbFormConverter() )->convert( $plan );
+		$plan['id_seed'] = 'seed-two';
+		$two           = ( new EfbFormConverter() )->convert( $plan );
+
+		$ids = static fn ( array $items ): array => array_values( array_filter( array_map( static fn ( $it ) => ( $it['type'] ?? '' ) === 'option' || ( $it['type'] ?? '' ) === 'step' || ( $it['type'] ?? '' ) === 'form' ? null : ( $it['id_'] ?? null ), $items ) ) );
+		self::assertNotEmpty( $ids( $one ) );
+		self::assertSame( $ids( $one ), $ids( $again ), 'the same plan gets the same ids every time' );
+		self::assertSame( array(), array_intersect( $ids( $one ), $ids( $two ) ), 'another form never shares a field id' );
+		foreach ( $ids( $one ) as $id ) {
+			self::assertMatchesRegularExpression( '/^[a-z][a-z0-9]{8}$/', $id );
+		}
+		self::assertNotContains( 'email', $ids( $one ) );
+		self::assertNotContains( 'full_name', $ids( $one ) );
+		foreach ( $one as $it ) {
+			if ( 'option' === ( $it['type'] ?? '' ) ) {
+				self::assertStringStartsWith( (string) $it['parent'], (string) $it['id_'] );
+			}
+		}
+		// A field added to an open form gets a fresh random id as well.
+		$a = ( new EfbFormConverter() )->build_field( array( 'type' => 'email', 'label' => 'Email' ) );
+		$b = ( new EfbFormConverter() )->build_field( array( 'type' => 'email', 'label' => 'Email' ) );
+		self::assertNotSame( $a[0]['id_'], $b[0]['id_'] );
 	}
 }

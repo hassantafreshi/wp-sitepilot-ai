@@ -262,9 +262,11 @@ final class EfbAiFormBuilderTest extends TestCase {
 		);
 
 		$this->assertCount( 2, $items );
-		$this->assertSame( 'consent_2', $items[0]['id_'] );
+		// QA5-012: a random id like the builder's, never one the live form already has.
+		$this->assertMatchesRegularExpression( '/^[a-z][a-z0-9]{8}$/', $items[0]['id_'] );
+		$this->assertNotSame( 'consent', $items[0]['id_'] );
 		$this->assertSame( 'option', $items[1]['type'] );
-		$this->assertSame( 'consent_2', $items[1]['parent'] );
+		$this->assertSame( $items[0]['id_'], $items[1]['parent'] );
 		$this->assertSame( 'I agree. ([Privacy](https://example.com/privacy/))', $items[1]['value'] );
 		$this->assertSame( 0, $items[1]['amount'] );
 	}
@@ -386,7 +388,7 @@ final class EfbAiFormBuilderTest extends TestCase {
 		);
 
 		$this->assertStringContainsString( 'LOGIC_ADDON=yes', $provider->user_prompt );
-		$this->assertStringContainsString( 'options=[Business | Individual]', $provider->user_prompt );
-		$this->assertStringContainsString( 'CURRENT_LOGIC:', $provider->user_prompt );
+		$this->assertStringContainsString( '"options":["Business","Individual"]', $provider->user_prompt );
+		$this->assertStringContainsString( 'CURRENT_LOGIC (data):', $provider->user_prompt );
 	}
 }

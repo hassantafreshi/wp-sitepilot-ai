@@ -844,6 +844,21 @@ final class EfbCopilotController {
 				)
 			);
 
+			// QA5-011: in the open editor a change is applied to the canvas at once. A removal the admin did not ask for
+			// (the model's own idea, or words planted in a label) waits for their OK instead.
+			$held = array();
+			if ( null === $saved && ! self::asks_for_removal( $message ) ) {
+				$kept = array();
+				foreach ( $ops as $op ) {
+					if ( in_array( (string) ( $op['op'] ?? '' ), array( 'remove_field', 'remove_option' ), true ) ) {
+						$held[] = $op;
+					} else {
+						$kept[] = $op;
+					}
+				}
+				$ops = $kept;
+			}
+
 			// A partly-applied batch must say so rather than answering a plain "Done". The model wrote its
 			// reply before anything was checked, so when part of what it proposed was refused that reply
 			// would announce changes that were never made.
@@ -855,6 +870,13 @@ final class EfbCopilotController {
 				'reply'      => '' !== $reply ? $reply : __( 'Done — applying your change.', 'ai-site-assistant-autopilot' ),
 				'operations' => $ops,
 			);
+			if ( array() !== $held ) {
+				$payload['held']      = $held;
+				$payload['held_note'] = __( 'You did not ask me to remove anything, so I have not removed these. Remove them?', 'ai-site-assistant-autopilot' );
+				if ( array() === $ops ) {
+					$payload['reply'] = __( 'I have not changed the form yet.', 'ai-site-assistant-autopilot' );
+				}
+			}
 			if ( null !== $saved ) {
 				// A saved form: the change becomes EFB's own patches, proposed for approval (nothing is saved yet).
 				$payload = $this->saved_form_proposal( $saved, $ops, $payload, $message );
@@ -1831,6 +1853,14 @@ final class EfbCopilotController {
 		return str_starts_with( $key, 'mobile_' ) ? __( 'Mobile layout', 'ai-site-assistant-autopilot' ) : ucfirst( str_replace( '_', ' ', $key ) );
 	}
 
+	/**
+	 * Whether the admin's own message asks to remove or replace something (any of the copilot's languages). Only then is
+	 * a removal applied to the open form at once; otherwise it waits for the admin's OK (QA5-011).
+	 */
+	public static function asks_for_removal( string $message ): bool {
+		return 1 === preg_match( '/\b(remov|delet|drop(?!\s*-?down)|get rid|without|take out|erase|replac|swap|strip(?!e)|entfern|lösch|ersetz|supprim|retir|remplac|elimin|quita|borra|reemplaz|rimuov|sostitu|kaldır|убер|удал)|حذف|پاک|بردار|جایگزین|عوض|إزال|أزل|ازل|احذف|امسح|استبدل|بدّل/iu', $message );
+	}
+
 	/** The keys of a create_form "form" the copilot reads; anything else the model sends is reported as not applied. */
 	private const NEW_FORM_KEYS = array( 'title', 'description', 'fields', 'submit_button', 'confirmation_message', 'notify_admin', 'confirm_to_respondent', 'needs_efb', 'payment', 'logic', 'risk_level', 'notes', 'intent', 'requires_approval' );
 
@@ -1965,6 +1995,8 @@ final class EfbCopilotController {
 	 */
 	private function finalize_plan( array $plan, array $raw_form = array() ): array {
 		$plan['confirm_to_respondent'] = EfbFormConverter::confirmation_choice( $plan, $raw_form );
+		// QA5-012: the random field ids of this plan stay the same from the preview and the logic to EFB's import.
+		$plan['id_seed'] = EfbFormConverter::new_seed();
 		foreach ( (array) ( $plan['fields'] ?? array() ) as $field ) {
 			if ( is_array( $field ) && 'trmCheckbox' === ( $field['type'] ?? '' ) ) {
 				$plan['privacy_link'] = $this->privacy_link();

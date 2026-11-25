@@ -1121,7 +1121,11 @@
 	function renderResponse( data, traceId ) {
 		if ( data.reply ) { speakReply( data.reply ); }
 		if ( data.type === 'preview' ) { renderPreview( data ); }
-		else if ( data.type === 'ops' ) { renderOps( data, traceId ); }
+		else if ( data.type === 'ops' ) {
+			// QA5-011: removals the admin did not ask for are held for their OK; the rest is applied as usual.
+			if ( ( data.operations || [] ).length || ! ( data.held || [] ).length ) { renderOps( data, traceId ); } else { addAi( data.reply || '' ); }
+			if ( Array.isArray( data.held ) && data.held.length ) { renderHeld( data, traceId ); }
+		}
 		else if ( data.type === 'update_preview' ) { renderUpdatePreview( data ); }
 		else if ( data.type === 'help' ) { renderHelp( data ); }
 		else if ( data.type === 'list' ) { renderList( data, traceId ); }
@@ -1142,6 +1146,33 @@
 	   installer (it checks the nonce, the capability and the plan again). The page reloads afterwards, so unsaved changes
 	   are named first and the request waits in the composer for the administrator to send again. */
 	var RESUME_KEY = 'aisaautopilot.efb.resume';
+	/* A removal the admin did not ask for: listed, and applied only when they confirm it. */
+	function renderHeld( data, traceId ) {
+		var held = data.held.slice( 0, 10 );
+		var rows = el( 'ul', { class: 'aisa-ai-rows' }, held.map( function ( op ) {
+			var text = 'remove_option' === op.op ? t( 'heldOption', 'Remove the option “%1$s” from “%2$s”', [ String( op.value || '' ), String( op.target || '' ) ] ) : t( 'heldField', 'Remove “%s”', String( op.target || '' ) );
+			return el( 'li', { class: 'aisa-ai-mini__f', dir: 'auto', 'data-sp-efb-held-op': String( op.op || '' ) }, [ el( 'span', { class: 'aisa-ai-ic' }, [ icon( 'alert', 14 ) ] ), el( 'span', { class: 'aisa-ai-mini__l', text: text } ) ] );
+		} ) );
+		var status = el( 'p', { class: 'aisa-ai-status', role: 'status', dir: 'auto' } );
+		var yes = button( t( 'heldRemove', 'Remove them' ), { size: 'sm', extra: 'aisaautopilot-efb-btn--danger', attrs: { 'data-sp-efb-held-apply': '1' } } );
+		var no = button( t( 'heldKeep', 'Keep them' ), { kind: 'quiet', size: 'sm', attrs: { 'data-sp-efb-held-keep': '1' } } );
+		var foot = el( 'div', { class: 'aisa-ai-card__foot' }, [ yes, no, status ] );
+		var box = card( Dock.cardHead( 'warn', 'alert', t( 'heldTitle', 'Remove without being asked?' ) ), [
+			el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { dir: 'auto', text: String( data.held_note || '' ) } ), rows ] ),
+			foot
+		], { 'data-sp-efb-state': 'held' } );
+		yes.addEventListener( 'click', function () {
+			foot.remove();
+			box.setAttribute( 'data-sp-efb-held', 'applied' );
+			renderOps( { type: 'ops', reply: t( 'heldApplied', 'Removed, as you confirmed.' ), operations: held }, traceId );
+		} );
+		no.addEventListener( 'click', function () {
+			yes.remove(); no.remove();
+			box.setAttribute( 'data-sp-efb-held', 'kept' );
+			status.textContent = t( 'heldKept', 'Kept. Nothing was removed.' );
+		} );
+		addAi( box );
+	}
 	function renderInstallOffer( offer ) {
 		if ( ! offer || ! offer.code ) { return; }
 		var name = String( offer.name || offer.code );

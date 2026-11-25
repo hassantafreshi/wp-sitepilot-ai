@@ -66,10 +66,12 @@ const CLAIM_REPLY = {
 };
 
 async function login( page ) {
-	await page.goto( BASE + '/wp-login.php', { waitUntil: 'domcontentloaded' } );
+	// Signed in straight to the copilot's own page (the first one checked), not the dashboard: its widgets (WooCommerce,
+	// news) ask outside servers a test box may not reach, and the dashboard's "load" then waited past the timeout.
+	await page.goto( BASE + '/wp-login.php?redirect_to=' + encodeURIComponent( BASE + '/wp-admin/admin.php?page=aisaautopilot-efb' ), { waitUntil: 'domcontentloaded' } );
 	await page.fill( '#user_login', USER );
 	await page.fill( '#user_pass', PASS );
-	await Promise.all( [ page.waitForURL( ( u ) => ! /wp-login\.php/.test( u.toString() ), { timeout: 60000 } ), page.click( '#wp-submit' ) ] );
+	await Promise.all( [ page.waitForURL( ( u ) => ! /wp-login\.php/.test( u.toString() ), { timeout: 60000, waitUntil: 'domcontentloaded' } ), page.click( '#wp-submit' ) ] );
 }
 
 /*
@@ -210,6 +212,18 @@ async function run( locale, width, height ) {
 		check( 1 === await page.locator( '[data-sp-efb-state="save-notes"] [data-sp-efb-note="save"]' ).count(), `${ tag }: the owner's Save warnings are explained (the info line left out)` );
 		await page.locator( '[data-sp-efb-state="save-notes"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
 		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-save-notes-${ tag }.png` ), fullPage: false } );
+
+		// QA5-011: in the open editor a removal the admin did not ask for is held for their OK, never applied at once.
+		ctl( 'queue', JSON.stringify( { reply: 'Done.', action: 'customize', operations: [ { op: 'remove_field', target: 'Email' } ] } ) );
+		await page.fill( '#aisaautopilot-efb-input', 'Tidy up this form' );
+		await page.click( '#aisaautopilot-efb-send' );
+		await page.waitForSelector( '[data-sp-efb-state="held"]', { timeout: 60000 } );
+		const emailKept = await page.evaluate( () => ( typeof valj_efb !== 'undefined' && valj_efb.some( ( it ) => it && it.type === 'email' ) ) );
+		check( emailKept && 1 === await page.locator( '[data-sp-efb-state="held"] [data-sp-efb-held-op="remove_field"]' ).count(), `${ tag }: an unrequested removal waits for the admin's OK (Email still on the canvas)` );
+		await page.locator( '[data-sp-efb-state="held"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
+		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-held-${ tag }.png` ), fullPage: false } );
+		await page.click( '[data-sp-efb-held-keep="1"]' );
+		check( 'kept' === await page.locator( '[data-sp-efb-state="held"]' ).getAttribute( 'data-sp-efb-held' ) && await page.evaluate( () => ( typeof valj_efb !== 'undefined' && valj_efb.some( ( it ) => it && it.type === 'email' ) ) ), `${ tag }: "Keep them" keeps the field` );
 		ctl( 'delete', formId );
 
 		// A second new form, still the untouched draft: Undo, confirmed, deletes it through EFB and opens the forms list.

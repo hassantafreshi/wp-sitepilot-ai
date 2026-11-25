@@ -92,7 +92,10 @@ final class EfbFormConverter {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public function convert( array $plan ): array {
-		$texts = self::texts();
+		// QA5-012: field ids are random like the ones EFB's builder makes, so two forms on one page never share an id;
+		// the plan's own seed keeps them the same every time this plan is converted (preview, logic, import).
+		$this->seed = is_string( $plan['id_seed'] ?? null ) && '' !== $plan['id_seed'] ? $plan['id_seed'] : self::new_seed();
+		$texts      = self::texts();
 		$title = (string) ( $plan['title'] ?? $texts['form'] );
 		if ( '' === trim( $title ) ) {
 			$title = $texts['form'];
@@ -172,7 +175,7 @@ final class EfbFormConverter {
 				$field['privacy_link'] = $plan['privacy_link'];
 			}
 
-			$key = $this->unique_id( (string) ( $field['key'] ?? ( $field['label'] ?? 'field' ) ), $used_ids );
+			$key = $this->field_id( (string) ( $field['key'] ?? ( $field['label'] ?? 'field' ) ), $used_ids );
 			foreach ( $this->field_items( $field, $key, $used_ids ) as $item ) {
 				// EFB numbers the fields and gives an option its field's number. It compares these numbers to
 				// tie a state list to the country list before it, and after its own Save they are strings, so
@@ -260,9 +263,10 @@ final class EfbFormConverter {
 		}
 		$queue[] = $field;
 
-		$items = array();
+		$items      = array();
+		$this->seed = self::new_seed();
 		foreach ( $queue as $one ) {
-			$key = $this->unique_id( (string) ( $one['label'] ?? 'field' ), $used );
+			$key = $this->field_id( (string) ( $one['label'] ?? 'field' ), $used );
 			foreach ( $this->field_items( $one, $key, $used ) as $item ) {
 				$item['step']   = '1';
 				$item['amount'] = 0;
@@ -908,6 +912,31 @@ final class EfbFormConverter {
 		}
 
 		return str_replace( '"', '\\"', $json );
+	}
+
+	/** The seed of this conversion's field ids (a plan's id_seed, else a fresh one). */
+	private string $seed = '';
+
+	/** A fresh seed for a plan's field ids. */
+	public static function new_seed(): string {
+		return bin2hex( random_bytes( 8 ) );
+	}
+
+	/**
+	 * A field's id as EFB's builder makes one: nine lower-case letters and digits (Math.random().toString(36)), random
+	 * across forms, the same for the same plan and key, starting with a letter, unique in this form.
+	 *
+	 * @param array<string,bool> $used
+	 */
+	private function field_id( string $key, array &$used ): string {
+		for ( $n = 0; ; ++$n ) {
+			$hex = hash( 'sha256', $this->seed . '|' . $key . '|' . $n );
+			$id  = chr( ord( 'a' ) + (int) hexdec( substr( $hex, 13, 2 ) ) % 26 ) . substr( str_pad( base_convert( substr( $hex, 0, 13 ), 16, 36 ), 11, '0', STR_PAD_LEFT ), -8 );
+			if ( ! isset( $used[ $id ] ) ) {
+				$used[ $id ] = true;
+				return $id;
+			}
+		}
 	}
 
 	/**
