@@ -1601,11 +1601,12 @@ final class EfbCopilotController {
 				continue;
 			}
 			$gateway = (string) ( $op['payment']['gateway'] ?? '' );
-			if ( false === ( $status[ $gateway ]['keys_saved'] ?? null ) && ! empty( $status[ $gateway ]['page'] ) ) {
+			if ( false === ( $status[ $gateway ]['keys_saved'] ?? null ) && ( ! empty( $status[ $gateway ]['settings_url'] ) || ! empty( $status[ $gateway ]['page'] ) ) ) {
 				$links[] = array(
 					/* translators: %s: payment gateway name, e.g. Stripe. */
 					'label' => sprintf( __( 'Open %s settings', 'ai-site-assistant-autopilot' ), (string) ( $status[ $gateway ]['label'] ?? '' ) ),
-					'url'   => admin_url( 'admin.php?page=' . (string) $status[ $gateway ]['page'] ),
+					// EFB's own address for the gateway's keys (QA5-007: a moved Stripe / PayPal / ZarinPal is a framework gateway).
+					'url'   => ! empty( $status[ $gateway ]['settings_url'] ) ? (string) $status[ $gateway ]['settings_url'] : admin_url( 'admin.php?page=' . (string) $status[ $gateway ]['page'] ),
 				);
 			}
 		}

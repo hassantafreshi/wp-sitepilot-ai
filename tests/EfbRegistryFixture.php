@@ -81,7 +81,42 @@ final class EfbRegistryFixture {
 			if ( isset( $caps['payment_gateways'][ $slug ] ) ) {
 				continue;
 			}
-			$plan_ok                           = self::RANK[ $plan ] >= self::RANK[ $info[2] ];
+			$plan_ok = self::RANK[ $plan ] >= self::RANK[ $info[2] ];
+			// PAY-OUT (EFB 4.3.2 dev4): an older gateway's add-on that is on (and allowed) registers its framework field
+			// and EFB names it in legacy_gateways.targets, as a fresh capabilities_efb() dump shows.
+			if ( null !== $info[3] && ! empty( $caps['addons'][ $info[0] ] ) && $plan_ok ) {
+				$caps['payment_gateways'][ $slug ]           = array(
+					'active'      => true,
+					'plan'        => $info[2],
+					'field_type'  => $slug,
+					'legacy_type' => $info[3],
+					'can_install' => true,
+					'addon'       => $info[0],
+					'installed'   => true,
+					'state'       => 'active',
+					'label'       => $info[1],
+					'configured'  => array(
+						'test' => false,
+						'live' => false,
+					),
+					'mode'        => 'test',
+					'currencies'  => array(),
+				);
+				$caps['payment_keys'][ $slug ]               = false;
+				$caps['legacy_gateways']['targets'][ $info[3] ] = $slug;
+				$caps['features'][ 'field:' . $slug ]        = array(
+					'kind'          => 'field',
+					'package'       => $info[2],
+					'addon'         => $info[0],
+					'available_now' => true,
+					'reason'        => null,
+					'form_patch'    => array(
+						'type'   => 'payment',
+						'getway' => $slug,
+					),
+				);
+				continue;
+			}
 			$caps['payment_gateways'][ $slug ] = array(
 				'addon'       => $info[0],
 				'installed'   => ! empty( $caps['addons'][ $info[0] ] ),

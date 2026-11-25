@@ -18,6 +18,7 @@ ctl addon AdnTSG 0; run tsg; ctl addon AdnTSG 1
 ctl plan 2; run free; ctl plan 3
 run logic
 ctl addon AdnMOL 1; run payments; ctl addon AdnMOL 0
+ctl addon AdnSPF 1; run stripe; ctl addon AdnSPF 0
 run portal
 run editor
 run write

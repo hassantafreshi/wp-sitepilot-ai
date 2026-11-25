@@ -7,11 +7,18 @@ use AISAAutoPilot\Efb\EfbPayments;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/EfbRegistryFixture.php';
+require_once __DIR__ . '/fixtures/efb-field-templates-fake.php';
 
 final class EfbPaymentsTest extends TestCase {
 
+	protected function setUp(): void {
+		// EFB gives the framework field of a moved gateway whose add-on is on (PAY-OUT).
+		$GLOBALS['aisa_test_field_templates'] = array( 'stripecheckout', 'paypalcheckout', 'zarinpalgate' );
+	}
+
 	protected function tearDown(): void {
 		EfbRegistryFixture::reset();
+		unset( $GLOBALS['aisa_test_field_templates'] );
 	}
 
 	/**
@@ -97,13 +104,15 @@ final class EfbPaymentsTest extends TestCase {
 		self::assertStringContainsString( 'Stripe (stripe): not reported by this Easy Form Builder', $block );
 		self::assertStringNotContainsString( 'pk_test', $block );
 
-		// With it, the registry answers (payment_keys: presence only, never a key).
-		$caps                           = EfbRegistryFixture::site( 'free_plus', array( 'AdnSPF' => true ) );
-		$caps['payment_keys']['stripe'] = true;
+		// With it, the registry answers (payment_keys: presence only, never a key). QA5-007: a moved Stripe's keys are its
+		// framework gateway's (payment_keys.stripecheckout), not the older field's.
+		$caps                                   = EfbRegistryFixture::site( 'free_plus', array( 'AdnSPF' => true ) );
+		$caps['payment_keys']['stripe']         = false;
+		$caps['payment_keys']['stripecheckout'] = true;
 		EfbRegistryFixture::apply( $caps );
 		$block = EfbPayments::prompt_block( EfbPayments::status( array(), null ) );
 		self::assertStringContainsString( 'Stripe (stripe): add-on active, plan ok, keys saved', $block );
-		self::assertStringContainsString( 'PayPal (paypal): add-on not active, plan ok, keys missing', $block );
+		self::assertStringContainsString( 'PayPal (paypal): add-on not active, plan ok', $block );
 		self::assertStringContainsString( 'ZarinPal (zarinpal): add-on not active, plan needs pro', $block );
 	}
 
@@ -193,8 +202,20 @@ final class EfbPaymentsTest extends TestCase {
 	}
 
 	public function test_a_legacy_gateway_add_on_from_before_the_move_asks_for_an_update(): void {
+		// An add-on older than this core: on, but its framework field is not registered (payment_gateways state update).
 		$caps                                       = EfbRegistryFixture::site( 'free_plus', array( 'AdnSPF' => true ) );
 		$caps['split']['addons']['AdnSPF']['state'] = 'update';
+		$caps['payment_gateways']['stripecheckout'] = array(
+			'addon'       => 'AdnSPF',
+			'installed'   => true,
+			'active'      => false,
+			'plan'        => 'free_plus',
+			'state'       => 'update',
+			'label'       => 'Stripe Payment',
+			'field_type'  => 'stripecheckout',
+			'legacy_type' => 'stripe',
+		);
+		unset( $caps['legacy_gateways'] );
 		EfbRegistryFixture::apply( $caps );
 		$result = EfbPayments::validate_payment( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'A', 'price' => 5 ) ) ), EfbPayments::status( array(), null ), true );
 		self::assertSame( 'payment_addon_update:stripe', $result['reason'] );
@@ -265,5 +286,66 @@ final class EfbPaymentsTest extends TestCase {
 		// Without EFB's own field template (no get_efbFunction() here) the gateway field cannot be built: refused.
 		$result = EfbPayments::validate_payment( array( 'gateway' => 'mollie', 'currency' => 'EUR', 'items' => array( array( 'label' => 'Ticket', 'price' => 10 ) ) ), $status, true );
 		self::assertSame( 'payment_template_missing:mollie', $result['reason'] );
+	}
+
+	/**
+	 * QA5-007: Stripe, PayPal and ZarinPal moved to EFB's payment framework (PAY-OUT). A new form uses the field EFB's
+	 * registry names for them (legacy_gateways.targets / payment_gateways legacy_type), built like a PAY00 gateway, and
+	 * the keys link opens EFB's gateway settings, never the older payments list.
+	 */
+	public function test_new_stripe_paypal_and_zarinpal_forms_use_the_registrys_framework_field(): void {
+		$caps = EfbRegistryFixture::site( 'pro', array( 'AdnSPF' => true, 'AdnPAP' => true, 'AdnPPF' => true ) );
+		EfbRegistryFixture::apply( $caps );
+		self::assertSame( 'stripecheckout', EfbPayments::legacy_slug( 'stripe' ) );
+		self::assertSame( 'paypalcheckout', EfbPayments::gateway_field( 'paypal' ) );
+		self::assertSame( 'zarinpalgate', EfbPayments::gateway_field( 'zarinpal' ) );
+		self::assertSame( 'stripe', EfbPayments::gateway_of_field( 'stripecheckout' ) );
+		self::assertTrue( EfbPayments::is_pay00( 'stripe' ) );
+		self::assertSame(
+			array(
+				'type'          => 'payment',
+				'getway'        => 'stripecheckout',
+				'paymentmethod' => 'charge',
+				'currency'      => 'eur',
+			),
+			EfbPayments::form_settings( 'stripe', 'EUR' )
+		);
+		$rows = EfbPayments::gateway_rows( 'stripe', 'Pay by card', array() );
+		self::assertSame( 'stripecheckout', $rows[0]['type'] );
+		self::assertSame( 'Pay by card', $rows[0]['name'] );
+
+		$status = EfbPayments::status( array(), null );
+		self::assertTrue( $status['stripe']['addon_active'] );
+		self::assertSame( 'stripecheckout', $status['stripe']['field'] );
+		self::assertStringContainsString( 'page=Emsfb_payments&tab=gateways', $status['stripe']['settings_url'] );
+		self::assertStringNotContainsString( 'Emsfb_stripe_payment', $status['stripe']['settings_url'] );
+		$ok = EfbPayments::validate_payment( array( 'gateway' => 'stripe', 'currency' => 'usd', 'items' => array( array( 'label' => 'Seat', 'price' => 40 ) ) ), $status, true );
+		self::assertTrue( $ok['ok'] );
+
+		// The converter builds the framework field and EFB's form patch, never the deprecated "stripe" field.
+		$items = ( new \AISAAutoPilot\Efb\EfbFormConverter() )->convert(
+			array(
+				'title'   => 'Workshop',
+				'fields'  => array(
+					array(
+						'type'     => 'text',
+						'label'    => 'Name',
+						'required' => true,
+						'options'  => array(),
+					),
+				),
+				'payment' => $ok['payment'],
+			)
+		);
+		$types = array_column( $items, 'type' );
+		self::assertContains( 'stripecheckout', $types );
+		self::assertNotContains( 'stripe', $types );
+		self::assertSame( 'stripecheckout', $items[0]['getway'] );
+
+		// The add-on off: EFB still names the framework field; the payment is refused with the add-on to install.
+		EfbRegistryFixture::apply( EfbRegistryFixture::site( 'free_plus' ) );
+		self::assertSame( 'stripecheckout', EfbPayments::legacy_slug( 'stripe' ) );
+		$off = EfbPayments::validate_payment( array( 'gateway' => 'stripe', 'items' => array( array( 'label' => 'Seat', 'price' => 40 ) ) ), EfbPayments::status( array(), null ), true );
+		self::assertSame( 'payment_addon_inactive:stripe', $off['reason'] );
 	}
 }

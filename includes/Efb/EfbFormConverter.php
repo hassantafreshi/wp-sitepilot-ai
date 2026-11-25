@@ -335,7 +335,7 @@ final class EfbFormConverter {
 		);
 		if ( $with_gateway && EfbPayments::is_pay00( $gateway ) ) {
 			// A payment framework gateway's field is the row EFB's own builder makes for it (its add-on's template).
-			$out = array_merge( $out, EfbPayments::gateway_rows( $gateway, $texts['pay_zarinpal'], $used ) );
+			$out = array_merge( $out, EfbPayments::gateway_rows( $gateway, $texts[ 'pay_' . $gateway ] ?? $texts['pay_zarinpal'], $used ) );
 		} elseif ( $with_gateway && null !== EfbPayments::gateway_field( $gateway ) ) {
 			$push(
 				array(

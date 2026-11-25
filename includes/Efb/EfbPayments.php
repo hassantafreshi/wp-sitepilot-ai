@@ -72,6 +72,63 @@ final class EfbPayments {
 		return $out;
 	}
 
+	/**
+	 * QA5-007 (EFB PAY-OUT, docs/autopilot-integration.md): Stripe, PayPal and ZarinPal moved to the payment framework.
+	 * A new form uses the framework field EFB's registry names for the older type — `legacy_gateways.targets`
+	 * (stripe → stripecheckout, paypal → paypalcheckout, persiaPay → zarinpalgate, listed while the add-on is on and
+	 * recent), else the `payment_gateways` entry whose legacy_type is that type (also while the add-on is off) — and is
+	 * built like any PAY00 gateway (EFB's own field template, form patch, currencies, keys, readiness). Null on an EFB
+	 * that names no such field: the older field and its add-on contract, as before.
+	 */
+	public static function legacy_slug( string $gateway ): ?string {
+		$legacy = isset( self::GATEWAYS[ $gateway ] ) ? self::GATEWAYS[ $gateway ]['field'] : null;
+		if ( null === $legacy || ! EfbCapabilities::available() ) {
+			return null;
+		}
+		$targets = EfbCapabilities::block( 'legacy_gateways' )['targets'] ?? array();
+		$names   = 'persiaPay' === $legacy ? array( 'persiaPay', 'zarinPal', 'persiapay' ) : array( $legacy );
+		foreach ( $names as $name ) {
+			$slug = is_array( $targets ) && is_string( $targets[ $name ] ?? null ) ? $targets[ $name ] : '';
+			if ( 1 === preg_match( '/^[a-z][a-z0-9]{1,29}$/', $slug ) ) {
+				return $slug;
+			}
+		}
+		foreach ( EfbCapabilities::payment_gateways() as $slug => $entry ) {
+			if ( in_array( (string) ( $entry['legacy_type'] ?? '' ), $names, true ) && 1 === preg_match( '/^[a-z][a-z0-9]{1,29}$/', (string) $slug ) ) {
+				return (string) $slug;
+			}
+		}
+
+		return null;
+	}
+
+	/** The framework slug of a gateway: its own for a PAY00 gateway, the registry's target for Stripe / PayPal / ZarinPal. */
+	public static function slug( string $gateway ): string {
+		return self::legacy_slug( $gateway ) ?? $gateway;
+	}
+
+	/**
+	 * Where a gateway's account keys are entered: EFB's own answer for a framework gateway (the readiness fix of
+	 * pay_not_configured: Payments › Gateway settings), the older add-on screen otherwise.
+	 */
+	public static function settings_url( string $gateway ): string {
+		if ( self::is_pay00( $gateway ) ) {
+			$fix = null;
+			if ( is_callable( array( '\\Emsfb\\Payments\\Readiness', 'fix_of' ) ) ) {
+				try {
+					$fix = \Emsfb\Payments\Readiness::fix_of( array( 'code' => 'pay_not_configured' ) );
+				} catch ( \Throwable $e ) {
+					$fix = null;
+				}
+			}
+			$url = is_array( $fix ) ? (string) ( $fix['url'] ?? '' ) : '';
+
+			return '' !== $url ? $url : admin_url( 'admin.php?page=Emsfb_payments&tab=gateways' );
+		}
+
+		return admin_url( 'admin.php?page=' . ( self::GATEWAYS[ $gateway ]['page'] ?? 'Emsfb_payments' ) );
+	}
+
 	/** Field types that carry a price; the first four have priced options or an amount, the last shows the total. */
 	public const PRICED_FIELDS = array( 'payRadio', 'paySelect', 'payCheckbox', 'payMultiselect', 'prcfld', 'ttlprc' );
 
@@ -94,9 +151,9 @@ final class EfbPayments {
 		return array_merge( array_keys( self::GATEWAYS ), array_keys( self::pay00() ) );
 	}
 
-	/** Whether a gateway id is one of the payment framework (PAY00) gateways. */
+	/** Whether a gateway is built as a payment framework (PAY00) gateway: a PAY00 slug, or a moved older gateway. */
 	public static function is_pay00( string $gateway ): bool {
-		return isset( self::pay00()[ $gateway ] );
+		return isset( self::pay00()[ $gateway ] ) || null !== self::legacy_slug( $gateway );
 	}
 
 	/** A gateway's name for the admin: EFB's own label (the add-on's, or its catalogue's while it is off). */
@@ -114,6 +171,11 @@ final class EfbPayments {
 
 	/** The add-on that provides a gateway (legacy bridge or PAY00), or null. */
 	public static function addon_of( string $gateway ): ?string {
+		$listed = null !== self::legacy_slug( $gateway ) ? ( EfbCapabilities::payment_gateways()[ self::slug( $gateway ) ]['addon'] ?? null ) : null;
+		if ( is_string( $listed ) && '' !== $listed ) {
+			return $listed;
+		}
+
 		return self::GATEWAYS[ $gateway ]['addon'] ?? ( self::pay00()[ $gateway ] ?? null );
 	}
 
@@ -144,7 +206,7 @@ final class EfbPayments {
 	/** The EFB field type that is the gateway itself (a PAY00 gateway's field type is its slug). */
 	public static function gateway_field( string $gateway ): ?string {
 		if ( self::is_pay00( $gateway ) ) {
-			return $gateway;
+			return self::slug( $gateway );
 		}
 
 		return self::GATEWAYS[ $gateway ]['field'] ?? null;
@@ -153,7 +215,8 @@ final class EfbPayments {
 	/** The gateway a field type belongs to, or null. */
 	public static function gateway_of_field( string $field_type ): ?string {
 		foreach ( self::GATEWAYS as $id => $definition ) {
-			if ( $definition['field'] === $field_type ) {
+			// The older field, or the framework field it moved to.
+			if ( $definition['field'] === $field_type || self::legacy_slug( $id ) === $field_type ) {
 				return $id;
 			}
 		}
@@ -169,6 +232,11 @@ final class EfbPayments {
 	 */
 	public static function currencies( string $gateway ): array {
 		if ( isset( self::GATEWAYS[ $gateway ] ) ) {
+			// A moved gateway charges in what its add-on reports; it reports none yet, so its known list stays.
+			$moved = null !== self::legacy_slug( $gateway ) ? ( EfbCapabilities::payment_gateways()[ self::slug( $gateway ) ]['currencies'] ?? null ) : null;
+			if ( is_array( $moved ) && array() !== $moved ) {
+				return array_values( array_map( 'strtolower', array_map( 'strval', $moved ) ) );
+			}
 			return self::GATEWAYS[ $gateway ]['currencies'];
 		}
 		$registered = EfbCapabilities::payment_gateways()[ $gateway ] ?? null;
@@ -331,7 +399,7 @@ final class EfbPayments {
 			$info  = EfbCapabilities::addon( $addon );
 			// EFB 4.3.2 (AI-6): the gateway's own catalogue entry says installed / active / plan / state, also while its
 			// add-on is off. An older EFB: the field's and the add-on's registry entries, as before.
-			$listed = self::is_pay00( $id ) ? ( EfbCapabilities::payment_gateways()[ $id ] ?? null ) : null;
+			$listed = self::is_pay00( $id ) ? ( EfbCapabilities::payment_gateways()[ self::slug( $id ) ] ?? null ) : null;
 			if ( is_array( $listed ) && isset( $listed['active'], $listed['plan'] ) ) {
 				$package = in_array( $listed['plan'], array( 'free', 'free_plus', 'pro' ), true ) ? (string) $listed['plan'] : 'free_plus';
 				$plan_ok = EfbCapabilities::plan_at_least( $package ) && 'plan' !== ( $listed['state'] ?? '' );
@@ -359,9 +427,10 @@ final class EfbPayments {
 			$out[ $id ] = array(
 				'label'            => self::label( $id ),
 				'addon_active'     => $active,
-				'keys_saved'       => EfbCapabilities::payment_keys_saved( 'zarinpal' === $id ? 'persiaPay' : $id ),
+				'keys_saved'       => self::is_pay00( $id ) ? EfbCapabilities::payment_keys_saved( self::slug( $id ) ) : EfbCapabilities::payment_keys_saved( 'zarinpal' === $id ? 'persiaPay' : $id ),
 				'field'            => $field,
-				'page'             => isset( self::GATEWAYS[ $id ] ) ? self::GATEWAYS[ $id ]['page'] : 'Emsfb_payments',
+				'page'             => isset( self::GATEWAYS[ $id ] ) && ! self::is_pay00( $id ) ? self::GATEWAYS[ $id ]['page'] : 'Emsfb_payments',
+				'settings_url'     => self::settings_url( $id ),
 				'default_currency' => self::currency( $id, '' ),
 				'known'            => true,
 				'plan_ok'          => $plan_ok,
@@ -515,13 +584,14 @@ final class EfbPayments {
 	public static function form_settings( string $gateway, string $currency ): array {
 		if ( self::is_pay00( $gateway ) ) {
 			// EFB's own form patch for the gateway's field (features['field:<slug>'].form_patch), with the currency.
-			$entry = EfbCapabilities::feature( EfbCapabilities::field_key( $gateway ) );
+			$slug  = self::slug( $gateway );
+			$entry = EfbCapabilities::feature( EfbCapabilities::field_key( $slug ) );
 			$patch = is_array( $entry['form_patch'] ?? null ) ? $entry['form_patch'] : array();
 
 			return array_merge(
 				array(
 					'type'          => 'payment',
-					'getway'        => $gateway,
+					'getway'        => $slug,
 					'paymentmethod' => 'charge',
 				),
 				array_map( 'strval', array_filter( $patch, 'is_scalar' ) ),
@@ -552,16 +622,17 @@ final class EfbPayments {
 		if ( ! self::is_pay00( $gateway ) || ! function_exists( 'get_efbFunction' ) ) {
 			return array();
 		}
+		$slug = self::slug( $gateway );
 		try {
 			$efb = get_efbFunction();
-			$tpl = is_object( $efb ) && method_exists( $efb, 'field_templates_efb' ) ? $efb->field_templates_efb( $gateway, '' !== $label ? array( 'label' => $label ) : array() ) : null;
+			$tpl = is_object( $efb ) && method_exists( $efb, 'field_templates_efb' ) ? $efb->field_templates_efb( $slug, '' !== $label ? array( 'label' => $label ) : array() ) : null;
 		} catch ( \Throwable $e ) {
 			$tpl = null;
 		}
 		$rows = is_array( $tpl ) && is_array( $tpl['rows'] ?? null ) ? $tpl['rows'] : array();
 		$out  = array();
 		foreach ( $rows as $row ) {
-			if ( ! is_array( $row ) || ( $row['type'] ?? '' ) !== $gateway ) {
+			if ( ! is_array( $row ) || ( $row['type'] ?? '' ) !== $slug ) {
 				continue;
 			}
 			while ( in_array( (string) ( $row['id_'] ?? '' ), $existing_ids, true ) ) {

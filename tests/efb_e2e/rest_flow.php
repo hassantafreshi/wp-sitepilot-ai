@@ -376,6 +376,48 @@ try {
 		$aisa_check( false === ( $done['result']['payment']['ready'] ?? null ) && false !== strpos( $notes, 'Visitors cannot pay' ), 'Payments: EFB\'s readiness says not ready (no keys) and the admin is told', $done['result'] ?? $done );
 	}
 
+	if ( 'stripe' === $aisa_scenario ) {
+		// QA5-007 (driver: Free Plus, AdnSPF on): a new Stripe form uses the framework field EFB's registry names for the
+		// older Stripe field (legacy_gateways.targets), built like a PAY00 gateway, with EFB's readiness and its settings.
+		$targets = (array) ( EfbCapabilities::block( 'legacy_gateways' )['targets'] ?? array() );
+		$aisa_check( 'stripecheckout' === ( $targets['stripe'] ?? '' ), 'Stripe: EFB names stripecheckout as the target of the older Stripe field', $targets );
+		$aisa_queue(
+			array(
+				'reply'  => 'Here is the form.',
+				'action' => 'create_form',
+				'form'   => array(
+					'title'   => 'Workshop seat',
+					'fields'  => $aisa_contact,
+					'payment' => array(
+						'gateway'  => 'stripe',
+						'currency' => 'usd',
+						'items'    => array(
+							array(
+								'label' => 'Seat',
+								'price' => 40,
+							),
+						),
+					),
+				),
+			)
+		);
+		$p     = $aisa_rest(
+			'efb/chat',
+			array(
+				'message'  => 'Workshop seat 40 USD with Stripe',
+				'has_form' => false,
+			)
+		);
+		$links = array_column( (array) ( $p['links'] ?? array() ), 'url', 'label' );
+		$aisa_check( 'preview' === ( $p['type'] ?? '' ) && 'stripecheckout' === ( end( $p['preview']['fields'] )['type'] ?? '' ), 'Stripe: the preview shows the framework gateway field', $p['preview']['fields'] ?? $p );
+		$aisa_check( isset( $links['Open Stripe settings'] ) && false !== strpos( (string) $links['Open Stripe settings'], 'page=Emsfb_payments&tab=gateways' ) && false === strpos( wp_json_encode( $links ), 'Emsfb_stripe_payment' ), 'Stripe: "Open Stripe settings" opens EFB\'s gateway settings, not the older payments list', $links );
+		$done  = $aisa_approve( $p );
+		$rows  = $aisa_rows( (int) ( $done['result']['form_id'] ?? 0 ) );
+		$notes = implode( ' ', (array) ( $done['result']['notes'] ?? array() ) );
+		$aisa_check( 'payment' === ( $rows[0]['type'] ?? '' ) && 'stripecheckout' === ( $rows[0]['getway'] ?? '' ) && 1 === count( $aisa_of_type( $rows, 'stripecheckout' ) ) && array() === $aisa_of_type( $rows, 'stripe' ), 'Stripe: the stored form has the stripecheckout field and getway, never the deprecated stripe field', array( $rows[0]['getway'] ?? null, array_column( $rows, 'type' ) ) );
+		$aisa_check( false === ( $done['result']['payment']['ready'] ?? null ) && '' !== $notes, 'Stripe: EFB\'s readiness is reported (not ready without keys) with notes', $done['result'] ?? $done );
+	}
+
 	if ( 'portal' === $aisa_scenario ) {
 		// 8. The customer portal in how-to answers, the prompt and the copilot's page.
 		$aisa_queue(
