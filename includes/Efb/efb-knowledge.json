@@ -748,22 +748,6 @@
       }
     },
     {
-      "id": "customer_portal",
-      "scope": "info",
-      "title": "Customer portal (\"my submissions\")",
-      "aliases": [
-        "customer portal",
-        "my submissions",
-        "portal",
-        "cancel booking",
-        "reschedule",
-        "پورتال",
-        "پیگیری"
-      ],
-      "answer": "A customer portal where visitors see, cancel or reschedule their own submissions is the separate, free plugin EFB Customer Portal (not an add-on), on every plan: Free, Free Plus and Pro. Easy Form Builder already keeps its contract; the portal is ready once that plugin is installed and active. An assistant only links to the portal page: it never asks for or enters a sign-in code and never reads another person's entries.",
-      "live": "portal"
-    },
-    {
       "id": "pro_renewal",
       "scope": "info",
       "title": "Pro renewal reminder",
@@ -791,7 +775,7 @@
         "not available",
         "افزونه"
       ],
-      "answer": "Several features are Easy Form Builder add-ons: Numbers & Calculations, Typed Signature, Address & Postal, Visitor Country, Booking, the customer portal, every payment gateway, Conditional Logic, SMS and the CAPTCHA services other than Google. Install them from Easy Form Builder → Add-ons (a person's click; some need Free Plus or Pro). When a form needs a missing one I say which add-on and plan, use the closest field that works, and offer the install.",
+      "answer": "Several features are Easy Form Builder add-ons: Numbers & Calculations, Typed Signature, Address & Postal, Visitor Country, Booking, every payment gateway, Conditional Logic, SMS and the CAPTCHA services other than Google. Install them from Easy Form Builder → Add-ons (a person's click; some need Free Plus or Pro). When a form needs a missing one I say which add-on and plan, use the closest field that works, and offer the install.",
       "live": "addons"
     },
     {

@@ -532,6 +532,16 @@ final class EfbCapabilities {
 	}
 
 	/**
+	 * Whether an entry of `split.addons` is the customer portal (contract "portal", or its former add-on code AdnPRT).
+	 * The portal is out of scope for this plugin (owner decision): it is never listed, offered or described.
+	 *
+	 * @param mixed $info
+	 */
+	public static function is_portal_addon( string $code, $info ): bool {
+		return 'AdnPRT' === $code || ( is_array( $info ) && 'portal' === ( $info['contract'] ?? '' ) );
+	}
+
+	/**
 	 * The registry, reduced to the facts the copilot's model needs on this site (no key, no address, no secret).
 	 */
 	public static function prompt_facts(): string {
@@ -543,7 +553,7 @@ final class EfbCapabilities {
 		$addons = array();
 		$split  = self::block( 'split' );
 		foreach ( (array) ( $split['addons'] ?? array() ) as $code => $info ) {
-			if ( is_array( $info ) ) {
+			if ( is_array( $info ) && ! self::is_portal_addon( (string) $code, $info ) ) {
 				$addons[] = sprintf( '%s (%s): %s', self::addon( (string) $code )['name'], (string) ( $info['package'] ?? '' ), (string) ( $info['state'] ?? '' ) );
 			}
 		}
@@ -567,17 +577,6 @@ final class EfbCapabilities {
 		}
 		if ( array() !== $captcha ) {
 			$lines[] = 'CAPTCHA SERVICES: ' . implode( '; ', $captcha );
-		}
-		$portal = self::portal_state();
-		if ( null !== $portal ) {
-			$what    = array(
-				'not_installed' => 'not installed',
-				'inactive'      => 'installed, not active',
-				'off'           => 'switched off on this site',
-				'index'         => 'Easy Form Builder is still indexing entries',
-			);
-			$lines[] = 'CUSTOMER_PORTAL=' . ( 'ready' === $portal['state'] ? 'ready' : 'not ready (' . ( $what[ $portal['state'] ] ?? $portal['state'] ) . ')' )
-				. '; it is the free plugin ' . $portal['name'] . ' (' . $portal['slug'] . ') on every plan, not an add-on';
 		}
 		$steps   = self::limit( 'steps' );
 		$lines[] = 'STEP_LIMIT=' . ( is_int( $steps ) ? (string) $steps : 'none' );

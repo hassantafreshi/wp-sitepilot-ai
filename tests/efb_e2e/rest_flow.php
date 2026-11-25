@@ -377,7 +377,7 @@ try {
 	}
 
 	if ( 'portal' === $aisa_scenario ) {
-		// 8. Portal and plans in how-to answers.
+		// 8. The customer portal in how-to answers, the prompt and the copilot's page.
 		$aisa_queue(
 			array(
 				'reply'      => 'Here is how.',
@@ -392,8 +392,17 @@ try {
 				'has_form' => false,
 			)
 		);
-		$aisa_check( 'help' === ( $h['type'] ?? '' ) && false !== strpos( (string) ( $h['answer'] ?? '' ), 'the customer portal is not ready' ), 'Portal: portal_core is read (not ready until the free EFB Customer Portal plugin is active)', $h );
-		$aisa_check( false !== strpos( (string) ( $h['answer'] ?? '' ), 'free EFB Customer Portal plugin' ) && false === strpos( (string) ( $h['answer'] ?? '' ), 'Pro add-on' ) && false === strpos( (string) ( $h['answer'] ?? '' ), 'add-on on Pro' ), 'Portal: the answer names the free plugin (portal contract 1.1), never a Pro add-on', $h );
+		// QA5-006 (owner decision): the customer portal is out of scope; no topic, answer, topic list or fact mentions it.
+		$aisa_check( 'help' === ( $h['type'] ?? '' ) && false === stripos( wp_json_encode( $h ), 'portal' ), 'Portal: the copilot never advertises the customer portal (answer and topic list)', $h );
+		$last = (array) ( get_option( 'aisa_e2e_ai_prompts', array() ) );
+		$last = (array) end( $last );
+		$aisa_check( false === stripos( (string) ( $last['system'] ?? '' ) . (string) ( $last['user'] ?? '' ), 'portal' ), 'Portal: neither the system prompt nor the site facts mention a portal', null );
+		$page = ( static function (): string {
+			ob_start();
+			( new \AISAAutoPilot\Admin\EasyFormBuilderPage() )->render();
+			return (string) ob_get_clean();
+		} )();
+		$aisa_check( '' !== $page && false === stripos( $page, 'portal' ), 'Portal: the copilot\'s EFB page has no portal row', strlen( $page ) );
 	}
 
 	if ( 'editor' === $aisa_scenario ) {

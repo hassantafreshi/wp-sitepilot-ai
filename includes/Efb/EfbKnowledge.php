@@ -117,7 +117,7 @@ final class EfbKnowledge {
 
 	/**
 	 * One paragraph on this site's state for an entry: each listed feature (ready, or the add-on / plan it needs) and,
-	 * for some topics, the plan, the portal, the renewal, the add-ons or the gateways. Empty without EFB's registry.
+	 * for some topics, the plan, the renewal, the add-ons or the gateways. Empty without EFB's registry.
 	 *
 	 * @param array<string, mixed> $entry
 	 */
@@ -155,9 +155,6 @@ final class EfbKnowledge {
 			if ( '' !== $note ) {
 				$parts[] = rtrim( $note, '.' );
 			}
-		} elseif ( 'portal' === $live ) {
-			$portal  = EfbCapabilities::portal_state();
-			$parts[] = null === $portal ? __( 'this Easy Form Builder has no portal contract yet', 'ai-site-assistant-autopilot' ) : self::portal_sentence( $portal );
 		} elseif ( 'renewal' === $live ) {
 			$renewal = is_array( EfbCapabilities::block( 'plan' )['renewal'] ?? null ) ? EfbCapabilities::block( 'plan' )['renewal'] : array();
 			if ( EfbCapabilities::one_time_purchase() ) {
@@ -169,7 +166,10 @@ final class EfbKnowledge {
 				$parts[] = __( 'Easy Form Builder does not know an end date for this site', 'ai-site-assistant-autopilot' );
 			}
 		} elseif ( 'addons' === $live ) {
-			foreach ( array_keys( EfbCapabilities::block( 'split' )['addons'] ?? array() ) as $code ) {
+			foreach ( (array) ( EfbCapabilities::block( 'split' )['addons'] ?? array() ) as $code => $info ) {
+				if ( EfbCapabilities::is_portal_addon( (string) $code, $info ) ) {
+					continue;
+				}
 				$addon   = EfbCapabilities::addon( (string) $code );
 				$parts[] = sprintf(
 					/* translators: 1: add-on name, 2: plan name, 3: state. */
@@ -220,28 +220,6 @@ final class EfbKnowledge {
 
 		/* translators: %s: semicolon-separated states. */
 		return sprintf( __( 'On this site: %s.', 'ai-site-assistant-autopilot' ), implode( '; ', $parts ) );
-	}
-
-	/**
-	 * The portal's state as EFB's registry reports it (portal contract 1.1+: a free, separate plugin on every plan).
-	 *
-	 * @param array{state:string, name:string, slug:string, version:string} $portal EfbCapabilities::portal_state().
-	 */
-	private static function portal_sentence( array $portal ): string {
-		switch ( $portal['state'] ) {
-			case 'ready':
-				return __( 'the customer portal is ready', 'ai-site-assistant-autopilot' );
-			case 'inactive':
-				/* translators: %s: plugin name (EFB Customer Portal). */
-				return sprintf( __( 'the customer portal is not ready: the free %s plugin is installed but not active', 'ai-site-assistant-autopilot' ), $portal['name'] );
-			case 'off':
-				return __( 'the customer portal is not ready: this site has switched the portal off', 'ai-site-assistant-autopilot' );
-			case 'index':
-				return __( 'the customer portal is not ready: Easy Form Builder is still preparing it', 'ai-site-assistant-autopilot' );
-			default:
-				/* translators: %s: plugin name (EFB Customer Portal). */
-				return sprintf( __( 'the customer portal is not ready: it needs the free %s plugin, on every plan', 'ai-site-assistant-autopilot' ), $portal['name'] );
-		}
 	}
 
 	/**

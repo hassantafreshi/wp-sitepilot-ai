@@ -168,8 +168,8 @@ final class EasyFormBuilderPage {
 
 	/**
 	 * What Easy Form Builder itself reports about this site (its capability registry): the plan, how new forms are
-	 * created, the confirmation e-mail default, the add-ons that left its core, the payment gateways, the CAPTCHA
-	 * services and the customer portal. Read only; installing or upgrading stays a person's click in Easy Form Builder.
+	 * created, the confirmation e-mail default, the add-ons that left its core, the payment gateways and the CAPTCHA
+	 * services. Read only; installing or upgrading stays a person's click in Easy Form Builder.
 	 */
 	private function render_site_card(): void {
 		if ( ! EfbCapabilities::available() ) {
@@ -210,10 +210,6 @@ final class EasyFormBuilderPage {
 			'note'  => '',
 			'key'   => 'email_confirmation',
 		);
-		$portal    = self::portal_row();
-		if ( null !== $portal ) {
-			$general[] = $portal;
-		}
 		$groups[] = array(
 			'title' => __( 'Easy Form Builder', 'ai-site-assistant-autopilot' ),
 			'rows'  => $general,
@@ -223,6 +219,10 @@ final class EasyFormBuilderPage {
 		foreach ( (array) ( EfbCapabilities::block( 'split' )['addons'] ?? array() ) as $code => $info ) {
 			// The gateways' add-ons are listed with the gateways below.
 			if ( is_array( $info ) && 'legacy_gateway' === ( $info['contract'] ?? '' ) ) {
+				continue;
+			}
+			// The customer portal is out of scope here (owner decision): never listed.
+			if ( EfbCapabilities::is_portal_addon( (string) $code, $info ) ) {
 				continue;
 			}
 			$addons[] = $this->addon_row( (string) $code );
@@ -285,35 +285,6 @@ final class EasyFormBuilderPage {
 			<a class="sp-efbx-button is-block" href="<?php echo esc_url( EfbCapabilities::addons_page() ); ?>"><?php esc_html_e( 'Open EFB Add-ons', 'ai-site-assistant-autopilot' ); ?></a>
 		</section>
 		<?php
-	}
-
-	/**
-	 * The customer portal's row of the site card, or null when Easy Form Builder has no portal contract. Since EFB's
-	 * portal contract 1.1 the portal is the separate, free plugin EFB Customer Portal on every plan, never an add-on.
-	 *
-	 * @return array{label:string,tag:string,tone:string,note:string,key:string}|null
-	 */
-	public static function portal_row(): ?array {
-		$portal = EfbCapabilities::portal_state();
-		if ( null === $portal ) {
-			return null;
-		}
-		$tags = array(
-			'ready'         => __( 'Ready', 'ai-site-assistant-autopilot' ),
-			'inactive'      => __( 'Free plugin, not active', 'ai-site-assistant-autopilot' ),
-			'off'           => __( 'Switched off on this site', 'ai-site-assistant-autopilot' ),
-			'index'         => __( 'Being prepared', 'ai-site-assistant-autopilot' ),
-			'not_installed' => __( 'Free plugin, not installed', 'ai-site-assistant-autopilot' ),
-		);
-
-		return array(
-			'label' => __( 'Customer portal', 'ai-site-assistant-autopilot' ),
-			'tag'   => $tags[ $portal['state'] ] ?? $tags['not_installed'],
-			'tone'  => 'ready' === $portal['state'] ? 'ok' : 'warn',
-			/* translators: %s: plugin name (EFB Customer Portal). */
-			'note'  => 'ready' === $portal['state'] ? '' : sprintf( __( 'The portal is the free %s plugin, on every plan', 'ai-site-assistant-autopilot' ), $portal['name'] ),
-			'key'   => 'portal',
-		);
 	}
 
 	/**

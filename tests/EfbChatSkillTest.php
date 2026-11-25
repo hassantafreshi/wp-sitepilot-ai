@@ -35,11 +35,16 @@ final class CapturingEfbProvider implements ProviderInterface {
 
 	public string $user_prompt = '';
 
-	public function generate_structured_output( string $system_prompt, string $user_prompt ): array {
-		unset( $system_prompt );
-		$this->user_prompt = $user_prompt;
+	public string $system_prompt = '';
 
-		return array( 'action' => 'chat', 'reply' => 'OK' );
+	/** @var array<string,mixed> What the model answers. */
+	public array $answer = array( 'action' => 'chat', 'reply' => 'OK' );
+
+	public function generate_structured_output( string $system_prompt, string $user_prompt ): array {
+		$this->system_prompt = $system_prompt;
+		$this->user_prompt   = $user_prompt;
+
+		return $this->answer;
 	}
 
 	public function generate_text( string $system_prompt, string $user_prompt ): array {
