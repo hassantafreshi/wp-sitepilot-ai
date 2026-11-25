@@ -12,6 +12,7 @@ ctl setup
 ctl plan 3; ctl addon AdnSMF 1; ctl addon AdnTSG 1; ctl addon AdnCLC 0; ctl addon AdnADR 0; ctl addon AdnMOL 0; ctl addon AdnSPF 0
 run split
 run dates
+run claims
 run address
 ctl addon AdnTSG 0; run tsg; ctl addon AdnTSG 1
 ctl plan 2; run free; ctl plan 3

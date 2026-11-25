@@ -153,17 +153,20 @@ final class EfbCopilotController {
 		$payload['upgrade_required'] = true;
 		$payload['upgrade_reason']   = 'pro_field';
 		$payload['upgrade_url']      = EfbLicense::upgrade_url();
-		$payload['errors']           = array(
-			sprintf(
-				/* translators: %s: comma-separated field names. */
-				_n(
-					'I left out %s — that field needs Easy Form Builder Free Plus or Pro. Everything else is ready.',
-					'I left out %s — those fields need Easy Form Builder Free Plus or Pro. Everything else is ready.',
-					count( $names ),
-					'ai-site-assistant-autopilot'
+		$payload['errors']           = array_merge(
+			is_array( $payload['errors'] ?? null ) ? $payload['errors'] : array(),
+			array(
+				sprintf(
+					/* translators: %s: comma-separated field names. */
+					_n(
+						'I left out %s — that field needs Easy Form Builder Free Plus or Pro. Everything else is ready.',
+						'I left out %s — those fields need Easy Form Builder Free Plus or Pro. Everything else is ready.',
+						count( $names ),
+						'ai-site-assistant-autopilot'
+					),
+					implode( '، ', $names )
 				),
-				implode( '، ', $names )
-			),
+			)
 		);
 
 		return $payload;
@@ -914,6 +917,11 @@ final class EfbCopilotController {
 			);
 			$plan['fields'] = $prepared['fields'];
 			$payment_notes  = $this->customize_notes( $prepared['dropped'] );
+			// QA5-003: whatever the model asked for that is not in this plan is named, never silently dropped: field
+			// settings the copilot does not write, and form-level keys outside the create_form schema.
+			$not_applied   = EfbFeatureGate::not_applied( $this->settings_not_applied( (array) $plan['fields'], (array) $raw['form'] ) );
+			$partial       = array() !== $gate['blocked'] || array() !== $split['pro_fields'] || array() !== $prepared['dropped'] || array() !== $not_applied;
+			$payment_notes = array_merge( $payment_notes, $not_applied );
 			if ( null !== $payment_check ) {
 				if ( $payment_check['ok'] ) {
 					$plan['payment'] = $payment_check['payment'];
@@ -932,6 +940,7 @@ final class EfbCopilotController {
 					);
 				} else {
 					$payment_notes[] = $this->payment_note( (string) ( $payment_check['reason'] ?? '' ) );
+					$partial         = true;
 				}
 			}
 			// EFB Free renders two pages at most: later page breaks are folded into page two, and the admin is told
@@ -951,6 +960,7 @@ final class EfbCopilotController {
 					$kept[] = $field;
 				}
 				if ( $breaks > $step_limit - 1 ) {
+					$partial         = true;
 					$plan['fields']  = $kept;
 					$payment_notes[] = sprintf(
 						/* translators: %d: number of pages the request asked for. */
@@ -975,6 +985,7 @@ final class EfbCopilotController {
 				if ( array() !== $built['rules'] ) {
 					$plan['logic_rules'] = $built['rules'];
 				}
+				$partial       = $partial || array() !== $logic_dropped;
 				$payment_notes = array_merge( $payment_notes, $this->customize_notes( $logic_dropped ) );
 			}
 			if ( null !== $payment_check && ! $payment_check['ok'] ) {
@@ -996,11 +1007,17 @@ final class EfbCopilotController {
 				)
 			);
 
+			// QA5-003: the model wrote its reply before anything was checked. When part of it was swapped, left out or not
+			// applied, that reply would promise what the server did not build: it is replaced, and the list says what and why.
+			if ( $partial ) {
+				$reply = __( 'Here is the form, but not everything you asked for is in it. What I changed or left out, and why:', 'ai-site-assistant-autopilot' );
+			}
 			$payload = array(
 				'type'      => 'preview',
 				'reply'     => '' !== $reply ? $reply : __( 'Here is the form I designed — review it and approve to create it.', 'ai-site-assistant-autopilot' ),
 				'action_id' => $action_id,
 				'preview'   => $this->build_preview( $plan, $name, $shield ),
+				'partial'   => $partial,
 			);
 			// The preview lists each field the gate changed (addon_required), with the add-on, plan and field used.
 			$payload = $this->with_feature_gate( $payload, $gate['blocked'] );
@@ -1805,6 +1822,50 @@ final class EfbCopilotController {
 		}
 
 		return str_starts_with( $key, 'mobile_' ) ? __( 'Mobile layout', 'ai-site-assistant-autopilot' ) : ucfirst( str_replace( '_', ' ', $key ) );
+	}
+
+	/** The keys of a create_form "form" the copilot reads; anything else the model sends is reported as not applied. */
+	private const NEW_FORM_KEYS = array( 'title', 'description', 'fields', 'submit_button', 'confirmation_message', 'notify_admin', 'confirm_to_respondent', 'needs_efb', 'payment', 'logic', 'risk_level', 'notes', 'intent', 'requires_approval' );
+
+	/**
+	 * What a new form's plan asked for and does not get (QA5-003): each field's settings the copilot does not write
+	 * (EfbCustomizeSkill::settings_for_new_field_verbose()) and form-level keys outside the schema, such as a CAPTCHA
+	 * service, limits, dates or save and continue later — EFB's editor sets those.
+	 *
+	 * @param array<int,mixed>    $fields   The plan's fields as they will be built.
+	 * @param array<string,mixed> $raw_form The model's "form" object.
+	 * @return array<int,array{label:string,key:string,reason:string}>
+	 */
+	private function settings_not_applied( array $fields, array $raw_form ): array {
+		$items = array();
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) || ! is_array( $field['settings'] ?? null ) || array() === $field['settings'] ) {
+				continue;
+			}
+			foreach ( EfbCustomizeSkill::settings_for_new_field_verbose( $field['settings'], (string) ( $field['type'] ?? '' ) )['dropped'] as $drop ) {
+				$items[] = array(
+					'label'  => (string) ( $field['label'] ?? '' ),
+					'key'    => $drop['key'],
+					'reason' => $drop['reason'],
+				);
+			}
+		}
+		foreach ( $raw_form as $key => $value ) {
+			$key = (string) $key;
+			if ( in_array( $key, self::NEW_FORM_KEYS, true ) || null === $value || false === $value || '' === $value || array() === $value ) {
+				continue;
+			}
+			// Form-level settings grouped under "settings" are each named.
+			foreach ( 'settings' === $key && is_array( $value ) ? array_keys( $value ) : array( $key ) as $name ) {
+				$items[] = array(
+					'label'  => '',
+					'key'    => sanitize_key( (string) $name ),
+					'reason' => 'form',
+				);
+			}
+		}
+
+		return array_slice( $items, 0, 12 );
 	}
 
 	/**

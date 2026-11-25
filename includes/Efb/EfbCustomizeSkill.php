@@ -676,6 +676,9 @@ final class EfbCustomizeSkill {
 		return null;
 	}
 
+	/** Plan settings another part of the build reads: an address scheme (F17), a date's calendars (QA5-004). */
+	public const SETTINGS_READ_ELSEWHERE = array( 'scheme', 'address_scheme', 'calendar', 'calendars' );
+
 	/**
 	 * Resolve a plan's per-field settings into the exact valj_efb keys EFB stores,
 	 * dropping anything the type does not support. Shares one validation authority
@@ -689,28 +692,58 @@ final class EfbCustomizeSkill {
 	 * @return array<string,mixed> Storage key => stored value.
 	 */
 	public static function settings_for_new_field( array $settings, string $type ): array {
-		$out = array();
+		return self::settings_for_new_field_verbose( $settings, $type )['settings'];
+	}
+
+	/**
+	 * settings_for_new_field() with what it did not apply, so a new form's answer never claims a setting that is not
+	 * in the form (QA5-003): each dropped key with why — unknown (EFB's editor only, or not a setting at all),
+	 * editor_only (a known setting the copilot does not write), requires_pro, not_for_type, invalid_value.
+	 * Keys another part of the build reads (an address scheme, a date's calendars) are neither applied nor reported.
+	 *
+	 * @param array<string,mixed> $settings Raw property => value pairs from the plan.
+	 * @return array{settings:array<string,mixed>, dropped:array<int,array{key:string,reason:string}>}
+	 */
+	public static function settings_for_new_field_verbose( array $settings, string $type ): array {
+		$out     = array();
+		$dropped = array();
+		$drop    = static function ( string $key, string $reason ) use ( &$dropped ): void {
+			$dropped[] = array(
+				'key'    => $key,
+				'reason' => $reason,
+			);
+		};
 
 		foreach ( $settings as $key => $value ) {
-			if ( is_array( $value ) || is_object( $value ) ) {
+			$key = (string) $key;
+			if ( in_array( $key, self::SETTINGS_READ_ELSEWHERE, true ) ) {
 				continue;
 			}
-			$property = EfbFormModel::resolve_field_property( (string) $key );
+			if ( is_array( $value ) || is_object( $value ) ) {
+				$drop( $key, 'invalid_value' );
+				continue;
+			}
+			$property = EfbFormModel::resolve_field_property( $key );
 			if ( null === $property ) {
+				$drop( $key, 'unknown' );
 				continue;
 			}
 			$definition = EfbFormModel::field_property( $property );
 			if ( ! is_array( $definition ) || empty( $definition['ai_writable'] ) || empty( $definition['storage_key'] ) ) {
+				$drop( $key, 'editor_only' );
 				continue;
 			}
 			if ( ! empty( $definition['requires_pro'] ) ) {
+				$drop( $key, 'requires_pro' );
 				continue;
 			}
 			if ( ! self::property_applies_to_type( $definition, $type ) || self::type_has_no_control_for( $property, $type ) ) {
+				$drop( $key, 'not_for_type' );
 				continue;
 			}
 			$valid = self::validate_catalog_value( $value, $definition, $type );
 			if ( ! $valid['ok'] || ! self::type_allows_value( $property, $type, $valid['value'] ) ) {
+				$drop( $key, 'invalid_value' );
 				continue;
 			}
 
@@ -726,7 +759,10 @@ final class EfbCustomizeSkill {
 			}
 		}
 
-		return $out;
+		return array(
+			'settings' => $out,
+			'dropped'  => $dropped,
+		);
 	}
 
 	/**

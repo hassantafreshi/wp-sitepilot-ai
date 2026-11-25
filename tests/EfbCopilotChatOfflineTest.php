@@ -60,6 +60,62 @@ final class EfbCopilotChatOfflineTest extends TestCase {
 	}
 
 	/**
+	 * QA5-003: the model claimed an SMS code check, Turnstile, a 50-answer limit, a closing date and save-and-resume.
+	 * None of them is something the copilot sets on a new form, so the reply is replaced and each one is named.
+	 */
+	public function test_a_new_form_reply_never_promises_what_was_not_built(): void {
+		$claim = 'I built your sign-up form: SMS code verification for the mobile number, protected by Cloudflare Turnstile, at most 50 entries, closes on 31 December, and visitors can save and continue later.';
+		$reply = self::chat(
+			array(
+				'action' => 'create_form',
+				'reply'  => $claim,
+				'form'   => array(
+					'title'        => 'Workshop sign-up',
+					'captcha'      => 'turnstile',
+					'entry_limit'  => 50,
+					'close_date'   => '2026-12-31',
+					'save_resume'  => true,
+					'fields'       => array(
+						array( 'type' => 'text', 'label' => 'Name', 'required' => true ),
+						array( 'type' => 'mobile', 'label' => 'Mobile', 'settings' => array( 'sms_verification' => true, 'placeholder' => '0912…' ) ),
+						array( 'type' => 'email', 'label' => 'Email', 'settings' => array( 'email_otp' => true ) ),
+					),
+				),
+			),
+			3
+		);
+
+		$this->assertSame( 'preview', $reply['type'] ?? null, (string) wp_json_encode( $reply ) );
+		$this->assertNotSame( $claim, $reply['reply'] );
+		$this->assertStringContainsString( 'not everything you asked for is in it', (string) $reply['reply'] );
+		$this->assertTrue( $reply['partial'] );
+		$errors = implode( "\n", (array) $reply['errors'] );
+		foreach ( array( '“Mobile” with a one-time code sent by SMS', '“Email” with a one-time code sent by e-mail', 'a CAPTCHA service', 'a limit on the number of answers', 'opening and closing dates', 'save and continue later' ) as $named ) {
+			$this->assertStringContainsString( $named, $errors );
+		}
+		$this->assertStringContainsString( 'Easy Form Builder editor', $errors );
+	}
+
+	public function test_a_new_form_that_is_built_as_asked_keeps_the_models_reply(): void {
+		$reply = self::chat(
+			array(
+				'action' => 'create_form',
+				'reply'  => 'Here is your contact form.',
+				'form'   => array(
+					'title'  => 'Contact',
+					'fields' => array(
+						array( 'type' => 'text', 'label' => 'Name', 'required' => true, 'settings' => array( 'placeholder' => 'Your name' ) ),
+						array( 'type' => 'email', 'label' => 'Email', 'required' => true ),
+					),
+				),
+			),
+			3
+		);
+		$this->assertSame( 'Here is your contact form.', $reply['reply'] ?? null, (string) wp_json_encode( $reply ) );
+		$this->assertFalse( $reply['partial'] );
+	}
+
+	/**
 	 * @param array<string,mixed> $ai
 	 * @return array<string,mixed>
 	 */

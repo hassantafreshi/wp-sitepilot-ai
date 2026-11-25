@@ -52,6 +52,19 @@ const CREATE_REPLY = {
 	},
 };
 
+const CLAIM_REPLY = {
+	reply: 'Done: SMS code verification for the mobile number and Cloudflare Turnstile protection.',
+	action: 'create_form',
+	form: {
+		title: 'Workshop sign-up',
+		captcha: 'turnstile',
+		fields: [
+			{ type: 'text', label: 'Full name', required: true },
+			{ type: 'mobile', label: 'Mobile', settings: { sms_verification: true } },
+		],
+	},
+};
+
 async function login( page ) {
 	await page.goto( BASE + '/wp-login.php', { waitUntil: 'domcontentloaded' } );
 	await page.fill( '#user_login', USER );
@@ -200,7 +213,9 @@ async function run( locale, width, height ) {
 		ctl( 'delete', formId );
 
 		// A second new form, still the untouched draft: Undo, confirmed, deletes it through EFB and opens the forms list.
-		ctl( 'queue', JSON.stringify( CREATE_REPLY ) );
+		// QA5-003: its reply promised an SMS code check and Turnstile, which the copilot never sets on a new form: the
+		// reply is replaced and both are named.
+		ctl( 'queue', JSON.stringify( CLAIM_REPLY ) );
 		await page.goto( BASE + '/wp-admin/admin.php?page=Emsfb_create', { waitUntil: 'networkidle', timeout: 90000 } );
 		await page.waitForSelector( '#aisaautopilot-efb-launch', { timeout: 60000 } );
 		await dismissRatingDialog( page );
@@ -209,6 +224,11 @@ async function run( locale, width, height ) {
 		await page.fill( '#aisaautopilot-efb-input', 'A catering order form with an estimated total of guests × 20' );
 		await page.click( '#aisaautopilot-efb-send' );
 		await page.waitForSelector( '[data-sp-efb-create="1"]', { timeout: 60000 } );
+		const claimText = await page.locator( '[data-sp-efb-state="preview"]' ).last().evaluate( ( el ) => ( el.closest( '.aisaautopilot-efb-msg--ai' ) || el.parentElement ).innerText );
+		check( ! claimText.includes( CLAIM_REPLY.reply ) && /one-time code sent by SMS/.test( claimText ) && /CAPTCHA service/.test( claimText ), `${ tag }: a new form's reply never promises what was not built (SMS code, CAPTCHA named)`, claimText.slice( 0, 400 ) );
+		await page.locator( '[data-sp-efb-state="preview"]' ).last().evaluate( ( el ) => el.scrollIntoView( { block: 'end' } ) );
+		await page.waitForTimeout( 300 );
+		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-claims-${ tag }.png` ), fullPage: false } );
 		await page.click( '[data-sp-efb-create="1"]' );
 		await page.waitForURL( /state=edit-form&id=\d+/, { timeout: 60000 } );
 		const undoId = Number( /id=(\d+)/.exec( page.url() )[ 1 ] );

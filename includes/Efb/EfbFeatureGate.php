@@ -600,6 +600,126 @@ final class EfbFeatureGate {
 		);
 	}
 
+	/**
+	 * A setting a model asked for that only EFB's editor sets (a one-time code, a CAPTCHA service, limits, dates, save
+	 * and continue later, …): its name in the admin's words and the registry key that says its plan or add-on.
+	 *
+	 * @return array{name:string, feature:string}
+	 */
+	public static function editor_setting( string $key ): array {
+		$k     = strtolower( $key );
+		$has   = static fn ( string ...$words ): bool => (bool) array_filter( $words, static fn ( string $w ): bool => str_contains( $k, $w ) );
+		$codes = $has( 'otp', 'verif', 'one_time' ) || ( $has( 'code' ) && ! $has( 'postal', 'post_code', 'zip', 'country', 'area' ) );
+		if ( $codes && $has( 'sms', 'mobile', 'phone', 'tel' ) ) {
+			return array(
+				'name'    => __( 'a one-time code sent by SMS', 'ai-site-assistant-autopilot' ),
+				'feature' => 'setting:verify_sms_otp',
+			);
+		}
+		if ( $codes ) {
+			return array(
+				'name'    => __( 'a one-time code sent by e-mail', 'ai-site-assistant-autopilot' ),
+				'feature' => 'setting:verify_email_otp',
+			);
+		}
+		$map = array(
+			array( array( 'captcha', 'turnstile', 'altcha', 'spam' ), __( 'a CAPTCHA service', 'ai-site-assistant-autopilot' ), 'setting:captcha_provider' ),
+			array( array( 'esign', 'typed', 'signature' ), __( 'a typed signature', 'ai-site-assistant-autopilot' ), 'setting:esign_mode' ),
+			array( array( 'range_mode', 'dual', 'two_handle' ), __( 'a two-handle slider', 'ai-site-assistant-autopilot' ), 'setting:range_dual' ),
+			array( array( 'resume', 'save_and', 'save_progress', 'continue_later', 'draft' ), __( 'save and continue later', 'ai-site-assistant-autopilot' ), 'setting:form_drafts' ),
+			array( array( 'partial' ), __( 'partial answers', 'ai-site-assistant-autopilot' ), 'setting:form_partials' ),
+			array( array( 'per_user', 'per_person', 'per_ip', 'per_email' ), __( 'a limit per person', 'ai-site-assistant-autopilot' ), 'setting:form_person_limits' ),
+			array( array( 'limit', 'max_entries', 'max_responses', 'max_submissions', 'entries', 'responses', 'capacity' ), __( 'a limit on the number of answers', 'ai-site-assistant-autopilot' ), 'setting:form_total_limit' ),
+			array( array( 'close', 'open', 'deadline', 'schedule', 'expire', 'end_date', 'start_date' ), __( 'opening and closing dates', 'ai-site-assistant-autopilot' ), 'setting:form_schedule' ),
+			array( array( 'unique' ), __( 'unique answers', 'ai-site-assistant-autopilot' ), 'setting:field_unique' ),
+			array( array( 'domain' ), __( 'allowed e-mail domains', 'ai-site-assistant-autopilot' ), 'setting:field_email_domains' ),
+			array( array( 'length', 'words', 'chars', 'characters' ), __( 'a text length rule', 'ai-site-assistant-autopilot' ), 'setting:field_text_limits' ),
+			array( array( 'formula', 'calc', 'total' ), __( 'a calculation', 'ai-site-assistant-autopilot' ), 'field:calc' ),
+			array( array( 'prefill', 'smart_tag', 'utm', 'query', 'url_param' ), __( 'filling the field from the page address', 'ai-site-assistant-autopilot' ), 'setting:hidden_field' ),
+			array( array( 'role' ), __( 'who may see the form or the field', 'ai-site-assistant-autopilot' ), 'setting:form_roles' ),
+		);
+		foreach ( $map as $row ) {
+			if ( $has( ...$row[0] ) ) {
+				return array(
+					'name'    => $row[1],
+					'feature' => $row[2],
+				);
+			}
+		}
+		$definition = EfbFormModel::field_property( (string) ( EfbFormModel::resolve_field_property( $key ) ?? $key ) );
+		$label      = is_array( $definition ) ? trim( (string) ( $definition['label'] ?? '' ) ) : '';
+
+		return array(
+			'name'    => '' !== $label ? $label : '“' . str_replace( '_', ' ', $key ) . '”',
+			'feature' => '',
+		);
+	}
+
+	/**
+	 * One plain sentence per setting the copilot did not put in a new form (QA5-003): what it is, which plan or add-on
+	 * it needs on this site, and that it is set in EFB's editor. Items: label (the field's, or '' for the form), key,
+	 * reason (EfbCustomizeSkill::settings_for_new_field_verbose(), or "form" for a form-level key).
+	 *
+	 * @param array<int,array{label:string,key:string,reason:string}> $items
+	 * @return string[]
+	 */
+	public static function not_applied( array $items ): array {
+		$out = array();
+		foreach ( $items as $item ) {
+			$setting = self::editor_setting( (string) $item['key'] );
+			$what    = '' !== (string) $item['label']
+				/* translators: 1: field label, 2: what was asked for (e.g. a one-time code sent by SMS). */
+				? sprintf( __( '“%1$s” with %2$s', 'ai-site-assistant-autopilot' ), (string) $item['label'], $setting['name'] )
+				: $setting['name'];
+			if ( 'not_for_type' === $item['reason'] ) {
+				/* translators: %s: what was asked for. */
+				$out[] = sprintf( __( 'Not in the form: %s. That kind of field has no such setting.', 'ai-site-assistant-autopilot' ), $what );
+				continue;
+			}
+			if ( 'invalid_value' === $item['reason'] ) {
+				/* translators: %s: what was asked for. */
+				$out[] = sprintf( __( 'Not in the form: %s. Easy Form Builder does not accept that value; set it in its editor.', 'ai-site-assistant-autopilot' ), $what );
+				continue;
+			}
+			$state = '' !== $setting['feature'] && EfbCapabilities::available() ? EfbCapabilities::state( $setting['feature'] ) : null;
+			if ( 'requires_pro' === $item['reason'] && ( null === $state || ! $state['known'] ) ) {
+				$state = array(
+					'known'     => true,
+					'available' => ! empty( EfbLicense::status()['is_pro'] ),
+					'reason'    => 'plan',
+					'package'   => 'pro',
+					'addon'     => null,
+				);
+			}
+			if ( null !== $state && $state['known'] && ! $state['available'] ) {
+				$plan  = EfbCapabilities::plan_label( (string) $state['package'] );
+				$addon = null !== $state['addon'] ? EfbCapabilities::addon( (string) $state['addon'] ) : null;
+				if ( null !== $addon ) {
+					// "SMS service Add-on" reads "… its SMS service add-on" in the sentence.
+					$addon['name'] = trim( (string) preg_replace( '/\s+add-?on$/i', '', (string) $addon['name'] ) );
+				}
+				if ( null !== $addon && 'addon' === $state['reason'] ) {
+					/* translators: 1: what was asked for, 2: add-on name, 3: plan name. */
+					$out[] = sprintf( __( 'Not in the form: %1$s. It needs Easy Form Builder’s %2$s add-on (%3$s); then you set it in the Easy Form Builder editor.', 'ai-site-assistant-autopilot' ), $what, $addon['name'], EfbCapabilities::plan_label( $addon['package'] ) );
+				} elseif ( null !== $addon ) {
+					/* translators: 1: what was asked for, 2: plan name, 3: add-on name. */
+					$out[] = sprintf( __( 'Not in the form: %1$s. It needs Easy Form Builder %2$s with its %3$s add-on; then you set it in the Easy Form Builder editor.', 'ai-site-assistant-autopilot' ), $what, $plan, $addon['name'] );
+				} else {
+					/* translators: 1: what was asked for, 2: plan name. */
+					$out[] = sprintf( __( 'Not in the form: %1$s. It needs Easy Form Builder %2$s; then you set it in the Easy Form Builder editor.', 'ai-site-assistant-autopilot' ), $what, $plan );
+				}
+				continue;
+			}
+			$out[] = null !== $state && $state['known']
+				/* translators: %s: what was asked for. */
+				? sprintf( __( 'Not in the form: %s. I cannot set it on a new form; set it in the Easy Form Builder editor (this site has it).', 'ai-site-assistant-autopilot' ), $what )
+				/* translators: %s: what was asked for. */
+				: sprintf( __( 'Not in the form: %s. I cannot set it on a new form; set it in the Easy Form Builder editor.', 'ai-site-assistant-autopilot' ), $what );
+		}
+
+		return array_values( array_unique( $out ) );
+	}
+
 	/** A field type's name in the admin's words. */
 	public static function type_name( string $type ): string {
 		$names = array(

@@ -521,6 +521,52 @@ try {
 		$aisa_check( ! empty( $done['ok'] ) && 1 === count( $aisa_of_type( $rows, 'date' ) ), 'Booking: the approved form exists in EFB with the date field', $done );
 	}
 
+	if ( 'claims' === $aisa_scenario ) {
+		// QA5-003 (driver: Free Plus): the model's reply promised an SMS code check, Turnstile, limits, a closing date,
+		// save-and-resume and a calculated total. What the server did not build is named, with its plan or add-on.
+		$claim = 'Done: SMS code verification for the mobile number, Cloudflare Turnstile, at most 50 entries, closes on 31 December, save and continue later, and a calculated total.';
+		$aisa_queue(
+			array(
+				'reply'  => $claim,
+				'action' => 'create_form',
+				'form'   => array(
+					'title'       => 'Claims ' . wp_generate_password( 4, false ),
+					'captcha'     => 'turnstile',
+					'entry_limit' => 50,
+					'close_date'  => '2026-12-31',
+					'save_resume' => true,
+					'fields'      => array_merge(
+						$aisa_contact,
+						array(
+							array(
+								'type'     => 'mobile',
+								'label'    => 'Mobile',
+								'settings' => array( 'sms_verification' => true ),
+							),
+							array(
+								'type'  => 'calc',
+								'label' => 'Total',
+							),
+						)
+					),
+				),
+			)
+		);
+		$p      = $aisa_rest(
+			'efb/chat',
+			array(
+				'message'  => 'workshop sign-up with sms code check, turnstile, 50 entries max, closes 31 december, save and continue later and a total',
+				'has_form' => false,
+				'addons'   => array(),
+			)
+		);
+		$errors = implode( ' | ', (array) ( $p['errors'] ?? array() ) );
+		$aisa_check( 'preview' === ( $p['type'] ?? '' ) && $claim !== ( $p['reply'] ?? '' ) && false !== strpos( (string) ( $p['reply'] ?? '' ), 'not everything you asked for' ), 'Claims: the model\'s reply is replaced when part of it was not built', $p['reply'] ?? $p );
+		$aisa_check( false !== strpos( $errors, '“Mobile” with a one-time code sent by SMS' ) && 1 === preg_match( '/one-time code sent by SMS[^|]*Pro[^|]*SMS/u', $errors ), 'Claims: the SMS code check is named with its plan (Pro) and its SMS add-on', $errors );
+		$aisa_check( false !== strpos( $errors, 'a CAPTCHA service' ) && false !== strpos( $errors, 'a limit on the number of answers' ) && false !== strpos( $errors, 'opening and closing dates' ) && 1 === preg_match( '/save and continue later[^|]*Pro/u', $errors ), 'Claims: CAPTCHA, limits, closing date and save-and-resume (Pro) are named', $errors );
+		$aisa_check( 'calc' === ( array_column( (array) ( $p['addon_required'] ?? array() ), 'type' )[0] ?? '' ), 'Claims: the calculated total is listed with its add-on', $p['addon_required'] ?? null );
+	}
+
 	if ( 'undo' === $aisa_scenario ) {
 		// QA5-001: Undo deletes only the fresh draft the copilot created: never a published form, one the owner changed or
 		// one with entries (409 in plain words, the form and its entries stay, the token is dropped).
