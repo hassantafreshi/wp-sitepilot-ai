@@ -458,6 +458,83 @@ try {
 		$aisa_check( 404 === $u2['_status'], 'Form package 1.1: a second undo is refused', $u2 );
 	}
 
+	if ( 'undo' === $aisa_scenario ) {
+		// QA5-001: Undo deletes only the fresh draft the copilot created: never a published form, one the owner changed or
+		// one with entries (409 in plain words, the form and its entries stay, the token is dropped).
+		$entry = static function ( int $form_id ): void {
+			global $wpdb;
+			$wpdb->insert(
+				$wpdb->prefix . 'emsfb_msg_',
+				array(
+					'form_id' => $form_id,
+					'track'   => 'AISAUNDO' . $form_id,
+					'ip'      => '127.0.0.1',
+					'content' => '[]',
+					'date'    => current_time( 'mysql' ),
+					'read_'   => 0,
+				)
+			);
+		};
+		$entries = static function ( int $form_id ): int {
+			global $wpdb;
+			return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}emsfb_msg_ WHERE form_id = %d", $form_id ) );
+		};
+		$new = static function ( string $title ) use ( $aisa_approve, $aisa_create, $aisa_contact ): int {
+			return (int) ( $aisa_approve( $aisa_create( array( 'title' => $title, 'fields' => $aisa_contact ) ) )['result']['form_id'] ?? 0 );
+		};
+		$key = static fn ( int $id ): string => 'aisaautopilot_efb_undo_1_' . $id;
+
+		// A fresh, untouched draft: Undo is offered and deletes it.
+		$fresh = $new( 'Undo fresh' );
+		$rec   = get_transient( $key( $fresh ) );
+		$aisa_check( is_array( $rec ) && '' !== (string) ( $rec['base_hash'] ?? '' ) && (string) ( \Emsfb\Form_Package::read( $fresh )['base_hash'] ?? 'x' ) === $rec['base_hash'], 'Undo: the token is kept with the base_hash of the form as EFB stored it', $rec );
+		$u = $aisa_rest( 'efb/undo', array( 'form_id' => $fresh ) );
+		$aisa_check( ! empty( $u['ok'] ) && array() === $aisa_rows( $fresh ), 'Undo: an untouched draft is deleted through EFB', $u );
+
+		// Published: refused, the form stays; Publish itself already dropped the token and says Undo is gone.
+		$pubd = $new( 'Undo published' );
+		$tok  = get_transient( $key( $pubd ) );
+		$pub  = $aisa_rest( 'efb/publish', array( 'form_id' => $pubd ) );
+		$aisa_check( ! empty( $pub['ok'] ) && false === ( $pub['can_undo'] ?? null ) && false === get_transient( $key( $pubd ) ), 'Undo: Publish drops the undo token and says Undo is gone', $pub );
+		set_transient( $key( $pubd ), $tok, HOUR_IN_SECONDS ); // as if Publish had happened elsewhere (EFB's forms list)
+		$u = $aisa_rest( 'efb/undo', array( 'form_id' => $pubd ) );
+		$aisa_check( 409 === $u['_status'] && 'undo_published' === ( $u['code'] ?? '' ) && false !== strpos( (string) ( $u['message'] ?? '' ), 'published' ) && array() !== $aisa_rows( $pubd ) && false === get_transient( $key( $pubd ) ), 'Undo: a published form is refused (409, plain words), it stays and the token goes', $u );
+
+		// Entries: refused, the form and its entry stay.
+		$used = $new( 'Undo with entries' );
+		$entry( $used );
+		$u = $aisa_rest( 'efb/undo', array( 'form_id' => $used ) );
+		$aisa_check( 409 === $u['_status'] && 'undo_has_entries' === ( $u['code'] ?? '' ) && false !== strpos( (string) ( $u['message'] ?? '' ), '1 entry' ) && array() !== $aisa_rows( $used ) && 1 === $entries( $used ), 'Undo: a form with an entry is refused (409); the form and the entry stay', $u );
+
+		// Changed by the owner (a Save in the builder: EFB's own save path, here through form.update): refused.
+		$edit = $new( 'Undo edited' );
+		$read = \Emsfb\Form_Package::read( $edit );
+		$mail = '';
+		foreach ( (array) ( $read['rows'] ?? array() ) as $row ) {
+			if ( is_array( $row ) && 'email' === ( $row['type'] ?? '' ) ) {
+				$mail = (string) $row['id_'];
+			}
+		}
+		$saved = \Emsfb\Form_Package::update(
+			$edit,
+			array(
+				array(
+					'op'  => 'field',
+					'id'  => $mail,
+					'set' => array( 'name' => 'Email address (owner)' ),
+				),
+			),
+			array(
+				'base_hash' => (string) ( $read['base_hash'] ?? '' ),
+				'source'    => 'builder',
+			)
+		);
+		$u = $aisa_rest( 'efb/undo', array( 'form_id' => $edit ) );
+		$aisa_check( ! is_wp_error( $saved ) && 409 === $u['_status'] && 'undo_changed' === ( $u['code'] ?? '' ) && false !== strpos( wp_json_encode( $aisa_rows( $edit ) ), 'Email address (owner)' ), 'Undo: a form the owner changed is refused (409) and the change stays', array( $u, is_wp_error( $saved ) ? $saved->get_error_code() : 'saved' ) );
+		$u2 = $aisa_rest( 'efb/undo', array( 'form_id' => $edit ) );
+		$aisa_check( 404 === $u2['_status'], 'Undo: after a refusal the token is gone (a second try is 404)', $u2 );
+	}
+
 	if ( 'saved' === $aisa_scenario ) {
 		// EFB 4.3.2 (driver: Free Plus, AdnCLC off): the version from EFB's registry, a new form as a draft with the name
 		// the admin approved, Publish, a SAVED form changed through EFB's form.update after approval (base_hash, stale,
@@ -639,11 +716,20 @@ try {
 	}
 
 } finally {
+	// The forms a scenario made: EFB's undo while the copilot still holds the token, else EFB's own delete of the forms
+	// list (the row, its entries, the efb_form_deleted hook), as tests/efb_e2e/ctl.php delete does.
+	global $wpdb;
 	foreach ( $aisa_created as $id ) {
-		$token = get_transient( 'aisaautopilot_efb_undo_1_' . $id );
-		if ( is_string( $token ) && class_exists( '\\Emsfb\\Form_Package' ) ) {
-			\Emsfb\Form_Package::delete( $id, $token );
-			delete_transient( 'aisaautopilot_efb_undo_1_' . $id );
+		$rec   = get_transient( 'aisaautopilot_efb_undo_1_' . $id );
+		$token = is_array( $rec ) ? (string) ( $rec['token'] ?? '' ) : '';
+		delete_transient( 'aisaautopilot_efb_undo_1_' . $id );
+		if ( '' !== $token && class_exists( '\\Emsfb\\Form_Package' ) && true === \Emsfb\Form_Package::delete( $id, $token ) ) {
+			continue;
+		}
+		if ( array() !== $aisa_rows( (int) $id ) ) {
+			$wpdb->delete( $wpdb->prefix . 'emsfb_form', array( 'form_id' => $id ) );
+			$wpdb->delete( $wpdb->prefix . 'emsfb_msg_', array( 'form_id' => $id ) );
+			do_action( 'efb_form_deleted', $id );
 		}
 	}
 }

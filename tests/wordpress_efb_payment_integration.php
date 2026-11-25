@@ -303,6 +303,7 @@ aisa_efb_parts(
 			foreach ( $created as $form_id ) {
 				// EFB's undo of the import that created it (Form_Package::delete with the copilot's undo token).
 				$token = get_transient( 'aisaautopilot_efb_undo_1_' . $form_id );
+				$token = is_array( $token ) ? (string) ( $token['token'] ?? '' ) : $token; // {token, base_hash} since QA5-001
 				if ( is_string( $token ) && '' !== $token && class_exists( '\\Emsfb\\Form_Package' ) && true === \Emsfb\Form_Package::delete( $form_id, $token ) ) {
 					delete_transient( 'aisaautopilot_efb_undo_1_' . $form_id );
 				} else {

@@ -159,7 +159,7 @@
 	function starter( iconName, kind, title, hintText, text ) {
 		var b = el( 'button', { type: 'button', class: 'aisa-ai-starter aisaautopilot-efb-chip', 'data-sp-efb-chip': 'starter', 'data-sp-efb-prefill': text }, [
 			el( 'span', { class: 'aisa-ai-ic aisa-ai-ic--' + kind }, [ icon( iconName, 16 ) ] ),
-			el( 'span', {}, [ el( 'strong', { text: title } ), hintText ? el( 'small', { text: hintText } ) : null ] )
+			el( 'span', {}, [ el( 'strong', { dir: 'auto', text: title } ), hintText ? el( 'small', { dir: 'auto', text: hintText } ) : null ] )
 		] );
 		b.addEventListener( 'click', function () { prefill( text ); } );
 		return b;
@@ -884,7 +884,7 @@
 		var advice = ( p.suggestions || [] ).map( function ( s ) {
 			return el( 'div', { class: 'aisa-ai-advice aisaautopilot-efb-finding aisaautopilot-efb-finding--' + ( s.severity === 'warning' ? 'warning' : 'info' ) }, [ icon( s.severity === 'warning' ? 'shield' : 'help', 16 ), el( 'span', { dir: 'auto', text: s.message } ) ] );
 		} );
-		var status = el( 'span', { class: 'aisa-ai-status aisaautopilot-efb-inline-note', role: 'status' } );
+		var status = el( 'span', { class: 'aisa-ai-status aisaautopilot-efb-inline-note', role: 'status', dir: 'auto' } );
 		var approve = button( t( 'createThisForm', 'Create this form' ), { kind: 'primary', size: 'lg', grow: true, icon: 'check', stroke: 2.4, extra: 'aisaautopilot-efb-btn--primary', attrs: { 'data-sp-efb-create': '1' } } );
 		var discard = button( t( 'discard', 'Discard' ), { kind: 'quiet', size: 'lg', extra: 'aisaautopilot-efb-btn--ghost' } );
 		var countText = t( 'fieldsCount', '%s fields', p.field_count ) + ' · ' + ( 1 === pages ? t( 'onePage', '1 page' ) : t( 'pagesCount', '%s pages', pages ) );
@@ -1149,7 +1149,7 @@
 			addAi( locked );
 			return;
 		}
-		var status = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
+		var status = el( 'p', { class: 'aisa-ai-status', role: 'status', dir: 'auto' } );
 		var install = button( t( 'installAddon', 'Install %s', name ), { kind: 'primary', size: 'sm', icon: 'plug', attrs: { 'data-sp-efb-install-go': offer.code } } );
 		var later = button( t( 'notNow', 'Not now' ), { kind: 'quiet', size: 'sm' } );
 		var box = card( Dock.cardHead( 'warn', 'plug', t( 'addonNeeded', 'This needs the %s add-on', name ) ), [
@@ -1195,13 +1195,18 @@
 	/* ---------- EFB 4.3.2: drafts, saved forms, the owner's own Save ---------- */
 	var draftShown = false;
 	/** Publish a draft (EFB's Form_Package::publish()): only on the admin's click. */
-	function publishButton( formId, status ) {
+	function publishButton( formId, status, onPublished ) {
 		var b = button( t( 'publishNow', 'Publish' ), { kind: 'primary', size: 'sm', icon: 'check', attrs: { 'data-sp-efb-publish': String( formId ) } } );
 		b.addEventListener( 'click', function () {
 			b.disabled = true; status.textContent = t( 'publishing', 'Publishing…' );
 			api( 'efb/publish', { form_id: formId } ).then( function ( res ) {
 				status.textContent = String( ( res.data && res.data.message ) || '' );
-				if ( res.data && res.data.ok ) { b.remove(); if ( EFB.openForm && Number( EFB.openForm.id ) === formId ) { EFB.openForm.status = 'published'; } return; }
+				if ( res.data && res.data.ok ) {
+					b.remove();
+					if ( EFB.openForm && Number( EFB.openForm.id ) === formId ) { EFB.openForm.status = 'published'; }
+					if ( onPublished ) { onPublished(); }
+					return;
+				}
 				b.disabled = false;
 			} ).catch( function () { b.disabled = false; status.textContent = t( 'networkError', 'Network error. Please try again.' ); } );
 		} );
@@ -1211,7 +1216,7 @@
 	function draftCard() {
 		if ( draftShown || ! EFB.openForm || 'draft' !== EFB.openForm.status || Number( EFB.openForm.id ) !== getFormId() ) { return null; }
 		draftShown = true;
-		var status = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
+		var status = el( 'p', { class: 'aisa-ai-status', role: 'status', dir: 'auto' } );
 		return card( Dock.cardHead( 'plan', 'doc', t( 'draftBadge', 'Draft' ) ), [
 			el( 'div', { class: 'aisa-ai-card__body' }, [ el( 'p', { dir: 'auto', text: t( 'draftOpen', 'This form is a draft: visitors do not see it yet. Publish it when it is ready.' ) } ), status ] ),
 			el( 'div', { class: 'aisa-ai-card__foot' }, [ publishButton( Number( EFB.openForm.id ), status ) ] )
@@ -1250,7 +1255,7 @@
 		var form = data.form || {};
 		var rows = el( 'ul', { class: 'aisa-ai-rows' } );
 		( data.changes || [] ).forEach( function ( text ) { rows.appendChild( Dock.row( 'edit', 'edit', String( text ), '', '', { class: 'aisaautopilot-efb-inline-note', 'data-sp-efb-note': 'change' } ) ); } );
-		var status = el( 'span', { class: 'aisa-ai-status aisaautopilot-efb-inline-note', role: 'status' } );
+		var status = el( 'span', { class: 'aisa-ai-status aisaautopilot-efb-inline-note', role: 'status', dir: 'auto' } );
 		var approve = button( t( 'applySaved', 'Approve & save' ), { kind: 'primary', size: 'lg', grow: true, icon: 'check', stroke: 2.4, extra: 'aisaautopilot-efb-btn--primary', attrs: { 'data-sp-efb-update': '1' } } );
 		var discard = button( t( 'discard', 'Discard' ), { kind: 'quiet', size: 'lg', extra: 'aisaautopilot-efb-btn--ghost' } );
 		var box = card( Dock.cardHead( 'plan', 'edit', t( 'updateTitle', 'Change “%s”', String( form.name || '' ) ), 'draft' === form.status ? t( 'draftBadge', 'Draft' ) : '' ), [
@@ -1268,7 +1273,7 @@
 				var after = [ el( 'p', { dir: 'auto', text: t( 'savedInEfb', 'Saved in Easy Form Builder.' ) } ) ].concat( ( result.notes || [] ).map( function ( line ) { return el( 'p', { dir: 'auto', 'data-sp-efb-note': 'efb', text: String( line ) } ); } ) );
 				var foot = [];
 				if ( result.edit_url ) { foot.push( el( 'a', { class: 'aisa-ai-btn aisa-ai-btn--sm aisaautopilot-efb-btn', href: result.edit_url }, [ el( 'span', { text: t( 'openInEditor', 'Open in the editor' ) } ) ] ) ); }
-				var done = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
+				var done = el( 'p', { class: 'aisa-ai-status', role: 'status', dir: 'auto' } );
 				if ( 'draft' === result.status ) { foot.unshift( publishButton( Number( result.form_id ), done ) ); }
 				addAi( card( Dock.cardHead( 'ok', 'check', t( 'updateTitle', 'Change “%s”', String( result.name || form.name || '' ) ) ), [ el( 'div', { class: 'aisa-ai-card__body' }, after.concat( [ done ] ) ), foot.length ? el( 'div', { class: 'aisa-ai-card__foot' }, foot ) : null ], { 'data-sp-efb-state': 'update-saved' } ) );
 				history.push( { role: 'assistant', text: 'Saved the change of ' + String( form.name || '' ) } );
@@ -1284,6 +1289,8 @@
 	   explains them in plain words (EfbSaveNotes on the server). Nothing is sent when there is nothing to explain. */
 	document.addEventListener( 'efb:form-saved', function ( e ) {
 		var d = e && e.detail ? e.detail : {};
+		// The owner saved the form the copilot just created: it is no longer the untouched draft Undo may delete.
+		if ( d.id ) { retireCreatedUndo( Number( d.id ) ); }
 		var warnings = Array.isArray( d.warnings ) ? d.warnings.filter( function ( w ) { return w && w.code && 'info' !== w.level; } ) : [];
 		if ( ! EFB.saveEvents || ! configured || ( ! warnings.length && false !== d.payment_ready ) ) { return; }
 		api( 'efb/save-notes', { warnings: warnings.slice( 0, 40 ), payment_ready: false === d.payment_ready ? false : null, payment_issues: Array.isArray( d.payment_issues ) ? d.payment_issues.slice( 0, 8 ) : [] } ).then( function ( res ) {
@@ -1299,6 +1306,11 @@
 	function planName( plan ) {
 		return 'pro' === plan ? t( 'planPro', 'Pro' ) : ( 'free_plus' === plan ? t( 'planFreePlus', 'Free Plus' ) : t( 'planFree', 'Free' ) );
 	}
+	/* Undo of the card below: set while it is offered, so a Publish or the owner's own Save of that form retires it. */
+	var createdUndo = null;
+	function retireCreatedUndo( formId ) {
+		if ( createdUndo && ( ! formId || Number( formId ) === createdUndo.formId ) ) { createdUndo.retire(); }
+	}
 	function welcomeCreated() {
 		var saved = null;
 		try { saved = JSON.parse( sessionStorage.getItem( CREATED_KEY ) || 'null' ); } catch ( e ) { saved = null; }
@@ -1309,23 +1321,60 @@
 		if ( ! ( saved.notes && saved.notes.length ) && ! saved.can_undo && ! saved.is_draft ) { return; }
 		if ( saved.is_draft ) { draftShown = true; } // this card says it; the greeting does not repeat it
 		open( false );
-		var status = el( 'p', { class: 'aisa-ai-status', role: 'status' } );
-		var lines = ( saved.notes || [] ).length ? saved.notes : [ t( 'createdBody', 'Easy Form Builder stored it with its own checks. Look it over here; if it is not what you wanted, Undo deletes it.' ) ];
-		var parts = [ el( 'div', { class: 'aisa-ai-card__body' }, lines.map( function ( line ) { return el( 'p', { dir: 'auto', text: String( line ) } ); } ).concat( [ status ] ) ) ];
-		var undo = saved.can_undo ? button( t( 'undoCreate', 'Undo: delete this new form' ), { kind: 'quiet', size: 'sm', attrs: { 'data-sp-efb-undo': String( saved.form_id ) } } ) : null;
+		var formId = Number( saved.form_id );
+		var status = el( 'p', { class: 'aisa-ai-status', role: 'status', dir: 'auto' } );
+		var lines = ( saved.notes || [] ).length ? saved.notes : [ t( 'createdBodyNoUndo', 'Easy Form Builder stored it with its own checks. Look it over here.' ) ];
+		var draftNote = saved.is_draft ? el( 'p', { dir: 'auto', 'data-sp-efb-note': 'draft', text: t( 'draftCreated', 'Created as a draft: visitors do not see it until you publish it.' ) } ) : null;
+		// What Undo may do, said only while it is offered.
+		var undoNote = saved.can_undo ? el( 'p', { dir: 'auto', 'data-sp-efb-note': 'undo', text: t( 'createdUndoNote', 'While it is an unchanged draft without entries, Undo deletes it.' ) } ) : null;
+		var body = el( 'div', { class: 'aisa-ai-card__body' }, [ draftNote ].concat( lines.map( function ( line ) { return el( 'p', { dir: 'auto', text: String( line ) } ); } ) ).concat( [ undoNote, status ] ) );
+		var undo = saved.can_undo ? button( t( 'undoCreate', 'Undo: delete this new form' ), { kind: 'quiet', size: 'sm', attrs: { 'data-sp-efb-undo': String( formId ) } } ) : null;
+		var confirmBox = null;
+		var foot = el( 'div', { class: 'aisa-ai-card__foot' } );
+		function retire() {
+			if ( undo ) { undo.remove(); undo = null; }
+			if ( undoNote ) { undoNote.remove(); undoNote = null; }
+			if ( confirmBox ) { confirmBox.remove(); confirmBox = null; }
+			if ( ! foot.firstChild ) { foot.remove(); }
+			createdUndo = null;
+		}
 		// EFB 4.3.2: the new form waits as a draft; the admin publishes it when it is ready (here, or in EFB's forms list).
-		var publish = saved.is_draft ? publishButton( Number( saved.form_id ), status ) : null;
-		if ( saved.is_draft ) { parts[ 0 ].insertBefore( el( 'p', { dir: 'auto', 'data-sp-efb-note': 'draft', text: t( 'draftCreated', 'Created as a draft: visitors do not see it until you publish it.' ) } ), parts[ 0 ].firstChild ); draftShown = true; }
-		if ( undo || publish ) { parts.push( el( 'div', { class: 'aisa-ai-card__foot' }, [ publish, undo ] ) ); }
+		// Once it is published the card says only that: the draft line and Undo go (a published form is never undone here).
+		var publish = saved.is_draft ? publishButton( formId, status, function () {
+			if ( draftNote ) { draftNote.remove(); draftNote = null; }
+			retire();
+			box.setAttribute( 'data-sp-efb-published', '1' );
+		} ) : null;
+		if ( publish ) { foot.appendChild( publish ); }
+		if ( undo ) { foot.appendChild( undo ); }
+		var parts = [ body ];
+		if ( publish || undo ) { parts.push( foot ); }
 		var box = card( Dock.cardHead( 'plan', 'check', t( 'createdTitle', 'Created “%s”', saved.title ) ), parts, { 'data-sp-efb-state': 'created' } );
 		if ( undo ) {
+			createdUndo = { formId: formId, retire: retire };
 			undo.addEventListener( 'click', function () {
-				undo.disabled = true; status.textContent = t( 'undoing', 'Deleting…' );
-				api( 'efb/undo', { form_id: Number( saved.form_id ) } ).then( function ( res ) {
-					status.textContent = String( ( res.data && res.data.message ) || '' );
-					if ( res.data && res.data.ok && res.data.list_url ) { leaving = true; setTimeout( function () { window.location.href = res.data.list_url; }, 900 ); return; }
-					undo.disabled = false;
-				} ).catch( function () { undo.disabled = false; status.textContent = t( 'networkError', 'Network error. Please try again.' ); } );
+				if ( confirmBox ) { confirmBox.querySelector( 'button' ).focus(); return; }
+				// Deleting is final: ask first, in the card, and say what goes with it.
+				var yes = button( t( 'undoConfirmYes', 'Delete the form' ), { size: 'sm', extra: 'aisaautopilot-efb-btn--danger', attrs: { 'data-sp-efb-undo-confirm': String( formId ) } } );
+				var no = button( t( 'undoConfirmNo', 'Keep it' ), { kind: 'quiet', size: 'sm', attrs: { 'data-sp-efb-undo-keep': String( formId ) } } );
+				confirmBox = el( 'div', { class: 'aisaautopilot-efb-confirm', role: 'group', 'aria-label': t( 'undoCreate', 'Undo: delete this new form' ), 'data-sp-efb-undo-ask': String( formId ) }, [
+					el( 'p', { dir: 'auto', text: t( 'undoConfirm', 'Delete “%s” from Easy Form Builder? This cannot be undone.', saved.title ) } ),
+					el( 'div', { class: 'aisaautopilot-efb-confirm__row' }, [ yes, no ] )
+				] );
+				box.insertBefore( confirmBox, foot );
+				undo.setAttribute( 'aria-expanded', 'true' );
+				no.addEventListener( 'click', function () { confirmBox.remove(); confirmBox = null; if ( undo ) { undo.setAttribute( 'aria-expanded', 'false' ); undo.focus(); } } );
+				yes.addEventListener( 'click', function () {
+					yes.disabled = true; no.disabled = true; status.textContent = t( 'undoing', 'Deleting…' );
+					api( 'efb/undo', { form_id: formId } ).then( function ( res ) {
+						status.textContent = String( ( res.data && res.data.message ) || '' );
+						if ( res.data && res.data.ok && res.data.list_url ) { leaving = true; setTimeout( function () { window.location.href = res.data.list_url; }, 900 ); return; }
+						// Refused (published, changed or used since): Undo is not offered again.
+						box.setAttribute( 'data-sp-efb-undo-refused', String( ( res.data && res.data.code ) || '' ) );
+						retire();
+					} ).catch( function () { yes.disabled = false; no.disabled = false; status.textContent = t( 'networkError', 'Network error. Please try again.' ); } );
+				} );
+				yes.focus();
 			} );
 		}
 		addAi( box );
@@ -1629,7 +1678,7 @@
 			if ( ! /(^|&)action=(add|update)_form_Emsfb(&|$)/.test( String( settings && settings.data || '' ) ) ) { return; }
 			var res = xhr && xhr.responseJSON ? xhr.responseJSON : null;
 			if ( ! res ) { try { res = JSON.parse( xhr.responseText ); } catch ( e ) { res = null; } }
-			if ( res && res.data && res.data.success ) { setUnsaved( 0 ); }
+			if ( res && res.data && res.data.success ) { setUnsaved( 0 ); retireCreatedUndo( getFormId() ); }
 		} );
 	}
 

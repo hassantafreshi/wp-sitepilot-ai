@@ -347,11 +347,27 @@ final class EfbCopilotController {
 				'dropped' => count( (array) ( $result['dropped'] ?? array() ) ),
 			)
 		);
-		// Form package 1.1: the token that undoes this creation stays on the server, bound to the approving user.
-		$form_id = (int) ( $result['form_id'] ?? 0 );
-		$token   = (string) ( $result['import_token'] ?? '' );
-		if ( $form_id > 0 && '' !== $token ) {
-			set_transient( self::undo_key( get_current_user_id(), $form_id ), $token, DAY_IN_SECONDS );
+		// Form package 1.1: the token that undoes this creation stays on the server, bound to the approving user, with the
+		// hash of the form as EFB stored it (package 1.2). Undo is only for that fresh draft: never once it is published,
+		// changed or has entries (undo()). An EFB that cannot tell (no drafts, no hash) gets no Undo at all.
+		$form_id  = (int) ( $result['form_id'] ?? 0 );
+		$token    = (string) ( $result['import_token'] ?? '' );
+		$is_draft = ! empty( $result['is_draft'] );
+		$hash     = (string) ( $result['base_hash'] ?? '' );
+		if ( $form_id > 0 && '' !== $token && $is_draft && '' === $hash && $connector instanceof \AISAAutoPilot\Connectors\EasyFormBuilderConnector ) {
+			$read = $connector->read_form( $form_id );
+			$hash = is_array( $read ) ? (string) $read['base_hash'] : '';
+		}
+		$can_undo = $form_id > 0 && '' !== $token && $is_draft && '' !== $hash;
+		if ( $can_undo ) {
+			set_transient(
+				self::undo_key( get_current_user_id(), $form_id ),
+				array(
+					'token'     => $token,
+					'base_hash' => $hash,
+				),
+				DAY_IN_SECONDS
+			);
 		}
 
 		return $this->respond(
@@ -361,7 +377,7 @@ final class EfbCopilotController {
 					'form_id'   => $form_id,
 					'edit_url'  => $result['edit_url'] ?? '',
 					'shortcode' => $result['shortcode'] ?? '',
-					'can_undo'  => '' !== $token,
+					'can_undo'  => $can_undo,
 					// What EFB itself reported while storing it (keys of an inactive add-on, payment readiness, …).
 					'notes'     => EfbSaveNotes::messages( (array) ( $result['dropped'] ?? array() ), array_merge( (array) ( $result['notices'] ?? array() ), (array) ( $result['warnings'] ?? array() ) ), is_array( $result['payment'] ?? null ) ? $result['payment'] : null ),
 					'payment'   => is_array( $result['payment'] ?? null ) ? array( 'ready' => ! empty( $result['payment']['ready'] ) ) : null,
@@ -379,18 +395,45 @@ final class EfbCopilotController {
 
 	/**
 	 * Undo a form the copilot created a moment ago (Easy Form Builder's `Form_Package::delete()`, package 1.1): only the
-	 * same user, only that form, only while its token is kept. Everything else stays in Easy Form Builder's forms list.
+	 * same user, only that form, only while its token is kept, and only while it is still the fresh draft the copilot
+	 * created: unpublished, unchanged since the import (base_hash) and without a single entry. Anything else is refused
+	 * with 409 in plain words and the token is dropped; the form stays in Easy Form Builder's forms list.
 	 */
 	public function undo( WP_REST_Request $request ): WP_REST_Response {
 		$form_id = absint( $request->get_param( 'form_id' ) );
 		$key     = self::undo_key( get_current_user_id(), $form_id );
-		$token   = $form_id > 0 ? get_transient( $key ) : false;
-		if ( ! is_string( $token ) || '' === $token ) {
+		$record  = $form_id > 0 ? get_transient( $key ) : false;
+		$token   = is_array( $record ) ? (string) ( $record['token'] ?? '' ) : '';
+		$hash    = is_array( $record ) ? (string) ( $record['base_hash'] ?? '' ) : '';
+		if ( '' === $token ) {
 			return $this->respond( array( 'message' => __( 'This form can no longer be undone here. Delete it in Easy Form Builder’s forms list if you do not want it.', 'ai-site-assistant-autopilot' ) ), false, 404, 'undo_expired' );
 		}
 		$connector = $this->registry()->get( 'easy_form_builder' );
 		if ( ! $connector instanceof \AISAAutoPilot\Connectors\EasyFormBuilderConnector ) {
 			return $this->respond( array( 'message' => __( 'Easy Form Builder is not active.', 'ai-site-assistant-autopilot' ) ), false, 400, 'connector_not_available' );
+		}
+		$refusal = $this->undo_refusal( $connector, $form_id, $hash );
+		if ( null !== $refusal ) {
+			// Published, changed or used: that cannot turn back into the fresh draft, so the token goes.
+			delete_transient( $key );
+			$this->logger->info(
+				'efb.create.undo_refused',
+				'Undo of a form the copilot created was refused.',
+				array(
+					'form_id' => $form_id,
+					'code'    => $refusal[1],
+				)
+			);
+
+			return $this->respond(
+				array(
+					'message'  => $refusal[0],
+					'list_url' => admin_url( 'admin.php?page=Emsfb' ),
+				),
+				false,
+				409,
+				$refusal[1]
+			);
 		}
 		$done = $connector->undo_create( $form_id, $token );
 		if ( is_wp_error( $done ) ) {
@@ -406,6 +449,39 @@ final class EfbCopilotController {
 			),
 			true
 		);
+	}
+
+	/**
+	 * Why a created form may no longer be undone, or null while it is the untouched draft: [message, code].
+	 *
+	 * @return array{0:string,1:string}|null
+	 */
+	private function undo_refusal( \AISAAutoPilot\Connectors\EasyFormBuilderConnector $connector, int $form_id, string $base_hash ): ?array {
+		$read = $connector->read_form( $form_id );
+		if ( ! is_array( $read ) || '' === $base_hash ) {
+			return array( __( 'I cannot check this form any more, so I do not delete it here. Delete it in Easy Form Builder’s forms list if you do not want it.', 'ai-site-assistant-autopilot' ), 'undo_unverified' );
+		}
+		if ( 'draft' !== $read['status'] ) {
+			return array( __( 'This form is published now, so I do not delete it here. If you do not want it any more, delete it in Easy Form Builder’s forms list.', 'ai-site-assistant-autopilot' ), 'undo_published' );
+		}
+		$entries = $connector->entry_count( $form_id );
+		if ( null === $entries || $entries > 0 ) {
+			return array(
+				null === $entries
+					? __( 'I cannot tell whether this form has entries, so I do not delete it here. Delete it in Easy Form Builder’s forms list if you do not want it.', 'ai-site-assistant-autopilot' )
+					: sprintf(
+						/* translators: %d: number of entries the form has. */
+						_n( 'This form already has %d entry, so I do not delete it here: Undo would delete the entry too. Delete it in Easy Form Builder’s forms list if you really want to.', 'This form already has %d entries, so I do not delete it here: Undo would delete the entries too. Delete it in Easy Form Builder’s forms list if you really want to.', $entries, 'ai-site-assistant-autopilot' ),
+						$entries
+					),
+				'undo_has_entries',
+			);
+		}
+		if ( ! hash_equals( $base_hash, (string) $read['base_hash'] ) ) {
+			return array( __( 'This form was changed after I created it, so I do not delete it here and your changes stay. Delete it in Easy Form Builder’s forms list if you do not want it.', 'ai-site-assistant-autopilot' ), 'undo_changed' );
+		}
+
+		return null;
 	}
 
 	/**
@@ -2276,9 +2352,17 @@ final class EfbCopilotController {
 		if ( is_wp_error( $done ) ) {
 			return $this->respond( array( 'message' => wp_strip_all_tags( $done->get_error_message() ) ), false, 422, sanitize_key( (string) $done->get_error_code() ) );
 		}
+		// A published form is no longer the fresh draft Undo may delete: the token goes and the card hides Undo.
+		delete_transient( self::undo_key( get_current_user_id(), $form_id ) );
 		$this->logger->info( 'efb.publish', 'A draft EFB form was published by the admin.', array( 'form_id' => $form_id ) );
 
-		return $this->respond( array( 'message' => __( 'Published: visitors see the form now.', 'ai-site-assistant-autopilot' ) ), true );
+		return $this->respond(
+			array(
+				'message'  => __( 'Published: visitors see the form now.', 'ai-site-assistant-autopilot' ),
+				'can_undo' => false,
+			),
+			true
+		);
 	}
 
 	/** The saved forms the admin can choose to change here (EFB's own forms list: id, name, draft). */

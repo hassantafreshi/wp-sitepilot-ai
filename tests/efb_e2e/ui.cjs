@@ -176,9 +176,22 @@ async function run( locale, width, height ) {
 		check( 'draft' === JSON.parse( ctl( 'status', formId ) ).status && 1 === await page.locator( '[data-sp-efb-state="created"] [data-sp-efb-note="draft"]' ).count() && 1 === await page.locator( `[data-sp-efb-publish="${ formId }"]` ).count() && 0 === await page.locator( '[data-sp-efb-state="draft"]' ).count(), `${ tag }: the new form is a draft, the card offers Publish once` );
 		await page.waitForTimeout( 800 );
 		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-created-${ tag }.png` ), fullPage: false } );
+		// QA5-001: Undo deletes for good, so it asks first, in the card; "Keep it" leaves the form alone.
+		await page.click( `[data-sp-efb-undo="${ formId }"]` );
+		await page.waitForSelector( `[data-sp-efb-undo-ask="${ formId }"]`, { timeout: 10000 } );
+		check( 1 === await page.locator( `[data-sp-efb-undo-confirm="${ formId }"]` ).count() && null !== JSON.parse( ctl( 'form', formId ) ).rows, `${ tag }: Undo asks before deleting (nothing deleted yet)` );
+		await page.locator( `[data-sp-efb-undo-ask="${ formId }"]` ).evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
+		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-undo-confirm-${ tag }.png` ), fullPage: false } );
+		await page.click( `[data-sp-efb-undo-keep="${ formId }"]` );
+		check( 0 === await page.locator( `[data-sp-efb-undo-ask="${ formId }"]` ).count() && null !== JSON.parse( ctl( 'form', formId ) ).rows, `${ tag }: "Keep it" keeps the form` );
+		// QA5-015: after Publish the card says only that it is published: no draft line, no Undo.
 		await page.click( `[data-sp-efb-publish="${ formId }"]` );
 		await page.waitForFunction( ( id ) => ! document.querySelector( `[data-sp-efb-publish="${ id }"]` ), formId, { timeout: 20000 } );
 		check( 'published' === JSON.parse( ctl( 'status', formId ) ).status, `${ tag }: Publish published the form through EFB` );
+		const createdCard = page.locator( '[data-sp-efb-state="created"]' );
+		check( 0 === await page.locator( `[data-sp-efb-undo="${ formId }"]` ).count() && 0 === await createdCard.locator( '[data-sp-efb-note="draft"], [data-sp-efb-note="undo"], .aisa-ai-card__foot' ).count() && '1' === await createdCard.getAttribute( 'data-sp-efb-published' ), `${ tag }: after Publish the card drops the draft line, Undo and what Undo does` );
+		await createdCard.evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
+		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-published-${ tag }.png` ), fullPage: false } );
 
 		// The owner's own Save: EFB passes its warnings with efb:form-saved; the copilot explains them.
 		await page.evaluate( () => document.dispatchEvent( new CustomEvent( 'efb:form-saved', { detail: { id: 1, created: false, warnings: [ { code: 'addon_keys_kept', addon: 'AdnTSG', m: 'Settings of Typed Signature are kept until the add-on is installed.' }, { code: 'pay_x', level: 'info', m: 'info' } ] } } ) ) );
@@ -186,11 +199,28 @@ async function run( locale, width, height ) {
 		check( 1 === await page.locator( '[data-sp-efb-state="save-notes"] [data-sp-efb-note="save"]' ).count(), `${ tag }: the owner's Save warnings are explained (the info line left out)` );
 		await page.locator( '[data-sp-efb-state="save-notes"]' ).evaluate( ( el ) => el.scrollIntoView( { block: 'center' } ) );
 		await page.screenshot( { path: path.join( SHOTS, `efb-copilot-save-notes-${ tag }.png` ), fullPage: false } );
-		await page.click( `[data-sp-efb-undo="${ formId }"]` );
+		ctl( 'delete', formId );
+
+		// A second new form, still the untouched draft: Undo, confirmed, deletes it through EFB and opens the forms list.
+		ctl( 'queue', JSON.stringify( CREATE_REPLY ) );
+		await page.goto( BASE + '/wp-admin/admin.php?page=Emsfb_create', { waitUntil: 'networkidle', timeout: 90000 } );
+		await page.waitForSelector( '#aisaautopilot-efb-launch', { timeout: 60000 } );
+		await dismissRatingDialog( page );
+		await page.evaluate( () => document.getElementById( 'aisaautopilot-efb-launch' ).click() );
+		await page.waitForSelector( '#aisaautopilot-efb-chat:not(.is-closed)', { timeout: 15000 } );
+		await page.fill( '#aisaautopilot-efb-input', 'A catering order form with an estimated total of guests × 20' );
+		await page.click( '#aisaautopilot-efb-send' );
+		await page.waitForSelector( '[data-sp-efb-create="1"]', { timeout: 60000 } );
+		await page.click( '[data-sp-efb-create="1"]' );
+		await page.waitForURL( /state=edit-form&id=\d+/, { timeout: 60000 } );
+		const undoId = Number( /id=(\d+)/.exec( page.url() )[ 1 ] );
+		await page.waitForSelector( `[data-sp-efb-undo="${ undoId }"]`, { timeout: 30000 } );
+		await page.click( `[data-sp-efb-undo="${ undoId }"]` );
+		await page.click( `[data-sp-efb-undo-confirm="${ undoId }"]` );
 		// Undo answers, then leaves the editor (page=Emsfb&state=edit-form&id=…) for the forms list.
 		await page.waitForURL( ( u ) => /page=Emsfb(&|$)/.test( u.toString() ) && ! /state=edit-form/.test( u.toString() ), { timeout: 30000 } );
-		const gone = JSON.parse( ctl( 'form', formId ) );
-		check( null === gone.rows, `${ tag }: Undo removed the form through EFB`, gone );
+		const gone = JSON.parse( ctl( 'form', undoId ) );
+		check( null === gone.rows, `${ tag }: Undo, confirmed, removed the untouched draft through EFB`, gone );
 
 		// 4. EFB 4.3.2: no form open (the forms list): a saved form is chosen, its change proposed, then saved on approval.
 		const saved = JSON.parse( ctl( 'saved-form', `Saved ${ tag }` ) ).form_id;

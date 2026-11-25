@@ -232,6 +232,8 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 			'can_publish'  => $draft,
 			// Package 1.1: the token that lets the same user undo this creation through Form_Package::delete().
 			'import_token' => EfbCapabilities::form_package_version() >= 1.1 ? (string) ( $result['import_token'] ?? '' ) : '',
+			// Package 1.2: the hash of the form as stored, so Undo can tell an untouched draft from one the owner changed.
+			'base_hash'    => (string) ( $result['base_hash'] ?? '' ),
 			'dropped'      => array_values( array_filter( (array) ( $result['dropped'] ?? array() ), 'is_array' ) ),
 			'notices'      => array_values( array_filter( (array) ( $result['notices'] ?? array() ), 'is_array' ) ),
 			'payment'      => is_array( $result['payment'] ?? null ) ? $result['payment'] : null,
@@ -375,6 +377,27 @@ final class EasyFormBuilderConnector implements ConnectorInterface {
 		$done = \Emsfb\Form_Package::delete( $form_id, $import_token );
 
 		return is_wp_error( $done ) ? $done : true;
+	}
+
+	/**
+	 * How many entries Easy Form Builder holds for a form (every stored row, whatever its state). Only read: Undo never
+	 * deletes a form that visitors have already used. Null when the entries table cannot be read.
+	 */
+	public function entry_count( int $form_id ): ?int {
+		global $wpdb;
+		if ( $form_id <= 0 || ! isset( $wpdb ) ) {
+			return null;
+		}
+		$table = $wpdb->prefix . 'emsfb_msg_';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- a read-only count of EFB's own entries table, checked before an undo.
+		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+		if ( $exists !== $table ) {
+			return null;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- a read-only count, never cached: it must be the count at the moment of the undo.
+		$count = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE form_id = %d', $table, $form_id ) );
+
+		return null === $count ? null : (int) $count;
 	}
 
 	/**
