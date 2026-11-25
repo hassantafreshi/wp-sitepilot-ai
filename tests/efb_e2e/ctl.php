@@ -6,6 +6,7 @@
  *
  *   setup                      provider = mock (https://ai-mock.invalid/v1), EFB copilot on, plan Free Plus
  *   queue <json>               queue one AI reply (the JSON object the model would return)
+ *   clear-queue                drop the replies still queued (a step that failed never asked for them); says how many
  *   prompts                    the prompts the mock received (last first), then clears them
  *   addon <code> <0|1>         EFB add-on switch in EFB's settings
  *   plan <1|2|3>               EFB plan option (1 Pro, 3 Free Plus, 2 Free)
@@ -38,6 +39,11 @@ switch ( $aisa_a[0] ?? '' ) {
 		$q[] = json_decode( (string) ( $aisa_a[1] ?? '{}' ), true );
 		update_option( 'aisa_e2e_ai_queue', $q, false );
 		$aisa_out( array( 'queued' => count( $q ) ) );
+		break;
+	case 'clear-queue':
+		$q = get_option( 'aisa_e2e_ai_queue', array() );
+		update_option( 'aisa_e2e_ai_queue', array(), false );
+		$aisa_out( array( 'dropped' => is_array( $q ) ? count( $q ) : 0 ) );
 		break;
 	case 'prompts':
 		$aisa_out( array_reverse( (array) get_option( 'aisa_e2e_ai_prompts', array() ) ) );

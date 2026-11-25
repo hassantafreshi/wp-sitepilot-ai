@@ -158,6 +158,11 @@
 	font: 700 11px/20px ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
 }
 
+/* Easy Form Builder's rating invitation (#efb-review-modal, z-index 160000) arrives on a timer and is not something the
+   admin asked for: while the dock is open it waits under the dock instead of covering the conversation. EFB's other
+   dialogs (the upgrade dialog the copilot opens, a delete confirmation) stay above the dock. */
+body.aisaautopilot-efb-docked #efb-review-modal { z-index: 99980; }
+
 /* ---------- Narrower screens ---------- */
 @media screen and (max-width: 782px) {
 	.aisaautopilot-efb-chat { top: 46px; }

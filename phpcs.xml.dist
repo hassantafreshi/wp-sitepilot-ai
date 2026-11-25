@@ -6,6 +6,10 @@
 	<file>ai-site-assistant-autopilot.php</file>
 	<file>uninstall.php</file>
 
+	<!-- The standards in vendor/, found without the Composer plugin's CodeSniffer.conf (a checkout installed with
+	     no plugins, or as root, has none). Paths that start with "." are relative to PHP_CodeSniffer's own folder. -->
+	<config name="installed_paths" value="../../wp-coding-standards/wpcs,../../phpcsstandards/phpcsutils,../../phpcsstandards/phpcsextra"/>
+
 	<arg name="extensions" value="php"/>
 	<arg value="ps"/>
 

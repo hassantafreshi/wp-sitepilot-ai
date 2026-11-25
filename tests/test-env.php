@@ -3,7 +3,8 @@
  * Not a test. Where the local WordPress tests find WordPress and its address, so the same test runs on the owner's
  * XAMPP machine and on any other box. PHP twin of tests/test-env.cjs (same order, same variables).
  *
- *   WordPress  AISAAUTOPILOT_WP_ROOT, else the local test copy (AISAAUTOPILOT_LOCAL_SITE below) when it exists,
+ *   WordPress  AISAAUTOPILOT_WP_ROOT, else the local test copy (AISAAUTOPILOT_LOCAL_SITE: the environment's, else
+ *              ../aisa-wp-test/site next to this repository) when it exists,
  *              else the owner's C:\xampp\htdocs\wp.
  *   Address    AISAAUTOPILOT_BASE_URL, else http://127.0.0.1:8090 for the local copy, http://127.0.0.1/wp on XAMPP.
  *
@@ -11,7 +12,10 @@
  */
 
 if ( ! defined( 'AISAAUTOPILOT_LOCAL_SITE' ) ) {
-	define( 'AISAAUTOPILOT_LOCAL_SITE', '/tmp/claude-0/-home-user/6470513e-3182-5834-893e-38f1388be77b/scratchpad/wpsite-sp/site' );
+	// The environment's AISAAUTOPILOT_LOCAL_SITE, else ../aisa-wp-test/site next to this repository.
+	$aisa_local_site = getenv( 'AISAAUTOPILOT_LOCAL_SITE' );
+	define( 'AISAAUTOPILOT_LOCAL_SITE', is_string( $aisa_local_site ) && '' !== $aisa_local_site ? rtrim( $aisa_local_site, '/\\' ) : dirname( __DIR__, 2 ) . '/aisa-wp-test/site' );
+	unset( $aisa_local_site );
 }
 
 if ( ! function_exists( 'aisa_test_wp_root' ) ) {

@@ -59,6 +59,50 @@ async function login( page ) {
 	await Promise.all( [ page.waitForURL( ( u ) => ! /wp-login\.php/.test( u.toString() ), { timeout: 60000 } ), page.click( '#wp-submit' ) ] );
 }
 
+/*
+ * Easy Form Builder's rating invitation (#efb-review-modal) opens on a timer on its own pages. The dock must stay usable
+ * under it: with the dock open, the centre of the dock's Send button is the Send button even while the invitation is
+ * shown (the real one, or a stand-in with EFB's own z-index when EFB does not ask on this visit).
+ */
+async function dockAboveRatingDialog( page ) {
+	return page.evaluate( () => {
+		let modal = document.getElementById( 'efb-review-modal' );
+		let made = false;
+		if ( ! modal ) {
+			const css = document.createElement( 'style' );
+			css.id = 'aisa-test-review-css';
+			css.textContent = '#efb-review-modal{position:fixed;inset:0;z-index:160000;background:rgba(26,26,46,.55)}';
+			document.head.appendChild( css );
+			modal = document.createElement( 'div' );
+			modal.id = 'efb-review-modal';
+			modal.className = 'efb-dlg';
+			document.body.appendChild( modal );
+			made = true;
+		}
+		const wasHidden = modal.hidden;
+		modal.hidden = false;
+		const box = document.getElementById( 'aisaautopilot-efb-send' ).getBoundingClientRect();
+		const hit = document.elementFromPoint( box.left + box.width / 2, box.top + box.height / 2 );
+		const ok = !! hit && !! hit.closest( '#aisaautopilot-efb-send' );
+		if ( made ) {
+			modal.remove();
+			document.getElementById( 'aisa-test-review-css' ).remove();
+		} else {
+			modal.hidden = wasHidden;
+		}
+		return ok;
+	} );
+}
+
+/* The test answers EFB's rating invitation with "later" (its own close control) when EFB shows it. */
+async function dismissRatingDialog( page ) {
+	await page.evaluate( () => {
+		const modal = document.getElementById( 'efb-review-modal' );
+		const later = modal && ! modal.hidden ? modal.querySelector( '[data-efb-review-close]' ) : null;
+		if ( later ) { later.click(); }
+	} );
+}
+
 async function noHorizontalScroll( page ) {
 	return page.evaluate( () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1 );
 }
@@ -97,8 +141,11 @@ async function run( locale, width, height ) {
 		ctl( 'queue', JSON.stringify( CREATE_REPLY ) );
 		await page.goto( BASE + '/wp-admin/admin.php?page=Emsfb_create', { waitUntil: 'networkidle', timeout: 90000 } );
 		await page.waitForSelector( '#aisaautopilot-efb-launch', { timeout: 60000 } );
+		await dismissRatingDialog( page );
 		await page.evaluate( () => document.getElementById( 'aisaautopilot-efb-launch' ).click() );
 		await page.waitForSelector( '#aisaautopilot-efb-chat:not(.is-closed)', { timeout: 15000 } );
+		await page.waitForTimeout( 400 );
+		check( await dockAboveRatingDialog( page ), `${ tag }: the open dock stays above EFB's rating invitation` );
 		await page.fill( '#aisaautopilot-efb-input', 'A catering order form with an estimated total of guests × 20' );
 		await page.click( '#aisaautopilot-efb-send' );
 		await page.waitForSelector( '[data-sp-efb-state="preview"]', { timeout: 60000 } );
@@ -191,6 +238,12 @@ async function run( locale, width, height ) {
 		try { await page.screenshot( { path: path.join( SHOTS, `failure-${ tag }.png` ), fullPage: true } ); } catch ( x ) {}
 	} finally {
 		await browser.close();
+		// A step that failed never asked for the replies queued after it: they are dropped here, so the next locale
+		// starts with an empty queue. A run that passed used every reply it queued.
+		const dropped = JSON.parse( ctl( 'clear-queue' ) ).dropped;
+		if ( ! failures.some( ( name ) => name.startsWith( tag + ':' ) ) ) {
+			check( 0 === dropped, `${ tag }: no queued AI reply is left behind`, dropped );
+		}
 	}
 }
 

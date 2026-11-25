@@ -3,8 +3,10 @@
  * starts) reads, so the same script runs on the owner's XAMPP machine and on any other box. Node twin of
  * tests/test-env.php. A variable that is already set is never changed.
  *
- *   AISAAUTOPILOT_WP_ROOT          the local test copy (LOCAL_SITE below) when it exists; else each script's own
- *                                  default, the owner's C:\xampp\htdocs\wp.
+ *   AISAAUTOPILOT_WP_ROOT          the local test copy (AISAAUTOPILOT_LOCAL_SITE) when it exists; else each script's
+ *                                  own default, the owner's C:\xampp\htdocs\wp.
+ *   AISAAUTOPILOT_LOCAL_SITE       where that local test copy is (the folder with wp-load.php); default
+ *                                  ../aisa-wp-test/site next to this repository.
  *   AISAAUTOPILOT_BASE_URL         http://127.0.0.1:8090 with the local copy; else each script's own default.
  *   AISAAUTOPILOT_PHP              `php` outside Windows; on Windows each script's own C:\xampp\php\php.exe.
  *   AISAAUTOPILOT_PLAYWRIGHT_CORE  playwright-core as Node finds it, or the one inside the installed playwright.
@@ -16,7 +18,7 @@
 const fs = require( 'node:fs' );
 const path = require( 'node:path' );
 
-const LOCAL_SITE = '/tmp/claude-0/-home-user/6470513e-3182-5834-893e-38f1388be77b/scratchpad/wpsite-sp/site';
+const LOCAL_SITE = process.env.AISAAUTOPILOT_LOCAL_SITE || path.resolve( __dirname, '..', '..', 'aisa-wp-test', 'site' );
 const LOCAL_URL = 'http://127.0.0.1:8090';
 const env = process.env;
 const windows = 'win32' === process.platform;
