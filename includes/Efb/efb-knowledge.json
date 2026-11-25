@@ -1,11 +1,10 @@
 {
-  "version": "1.1",
-  "note": "Grounded in the real Easy Form Builder editor UI: fields are selected in the dropzone and edited through the green gear settings panel; form-wide options live in the form/step settings.",
+  "version": "1.2",
+  "note": "Grounded in the Easy Form Builder 4.3.2 editor (BLD-01): a field's gear opens the docked \"Edit Field\" panel beside the form, the toolbar's \"Form Settings\" opens the form's panel; \"Done\" only closes a panel and the toolbar's Save stores the form. Every title, answer, step and feature label is translatable through includes/Efb/EfbKnowledgeStrings.php (php scripts/efb-knowledge-strings.php after an edit).",
   "ui_pattern": {
-    "open_field_settings": "In the form editor, click the field once to select it, then click its green gear button (⚙, the green \"bi-gear\" icon on the field). The field's settings panel slides open — on the LEFT side for English/LTR sites, and on the RIGHT side for RTL sites (Persian, Arabic).",
-    "open_form_settings": "Click the form title/header area (or the top-level form settings gear); the general form settings panel opens on the same side (left for LTR, right for RTL).",
-    "save": "After any change, click the green Save button (✓) at the top of the settings panel to store the form.",
-    "rtl_note": "Side note: the settings panel opens on the LEFT for English/LTR and on the RIGHT for RTL languages."
+    "open_field_settings": "In the form editor, click the field to select it, then click the gear button (⚙) in the small toolbar on the field. The \"Edit Field\" panel opens beside the form, under the editor's toolbar (on a phone it opens over the form).",
+    "open_form_settings": "Click \"Form Settings\" in the editor's toolbar at the top. The \"Form Settings\" panel opens beside the form.",
+    "save": "When you are done, click \"Done\" at the top of the panel: it only closes the panel. Then click Save in the editor's toolbar at the top to store the form; until you do, the change is not stored."
   },
   "entries": [
     {
@@ -23,7 +22,7 @@
         "ضروری",
         "الزامی"
       ],
-      "answer": "Select the field, open its green gear settings, and turn ON the \"Required\" toggle. Now the visitor must fill it in before submitting."
+      "answer": "Select the field, open its settings (the gear on the field), and turn ON the \"Required\" toggle. Now the visitor must fill it in before submitting."
     },
     {
       "id": "change_label",
@@ -41,7 +40,7 @@
         "برچسب",
         "عنوان فیلد"
       ],
-      "answer": "Select the field, open its green gear settings, and edit the \"Label\" (field name) box at the top of the panel. The label is the text shown above the field."
+      "answer": "Select the field, open its settings (the gear on the field), and edit the \"Label\" (field name) box at the top of the panel. The label is the text shown above the field."
     },
     {
       "id": "change_placeholder",
@@ -55,7 +54,7 @@
         "متن راهنما",
         "پلیس هولدر"
       ],
-      "answer": "Select the field, open its green gear settings, and edit the \"Placeholder\" box. This is the light grey hint text shown inside the empty field."
+      "answer": "Select the field, open its settings (the gear on the field), and edit the \"Placeholder\" box. This is the light grey hint text shown inside the empty field."
     },
     {
       "id": "change_width",
@@ -74,7 +73,7 @@
         "کم کردن عرض",
         "دو ستونه"
       ],
-      "answer": "Select the field, open its green gear settings, and set the \"Field width\" (e.g. 50% for half). Two 50% fields sit next to each other; 100% is full width. On phones fields stack to full width automatically."
+      "answer": "Select the field, open its settings (the gear on the field), and set the \"Field width\" (e.g. 50% for half). Two 50% fields sit next to each other; 100% is full width. On phones fields stack to full width automatically."
     },
     {
       "id": "edit_options",
@@ -92,7 +91,7 @@
         "افزودن گزینه",
         "آیتم"
       ],
-      "answer": "Select the choice field (dropdown/radio/checkbox/multi-select), open its green gear settings, and use the \"Options\" list to add, rename, reorder, or remove choices."
+      "answer": "Select the choice field (dropdown/radio/checkbox/multi-select), open its settings (the gear on the field), and use the \"Options\" list to add, rename, reorder, or remove choices."
     },
     {
       "id": "help_text",
@@ -108,7 +107,7 @@
         "توضیح فیلد",
         "پیام"
       ],
-      "answer": "Select the field, open its green gear settings, and fill the \"Help\" / \"Message\" text box. It appears as a small note beneath the field."
+      "answer": "Select the field, open its settings (the gear on the field), and fill the \"Help\" / \"Message\" text box. It appears as a small note beneath the field."
     },
     {
       "id": "field_colors",
@@ -124,7 +123,7 @@
         "رنگ متن",
         "رنگ حاشیه"
       ],
-      "answer": "Select the field, open its green gear settings, and open the color controls (label color, input text color, border color). Pick a preset or a custom color for each."
+      "answer": "Select the field, open its settings (the gear on the field), and open the color controls (label color, input text color, border color). Pick a preset or a custom color for each."
     },
     {
       "id": "field_height_corner",
@@ -140,7 +139,7 @@
         "گوشه",
         "گرد"
       ],
-      "answer": "Select the field, open its green gear settings; use the height option for the input height and the \"corner\" option to switch between square and rounded corners."
+      "answer": "Select the field, open its settings (the gear on the field); use the height option for the input height and the \"corner\" option to switch between square and rounded corners."
     },
     {
       "id": "required_message",
@@ -154,7 +153,7 @@
         "پیام خطا",
         "پیام اجباری"
       ],
-      "answer": "Select the field, open its green gear settings, and edit the custom required/validation message box, so visitors see your own wording when they skip the field."
+      "answer": "Select the field, open its settings (the gear on the field), and edit the custom required/validation message box, so visitors see your own wording when they skip the field."
     },
     {
       "id": "file_settings",
@@ -172,7 +171,7 @@
         "حجم فایل",
         "نوع فایل"
       ],
-      "answer": "Select the file field, open its green gear settings, and choose the file category (document, image, audio, video, spreadsheet, or all) and the maximum file size in MB."
+      "answer": "Select the file field, open its settings (the gear on the field), and choose the file category (document, image, audio, video, spreadsheet, or all) and the maximum file size in MB."
     },
     {
       "id": "delete_field",
@@ -217,7 +216,7 @@
         "پیام موفقیت",
         "بعد از ارسال"
       ],
-      "answer": "Open the form settings and find the \"Thank you\" / confirmation section; edit the message shown to the visitor after they submit."
+      "answer": "Open \"Form Settings\" in the editor's toolbar and find the \"Thank you\" / confirmation section; edit the message shown to the visitor after they submit."
     },
     {
       "id": "email_notifications",
@@ -234,7 +233,7 @@
         "اعلان",
         "نوتیفیکیشن"
       ],
-      "answer": "Open the form settings and enable email notifications, then set the admin email address that should receive each new submission. (Email/SMTP must be configured in Easy Form Builder settings.) Since Easy Form Builder 4.3.2 the person who fills a NEW form gets a confirmation email at the form's first Email field by default (that field's \"Enable email notifications\" switch is on and it becomes the recipient); a second Email field stays off. Turn it off on the field if you do not want it; saved forms keep their own choice. When I design a new form I keep this default unless you ask for no confirmation, and in an open form you can tell me \"turn off the confirmation email\".",
+      "answer": "Open \"Form Settings\" in the editor's toolbar and enable email notifications, then set the admin email address that should receive each new submission. (Email/SMTP must be configured in Easy Form Builder settings.) Since Easy Form Builder 4.3.2 the person who fills a NEW form gets a confirmation email at the form's first Email field by default (that field's \"Enable email notifications\" switch is on and it becomes the recipient); a second Email field stays off. Turn it off on the field if you do not want it; saved forms keep their own choice. When I design a new form I keep this default unless you ask for no confirmation, and in an open form you can tell me \"turn off the confirmation email\".",
       "features": {},
       "live": "email_confirmation"
     },
@@ -270,7 +269,7 @@
         "متن دکمه",
         "رنگ دکمه"
       ],
-      "answer": "Open the form settings and edit the submit button text and color (and Next/Previous button labels for multi-step forms)."
+      "answer": "Open \"Form Settings\" in the editor's toolbar and edit the submit button text and color (and Next/Previous button labels for multi-step forms)."
     },
     {
       "id": "multi_step",
@@ -290,7 +289,7 @@
         "نوار پیشرفت",
         "سبک مراحل"
       ],
-      "answer": "Add a new Step from the elements/palette; drag fields into each step. Each step becomes a page with Next/Previous buttons. Edit a step's name/icon via its green gear settings. In the form settings, \"Don't show icons & names of steps\" and \"Don't show progress bar\" hide those rows; while a row is shown you can pick its style: steps as Classic, Circles, Pills or Chevrons, and the progress bar as Classic, Bar, Segments or Ring. I can change these on the open form too; nothing is saved until you click Easy Form Builder's Save button."
+      "answer": "Add a new Step from the elements/palette; drag fields into each step. Each step becomes a page with Next/Previous buttons. Edit a step's name or icon with the gear on the step. In the form settings, \"Don't show icons & names of steps\" and \"Don't show progress bar\" hide those rows; while a row is shown you can pick its style: steps as Classic, Circles, Pills or Chevrons, and the progress bar as Classic, Bar, Segments or Ring. I can change these on the open form too; nothing is stored until you click Save in the editor's toolbar."
     },
     {
       "id": "conditional_logic",
@@ -343,7 +342,7 @@
         "استایل فرم",
         "تم"
       ],
-      "answer": "Open the form settings for the general appearance options (background, label/element/message colors, fonts). Per-field colors are set on each field's green gear settings."
+      "answer": "Open \"Form Settings\" in the editor's toolbar for the general appearance options (background, label/element/message colors, fonts). Per-field colors are set in each field's own settings (the gear on the field)."
     },
     {
       "id": "input_masks",

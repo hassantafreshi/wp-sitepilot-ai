@@ -6,6 +6,9 @@ namespace AISAAutoPilot\Efb;
 /**
  * Answers "how do I …?" questions about the Easy Form Builder editor from a
  * curated, grounded knowledge base (no hallucinated UI steps).
+ *
+ * The texts live in efb-knowledge.json (English) and are shown through gettext: EfbKnowledgeStrings, generated from the
+ * JSON by scripts/efb-knowledge-strings.php, holds each one as a __() call, so they are in the .pot and translated.
  */
 final class EfbKnowledge {
 
@@ -53,6 +56,8 @@ final class EfbKnowledge {
 			$score     = 0;
 			$aliases   = (array) ( $entry['aliases'] ?? array() );
 			$aliases[] = (string) ( $entry['title'] ?? '' );
+			// The title as the admin reads it, in their language.
+			$aliases[] = self::title( $entry );
 
 			foreach ( $aliases as $alias ) {
 				$a = self::normalize( (string) $alias );
@@ -85,9 +90,24 @@ final class EfbKnowledge {
 		return array(
 			'ok'     => true,
 			'id'     => (string) $best['id'],
-			'title'  => (string) $best['title'],
+			'title'  => self::title( $best ),
 			'answer' => self::compose( $best ),
 		);
+	}
+
+	/**
+	 * One text of the knowledge base in the admin's language: the gettext call EfbKnowledgeStrings holds for it, else the
+	 * English of the JSON.
+	 */
+	private static function text( string $key, string $english ): string {
+		$translated = EfbKnowledgeStrings::get( $key );
+
+		return null !== $translated && '' !== $translated ? $translated : $english;
+	}
+
+	/** @param array<string, mixed> $entry */
+	private static function title( array $entry ): string {
+		return self::text( 'title.' . (string) ( $entry['id'] ?? '' ), (string) ( $entry['title'] ?? '' ) );
 	}
 
 	/**
@@ -99,15 +119,16 @@ final class EfbKnowledge {
 		$steps = array();
 
 		if ( 'field' === $scope && ! empty( $ui['open_field_settings'] ) ) {
-			$steps[] = (string) $ui['open_field_settings'];
+			$steps[] = self::text( 'ui.open_field_settings', (string) $ui['open_field_settings'] );
 		} elseif ( 'form' === $scope && ! empty( $ui['open_form_settings'] ) ) {
-			$steps[] = (string) $ui['open_form_settings'];
+			$steps[] = self::text( 'ui.open_form_settings', (string) $ui['open_form_settings'] );
 		}
 
-		$steps[] = (string) ( $entry['answer'] ?? '' );
+		$steps[] = self::text( 'answer.' . (string) ( $entry['id'] ?? '' ), (string) ( $entry['answer'] ?? '' ) );
 
+		// "Done" only closes EFB's panel; the editor toolbar's Save stores the form (BLD-01).
 		if ( in_array( $scope, array( 'field', 'form' ), true ) && ! empty( $ui['save'] ) ) {
-			$steps[] = (string) $ui['save'];
+			$steps[] = self::text( 'ui.save', (string) $ui['save'] );
 		}
 		// What Easy Form Builder's own registry says about this site, so a how-to never promises what is not there.
 		$steps[] = self::live_state( $entry );
@@ -127,6 +148,7 @@ final class EfbKnowledge {
 		}
 		$parts = array();
 		foreach ( is_array( $entry['features'] ?? null ) ? $entry['features'] : array() as $key => $label ) {
+			$label = self::text( 'feature.' . (string) ( $entry['id'] ?? '' ) . '.' . (string) $key, (string) $label );
 			$state = EfbCapabilities::state( (string) $key );
 			if ( ! $state['known'] ) {
 				continue;
@@ -230,7 +252,7 @@ final class EfbKnowledge {
 		foreach ( self::entries() as $entry ) {
 			$out[] = array(
 				'id'    => (string) $entry['id'],
-				'title' => (string) $entry['title'],
+				'title' => self::title( $entry ),
 			);
 		}
 

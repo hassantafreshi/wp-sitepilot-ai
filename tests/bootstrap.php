@@ -33,8 +33,9 @@ spl_autoload_register( function ( string $class ): void {
 
 // Mock WordPress functions that are used in the plugin.
 if ( ! function_exists( '__' ) ) {
+	/** A test may set $GLOBALS['aisa_test_gettext'] (English => translation) to see a text go through gettext. */
 	function __( string $text, string $domain = 'default' ): string {
-		return $text;
+		return $GLOBALS['aisa_test_gettext'][ $text ] ?? $text;
 	}
 }
 
