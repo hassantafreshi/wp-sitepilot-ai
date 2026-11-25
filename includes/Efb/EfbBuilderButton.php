@@ -334,7 +334,7 @@ final class EfbBuilderButton {
 					'tipTitle'                       => __( 'Ask AI to change this form', 'ai-site-assistant-autopilot' ),
 					'tipText'                        => __( 'Add fields, show or hide them with logic, or get a review. Nothing is saved until you click Save.', 'ai-site-assistant-autopilot' ),
 					'tipNewTitle'                    => __( 'Ask AI to build a form', 'ai-site-assistant-autopilot' ),
-					'tipNewText'                     => __( 'Describe the form you need. I draft it for you to check, and nothing is created until you click Create.', 'ai-site-assistant-autopilot' ),
+					'tipNewText'                     => __( 'Describe the form you need, or change a saved one. I draft it for you to check: a new form is created as a draft when you click Create, a saved one changes when you click Approve & save.', 'ai-site-assistant-autopilot' ),
 					'tipShortcut'                    => __( 'opens it from anywhere', 'ai-site-assistant-autopilot' ),
 					'nudgeBadge'                     => __( 'NEW', 'ai-site-assistant-autopilot' ),
 					'nudgeTitle'                     => __( 'Describe a change, I do the clicking', 'ai-site-assistant-autopilot' ),
@@ -405,7 +405,8 @@ final class EfbBuilderButton {
 					'phOffline'                      => __( 'Connect an AI service to start…', 'ai-site-assistant-autopilot' ),
 					'phWorking'                      => __( 'Working on it…', 'ai-site-assistant-autopilot' ),
 					'footLive'                       => __( 'AI suggests, you decide. Nothing is saved until you click Save.', 'ai-site-assistant-autopilot' ),
-					'footNew'                        => __( 'AI suggests, you decide. Nothing is created until you click Create.', 'ai-site-assistant-autopilot' ),
+					'footNew'                        => __( 'AI suggests, you decide. Nothing is created or saved until you click Create or Approve & save.', 'ai-site-assistant-autopilot' ),
+					'footSaved'                      => __( 'AI suggests, you decide. Nothing is saved until you click Approve & save.', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: field label. */
 					'nextRequired'                   => __( 'Make “%s” required', 'ai-site-assistant-autopilot' ),
 					/* translators: %s: field label. */

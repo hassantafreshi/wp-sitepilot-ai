@@ -40,7 +40,7 @@ final class EasyFormBuilderPage {
 				<?php
 				Ui::page_header(
 					__( 'Easy Form Builder copilot', 'ai-site-assistant-autopilot' ),
-					__( 'What the copilot may change in the form open in the Easy Form Builder editor, and what it applied last.', 'ai-site-assistant-autopilot' ),
+					__( 'What the copilot does in Easy Form Builder: it changes the form open in the editor, creates new forms as drafts, changes saved forms after your approval and publishes on your click. And what it applied last.', 'ai-site-assistant-autopilot' ),
 					array(
 						'chip'   => ConnectionChip::derive(),
 						'action' => array(
@@ -81,7 +81,7 @@ final class EasyFormBuilderPage {
 								);
 								?>
 								</span>
-								<span class="sp-efbx-chip"><?php esc_html_e( 'Changes the open editor only', 'ai-site-assistant-autopilot' ); ?></span>
+								<span class="sp-efbx-chip" dir="auto" data-sp-efb-chip="clicks"><?php esc_html_e( 'Nothing is saved without your click', 'ai-site-assistant-autopilot' ); ?></span>
 							</div>
 						</div>
 						<a class="sp-efbx-button" href="<?php echo esc_url( admin_url( 'admin.php?page=Emsfb' ) ); ?>"><?php esc_html_e( 'Open EFB forms', 'ai-site-assistant-autopilot' ); ?></a>
@@ -105,10 +105,10 @@ final class EasyFormBuilderPage {
 						<section class="sp-efbx-card sp-efbx-ops<?php echo $ready ? '' : ' is-muted'; ?>" aria-labelledby="sp-efbx-ops-title">
 							<div class="sp-efbx-card__head">
 								<h2 class="sp-efbx-card__title" id="sp-efbx-ops-title"><?php esc_html_e( 'What the AI may change', 'ai-site-assistant-autopilot' ); ?></h2>
-								<p class="sp-efbx-card__text"><?php esc_html_e( 'The server checks every proposal against this list before the editor shows it.', 'ai-site-assistant-autopilot' ); ?></p>
+								<p class="sp-efbx-card__text" dir="auto"><?php esc_html_e( 'The server checks every proposal against this list before the editor shows it.', 'ai-site-assistant-autopilot' ); ?></p>
 							</div>
 							<?php foreach ( $this->operation_groups( $catalog ) as $group ) : ?>
-								<h3 class="sp-efbx-group"><?php echo esc_html( $group['title'] ); ?></h3>
+								<h3 class="sp-efbx-group" dir="auto"><?php echo esc_html( $group['title'] ); ?></h3>
 								<ul class="sp-efbx-rows">
 								<?php foreach ( $group['rows'] as $row ) : ?>
 									<?php if ( $row['blocked'] ) : ?>
@@ -147,14 +147,19 @@ final class EasyFormBuilderPage {
 										<?php endif; ?>
 									</p>
 								<?php else : ?>
-									<p class="sp-efbx-last__empty"><?php esc_html_e( 'Nothing applied yet. Proposals are made from the chat button inside the Easy Form Builder editor.', 'ai-site-assistant-autopilot' ); ?></p>
+									<p class="sp-efbx-last__empty" dir="auto"><?php esc_html_e( 'Nothing applied yet. Ask from the “Ask AI” button on Easy Form Builder’s screens: the forms list, Create, or the editor.', 'ai-site-assistant-autopilot' ); ?></p>
 								<?php endif; ?>
 								<a class="sp-efbx-button is-block" href="<?php echo esc_url( admin_url( 'admin.php?page=' . AdminMenu::SLUG_LOGS ) ); ?>"><?php esc_html_e( 'Open activity log', 'ai-site-assistant-autopilot' ); ?></a>
 							</section>
 							<?php $this->render_site_card(); ?>
 							<section class="sp-efbx-card sp-efbx-note" aria-labelledby="sp-efbx-note-title">
-								<h2 class="sp-efbx-note__title" id="sp-efbx-note-title"><?php esc_html_e( 'Nothing is saved on its own', 'ai-site-assistant-autopilot' ); ?></h2>
-								<p class="sp-efbx-note__text"><?php esc_html_e( 'The copilot only changes the form open in the editor. Your form is saved when you press Save in Easy Form Builder.', 'ai-site-assistant-autopilot' ); ?></p>
+								<h2 class="sp-efbx-note__title" id="sp-efbx-note-title" dir="auto"><?php esc_html_e( 'Nothing is saved on its own', 'ai-site-assistant-autopilot' ); ?></h2>
+								<ul class="sp-efbx-note__text" data-sp-efb-note-list>
+									<li dir="auto"><?php esc_html_e( 'In the open editor the copilot changes the form on the canvas; it is stored when you press Save in Easy Form Builder’s toolbar.', 'ai-site-assistant-autopilot' ); ?></li>
+									<li dir="auto"><?php esc_html_e( 'A new form is created as a draft when you click Create; visitors see it after you click Publish.', 'ai-site-assistant-autopilot' ); ?></li>
+									<li dir="auto"><?php esc_html_e( 'A saved form is changed only when you approve the proposal with “Approve & save”.', 'ai-site-assistant-autopilot' ); ?></li>
+									<li dir="auto"><?php esc_html_e( 'Undo deletes a new form only while it is an unchanged draft without entries, and asks first.', 'ai-site-assistant-autopilot' ); ?></li>
+								</ul>
 							</section>
 						</div>
 					</div>
@@ -179,7 +184,7 @@ final class EasyFormBuilderPage {
 			?>
 			<section class="sp-efbx-card sp-efbx-site" aria-labelledby="sp-efbx-site-title" data-sp-efb-site="old">
 				<h2 class="sp-efbx-card__title" id="sp-efbx-site-title"><?php esc_html_e( 'On this site', 'ai-site-assistant-autopilot' ); ?></h2>
-				<p class="sp-efbx-card__text"><?php echo esc_html( EasyFormBuilderConnector::update_message() ); ?></p>
+				<p class="sp-efbx-card__text" dir="auto"><?php echo esc_html( EasyFormBuilderConnector::update_message() ); ?></p>
 			</section>
 			<?php
 			return;
@@ -264,8 +269,8 @@ final class EasyFormBuilderPage {
 		}
 		?>
 		<section class="sp-efbx-card sp-efbx-site" aria-labelledby="sp-efbx-site-title" data-sp-efb-site="registry">
-			<h2 class="sp-efbx-card__title" id="sp-efbx-site-title"><?php esc_html_e( 'On this site', 'ai-site-assistant-autopilot' ); ?></h2>
-			<p class="sp-efbx-card__text"><?php esc_html_e( 'As Easy Form Builder reports it. The copilot never promises a field this site cannot show: it names the add-on or plan and uses the closest field instead.', 'ai-site-assistant-autopilot' ); ?></p>
+			<h2 class="sp-efbx-card__title" id="sp-efbx-site-title" dir="auto"><?php esc_html_e( 'On this site', 'ai-site-assistant-autopilot' ); ?></h2>
+			<p class="sp-efbx-card__text" dir="auto" data-sp-efb-site-intro><?php esc_html_e( 'As Easy Form Builder reports it. The copilot never promises a field this site cannot show: it names the add-on or plan and uses the closest field instead.', 'ai-site-assistant-autopilot' ); ?></p>
 			<?php foreach ( $groups as $group ) : ?>
 				<h3 class="sp-efbx-group"><?php echo esc_html( $group['title'] ); ?></h3>
 				<ul class="sp-efbx-rows">
@@ -274,7 +279,7 @@ final class EasyFormBuilderPage {
 						<span class="sp-efbx-row__label">
 							<bdi><?php echo esc_html( $row['label'] ); ?></bdi>
 							<?php if ( '' !== $row['note'] ) : ?>
-								<small class="sp-efbx-row__note"><?php echo esc_html( $row['note'] ); ?></small>
+								<small class="sp-efbx-row__note" dir="auto"><?php echo esc_html( $row['note'] ); ?></small>
 							<?php endif; ?>
 						</span>
 						<span class="sp-efbx-tag is-<?php echo esc_attr( $row['tone'] ); ?>"><bdi><?php echo esc_html( $row['tag'] ); ?></bdi></span>

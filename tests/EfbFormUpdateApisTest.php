@@ -423,4 +423,28 @@ final class EfbFormUpdateApisTest extends TestCase {
 		);
 		self::assertSame( 'payment_unverified:xendit', $off['reason'] );
 	}
+
+	/** QA5-017: a proposal names a form setting in plain words, never its key ("require_login"). */
+	public function test_a_proposal_names_form_settings_in_plain_words(): void {
+		$conv    = EfbFormUpdate::patches(
+			array(
+				array(
+					'op'       => 'set_form_property',
+					'property' => 'require_login',
+					'value'    => true,
+				),
+				array(
+					'op'       => 'set_form_property',
+					'property' => 'submit_button_text',
+					'value'    => 'Send',
+				),
+			),
+			self::rows()
+		);
+		$changes = implode( ' | ', $conv['changes'] );
+		self::assertStringContainsString( 'Make the form private: only logged-in users can see and send it', $changes );
+		self::assertStringContainsString( 'Change the form setting “Submit button text”', $changes );
+		self::assertStringNotContainsString( 'require_login', $changes );
+		self::assertStringNotContainsString( 'submit_button_text', $changes );
+	}
 }

@@ -4820,6 +4820,8 @@ html[dir="rtl"] .sp-app .sp-efbx-group { letter-spacing: 0; }
 .sp-efbx-note { padding: 15px 17px; border-color: #ccd1f0; background: #eef0fb; }
 .sp-app .sp-efbx-note__title { margin: 0; padding: 0; color: var(--sp-primary); font-size: 13px; font-weight: 800; line-height: 1.4; }
 .sp-app .sp-efbx-note__text { margin: 4px 0 0; color: #4d5075; font-size: 12px; line-height: 1.55; }
+.sp-app ul.sp-efbx-note__text { margin: 6px 0 0; padding-inline-start: 18px; list-style: disc; }
+.sp-app ul.sp-efbx-note__text li { margin: 0 0 4px; }
 
 @media screen and (max-width: 782px) {
 	.sp-efbx-grid { grid-template-columns: minmax(0, 1fr); }

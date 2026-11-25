@@ -144,6 +144,11 @@ async function run( locale, width, height ) {
 		const calcRow = page.locator( '[data-sp-efb-site-row="AdnCLC"] .sp-efbx-tag' );
 		check( ( await calcRow.count() ) === 1, `${ tag }: Numbers & Calculations is listed with its state` );
 		check( await page.locator( '[data-sp-efb-site-row="form_package"]' ).count() === 1, `${ tag }: the form package version is shown` );
+		// QA5-013: the page says what the copilot really does now (drafts, approved saves, Publish, Undo's limits).
+		const body = await page.locator( '#wpbody-content' ).innerText();
+		check( 1 === await page.locator( '[data-sp-efb-chip="clicks"]' ).count() && ! /Changes the open editor only/.test( body ) && 4 === await page.locator( '[data-sp-efb-note-list] li' ).count() && ( 'en_US' !== locale || ( /created as a draft/.test( body ) && /Approve & save/.test( body ) && /unchanged draft without entries/.test( body ) ) ), `${ tag }: the copilot page describes drafts, approved saves, Publish and Undo's limits` );
+		// QA5-018: mixed-direction text on the page (English on an RTL site) runs in its own direction.
+		check( 'auto' === await page.locator( '[data-sp-efb-site-intro]' ).getAttribute( 'dir' ) && 0 === await page.locator( '[data-sp-efb-note-list] li:not([dir="auto"])' ).count(), `${ tag }: the page's text paragraphs have dir="auto"` );
 		// QA5-006 (owner decision): the customer portal is out of scope; the page has no portal row and never names it.
 		check( 0 === await page.locator( '[data-sp-efb-site-row="portal"]' ).count() && ! /portal/i.test( await page.locator( '#wpbody-content' ).innerText() ), `${ tag }: the EFB copilot page never mentions the customer portal` );
 		check( await noHorizontalScroll( page ), `${ tag }: EFB copilot page has no horizontal scroll` );
@@ -282,6 +287,8 @@ async function run( locale, width, height ) {
 			await page.click( '[data-sp-efb-chip="saved-form"]' );
 			await page.waitForSelector( `[data-sp-efb-form="${ saved }"]`, { timeout: 20000 } );
 			await page.click( `[data-sp-efb-form="${ saved }"]` );
+			// QA5-013: with a saved form chosen, the footer names the click that saves it.
+			check( /Approve & save/.test( await page.locator( '#aisaautopilot-efb-foot' ).innerText() ) || 'en_US' !== locale, `${ tag }: the dock's footer says a saved form changes on "Approve & save"` );
 			ctl( 'queue', JSON.stringify( { reply: 'Done.', action: 'customize', operations: [ { op: 'set_field', target: 'Email', prop: 'required', value: false }, { op: 'add_field', field: { type: 'tel', label: 'Phone' }, after: 'Email' } ] } ) );
 			await page.fill( '#aisaautopilot-efb-input', 'Make Email optional and add a phone field after it' );
 			await page.click( '#aisaautopilot-efb-send' );

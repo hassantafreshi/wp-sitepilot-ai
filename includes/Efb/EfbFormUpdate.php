@@ -232,7 +232,7 @@ final class EfbFormUpdate {
 						'set' => $set,
 					);
 					/* translators: 1: setting name, 2: field label. */
-					$changes[] = sprintf( __( 'Change %1$s of “%2$s”', 'ai-site-assistant-autopilot' ), (string) ( $def['label'] ?? $op['property'] ), (string) ( $field['name'] ?? $target ) );
+					$changes[] = sprintf( __( 'Change %1$s of “%2$s”', 'ai-site-assistant-autopilot' ), self::setting_label( (string) ( $op['property'] ?? '' ) ), (string) ( $field['name'] ?? $target ) );
 					break;
 				case 'set_form_property':
 					$def  = $forms[ (string) ( $op['property'] ?? '' ) ] ?? null;
@@ -245,8 +245,7 @@ final class EfbFormUpdate {
 						'op'  => 'form',
 						'set' => array( $path => self::catalog_value( $def, $op['value'] ?? '', true ) ),
 					);
-					/* translators: %s: setting name. */
-					$changes[] = sprintf( __( 'Change the form setting %s', 'ai-site-assistant-autopilot' ), (string) ( $def['label'] ?? $op['property'] ) );
+					$changes[] = self::form_change_text( (string) ( $op['property'] ?? '' ), $op['value'] ?? '' );
 					break;
 				case 'add_step':
 					$item = is_array( $op['item'] ?? null ) ? $op['item'] : array( 'type' => 'step' );
@@ -406,6 +405,78 @@ final class EfbFormUpdate {
 	}
 
 	/** One plain sentence for a set_field change. */
+	/**
+	 * QA5-017: a form setting's change in the admin's words, never its storage key ("require_login").
+	 *
+	 * @param mixed $value
+	 */
+	private static function form_change_text( string $property, $value ): string {
+		$on = in_array( is_string( $value ) ? strtolower( $value ) : $value, array( true, 1, '1', 'true', 'yes', 'on' ), true );
+		switch ( $property ) {
+			case 'require_login':
+				return $on
+					? __( 'Make the form private: only logged-in users can see and send it', 'ai-site-assistant-autopilot' )
+					: __( 'Make the form public again', 'ai-site-assistant-autopilot' );
+			case 'email_subject':
+				/* translators: %s: the new e-mail subject. */
+				return sprintf( __( 'Set the notification e-mail subject to “%s”', 'ai-site-assistant-autopilot' ), (string) $value );
+			case 'email_notification':
+				return $on ? __( 'Turn on e-mail notifications', 'ai-site-assistant-autopilot' ) : __( 'Turn off e-mail notifications', 'ai-site-assistant-autopilot' );
+			case 'captcha':
+				return $on ? __( 'Turn on the CAPTCHA', 'ai-site-assistant-autopilot' ) : __( 'Turn off the CAPTCHA', 'ai-site-assistant-autopilot' );
+		}
+
+		/* translators: %s: setting name in plain words, e.g. Submit button text. */
+		return sprintf( __( 'Change the form setting “%s”', 'ai-site-assistant-autopilot' ), self::setting_label( $property ) );
+	}
+
+	/** A setting's name in the admin's words (the catalogue's keys are storage words, never shown). */
+	public static function setting_label( string $key ): string {
+		$names = array(
+			'form_name'                     => __( 'Form name', 'ai-site-assistant-autopilot' ),
+			'confirmation_message'          => __( 'Message after sending', 'ai-site-assistant-autopilot' ),
+			'confirmation_title'            => __( 'Title after sending', 'ai-site-assistant-autopilot' ),
+			'required_fields_message'       => __( 'Message for missing answers', 'ai-site-assistant-autopilot' ),
+			'submit_button_text'            => __( 'Submit button text', 'ai-site-assistant-autopilot' ),
+			'next_button_text'              => __( 'Next button text', 'ai-site-assistant-autopilot' ),
+			'previous_button_text'          => __( 'Previous button text', 'ai-site-assistant-autopilot' ),
+			'show_tracking_code'            => __( 'Tracking code', 'ai-site-assistant-autopilot' ),
+			'show_background'               => __( 'Form background', 'ai-site-assistant-autopilot' ),
+			'require_login'                 => __( 'Only logged-in users', 'ai-site-assistant-autopilot' ),
+			'captcha'                       => __( 'CAPTCHA', 'ai-site-assistant-autopilot' ),
+			'currency'                      => __( 'Currency', 'ai-site-assistant-autopilot' ),
+			'survey_chart_type'             => __( 'Survey chart', 'ai-site-assistant-autopilot' ),
+			'loading_type'                  => __( 'Loading animation', 'ai-site-assistant-autopilot' ),
+			'loading_color'                 => __( 'Loading animation colour', 'ai-site-assistant-autopilot' ),
+			'button_alignment'              => __( 'Button alignment', 'ai-site-assistant-autopilot' ),
+			'hide_steps_row'                => __( 'Steps row', 'ai-site-assistant-autopilot' ),
+			'hide_progress_bar'             => __( 'Progress bar', 'ai-site-assistant-autopilot' ),
+			'steps_style'                   => __( 'Steps style', 'ai-site-assistant-autopilot' ),
+			'progress_style'                => __( 'Progress bar style', 'ai-site-assistant-autopilot' ),
+			'global_mobile_hide_labels'     => __( 'Labels on phones', 'ai-site-assistant-autopilot' ),
+			'email_subject'                 => __( 'Notification e-mail subject', 'ai-site-assistant-autopilot' ),
+			'email_notification'            => __( 'E-mail notifications', 'ai-site-assistant-autopilot' ),
+			'telegram_notification'         => __( 'Telegram notifications', 'ai-site-assistant-autopilot' ),
+			'form_label_color'              => __( 'Label colour', 'ai-site-assistant-autopilot' ),
+			'form_input_text_color'         => __( 'Answer text colour', 'ai-site-assistant-autopilot' ),
+			'form_help_color'               => __( 'Help text colour', 'ai-site-assistant-autopilot' ),
+			'form_icon_color'               => __( 'Icon colour', 'ai-site-assistant-autopilot' ),
+			'button_color'                  => __( 'Button colour', 'ai-site-assistant-autopilot' ),
+			'button_text_color'             => __( 'Button text colour', 'ai-site-assistant-autopilot' ),
+			'button_height'                 => __( 'Button height', 'ai-site-assistant-autopilot' ),
+			'button_corner'                 => __( 'Button corners', 'ai-site-assistant-autopilot' ),
+			'label_color'                   => __( 'label colour', 'ai-site-assistant-autopilot' ),
+			'input_text_color'              => __( 'answer text colour', 'ai-site-assistant-autopilot' ),
+			'help_color'                    => __( 'help text colour', 'ai-site-assistant-autopilot' ),
+			'border_color'                  => __( 'border colour', 'ai-site-assistant-autopilot' ),
+			'custom_required_message'       => __( 'the message when it is left empty', 'ai-site-assistant-autopilot' ),
+			'default_value'                 => __( 'the default answer', 'ai-site-assistant-autopilot' ),
+			'hide_label'                    => __( 'whether the label shows', 'ai-site-assistant-autopilot' ),
+		);
+
+		return $names[ $key ] ?? str_replace( '_', ' ', $key );
+	}
+
 	private static function field_change_text( string $prop, string $label, $value ): string {
 		switch ( $prop ) {
 			case 'label':

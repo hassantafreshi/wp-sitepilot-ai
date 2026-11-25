@@ -1272,9 +1272,9 @@
 				c.addEventListener( 'click', function () {
 					savedForm = { id: Number( f.id ), name: label, draft: !! f.draft };
 					list.querySelectorAll( 'button' ).forEach( function ( b ) { b.disabled = true; } );
-					updateContext();
+					updateContext(); setComposerMode( composerMode );
 					var back = button( t( 'stopSavedForm', 'Back to a new form' ), { kind: 'quiet', size: 'sm', attrs: { 'data-sp-efb-saved-stop': '' } } );
-					back.addEventListener( 'click', function () { savedForm = null; back.disabled = true; updateContext(); } );
+					back.addEventListener( 'click', function () { savedForm = null; back.disabled = true; updateContext(); setComposerMode( composerMode ); } );
 					var picked = addAi( t( 'savedFormPicked', 'I will change “%s”. Tell me what to change.', label ) );
 					picked.appendChild( el( 'div', { class: 'aisa-ai-card__foot' }, [ back ] ) );
 					history.push( { role: 'assistant', text: 'Working on the saved form ' + label } );
@@ -1443,7 +1443,9 @@
 		var input = $( 'aisaautopilot-efb-input' );
 		if ( input ) { input.setAttribute( 'placeholder', placeholderFor( mode ) ); }
 		var foot = $( 'aisaautopilot-efb-foot' );
-		if ( foot ) { foot.textContent = hasLiveForm() ? t( 'footLive', 'AI suggests, you decide. Nothing is saved until you click Save.' ) : t( 'footNew', 'AI suggests, you decide. Nothing is created until you click Create.' ); }
+		// QA5-013: the footer names the click that stores something here: Save (open form), Approve & save (a saved form
+		// chosen from the list), Create (a new form).
+		if ( foot ) { foot.textContent = hasLiveForm() ? t( 'footLive', 'AI suggests, you decide. Nothing is saved until you click Save.' ) : ( savedForm ? t( 'footSaved', 'AI suggests, you decide. Nothing is saved until you click Approve & save.' ) : t( 'footNew', 'AI suggests, you decide. Nothing is created or saved until you click Create or Approve & save.' ) ); }
 	}
 	function submit( text ) {
 		text = ( text || '' ).trim();
