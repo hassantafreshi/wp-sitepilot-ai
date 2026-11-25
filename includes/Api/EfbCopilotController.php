@@ -152,15 +152,15 @@ final class EfbCopilotController {
 		$payload['pro_omitted']      = $pro_fields;
 		$payload['upgrade_required'] = true;
 		$payload['upgrade_reason']   = 'pro_field';
-		$payload['upgrade_url']      = EfbLicense::upgrade_url();
+		$payload['upgrade_url']      = EfbCapabilities::upgrade_link( EfbCapabilities::field_key( (string) ( $pro_fields[0]['type'] ?? '' ) ) );
 		$payload['errors']           = array_merge(
 			is_array( $payload['errors'] ?? null ) ? $payload['errors'] : array(),
 			array(
 				sprintf(
 					/* translators: %s: comma-separated field names. */
 					_n(
-						'I left out %s — that field needs Easy Form Builder Free Plus or Pro. Everything else is ready.',
-						'I left out %s — those fields need Easy Form Builder Free Plus or Pro. Everything else is ready.',
+						'I left out %s — that field needs Easy Form Builder Free Plus (it costs nothing) or Pro. Everything else is ready.',
+						'I left out %s — those fields need Easy Form Builder Free Plus (it costs nothing) or Pro. Everything else is ready.',
 						count( $names ),
 						'ai-site-assistant-autopilot'
 					),
@@ -964,15 +964,10 @@ final class EfbCopilotController {
 					$plan['fields']  = $kept;
 					$payment_notes[] = sprintf(
 						/* translators: %d: number of pages the request asked for. */
-						__( 'You asked for %d pages, but Easy Form Builder Free shows two at most, so the later pages are on page two. Buy Free Plus or Pro for more pages, or keep it as it is.', 'ai-site-assistant-autopilot' ),
+						__( 'You asked for %d pages, but Easy Form Builder Free shows two at most, so the later pages are on page two. Free Plus, which costs nothing, or Pro shows more pages; or keep it as it is.', 'ai-site-assistant-autopilot' ),
 						$breaks + 1
 					);
-					$step_links = array(
-						array(
-							'label' => __( 'See EFB Pro', 'ai-site-assistant-autopilot' ),
-							'url'   => EfbLicense::upgrade_url(),
-						),
-					);
+					$step_links = array( $this->upgrade_link( 'limit:steps' ) );
 				}
 			}
 
@@ -1466,10 +1461,7 @@ final class EfbCopilotController {
 			$reason = (string) ( $d['reason'] ?? '' );
 			if ( 'logic_needs_plan' === $reason || str_starts_with( $reason, 'logic_rule_limit:' ) || str_starts_with( $reason, 'logic_condition_limit:' ) ) {
 				$links            = is_array( $payload['links'] ?? null ) ? $payload['links'] : array();
-				$links[]          = array(
-					'label' => __( 'See EFB Pro', 'ai-site-assistant-autopilot' ),
-					'url'   => EfbLicense::upgrade_url(),
-				);
+				$links[]          = $this->upgrade_link( 'limit:logic', 'logic_needs_plan' === $reason ? 'free_plus' : 'pro' );
 				$payload['links'] = array_values( array_unique( $links, SORT_REGULAR ) );
 				break;
 			}
@@ -1590,10 +1582,7 @@ final class EfbCopilotController {
 					'url'   => admin_url( 'admin.php?page=Emsfb_addon' ),
 				);
 			} elseif ( 'payment_requires_pro' === $parts[0] ) {
-				$links[] = array(
-					'label' => __( 'See EFB Pro', 'ai-site-assistant-autopilot' ),
-					'url'   => EfbLicense::upgrade_url(),
-				);
+				$links[] = $this->upgrade_link( EfbCapabilities::field_key( (string) ( EfbPayments::gateway_field( (string) ( $parts[1] ?? '' ) ) ?? '' ) ), (string) ( $parts[2] ?? '' ) );
 			}
 		}
 		foreach ( $ops as $op ) {
@@ -1655,7 +1644,7 @@ final class EfbCopilotController {
 			} elseif ( 'logic_addon_inactive' === $reason ) {
 				$notes[] = __( 'Conditional logic needs Easy Form Builder’s Conditional Logic add-on, which is not installed or not active. I can install it for you if you allow it; the form reloads afterwards, so save your changes first.', 'ai-site-assistant-autopilot' );
 			} elseif ( 'logic_needs_plan' === $reason ) {
-				$notes[] = __( 'Conditional logic rules need Easy Form Builder Free Plus or Pro. Upgrade, or change the form so it does not depend on logic: for example ask every question, or use a separate form for each case.', 'ai-site-assistant-autopilot' );
+				$notes[] = __( 'Conditional logic rules need Easy Form Builder Free Plus, which costs nothing, or Pro. Activate one in Easy Form Builder, or change the form so it does not depend on logic: for example ask every question, or use a separate form for each case.', 'ai-site-assistant-autopilot' );
 			} elseif ( str_starts_with( $reason, 'logic_rule_limit:' ) ) {
 				/* translators: %d: rule limit. */
 				$notes[] = sprintf( __( 'Easy Form Builder Free Plus allows %d conditional logic rules per form, so the rest were left out. Buy Pro for unlimited rules, or change the form: combine rules that show the same fields, move a branch to its own step, or split it into separate forms.', 'ai-site-assistant-autopilot' ), (int) substr( $reason, strlen( 'logic_rule_limit:' ) ) );
@@ -1709,6 +1698,21 @@ final class EfbCopilotController {
 	}
 
 	/**
+	 * A plan lock's button: EFB's own upgrade dialog for the registry key, named after the plan it opens.
+	 *
+	 * @return array{label:string,url:string}
+	 */
+	private function upgrade_link( string $feature, string $plan = '' ): array {
+		$plan = in_array( $plan, array( 'free_plus', 'pro' ), true ) ? $plan : EfbCapabilities::upgrade_plan( $feature );
+
+		return array(
+			/* translators: %s: Easy Form Builder plan name (Free Plus or Pro). */
+			'label' => sprintf( __( 'What %s adds', 'ai-site-assistant-autopilot' ), EfbCapabilities::plan_label( $plan ) ),
+			'url'   => EfbCapabilities::upgrade_link( $feature ),
+		);
+	}
+
+	/**
 	 * Uses EFB's own notion of a locked Pro field. The browser turns this into
 	 * the exact EFB `pro_show_efb()` dialog; the URL is the official fallback.
 	 *
@@ -1718,7 +1722,7 @@ final class EfbCopilotController {
 		$is_step_limit = (bool) array_filter( $blocked, static fn ( array $item ): bool => 'step_limit' === ( $item['kind'] ?? '' ) );
 		$is_setting    = ! $is_step_limit && (bool) array_filter( $blocked, static fn ( array $item ): bool => 'setting' === ( $item['kind'] ?? '' ) );
 		if ( $is_step_limit ) {
-			$default = __( 'Easy Form Builder Free supports up to two steps. Buy Free Plus or Pro for more, or change the form: merge pages so it fits in two, or make it a single page.', 'ai-site-assistant-autopilot' );
+			$default = __( 'Easy Form Builder Free supports up to two steps. Free Plus, which costs nothing, or Pro allows more; or change the form: merge pages so it fits in two, or make it a single page.', 'ai-site-assistant-autopilot' );
 		} elseif ( $is_setting ) {
 			$default = $this->setting_plan_message( $blocked );
 		} else {
@@ -1731,9 +1735,11 @@ final class EfbCopilotController {
 				'reply'            => null !== $reply && '' !== $reply ? $reply : $default,
 				'upgrade_required' => true,
 				'upgrade_reason'   => $is_step_limit ? 'step_limit' : 'pro_field',
-				'upgrade_url'      => EfbLicense::upgrade_url(),
-				// EFB's own upgrade dialog (F18) names the feature; the browser opens it when EFB has it.
+				// EFB's own upgrade dialog (F18) names the feature; the browser opens it in place when EFB has it, the link
+				// opens it on EFB's Create screen (QA5-010: never an outside price list for an EFB lock).
+				'upgrade_url'      => EfbCapabilities::upgrade_link( (string) ( $blocked[0]['feature'] ?? ( $is_step_limit ? 'limit:steps' : '' ) ) ),
 				'upgrade_feature'  => (string) ( $blocked[0]['feature'] ?? ( $is_step_limit ? 'limit:steps' : '' ) ),
+				'upgrade_plan'     => $is_step_limit ? 'free_plus' : EfbCapabilities::upgrade_plan( (string) ( $blocked[0]['feature'] ?? '' ) ),
 				'blocked'          => $blocked,
 			),
 			true

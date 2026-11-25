@@ -105,7 +105,7 @@ final class EfbAddons {
 				'name'        => self::OFFERABLE[ $code ]['name'],
 				'allowed'     => self::plan_allows( $code ),
 				'plan'        => 3 === self::OFFERABLE[ $code ]['package'] ? 'free_plus' : 'pro',
-				'upgrade_url' => EfbLicense::upgrade_url(),
+				'upgrade_url' => EfbCapabilities::upgrade_link( 'addon:' . $code ),
 			);
 		}
 

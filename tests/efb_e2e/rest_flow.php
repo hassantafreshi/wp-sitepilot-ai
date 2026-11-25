@@ -247,6 +247,48 @@ try {
 		$aisa_check( 'plan' === ( $need['mobile']['reason'] ?? '' ) && 'tel' === ( $need['mobile']['alternative'] ?? '' ), 'Plan: mobile on Free becomes a Phone field', $need );
 		$aisa_check( false !== strpos( $links, 'efb_upgrade=field%3Amobile' ) && false !== strpos( $links, 'efb_origin=sitepilot' ), 'Plan: the link opens EFB\'s own upgrade dialog for the feature', $links );
 		$aisa_check( 2 === (int) ( $p['preview']['steps'] ?? 0 ), 'Plan: Free keeps two pages (limit:steps)', $p['preview']['steps'] ?? null );
+		// QA5-010: Free Plus costs nothing (never "buy Free Plus"), and every plan link is EFB's own upgrade dialog.
+		$said = implode( ' ', (array) ( $p['errors'] ?? array() ) ) . ' ' . (string) ( $p['reply'] ?? '' );
+		$aisa_check( false === stripos( $said, 'Buy Free Plus' ) && false !== strpos( $said, 'costs nothing' ), 'Plan: the three-page notice says Free Plus costs nothing, never "buy Free Plus"', $said );
+		$aisa_check( false !== strpos( $links, 'efb_upgrade=limit%3Asteps' ) && false === strpos( $links, '#price' ) && in_array( 'What Free Plus adds', array_column( (array) ( $p['links'] ?? array() ), 'label' ), true ), 'Plan: the page limit links to EFB\'s upgrade dialog ("What Free Plus adds"), not an outside price list', $p['links'] ?? null );
+		// A step added to an open form on Free: the refusal's upgrade link is EFB's dialog too.
+		$aisa_queue(
+			array(
+				'reply'      => 'Done.',
+				'action'     => 'customize',
+				'operations' => array(
+					array(
+						'op'    => 'add_step',
+						'label' => 'Third page',
+					),
+				),
+			)
+		);
+		$c = $aisa_rest(
+			'efb/chat',
+			array(
+				'message'  => 'add a third step',
+				'has_form' => true,
+				'fields'   => array(
+					array(
+						'id'    => 'name',
+						'label' => 'Name',
+						'type'  => 'text',
+					),
+				),
+				'steps'    => array(
+					array(
+						'id'    => '1',
+						'label' => 'One',
+					),
+					array(
+						'id'    => '2',
+						'label' => 'Two',
+					),
+				),
+			)
+		);
+		$aisa_check( ! empty( $c['upgrade_required'] ) && false !== strpos( (string) ( $c['upgrade_url'] ?? '' ), 'efb_upgrade=limit%3Asteps' ) && 'free_plus' === ( $c['upgrade_plan'] ?? '' ) && false === stripos( (string) ( $c['reply'] ?? '' ), 'Buy Free Plus' ), 'Plan: the step limit answer opens EFB\'s dialog for Free Plus and never says "buy Free Plus"', $c );
 		}
 
 	if ( 'logic' === $aisa_scenario ) {

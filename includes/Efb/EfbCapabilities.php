@@ -274,6 +274,26 @@ final class EfbCapabilities {
 	/**
 	 * EFB's own upgrade dialog for a feature (F18): it opens the dialog only, a person's click changes the plan.
 	 */
+	/**
+	 * Where a plan or add-on lock leads (QA5-010): EFB's own upgrade dialog for that registry key (F18; it says what the
+	 * plan adds and that Free Plus costs nothing, and only a person's click there changes the plan). An EFB without the
+	 * registry, or a key it does not know, gets the plan page EFB itself links to.
+	 */
+	public static function upgrade_link( string $feature ): string {
+		if ( self::available() && null !== self::feature( $feature ) ) {
+			return self::upgrade_dialog_url( $feature );
+		}
+
+		return EfbLicense::upgrade_url();
+	}
+
+	/** The plan a registry key needs on this site (free_plus | pro), for the label of its upgrade link. */
+	public static function upgrade_plan( string $feature ): string {
+		$state = self::available() ? self::state( $feature ) : array( 'known' => false );
+
+		return ! empty( $state['known'] ) && 'free_plus' === ( $state['package'] ?? '' ) ? 'free_plus' : ( ! empty( $state['known'] ) ? 'pro' : ( EfbLicense::has_pro_features() ? 'pro' : 'free_plus' ) );
+	}
+
 	public static function upgrade_dialog_url( string $feature ): string {
 		$path = 'admin.php?page=Emsfb_create&efb_upgrade=' . rawurlencode( $feature ) . '&efb_origin=sitepilot';
 

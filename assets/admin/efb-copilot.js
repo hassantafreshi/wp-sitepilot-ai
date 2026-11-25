@@ -840,7 +840,8 @@
 	/* ---------- the result cards ---------- */
 	function upgradeActions( data ) {
 		var url = data.upgrade_url || ( cfg.license && cfg.license.upgrade_url ) || 'https://whitestudio.team/#price';
-		var upgrade = button( t( 'upgrade', 'Upgrade to EFB Pro' ), { kind: 'primary', size: 'sm', icon: 'pro', extra: 'aisaautopilot-efb-btn--pro' } );
+		// QA5-010: Free Plus costs nothing and is activated in EFB's own dialog; only Pro is bought.
+		var upgrade = button( 'free_plus' === data.upgrade_plan ? t( 'getFreePlus', 'Get Free Plus (free)' ) : t( 'upgrade', 'Upgrade to EFB Pro' ), { kind: 'primary', size: 'sm', icon: 'pro', extra: 'aisaautopilot-efb-btn--pro', attrs: { 'data-sp-efb-upgrade': String( data.upgrade_plan || 'pro' ) } } );
 		upgrade.addEventListener( 'click', function () {
 			// Reuse EFB's own dialog, translated message, and official purchase flow: the F18 dialog for the exact feature
 			// when EFB has it (only a person's click there changes the plan), else the older plan dialog.
@@ -848,7 +849,7 @@
 			if ( typeof window.pro_show_efb === 'function' ) { beforeEfbDialog(); window.pro_show_efb( data.upgrade_reason === 'step_limit' ? 2 : 1 ); return; }
 			window.open( url, '_blank', 'noopener' );
 		} );
-		var pricing = el( 'a', { class: 'aisa-ai-btn aisa-ai-btn--sm aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', href: url, target: '_blank', rel: 'noopener noreferrer' }, [ el( 'span', { text: t( 'pricing', 'View pricing' ) } ), icon( 'ext', 13 ) ] );
+		var pricing = el( 'a', { class: 'aisa-ai-btn aisa-ai-btn--sm aisaautopilot-efb-btn aisaautopilot-efb-btn--ghost', href: url, target: '_blank', rel: 'noopener noreferrer', 'data-sp-efb-plans': '1' }, [ el( 'span', { text: t( 'seePlans', 'See plans' ) } ), icon( 'ext', 13 ) ] );
 		return el( 'div', { class: 'aisa-ai-card__foot aisaautopilot-efb-actions' }, [ upgrade, pricing ] );
 	}
 	function setupLink( label ) {

@@ -132,6 +132,7 @@ final class EfbBuilderButton {
 					'buildJob'                       => __( 'Job application form', 'ai-site-assistant-autopilot' ),
 					'notificationHelp'               => __( 'How do I turn on email notifications?', 'ai-site-assistant-autopilot' ),
 					'upgrade'                        => __( 'Upgrade to EFB Pro', 'ai-site-assistant-autopilot' ),
+					'getFreePlus'                    => __( 'Get Free Plus (free)', 'ai-site-assistant-autopilot' ),
 					'pricing'                        => __( 'View pricing', 'ai-site-assistant-autopilot' ),
 					'label'                          => __( 'Label', 'ai-site-assistant-autopilot' ),
 					'type'                           => __( 'Type', 'ai-site-assistant-autopilot' ),
